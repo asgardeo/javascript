@@ -46,12 +46,14 @@ import {
   CreateOrganizationPayload,
   getOrganization,
   OrganizationDetails,
-  deriveOrganizationHandleFromBaseUrl,
   getAllOrganizations,
   AllOrganizationsApiResponse,
   extractUserClaimsFromIdToken,
   TokenResponse,
   Storage,
+  organizationDiscovery,
+  OrganizationDiscoveryStrategy,
+  deriveRootOrganizationHandleFromBaseUrl
 } from '@asgardeo/node';
 import {AsgardeoNextConfig} from './models/config';
 import getSessionId from './server/actions/getSessionId';
@@ -108,21 +110,34 @@ class AsgardeoNextClient<T extends AsgardeoNextConfig = AsgardeoNextConfig> exte
     const {
       baseUrl,
       organizationHandle,
+      rootOrganizationHandle,
       clientId,
       clientSecret,
       signInUrl,
       afterSignInUrl,
       afterSignOutUrl,
       signUpUrl,
+      organizationDiscovery: _organizationDiscovery,
       ...rest
     } = decorateConfigWithNextEnv(config);
 
     this.isInitialized = true;
 
     let resolvedOrganizationHandle: string | undefined = organizationHandle;
+    let resolvedRootOrganizationHandle: string | undefined = rootOrganizationHandle;
 
     if (!resolvedOrganizationHandle) {
-      resolvedOrganizationHandle = deriveOrganizationHandleFromBaseUrl(baseUrl);
+      if (_organizationDiscovery?.enabled && _organizationDiscovery?.strategy) {
+        try {
+          resolvedOrganizationHandle = await organizationDiscovery(_organizationDiscovery?.strategy);
+        } catch (e) {
+          // TODO: Add a debug log here.
+        }
+      }
+    }
+
+    if (!resolvedRootOrganizationHandle) {
+      resolvedRootOrganizationHandle = deriveRootOrganizationHandleFromBaseUrl(config?.baseUrl);
     }
 
     const origin: string = await getClientOrigin();
@@ -130,6 +145,7 @@ class AsgardeoNextClient<T extends AsgardeoNextConfig = AsgardeoNextConfig> exte
     return this.asgardeo.initialize(
       {
         organizationHandle: resolvedOrganizationHandle,
+        rootOrganizationHandle: resolvedRootOrganizationHandle,
         baseUrl,
         clientId,
         clientSecret,

@@ -63,6 +63,7 @@ export type AsgardeoClientProviderProps = Partial<Omit<AsgardeoProviderProps, 'b
     ) => Promise<{error?: string; redirectUrl?: string; success: boolean}>;
     isSignedIn: boolean;
     myOrganizations: Organization[];
+    rootOrganizationHandle: AsgardeoContextProps['rootOrganizationHandle'];
     organizationHandle: AsgardeoContextProps['organizationHandle'];
     revalidateMyOrganizations?: (sessionId?: string) => Promise<Organization[]>;
     signIn: AsgardeoContextProps['signIn'];
@@ -94,6 +95,7 @@ const AsgardeoClientProvider: FC<PropsWithChildren<AsgardeoClientProviderProps>>
   currentOrganization,
   updateProfile,
   applicationId,
+  rootOrganizationHandle,
   organizationHandle,
   myOrganizations,
   revalidateMyOrganizations,
@@ -293,8 +295,19 @@ const AsgardeoClientProvider: FC<PropsWithChildren<AsgardeoClientProviderProps>>
       signUpUrl,
       applicationId,
       organizationHandle,
+      rootOrganizationHandle,
     }),
-    [baseUrl, user, isSignedIn, isLoading, signInUrl, signUpUrl, applicationId, organizationHandle],
+    [
+      baseUrl,
+      user,
+      isSignedIn,
+      isLoading,
+      signInUrl,
+      signUpUrl,
+      applicationId,
+      organizationHandle,
+      rootOrganizationHandle,
+    ],
   );
 
   const handleProfileUpdate = (payload: User): void => {

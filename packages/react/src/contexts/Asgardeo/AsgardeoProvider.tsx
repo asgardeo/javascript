@@ -47,7 +47,7 @@ export type AsgardeoProviderProps = AsgardeoReactConfig;
 const AsgardeoProvider: FC<PropsWithChildren<AsgardeoProviderProps>> = ({
   afterSignInUrl = window.location.origin,
   afterSignOutUrl = window.location.origin,
-  baseUrl: _baseUrl,
+  baseUrl: originalBaseUrl,
   clientId,
   children,
   scopes,
@@ -55,12 +55,15 @@ const AsgardeoProvider: FC<PropsWithChildren<AsgardeoProviderProps>> = ({
   signInUrl,
   signUpUrl,
   organizationHandle,
+  rootOrganizationHandle,
   applicationId,
   signInOptions,
   syncSession,
+  organizationDiscovery,
   ...rest
 }: PropsWithChildren<AsgardeoProviderProps>): ReactElement => {
   const reRenderCheckRef: RefObject<boolean> = useRef(false);
+  const reInitializeCheckRef: RefObject<boolean> = useRef(false);
   const asgardeo: AsgardeoReactClient = useMemo(() => new AsgardeoReactClient(), []);
   const {hasAuthParams} = useBrowserUrl();
   const [user, setUser] = useState<any | null>(null);
@@ -72,10 +75,12 @@ const AsgardeoProvider: FC<PropsWithChildren<AsgardeoProviderProps>> = ({
 
   const [myOrganizations, setMyOrganizations] = useState<Organization[]>([]);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
-  const [baseUrl, setBaseUrl] = useState<string>(_baseUrl);
+  const [baseUrl, setBaseUrl] = useState<string>(originalBaseUrl);
   const [config, setConfig] = useState<AsgardeoReactConfig>({
     applicationId,
     organizationHandle,
+    rootOrganizationHandle,
+    organizationDiscovery,
     afterSignInUrl,
     afterSignOutUrl,
     baseUrl,
@@ -95,16 +100,28 @@ const AsgardeoProvider: FC<PropsWithChildren<AsgardeoProviderProps>> = ({
   const [hasFetchedBranding, setHasFetchedBranding] = useState<boolean>(false);
 
   useEffect(() => {
-    setBaseUrl(_baseUrl);
+    setBaseUrl(originalBaseUrl);
     // Reset branding state when baseUrl changes
-    if (_baseUrl !== baseUrl) {
+    if (originalBaseUrl !== baseUrl) {
       setHasFetchedBranding(false);
       setBrandingPreference(null);
       setBrandingError(null);
     }
-  }, [_baseUrl, baseUrl]);
+  }, [originalBaseUrl, baseUrl]);
 
   useEffect(() => {
+    // React 18.x Strict.Mode has a new check for `Ensuring reusable state` to facilitate an upcoming react feature.
+    // https://reactjs.org/docs/strict-mode.html#ensuring-reusable-state
+    // This will remount all the useEffects to ensure that there are no unexpected side effects.
+    // When react remounts the signIn hook of the AuthProvider, it will cause a race condition. Hence, we have to
+    // prevent the re-render of this hook as suggested in the following discussion.
+    // https://github.com/reactwg/react-18/discussions/18#discussioncomment-795623
+    if (reInitializeCheckRef.current) {
+      return;
+    }
+
+    reInitializeCheckRef.current = true;
+
     (async (): Promise<void> => {
       await asgardeo.initialize(config);
       setConfig(await asgardeo.getConfiguration());
@@ -191,15 +208,34 @@ const AsgardeoProvider: FC<PropsWithChildren<AsgardeoProviderProps>> = ({
   }, [asgardeo]);
 
   useEffect(() => {
-    (async (): Promise<void> => {
+    let interval: NodeJS.Timeout;
+
+    const checkInitializedState = async (): Promise<void> => {
       try {
         const status: boolean = await asgardeo.isInitialized();
 
         setIsInitializedSync(status);
+
+        // If initialized, clear the interval
+        if (status && interval) {
+          clearInterval(interval);
+        }
       } catch (error) {
         setIsInitializedSync(false);
       }
-    })();
+    };
+
+    // Initial check
+    checkInitializedState();
+
+    // Set up an interval to check for initialization status changes
+    interval = setInterval(checkInitializedState, 100);
+
+    return (): void => {
+      if (interval) {
+        clearInterval(interval);
+      }
+    };
   }, [asgardeo]);
 
   /**
@@ -225,17 +261,17 @@ const AsgardeoProvider: FC<PropsWithChildren<AsgardeoProviderProps>> = ({
   const updateSession = async (): Promise<void> => {
     try {
       setIsLoadingSync(true);
-      let _baseUrl: string = baseUrl;
+      let originalBaseUrl: string = baseUrl;
 
       // If there's a `user_org` claim in the ID token,
       // Treat this login as a organization login.
       if ((await asgardeo.getDecodedIdToken())?.['user_org']) {
-        _baseUrl = `${(await asgardeo.getConfiguration()).baseUrl}/o`;
-        setBaseUrl(_baseUrl);
+        originalBaseUrl = `${(await asgardeo.getConfiguration()).baseUrl}/o`;
+        setBaseUrl(originalBaseUrl);
       }
 
-      setUser(await asgardeo.getUser({baseUrl: _baseUrl}));
-      setUserProfile(await asgardeo.getUserProfile({baseUrl: _baseUrl}));
+      setUser(await asgardeo.getUser({baseUrl: originalBaseUrl}));
+      setUserProfile(await asgardeo.getUserProfile({baseUrl: originalBaseUrl}));
       setCurrentOrganization(await asgardeo.getCurrentOrganization());
       setMyOrganizations(await asgardeo.getMyOrganizations());
     } finally {
@@ -258,10 +294,19 @@ const AsgardeoProvider: FC<PropsWithChildren<AsgardeoProviderProps>> = ({
     setBrandingError(null);
 
     try {
+      // Transform base URL if organization discovery is enabled
+      let transformedBaseUrl = baseUrl;
+
+      if (config?.organizationDiscovery && config?.organizationDiscovery.enabled && config?.organizationHandle) {
+        // Transform from https://localhost:9443/t/{tenant} to https://localhost:9443/o/{orgHandle}
+        transformedBaseUrl = baseUrl.replace(/\/t\/[^\/]+/, `/o/${config.organizationHandle}`);
+      }
+
       const getBrandingConfig: GetBrandingPreferenceConfig = {
-        baseUrl,
+        baseUrl: transformedBaseUrl,
         locale: preferences?.i18n?.language,
-        // Add other branding config options as needed
+        name: config?.applicationId || config?.organizationHandle || config?.rootOrganizationHandle,
+        type: config.applicationId ? 'APP' : 'ORG',
       };
 
       const brandingData = await getBrandingPreference(getBrandingConfig);
@@ -275,7 +320,7 @@ const AsgardeoProvider: FC<PropsWithChildren<AsgardeoProviderProps>> = ({
     } finally {
       setIsBrandingLoading(false);
     }
-  }, [baseUrl, preferences?.i18n?.language]);
+  }, [baseUrl, preferences?.i18n?.language, config?.organizationHandle, config?.rootOrganizationHandle]);
 
   // Refetch branding function
   const refetchBranding = useCallback(async (): Promise<void> => {
@@ -298,6 +343,8 @@ const AsgardeoProvider: FC<PropsWithChildren<AsgardeoProviderProps>> = ({
     hasFetchedBranding,
     isBrandingLoading,
     fetchBranding,
+    config?.organizationHandle,
+    config?.rootOrganizationHandle,
   ]);
 
   const signIn = async (...args: any): Promise<User> => {
@@ -377,17 +424,19 @@ const AsgardeoProvider: FC<PropsWithChildren<AsgardeoProviderProps>> = ({
 
   const value = useMemo(
     () => ({
-      applicationId,
+      applicationId: config?.applicationId,
+      rootOrganizationHandle: config?.rootOrganizationHandle,
       organizationHandle: config?.organizationHandle,
-      signInUrl,
-      signUpUrl,
-      afterSignInUrl,
+      signInUrl: config?.signInUrl,
+      signUpUrl: config?.signUpUrl,
+      afterSignInUrl: config?.afterSignInUrl,
       baseUrl,
       getAccessToken: asgardeo.getAccessToken.bind(asgardeo),
       isInitialized: isInitializedSync,
       isLoading: isLoadingSync,
       isSignedIn: isSignedInSync,
       organization: currentOrganization,
+      organizationDiscovery: config?.organizationDiscovery,
       signIn,
       signInSilently,
       signOut: asgardeo.signOut.bind(asgardeo),
@@ -402,12 +451,7 @@ const AsgardeoProvider: FC<PropsWithChildren<AsgardeoProviderProps>> = ({
       syncSession,
     }),
     [
-      applicationId,
-      config?.organizationHandle,
-      signInUrl,
-      signUpUrl,
-      afterSignInUrl,
-      baseUrl,
+      config,
       isInitializedSync,
       isLoadingSync,
       isSignedInSync,
