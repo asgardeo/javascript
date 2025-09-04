@@ -27,56 +27,6 @@ import {Theme, withVendorCSSClassPrefix} from '@asgardeo/browser';
  * @returns Object containing CSS class names for component styling
  */
 const useStyles = (theme: Theme, colorScheme: string) => {
-  const valuePlaceholder = css`
-    font-style: italic;
-    opacity: 0.7;
-  `;
-
-  const editButton = css`
-    font-style: italic;
-    text-decoration: underline;
-    opacity: 0.7;
-    padding: 0;
-    min-height: auto;
-
-    &:hover:not(:disabled) {
-      background-color: transparent;
-    }
-  `;
-
-  const fieldInner = css`
-    flex: 1;
-    display: flex;
-    align-items: center;
-    gap: ${theme.vars.spacing.unit};
-  `;
-
-  const fieldActions = css`
-    display: flex;
-    gap: calc(${theme.vars.spacing.unit} / 2);
-    align-items: center;
-    margin-left: calc(${theme.vars.spacing.unit} * 4);
-  `;
-
-  const complexTextarea = css`
-    min-height: 60px;
-    width: 100%;
-    padding: 8px;
-    border: 1px solid ${theme.vars.colors.border};
-    border-radius: ${theme.vars.borderRadius.small};
-    resize: vertical;
-  `;
-
-  const objectKey = css`
-    padding: ${theme.vars.spacing.unit};
-    vertical-align: top;
-  `;
-
-  const objectValue = css`
-    padding: ${theme.vars.spacing.unit};
-    vertical-align: top;
-  `;
-
   return useMemo(() => {
     const root = css`
       padding: calc(${theme.vars.spacing.unit} * 4);
@@ -110,11 +60,7 @@ const useStyles = (theme: Theme, colorScheme: string) => {
     const infoContainer = css`
       display: flex;
       flex-direction: column;
-    `;
-
-    const info = css`
-      padding: calc(${theme.vars.spacing.unit} * 1.5) 0;
-      border-bottom: 1px solid ${theme.vars.colors.border};
+      gap: ${theme.vars.spacing.unit};
     `;
 
     const field = css`

@@ -165,6 +165,7 @@ const BaseUserProfile: FC<BaseUserProfileProps> = ({
   const ObjectDisplay: FC<{data: unknown}> = ({data}) => {
     if (!data || typeof data !== 'object') return null;
 
+    // Use styles from .styles.ts for table and td
     return (
       <table className={styles.value}>
         <tbody>
@@ -346,6 +347,9 @@ const BaseUserProfile: FC<BaseUserProfileProps> = ({
                 fieldType={type as 'STRING' | 'DATE_TIME' | 'BOOLEAN'}
                 type={type === 'DATE_TIME' ? 'date' : type === 'STRING' ? 'text' : 'text'}
                 required={required}
+                style={{
+                  marginBottom: 0,
+                }}
               />
             </div>
           </>

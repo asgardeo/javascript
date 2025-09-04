@@ -35,7 +35,7 @@ export interface CreateOrganizationProps extends Omit<BaseCreateOrganizationProp
   /**
    * Custom organization creation handler (will use default API if not provided).
    */
-  onCreateOrganization?: (payload: CreateOrganizationPayload) => Promise<any>;
+  onCreate?: (payload: CreateOrganizationPayload) => Promise<any>;
 }
 
 /**
@@ -54,7 +54,7 @@ export interface CreateOrganizationProps extends Omit<BaseCreateOrganizationProp
  *
  * // With custom organization creation handler
  * <CreateOrganization
- *   onCreateOrganization={async (payload) => {
+ *   onCreate={async (payload) => {
  *     const result = await myCustomAPI.createOrganization(payload);
  *     return result;
  *   }}
@@ -71,7 +71,7 @@ export interface CreateOrganizationProps extends Omit<BaseCreateOrganizationProp
  * ```
  */
 export const CreateOrganization: FC<CreateOrganizationProps> = ({
-  onCreateOrganization,
+  onCreate,
   fallback = <></>,
   onSuccess,
   defaultParentId,
@@ -101,8 +101,8 @@ export const CreateOrganization: FC<CreateOrganizationProps> = ({
     try {
       let result: any;
 
-      if (onCreateOrganization) {
-        result = await onCreateOrganization(payload);
+      if (onCreate) {
+        result = await onCreate(payload);
       } else {
         if (!baseUrl) {
           throw new Error('Base URL is required for organization creation');

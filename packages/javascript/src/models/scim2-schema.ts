@@ -32,6 +32,12 @@ export interface SchemaAttribute {
   supportedByDefault?: string;
   sharedProfileValueResolvingMethod?: string;
   subAttributes?: SchemaAttribute[];
+  profiles: {
+    [key: string]: {
+      required?: boolean;
+      supportedByDefault?: boolean;
+    };
+  };
 }
 
 /**
@@ -67,3 +73,5 @@ export enum WellKnownSchemaIds {
   /** Custom User Schema */
   CustomUser = 'urn:scim:schemas:extension:custom:User',
 }
+
+export type ProfileSchemaType = 'console' | 'endUser' | 'selfRegistration';

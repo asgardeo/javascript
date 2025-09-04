@@ -1,8 +1,10 @@
-import {User, useAsgardeo} from '@asgardeo/react';
+import {CreateOrganization, CreateUser, User, useAsgardeo} from '@asgardeo/react';
 import {Users, MessageSquare, Calendar, FileText, TrendingUp, Clock, CheckCircle2, AlertCircle} from 'lucide-react';
+import {useState} from 'react';
 
 export default function Dashboard() {
   const {organization} = useAsgardeo();
+  const [openCreateUser, setOpenCreateUser] = useState(false);
 
   const stats = [
     {
@@ -142,6 +144,15 @@ export default function Dashboard() {
           );
         })}
       </div>
+
+      <button onClick={() => setOpenCreateUser(true)}>Crete User</button>
+
+      <CreateUser
+        mode="popup"
+        popupOpen={openCreateUser}
+        profileType={'console'}
+        onPopupClose={() => setOpenCreateUser(false)}
+      />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Recent Activity */}

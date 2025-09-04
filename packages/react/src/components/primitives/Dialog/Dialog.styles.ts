@@ -41,17 +41,8 @@ const useStyles = (theme: Theme, colorScheme: string) => {
       border-radius: ${theme.vars.borderRadius.large};
       box-shadow: 0 2px 8px ${colorScheme === 'dark' ? 'rgba(0, 0, 0, 0.3)' : 'rgba(0, 0, 0, 0.15)'};
       outline: none;
-      max-width: 35vw;
-      min-width: 35vw;
-      @media (max-width: 900px) {
-        max-width: 80vw;
-        min-width: 80vw;
-      }
-      @media (max-width: 600px) {
-        max-width: 95vw;
-        min-width: 95vw;
-      }
-      max-height: 90vh;
+      max-width: 650px;
+      max-height: calc(100% - 64px);
       overflow-y: auto;
       z-index: 10000;
     `;
@@ -61,8 +52,8 @@ const useStyles = (theme: Theme, colorScheme: string) => {
       border-radius: ${theme.vars.borderRadius.large};
       box-shadow: 0 2px 8px ${colorScheme === 'dark' ? 'rgba(0, 0, 0, 0.3)' : 'rgba(0, 0, 0, 0.15)'};
       outline: none;
-      max-width: 90vw;
-      max-height: 90vh;
+      max-width: 600px;
+      max-height: calc(100% - 64px);
       overflow-y: auto;
       z-index: 10000;
     `;

@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import {UpdateMeProfileConfig, User, UserProfile} from '@asgardeo/browser';
+import {UpdateMeProfileConfig, User, UserProfile, getAttributeProfileSchema, ProfileSchemaType, SchemaAttribute} from '@asgardeo/browser';
 import {FC, PropsWithChildren, ReactElement, useEffect, useState, useCallback, useMemo} from 'react';
 import UserContext from './UserContext';
 
@@ -76,6 +76,9 @@ const UserProvider: FC<PropsWithChildren<UserProviderProps>> = ({
       revalidateProfile,
       updateProfile,
       onUpdateProfile,
+      getAttributeProfileSchema: (profileSchemaType: ProfileSchemaType) => {
+        return getAttributeProfileSchema(profile?.schemas as unknown as SchemaAttribute[], profileSchemaType) as SchemaAttribute[];
+      },
     }),
     [profile, onUpdateProfile, revalidateProfile, updateProfile],
   );
