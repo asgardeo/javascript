@@ -60,6 +60,10 @@ const OIDCRequestConstants = {
        * The default scopes used in OIDC sign-in requests.
        */
       DEFAULT_SCOPES: [ScopeConstants.OPENID, ScopeConstants.PROFILE, ScopeConstants.INTERNAL_LOGIN],
+      /**
+       * The Authenticator used for organization SSO in OIDC sign-in requests.
+       */
+      ORGANIZATION_SSO_AUTHENTICATOR: 'OrganizationSSO'
     },
   },
 

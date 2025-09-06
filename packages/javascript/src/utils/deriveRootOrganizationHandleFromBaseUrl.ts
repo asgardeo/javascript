@@ -30,27 +30,27 @@ import AsgardeoRuntimeError from '../errors/AsgardeoRuntimeError';
  * @param baseUrl - The base URL of the Asgardeo identity server
  * @returns The extracted organization handle
  * @throws {AsgardeoRuntimeError} When the URL doesn't match the expected Asgardeo pattern,
- *   indicating a custom domain is configured and organizationHandle must be provided explicitly
+ *   indicating a custom domain is configured and rootOrganizationHandle must be provided explicitly
  *
  * @example
  * ```typescript
  * // Standard Asgardeo URLs
- * const handle1 = deriveOrganizationHandleFromBaseUrl('https://dev.asgardeo.io/t/dxlab');
+ * const handle1 = deriveRootOrganizationHandleFromBaseUrl('https://dev.asgardeo.io/t/dxlab');
  * // Returns: 'dxlab'
  *
- * const handle2 = deriveOrganizationHandleFromBaseUrl('https://stage.asgardeo.io/t/myorg');
+ * const handle2 = deriveRootOrganizationHandleFromBaseUrl('https://stage.asgardeo.io/t/myorg');
  * // Returns: 'myorg'
  *
  * // Custom domain - throws error
- * deriveOrganizationHandleFromBaseUrl('https://custom.example.com/auth');
+ * deriveRootOrganizationHandleFromBaseUrl('https://custom.example.com/auth');
  * // Throws: AsgardeoRuntimeError
  * ```
  */
-const deriveOrganizationHandleFromBaseUrl = (baseUrl?: string): string => {
+const deriveRootOrganizationHandleFromBaseUrl = (baseUrl?: string): string => {
   if (!baseUrl) {
     throw new AsgardeoRuntimeError(
       'Base URL is required to derive organization handle.',
-      'javascript-deriveOrganizationHandleFromBaseUrl-ValidationError-001',
+      'javascript-deriveRootOrganizationHandleFromBaseUrl-ValidationError-001',
       'javascript',
       'A valid base URL must be provided to extract the organization handle.',
     );
@@ -63,7 +63,7 @@ const deriveOrganizationHandleFromBaseUrl = (baseUrl?: string): string => {
   } catch (error) {
     throw new AsgardeoRuntimeError(
       `Invalid base URL format: ${baseUrl}`,
-      'javascript-deriveOrganizationHandleFromBaseUrl-ValidationError-002',
+      'javascript-deriveRootOrganizationHandleFromBaseUrl-ValidationError-002',
       'javascript',
       'The provided base URL does not conform to valid URL syntax.',
     );
@@ -76,31 +76,31 @@ const deriveOrganizationHandleFromBaseUrl = (baseUrl?: string): string => {
     console.warn(
       new AsgardeoRuntimeError(
         'Organization handle is required since a custom domain is configured.',
-        'javascript-deriveOrganizationHandleFromBaseUrl-CustomDomainError-002',
+        'javascript-deriveRootOrganizationHandleFromBaseUrl-CustomDomainError-002',
         'javascript',
-        'The provided base URL does not follow the expected URL pattern (/t/{orgHandle}). Please provide the organizationHandle explicitly in the configuration.',
+        'The provided base URL does not follow the expected URL pattern (/t/{orgHandle}). Please provide the rootOrganizationHandle explicitly in the configuration.',
       ).toString(),
     );
 
     return '';
   }
 
-  const organizationHandle = pathSegments[1];
+  const rootOrganizationHandle = pathSegments[1];
 
-  if (!organizationHandle || organizationHandle.trim().length === 0) {
+  if (!rootOrganizationHandle || rootOrganizationHandle.trim().length === 0) {
     console.warn(
       new AsgardeoRuntimeError(
         'Organization handle is required since a custom domain is configured.',
-        'javascript-deriveOrganizationHandleFromBaseUrl-CustomDomainError-003',
+        'javascript-deriveRootOrganizationHandleFromBaseUrl-CustomDomainError-003',
         'javascript',
-        'The organization handle could not be extracted from the base URL. Please provide the organizationHandle explicitly in the configuration.',
+        'The organization handle could not be extracted from the base URL. Please provide the rootOrganizationHandle explicitly in the configuration.',
       ).toString(),
     );
 
     return '';
   }
 
-  return organizationHandle;
+  return rootOrganizationHandle;
 };
 
-export default deriveOrganizationHandleFromBaseUrl;
+export default deriveRootOrganizationHandleFromBaseUrl;

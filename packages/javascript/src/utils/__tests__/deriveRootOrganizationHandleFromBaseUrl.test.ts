@@ -16,82 +16,82 @@
  * under the License.
  */
 
-import deriveOrganizationHandleFromBaseUrl from '../deriveOrganizationHandleFromBaseUrl';
+import deriveRootOrganizationHandleFromBaseUrl from '../deriveRootOrganizationHandleFromBaseUrl';
 import AsgardeoRuntimeError from '../../errors/AsgardeoRuntimeError';
 
-describe('deriveOrganizationHandleFromBaseUrl', () => {
+describe('deriveRootOrganizationHandleFromBaseUrl', () => {
   describe('Valid Asgardeo URLs', () => {
     it('should extract organization handle from dev.asgardeo.io URL', () => {
-      const result = deriveOrganizationHandleFromBaseUrl('https://dev.asgardeo.io/t/dxlab');
+      const result = deriveRootOrganizationHandleFromBaseUrl('https://dev.asgardeo.io/t/dxlab');
       expect(result).toBe('dxlab');
     });
 
     it('should extract organization handle from stage.asgardeo.io URL', () => {
-      const result = deriveOrganizationHandleFromBaseUrl('https://stage.asgardeo.io/t/dxlab');
+      const result = deriveRootOrganizationHandleFromBaseUrl('https://stage.asgardeo.io/t/dxlab');
       expect(result).toBe('dxlab');
     });
 
     it('should extract organization handle from prod.asgardeo.io URL', () => {
-      const result = deriveOrganizationHandleFromBaseUrl('https://prod.asgardeo.io/t/dxlab');
+      const result = deriveRootOrganizationHandleFromBaseUrl('https://prod.asgardeo.io/t/dxlab');
       expect(result).toBe('dxlab');
     });
 
     it('should extract organization handle from custom subdomain asgardeo.io URL', () => {
-      const result = deriveOrganizationHandleFromBaseUrl('https://xxx.asgardeo.io/t/dxlab');
+      const result = deriveRootOrganizationHandleFromBaseUrl('https://xxx.asgardeo.io/t/dxlab');
       expect(result).toBe('dxlab');
     });
 
     it('should extract organization handle with trailing slash', () => {
-      const result = deriveOrganizationHandleFromBaseUrl('https://dev.asgardeo.io/t/dxlab/');
+      const result = deriveRootOrganizationHandleFromBaseUrl('https://dev.asgardeo.io/t/dxlab/');
       expect(result).toBe('dxlab');
     });
 
     it('should extract organization handle with additional path segments', () => {
-      const result = deriveOrganizationHandleFromBaseUrl('https://dev.asgardeo.io/t/dxlab/api/v1');
+      const result = deriveRootOrganizationHandleFromBaseUrl('https://dev.asgardeo.io/t/dxlab/api/v1');
       expect(result).toBe('dxlab');
     });
 
     it('should handle different organization handles', () => {
-      expect(deriveOrganizationHandleFromBaseUrl('https://dev.asgardeo.io/t/myorg')).toBe('myorg');
-      expect(deriveOrganizationHandleFromBaseUrl('https://dev.asgardeo.io/t/test-org')).toBe('test-org');
-      expect(deriveOrganizationHandleFromBaseUrl('https://dev.asgardeo.io/t/org123')).toBe('org123');
+      expect(deriveRootOrganizationHandleFromBaseUrl('https://dev.asgardeo.io/t/myorg')).toBe('myorg');
+      expect(deriveRootOrganizationHandleFromBaseUrl('https://dev.asgardeo.io/t/test-org')).toBe('test-org');
+      expect(deriveRootOrganizationHandleFromBaseUrl('https://dev.asgardeo.io/t/org123')).toBe('org123');
     });
   });
 
   describe('Invalid URLs - Custom Domains', () => {
     it('should throw error for custom domain without asgardeo.io', () => {
       expect(() => {
-        deriveOrganizationHandleFromBaseUrl('https://custom.example.com/auth');
+        deriveRootOrganizationHandleFromBaseUrl('https://custom.example.com/auth');
       }).toThrow(AsgardeoRuntimeError);
 
       expect(() => {
-        deriveOrganizationHandleFromBaseUrl('https://custom.example.com/auth');
+        deriveRootOrganizationHandleFromBaseUrl('https://custom.example.com/auth');
       }).toThrow('Organization handle is required since a custom domain is configured.');
     });
 
     it('should throw error for URLs without /t/ pattern', () => {
       expect(() => {
-        deriveOrganizationHandleFromBaseUrl('https://auth.asgardeo.io/oauth2/token');
+        deriveRootOrganizationHandleFromBaseUrl('https://auth.asgardeo.io/oauth2/token');
       }).toThrow(AsgardeoRuntimeError);
 
       expect(() => {
-        deriveOrganizationHandleFromBaseUrl('https://auth.asgardeo.io/oauth2/token');
+        deriveRootOrganizationHandleFromBaseUrl('https://auth.asgardeo.io/oauth2/token');
       }).toThrow('Organization handle is required since a custom domain is configured.');
     });
 
     it('should throw error for URLs with malformed /t/ pattern', () => {
       expect(() => {
-        deriveOrganizationHandleFromBaseUrl('https://dev.asgardeo.io/t/');
+        deriveRootOrganizationHandleFromBaseUrl('https://dev.asgardeo.io/t/');
       }).toThrow(AsgardeoRuntimeError);
 
       expect(() => {
-        deriveOrganizationHandleFromBaseUrl('https://dev.asgardeo.io/t');
+        deriveRootOrganizationHandleFromBaseUrl('https://dev.asgardeo.io/t');
       }).toThrow(AsgardeoRuntimeError);
     });
 
     it('should throw error for URLs with empty organization handle', () => {
       expect(() => {
-        deriveOrganizationHandleFromBaseUrl('https://dev.asgardeo.io/t//');
+        deriveRootOrganizationHandleFromBaseUrl('https://dev.asgardeo.io/t//');
       }).toThrow(AsgardeoRuntimeError);
     });
   });
@@ -99,31 +99,31 @@ describe('deriveOrganizationHandleFromBaseUrl', () => {
   describe('Invalid Input', () => {
     it('should throw error for undefined baseUrl', () => {
       expect(() => {
-        deriveOrganizationHandleFromBaseUrl(undefined);
+        deriveRootOrganizationHandleFromBaseUrl(undefined);
       }).toThrow(AsgardeoRuntimeError);
 
       expect(() => {
-        deriveOrganizationHandleFromBaseUrl(undefined);
+        deriveRootOrganizationHandleFromBaseUrl(undefined);
       }).toThrow('Base URL is required to derive organization handle.');
     });
 
     it('should throw error for empty baseUrl', () => {
       expect(() => {
-        deriveOrganizationHandleFromBaseUrl('');
+        deriveRootOrganizationHandleFromBaseUrl('');
       }).toThrow(AsgardeoRuntimeError);
 
       expect(() => {
-        deriveOrganizationHandleFromBaseUrl('');
+        deriveRootOrganizationHandleFromBaseUrl('');
       }).toThrow('Base URL is required to derive organization handle.');
     });
 
     it('should throw error for invalid URL format', () => {
       expect(() => {
-        deriveOrganizationHandleFromBaseUrl('not-a-valid-url');
+        deriveRootOrganizationHandleFromBaseUrl('not-a-valid-url');
       }).toThrow(AsgardeoRuntimeError);
 
       expect(() => {
-        deriveOrganizationHandleFromBaseUrl('not-a-valid-url');
+        deriveRootOrganizationHandleFromBaseUrl('not-a-valid-url');
       }).toThrow('Invalid base URL format');
     });
   });
@@ -131,26 +131,26 @@ describe('deriveOrganizationHandleFromBaseUrl', () => {
   describe('Error Details', () => {
     it('should throw AsgardeoRuntimeError with correct error codes', () => {
       try {
-        deriveOrganizationHandleFromBaseUrl(undefined);
+        deriveRootOrganizationHandleFromBaseUrl(undefined);
       } catch (error) {
         expect(error).toBeInstanceOf(AsgardeoRuntimeError);
-        expect(error.code).toBe('javascript-deriveOrganizationHandleFromBaseUrl-ValidationError-001');
+        expect(error.code).toBe('javascript-deriveRootOrganizationHandleFromBaseUrl-ValidationError-001');
         expect(error.origin).toBe('javascript');
       }
 
       try {
-        deriveOrganizationHandleFromBaseUrl('invalid-url');
+        deriveRootOrganizationHandleFromBaseUrl('invalid-url');
       } catch (error) {
         expect(error).toBeInstanceOf(AsgardeoRuntimeError);
-        expect(error.code).toBe('javascript-deriveOrganizationHandleFromBaseUrl-ValidationError-002');
+        expect(error.code).toBe('javascript-deriveRootOrganizationHandleFromBaseUrl-ValidationError-002');
         expect(error.origin).toBe('javascript');
       }
 
       try {
-        deriveOrganizationHandleFromBaseUrl('https://custom.domain.com/auth');
+        deriveRootOrganizationHandleFromBaseUrl('https://custom.domain.com/auth');
       } catch (error) {
         expect(error).toBeInstanceOf(AsgardeoRuntimeError);
-        expect(error.code).toBe('javascript-deriveOrganizationHandleFromBaseUrl-CustomDomainError-001');
+        expect(error.code).toBe('javascript-deriveRootOrganizationHandleFromBaseUrl-CustomDomainError-001');
         expect(error.origin).toBe('javascript');
       }
     });

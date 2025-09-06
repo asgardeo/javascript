@@ -35,13 +35,14 @@ import {
   Organization,
   IdToken,
   EmbeddedFlowExecuteRequestConfig,
-  deriveOrganizationHandleFromBaseUrl,
   AllOrganizationsApiResponse,
   extractUserClaimsFromIdToken,
   TokenResponse,
   HttpRequestConfig,
   HttpResponse,
   Storage,
+  organizationDiscovery,
+  deriveRootOrganizationHandleFromBaseUrl,
   TokenExchangeRequestConfig,
 } from '@asgardeo/browser';
 import AuthAPI from './__temp__/api';
@@ -91,15 +92,30 @@ class AsgardeoReactClient<T extends AsgardeoReactConfig = AsgardeoReactConfig> e
     }
   }
 
-  override initialize(config: AsgardeoReactConfig, storage?: Storage): Promise<boolean> {
+  override async initialize(config: AsgardeoReactConfig, storage?: Storage): Promise<boolean> {
     let resolvedOrganizationHandle: string | undefined = config?.organizationHandle;
-
-    if (!resolvedOrganizationHandle) {
-      resolvedOrganizationHandle = deriveOrganizationHandleFromBaseUrl(config?.baseUrl);
-    }
+    let resolvedRootOrganizationHandle: string | undefined = config?.rootOrganizationHandle;
 
     return this.withLoading(async () => {
-      return this.asgardeo.init({...config, organizationHandle: resolvedOrganizationHandle} as any);
+      if (!resolvedOrganizationHandle) {
+        if (config?.organizationDiscovery?.enabled && config?.organizationDiscovery?.strategy) {
+          try {
+            resolvedOrganizationHandle = organizationDiscovery(config?.organizationDiscovery?.strategy);
+          } catch (e) {
+            // TODO: Add a debug log here.
+          }
+        }
+      }
+
+      if (!resolvedRootOrganizationHandle) {
+        resolvedRootOrganizationHandle = deriveRootOrganizationHandleFromBaseUrl(config?.baseUrl);
+      }
+
+      return this.asgardeo.init({
+        ...config,
+        organizationHandle: resolvedOrganizationHandle,
+        rootOrganizationHandle: resolvedRootOrganizationHandle,
+      } as any);
     });
   }
 
