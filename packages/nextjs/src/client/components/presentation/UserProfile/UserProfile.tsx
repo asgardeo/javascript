@@ -18,12 +18,10 @@
 
 'use client';
 
-import {FC, ReactElement} from 'react';
-import {BaseUserProfile, BaseUserProfileProps, useUser} from '@asgardeo/react';
-import useAsgardeo from '../../../contexts/Asgardeo/useAsgardeo';
+import {FC, ReactElement, useState} from 'react';
+import {BaseUserProfile, BaseUserProfileProps, useTranslation, useUser} from '@asgardeo/react';
 import getSessionId from '../../../../server/actions/getSessionId';
-import updateUserProfileAction from '../../../../server/actions/updateUserProfileAction';
-import {Schema, User} from '@asgardeo/node';
+import {AsgardeoError, Schema, User} from '@asgardeo/node';
 
 /**
  * Props for the UserProfile component.
@@ -55,12 +53,27 @@ export type UserProfileProps = Omit<BaseUserProfileProps, 'user' | 'profile' | '
  * ```
  */
 const UserProfile: FC<UserProfileProps> = ({...rest}: UserProfileProps): ReactElement => {
-  const {baseUrl} = useAsgardeo();
   const {profile, flattenedProfile, schemas, onUpdateProfile, updateProfile} = useUser();
+  const {t} = useTranslation();
+
+  const [error, setError] = useState<string | null>(null);
 
   const handleProfileUpdate = async (payload: any): Promise<void> => {
-    const result = await updateProfile(payload, (await getSessionId()) as string);
-    onUpdateProfile(result?.data?.user);
+    setError(null);
+
+    try {
+      const result = await updateProfile(payload, (await getSessionId()) as string);
+
+      onUpdateProfile(result?.data?.user);
+    } catch (error: unknown) {
+      let message: string = t('user.profile.update.generic.error');
+
+      if (error instanceof AsgardeoError) {
+        message = error?.message;
+      }
+
+      setError(message);
+    }
   };
 
   return (
@@ -69,6 +82,7 @@ const UserProfile: FC<UserProfileProps> = ({...rest}: UserProfileProps): ReactEl
       flattenedProfile={flattenedProfile as User}
       schemas={schemas as Schema[]}
       onUpdate={handleProfileUpdate}
+      error={error}
       {...rest}
     />
   );

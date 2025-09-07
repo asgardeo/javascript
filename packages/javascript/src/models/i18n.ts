@@ -125,6 +125,15 @@ export interface I18nTranslations {
   'organization.create.cancel': string;
 
   /* |---------------------------------------------------------------| */
+  /* |                        User Creation                          | */
+  /* |---------------------------------------------------------------| */
+
+  'user.create.cancel': string;
+  'user.create.submit': string;
+  'user.create.submitting': string;
+  'user.create.generic.error': string;
+
+  /* |---------------------------------------------------------------| */
   /* |                        Messages                               | */
   /* |---------------------------------------------------------------| */
 

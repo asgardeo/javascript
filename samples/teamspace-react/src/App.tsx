@@ -110,7 +110,7 @@ function App() {
 
           {/* Auth Routes */}
           <Route
-            path="/signin"
+            path={import.meta.env.VITE_ASGARDEO_SIGN_IN_URL}
             element={
               <AuthenticatedLayout>
                 <SignInPage />
@@ -130,7 +130,7 @@ function App() {
           <Route
             path="/dashboard"
             element={
-              <ProtectedRoute redirectTo="/signin">
+              <ProtectedRoute redirectTo={import.meta.env.VITE_ASGARDEO_SIGN_IN_URL}>
                 <DashboardLayout>
                   <DashboardPage />
                 </DashboardLayout>
@@ -140,7 +140,7 @@ function App() {
           <Route
             path="/profile"
             element={
-              <ProtectedRoute redirectTo="/signin">
+              <ProtectedRoute redirectTo={import.meta.env.VITE_ASGARDEO_SIGN_IN_URL}>
                 <DashboardLayout>
                   <ProfilePage />
                 </DashboardLayout>
@@ -150,7 +150,7 @@ function App() {
           <Route
             path="/organizations"
             element={
-              <ProtectedRoute redirectTo="/signin">
+              <ProtectedRoute redirectTo={import.meta.env.VITE_ASGARDEO_SIGN_IN_URL}>
                 <DashboardLayout>
                   <OrganizationsPage />
                 </DashboardLayout>
@@ -160,7 +160,7 @@ function App() {
           <Route
             path="/organizations/new"
             element={
-              <ProtectedRoute redirectTo="/signin">
+              <ProtectedRoute redirectTo={import.meta.env.VITE_ASGARDEO_SIGN_IN_URL}>
                 <DashboardLayout>
                   <CreateOrganizationPage />
                 </DashboardLayout>

@@ -38,6 +38,8 @@ export {default as getOrganization, OrganizationDetails, GetOrganizationConfig} 
 export {default as updateOrganization, createPatchOperations, UpdateOrganizationConfig} from './api/updateOrganization';
 export {default as updateMeProfile, UpdateMeProfileConfig} from './api/updateMeProfile';
 export {default as getBrandingPreference, GetBrandingPreferenceConfig} from './api/getBrandingPreference';
+export {default as createUser, CreateUserConfig} from './api/createUser';
+export {default as getUserstores, GetUserstoresConfig} from './api/getUserstores';
 
 export {default as ApplicationNativeAuthenticationConstants} from './constants/ApplicationNativeAuthenticationConstants';
 export {default as TokenConstants} from './constants/TokenConstants';
@@ -63,6 +65,7 @@ export {
   EmbeddedSignInFlowAuthenticatorPromptType,
   EmbeddedSignInFlowAuthenticatorKnownIdPType,
 } from './models/embedded-signin-flow';
+export {UserstoreProperty, Userstore} from './models/userstore';
 export {
   EmbeddedFlowType,
   EmbeddedFlowStatus,
@@ -112,7 +115,7 @@ export {
   BrandingOrganizationDetails,
   UrlsConfig,
 } from './models/branding-preference';
-export {Schema, SchemaAttribute, WellKnownSchemaIds, FlattenedSchema} from './models/scim2-schema';
+export {Schema, SchemaAttribute, WellKnownSchemaIds, FlattenedSchema, ProfileSchemaType} from './models/scim2-schema';
 export {RecursivePartial} from './models/utility-types';
 export {FieldType} from './models/field';
 export {I18nBundle, I18nTranslations, I18nMetadata} from './models/i18n';
@@ -123,10 +126,12 @@ export {default as createTheme} from './theme/createTheme';
 export {ThemeColors, ThemeConfig, Theme, ThemeMode, ThemeDetection} from './theme/types';
 
 export {default as bem} from './utils/bem';
+export {default as getAttributeProfileSchema} from './utils/getAttributeProfileSchema';
 export {default as formatDate} from './utils/formatDate';
 export {default as processUsername} from './utils/processUsername';
 export {default as deepMerge} from './utils/deepMerge';
 export {default as deriveOrganizationHandleFromBaseUrl} from './utils/deriveOrganizationHandleFromBaseUrl';
+export {default as detectUserstoreEnvironment} from './utils/detectUserstoreEnvironment';
 export {default as extractUserClaimsFromIdToken} from './utils/extractUserClaimsFromIdToken';
 export {default as extractPkceStorageKeyFromState} from './utils/extractPkceStorageKeyFromState';
 export {default as flattenUserSchema} from './utils/flattenUserSchema';

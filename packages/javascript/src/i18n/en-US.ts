@@ -123,6 +123,15 @@ const translations: I18nTranslations = {
   'organization.create.cancel': 'Cancel',
 
   /* |---------------------------------------------------------------| */
+  /* |                        User Creation                          | */
+  /* |---------------------------------------------------------------| */
+
+  'user.create.cancel': 'Cancel',
+  'user.create.submit': 'Create User',
+  'user.create.submitting': 'Creating...',
+  'user.create.generic.error': 'An error occurred while creating the user. Please try again.',
+
+  /* |---------------------------------------------------------------| */
   /* |                        Messages                               | */
   /* |---------------------------------------------------------------| */
 

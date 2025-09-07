@@ -28,13 +28,15 @@ export interface SessionTokenPayload extends JWTPayload {
   /** Session ID */
   sessionId: string;
   /** OAuth scopes */
-  scopes: string[];
+  scopes: string;
   /** Organization ID if applicable */
   organizationId?: string;
   /** Issued at timestamp */
   iat: number;
   /** Expiration timestamp */
   exp: number;
+  /** Access token */
+  accessToken: string;
 }
 
 /**
