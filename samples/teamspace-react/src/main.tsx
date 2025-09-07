@@ -45,6 +45,14 @@ createRoot(document.getElementById('root')!).render(
           // },
         },
       }}
+      organizationDiscovery={{
+        enabled: true,
+        strategy: {
+          type: 'urlQuery',
+          param: 'o',
+          mode: 'id',
+        },
+      }}
     >
       <App />
     </AsgardeoProvider>

@@ -22,6 +22,7 @@ import {
   HttpResponse,
   IdToken,
   Organization,
+  OrganizationDiscovery,
   SignInOptions,
   TokenExchangeRequestConfig,
   TokenResponse,
@@ -105,6 +106,19 @@ export type AsgardeoContextProps = {
    * @returns A promise that resolves to the decoded ID token payload.
    */
   getDecodedIdToken?: () => Promise<IdToken>;
+  /**
+   * Organization discovery strategy to find the organization based on the provided configuration.
+   * This is useful in B2B scenarios where the organization is determined dynamically.
+   * The strategy can be a function that takes the configuration and returns the organization handle.
+   * If not provided, the root organization handle will be derived from the base URL.
+   */
+  organizationDiscovery?: OrganizationDiscovery;
+  /**
+   * Root organization handle to be used in the context.
+   * This is useful to resolve the root organization handle for fetching organization-specific data.
+   * If not provided, it will be derived from the base URL.
+   */
+  rootOrganizationHandle?: string | undefined;
 
   /**
    * Retrieves the access token stored in the storage.
@@ -136,6 +150,10 @@ const AsgardeoContext: Context<AsgardeoContextProps | null> = createContext<null
   isLoading: true,
   isSignedIn: false,
   organization: null,
+  organizationDiscovery: {
+    enabled: false,
+    strategy: null,
+  },
   signIn: null,
   signInSilently: null,
   signOut: null,

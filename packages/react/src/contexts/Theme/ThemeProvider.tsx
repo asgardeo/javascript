@@ -109,7 +109,7 @@ const applyThemeToDOM = (theme: Theme) => {
 const ThemeProvider: FC<PropsWithChildren<ThemeProviderProps>> = ({
   children,
   theme: themeConfig,
-  mode = 'system',
+  mode = 'light',
   detection = {},
   inheritFromBranding = true,
 }: PropsWithChildren<ThemeProviderProps>): ReactElement => {

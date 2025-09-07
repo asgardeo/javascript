@@ -161,7 +161,7 @@ const AsgardeoServerProvider: FC<PropsWithChildren<AsgardeoServerProviderProps>>
         {
           baseUrl: config?.baseUrl as string,
           locale: 'en-US',
-          name: config.applicationId || config.organizationHandle,
+          name: config.applicationId || config.organizationHandle || config.rootOrganizationHandle,
           type: config.applicationId ? 'APP' : 'ORG',
         },
         sessionId,
@@ -173,6 +173,7 @@ const AsgardeoServerProvider: FC<PropsWithChildren<AsgardeoServerProviderProps>>
 
   return (
     <AsgardeoClientProvider
+      rootOrganizationHandle={config?.rootOrganizationHandle}
       organizationHandle={config?.organizationHandle}
       applicationId={config?.applicationId}
       baseUrl={config?.baseUrl}

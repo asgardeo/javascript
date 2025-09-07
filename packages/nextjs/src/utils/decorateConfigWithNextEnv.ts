@@ -19,12 +19,26 @@
 import {AsgardeoNextConfig} from '../models/config';
 
 const decorateConfigWithNextEnv = (config: AsgardeoNextConfig): AsgardeoNextConfig => {
-  const {organizationHandle, scopes, applicationId, baseUrl, clientId, clientSecret, signInUrl, signUpUrl, afterSignInUrl, afterSignOutUrl, ...rest} = config;
+  const {
+    organizationHandle,
+    rootOrganizationHandle,
+    scopes,
+    applicationId,
+    baseUrl,
+    clientId,
+    clientSecret,
+    signInUrl,
+    signUpUrl,
+    afterSignInUrl,
+    afterSignOutUrl,
+    ...rest
+  } = config;
 
   return {
     ...rest,
     scopes: scopes || (process.env['NEXT_PUBLIC_ASGARDEO_SCOPES'] as string),
     organizationHandle: organizationHandle || (process.env['NEXT_PUBLIC_ASGARDEO_ORGANIZATION_HANDLE'] as string),
+    rootOrganizationHandle: rootOrganizationHandle || (process.env['NEXT_PUBLIC_ASGARDEO_ROOT_ORGANIZATION_HANDLE'] as string),
     applicationId: applicationId || (process.env['NEXT_PUBLIC_ASGARDEO_APPLICATION_ID'] as string),
     baseUrl: baseUrl || (process.env['NEXT_PUBLIC_ASGARDEO_BASE_URL'] as string),
     clientId: clientId || (process.env['NEXT_PUBLIC_ASGARDEO_CLIENT_ID'] as string),
