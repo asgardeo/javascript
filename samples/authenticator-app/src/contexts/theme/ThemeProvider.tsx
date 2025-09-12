@@ -16,14 +16,14 @@
  * under the License.
  */
 
-import React, { useState, useMemo, PropsWithChildren } from 'react';
-import { ThemeContext, ThemeContextType } from './ThemeContext';
-import { Theme, ThemeMode, ThemeConfig } from '../../models/theme';
-import { createColorStyles } from '../../styles/colors';
+import React, { PropsWithChildren, useMemo, useState } from 'react';
+import { Theme, ThemeConfig, ThemeMode } from '../../models/theme';
 import { createButtonStyles } from '../../styles/buttons';
-import { createTypographyStyles } from '../../styles/typography';
+import { createColorStyles } from '../../styles/colors';
 import { createInputStyles } from '../../styles/inputs';
+import { createTypographyStyles } from '../../styles/typography';
 import brandingConfig from './branding.json';
+import ThemeContext, { ThemeContextType } from './ThemeContext';
 
 /**
  * Theme provider component that manages theme state and provides theme context to children.
@@ -34,7 +34,7 @@ import brandingConfig from './branding.json';
  * @param props.initialTheme - Optional initial theme mode
  * @returns React functional component providing theme context
  */
-export const ThemeProvider = ({
+const ThemeProvider = ({
   children
 }: PropsWithChildren) => {
   const themeData = brandingConfig.theme as Theme;
@@ -75,3 +75,5 @@ export const ThemeProvider = ({
     </ThemeContext.Provider>
   );
 };
+
+export default ThemeProvider;

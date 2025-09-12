@@ -16,14 +16,14 @@
  * under the License.
  */
 
-import { Redirect } from "expo-router";
+import { HeaderTitleProps } from "@react-navigation/elements";
 import { ReactElement } from "react";
+import { Text } from "react-native";
 
-/**
- * Index route that redirects to the home screen.
- */
-const Index = (): ReactElement => {
-  return <Redirect href="/home" />;
+const HomeHeader = (_props: HeaderTitleProps): ReactElement => {
+  return (
+    <Text>Home</Text>
+  );
 };
 
-export default Index;
+export default HomeHeader;

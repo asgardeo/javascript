@@ -17,7 +17,7 @@
  */
 
 import { StyleSheet } from 'react-native';
-import { Buttons, Colors } from '../models/theme';
+import { Buttons, Colors } from '../../src/models/theme';
 
 /**
  * Creates button styles from theme button and color configurations.
@@ -128,26 +128,7 @@ export const createButtonStyles = (buttons: Buttons, colors: Colors) => StyleShe
   largeButtonText: {
     fontSize: 18,
     fontWeight: '600',
-  },
-
-  iconButton: {
-    padding: 8,
-    borderRadius: parseFloat(buttons.primary.base.border?.borderRadius?.replace('px', '') || '22'),
-    alignItems: 'center',
-    justifyContent: 'center',
-    minWidth: 44,
-    minHeight: 44,
-  },
-  iconButtonSmall: {
-    padding: 6,
-    minWidth: 32,
-    minHeight: 32,
-  },
-  iconButtonLarge: {
-    padding: 12,
-    minWidth: 56,
-    minHeight: 56,
-  },
+  }
 });
 
 /**

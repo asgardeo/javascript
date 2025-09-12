@@ -17,7 +17,7 @@
  */
 
 import { StyleSheet } from 'react-native';
-import { Typography, Colors } from '../models/theme';
+import { Colors, Typography } from '../../src/models/theme';
 
 /**
  * Creates typography styles from theme typography and color configurations.

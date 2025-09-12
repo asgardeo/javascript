@@ -16,12 +16,12 @@
  * under the License.
  */
 
-import { createContext, useContext } from 'react';
+import { createContext } from 'react';
 import { ThemeMode } from '../../models/theme';
-import { ColorStylesType } from '../../styles/colors';
 import { ButtonStylesType } from '../../styles/buttons';
-import { TypographyStylesType } from '../../styles/typography';
+import { ColorStylesType } from '../../styles/colors';
 import { InputStylesType } from '../../styles/inputs';
+import { TypographyStylesType } from '../../styles/typography';
 
 /**
  * Theme context type providing access to theme values, functions, and styled components.
@@ -36,7 +36,7 @@ export interface ThemeContextType {
 /**
  * Global styles interface combining all style categories.
  */
-interface GlobalStyles {
+export interface GlobalStyles {
   colors: ColorStylesType;
   buttons: ButtonStylesType;
   typography: TypographyStylesType;
@@ -47,19 +47,6 @@ interface GlobalStyles {
  * React context for theme management.
  * Provides access to theme configuration, current mode, and theme switching functions.
  */
-export const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
+const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
-/**
- * Hook to access the theme context.
- * Must be used within a ThemeProvider component.
- *
- * @returns {ThemeContextType} The theme context value
- * @throws {Error} If used outside of a ThemeProvider
- */
-export const useTheme = (): ThemeContextType => {
-  const context = useContext(ThemeContext);
-  if (context === undefined) {
-    throw new Error('useTheme must be used within a ThemeProvider');
-  }
-  return context;
-};
+export default ThemeContext;

@@ -16,14 +16,10 @@
  * under the License.
  */
 
-import { Redirect } from "expo-router";
-import { ReactElement } from "react";
-
 /**
- * Index route that redirects to the home screen.
+ * Header title props interface for customizing the header title component.
  */
-const Index = (): ReactElement => {
-  return <Redirect href="/home" />;
-};
-
-export default Index;
+export interface HeaderTitleProps {
+  children: string;
+  tintColor?: string;
+}

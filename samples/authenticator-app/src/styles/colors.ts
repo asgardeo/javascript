@@ -17,7 +17,7 @@
  */
 
 import { StyleSheet } from 'react-native';
-import { Colors } from '../models/theme';
+import { Colors } from '../../src/models/theme';
 
 /**
  * Creates color-based styles from the theme color configuration.

@@ -16,14 +16,24 @@
  * under the License.
  */
 
-import { Redirect } from "expo-router";
-import { ReactElement } from "react";
+import { useContext } from 'react';
+import ThemeContext, { ThemeContextType } from './ThemeContext';
 
 /**
- * Index route that redirects to the home screen.
+ * Hook to access the theme context.
+ * Must be used within a ThemeProvider component.
+ *
+ * @returns {ThemeContextType} The theme context value
+ * @throws {Error} If used outside of a ThemeProvider
  */
-const Index = (): ReactElement => {
-  return <Redirect href="/home" />;
+const useTheme = (): ThemeContextType => {
+  const context = useContext(ThemeContext);
+
+  if (context === undefined) {
+    throw new Error('useTheme must be used within a ThemeProvider');
+  }
+
+  return context;
 };
 
-export default Index;
+export default useTheme;

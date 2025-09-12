@@ -17,7 +17,7 @@
  */
 
 import { StyleSheet } from 'react-native';
-import { Inputs, Colors, Typography } from '../models/theme';
+import { Colors, Inputs, Typography } from '../../src/models/theme';
 
 /**
  * Creates input field styles from theme input, color, and typography configurations.
