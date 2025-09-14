@@ -16,10 +16,21 @@
  * under the License.
  */
 
-/**
- * Header title props interface for customizing the header title component.
- */
-export interface HeaderTitleProps {
-  children: string;
-  tintColor?: string;
+export interface TOTPQRDataInterface {
+  /**
+   * Issuer of the TOTP (Time-based One-Time Password) token.
+   */
+  issuer: string;
+  /**
+   * Username of the user.
+   */
+  username: string;
+  /**
+   * Secret key used for generating TOTP codes.
+   */
+  secret: string;
+  /**
+   * Period in seconds for which a TOTP code is valid.
+   */
+  period: number;
 }

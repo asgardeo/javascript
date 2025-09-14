@@ -16,60 +16,30 @@
  * under the License.
  */
 
-import { router } from "expo-router";
+import { PushNotificationQRDataInterface } from "@/src/models/push-notification";
+import { TOTPQRDataInterface } from "@/src/models/totp";
 import { FunctionComponent, ReactElement } from "react";
-import { Alert } from "react-native";
-import QRScanner from "../src/components/qr/QRScanner";
+import QRScanner from "../src/components/qr/qr-scanner";
 
+/**
+ * QR Scanner Screen.
+ *
+ * @returns QR Scanner Screen.
+ */
 const QRScannerScreen: FunctionComponent = (): ReactElement => {
-  const handleScanSuccess = (data: any) => {
-    console.log("QR Code scanned successfully:", data);
+  const handlePushQRScanSuccess = (data: PushNotificationQRDataInterface) => {
+    // Logic goes here.
+  };
 
-    // Handle the scanned JSON data
-    try {
-      // You can customize this logic based on your needs
-      const dataString = JSON.stringify(data, null, 2);
-
-      Alert.alert(
-        "QR Code Scanned Successfully",
-        `Scanned Data:\n\n${dataString}`,
-        [
-          {
-            text: "Scan Another",
-            style: "default",
-            onPress: () => {
-              // Stay on the scanner screen to scan another QR code
-            },
-          },
-          {
-            text: "Save & Go Back",
-            style: "default",
-            onPress: () => {
-              // Here you can add logic to save the data
-              // For example, save to AsyncStorage, send to API, etc.
-              console.log("Saving data:", data);
-              router.back();
-            },
-          },
-        ]
-      );
-    } catch (error) {
-      console.error("Error processing scanned data:", error);
-      Alert.alert(
-        "Error",
-        "Failed to process the scanned data. Please try again.",
-        [
-          {
-            text: "OK",
-            onPress: () => router.back(),
-          },
-        ]
-      );
-    }
+  const handleTOTPQRScanSuccess = (data: TOTPQRDataInterface) => {
+    // Logic goes here.
   };
 
   return (
-    <QRScanner onScanSuccess={handleScanSuccess} />
+    <QRScanner
+      onTOTPQRScanSuccess={handleTOTPQRScanSuccess}
+      onPushQRScanSuccess={handlePushQRScanSuccess}
+    />
   );
 };
 
