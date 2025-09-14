@@ -13,7 +13,7 @@
       "infoPlist": {
         "NSCameraUsageDescription": "This app needs access to the camera to scan QR codes."
       },
-      "bundleIdentifier": "com.anonymous.authenticatorapp"
+      "bundleIdentifier": "com.example.com"
     },
     "android": {
       "adaptiveIcon": {
@@ -21,12 +21,13 @@
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.anonymous.authenticatorapp",
+      "package": "com.example.com",
       "permissions": [
         "CAMERA",
         "android.permission.CAMERA",
         "android.permission.RECORD_AUDIO"
-      ]
+      ],
+      "googleServicesFile": "./google-services.json"
     },
     "web": {
       "bundler": "metro",

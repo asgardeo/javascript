@@ -16,13 +16,13 @@
  * under the License.
  */
 
+import { usePushAuthRegistration } from "@/src/hooks/use-push-auth-registration";
 import { QRDataType, QRDataValidationResponseInterface } from "@/src/models/core";
-import { PushNotificationQRDataInterface } from "@/src/models/push-notification";
 import { TOTPQRDataInterface } from "@/src/models/totp";
 import { MaterialIcons } from "@expo/vector-icons";
 import { BarcodeScanningResult, CameraView, useCameraPermissions } from "expo-camera";
 import { router } from "expo-router";
-import { FunctionComponent, ReactElement, useCallback, useState } from "react";
+import { FunctionComponent, ReactElement, useCallback, useEffect, useState } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import validateQRData from "../../../src/utils/validate-qr-data";
 import useTheme from "../../contexts/theme/useTheme";
@@ -38,12 +38,6 @@ interface QRScannerProps {
    * @param data - The scanned TOTP QR code data.
    */
   onTOTPQRScanSuccess: (data: TOTPQRDataInterface) => void;
-  /**
-   * Callback function to handle successful Push Notification QR code scans.
-   *
-   * @param data - The scanned Push Notification QR code data.
-   */
-  onPushQRScanSuccess: (data: PushNotificationQRDataInterface) => void;
 }
 
 /**
@@ -53,11 +47,11 @@ interface QRScannerProps {
  * @returns QR Scanner Component.
  */
 const QRScanner: FunctionComponent<QRScannerProps> = ({
-  onTOTPQRScanSuccess,
-  onPushQRScanSuccess
+  onTOTPQRScanSuccess
 }: QRScannerProps): ReactElement => {
   const { styles } = useTheme();
   const [permission, requestPermission] = useCameraPermissions();
+  const { registerPushDevice, registrationError } = usePushAuthRegistration();
   const [scanned, setScanned] = useState(false);
   const [alertVisible, setAlertVisible] = useState(false);
   const [alertType, setAlertType] = useState<AlertType>(AlertType.SUCCESS);
@@ -88,7 +82,7 @@ const QRScanner: FunctionComponent<QRScannerProps> = ({
    *
    * @param param0 - The scanned barcode data.
    */
-  const handleBarCodeScanned = ({ data }: BarcodeScanningResult) => {
+  const handleBarCodeScanned = async ({ data }: BarcodeScanningResult) => {
     if (scanned) return;
 
     const qrData: QRDataValidationResponseInterface = validateQRData(data);
@@ -100,13 +94,17 @@ const QRScanner: FunctionComponent<QRScannerProps> = ({
         onTOTPQRScanSuccess(qrData.totpData!);
         showAlert(AlertType.SUCCESS, 'QR Code Scanned Successfully!', 'TOTP account registration data has been read successfully.');
       } else if (qrData.type === QRDataType.PUSH_NOTIFICATION) {
-        onPushQRScanSuccess(qrData.pushNotificationData!);
-        showAlert(AlertType.SUCCESS, 'QR Code Scanned Successfully!', 'Push notification registration data has been read successfully.');
+        await registerPushDevice(qrData.pushNotificationData!);
+        showAlert(AlertType.SUCCESS, 'QR Code Scanned Successfully!', 'Push notification device registration completed successfully.');
       }
     } else {
       showAlert(AlertType.ERROR, 'Invalid QR Code', 'The QR code you scanned is not valid. Please try scanning a valid QR code.');
     }
   };
+
+  useEffect(() => {
+    console.log('Registration Error:', registrationError);
+  }, [ registrationError ]);
 
   /**
    * Handle the go back action.

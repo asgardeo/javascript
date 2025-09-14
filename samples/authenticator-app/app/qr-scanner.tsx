@@ -16,7 +16,6 @@
  * under the License.
  */
 
-import { PushNotificationQRDataInterface } from "@/src/models/push-notification";
 import { TOTPQRDataInterface } from "@/src/models/totp";
 import { FunctionComponent, ReactElement } from "react";
 import QRScanner from "../src/components/qr/qr-scanner";
@@ -27,10 +26,6 @@ import QRScanner from "../src/components/qr/qr-scanner";
  * @returns QR Scanner Screen.
  */
 const QRScannerScreen: FunctionComponent = (): ReactElement => {
-  const handlePushQRScanSuccess = (data: PushNotificationQRDataInterface) => {
-    // Logic goes here.
-  };
-
   const handleTOTPQRScanSuccess = (data: TOTPQRDataInterface) => {
     // Logic goes here.
   };
@@ -38,7 +33,6 @@ const QRScannerScreen: FunctionComponent = (): ReactElement => {
   return (
     <QRScanner
       onTOTPQRScanSuccess={handleTOTPQRScanSuccess}
-      onPushQRScanSuccess={handlePushQRScanSuccess}
     />
   );
 };
