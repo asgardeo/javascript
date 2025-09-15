@@ -93,35 +93,44 @@ export const usePushAuthRegistration = () => {
   }, []);
 
   /**
-   * Generate RSA key pair and format public key for WSO2 IS
+   * Convert PKCS#1 RSA public key to X.509 SubjectPublicKeyInfo format
+   * This creates a proper certificate format that WSO2 IS can parse
    */
-  const generateKeyPair = useCallback(async (deviceId: string) => {
+  const convertToX509Certificate = useCallback((pkcs1PublicKey: string): string => {
     try {
-      // Generate proper RSA 2048-bit key pair
-      const rsaKeyPair = await CryptographyUtils.generateRSAKeyPair();
+      // Extract the base64 content from PKCS#1 format
+      let keyContent = pkcs1PublicKey
+        .replace('-----BEGIN RSA PUBLIC KEY-----', '')
+        .replace('-----END RSA PUBLIC KEY-----', '')
+        .replace(/\r/g, '')
+        .replace(/\n/g, '')
+        .replace(/\s/g, '');
 
-      // Store the key pair securely using existing secure storage
-      await SecureStorage.storeGeneratedKeyPair(deviceId, {
-        certificate: '', // Not needed for push registration
-        privateKey: rsaKeyPair.privateKey,
-        publicKey: rsaKeyPair.publicKey,
-        fingerprint: CryptographyUtils.generateHash(rsaKeyPair.publicKey).substring(0, 32),
-      }, {
-        keySize: 2048,
-        algorithm: 'RSA',
-        validityDays: 365,
-      });
+      // RSA algorithm identifier in ASN.1 DER format (base64 encoded)
+      // This is the standard RSA OID + NULL parameters + bit string header
+      const rsaAlgorithmIdentifier = 'MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8A';
 
-      return {
-        publicKey: rsaKeyPair.publicKeyFormatted, // Pre-formatted for WSO2 IS
-        privateKey: rsaKeyPair.privateKey,
-      };
+      // Combine the algorithm identifier with the PKCS#1 key content
+      const x509Content = rsaAlgorithmIdentifier + keyContent;
+
+      // Format as proper X.509 certificate with headers
+      const x509Certificate =
+        '-----BEGIN PUBLIC KEY-----\n' +
+        x509Content.match(/.{1,64}/g)?.join('\n') + '\n' +
+        '-----END PUBLIC KEY-----';
+
+      console.log('Converted to X.509 certificate format');
+      return x509Certificate;
     } catch (error) {
-      throw new Error(`Key pair generation failed: ${error}`);
+      console.error('Failed to convert to X.509 format:', error);
+      throw new Error(`X.509 conversion failed: ${error}`);
     }
   }, []);
 
   /**
+   * Generate signature for registration verification
+   * Signs challenge.deviceToken with private key using RSA-SHA256
+   */  /**
    * Generate signature for registration verification
    * Signs challenge.deviceToken with private key using RSA-SHA256
    */
@@ -149,7 +158,7 @@ export const usePushAuthRegistration = () => {
    */
   const buildRegistrationUrl = useCallback((qrData: PushNotificationQRDataInterface): string => {
     const { tenantDomain, organizationId } = qrData;
-    const host = "http://192.168.1.128:8082"; // Replace with actual host or extract from QR data if available
+    const host = "http://10.22.14.18:8082"; // Replace with actual host or extract from QR data if available
 
     if (organizationId) {
       // Organization user - use organization path
@@ -233,10 +242,25 @@ export const usePushAuthRegistration = () => {
       const deviceToken = await generateDeviceToken();
 
       // Step 3: Generate RSA key pair
-      const { publicKey, privateKey } = await generateKeyPair(qrData.deviceId);
+      const rsaKeyPair = await CryptographyUtils.generateRSAKeyPair();
+
+      // Convert PKCS#1 public key to X.509 format for WSO2 IS
+      const x509Certificate = convertToX509Certificate(rsaKeyPair.publicKey);
+
+      // Store the key pair securely with converted certificate
+      await SecureStorage.storeGeneratedKeyPair(qrData.deviceId, {
+        certificate: x509Certificate, // Store X.509 formatted certificate
+        privateKey: rsaKeyPair.privateKey,
+        publicKey: rsaKeyPair.publicKey, // Keep original for reference
+        fingerprint: CryptographyUtils.generateHash(rsaKeyPair.publicKey).substring(0, 32),
+      }, {
+        keySize: 2048,
+        algorithm: 'RSA',
+        validityDays: 365,
+      });
 
       // Step 4: Generate signature for verification
-      const signature = await generateSignature(qrData.challenge, deviceToken, privateKey);
+      const signature = await generateSignature(qrData.challenge, deviceToken, rsaKeyPair.privateKey);
 
       // Step 5: Prepare registration payload
       const payload: DeviceRegistrationPayload = {
@@ -244,13 +268,14 @@ export const usePushAuthRegistration = () => {
         name: deviceInfo.name,
         model: deviceInfo.model,
         deviceToken,
-        publicKey,
-        signature,
+        publicKey: x509Certificate.replace('-----BEGIN PUBLIC KEY-----', '').replace('-----END PUBLIC KEY-----', '').replace(/\r/g, '').replace(/\n/g, '').replace(/\s/g, ''), // Send the X.509 formatted certificate
+        signature: signature.replace(/\r/g, '').replace(/\n/g, '').replace(/\s/g, ''),
       };
 
       // Step 6: Build registration URL
       const registrationUrl = buildRegistrationUrl(qrData);
-      console.log('Registration URL:', registrationUrl);
+
+      console.log('Registration Payload:', payload);
 
       // Step 7: Send registration request
       const result = await sendRegistrationRequest(registrationUrl, payload);
@@ -284,7 +309,7 @@ export const usePushAuthRegistration = () => {
   }, [
     getDeviceInfo,
     generateDeviceToken,
-    generateKeyPair,
+    convertToX509Certificate,
     generateSignature,
     buildRegistrationUrl,
     sendRegistrationRequest,

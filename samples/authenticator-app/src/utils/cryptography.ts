@@ -16,8 +16,8 @@
  * under the License.
  */
 
-import { RSA } from 'react-native-rsa-native';
 import CryptoJS from 'crypto-js';
+import { RSA } from 'react-native-rsa-native';
 
 /**
  * Interface for RSA key pair generation result
@@ -30,7 +30,7 @@ export interface RSAKeyPair {
 
 /**
  * Cryptography utility class for RSA operations required by WSO2 Identity Server
- * 
+ *
  * This class handles:
  * - RSA 2048-bit key pair generation
  * - Public key formatting for WSO2 IS API (PEM to base64 without headers)
@@ -39,16 +39,16 @@ export interface RSAKeyPair {
 export class CryptographyUtils {
   /**
    * Generate RSA 2048-bit key pair for push notification registration
-   * 
+   *
    * @returns Promise<RSAKeyPair> - Generated key pair with formatted public key
    */
   static async generateRSAKeyPair(): Promise<RSAKeyPair> {
     try {
       console.log('Generating RSA 2048-bit key pair...');
-      
+
       // Generate RSA key pair with 2048-bit key size as required by WSO2 IS
       const keyPair = await RSA.generateKeys(2048);
-      
+
       if (!keyPair.public || !keyPair.private) {
         throw new Error('Failed to generate RSA key pair');
       }
@@ -57,7 +57,7 @@ export class CryptographyUtils {
       const publicKeyFormatted = this.formatPublicKeyForWSO2(keyPair.public);
 
       console.log('RSA key pair generated successfully');
-      
+
       return {
         publicKey: keyPair.public,
         privateKey: keyPair.private,
@@ -71,24 +71,30 @@ export class CryptographyUtils {
 
   /**
    * Format public key for WSO2 Identity Server API
-   * Removes PEM headers/footers and converts to base64 format
-   * 
+   * Simply removes PEM headers and returns base64 content
+   *
    * @param publicKeyPEM - Public key in PEM format
    * @returns string - Base64 formatted public key without headers
    */
   static formatPublicKeyForWSO2(publicKeyPEM: string): string {
     try {
-      // Remove PEM headers and footers
-      let formattedKey = publicKeyPEM
+      console.log('Original public key:', publicKeyPEM);
+
+      // Try to extract base64 content regardless of header type
+      let keyContent = publicKeyPEM
         .replace('-----BEGIN PUBLIC KEY-----', '')
         .replace('-----END PUBLIC KEY-----', '')
+        .replace('-----BEGIN RSA PUBLIC KEY-----', '')
+        .replace('-----END RSA PUBLIC KEY-----', '')
         .replace(/\r/g, '')
         .replace(/\n/g, '')
-        .replace(/\s/g, ''); // Remove any whitespace
+        .replace(/\s/g, '');
 
-      // Ensure it's properly base64 encoded
-      // The key should already be base64, but let's validate and clean it
-      return formattedKey;
+      console.log('Formatted public key length:', keyContent.length);
+      console.log('Formatted public key preview:', keyContent.substring(0, 100) + '...');
+
+      // Just return the cleaned base64 content - let WSO2 IS handle the format
+      return keyContent;
     } catch (error) {
       throw new Error(`Public key formatting failed: ${error}`);
     }
@@ -97,7 +103,7 @@ export class CryptographyUtils {
   /**
    * Generate RSA-SHA256 signature for registration verification
    * Signs the concatenated string of challenge.deviceToken as required by WSO2 IS
-   * 
+   *
    * @param challenge - Challenge string from QR code
    * @param deviceToken - FCM device token
    * @param privateKeyPEM - Private key in PEM format
@@ -130,7 +136,7 @@ export class CryptographyUtils {
       return signature; // This should already be base64 encoded
     } catch (error) {
       console.error('Signature generation failed:', error);
-      
+
       // Fallback: Use a simpler approach with crypto-js if RSA library fails
       try {
         console.log('Attempting fallback signature generation...');
@@ -144,7 +150,7 @@ export class CryptographyUtils {
   /**
    * Fallback signature generation using crypto-js
    * This is a simplified implementation that creates a verifiable signature
-   * 
+   *
    * @param challenge - Challenge string
    * @param deviceToken - Device token
    * @param privateKey - Private key
@@ -157,17 +163,17 @@ export class CryptographyUtils {
   ): string {
     try {
       console.log('Using fallback signature generation...');
-      
+
       const dataToSign = `${challenge}.${deviceToken}`;
-      
+
       // Create a hash of the data combined with a portion of the private key
       // This is a simplified approach but should be consistent
       const privateKeyHash = CryptoJS.SHA256(privateKey).toString();
       const combinedData = dataToSign + privateKeyHash.substring(0, 32);
-      
+
       // Generate HMAC-SHA256 signature
       const signature = CryptoJS.HmacSHA256(combinedData, privateKeyHash).toString(CryptoJS.enc.Base64);
-      
+
       console.log('Fallback signature generated');
       return signature;
     } catch (error) {
@@ -177,7 +183,7 @@ export class CryptographyUtils {
 
   /**
    * Verify that a signature is valid (for testing purposes)
-   * 
+   *
    * @param signature - Signature to verify
    * @param challenge - Original challenge
    * @param deviceToken - Original device token
@@ -192,7 +198,7 @@ export class CryptographyUtils {
   ): Promise<boolean> {
     try {
       const dataToVerify = `${challenge}.${deviceToken}`;
-      
+
       const isValid = await RSA.verifyWithAlgorithm(
         signature,
         dataToVerify,
@@ -209,7 +215,7 @@ export class CryptographyUtils {
 
   /**
    * Validate RSA key pair by signing and verifying a test message
-   * 
+   *
    * @param publicKey - Public key in PEM format
    * @param privateKey - Private key in PEM format
    * @returns Promise<boolean> - True if key pair is valid
@@ -219,7 +225,7 @@ export class CryptographyUtils {
       const testData = 'test_message_' + Date.now();
       const signature = await RSA.signWithAlgorithm(testData, privateKey, RSA.SHA256withRSA);
       const isValid = await RSA.verifyWithAlgorithm(signature, testData, publicKey, RSA.SHA256withRSA);
-      
+
       console.log('Key pair validation result:', isValid);
       return isValid;
     } catch (error) {
@@ -230,7 +236,7 @@ export class CryptographyUtils {
 
   /**
    * Generate a secure hash of the provided data
-   * 
+   *
    * @param data - Data to hash
    * @returns string - SHA256 hash in hex format
    */
