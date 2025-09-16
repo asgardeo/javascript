@@ -22,7 +22,7 @@ import CryptoService from '../utils/crypto-service';
 import { DeviceUtils } from '../utils/device-utils';
 import { FirebaseMessagingUtils } from '../utils/firebase-messaging';
 import { RegistrationDataStorage } from '../utils/registration-storage';
-import { SecureStorage } from '../utils/secure-storage';
+import SecureStorageService from '../utils/secure-storage-service';
 
 /**
  * Interface for device registration payload sent to WSO2 Identity Server
@@ -242,17 +242,12 @@ export const usePushAuthRegistration = () => {
       const deviceToken = await generateDeviceToken();
 
       // Step 3: Generate RSA key pair
-      const rsaKeyPair = await CryptoService.generateKeyPair();
+      const rsaKeyPair = CryptoService.generateKeyPair();
 
       // Store the key pair securely with converted certificate
-      await SecureStorage.storeGeneratedKeyPair(qrData.deviceId, {
-        privateKey: rsaKeyPair.privateKey,
-        publicKey: rsaKeyPair.publicKey
-      }, {
-        keySize: 2048,
-        algorithm: 'RSA',
-        validityDays: 365,
-      });
+      SecureStorageService.setItem(qrData.deviceId, rsaKeyPair.privateKey);
+
+      console.log(SecureStorageService.getItem(qrData.deviceId));
 
       // Step 4: Generate signature for verification
       const signature = await generateSignature(qrData.challenge, deviceToken, rsaKeyPair.privateKey);
