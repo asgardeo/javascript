@@ -16,15 +16,16 @@
  * under the License.
  */
 
-import * as SecureStore from 'expo-secure-store';
 import * as Crypto from 'expo-crypto';
+import * as SecureStore from 'expo-secure-store';
 import 'react-native-get-random-values';
+import { KeyPair } from '../models/crypto';
 import {
-  PrivateCert,
-  TotpSecret,
+  GeneratedKeyPair,
   generateStorageKey,
   KeyPairOptions,
-  GeneratedKeyPair
+  PrivateCert,
+  TotpSecret
 } from '../models/storage';
 
 /**
@@ -106,16 +107,10 @@ Serial: ${keyHex.substring(0, 16)}
    */
   static async storeGeneratedKeyPair(
     deviceId: string,
-    keyPair: GeneratedKeyPair,
+    keyPair: KeyPair,
     options: KeyPairOptions
   ): Promise<void> {
     try {
-      // Store certificate separately
-      await SecureStore.setItemAsync(
-        generateStorageKey.certificate(deviceId),
-        keyPair.certificate
-      );
-
       // Store private key separately
       await SecureStore.setItemAsync(
         generateStorageKey.privateKey(deviceId),
@@ -131,7 +126,6 @@ Serial: ${keyHex.substring(0, 16)}
       // Store metadata
       const metadata = {
         deviceId,
-        fingerprint: keyPair.fingerprint,
         algorithm: options.algorithm || 'RSA',
         keySize: options.keySize || 2048,
         createdAt: new Date().toISOString(),

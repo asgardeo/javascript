@@ -18,7 +18,7 @@
 
 import { useCallback, useState } from 'react';
 import { PushNotificationQRDataInterface } from '../models/push-notification';
-import { CryptographyUtils } from '../utils/cryptography';
+import CryptoService from '../utils/crypto-service';
 import { DeviceUtils } from '../utils/device-utils';
 import { FirebaseMessagingUtils } from '../utils/firebase-messaging';
 import { RegistrationDataStorage } from '../utils/registration-storage';
@@ -141,7 +141,7 @@ export const usePushAuthRegistration = () => {
   ): Promise<string> => {
     try {
       // Use proper RSA-SHA256 signature generation as required by WSO2 IS
-      const signature = await CryptographyUtils.generateSignature(
+      const signature = await CryptoService.generateChallengeSignature(
         challenge,
         deviceToken,
         privateKey
@@ -158,7 +158,7 @@ export const usePushAuthRegistration = () => {
    */
   const buildRegistrationUrl = useCallback((qrData: PushNotificationQRDataInterface): string => {
     const { tenantDomain, organizationId } = qrData;
-    const host = "http://10.22.14.18:8082"; // Replace with actual host or extract from QR data if available
+    const host = "http://192.168.208.18:8082"; // Replace with actual host or extract from QR data if available
 
     if (organizationId) {
       // Organization user - use organization path
@@ -242,17 +242,12 @@ export const usePushAuthRegistration = () => {
       const deviceToken = await generateDeviceToken();
 
       // Step 3: Generate RSA key pair
-      const rsaKeyPair = await CryptographyUtils.generateRSAKeyPair();
-
-      // Convert PKCS#1 public key to X.509 format for WSO2 IS
-      const x509Certificate = convertToX509Certificate(rsaKeyPair.publicKey);
+      const rsaKeyPair = await CryptoService.generateKeyPair();
 
       // Store the key pair securely with converted certificate
       await SecureStorage.storeGeneratedKeyPair(qrData.deviceId, {
-        certificate: x509Certificate, // Store X.509 formatted certificate
         privateKey: rsaKeyPair.privateKey,
-        publicKey: rsaKeyPair.publicKey, // Keep original for reference
-        fingerprint: CryptographyUtils.generateHash(rsaKeyPair.publicKey).substring(0, 32),
+        publicKey: rsaKeyPair.publicKey
       }, {
         keySize: 2048,
         algorithm: 'RSA',
@@ -268,8 +263,8 @@ export const usePushAuthRegistration = () => {
         name: deviceInfo.name,
         model: deviceInfo.model,
         deviceToken,
-        publicKey: x509Certificate.replace('-----BEGIN PUBLIC KEY-----', '').replace('-----END PUBLIC KEY-----', '').replace(/\r/g, '').replace(/\n/g, '').replace(/\s/g, ''), // Send the X.509 formatted certificate
-        signature: signature.replace(/\r/g, '').replace(/\n/g, '').replace(/\s/g, ''),
+        publicKey: CryptoService.getBase64Text(rsaKeyPair.publicKey),
+        signature: signature,
       };
 
       // Step 6: Build registration URL

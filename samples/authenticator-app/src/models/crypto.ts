@@ -16,18 +16,10 @@
  * under the License.
  */
 
-import { HeaderTitleProps } from "@react-navigation/elements";
-import { ReactElement, useEffect } from "react";
-import { Text } from "react-native";
-
-const HomeHeader = (_props: HeaderTitleProps): ReactElement => {
-  useEffect(() => {
-
-  }, []);
-
-  return (
-    <Text>Home</Text>
-  );
-};
-
-export default HomeHeader;
+/**
+ * Interface representing an RSA key pair in PEM format.
+ */
+export interface KeyPair {
+  publicKey: string;
+  privateKey: string;
+}

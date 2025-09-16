@@ -1,0 +1,93 @@
+/**
+ * Copyright (c) 2025, WSO2 LLC. (https://www.wso2.com).
+ *
+ * WSO2 LLC. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
+import QuickCrypto from 'react-native-quick-crypto';
+import { KeyPair } from '../models/crypto';
+
+// Node buffer polyfill for React Native environment.
+import { Buffer } from 'buffer';
+global.Buffer = Buffer;
+
+/**
+ * Cryptography service for handling cryptographic operations.
+ */
+class CryptoService {
+  /**
+   * Generates a new RSA key pair.
+   * Private Key Type: PKCS#8 PEM.
+   * Public Key Type: SPKI PEM.
+   *
+   * @returns Generated RSA key pair in PEM format.
+   */
+  static generateKeyPair(): KeyPair {
+    const { publicKey, privateKey } = QuickCrypto.generateKeyPairSync('rsa', {
+      modulusLength: 2048,
+      publicKeyEncoding: {
+        type: 'spki',
+        format: 'pem'
+      },
+      privateKeyEncoding: {
+        type: 'pkcs8',
+        format: 'pem'
+      }
+    });
+
+    return {
+      publicKey: publicKey?.toString() ?? '',
+      privateKey: privateKey?.toString() ?? ''
+    }
+  }
+
+  /**
+   * Generates a challenge signature using the provided parameters.
+   *
+   * @param challenge - The challenge string.
+   * @param deviceToken - The device token string.
+   * @param privateKey - The private key in PEM type for signing.
+   * @returns The generated challenge signature.
+   */
+  static generateChallengeSignature(challenge: string, deviceToken: string, privateKey: string): string {
+    const dataToSign = `${challenge}.${deviceToken}`;
+
+    const sign = QuickCrypto.createSign('SHA256');
+    sign.update(dataToSign, 'utf8');
+
+    const signature = sign.sign({
+      key: privateKey,
+      format: 'pem',
+      type: 'pkcs8',
+      padding: QuickCrypto.constants.RSA_PKCS1_PADDING
+    }, 'base64');
+
+    return signature as string;
+  }
+
+  /**
+   * Extracts the base64 encoded text from a PEM formatted key.
+   *
+   * @param pemKey - PEM formatted key.
+   * @returns Base64 encoded text.
+   */
+  static getBase64Text(pemKey: string): string {
+    return pemKey.replace(/-----BEGIN [\w\s]+-----/, '')
+      .replace(/-----END [\w\s]+-----/, '')
+      .replace(/\s+/g, '');
+  }
+}
+
+export default CryptoService;
