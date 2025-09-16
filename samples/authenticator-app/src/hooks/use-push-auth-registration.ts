@@ -17,12 +17,16 @@
  */
 
 import { useCallback, useState } from 'react';
+import StorageConstants from '../constants/storage';
 import { PushNotificationQRDataInterface } from '../models/push-notification';
+import { AccountInterface, PushRegistrationDataStorageInterface } from '../models/storage';
+import AsyncStorageService from '../utils/async-storage-service';
 import CryptoService from '../utils/crypto-service';
 import { DeviceUtils } from '../utils/device-utils';
 import { FirebaseMessagingUtils } from '../utils/firebase-messaging';
 import { RegistrationDataStorage } from '../utils/registration-storage';
 import SecureStorageService from '../utils/secure-storage-service';
+import TypeConvert from '../utils/typer-convert';
 
 /**
  * Interface for device registration payload sent to WSO2 Identity Server
@@ -247,8 +251,6 @@ export const usePushAuthRegistration = () => {
       // Store the key pair securely with converted certificate
       SecureStorageService.setItem(qrData.deviceId, rsaKeyPair.privateKey);
 
-      console.log(SecureStorageService.getItem(qrData.deviceId));
-
       // Step 4: Generate signature for verification
       const signature = await generateSignature(qrData.challenge, deviceToken, rsaKeyPair.privateKey);
 
@@ -271,8 +273,26 @@ export const usePushAuthRegistration = () => {
       const result = await sendRegistrationRequest(registrationUrl, payload);
 
       if (result.success) {
-        // Step 8: Store registration data on successful registration
-        await storeRegistrationData(qrData.deviceId, qrData, deviceToken);
+        const accountId: string = CryptoService.generateRandomKey();
+
+        const accountData: AccountInterface = {
+          id: accountId,
+          username: qrData.username,
+          organization: qrData.organizationName ?? qrData.tenantDomain
+        };
+        await AsyncStorageService.addItem(StorageConstants.ACCOUNTS_DATA,
+          TypeConvert.toStorageDataInterface(accountData));
+
+        const storingData: PushRegistrationDataStorageInterface = {
+          tenantDomain: qrData.tenantDomain,
+          organizationId: qrData.organizationId,
+          organizationName: qrData.organizationName,
+          deviceId: qrData.deviceId
+        };
+        await AsyncStorageService.setItem(
+          StorageConstants.replaceAccountId(StorageConstants.PUSH_REGISTRATION_DATA, accountId),
+          JSON.stringify(storingData)
+        );
       } else {
         setRegistrationError({
           code: 'REGISTRATION_FAILED',

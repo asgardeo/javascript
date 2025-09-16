@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import { getItem, setItem } from 'expo-secure-store';
+import { deleteItemAsync, getItem, setItem, WHEN_UNLOCKED_THIS_DEVICE_ONLY, } from 'expo-secure-store';
 
 /**
  * Secure Storage service for handling secure storage operations.
@@ -29,7 +29,9 @@ class SecureStorageService {
    * @param value The value to store (This should be a single string).
    */
   static setItem(key: string, value: string): void {
-    setItem(key, value);
+    setItem(key, value, {
+      keychainAccessible: WHEN_UNLOCKED_THIS_DEVICE_ONLY
+    });
   }
 
   /**
@@ -39,7 +41,21 @@ class SecureStorageService {
    * @returns The stored value or null if not found.
    */
   static getItem(key: string): string | null {
-    return getItem(key);
+    return getItem(key, {
+      keychainAccessible: WHEN_UNLOCKED_THIS_DEVICE_ONLY
+    });
+  }
+
+  /**
+   * Removes a value from secure storage.
+   *
+   * @param key The key to remove the value.
+   * @returns A promise that resolves when the item is removed.
+   */
+  static removeItem(key: string): Promise<void> {
+    return deleteItemAsync(key, {
+      keychainAccessible: WHEN_UNLOCKED_THIS_DEVICE_ONLY
+    });
   }
 }
 

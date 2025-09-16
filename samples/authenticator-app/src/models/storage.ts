@@ -16,6 +16,35 @@
  * under the License.
  */
 
+import { PushAuthenticationDataInterface, PushCommonDataInterface } from "./push-notification";
+
+/**
+ * Interface representing generic storage data.
+ */
+export interface StorageDataInterface {
+  [key: string]: unknown;
+}
+
+/**
+ * Interface representing a user account.
+ */
+export interface AccountInterface {
+  id: string;
+  organization: string;
+  username: string;
+}
+
+/**
+ * Interface representing the data stored during push registration.
+ */
+export type PushRegistrationDataStorageInterface = Omit<PushCommonDataInterface, 'challenge' | 'username'>;
+
+/**
+ * Interface representing the data stored during push authentication.
+ */
+export type PushAuthenticationDataStorageInterface = Pick<PushAuthenticationDataInterface,
+  'applicationName' | 'notificationScenario' | 'ipAddress' | 'deviceOS' | 'browser'>;
+
 /**
  * Key pair generation options
  */

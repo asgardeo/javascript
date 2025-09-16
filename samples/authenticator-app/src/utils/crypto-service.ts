@@ -88,6 +88,15 @@ class CryptoService {
       .replace(/-----END [\w\s]+-----/, '')
       .replace(/\s+/g, '');
   }
+
+  /**
+   * Generates a random key (UUID).
+   *
+   * @returns A randomly generated key (UUID).
+   */
+  static generateRandomKey(): string {
+    return QuickCrypto.randomUUID();
+  }
 }
 
 export default CryptoService;
