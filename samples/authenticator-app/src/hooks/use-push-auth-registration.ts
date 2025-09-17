@@ -23,8 +23,7 @@ import { AccountInterface, PushRegistrationDataStorageInterface } from '../model
 import AsyncStorageService from '../utils/async-storage-service';
 import CryptoService from '../utils/crypto-service';
 import { DeviceUtils } from '../utils/device-utils';
-import { FirebaseMessagingUtils } from '../utils/firebase-messaging';
-import { RegistrationDataStorage } from '../utils/registration-storage';
+import MessagingService from '../utils/messagging-service';
 import SecureStorageService from '../utils/secure-storage-service';
 import TypeConvert from '../utils/typer-convert';
 
@@ -62,7 +61,7 @@ export interface PushRegistrationError {
  *
  * This hook implements the complete push device registration flow as per WSO2 IS documentation:
  * 1. Extract QR code data containing deviceId, challenge, and server information
- * 2. Generate Firebase Cloud Messaging device token
+ * 2. Generate  Cloud Messaging device token
  * 3. Generate RSA 2048-bit key pair for cryptographic operations
  * 4. Sign challenge.deviceToken with private key for verification
  * 5. Send registration request to appropriate WSO2 IS endpoint (tenant or organization)
@@ -77,84 +76,6 @@ export const usePushAuthRegistration = () => {
    */
   const getDeviceInfo = useCallback(async () => {
     return await DeviceUtils.getDeviceInfo();
-  }, []);
-
-  /**
-   * Generate Firebase Cloud Messaging device token
-   */
-  const generateDeviceToken = useCallback(async (): Promise<string> => {
-    try {
-      // Initialize Firebase messaging if needed
-      await FirebaseMessagingUtils.initialize();
-
-      // Get the FCM token
-      const token = await FirebaseMessagingUtils.getDeviceToken();
-      return token;
-    } catch (error) {
-      console.error('Failed to generate FCM device token:', error);
-      throw new Error(`FCM token generation failed: ${error}`);
-    }
-  }, []);
-
-  /**
-   * Convert PKCS#1 RSA public key to X.509 SubjectPublicKeyInfo format
-   * This creates a proper certificate format that WSO2 IS can parse
-   */
-  const convertToX509Certificate = useCallback((pkcs1PublicKey: string): string => {
-    try {
-      // Extract the base64 content from PKCS#1 format
-      let keyContent = pkcs1PublicKey
-        .replace('-----BEGIN RSA PUBLIC KEY-----', '')
-        .replace('-----END RSA PUBLIC KEY-----', '')
-        .replace(/\r/g, '')
-        .replace(/\n/g, '')
-        .replace(/\s/g, '');
-
-      // RSA algorithm identifier in ASN.1 DER format (base64 encoded)
-      // This is the standard RSA OID + NULL parameters + bit string header
-      const rsaAlgorithmIdentifier = 'MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8A';
-
-      // Combine the algorithm identifier with the PKCS#1 key content
-      const x509Content = rsaAlgorithmIdentifier + keyContent;
-
-      // Format as proper X.509 certificate with headers
-      const x509Certificate =
-        '-----BEGIN PUBLIC KEY-----\n' +
-        x509Content.match(/.{1,64}/g)?.join('\n') + '\n' +
-        '-----END PUBLIC KEY-----';
-
-      console.log('Converted to X.509 certificate format');
-      return x509Certificate;
-    } catch (error) {
-      console.error('Failed to convert to X.509 format:', error);
-      throw new Error(`X.509 conversion failed: ${error}`);
-    }
-  }, []);
-
-  /**
-   * Generate signature for registration verification
-   * Signs challenge.deviceToken with private key using RSA-SHA256
-   */  /**
-   * Generate signature for registration verification
-   * Signs challenge.deviceToken with private key using RSA-SHA256
-   */
-  const generateSignature = useCallback(async (
-    challenge: string,
-    deviceToken: string,
-    privateKey: string
-  ): Promise<string> => {
-    try {
-      // Use proper RSA-SHA256 signature generation as required by WSO2 IS
-      const signature = await CryptoService.generateChallengeSignature(
-        challenge,
-        deviceToken,
-        privateKey
-      );
-
-      return signature;
-    } catch (error) {
-      throw new Error(`Signature generation failed: ${error}`);
-    }
   }, []);
 
   /**
@@ -210,23 +131,6 @@ export const usePushAuthRegistration = () => {
   }, []);
 
   /**
-   * Store registration data securely for future use
-   */
-  const storeRegistrationData = useCallback(async (
-    deviceId: string,
-    qrData: PushNotificationQRDataInterface,
-    deviceToken: string
-  ) => {
-    try {
-      // Store user and server information for authentication flows
-      await RegistrationDataStorage.storeRegistrationData(deviceId, qrData, deviceToken);
-      console.log('Registration data stored successfully');
-    } catch (error) {
-      throw new Error(`Failed to store registration data: ${error}`);
-    }
-  }, []);
-
-  /**
    * Main registration function that orchestrates the entire push device registration flow
    *
    * @param qrData - The data extracted from the QR code containing device and server information
@@ -243,7 +147,7 @@ export const usePushAuthRegistration = () => {
       const deviceInfo = await getDeviceInfo();
 
       // Step 2: Generate FCM device token
-      const deviceToken = await generateDeviceToken();
+      const deviceToken = await MessagingService.generateFCMToken();
 
       // Step 3: Generate RSA key pair
       const rsaKeyPair = CryptoService.generateKeyPair();
@@ -252,7 +156,7 @@ export const usePushAuthRegistration = () => {
       SecureStorageService.setItem(qrData.deviceId, rsaKeyPair.privateKey);
 
       // Step 4: Generate signature for verification
-      const signature = await generateSignature(qrData.challenge, deviceToken, rsaKeyPair.privateKey);
+      const signature = CryptoService.generateChallengeSignature(qrData.challenge, deviceToken, rsaKeyPair.privateKey);
 
       // Step 5: Prepare registration payload
       const payload: DeviceRegistrationPayload = {
@@ -318,12 +222,8 @@ export const usePushAuthRegistration = () => {
     }
   }, [
     getDeviceInfo,
-    generateDeviceToken,
-    convertToX509Certificate,
-    generateSignature,
     buildRegistrationUrl,
-    sendRegistrationRequest,
-    storeRegistrationData,
+    sendRegistrationRequest
   ]);
 
   return {

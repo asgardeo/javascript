@@ -14,9 +14,14 @@
       },
       "supportsTablet": true,
       "infoPlist": {
-        "NSCameraUsageDescription": "This app needs access to the camera to scan QR codes."
+        "NSCameraUsageDescription": "This app needs access to the camera to scan QR codes.",
+        "UIBackgroundModes": ["remote-notification"]
       },
-      "bundleIdentifier": "com.example.com"
+      "bundleIdentifier": "com.example.com",
+      "googleServicesFile": "./GoogleService-Info.plist",
+      "entitlements": {
+        "aps-environment": "production"
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -39,6 +44,8 @@
     },
     "plugins": [
       "expo-router",
+      "@react-native-firebase/app",
+      "@react-native-firebase/messaging",
       [
         "expo-camera",
         {
@@ -58,6 +65,14 @@
         "expo-secure-store",
         {
           "configureAndroidBackup": true
+        }
+      ],
+      [
+        "expo-build-properties",
+        {
+          "ios": {
+            "useFrameworks": "static"
+          }
         }
       ]
     ],

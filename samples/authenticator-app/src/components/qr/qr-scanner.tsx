@@ -16,9 +16,6 @@
  * under the License.
  */
 
-import { usePushAuthRegistration } from "@/src/hooks/use-push-auth-registration";
-import { QRDataType, QRDataValidationResponseInterface } from "@/src/models/core";
-import { TOTPQRDataInterface } from "@/src/models/totp";
 import { MaterialIcons } from "@expo/vector-icons";
 import { BarcodeScanningResult, CameraView, useCameraPermissions } from "expo-camera";
 import { router } from "expo-router";
@@ -26,6 +23,9 @@ import { FunctionComponent, ReactElement, useCallback, useEffect, useState } fro
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import validateQRData from "../../../src/utils/validate-qr-data";
 import useTheme from "../../contexts/theme/useTheme";
+import { usePushAuthRegistration } from "../../hooks/use-push-auth-registration";
+import { QRDataType, QRDataValidationResponseInterface } from "../../models/core";
+import { TOTPQRDataInterface } from "../../models/totp";
 import Alert, { AlertType } from "../Alert";
 
 /**
