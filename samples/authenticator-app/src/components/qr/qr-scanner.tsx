@@ -94,8 +94,13 @@ const QRScanner: FunctionComponent<QRScannerProps> = ({
         onTOTPQRScanSuccess(qrData.totpData!);
         showAlert(AlertType.SUCCESS, 'QR Code Scanned Successfully!', 'TOTP account registration data has been read successfully.');
       } else if (qrData.type === QRDataType.PUSH_NOTIFICATION) {
-        await registerPushDevice(qrData.pushNotificationData!);
-        showAlert(AlertType.SUCCESS, 'QR Code Scanned Successfully!', 'Push notification device registration completed successfully.');
+        showAlert(AlertType.LOADING, 'Registering Device...', 'Please wait while we register your device for push notifications.');
+        try {
+          await registerPushDevice(qrData.pushNotificationData!);
+          showAlert(AlertType.SUCCESS, 'QR Code Scanned Successfully!', 'Push notification device registration completed successfully.');
+        } catch {
+          showAlert(AlertType.ERROR, 'Registration Failed', 'Failed to register the push notification device. Please try again.');
+        }
       }
     } else {
       showAlert(AlertType.ERROR, 'Invalid QR Code', 'The QR code you scanned is not valid. Please try scanning a valid QR code.');

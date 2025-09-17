@@ -129,8 +129,8 @@ export const usePushAuthRegistration = (): UsePushAuthRegistrationPropsInterface
       } else {
         throw new Error(`Registration failed with status ${response.status}`);
       }
-    } catch (error) {
-      console.error('Error during push device registration:', error);
+    } catch {
+      throw new Error(`Push device registration failed.`);
     } finally {
       setIsRegistering(false);
     }

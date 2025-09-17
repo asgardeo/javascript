@@ -18,7 +18,7 @@
 
 import { MaterialIcons } from "@expo/vector-icons";
 import { FunctionComponent, ReactElement, useEffect } from "react";
-import { Modal, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, Modal, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import useTheme from "../contexts/theme/useTheme";
 
 /**
@@ -28,6 +28,7 @@ export enum AlertType {
   SUCCESS = 'success',
   ERROR = 'error',
   INFO = 'info',
+  LOADING = 'loading',
 };
 
 /**
@@ -39,7 +40,7 @@ interface AlertProps {
    */
   visible: boolean;
   /**
-   * Type of alert (success or error).
+   * Type of alert (success, error, info, or loading).
    */
   type: AlertType;
   /**
@@ -61,7 +62,7 @@ interface AlertProps {
   /**
    * Callback function when primary button is pressed.
    */
-  onPrimaryPress: () => void;
+  onPrimaryPress?: () => void;
   /**
    * Callback function when secondary button is pressed (optional).
    */
@@ -76,8 +77,9 @@ interface AlertProps {
  * Configuration for alert icons and colors.
  */
 interface AlertConfig {
-  icon: keyof typeof MaterialIcons.glyphMap;
-  iconColor: string;
+  icon?: keyof typeof MaterialIcons.glyphMap;
+  iconColor?: string;
+  showLoader?: boolean;
   background: {
     backgroundColor: string;
   };
@@ -126,7 +128,12 @@ const Alert: FunctionComponent<AlertProps> = ({
           icon: 'info' as const,
           iconColor: '#2196F3',
           background: styles.colors.backgroundInfo,
-        }
+        };
+      case AlertType.LOADING:
+        return {
+          showLoader: true,
+          background: styles.colors.backgroundNeutral,
+        };
       default:
         return {
           icon: 'info' as const,
@@ -142,7 +149,7 @@ const Alert: FunctionComponent<AlertProps> = ({
    * Auto dismiss the alert after the specified timeout.
    */
   useEffect(() => {
-    if (autoDismissTimeout && visible) {
+    if (autoDismissTimeout && visible && onPrimaryPress) {
       const id: number = setTimeout(() => {
         onPrimaryPress();
       }, autoDismissTimeout);
@@ -161,11 +168,19 @@ const Alert: FunctionComponent<AlertProps> = ({
       <View style={alertStyles.overlay}>
         <View style={[alertStyles.container, alertConfig.background]}>
           <View style={alertStyles.iconContainer}>
-            <MaterialIcons
-              name={alertConfig.icon}
-              size={48}
-              color={alertConfig.iconColor}
-            />
+            {alertConfig.showLoader ? (
+              <ActivityIndicator
+                size="large"
+                color={ styles.colors.backgroundPrimary.backgroundColor }
+                style={alertStyles.loader}
+              />
+            ) : (
+              <MaterialIcons
+                name={alertConfig.icon!}
+                size={48}
+                color={alertConfig.iconColor}
+              />
+            )}
           </View>
 
           <Text style={[styles.typography.h3, alertStyles.title]}>
@@ -233,6 +248,9 @@ const alertStyles = StyleSheet.create({
   },
   iconContainer: {
     marginBottom: 16,
+  },
+  loader: {
+    marginVertical: 8,
   },
   title: {
     textAlign: 'center',
