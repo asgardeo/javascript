@@ -26,8 +26,6 @@ const Home: FunctionComponent = (): ReactElement => {
   const { styles } = useTheme();
 
   const handleAddPress = () => {
-    console.log("Add button pressed");
-    // Navigate to QR scanner
     router.push("/qr-scanner");
   };
 

@@ -26,7 +26,6 @@ const validateQRData = (data: string): QRDataValidationResponseInterface => {
       return totpResult;
     }
 
-    console.log(data);
     const pushResult: QRDataValidationResponseInterface = validatePushNotificationFormat(data);
     if (pushResult.isValid) {
       return pushResult;

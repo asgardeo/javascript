@@ -19,7 +19,7 @@
 import { MaterialIcons } from "@expo/vector-icons";
 import { BarcodeScanningResult, CameraView, useCameraPermissions } from "expo-camera";
 import { router } from "expo-router";
-import { FunctionComponent, ReactElement, useCallback, useEffect, useState } from "react";
+import { FunctionComponent, ReactElement, useCallback, useState } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import validateQRData from "../../../src/utils/validate-qr-data";
 import useTheme from "../../contexts/theme/useTheme";
@@ -51,7 +51,7 @@ const QRScanner: FunctionComponent<QRScannerProps> = ({
 }: QRScannerProps): ReactElement => {
   const { styles } = useTheme();
   const [permission, requestPermission] = useCameraPermissions();
-  const { registerPushDevice, registrationError } = usePushAuthRegistration();
+  const { registerPushDevice } = usePushAuthRegistration();
   const [scanned, setScanned] = useState(false);
   const [alertVisible, setAlertVisible] = useState(false);
   const [alertType, setAlertType] = useState<AlertType>(AlertType.SUCCESS);
@@ -101,10 +101,6 @@ const QRScanner: FunctionComponent<QRScannerProps> = ({
       showAlert(AlertType.ERROR, 'Invalid QR Code', 'The QR code you scanned is not valid. Please try scanning a valid QR code.');
     }
   };
-
-  useEffect(() => {
-    console.log('Registration Error:', registrationError);
-  }, [ registrationError ]);
 
   /**
    * Handle the go back action.
