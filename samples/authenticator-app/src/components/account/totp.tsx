@@ -16,21 +16,26 @@
  * under the License.
  */
 
-import { useLocalSearchParams } from "expo-router";
 import { FunctionComponent, ReactElement } from "react";
-import TOTPCode from "../src/components/account/totp";
 
 /**
- * Account Screen component.
- *
- * @returns Account screen component.
+ * Props for the TOTPCode component.
  */
-const AccountScreen: FunctionComponent = (): ReactElement | null => {
-  const { id } = useLocalSearchParams<{ id: string }>();
-
-  return (
-    <TOTPCode id={id} />
-  );
+export interface TOTPCodeProps {
+  /**
+   * Id of the registered account.
+   */
+  id?: string;
 }
 
-export default AccountScreen;
+/**
+ * TOTP Code Component.
+ *
+ * @param id The ID of the registered account.
+ * @returns A React element representing the TOTP code component.
+ */
+const TOTPCode: FunctionComponent<TOTPCodeProps> = ({ id }: TOTPCodeProps): ReactElement => {
+  return <></>;
+}
+
+export default TOTPCode;
