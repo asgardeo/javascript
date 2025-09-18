@@ -16,14 +16,23 @@
  * under the License.
  */
 
-import { HeaderTitleProps } from "@react-navigation/elements";
-import { ReactElement } from "react";
-import { Text } from "react-native";
+import { useLocalSearchParams } from "expo-router";
+import { FunctionComponent, ReactElement } from "react";
+import { Text, View } from "react-native";
 
-const HomeHeader = (_props: HeaderTitleProps): ReactElement => {
+/**
+ * Push Authentication Screen
+ *
+ * @returns Push authentication screen component.
+ */
+const PushAuthScreen: FunctionComponent = (): ReactElement | null => {
+  const { id } = useLocalSearchParams<{ id: string }>();
+
   return (
-    <Text>Home</Text>
+    <View>
+      <Text>Account Screen: {id}</Text>
+    </View>
   );
-};
+}
 
-export default HomeHeader;
+export default PushAuthScreen;

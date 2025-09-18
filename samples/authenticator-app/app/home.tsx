@@ -16,10 +16,11 @@
  * under the License.
  */
 
+import AccountList from "@/src/components/home/account-list";
 import { MaterialIcons } from "@expo/vector-icons";
 import { Router, useRouter } from "expo-router";
 import { FunctionComponent, ReactElement } from "react";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { StyleSheet, TouchableOpacity, View } from "react-native";
 import useTheme from "../src/contexts/theme/useTheme";
 
 const Home: FunctionComponent = (): ReactElement => {
@@ -38,8 +39,7 @@ const Home: FunctionComponent = (): ReactElement => {
         alignItems: "center",
       }}
     >
-      <Text style={styles.typography.h2}>Welcome to the Home Screen!</Text>
-
+      <AccountList />
       <TouchableOpacity
         style={[
           styles.buttons.primaryButton,

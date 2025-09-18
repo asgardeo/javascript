@@ -17,7 +17,7 @@
  */
 
 import { PushAuthenticationDataInterface, PushAuthResponseStatus } from "@/src/models/push-notification";
-import { FunctionComponent, ReactElement } from "react";
+import { FunctionComponent, ReactElement, useMemo } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import usePushAuth from "../../contexts/push-auth/use-push-auth";
 import useTheme from "../../contexts/theme/useTheme";
@@ -114,7 +114,6 @@ const AppNotification: FunctionComponent<PushAuthenticationDataInterface> = ({
   const { styles } = useTheme();
   const location = estimateLocationFromIP(ipAddress);
   const timeString = formatsentTime(new Date(sentTime));
-  const threeNumbers = numberChallenge ? generateThreeNumbers(parseInt(numberChallenge)) : [];
   const { sentPushAuthResponse } = usePushAuth();
 
   const notificationStyles = StyleSheet.create({
@@ -242,6 +241,10 @@ const AppNotification: FunctionComponent<PushAuthenticationDataInterface> = ({
       fontStyle: 'italic',
     },
   });
+
+  const threeNumbers = useMemo(() => {
+    return numberChallenge ? generateThreeNumbers(parseInt(numberChallenge)) : [];
+  }, [numberChallenge]);
 
   return (
     <View style={notificationStyles.container}>

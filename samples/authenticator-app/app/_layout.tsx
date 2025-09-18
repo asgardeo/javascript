@@ -35,6 +35,12 @@ const RootLayout = (): ReactElement => {
               headerShown: false
             }}
           />
+          <Stack.Screen
+            name="account"
+            options={{
+              headerTitle: HomeHeader
+            }}
+          />
         </Stack>
       </PushAuthProvider>
     </ThemeProvider>

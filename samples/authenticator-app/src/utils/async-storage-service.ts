@@ -71,6 +71,8 @@ class AsyncStorageService {
 
     if (maxItems && newValue.length === maxItems) {
       newValue = [value, ...newValue.slice(0, maxItems)];
+    } else {
+      newValue = [value, ...newValue];
     }
 
     return AsyncStorage.setItem(key, JSON.stringify(newValue));
