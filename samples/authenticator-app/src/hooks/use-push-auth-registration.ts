@@ -21,7 +21,7 @@ import { useCallback, useState } from 'react';
 import { Platform } from 'react-native';
 import StorageConstants from '../constants/storage';
 import { PushNotificationQRDataInterface } from '../models/push-notification';
-import { AccountInterface, PushRegistrationDataStorageInterface } from '../models/storage';
+import { AccountInterface } from '../models/storage';
 import AsyncStorageService from '../utils/async-storage-service';
 import CryptoService from '../utils/crypto-service';
 import MessagingService from '../utils/messagging-service';
@@ -106,23 +106,16 @@ export const usePushAuthRegistration = (): UsePushAuthRegistrationPropsInterface
       });
 
       if (response.status === 201) {
+        const id: string = CryptoService.generateRandomKey();
+
         const accountData: AccountInterface = {
+          id,
           deviceId: qrData.deviceId,
           username: qrData.username,
           organization: qrData.organizationName ?? qrData.tenantDomain
         };
         await AsyncStorageService.addItem(StorageConstants.ACCOUNTS_DATA,
           TypeConvert.toStorageDataInterface(accountData));
-
-        const storingData: PushRegistrationDataStorageInterface = {
-          tenantDomain: qrData.tenantDomain,
-          organizationId: qrData.organizationId,
-          organizationName: qrData.organizationName
-        };
-        await AsyncStorageService.setItem(
-          StorageConstants.replaceAccountId(StorageConstants.PUSH_REGISTRATION_DATA, qrData.deviceId),
-          JSON.stringify(storingData)
-        );
       } else {
         throw new Error(`Registration failed with status ${response.status}`);
       }

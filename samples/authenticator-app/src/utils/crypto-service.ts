@@ -16,19 +16,22 @@
  * under the License.
  */
 
+import { TOTP } from 'otpauth';
 import QuickCrypto from 'react-native-quick-crypto';
 import { KeyPair } from '../models/crypto';
+import { PushAuthJWTBodyInterface, PushAuthJWTHeaderInterface } from '../models/push-notification';
+import SecureStorageService from './secure-storage-service';
 
 // Node buffer polyfill for React Native environment.
 import { Buffer } from 'buffer';
-import { PushAuthJWTBodyInterface, PushAuthJWTHeaderInterface } from '../models/push-notification';
-import SecureStorageService from './secure-storage-service';
 global.Buffer = Buffer;
 
 /**
  * Cryptography service for handling cryptographic operations.
  */
 class CryptoService {
+  private static currentTOTP: { [key: string]: TOTP } = {};
+
   /**
    * Generates a new RSA key pair.
    * Private Key Type: PKCS#8 PEM.
@@ -137,6 +140,49 @@ class CryptoService {
     });
 
     return `${dataToSign}.${this.encodeBase64Url(signature)}`;
+  }
+
+  /**
+   * Retrieves the TOTP instance for the given identifier.
+   *
+   * @param id - Identifier for which the TOTP instance has to be retrieved.
+   * @returns The TOTP instance.
+   */
+  private static getTOTPInstance(id: string): TOTP {
+    const secret: string | null = SecureStorageService.getItem(id);
+
+    if (!secret) {
+      throw new Error('No secret found for the given ID.');
+    }
+
+    const totp: TOTP = new TOTP({
+      secret
+    });
+
+    this.currentTOTP[id] = totp;
+
+    return totp;
+  }
+
+  /**
+   * Generates a TOTP (Time-based One-Time Password) for the given identifier.
+   *
+   * @param id - Identifier for which the TOTP has to be generated.
+   * @returns The generated TOTP.
+   */
+  static generateTOTP(id: string): string {
+    const totp: TOTP = this.getTOTPInstance(id);
+
+    return totp.generate();
+  }
+
+  /**
+   * Gets the remaining seconds for the current TOTP validity period.
+   *
+   * @returns The remaining seconds for the current TOTP validity period.
+   */
+  static getTOTPRemainingSeconds(id: string): number {
+    return this.currentTOTP[id]?.remaining() ?? 0;
   }
 }
 

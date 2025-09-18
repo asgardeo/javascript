@@ -16,12 +16,13 @@
  * under the License.
  */
 
-import { PushAuthenticationDataStorageInterface } from "@/src/models/storage";
+import TypeConvert from "@/src/utils/typer-convert";
 import { Router, useRouter } from "expo-router";
 import { FunctionComponent, PropsWithChildren, ReactElement, useCallback, useEffect, useState } from "react";
 import Alert, { AlertType } from "../../components/Alert";
 import StorageConstants from "../../constants/storage";
 import { PushAuthenticationDataInterface, PushAuthJWTBodyInterface, PushAuthJWTHeaderInterface, PushAuthResponseStatus } from "../../models/push-notification";
+import { AccountInterface, PushAuthenticationDataStorageInterface, StorageDataInterface } from "../../models/storage";
 import AsyncStorageService from "../../utils/async-storage-service";
 import CryptoService from "../../utils/crypto-service";
 import MessagingService from "../../utils/messagging-service";
@@ -163,6 +164,15 @@ const PushAuthProvider: FunctionComponent<PropsWithChildren> = ({ children }: Pr
 
     try {
       if (result?.status === 200) {
+        const storageData: StorageDataInterface | undefined = await AsyncStorageService.getListItemByItemKey(
+          StorageConstants.ACCOUNTS_DATA, "deviceId", pushAuthMessageCache[id].deviceId);
+
+        if (!storageData) {
+          return;
+        }
+
+        const accountDetails: AccountInterface = TypeConvert.toAccountInterface(storageData);
+
         const authStorageData: PushAuthenticationDataStorageInterface = {
           applicationName: pushAuthMessageCache[id].applicationName,
           ipAddress: pushAuthMessageCache[id].ipAddress,
@@ -176,7 +186,7 @@ const PushAuthProvider: FunctionComponent<PropsWithChildren> = ({ children }: Pr
 
         AsyncStorageService.addItem(
           StorageConstants.replaceAccountId(
-            StorageConstants.PUSH_AUTHENTICATION_DATA, pushAuthMessageCache[id].deviceId),
+            StorageConstants.PUSH_AUTHENTICATION_DATA, accountDetails.deviceId!),
           authStorageData,
           3 // Keep a maximum of 3 records per device ID.
         );

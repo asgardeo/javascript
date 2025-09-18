@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import { StorageDataInterface } from "../models/storage";
+import { AccountInterface, StorageDataInterface } from "../models/storage";
 
 /**
  * Class containing type conversion utility methods.
@@ -40,6 +40,39 @@ class TypeConvert {
   static toStorageDataInterface(data: unknown): StorageDataInterface {
     if (!this.isStorageDataType(data)) {
       throw new Error("Invalid storage data");
+    }
+
+    return data;
+  }
+
+  /**
+   * Checks if the given data is of type AccountInterface.
+   *
+   * @param data - Data to be checked.
+   * @returns True if the data is of type AccountInterface, false otherwise.
+   */
+  private static isAccountInterfaceType(data: unknown): data is AccountInterface {
+    if (typeof data !== "object" || data === null || Array.isArray(data)) {
+      return false;
+    }
+
+    if (!('id' in data) || !('organization' in data) || !('username' in data)) {
+      return false;
+    }
+
+    return true;
+  }
+
+  /**
+   * Converts the given data to an AccountInterface.
+   *
+   * @param data - Data to be converted to AccountInterface.
+   * @returns The converted AccountInterface.
+   * @throws Error if the data is not a valid AccountInterface.
+   */
+  static toAccountInterface(data: unknown): AccountInterface {
+    if (!this.isAccountInterfaceType(data)) {
+      throw new Error("Invalid account data");
     }
 
     return data;
