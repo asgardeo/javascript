@@ -16,7 +16,10 @@
  * under the License.
  */
 
-import messaging, { getToken, requestPermission } from '@react-native-firebase/messaging';
+import messaging, { FirebaseMessagingTypes, getToken, onMessage, requestPermission } from '@react-native-firebase/messaging';
+import { PushAuthenticationDataInterface } from '../models/push-notification';
+
+const messagingInstance: FirebaseMessagingTypes.Module = messaging();
 
 /**
  * Class containing messaging service utility methods.
@@ -26,7 +29,7 @@ class MessagingService {
    * Requests user permissions to display offline notifications.
    */
   static async requestUserPermission(): Promise<void> {
-    await requestPermission(messaging());
+    await requestPermission(messagingInstance);
   }
 
   /**
@@ -35,7 +38,39 @@ class MessagingService {
    * @returns The FCM token for the device.
    */
   static async generateFCMToken(): Promise<string> {
-    return getToken(messaging());
+    return getToken(messagingInstance);
+  }
+
+  /**
+   * Listens for incoming in-app messages when the app is in the foreground.
+   *
+   * @param router - The router instance to navigate on message receipt.
+   * @returns A function to unsubscribe from in-app message listener.
+   */
+  static listenForInAppMessages(callback: (data: PushAuthenticationDataInterface) => void): () => void {
+    return onMessage(messagingInstance, (message: FirebaseMessagingTypes.RemoteMessage) => {
+      if (message.data?.pushId) {
+        const pushData: PushAuthenticationDataInterface = {
+          username: message.data.username as string,
+          tenantDomain: message.data.tenantDomain as string,
+          organizationId: message.data.organizationId as string,
+          organizationName: message.data.organizationName as string,
+          userStoreDomain: message.data.userStoreDomain as string,
+          deviceId: message.data.deviceId as string,
+          applicationName: message.data.applicationName as string,
+          notificationScenario: message.data.notificationScenario as string,
+          pushId: message.data.pushId as string,
+          challenge: message.data.challenge as string,
+          numberChallenge: message.data.numberChallenge as string,
+          ipAddress: message.data.ipAddress as string,
+          deviceOS: message.data.deviceOS as string,
+          browser: message.data.browser as string,
+          sentTime: message.sentTime as number
+        }
+
+        callback(pushData);
+      }
+    });
   }
 }
 

@@ -21,6 +21,8 @@ import { KeyPair } from '../models/crypto';
 
 // Node buffer polyfill for React Native environment.
 import { Buffer } from 'buffer';
+import { PushAuthJWTBodyInterface, PushAuthJWTHeaderInterface } from '../models/push-notification';
+import SecureStorageService from './secure-storage-service';
 global.Buffer = Buffer;
 
 /**
@@ -96,6 +98,45 @@ class CryptoService {
    */
   static generateRandomKey(): string {
     return QuickCrypto.randomUUID();
+  }
+
+  /**
+   * Encodes a string to Base64 URL format.
+   *
+   * @param input - The input string to be encoded.
+   * @returns The Base64 URL encoded string.
+   */
+  private static encodeBase64Url(input: string | Buffer<ArrayBuffer>): string {
+    return Buffer.from(input)
+      .toString('base64')
+      .replace(/=/g, '') // Remove padding
+      .replace(/\+/g, '-') // Replace '+' with '-'
+      .replace(/\//g, '_'); // Replace '/' with '_'
+  }
+
+  /**
+   * Generates a push response JWT.
+   *
+   * @param header - The JWT header.
+   * @param body - The JWT body.
+   * @returns The generated JWT.
+   */
+  static generatePushResponseJWT(header: PushAuthJWTHeaderInterface, body: PushAuthJWTBodyInterface): string {
+    const encodedHeader = this.encodeBase64Url(JSON.stringify(header));
+    const encodedBody = this.encodeBase64Url(JSON.stringify(body));
+    const dataToSign = `${encodedHeader}.${encodedBody}`;
+
+    const sign = QuickCrypto.createSign('SHA256');
+    sign.update(dataToSign, 'utf8');
+
+    const signature = sign.sign({
+      key: SecureStorageService.getItem(header.deviceId),
+      format: 'pem',
+      type: 'pkcs8',
+      padding: QuickCrypto.constants.RSA_PKCS1_PADDING
+    });
+
+    return `${dataToSign}.${this.encodeBase64Url(signature)}`;
   }
 }
 

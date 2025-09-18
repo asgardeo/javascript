@@ -28,6 +28,12 @@ class StorageConstants {
    * Key for storing push registration data.
    */
   static readonly PUSH_REGISTRATION_DATA = 'push_registration_data_{{account_id}}';
+
+  /**
+   * Key for storing push authentication data.
+   */
+  static readonly PUSH_AUTHENTICATION_DATA = 'push_authentication_data_{{account_id}}';
+
   /**
    * Key for storing accounts data.
    */

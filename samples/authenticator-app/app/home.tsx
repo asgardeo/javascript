@@ -17,13 +17,14 @@
  */
 
 import { MaterialIcons } from "@expo/vector-icons";
-import { router } from "expo-router";
+import { Router, useRouter } from "expo-router";
 import { FunctionComponent, ReactElement } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import useTheme from "../src/contexts/theme/useTheme";
 
 const Home: FunctionComponent = (): ReactElement => {
   const { styles } = useTheme();
+  const router: Router = useRouter();
 
   const handleAddPress = () => {
     router.push("/qr-scanner");

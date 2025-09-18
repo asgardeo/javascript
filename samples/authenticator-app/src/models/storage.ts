@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import { PushAuthenticationDataInterface, PushCommonDataInterface } from "./push-notification";
+import { PushAuthenticationDataInterface, PushAuthResponseStatus, PushCommonDataInterface } from "./push-notification";
 
 /**
  * Interface representing generic storage data.
@@ -29,7 +29,7 @@ export interface StorageDataInterface {
  * Interface representing a user account.
  */
 export interface AccountInterface {
-  id: string;
+  deviceId: string;
   organization: string;
   username: string;
 }
@@ -37,13 +37,22 @@ export interface AccountInterface {
 /**
  * Interface representing the data stored during push registration.
  */
-export type PushRegistrationDataStorageInterface = Omit<PushCommonDataInterface, 'challenge' | 'username'>;
+export type PushRegistrationDataStorageInterface = Omit<PushCommonDataInterface, 'challenge' | 'username' | 'deviceId'>;
 
 /**
  * Interface representing the data stored during push authentication.
  */
 export type PushAuthenticationDataStorageInterface = Pick<PushAuthenticationDataInterface,
-  'applicationName' | 'notificationScenario' | 'ipAddress' | 'deviceOS' | 'browser'>;
+  'applicationName' | 'notificationScenario' | 'ipAddress' | 'deviceOS' | 'browser' | 'sentTime'> & {
+    /**
+     * The status of the push authentication response.
+     */
+    status: PushAuthResponseStatus;
+    /**
+     * The time when the user responded to the push notification.
+     */
+    respondedTime: number;
+  };
 
 /**
  * Key pair generation options

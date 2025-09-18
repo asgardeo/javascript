@@ -106,10 +106,8 @@ export const usePushAuthRegistration = (): UsePushAuthRegistrationPropsInterface
       });
 
       if (response.status === 201) {
-        const accountId: string = CryptoService.generateRandomKey();
-
         const accountData: AccountInterface = {
-          id: accountId,
+          deviceId: qrData.deviceId,
           username: qrData.username,
           organization: qrData.organizationName ?? qrData.tenantDomain
         };
@@ -119,11 +117,10 @@ export const usePushAuthRegistration = (): UsePushAuthRegistrationPropsInterface
         const storingData: PushRegistrationDataStorageInterface = {
           tenantDomain: qrData.tenantDomain,
           organizationId: qrData.organizationId,
-          organizationName: qrData.organizationName,
-          deviceId: qrData.deviceId
+          organizationName: qrData.organizationName
         };
         await AsyncStorageService.setItem(
-          StorageConstants.replaceAccountId(StorageConstants.PUSH_REGISTRATION_DATA, accountId),
+          StorageConstants.replaceAccountId(StorageConstants.PUSH_REGISTRATION_DATA, qrData.deviceId),
           JSON.stringify(storingData)
         );
       } else {

@@ -90,4 +90,54 @@ export interface PushAuthenticationDataInterface extends PushCommonDataInterface
    * Browser used by the user.
    */
   browser: string;
+  /**
+   * Time when the push notification was sent in milliseconds since epoch.
+   */
+  sentTime: number;
+}
+
+/**
+ * Enum for push authentication response statuses.
+ */
+export enum PushAuthResponseStatus {
+  APPROVED = "APPROVED",
+  DENIED = "DENIED"
+}
+
+export interface PushAuthJWTHeaderInterface {
+  /**
+   * The type of the token, which is JWT.
+   */
+  typ: string;
+  /**
+   * The signing algorithm used.
+   */
+  alg: string;
+  /**
+   * The device identifier.
+   */
+  deviceId: string;
+}
+
+export interface PushAuthJWTBodyInterface {
+  /**
+   * Unique identifier to identify the push authentication flow related to the push notification.
+   */
+  pushAuthId: string;
+  /**
+   * The challenge received in the push notification to be sent back for verification.
+   */
+  challenge: string;
+  /**
+   * The response status of the push authentication request.
+   */
+  response: PushAuthResponseStatus;
+  /**
+   * A number between 1 and 100 generated to add additional security over the challenge.
+   */
+  numberChallenge?: string;
+  /**
+   * Expiry time of the JWT in milliseconds since epoch.
+   */
+  exp: number;
 }

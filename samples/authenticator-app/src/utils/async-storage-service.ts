@@ -61,15 +61,17 @@ class AsyncStorageService {
    * @param value The value to store (This should be a JSON object).
    * @returns A promise that resolves when the item is added.
    */
-  static async addItem(key: string, value: StorageDataInterface): Promise<void> {
+  static async addItem(key: string, value: StorageDataInterface, maxItems?: number): Promise<void> {
     const existingValue = await AsyncStorage.getItem(key);
-    let newValue = [];
+    let newValue: StorageDataInterface[] = [];
 
     if (existingValue) {
       newValue = JSON.parse(existingValue);
     }
 
-    newValue.push(value);
+    if (maxItems && newValue.length === maxItems) {
+      newValue = [value, ...newValue.slice(0, maxItems)];
+    }
 
     return AsyncStorage.setItem(key, JSON.stringify(newValue));
   }
