@@ -16,6 +16,7 @@
  * under the License.
  */
 
+import { useTOTPRegistration } from "@/src/hooks/use-totp-registartion";
 import { MaterialIcons } from "@expo/vector-icons";
 import { BarcodeScanningResult, CameraView, useCameraPermissions } from "expo-camera";
 import { router } from "expo-router";
@@ -25,20 +26,7 @@ import validateQRData from "../../../src/utils/validate-qr-data";
 import useTheme from "../../contexts/theme/useTheme";
 import { usePushAuthRegistration } from "../../hooks/use-push-auth-registration";
 import { QRDataType, QRDataValidationResponseInterface } from "../../models/core";
-import { TOTPQRDataInterface } from "../../models/totp";
 import Alert, { AlertType } from "../Alert";
-
-/**
- * Props for the QRScanner component.
- */
-interface QRScannerProps {
-  /**
-   * Callback function to handle successful TOTP QR code scans.
-   *
-   * @param data - The scanned TOTP QR code data.
-   */
-  onTOTPQRScanSuccess: (data: TOTPQRDataInterface) => void;
-}
 
 /**
  * QR Scanner Component.
@@ -46,12 +34,11 @@ interface QRScannerProps {
  * @param param0 - Props for the QRScanner component.
  * @returns QR Scanner Component.
  */
-const QRScanner: FunctionComponent<QRScannerProps> = ({
-  onTOTPQRScanSuccess
-}: QRScannerProps): ReactElement => {
+const QRScanner: FunctionComponent = (): ReactElement => {
   const { styles } = useTheme();
   const [permission, requestPermission] = useCameraPermissions();
   const { registerPushDevice } = usePushAuthRegistration();
+  const { registerTOTP } = useTOTPRegistration();
   const [scanned, setScanned] = useState(false);
   const [alertVisible, setAlertVisible] = useState(false);
   const [alertType, setAlertType] = useState<AlertType>(AlertType.SUCCESS);
@@ -91,8 +78,13 @@ const QRScanner: FunctionComponent<QRScannerProps> = ({
       setScanned(true);
 
       if (qrData.type === QRDataType.TOTP) {
-        onTOTPQRScanSuccess(qrData.totpData!);
-        showAlert(AlertType.SUCCESS, 'QR Code Scanned Successfully!', 'TOTP account registration data has been read successfully.');
+        showAlert(AlertType.LOADING, 'Registering TOTP...', 'Please wait while we register your TOTP account.');
+        try {
+          await registerTOTP(qrData.totpData!);
+          showAlert(AlertType.SUCCESS, 'QR Code Scanned Successfully!', 'TOTP registration completed successfully.');
+        } catch {
+          showAlert(AlertType.ERROR, 'Registration Failed', 'Failed to register the TOTP account. Please try again.');
+        }
       } else if (qrData.type === QRDataType.PUSH_NOTIFICATION) {
         showAlert(AlertType.LOADING, 'Registering Device...', 'Please wait while we register your device for push notifications.');
         try {

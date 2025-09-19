@@ -16,10 +16,14 @@
  * under the License.
  */
 
+import StorageConstants from "@/src/constants/storage";
+import { AccountInterface, StorageDataInterface } from "@/src/models/storage";
+import AsyncStorageService from "@/src/utils/async-storage-service";
+import TypeConvert from "@/src/utils/typer-convert";
 import { Ionicons } from "@expo/vector-icons";
-import * as Haptics from "expo-haptics";
+import { setStringAsync } from 'expo-clipboard';
 import { FunctionComponent, ReactElement, useCallback, useEffect, useState } from "react";
-import { Alert, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import useTheme from "../../contexts/theme/useTheme";
 import CryptoService from "../../utils/crypto-service";
 
@@ -51,15 +55,17 @@ const TOTPCode: FunctionComponent<TOTPCodeProps> = ({ id }: TOTPCodeProps): Reac
 
     try {
       setIsGenerating(true);
-      const code = CryptoService.generateTOTP(id);
+      const storageData: StorageDataInterface[] = await AsyncStorageService.getListItemByItemKey(
+        StorageConstants.ACCOUNTS_DATA, 'id', id);
+      const accountDetails: AccountInterface = TypeConvert.toAccountInterface(storageData[0]);
+      const code = CryptoService.generateTOTP(id, accountDetails.period!);
       setTotpCode(code);
 
       // Get remaining seconds for this period
       const remaining = CryptoService.getTOTPRemainingSeconds(id);
       setRemainingSeconds(remaining || 30);
-    } catch (error) {
-      console.error("Error generating TOTP:", error);
-      Alert.alert("Error", "Failed to generate TOTP code");
+    } catch {
+      // Show code generation error.
     } finally {
       setIsGenerating(false);
     }
@@ -69,25 +75,7 @@ const TOTPCode: FunctionComponent<TOTPCodeProps> = ({ id }: TOTPCodeProps): Reac
   const copyToClipboard = async () => {
     if (!totpCode) return;
 
-    try {
-      await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-      Alert.alert(
-        "Copy Code",
-        `TOTP Code: ${totpCode}`,
-        [
-          { text: "Cancel", style: "cancel" },
-          {
-            text: "Copy",
-            onPress: () => {
-              Alert.alert("Copied", "Code has been copied to clipboard");
-            }
-          }
-        ]
-      );
-    } catch (error) {
-      console.error("Error copying to clipboard:", error);
-      Alert.alert("Error", "Failed to copy code");
-    }
+    await setStringAsync(totpCode);
   };
 
   // Timer effect
@@ -156,11 +144,10 @@ const TOTPCode: FunctionComponent<TOTPCodeProps> = ({ id }: TOTPCodeProps): Reac
           />
         </View>
 
-        {/* TOTP Code Circle */}
         <TouchableOpacity
           style={[
             localStyles.codeCircle,
-            styles.colors.backgroundPrimary,
+            styles.colors.backgroundNeutral,
             {
               shadowColor: styles.colors.textPrimary.color,
               shadowOffset: { width: 0, height: 4 },
@@ -182,14 +169,13 @@ const TOTPCode: FunctionComponent<TOTPCodeProps> = ({ id }: TOTPCodeProps): Reac
               <Text style={[localStyles.codeText, styles.colors.textOnPrimary]}>
                 {totpCode ? totpCode.match(/.{1,3}/g)?.join(" ") : "------"}
               </Text>
-              <Text style={[styles.typography.caption, styles.colors.textOnPrimary, { opacity: 0.8 }]}>
+              <Text style={[styles.typography.subtitle2, styles.colors.textOnPrimary, { opacity: 0.8 }]}>
                 Tap to copy
               </Text>
             </>
           )}
         </TouchableOpacity>
 
-        {/* Timer Text */}
         <View style={localStyles.timerContainer}>
           <Text
             style={[
@@ -255,24 +241,24 @@ const localStyles = StyleSheet.create({
   },
   timerRingProgress: {
     position: 'absolute',
-    width: 140,
-    height: 140,
-    borderRadius: 70,
+    width: 270,
+    height: 270,
+    borderRadius: 135,
     borderWidth: 4,
     borderTopColor: 'transparent',
     borderRightColor: 'transparent',
     borderBottomColor: 'transparent',
   },
   codeCircle: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
+    width: 250,
+    height: 250,
+    borderRadius: 125,
     alignItems: 'center',
     justifyContent: 'center',
     zIndex: 1,
   },
   codeText: {
-    fontSize: 18,
+    fontSize: 48,
     fontWeight: '700',
     letterSpacing: 2,
     textAlign: 'center',
@@ -280,11 +266,11 @@ const localStyles = StyleSheet.create({
   },
   timerContainer: {
     position: 'absolute',
-    bottom: -30,
+    bottom: -36,
     alignItems: 'center',
   },
   timerText: {
-    fontSize: 16,
+    fontSize: 20,
     fontWeight: '600',
   },
   copyButton: {

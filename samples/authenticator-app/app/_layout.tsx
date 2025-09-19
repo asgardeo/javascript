@@ -19,7 +19,7 @@ const RootLayout = (): ReactElement => {
           <Stack.Screen
             name="home"
             options={{
-              headerTitle: HomeHeader
+              headerTitle: HomeHeader,
             }}
           />
           <Stack.Screen

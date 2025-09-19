@@ -56,7 +56,7 @@ class TypeConvert {
       return false;
     }
 
-    if (!('id' in data) || !('organization' in data) || !('username' in data)) {
+    if (!('id' in data) || !('displayName' in data) || !('username' in data)) {
       return false;
     }
 

@@ -24,15 +24,15 @@ import useTheme from "../../contexts/theme/useTheme";
 import { AccountInterface } from "../../models/storage";
 
 const AccountListItem: FunctionComponent<AccountInterface> = ({
-  deviceId,
-  organization,
+  id,
+  displayName,
   username
 }: AccountInterface): ReactElement => {
   const { styles } = useTheme();
   const router = useRouter();
 
   const handleAccountPress = () => {
-    router.push(`/account?id=${deviceId}`);
+    router.push(`/account?id=${id}`);
   };
 
   return (
@@ -72,7 +72,7 @@ const AccountListItem: FunctionComponent<AccountInterface> = ({
           styles.typography.body2,
           styles.colors.textSecondary
         ]}>
-          {organization}
+          {displayName}
         </Text>
       </View>
 

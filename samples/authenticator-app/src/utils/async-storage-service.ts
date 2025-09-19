@@ -97,17 +97,21 @@ class AsyncStorageService {
 
   /**
    * Retrieves a specific item from a list in async storage.
-   * Only the first matching item is returned.
+   * All matching items will be returned.
    *
    * @param key The key to retrieve the list.
    * @param itemKey The key of the item for searching.
    * @param itemValue The value of the item key for searching.
-   * @returns A promise that resolves with the found item or undefined.
+   * @param fallbackItemKey (Optional) If provided, both primary and fallback keys will be searched.
+   * @param fallbackItemValue (Optional) If provided, both primary and fallback values will be searched.
+   * @returns A promise that resolves with the found items or an empty array.
    */
-  static async getListItemByItemKey(key: string, itemKey: string, itemValue: string):
-    Promise<StorageDataInterface | undefined> {
+  static async getListItemByItemKey(
+    key: string, itemKey: string, itemValue: string, fallbackItemKey?: string, fallbackItemValue?: string
+  ): Promise<StorageDataInterface[]> {
     return this.listItems(key).then((items: StorageDataInterface[]) => {
-      return items.find((item: StorageDataInterface) => item[itemKey] === itemValue);
+      return items.filter((item: StorageDataInterface) => new RegExp(itemValue).test(item[itemKey] as string)
+        && (!fallbackItemKey || !fallbackItemValue || new RegExp(fallbackItemValue).test(item[fallbackItemKey] as string)));
     });
   }
 

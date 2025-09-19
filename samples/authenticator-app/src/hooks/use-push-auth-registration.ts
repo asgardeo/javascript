@@ -21,7 +21,7 @@ import { useCallback, useState } from 'react';
 import { Platform } from 'react-native';
 import StorageConstants from '../constants/storage';
 import { PushNotificationQRDataInterface } from '../models/push-notification';
-import { AccountInterface } from '../models/storage';
+import { AccountInterface, StorageDataInterface } from '../models/storage';
 import AsyncStorageService from '../utils/async-storage-service';
 import CryptoService from '../utils/crypto-service';
 import MessagingService from '../utils/messagging-service';
@@ -108,14 +108,50 @@ export const usePushAuthRegistration = (): UsePushAuthRegistrationPropsInterface
       if (response.status === 201) {
         const id: string = CryptoService.generateRandomKey();
 
-        const accountData: AccountInterface = {
-          id,
-          deviceId: qrData.deviceId,
-          username: qrData.username,
-          organization: qrData.organizationName ?? qrData.tenantDomain
-        };
-        await AsyncStorageService.addItem(StorageConstants.ACCOUNTS_DATA,
-          TypeConvert.toStorageDataInterface(accountData));
+        let storageData: StorageDataInterface[] = await AsyncStorageService.getListItemByItemKey(
+          StorageConstants.ACCOUNTS_DATA, 'username', `^(.+\\/${qrData.username}|${qrData.username})$`, 'tenantDomain', qrData.tenantDomain
+        );
+
+        if (storageData.length === 0) {
+          storageData = await AsyncStorageService.getListItemByItemKey(
+            StorageConstants.ACCOUNTS_DATA, 'username', `^(.+\\/${qrData.username}|${qrData.username})$`, 'organizationId', qrData.organizationId
+          );
+        }
+
+        if (storageData.length === 0) {
+          storageData = await AsyncStorageService.getListItemByItemKey(
+            StorageConstants.ACCOUNTS_DATA, 'username', `^(.+\\/${qrData.username}|${qrData.username})$`, 'issuer', qrData.tenantDomain
+          );
+        }
+
+        if (storageData.length === 0) {
+          storageData = await AsyncStorageService.getListItemByItemKey(
+            StorageConstants.ACCOUNTS_DATA, 'username', `^(.+\\/${qrData.username}|${qrData.username})$`, 'issuer', qrData.organizationId
+          );
+        }
+
+        if (storageData.length > 1 && storageData.length === 0) {
+          const accountData: AccountInterface = {
+            id,
+            deviceId: qrData.deviceId,
+            username: qrData.username,
+            displayName: qrData.organizationName ?? qrData.tenantDomain,
+            tenantDomain: qrData.tenantDomain,
+            organizationId: qrData.organizationId
+          };
+          await AsyncStorageService.addItem(StorageConstants.ACCOUNTS_DATA,
+            TypeConvert.toStorageDataInterface(accountData));
+        } else {
+          const accountDetail: AccountInterface = TypeConvert.toAccountInterface(storageData[0]);
+          accountDetail.deviceId = qrData.deviceId;
+          accountDetail.organizationId = qrData.organizationId;
+          accountDetail.tenantDomain = qrData.tenantDomain;
+          await AsyncStorageService.removeListItemByItemKey(
+            StorageConstants.ACCOUNTS_DATA, 'id', accountDetail.id
+          );
+          await AsyncStorageService.addItem(StorageConstants.ACCOUNTS_DATA,
+            TypeConvert.toStorageDataInterface(accountDetail));
+        }
       } else {
         throw new Error(`Registration failed with status ${response.status}`);
       }

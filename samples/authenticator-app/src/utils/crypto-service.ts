@@ -146,17 +146,20 @@ class CryptoService {
    * Retrieves the TOTP instance for the given identifier.
    *
    * @param id - Identifier for which the TOTP instance has to be retrieved.
+   * @param period - The time period in seconds for which the TOTP is valid.
    * @returns The TOTP instance.
    */
-  private static getTOTPInstance(id: string): TOTP {
+  private static getTOTPInstance(id: string, period: number): TOTP {
     const secret: string | null = SecureStorageService.getItem(id);
+
 
     if (!secret) {
       throw new Error('No secret found for the given ID.');
     }
 
     const totp: TOTP = new TOTP({
-      secret
+      secret,
+      period
     });
 
     this.currentTOTP[id] = totp;
@@ -168,10 +171,11 @@ class CryptoService {
    * Generates a TOTP (Time-based One-Time Password) for the given identifier.
    *
    * @param id - Identifier for which the TOTP has to be generated.
+   * @param period - The time period in seconds for which the TOTP is valid.
    * @returns The generated TOTP.
    */
-  static generateTOTP(id: string): string {
-    const totp: TOTP = this.getTOTPInstance(id);
+  static generateTOTP(id: string, period: number): string {
+    const totp: TOTP = this.getTOTPInstance(id, period);
 
     return totp.generate();
   }
@@ -182,7 +186,9 @@ class CryptoService {
    * @returns The remaining seconds for the current TOTP validity period.
    */
   static getTOTPRemainingSeconds(id: string): number {
-    return this.currentTOTP[id]?.remaining() ?? 0;
+    const time: number = this.currentTOTP[id]?.remaining() ?? 0;
+
+    return parseInt((time / 1000).toFixed(0));
   }
 }
 

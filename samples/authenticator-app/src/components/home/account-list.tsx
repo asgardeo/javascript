@@ -18,7 +18,7 @@
 
 import { useFocusEffect } from "expo-router";
 import { ReactElement, useCallback, useState } from "react";
-import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from "react-native";
 import StorageConstants from "../../constants/storage";
 import useTheme from "../../contexts/theme/useTheme";
 import { AccountInterface } from "../../models/storage";
@@ -93,11 +93,11 @@ const AccountList = (): ReactElement => {
   }
 
   return (
-    <View style={[localStyles.container, styles.colors.backgroundBody]}>
+    <ScrollView style={[localStyles.container, styles.colors.backgroundBody]}>
       {accountList.map((account) => (
-        <AccountListItem key={account.deviceId} {...account} />
+        <AccountListItem key={account.id} {...account} />
       ))}
-    </View>
+    </ScrollView>
   );
 };
 
