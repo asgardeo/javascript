@@ -164,10 +164,10 @@ const PushAuthProvider: FunctionComponent<PropsWithChildren> = ({ children }: Pr
 
     try {
       if (result?.status === 200) {
-        const storageData: StorageDataInterface | undefined = await AsyncStorageService.getListItemByItemKey(
+        const storageData: StorageDataInterface[] = await AsyncStorageService.getListItemByItemKey(
           StorageConstants.ACCOUNTS_DATA, "deviceId", pushAuthMessageCache[id].deviceId);
 
-        if (!storageData) {
+        if (storageData.length === 0) {
           return;
         }
 
@@ -186,7 +186,7 @@ const PushAuthProvider: FunctionComponent<PropsWithChildren> = ({ children }: Pr
 
         AsyncStorageService.addItem(
           StorageConstants.replaceAccountId(
-            StorageConstants.PUSH_AUTHENTICATION_DATA, accountDetails.deviceId!),
+            StorageConstants.PUSH_AUTHENTICATION_DATA, accountDetails.id),
           authStorageData,
           3 // Keep a maximum of 3 records per device ID.
         );

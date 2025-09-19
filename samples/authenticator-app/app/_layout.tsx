@@ -1,3 +1,4 @@
+import AccountHeaderRight from "@/src/components/account/account-header-right";
 import PushAuthProvider from "@/src/contexts/push-auth/push-auth-provider";
 import { Stack } from "expo-router";
 import { ReactElement } from "react";
@@ -37,9 +38,10 @@ const RootLayout = (): ReactElement => {
           />
           <Stack.Screen
             name="account"
-            options={{
-              headerTitle: HomeHeader
-            }}
+            options={({ route }) => ({
+              headerTitle: HomeHeader,
+              headerRight: (): ReactElement => <AccountHeaderRight params={route.params as Record<string, string>} />
+            })}
           />
         </Stack>
       </PushAuthProvider>

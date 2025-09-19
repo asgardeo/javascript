@@ -143,6 +143,40 @@ class CryptoService {
   }
 
   /**
+   * Generates a push unregistration JWT.
+   *
+   * @param deviceId - The device ID whose private key is used to sign the JWT.
+   * @returns The generated JWT for push unregistration.
+   */
+  static generatePushUnregistrationJWT(deviceId: string): string {
+    const header: Record<string, string> = {
+      alg: 'RS256',
+      typ: 'JWT'
+    };
+
+    const body: Record<string, number> = {
+      exp: Date.now() + 5 * 60 * 1000 // Token valid for 5 minutes.
+    };
+
+    const encodedHeader = this.encodeBase64Url(JSON.stringify(header));
+    const encodedBody = this.encodeBase64Url(JSON.stringify(body));
+
+    const dataToSign = `${encodedHeader}.${encodedBody}`;
+
+    const sign = QuickCrypto.createSign('SHA256');
+    sign.update(dataToSign, 'utf8');
+
+    const signature = sign.sign({
+      key: SecureStorageService.getItem(deviceId),
+      format: 'pem',
+      type: 'pkcs8',
+      padding: QuickCrypto.constants.RSA_PKCS1_PADDING
+    });
+
+    return `${dataToSign}.${this.encodeBase64Url(signature)}`;
+  }
+
+  /**
    * Retrieves the TOTP instance for the given identifier.
    *
    * @param id - Identifier for which the TOTP instance has to be retrieved.

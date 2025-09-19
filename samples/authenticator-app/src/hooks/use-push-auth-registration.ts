@@ -130,7 +130,7 @@ export const usePushAuthRegistration = (): UsePushAuthRegistrationPropsInterface
           );
         }
 
-        if (storageData.length > 1 && storageData.length === 0) {
+        if (storageData.length > 1 || storageData.length === 0) {
           const accountData: AccountInterface = {
             id,
             deviceId: qrData.deviceId,
@@ -156,7 +156,7 @@ export const usePushAuthRegistration = (): UsePushAuthRegistrationPropsInterface
         throw new Error(`Registration failed with status ${response.status}`);
       }
     } catch {
-      throw new Error(`Push device registration failed.`);
+      throw new Error('Push device registration failed.');
     } finally {
       setIsRegistering(false);
     }

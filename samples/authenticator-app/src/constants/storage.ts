@@ -23,11 +23,7 @@ class StorageConstants {
   /**
    * Placeholder for account ID in storage keys.
    */
-  static readonly ACCOUNT_ID_PLACEHOLDER = '{{account_id}}';
-  /**
-   * Key for storing push registration data.
-   */
-  static readonly PUSH_REGISTRATION_DATA = 'push_registration_data_{{account_id}}';
+  private static readonly ACCOUNT_ID_PLACEHOLDER = '{{account_id}}';
 
   /**
    * Key for storing push authentication data.
