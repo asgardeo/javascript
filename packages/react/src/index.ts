@@ -91,6 +91,9 @@ export * from './hooks/useForm';
 export {default as useBranding} from './hooks/useBranding';
 export * from './hooks/useBranding';
 
+export {useRTL, getLogicalProperty, flipHorizontal} from './hooks/useRTL';
+export * from './hooks/useRTL';
+
 export {default as BaseSignInButton} from './components/actions/SignInButton/BaseSignInButton';
 export * from './components/actions/SignInButton/BaseSignInButton';
 
@@ -258,6 +261,8 @@ export {createField, FieldFactory, validateFieldValue} from './components/factor
 export * from './components/factories/FieldFactory';
 
 export {default as BuildingAlt} from './components/primitives/Icons/BuildingAlt';
+export {default as DirectionalIcon} from './components/primitives/Icons/DirectionalIcon';
+export * from './components/primitives/Icons/DirectionalIcon';
 
 export type {FlowStep, FlowMessage, FlowContextValue} from './contexts/Flow/FlowContext';
 

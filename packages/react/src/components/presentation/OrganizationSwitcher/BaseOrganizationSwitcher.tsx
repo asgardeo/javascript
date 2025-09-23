@@ -39,6 +39,7 @@ import Button from '../../primitives/Button/Button';
 import Building from '../../primitives/Icons/Building';
 import Check from '../../primitives/Icons/Check';
 import ChevronDown from '../../primitives/Icons/ChevronDown';
+import DirectionalIcon from '../../primitives/Icons/DirectionalIcon';
 import Typography from '../../primitives/Typography/Typography';
 import useStyles from './BaseOrganizationSwitcher.styles';
 
@@ -308,7 +309,9 @@ export const BaseOrganizationSwitcher: FC<BaseOrganizationSwitcherProps> = ({
             )}
           </>
         )}
-        <ChevronDown width="16" height="16" />
+        <DirectionalIcon flipInRTL>
+          <ChevronDown width="16" height="16" />
+        </DirectionalIcon>
       </Button>
 
       {isOpen && (

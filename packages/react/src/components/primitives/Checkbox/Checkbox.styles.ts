@@ -38,7 +38,7 @@ const useStyles = (theme: Theme, colorScheme: string, hasError: boolean, require
     const inputStyles = css`
       width: calc(${theme.vars.spacing.unit} * 2.5);
       height: calc(${theme.vars.spacing.unit} * 2.5);
-      margin-right: ${theme.vars.spacing.unit};
+      margin-inline-end: ${theme.vars.spacing.unit};
       accent-color: ${theme.vars.colors.primary.main};
       cursor: pointer;
 
