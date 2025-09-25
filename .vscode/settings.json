@@ -9,5 +9,8 @@
   "stylelint.validate": ["css", "scss"],
   "typescript.tsdk": "node_modules/typescript/lib",
   "editor.formatOnSave": true,
-  "nxConsole.generateAiAgentRules": true
+  "nxConsole.generateAiAgentRules": true,
+  "cSpell.words": [
+    "Asgardeo"
+  ]
 }

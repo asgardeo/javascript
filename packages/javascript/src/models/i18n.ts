@@ -156,3 +156,20 @@ export interface I18nBundle {
   metadata: I18nMetadata;
   translations: I18nTranslations;
 }
+let currentLocale: I18nBundle | null = null;
+
+export function setLocale(locale: I18nBundle) {
+  currentLocale = locale;
+}
+
+export function getLocale(): I18nBundle | null {
+  return currentLocale;
+}
+
+export function t(key: keyof I18nTranslations): string {
+  if (!currentLocale) {
+    console.warn("No locale set. Returning key:", key);
+    return key;
+  }
+  return currentLocale.translations[key] || key;
+}

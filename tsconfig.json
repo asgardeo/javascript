@@ -1,6 +1,7 @@
 {
   "root": true,
   "compilerOptions": {
+    "jsx": "react",
     "baseUrl": ".",
     "paths": {
       "@asgardeo/react": ["packages/react/src/index.ts"],
