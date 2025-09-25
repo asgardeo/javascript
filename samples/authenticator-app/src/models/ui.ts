@@ -16,14 +16,16 @@
  * under the License.
  */
 
-import { HeaderTitleProps } from "@react-navigation/elements";
-import { ReactElement } from "react";
-import { Text } from "react-native";
-
-const HomeHeader = (_props: HeaderTitleProps): ReactElement => {
-  return (
-    <Text>Home</Text>
-  );
-};
-
-export default HomeHeader;
+/**
+ * Class containing avatar related constants.
+ */
+export interface AvatarColorPair {
+  /**
+   * Background color of the avatar.
+   */
+  bg: string;
+  /**
+   * Text color of the avatar.
+   */
+  text: string;
+}

@@ -16,9 +16,11 @@
  * under the License.
  */
 
+import { Ionicons } from "@expo/vector-icons";
 import { useFocusEffect } from "expo-router";
-import { ReactElement, useCallback, useState } from "react";
-import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from "react-native";
+import { ReactElement, useCallback, useMemo, useState } from "react";
+import { ActivityIndicator, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import { EdgeInsets, useSafeAreaInsets } from "react-native-safe-area-context";
 import StorageConstants from "../../constants/storage";
 import useTheme from "../../contexts/theme/useTheme";
 import { AccountInterface } from "../../models/storage";
@@ -26,9 +28,12 @@ import AsyncStorageService from "../../utils/async-storage-service";
 import AccountListItem from "./account-list-item";
 
 const AccountList = (): ReactElement => {
+  const { styles } = useTheme();
+  const insets: EdgeInsets = useSafeAreaInsets();
+
   const [loading, setLoading] = useState<boolean>(true);
   const [accountList, setAccountList] = useState<AccountInterface[]>([]);
-  const { styles } = useTheme();
+  const [searchQuery, setSearchQuery] = useState<string>("");
 
   /**
    * Fetch accounts from storage.
@@ -53,6 +58,16 @@ const AccountList = (): ReactElement => {
           });
     }, [])
   );
+
+  /**
+   * Filter accounts based on search query.
+   */
+  const filteredAccountList: AccountInterface[] = useMemo(() => {
+    return accountList.filter((account: AccountInterface) =>
+      account.username.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      account.displayName.toLowerCase().includes(searchQuery.toLowerCase()
+    ));
+  }, [accountList, searchQuery]);
 
   if (loading) {
     return (
@@ -93,19 +108,38 @@ const AccountList = (): ReactElement => {
   }
 
   return (
-    <ScrollView style={[localStyles.container, styles.colors.backgroundBody]}>
-      {accountList.map((account) => (
-        <AccountListItem key={account.id} {...account} />
-      ))}
+    <ScrollView style={[
+      localStyles.container,
+      styles.colors.backgroundBody,
+      { marginBottom: insets.bottom }
+    ]}>
+      <View style={[localStyles.listContainer]}>
+        <View style={[localStyles.searchBoxContainer]}>
+          <Ionicons style={localStyles.searchIcon} name="search" size={20} />
+          <TextInput
+            style={[localStyles.searchBox]}
+            placeholder="Search accounts..."
+            returnKeyType="search"
+            placeholderTextColor='#56585eff'
+            value={searchQuery}
+            onChangeText={(text: string) => setSearchQuery(text)}
+          />
+        </View>
+        {filteredAccountList.map((account) => (
+          <AccountListItem key={account.id} {...account} />
+        ))}
+      </View>
     </ScrollView>
   );
 };
 
 const localStyles = StyleSheet.create({
   container: {
-    flex: 1,
-    alignSelf: 'stretch',
-    paddingVertical: 8,
+    alignSelf: 'stretch'
+  },
+  listContainer: {
+    padding: 24,
+    gap: 8
   },
   loadingContainer: {
     flex: 1,
@@ -127,6 +161,25 @@ const localStyles = StyleSheet.create({
     textAlign: 'center',
     opacity: 0.7,
   },
+  searchBoxContainer: {
+    backgroundColor: '#f5f6f9ff',
+    borderWidth: 1,
+    borderColor: '#d1d9e6',
+    borderRadius: 8,
+    padding: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 16
+  },
+  searchIcon: {
+    color: '#56585eff'
+  },
+  searchBox: {
+    flex: 1,
+    color: '#56585eff',
+    padding: 0
+  }
 });
 
 export default AccountList;

@@ -30,8 +30,6 @@ global.Buffer = Buffer;
  * Cryptography service for handling cryptographic operations.
  */
 class CryptoService {
-  private static currentTOTP: { [key: string]: TOTP } = {};
-
   /**
    * Generates a new RSA key pair.
    * Private Key Type: PKCS#8 PEM.
@@ -196,8 +194,6 @@ class CryptoService {
       period
     });
 
-    this.currentTOTP[id] = totp;
-
     return totp;
   }
 
@@ -215,14 +211,29 @@ class CryptoService {
   }
 
   /**
+   * Generates the next TOTP (Time-based One-Time Password) for the given identifier.
+   *
+   * @param id - Identifier for which the next TOTP has to be generated.
+   * @param period - The time period in seconds for which the TOTP is valid.
+   * @returns The generated next TOTP.
+   */
+  static generateNextTOTP(id: string, period: number): string {
+    const totp: TOTP = this.getTOTPInstance(id, period);
+
+    return totp.generate({ timestamp: Date.now() + period * 1000 });
+  }
+
+  /**
    * Gets the remaining seconds for the current TOTP validity period.
    *
+   * @param id - Identifier for which the remaining seconds has to be retrieved.
+   * @param period - The time period in seconds for which the TOTP is valid.
    * @returns The remaining seconds for the current TOTP validity period.
    */
-  static getTOTPRemainingSeconds(id: string): number {
-    const time: number = this.currentTOTP[id]?.remaining() ?? 0;
+  static getTOTPRemainingSeconds(id: string, period: number): number {
+    const time: number = this.getTOTPInstance(id, period)?.remaining() ?? 0;
 
-    return parseInt((time / 1000).toFixed(0));
+    return time / 1000;
   }
 }
 

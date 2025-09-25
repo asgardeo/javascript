@@ -20,12 +20,15 @@ import StorageConstants from "@/src/constants/storage";
 import { AccountInterface, StorageDataInterface } from "@/src/models/storage";
 import AsyncStorageService from "@/src/utils/async-storage-service";
 import TypeConvert from "@/src/utils/typer-convert";
-import { Ionicons } from "@expo/vector-icons";
+import { Ionicons, Octicons } from "@expo/vector-icons";
 import { setStringAsync } from 'expo-clipboard';
-import { FunctionComponent, ReactElement, useCallback, useEffect, useState } from "react";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { FunctionComponent, ReactElement, RefObject, useCallback, useEffect, useRef, useState } from "react";
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { EdgeInsets, useSafeAreaInsets } from "react-native-safe-area-context";
 import useTheme from "../../contexts/theme/useTheme";
 import CryptoService from "../../utils/crypto-service";
+import Avatar from "../common/avatar";
+import CircularProgress from "./circular-porgress-bar";
 
 /**
  * Props for the TOTPCode component.
@@ -46,58 +49,69 @@ export interface TOTPCodeProps {
 const TOTPCode: FunctionComponent<TOTPCodeProps> = ({ id }: TOTPCodeProps): ReactElement => {
   const { styles } = useTheme();
   const [totpCode, setTotpCode] = useState<string>("");
+  const [nextTOTPCode, setNextTOTPCode] = useState<string>("");
   const [remainingSeconds, setRemainingSeconds] = useState<number>(30);
+  const previousTimeRef: RefObject<number> = useRef<number>(Number.NEGATIVE_INFINITY);
   const [isGenerating, setIsGenerating] = useState<boolean>(false);
+  const [accountDetails, setAccountDetails] = useState<AccountInterface | null>(null);
+  const insets: EdgeInsets = useSafeAreaInsets();
 
-  // Generate TOTP code
+  /**
+   * Fetch account details from storage when the component mounts or when the id changes.
+   */
+  useEffect(() => {
+    const fetchAccountDetails = async () => {
+      if (!id) return;
+
+      const storageData: StorageDataInterface[] = await AsyncStorageService.getListItemByItemKey(
+        StorageConstants.ACCOUNTS_DATA, 'id', id);
+
+      setAccountDetails(TypeConvert.toAccountInterface(storageData[0]));
+    }
+
+    fetchAccountDetails();
+  }, [id]);
+
   const generateCode = useCallback(async () => {
-    if (!id) return;
+    if (!id || !accountDetails) return;
 
     try {
       setIsGenerating(true);
-      const storageData: StorageDataInterface[] = await AsyncStorageService.getListItemByItemKey(
-        StorageConstants.ACCOUNTS_DATA, 'id', id);
-      const accountDetails: AccountInterface = TypeConvert.toAccountInterface(storageData[0]);
       const code = CryptoService.generateTOTP(id, accountDetails.period!);
       setTotpCode(code);
-
-      // Get remaining seconds for this period
-      const remaining = CryptoService.getTOTPRemainingSeconds(id);
-      setRemainingSeconds(remaining || 30);
+      const nextCode = CryptoService.generateNextTOTP(id, accountDetails.period!);
+      setNextTOTPCode(nextCode);
     } catch {
       // Show code generation error.
     } finally {
       setIsGenerating(false);
     }
-  }, [id]);
+  }, [id, accountDetails]);
 
-  // Copy code to clipboard
-  const copyToClipboard = async () => {
-    if (!totpCode) return;
+  const copyToClipboard = async (next: boolean = false) => {
+    if (!totpCode && !nextTOTPCode) return;
 
-    await setStringAsync(totpCode);
+    await setStringAsync(next ? nextTOTPCode : totpCode);
   };
 
-  // Timer effect
   useEffect(() => {
     if (!id) return;
 
-    // Initial generation
     generateCode();
 
     const interval = setInterval(() => {
-      setRemainingSeconds((prev) => {
-        if (prev <= 1) {
-          // Generate new code when timer expires
-          generateCode();
-          return 30;
-        }
-        return prev - 1;
-      });
-    }, 1000);
+      const remaining = CryptoService.getTOTPRemainingSeconds(id, accountDetails?.period!);
+
+      if (remaining > previousTimeRef.current) {
+        generateCode();
+      }
+
+      setRemainingSeconds(remaining);
+      previousTimeRef.current = remaining;
+    }, 10);
 
     return () => clearInterval(interval);
-  }, [id, generateCode]);
+  }, [id, generateCode, accountDetails]);
 
   // Calculate timer properties
   const progress = remainingSeconds / 30;
@@ -122,92 +136,118 @@ const TOTPCode: FunctionComponent<TOTPCodeProps> = ({ id }: TOTPCodeProps): Reac
   }
 
   return (
-    <View style={[localStyles.container, styles.colors.backgroundSurface]}>
-      {/* Circular TOTP Display with Timer */}
-      <View style={localStyles.circularContainer}>
-        {/* Timer Progress Ring */}
-        <View style={localStyles.timerRingContainer}>
-          <View
-            style={[
-              localStyles.timerRingBackground,
-              { borderColor: styles.colors.backgroundSurfaceLight.backgroundColor }
-            ]}
-          />
-          <View
-            style={[
-              localStyles.timerRingProgress,
-              {
-                borderColor: getTimerColor(),
-                transform: [{ rotate: `${(1 - progress) * 360}deg` }]
-              }
-            ]}
-          />
-        </View>
-
-        <TouchableOpacity
-          style={[
-            localStyles.codeCircle,
-            styles.colors.backgroundNeutral,
-            {
-              shadowColor: styles.colors.textPrimary.color,
-              shadowOffset: { width: 0, height: 4 },
-              shadowOpacity: 0.1,
-              shadowRadius: 8,
-              elevation: 8
-            }
-          ]}
-          onPress={copyToClipboard}
-          disabled={isGenerating || !totpCode}
-          activeOpacity={0.8}
-        >
-          {isGenerating ? (
-            <Text style={[styles.typography.body2, styles.colors.textOnPrimary]}>
-              Generating...
+    <>
+      <ScrollView style={[{ marginBottom: insets.bottom + 45 }, styles.colors.backgroundBody]}>
+        <View style={[localStyles.container, styles.colors.backgroundBody]}>
+          <View style={[localStyles.headerContainer]}>
+            <Avatar
+              name={accountDetails?.username || accountDetails?.displayName}
+              style={[localStyles.headerAvatar]}
+            />
+            <Text style={[localStyles.usernameText]}>
+              {accountDetails?.username}
             </Text>
-          ) : (
-            <>
-              <Text style={[localStyles.codeText, styles.colors.textOnPrimary]}>
-                {totpCode ? totpCode.match(/.{1,3}/g)?.join(" ") : "------"}
+            <View style={[localStyles.organizationContainer]}>
+              <Octicons
+                style={[localStyles.organizationText]}
+                name="organization"
+                size={14}
+              />
+              <Text style={[localStyles.organizationText]}>
+                {accountDetails?.displayName}
               </Text>
-              <Text style={[styles.typography.subtitle2, styles.colors.textOnPrimary, { opacity: 0.8 }]}>
-                Tap to copy
+            </View>
+          </View>
+          <View style={[localStyles.totpContainer]}>
+            <CircularProgress
+              size={270}
+              strokeWidth={10}
+              progress={progress}
+              color={getTimerColor()}
+              backgroundColor="#e2e3e4ff"
+              gapAngle={30}
+            >
+              <TouchableOpacity
+                style={[
+                  localStyles.codeCircle,
+                  styles.colors.backgroundNeutral
+                ]}
+                onPress={() => copyToClipboard()}
+                disabled={isGenerating || !totpCode}
+              >
+                {isGenerating ? (
+                  <Text style={[styles.typography.body2]}>
+                    Generating...
+                  </Text>
+                ) : (
+                  <>
+                    <Text style={[localStyles.codeText]}>
+                      {totpCode ? totpCode.match(/.{1,3}/g)?.join(" ") : "------"}
+                    </Text>
+                    <Text style={[localStyles.tapToCopyText]}>
+                      Tap to copy
+                    </Text>
+                    <Ionicons
+                      name="copy-outline"
+                      size={20}
+                      color='#00000066'
+                    />
+                  </>
+                )}
+              </TouchableOpacity>
+            </CircularProgress>
+            <View style={localStyles.timerContainer}>
+              <Text style={[localStyles.timerText, { color: getTimerColor() }]}>
+                {parseInt(remainingSeconds.toFixed(0))}
               </Text>
-            </>
-          )}
-        </TouchableOpacity>
-
-        <View style={localStyles.timerContainer}>
-          <Text
-            style={[
-              localStyles.timerText,
-              { color: getTimerColor() }
-            ]}
-          >
-            {remainingSeconds}s
-          </Text>
+            </View>
+            <TouchableOpacity
+              style={[
+                localStyles.copyButton,
+                styles.buttons.secondaryButton,
+                { opacity: totpCode && !isGenerating ? 1 : 0.5 }
+              ]}
+              onPress={() => copyToClipboard()}
+              disabled={isGenerating || !totpCode}
+            >
+              <Ionicons
+                name="copy-outline"
+                size={20}
+                color='#000000de'
+              />
+              <Text style={[localStyles.copyButtonText]}>
+                Copy Code
+              </Text>
+            </TouchableOpacity>
+            <View style={localStyles.nextTokenContainer}>
+              <Text style={[localStyles.nextTokenText]}>
+                Next Token
+              </Text>
+              <TouchableOpacity
+                style={[localStyles.nextTokenButton]}
+                onPress={() => copyToClipboard(true)}
+                disabled={isGenerating || !nextTOTPCode}
+              >
+                <Ionicons
+                  name="copy-outline"
+                  size={20}
+                  color='#000000de'
+                />
+                <Text style={[localStyles.copyButtonText]}>
+                  {nextTOTPCode ? nextTOTPCode.match(/.{1,3}/g)?.join(" ") : "------"}
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
         </View>
+      </ScrollView>
+      <View style={[localStyles.pushLoginHistoryContainer]}>
+        <TouchableOpacity style={[localStyles.pushLoginHistoryButton, { marginBottom: insets.bottom }]}>
+          <Text style={[localStyles.pushLoginHistoryButtonText]}>Push Login History</Text>
+          <Ionicons name="chevron-forward" size={24} color="#ffffff" />
+        </TouchableOpacity>
       </View>
-
-      {/* Copy Button */}
-      <TouchableOpacity
-        style={[
-          localStyles.copyButton,
-          styles.buttons.secondaryButton,
-          { opacity: totpCode && !isGenerating ? 1 : 0.5 }
-        ]}
-        onPress={copyToClipboard}
-        disabled={isGenerating || !totpCode}
-      >
-        <Ionicons
-          name="copy-outline"
-          size={20}
-          color={styles.buttons.secondaryButtonText.color}
-        />
-        <Text style={[styles.buttons.secondaryButtonText, { marginLeft: 8 }]}>
-          Copy Code
-        </Text>
-      </TouchableOpacity>
-    </View>
+    </>
   );
 };
 
@@ -216,69 +256,127 @@ const localStyles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: 'center',
-    justifyContent: 'center',
-    padding: 32,
+    justifyContent: 'flex-start',
+    padding: 24
   },
-  circularContainer: {
+  headerContainer: {
+    justifyContent: 'center',
     alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 40,
-    position: 'relative',
+    gap: 8,
+    marginBottom: 32
   },
-  timerRingContainer: {
-    position: 'absolute',
-    width: 140,
-    height: 140,
+  headerAvatar: {
+    overflow: 'hidden',
+    borderRadius: 8
+  },
+  usernameText: {
+    fontSize: 17,
+    fontWeight: '800',
+    color: '#56585eff'
+  },
+  organizationContainer: {
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+    alignItems: 'baseline',
+    gap: 5
+  },
+  organizationText: {
+    fontSize: 14,
+    fontWeight: '400',
+    color: '#868c99ff'
+  },
+  totpContainer: {
+    alignSelf: 'stretch',
+    padding: 24,
+    justifyContent: 'center',
     alignItems: 'center',
-    justifyContent: 'center',
-  },
-  timerRingBackground: {
-    position: 'absolute',
-    width: 140,
-    height: 140,
-    borderRadius: 70,
-    borderWidth: 4,
-  },
-  timerRingProgress: {
-    position: 'absolute',
-    width: 270,
-    height: 270,
-    borderRadius: 135,
-    borderWidth: 4,
-    borderTopColor: 'transparent',
-    borderRightColor: 'transparent',
-    borderBottomColor: 'transparent',
+    gap: 16
   },
   codeCircle: {
-    width: 250,
-    height: 250,
-    borderRadius: 125,
+    width: 220,
+    height: 220,
+    borderRadius: 110,
     alignItems: 'center',
     justifyContent: 'center',
-    zIndex: 1,
+    elevation: 3
   },
   codeText: {
-    fontSize: 48,
+    fontSize: 40,
     fontWeight: '700',
     letterSpacing: 2,
     textAlign: 'center',
     marginBottom: 4,
+    color: '#000000de'
+  },
+  tapToCopyText: {
+    color: '#00000066',
+    marginBottom: 2
   },
   timerContainer: {
     position: 'absolute',
-    bottom: -36,
+    top: 12,
     alignItems: 'center',
   },
   timerText: {
-    fontSize: 20,
-    fontWeight: '600',
+    fontSize: 24,
+    fontWeight: '700'
   },
   copyButton: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 24,
     paddingVertical: 12,
+    marginBottom: 32
   },
+  copyButtonText: {
+    color: '#000000de',
+    fontSize: 16,
+    fontWeight: '600',
+    marginLeft: 8
+  },
+  nextTokenContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    borderRadius: 8,
+    borderWidth: 1,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+  },
+  nextTokenText: {
+    color: '#000000de',
+    fontSize: 16,
+    fontWeight: '600'
+  },
+  nextTokenButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    backgroundColor: '#e2e3e4ff',
+    borderRadius: 8
+  },
+  pushLoginHistoryContainer: {
+    position: 'absolute',
+    bottom: 0,
+    width: '100%',
+    backgroundColor: '#fbfbfb'
+  },
+  pushLoginHistoryButton: {
+    position: 'relative',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingVertical: 24,
+    backgroundColor: '#FF7300',
+    width: '100%'
+  },
+  pushLoginHistoryButtonText: {
+    color: '#ffffff',
+    fontSize: 16,
+    fontWeight: '600'
+  }
 });
 
 export default TOTPCode;

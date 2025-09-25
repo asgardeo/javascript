@@ -16,12 +16,13 @@
  * under the License.
  */
 
-import { Ionicons } from "@expo/vector-icons";
+import { Ionicons, Octicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { FunctionComponent, ReactElement } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import useTheme from "../../contexts/theme/useTheme";
 import { AccountInterface } from "../../models/storage";
+import Avatar from "../common/avatar";
 
 const AccountListItem: FunctionComponent<AccountInterface> = ({
   id,
@@ -38,48 +39,41 @@ const AccountListItem: FunctionComponent<AccountInterface> = ({
   return (
     <TouchableOpacity
       style={[
-        localStyles.container,
-        styles.colors.backgroundSurface,
-        styles.colors.borderDefault,
-        { borderWidth: 1 }
+        localStyles.container
       ]}
       onPress={handleAccountPress}
       activeOpacity={0.7}
     >
-      <View style={localStyles.iconContainer}>
-        <View style={[
-          localStyles.iconWrapper,
-          styles.colors.backgroundPrimaryLight
-        ]}>
-          <Ionicons
-            name="person-circle-outline"
-            size={32}
-            color={styles.colors.textPrimary.color}
-          />
-        </View>
-      </View>
+      <Avatar name={username || displayName} style={localStyles.iconContainer} />
 
       <View style={localStyles.contentContainer}>
-        <Text style={[
-          localStyles.usernameText,
-          styles.typography.h6,
-          styles.colors.textPrimary
-        ]}>
+        <Text
+          numberOfLines={1}
+          ellipsizeMode="tail"
+          style={[localStyles.usernameText]}
+        >
           {username}
         </Text>
-        <Text style={[
-          localStyles.organizationText,
-          styles.typography.body2,
-          styles.colors.textSecondary
-        ]}>
-          {displayName}
-        </Text>
+        <View style={[localStyles.organizationContainer]}>
+          <Octicons
+            style={[localStyles.organizationText]}
+            name="organization"
+            size={14}
+          />
+          <Text
+            numberOfLines={1}
+            ellipsizeMode="tail"
+            style={[localStyles.organizationText]}
+          >
+            {displayName}
+          </Text>
+        </View>
       </View>
 
       <View style={localStyles.arrowContainer}>
         <Ionicons
           name="chevron-forward"
-          size={20}
+          size={26}
           color={styles.colors.textSecondary.color}
         />
       </View>
@@ -91,44 +85,40 @@ const localStyles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 16,
-    marginHorizontal: 16,
-    marginVertical: 8,
-    borderRadius: 12,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 3.84,
-    elevation: 5
+    padding: 12,
+    borderRadius: 8,
+    backgroundColor: '#f5f6f9ff',
+    borderWidth: 1,
+    borderColor: '#d1d9e6'
   },
   iconContainer: {
     marginRight: 16,
   },
-  iconWrapper: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
   contentContainer: {
     flex: 1,
+    justifyContent: 'center',
+    alignItems: 'flex-start',
+    gap: 2
   },
   usernameText: {
-    marginBottom: 4,
+    fontSize: 17,
+    fontWeight: '800',
+    color: '#56585eff'
+  },
+  organizationContainer: {
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+    alignItems: 'baseline',
+    gap: 5
   },
   organizationText: {
-    marginBottom: 2,
-  },
-  deviceIdText: {
-    opacity: 0.7,
+    fontSize: 14,
+    fontWeight: '400',
+    color: '#868c99ff'
   },
   arrowContainer: {
-    marginLeft: 8,
-  },
+    marginLeft: 24,
+  }
 });
 
 export default AccountListItem;

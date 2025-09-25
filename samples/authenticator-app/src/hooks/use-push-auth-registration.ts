@@ -50,7 +50,7 @@ export const usePushAuthRegistration = (): UsePushAuthRegistrationPropsInterface
   const buildRegistrationUrl = (qrData: PushNotificationQRDataInterface): string => {
     const { tenantDomain, organizationId } = qrData;
     // TODO: Use the host from the QR data.
-    const host = "http://192.168.208.18:8082";
+    const host = "http://10.247.140.18:8082";
 
     if (organizationId) {
       return `${host}/o/${organizationId}/api/users/v1/me/push/devices`;
