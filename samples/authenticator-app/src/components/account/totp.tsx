@@ -204,7 +204,6 @@ const TOTPCode: FunctionComponent<TOTPCodeProps> = ({ id }: TOTPCodeProps): Reac
             <TouchableOpacity
               style={[
                 localStyles.copyButton,
-                styles.buttons.secondaryButton,
                 { opacity: totpCode && !isGenerating ? 1 : 0.5 }
               ]}
               onPress={() => copyToClipboard()}
@@ -212,39 +211,35 @@ const TOTPCode: FunctionComponent<TOTPCodeProps> = ({ id }: TOTPCodeProps): Reac
             >
               <Ionicons
                 name="copy-outline"
-                size={20}
-                color='#000000de'
+                size={24}
+                color='#ffffff'
               />
               <Text style={[localStyles.copyButtonText]}>
                 Copy Code
               </Text>
             </TouchableOpacity>
-            <View style={localStyles.nextTokenContainer}>
+            <TouchableOpacity
+              style={[localStyles.nextTokenButton]}
+              onPress={() => copyToClipboard(true)}
+              disabled={isGenerating || !nextTOTPCode}
+            >
               <Text style={[localStyles.nextTokenText]}>
-                Next Token
+                Next Token :
               </Text>
-              <TouchableOpacity
-                style={[localStyles.nextTokenButton]}
-                onPress={() => copyToClipboard(true)}
-                disabled={isGenerating || !nextTOTPCode}
-              >
-                <Ionicons
-                  name="copy-outline"
-                  size={20}
-                  color='#000000de'
-                />
-                <Text style={[localStyles.copyButtonText]}>
-                  {nextTOTPCode ? nextTOTPCode.match(/.{1,3}/g)?.join(" ") : "------"}
-                </Text>
-              </TouchableOpacity>
-            </View>
+              <Text style={[localStyles.nextTokenText]}>
+                {nextTOTPCode ? nextTOTPCode.match(/.{1,3}/g)?.join(" ") : "------"}
+              </Text>
+            </TouchableOpacity>
           </View>
         </View>
       </ScrollView>
       <View style={[localStyles.pushLoginHistoryContainer]}>
         <TouchableOpacity style={[localStyles.pushLoginHistoryButton, { marginBottom: insets.bottom }]}>
-          <Text style={[localStyles.pushLoginHistoryButtonText]}>Push Login History</Text>
-          <Ionicons name="chevron-forward" size={24} color="#ffffff" />
+          <View style={[localStyles.pushLoginHistoryContent]}>
+            <Ionicons name='time-outline' size={30} color="#00000066" />
+            <Text style={[localStyles.pushLoginHistoryButtonText]}>View Push Login History</Text>
+          </View>
+          <Ionicons name="chevron-forward" size={30} color="#00000066" />
         </TouchableOpacity>
       </View>
     </>
@@ -324,43 +319,40 @@ const localStyles = StyleSheet.create({
   copyButton: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
     paddingHorizontal: 24,
     paddingVertical: 12,
-    marginBottom: 32
+    marginBottom: 32,
+    backgroundColor: '#FF7300',
+    borderRadius: 8
   },
   copyButtonText: {
-    color: '#000000de',
-    fontSize: 16,
-    fontWeight: '600',
+    color: '#ffffff',
+    fontSize: 24,
+    fontWeight: '500',
     marginLeft: 8
   },
-  nextTokenContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    borderRadius: 8,
-    borderWidth: 1,
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-  },
   nextTokenText: {
-    color: '#000000de',
-    fontSize: 16,
+    color: '#868c99ff',
+    fontSize: 14,
     fontWeight: '600'
   },
   nextTokenButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    backgroundColor: '#e2e3e4ff',
-    borderRadius: 8
+    justifyContent: 'center',
+    gap: 8
   },
   pushLoginHistoryContainer: {
     position: 'absolute',
     bottom: 0,
     width: '100%',
     backgroundColor: '#fbfbfb'
+  },
+  pushLoginHistoryContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8
   },
   pushLoginHistoryButton: {
     position: 'relative',
@@ -369,11 +361,11 @@ const localStyles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 24,
-    backgroundColor: '#FF7300',
+    backgroundColor: '#e8e9ebff',
     width: '100%'
   },
   pushLoginHistoryButtonText: {
-    color: '#ffffff',
+    color: '#00000066',
     fontSize: 16,
     fontWeight: '600'
   }
