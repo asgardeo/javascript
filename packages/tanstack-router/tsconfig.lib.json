@@ -1,0 +1,24 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "declaration": true,
+    "outDir": "dist",
+    "declarationDir": "dist",
+    "types": ["node"],
+    "skipLibCheck": true,
+    "declarationMap": true
+  },
+  "exclude": [
+    "**/*.spec.ts",
+    "**/*.test.ts",
+    "**/*.spec.tsx",
+    "**/*.test.tsx",
+    "**/*.spec.js",
+    "**/*.test.js",
+    "**/*.spec.jsx",
+    "**/*.test.jsx",
+    "node_modules",
+    "dist"
+  ],
+  "include": ["src/**/*.ts", "src/**/*.tsx"]
+}
