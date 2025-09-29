@@ -70,7 +70,7 @@ class AsyncStorageService {
     }
 
     if (maxItems && newValue.length === maxItems) {
-      newValue = [value, ...newValue.slice(0, maxItems)];
+      newValue = [value, ...newValue.slice(0, maxItems - 1)];
     } else {
       newValue = [value, ...newValue];
     }

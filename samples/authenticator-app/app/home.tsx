@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import AccountList from "@/src/components/home/account-list";
+import AccountList from "../src/components/home/account-list";
 import { MaterialIcons } from "@expo/vector-icons";
 import { Router, useRouter } from "expo-router";
 import { FunctionComponent, ReactElement } from "react";
@@ -37,6 +37,7 @@ const Home: FunctionComponent = (): ReactElement => {
         flex: 1,
         justifyContent: "center",
         alignItems: "center",
+        backgroundColor: "#fbfbfb"
       }}
     >
       <AccountList />
@@ -50,7 +51,7 @@ const Home: FunctionComponent = (): ReactElement => {
         <MaterialIcons
           name="add"
           size={30}
-          color={ styles.buttons.primaryButtonText.color }
+          color={styles.buttons.primaryButtonText.color}
         />
       </TouchableOpacity>
     </View>

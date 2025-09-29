@@ -16,19 +16,20 @@
  * under the License.
  */
 
-import StorageConstants from "@/src/constants/storage";
-import { AccountInterface, StorageDataInterface } from "@/src/models/storage";
-import AsyncStorageService from "@/src/utils/async-storage-service";
-import TypeConvert from "@/src/utils/typer-convert";
+import StorageConstants from "../../constants/storage";
+import { AccountInterface, PushAuthenticationDataStorageInterface, StorageDataInterface } from "../../models/storage";
+import AsyncStorageService from "../../utils/async-storage-service";
+import TypeConvert from "../../utils/typer-convert";
 import { Ionicons, Octicons } from "@expo/vector-icons";
 import { setStringAsync } from 'expo-clipboard';
-import { FunctionComponent, ReactElement, RefObject, useCallback, useEffect, useRef, useState } from "react";
+import React, { FunctionComponent, ReactElement, RefObject, useCallback, useEffect, useRef, useState } from "react";
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { EdgeInsets, useSafeAreaInsets } from "react-native-safe-area-context";
 import useTheme from "../../contexts/theme/useTheme";
 import CryptoService from "../../utils/crypto-service";
 import Avatar from "../common/avatar";
 import CircularProgress from "./circular-porgress-bar";
+import { Router, useFocusEffect, useRouter } from "expo-router";
 
 /**
  * Props for the TOTPCode component.
@@ -54,7 +55,9 @@ const TOTPCode: FunctionComponent<TOTPCodeProps> = ({ id }: TOTPCodeProps): Reac
   const previousTimeRef: RefObject<number> = useRef<number>(Number.NEGATIVE_INFINITY);
   const [isGenerating, setIsGenerating] = useState<boolean>(false);
   const [accountDetails, setAccountDetails] = useState<AccountInterface | null>(null);
+  const [pushLoginHistory, setPushLoginHistory] = useState<PushAuthenticationDataStorageInterface[]>([]);
   const insets: EdgeInsets = useSafeAreaInsets();
+  const router: Router = useRouter();
 
   /**
    * Fetch account details from storage when the component mounts or when the id changes.
@@ -71,6 +74,27 @@ const TOTPCode: FunctionComponent<TOTPCodeProps> = ({ id }: TOTPCodeProps): Reac
 
     fetchAccountDetails();
   }, [id]);
+
+  /**
+   * Fetch push login history from storage when the component mounts or when the accountDetails changes.
+   */
+  useFocusEffect(
+    useCallback(() => {
+      if (!accountDetails?.id) return;
+
+      AsyncStorageService.getItem(StorageConstants.replaceAccountId(
+        StorageConstants.PUSH_AUTHENTICATION_DATA, accountDetails.id))
+        .then((storageData: string | null) => {
+          if (!storageData) return;
+
+          const storageDataList: StorageDataInterface[] = JSON.parse(storageData);
+          if (!storageDataList || storageDataList.length === 0) return;
+
+          setPushLoginHistory(storageDataList.map(
+            item => TypeConvert.toPushAuthenticationDataStorageInterface(item)));
+        });
+    }, [accountDetails])
+  );
 
   const generateCode = useCallback(async () => {
     if (!id || !accountDetails) return;
@@ -137,7 +161,12 @@ const TOTPCode: FunctionComponent<TOTPCodeProps> = ({ id }: TOTPCodeProps): Reac
 
   return (
     <>
-      <ScrollView style={[{ marginBottom: insets.bottom + 45 }, styles.colors.backgroundBody]}>
+      <ScrollView
+        style={[
+          { marginBottom: pushLoginHistory.length > 0 ? insets.bottom + 45 : undefined },
+          styles.colors.backgroundBody
+        ]}
+      >
         <View style={[localStyles.container, styles.colors.backgroundBody]}>
           <View style={[localStyles.headerContainer]}>
             <Avatar
@@ -233,14 +262,26 @@ const TOTPCode: FunctionComponent<TOTPCodeProps> = ({ id }: TOTPCodeProps): Reac
           </View>
         </View>
       </ScrollView>
-      <View style={[localStyles.pushLoginHistoryContainer]}>
-        <TouchableOpacity style={[localStyles.pushLoginHistoryButton, { marginBottom: insets.bottom }]}>
-          <View style={[localStyles.pushLoginHistoryContent]}>
-            <Ionicons name='time-outline' size={30} color="#00000066" />
-            <Text style={[localStyles.pushLoginHistoryButtonText]}>View Push Login History</Text>
-          </View>
-          <Ionicons name="chevron-forward" size={30} color="#00000066" />
-        </TouchableOpacity>
+      <View
+        style={[
+          localStyles.pushLoginHistoryContainer,
+          { height: pushLoginHistory.length === 0 ? insets.bottom : undefined }
+        ]}
+      >
+        {
+          pushLoginHistory.length > 0 && (
+            <TouchableOpacity
+              style={[localStyles.pushLoginHistoryButton, { marginBottom: insets.bottom }]}
+              onPress={() => router.push(`/push-auth-history?id=${id}`)}
+            >
+              <View style={[localStyles.pushLoginHistoryContent]}>
+                <Ionicons name='time-outline' size={30} color="#00000066" />
+                <Text style={[localStyles.pushLoginHistoryButtonText]}>View Push Login History</Text>
+              </View>
+              <Ionicons name="chevron-forward" size={30} color="#00000066" />
+            </TouchableOpacity>
+          )
+        }
       </View>
     </>
   );
@@ -328,13 +369,13 @@ const localStyles = StyleSheet.create({
   },
   copyButtonText: {
     color: '#ffffff',
-    fontSize: 24,
-    fontWeight: '500',
+    fontSize: 20,
+    fontWeight: '400',
     marginLeft: 8
   },
   nextTokenText: {
     color: '#868c99ff',
-    fontSize: 14,
+    fontSize: 15,
     fontWeight: '600'
   },
   nextTokenButton: {

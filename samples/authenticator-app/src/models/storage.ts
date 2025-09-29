@@ -43,7 +43,7 @@ export interface AccountInterface {
  * Interface representing the data stored during push authentication.
  */
 export type PushAuthenticationDataStorageInterface = Pick<PushAuthenticationDataInterface,
-  'applicationName' | 'notificationScenario' | 'ipAddress' | 'deviceOS' | 'browser' | 'sentTime'> & {
+  'applicationName' | 'notificationScenario' | 'ipAddress' | 'deviceOS' | 'browser'> & {
     /**
      * The status of the push authentication response.
      */

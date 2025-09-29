@@ -94,7 +94,7 @@ const PushAuthProvider: FunctionComponent<PropsWithChildren> = ({ children }: Pr
   const buildPushAuthUrl = useCallback((id: string): string => {
     const { tenantDomain, organizationId } = pushAuthMessageCache[id];
     // TODO: Use the host from the QR data.
-    const host = "http://10.247.140.18:8082";
+    const host = "http://10.10.16.152:8082";
 
     if (organizationId) {
       return `${host}/o/${organizationId}/push-auth/authenticate`;
@@ -171,7 +171,7 @@ const PushAuthProvider: FunctionComponent<PropsWithChildren> = ({ children }: Pr
           return;
         }
 
-        const accountDetails: AccountInterface = TypeConvert.toAccountInterface(storageData);
+        const accountDetails: AccountInterface = TypeConvert.toAccountInterface(storageData[0]);
 
         const authStorageData: PushAuthenticationDataStorageInterface = {
           applicationName: pushAuthMessageCache[id].applicationName,
@@ -179,7 +179,6 @@ const PushAuthProvider: FunctionComponent<PropsWithChildren> = ({ children }: Pr
           notificationScenario: pushAuthMessageCache[id].notificationScenario,
           deviceOS: pushAuthMessageCache[id].deviceOS,
           browser: pushAuthMessageCache[id].browser,
-          sentTime: pushAuthMessageCache[id].sentTime,
           status: status,
           respondedTime: Date.now()
         };
@@ -188,7 +187,7 @@ const PushAuthProvider: FunctionComponent<PropsWithChildren> = ({ children }: Pr
           StorageConstants.replaceAccountId(
             StorageConstants.PUSH_AUTHENTICATION_DATA, accountDetails.id),
           authStorageData,
-          3 // Keep a maximum of 3 records per device ID.
+          5 // Keep a maximum of 3 records per device ID.
         );
       }
     } catch {
@@ -204,13 +203,13 @@ const PushAuthProvider: FunctionComponent<PropsWithChildren> = ({ children }: Pr
    */
   const getPushAuthMessageFromCache = useCallback((id: string): PushAuthenticationDataInterface | undefined => {
     return pushAuthMessageCache[id];
-  }, [ pushAuthMessageCache ]);
+  }, [pushAuthMessageCache]);
 
   return (
     <PushAuthContext.Provider
       value={{ addPushAuthMessageToCache, getPushAuthMessageFromCache, sentPushAuthResponse }}
     >
-      { children }
+      {children}
       <Alert
         visible={alertVisible}
         type={alertType}

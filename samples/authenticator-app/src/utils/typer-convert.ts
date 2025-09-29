@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import { AccountInterface, StorageDataInterface } from "../models/storage";
+import { AccountInterface, PushAuthenticationDataStorageInterface, StorageDataInterface } from "../models/storage";
 
 /**
  * Class containing type conversion utility methods.
@@ -73,6 +73,38 @@ class TypeConvert {
   static toAccountInterface(data: unknown): AccountInterface {
     if (!this.isAccountInterfaceType(data)) {
       throw new Error("Invalid account data");
+    }
+
+    return data;
+  }
+
+  /**
+   * Checks if the given data is of type PushAuthenticationDataStorageInterface.
+   *
+   * @param data - Data to be checked.
+   * @returns True if the data is of type PushAuthenticationDataStorageInterface, false otherwise.
+   */
+  static isPushAuthenticationDataStorageInterfaceType(data: unknown): data is PushAuthenticationDataStorageInterface {
+    if (typeof data !== "object" || data === null || Array.isArray(data)) {
+      return false;
+    }
+
+    if (!('applicationName' in data) || !('status' in data) || !('respondedTime' in data)) {
+      return false;
+    }
+
+    return true;
+  }
+
+  /**
+   * Converts the given data to a PushAuthenticationDataStorageInterface.
+   *
+   * @param data - Data to be converted to PushAuthenticationDataStorageInterface.
+   * @returns The converted PushAuthenticationDataStorageInterface.
+   */
+  static toPushAuthenticationDataStorageInterface(data: unknown): PushAuthenticationDataStorageInterface {
+    if (!this.isPushAuthenticationDataStorageInterfaceType(data)) {
+      throw new Error("Invalid push authentication data");
     }
 
     return data;

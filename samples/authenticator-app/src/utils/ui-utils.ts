@@ -50,3 +50,29 @@ export const getInitials = (name: string): string => {
     .slice(0, 2)
     .join('');
 };
+
+/**
+ * Convert a timestamp to a human-readable "time ago" format.
+ *
+ * @param timestamp - The timestamp to convert.
+ * @returns A human-readable string representing the time elapsed since the timestamp.
+ */
+export const getTimeFromNow = (timestamp: number): string => {
+  const now: number = Date.now();
+  const diffInSeconds: number = Math.floor((now - timestamp) / 1000);
+
+  if (diffInSeconds < 60) {
+    return `${diffInSeconds} seconds ago`;
+  } else if (diffInSeconds < 3600) {
+    const minutes: number = Math.floor(diffInSeconds / 60);
+    return `${minutes} minute${minutes > 1 ? 's' : ''} ago`;
+  } else if (diffInSeconds < 86400) {
+    const hours: number = Math.floor(diffInSeconds / 3600);
+    return `${hours} hour${hours > 1 ? 's' : ''} ago`;
+  } else if (diffInSeconds < 604800) {
+    const days: number = Math.floor(diffInSeconds / 86400);
+    return `${days} day${days > 1 ? 's' : ''} ago`;
+  }
+
+  return new Date(timestamp).toLocaleDateString();
+};
