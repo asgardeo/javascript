@@ -17,3 +17,4 @@
  */
 
 export {default as en_US} from './en-US';
+export {default as ta_IN} from './ta-IN';
