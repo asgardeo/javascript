@@ -98,6 +98,17 @@ export interface AsgardeoClient<T> {
   initialize(config: T, storage?: Storage): Promise<boolean>;
 
   /**
+   * Re-initializes the client with a new configuration.
+   *
+   * @remarks
+   * This can be partial configuration to update only specific fields.
+   *
+   * @param config - New configuration to re-initialize the client with.
+   * @returns Promise resolving to boolean indicating success.
+   */
+  reInitialize(config: Partial<T>): Promise<boolean>;
+
+  /**
    * Checks if the client is currently loading.
    * This can be used to determine if the client is in the process of initializing or fetching user data.
    *

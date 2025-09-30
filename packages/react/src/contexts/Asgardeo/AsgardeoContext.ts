@@ -121,6 +121,17 @@ export type AsgardeoContextProps = {
    * @returns A promise that resolves to the token response or the raw response.
    */
   exchangeToken: (config: TokenExchangeRequestConfig) => Promise<TokenResponse | Response>;
+
+  /**
+   * Re-initializes the client with a new configuration.
+   *
+   * @remarks
+   * This can be partial configuration to update only specific fields.
+   *
+   * @param config - New configuration to re-initialize the client with.
+   * @returns Promise resolving to boolean indicating success.
+   */
+  reInitialize: (config: Partial<AsgardeoReactConfig>) => Promise<boolean>;
 } & Pick<AsgardeoReactConfig, 'storage'>;
 
 /**
@@ -151,6 +162,7 @@ const AsgardeoContext: Context<AsgardeoContextProps | null> = createContext<null
   getAccessToken: null,
   exchangeToken: null,
   storage: 'sessionStorage',
+  reInitialize: null,
 });
 
 AsgardeoContext.displayName = 'AsgardeoContext';

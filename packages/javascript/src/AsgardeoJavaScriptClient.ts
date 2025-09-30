@@ -37,6 +37,8 @@ abstract class AsgardeoJavaScriptClient<T = Config> implements AsgardeoClient<T>
 
   abstract initialize(config: T, storage?: Storage): Promise<boolean>;
 
+  abstract reInitialize(config: Partial<T>): Promise<boolean>;
+
   abstract getUser(options?: any): Promise<User>;
 
   abstract getAllOrganizations(options?: any, sessionId?: string): Promise<AllOrganizationsApiResponse>;

@@ -17,29 +17,29 @@
  */
 
 import {createContext} from 'react';
-import {I18nBundle} from '@asgardeo/browser';
+import {I18nBundle} from '@asgardeo/i18n';
 
 export interface I18nContextValue {
   /**
    * The current language code (e.g., 'en-US', 'fr-FR')
    */
   currentLanguage: string;
-  
+
   /**
    * The fallback language code
    */
   fallbackLanguage: string;
-  
+
   /**
    * All available i18n bundles (default + user provided)
    */
   bundles: Record<string, I18nBundle>;
-  
+
   /**
    * Function to change the current language
    */
   setLanguage: (language: string) => void;
-  
+
   /**
    * Function to get a translation by key with optional parameters
    */

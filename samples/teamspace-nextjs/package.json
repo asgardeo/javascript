@@ -9,6 +9,7 @@
     "start": "next start"
   },
   "dependencies": {
+    "@asgardeo/i18n": "workspace:^",
     "@asgardeo/nextjs": "workspace:^",
     "@hookform/resolvers": "^3.9.1",
     "@radix-ui/react-accordion": "1.2.2",

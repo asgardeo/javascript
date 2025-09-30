@@ -45,6 +45,14 @@ createRoot(document.getElementById('root')!).render(
           //   },
           // },
         },
+        // Import the locale file and add it here to enable i18n
+        // ex: import fr_FR from './i18n/fr-FR.json';
+        // i18n: {
+        //   language: 'fr-FR',
+        //   bundles: {
+        //     'fr-FR': fr_FR,
+        //   },
+        // },
       }}
     >
       <App />

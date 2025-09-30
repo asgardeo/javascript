@@ -1,4 +1,3 @@
-import { Platform } from './models/platforms';
 /**
  * Copyright (c) 2020, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
  *
@@ -124,7 +123,6 @@ export {
 export {Schema, SchemaAttribute, WellKnownSchemaIds, FlattenedSchema} from './models/scim2-schema';
 export {RecursivePartial} from './models/utility-types';
 export {FieldType} from './models/field';
-export {I18nBundle, I18nTranslations, I18nMetadata} from './models/i18n';
 
 export {default as AsgardeoJavaScriptClient} from './AsgardeoJavaScriptClient';
 
@@ -144,7 +142,6 @@ export {default as generateUserProfile} from './utils/generateUserProfile';
 export {default as getLatestStateParam} from './utils/getLatestStateParam';
 export {default as generateFlattenedUserProfile} from './utils/generateFlattenedUserProfile';
 export {default as getRedirectBasedSignUpUrl} from './utils/getRedirectBasedSignUpUrl';
-export {default as getI18nBundles} from './utils/getI18nBundles';
 export {default as identifyPlatform} from './utils/identifyPlatform';
 export {default as isEmpty} from './utils/isEmpty';
 export {default as set} from './utils/set';

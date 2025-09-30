@@ -1,5 +1,16 @@
 # @asgardeo/react
 
+## 0.5.25
+
+### Patch Changes
+
+- [#181](https://github.com/asgardeo/javascript/pull/181)
+  [`0c34416`](https://github.com/asgardeo/javascript/commit/0c3441609a7de33d336b96e1acbe2443e9ea4132) Thanks
+  [@brionmario](https://github.com/brionmario)! - Expose `reInitialize` from `@asgardeo/react` & `@asgardeo/nextjs`
+
+- Updated dependencies []:
+  - @asgardeo/browser@0.1.18
+
 ## 0.5.24
 
 ### Patch Changes

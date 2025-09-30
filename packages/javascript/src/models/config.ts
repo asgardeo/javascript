@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import {I18nBundle} from './i18n';
+import {I18nBundle} from '@asgardeo/i18n';
 import {RecursivePartial} from './utility-types';
 import {ThemeConfig, ThemeMode} from '../theme/types';
 

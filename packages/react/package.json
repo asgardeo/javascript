@@ -1,6 +1,6 @@
 {
   "name": "@asgardeo/react",
-  "version": "0.5.24",
+  "version": "0.5.25",
   "description": "React implementation of Asgardeo JavaScript SDK.",
   "keywords": [
     "asgardeo",
@@ -62,6 +62,7 @@
     "react": ">=16.8.0"
   },
   "dependencies": {
+    "@asgardeo/i18n": "workspace:^",
     "@asgardeo/browser": "workspace:^",
     "@emotion/css": "^11.13.5",
     "@floating-ui/react": "^0.27.12",
