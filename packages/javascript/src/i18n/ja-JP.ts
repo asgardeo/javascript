@@ -60,7 +60,8 @@ const translations: I18nTranslations = {
 
   /* Identifier First */
   "identifier.first.title": "ログイン",
-  "identifier.first.subtitle": "ユーザー名またはメールアドレスを入力してください。",
+  "identifier.first.subtitle":
+    "ユーザー名またはメールアドレスを入力してください。",
   "identifier.first.submit.button": "続行",
 
   /* SMS OTP */
@@ -83,7 +84,8 @@ const translations: I18nTranslations = {
   /* |---------------------------------------------------------------| */
 
   "user.profile.title": "プロフィール",
-  "user.profile.update.generic.error": "プロフィール更新中にエラーが発生しました。もう一度お試しください。",
+  "user.profile.update.generic.error":
+    "プロフィール更新中にエラーが発生しました。もう一度お試しください。",
 
   /* |---------------------------------------------------------------| */
   /* |                     Organization Switcher                     | */
@@ -134,8 +136,10 @@ const translations: I18nTranslations = {
   /* |---------------------------------------------------------------| */
 
   "errors.title": "エラー",
-  "errors.sign.in.initialization": "初期化中にエラーが発生しました。後でもう一度お試しください。",
-  "errors.sign.in.flow.failure": "サインイン処理中にエラーが発生しました。後でもう一度お試しください。",
+  "errors.sign.in.initialization":
+    "初期化中にエラーが発生しました。後でもう一度お試しください。",
+  "errors.sign.in.flow.failure":
+    "サインイン処理中にエラーが発生しました。後でもう一度お試しください。",
   "errors.sign.in.flow.completion.failure":
     "サインイン処理の完了中にエラーが発生しました。後でもう一度お試しください。",
   "errors.sign.in.flow.passkeys.failure":
