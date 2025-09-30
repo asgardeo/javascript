@@ -33,4 +33,12 @@ export interface TOTPQRDataInterface {
    * Period in seconds for which a TOTP code is valid.
    */
   period: number;
+  /**
+   * Algorithm used for generating TOTP codes (e.g., SHA1, SHA256, SHA512).
+   */
+  algorithm: string;
+  /**
+   * Number of digits in the generated TOTP code.
+   */
+  digits: number;
 }

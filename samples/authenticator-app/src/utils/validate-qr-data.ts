@@ -51,6 +51,7 @@ const validateQRData = (data: string): QRDataValidationResponseInterface => {
  */
 const validateTOTPFormat = (data: string): QRDataValidationResponseInterface => {
   const response: QRDataValidationResponseInterface = { isValid: false, type: QRDataType.TOTP };
+  console.log(data);
 
   try {
     if (!data.startsWith('otpauth://totp/')) {
@@ -63,6 +64,8 @@ const validateTOTPFormat = (data: string): QRDataValidationResponseInterface => 
     const secret = url.searchParams.get('secret');
     const issuer = url.searchParams.get('issuer');
     const period = url.searchParams.get('period');
+    const algorithm = url.searchParams.get('algorithm');
+    const digits = url.searchParams.get('digits');
 
     if (!secret || !issuer) {
       return response;
@@ -79,7 +82,9 @@ const validateTOTPFormat = (data: string): QRDataValidationResponseInterface => 
       issuer: decodeURIComponent(issuer),
       username: username,
       secret: secret,
-      period: period ? parseInt(period, 10) : 30
+      period: period ? parseInt(period, 10) : 30,
+      algorithm: algorithm ? algorithm : 'SHA1',
+      digits: digits ? parseInt(digits, 10) : 6
     };
     response.isValid = true;
 

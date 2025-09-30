@@ -37,6 +37,8 @@ export interface AccountInterface {
   organizationId?: string;
   username: string;
   period?: number;
+  algorithm?: string;
+  digits?: number;
 }
 
 /**

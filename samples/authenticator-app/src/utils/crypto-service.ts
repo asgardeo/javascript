@@ -179,11 +179,12 @@ class CryptoService {
    *
    * @param id - Identifier for which the TOTP instance has to be retrieved.
    * @param period - The time period in seconds for which the TOTP is valid.
+   * @param algorithm - The hashing algorithm to be used.
+   * @param digits - The number of digits in the TOTP (default is 6).
    * @returns The TOTP instance.
    */
-  private static getTOTPInstance(id: string, period: number): TOTP {
+  private static getTOTPInstance(id: string, period: number, algorithm: string, digits: number): TOTP {
     const secret: string | null = SecureStorageService.getItem(id);
-
 
     if (!secret) {
       throw new Error('No secret found for the given ID.');
@@ -191,7 +192,9 @@ class CryptoService {
 
     const totp: TOTP = new TOTP({
       secret,
-      period
+      period,
+      algorithm,
+      digits
     });
 
     return totp;
@@ -202,10 +205,12 @@ class CryptoService {
    *
    * @param id - Identifier for which the TOTP has to be generated.
    * @param period - The time period in seconds for which the TOTP is valid.
+   * @param algorithm - The hashing algorithm to be used.
+   * @param digits - The number of digits in the TOTP (default is 6).
    * @returns The generated TOTP.
    */
-  static generateTOTP(id: string, period: number): string {
-    const totp: TOTP = this.getTOTPInstance(id, period);
+  static generateTOTP(id: string, period: number, algorithm: string, digits: number): string {
+    const totp: TOTP = this.getTOTPInstance(id, period, algorithm, digits);
 
     return totp.generate();
   }
@@ -215,10 +220,12 @@ class CryptoService {
    *
    * @param id - Identifier for which the next TOTP has to be generated.
    * @param period - The time period in seconds for which the TOTP is valid.
+   * @param algorithm - The hashing algorithm to be used.
+   * @param digits - The number of digits in the TOTP (default is 6).
    * @returns The generated next TOTP.
    */
-  static generateNextTOTP(id: string, period: number): string {
-    const totp: TOTP = this.getTOTPInstance(id, period);
+  static generateNextTOTP(id: string, period: number, algorithm: string, digits: number): string {
+    const totp: TOTP = this.getTOTPInstance(id, period, algorithm, digits);
 
     return totp.generate({ timestamp: Date.now() + period * 1000 });
   }
@@ -228,10 +235,12 @@ class CryptoService {
    *
    * @param id - Identifier for which the remaining seconds has to be retrieved.
    * @param period - The time period in seconds for which the TOTP is valid.
+   * @param algorithm - The hashing algorithm to be used.
+   * @param digits - The number of digits in the TOTP (default is 6).
    * @returns The remaining seconds for the current TOTP validity period.
    */
-  static getTOTPRemainingSeconds(id: string, period: number): number {
-    const time: number = this.getTOTPInstance(id, period)?.remaining() ?? 0;
+  static getTOTPRemainingSeconds(id: string, period: number, algorithm: string, digits: number): number {
+    const time: number = this.getTOTPInstance(id, period, algorithm, digits)?.remaining() ?? 0;
 
     return time / 1000;
   }
