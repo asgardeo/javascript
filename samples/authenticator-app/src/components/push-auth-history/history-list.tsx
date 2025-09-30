@@ -22,9 +22,10 @@ import { FunctionComponent, useCallback, useState } from "react";
 import AsyncStorageService from "../../utils/async-storage-service";
 import StorageConstants from "../../constants/storage";
 import TypeConvert from "../../utils/typer-convert";
-import { ScrollView, StyleSheet, View } from "react-native";
+import { ScrollView, StyleSheet, View, Text, ViewStyle } from "react-native";
 import HistoryCard from "./history-card";
 import { EdgeInsets, useSafeAreaInsets } from "react-native-safe-area-context";
+import EmptyCard from "./empty-card";
 
 /**
  * Props for the PushAuthHistoryList component.
@@ -34,6 +35,10 @@ export interface PushAuthHistoryListProps {
    * The unique identifier for the account.
    */
   id: string;
+  /**
+   * Style for the container.
+   */
+  style: ViewStyle;
 }
 
 /**
@@ -42,7 +47,7 @@ export interface PushAuthHistoryListProps {
  * @param props - Props for the PushAuthHistoryList component.
  * @returns A React element representing the push authentication history list.
  */
-const HistoryList: FunctionComponent<PushAuthHistoryListProps> = ({ id }: PushAuthHistoryListProps) => {
+const HistoryList: FunctionComponent<PushAuthHistoryListProps> = ({ id, style }: PushAuthHistoryListProps) => {
   const [pushLoginHistory, setPushLoginHistory] = useState<PushAuthenticationDataStorageInterface[]>([]);
   const insets: EdgeInsets = useSafeAreaInsets();
 
@@ -72,7 +77,13 @@ const HistoryList: FunctionComponent<PushAuthHistoryListProps> = ({ id }: PushAu
   return (
     <View style={[styles.container, { paddingBottom: insets.bottom }]}>
       <ScrollView style={[styles.container]}>
-        <View style={[styles.itemContainer]}>
+        <View style={[styles.itemContainer, style]}>
+          <View style={[styles.itemContainerHeader]}>
+            <Text style={[styles.itemContainerHeaderText]}>Push Login History</Text>
+          </View>
+          {pushLoginHistory.length === 0 && (
+            <EmptyCard />
+          )}
           {pushLoginHistory.map((historyItem: PushAuthenticationDataStorageInterface, index: number) => (
             <HistoryCard key={index} {...historyItem} />
           ))}
@@ -85,11 +96,22 @@ const HistoryList: FunctionComponent<PushAuthHistoryListProps> = ({ id }: PushAu
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    alignSelf: "stretch",
     backgroundColor: "#fbfbfb",
   },
   itemContainer: {
     padding: 24,
     gap: 8
+  },
+  itemContainerHeader: {
+    justifyContent: "center",
+    alignItems: "center",
+    paddingBottom: 4
+  },
+  itemContainerHeaderText: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#56585eff"
   }
 });
 

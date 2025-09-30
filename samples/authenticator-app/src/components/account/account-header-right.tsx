@@ -51,7 +51,7 @@ const AccountHeaderRight = ({ params }: AccountHeaderRightProps): ReactElement =
   const buildPushUnregistrationUrl = (data: AccountInterface): string => {
     const { tenantDomain, organizationId } = data;
     // TODO: Use the host from the QR data.
-    const host = "http://10.247.140.18:8082";
+    const host = "http://10.10.16.152:8082";
 
     if (organizationId) {
       return `${host}/o/${organizationId}/api/users/v1/me/push/devices/${data.deviceId}/remove`;
@@ -77,14 +77,14 @@ const AccountHeaderRight = ({ params }: AccountHeaderRightProps): ReactElement =
 
       const result: Response | undefined = !isPushAuthConfigured ? undefined : await fetch(
         buildPushUnregistrationUrl(accountData), {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            token: CryptoService.generatePushUnregistrationJWT(accountData.deviceId!)
-          })
-        });
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          token: CryptoService.generatePushUnregistrationJWT(accountData.deviceId!)
+        })
+      });
 
       if (!result || result.status === 204) {
         await AsyncStorageService.removeItem(StorageConstants.replaceAccountId(

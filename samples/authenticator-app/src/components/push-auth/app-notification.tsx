@@ -16,60 +16,11 @@
  * under the License.
  */
 
-import { PushAuthenticationDataInterface, PushAuthResponseStatus } from "@/src/models/push-notification";
+import { PushAuthenticationDataInterface, PushAuthResponseStatus } from "../../models/push-notification";
 import { FunctionComponent, ReactElement, useMemo } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import usePushAuth from "../../contexts/push-auth/use-push-auth";
-import useTheme from "../../contexts/theme/useTheme";
-
-/**
- * Estimates location from IP address (simplified geolocation)
- * In a real app, this would use a geolocation API
- */
-const estimateLocationFromIP = (ipAddress: string): string => {
-  // Simple mapping for demo purposes - in production use a geolocation service
-  const locationMap: { [key: string]: string } = {
-    '192.168.': 'Local Network',
-    '10.': 'Private Network',
-    '172.': 'Private Network',
-    '127.': 'Localhost',
-  };
-
-  for (const prefix in locationMap) {
-    if (ipAddress.startsWith(prefix)) {
-      return locationMap[prefix];
-    }
-  }
-
-  // For demo purposes, generate a random location
-  const cities = ['New York, US', 'London, UK', 'Tokyo, JP', 'Sydney, AU', 'Toronto, CA', 'Mumbai, IN'];
-  return cities[Math.floor(Math.random() * cities.length)];
-};
-
-/**
- * Formats the received time as "Just now" or formatted date/time
- */
-const formatsentTime = (sentTime: Date): string => {
-  const now = new Date();
-  const diffInSeconds = Math.floor((now.getTime() - sentTime.getTime()) / 1000);
-
-  if (diffInSeconds < 60) {
-    return 'Just now';
-  } else if (diffInSeconds < 3600) {
-    const minutes = Math.floor(diffInSeconds / 60);
-    return `${minutes} minute${minutes > 1 ? 's' : ''} ago`;
-  } else if (diffInSeconds < 86400) {
-    const hours = Math.floor(diffInSeconds / 3600);
-    return `${hours} hour${hours > 1 ? 's' : ''} ago`;
-  } else {
-    return sentTime.toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
-  }
-};
+import { getTimeFromNow } from "@/src/utils/ui-utils";
 
 /**
  * Generates three random numbers including the legitimate one
@@ -111,250 +62,218 @@ const AppNotification: FunctionComponent<PushAuthenticationDataInterface> = ({
   deviceOS,
   sentTime
 }): ReactElement => {
-  const { styles } = useTheme();
-  const location = estimateLocationFromIP(ipAddress);
-  const timeString = formatsentTime(new Date(sentTime));
   const { sentPushAuthResponse } = usePushAuth();
-
-  const notificationStyles = StyleSheet.create({
-    container: {
-      backgroundColor: styles.colors.backgroundSurface.backgroundColor,
-      borderRadius: 16,
-      padding: 20,
-      margin: 16,
-      shadowColor: '#000',
-      shadowOffset: {
-        width: 0,
-        height: 2,
-      },
-      shadowOpacity: 0.1,
-      shadowRadius: 8,
-      elevation: 4,
-    },
-    header: {
-      marginBottom: 16,
-    },
-    title: {
-      ...styles.typography.h5,
-      marginBottom: 4,
-    },
-    subtitle: {
-      ...styles.typography.body2,
-      color: styles.colors.textSecondary.color,
-    },
-    section: {
-      marginBottom: 16,
-    },
-    sectionTitle: {
-      ...styles.typography.h6,
-      marginBottom: 8,
-      fontSize: 14,
-      fontWeight: '600',
-    },
-    infoRow: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      paddingVertical: 4,
-    },
-    infoLabel: {
-      ...styles.typography.body2,
-      color: styles.colors.textSecondary.color,
-      flex: 1,
-    },
-    infoValue: {
-      ...styles.typography.body2,
-      flex: 2,
-      textAlign: 'right',
-      fontWeight: '500',
-    },
-    numbersContainer: {
-      flexDirection: 'row',
-      justifyContent: 'space-around',
-      marginVertical: 16,
-      padding: 16,
-      backgroundColor: styles.colors.backgroundSurfaceLight.backgroundColor,
-      borderRadius: 12,
-    },
-    numberBox: {
-      alignItems: 'center',
-      padding: 12,
-      backgroundColor: styles.colors.backgroundSurface.backgroundColor,
-      borderRadius: 8,
-      minWidth: 60,
-      borderWidth: 1,
-      borderColor: styles.colors.borderDefault.borderColor,
-    },
-    numberText: {
-      ...styles.typography.h5,
-      fontWeight: '700',
-      color: styles.colors.textPrimary.color,
-      marginBottom: 0
-    },
-    numberLabel: {
-      ...styles.typography.body3,
-      marginTop: 4,
-      color: styles.colors.textSecondary.color,
-    },
-    securitySection: {
-      backgroundColor: styles.colors.backgroundInfo.backgroundColor,
-      padding: 12,
-      borderRadius: 8,
-      marginBottom: 16,
-    },
-    securityText: {
-      ...styles.typography.body2,
-      color: styles.colors.textPrimary.color,
-      textAlign: 'center',
-    },
-    buttonContainer: {
-      flexDirection: 'row',
-      gap: 12,
-      marginTop: 8,
-    },
-    approveButton: {
-      ...styles.buttons.primaryButton,
-      flex: 1,
-      backgroundColor: '#28a745'
-    },
-    denyButton: {
-      ...styles.buttons.secondaryButton,
-      flex: 1,
-      backgroundColor: '#dc3545',
-      borderColor: '#dc3545',
-    },
-    approveButtonText: {
-      ...styles.buttons.primaryButtonText,
-      color: '#ffffff',
-    },
-    denyButtonText: {
-      ...styles.buttons.secondaryButtonText,
-      color: '#ffffff',
-    },
-    timeContainer: {
-      alignItems: 'center',
-      marginBottom: 16,
-    },
-    timeText: {
-      ...styles.typography.body3,
-      color: styles.colors.textSecondary.color,
-      fontStyle: 'italic',
-    },
-  });
 
   const threeNumbers = useMemo(() => {
     return numberChallenge ? generateThreeNumbers(parseInt(numberChallenge)) : [];
   }, [numberChallenge]);
 
   return (
-    <View style={notificationStyles.container}>
-      {/* Header Section */}
-      <View style={notificationStyles.header}>
-        <Text style={notificationStyles.title}>Login Request</Text>
-        <Text style={notificationStyles.subtitle}>
+    <View style={[styles.container]}>
+      <View style={[styles.header]}>
+        <Text style={styles.title}>Login Request</Text>
+        <Text style={styles.subtitle}>
           Verify this login attempt to continue
         </Text>
+        <Text style={styles.timeText}>Received {getTimeFromNow(sentTime)}</Text>
       </View>
-
-      {/* Time Section */}
-      <View style={notificationStyles.timeContainer}>
-        <Text style={notificationStyles.timeText}>Received {timeString}</Text>
-      </View>
-
-      {/* Application Info Section */}
-      <View style={notificationStyles.section}>
-        <Text style={notificationStyles.sectionTitle}>Application Details</Text>
-        <View style={notificationStyles.infoRow}>
-          <Text style={notificationStyles.infoLabel}>Organization:</Text>
-          <Text style={notificationStyles.infoValue}>{organizationName ?? tenantDomain}</Text>
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Application Details</Text>
+        <View style={styles.infoRow}>
+          <Text style={styles.infoLabel}>Organization:</Text>
+          <Text style={styles.infoValue}>{organizationName ?? tenantDomain}</Text>
         </View>
-        <View style={notificationStyles.infoRow}>
-          <Text style={notificationStyles.infoLabel}>Application:</Text>
-          <Text style={notificationStyles.infoValue}>{applicationName}</Text>
+        <View style={styles.infoRow}>
+          <Text style={styles.infoLabel}>Application:</Text>
+          <Text style={styles.infoValue}>{applicationName}</Text>
         </View>
-        <View style={notificationStyles.infoRow}>
-          <Text style={notificationStyles.infoLabel}>Username:</Text>
-          <Text style={notificationStyles.infoValue}>{username}</Text>
+        <View style={styles.infoRow}>
+          <Text style={styles.infoLabel}>Username:</Text>
+          <Text style={styles.infoValue}>{username}</Text>
         </View>
       </View>
-
-      {/* Device Info Section */}
-      <View style={notificationStyles.section}>
-        <Text style={notificationStyles.sectionTitle}>Device & Location</Text>
-        <View style={notificationStyles.infoRow}>
-          <Text style={notificationStyles.infoLabel}>IP Address:</Text>
-          <Text style={notificationStyles.infoValue}>{ipAddress}</Text>
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Device Details</Text>
+        <View style={styles.infoRow}>
+          <Text style={styles.infoLabel}>IP Address:</Text>
+          <Text style={styles.infoValue}>{ipAddress}</Text>
         </View>
-        <View style={notificationStyles.infoRow}>
-          <Text style={notificationStyles.infoLabel}>Location:</Text>
-          <Text style={notificationStyles.infoValue}>{location}</Text>
+        <View style={styles.infoRow}>
+          <Text style={styles.infoLabel}>Browser:</Text>
+          <Text style={styles.infoValue}>{browser}</Text>
         </View>
-        <View style={notificationStyles.infoRow}>
-          <Text style={notificationStyles.infoLabel}>Browser:</Text>
-          <Text style={notificationStyles.infoValue}>{browser}</Text>
-        </View>
-        <View style={notificationStyles.infoRow}>
-          <Text style={notificationStyles.infoLabel}>OS:</Text>
-          <Text style={notificationStyles.infoValue}>{deviceOS}</Text>
+        <View style={styles.infoRow}>
+          <Text style={styles.infoLabel}>OS:</Text>
+          <Text style={styles.infoValue}>{deviceOS}</Text>
         </View>
       </View>
-
-      {/* Security Numbers Section */}
-      <View style={notificationStyles.section}>
-        <Text style={notificationStyles.sectionTitle}>Security Verification</Text>
-        <View style={notificationStyles.securitySection}>
+      <View style={[styles.section, styles.securitySection]}>
+        <Text style={styles.sectionTitle}>Security Verification</Text>
+        <View style={styles.securityMsg}>
           {numberChallenge ? (
-            <Text style={notificationStyles.securityText}>
+            <Text style={styles.securityText}>
               If this login attempt is legitimate, tap the number displayed on your login screen to approve.
             </Text>
           ) : (
-            <Text style={notificationStyles.securityText}>
+            <Text style={styles.securityText}>
               If this login attempt is legitimate, tap the approve button below.
             </Text>
           )}
         </View>
-        {numberChallenge && (
-          <View style={notificationStyles.numbersContainer}>
-            {threeNumbers?.map((number, index) => (
-              <TouchableOpacity
-                key={index}
-                style={notificationStyles.numberBox}
-                onPress={
-                  number === parseInt(numberChallenge)
-                  ? () => sentPushAuthResponse(pushId, PushAuthResponseStatus.APPROVED)
-                  : () => sentPushAuthResponse(pushId, PushAuthResponseStatus.DENIED)
-                }
-              >
-                <Text style={notificationStyles.numberText}>{number}</Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-        )}
       </View>
-
-      {/* Action Buttons */}
-      <View style={notificationStyles.buttonContainer}>
-        { !numberChallenge && (
+      <View style={styles.buttonContainer}>
+        {!numberChallenge && (
           <TouchableOpacity
-            style={notificationStyles.approveButton}
+            style={styles.approveButton}
             onPress={() => sentPushAuthResponse(pushId, PushAuthResponseStatus.APPROVED)}
-            accessibilityLabel="Approve login request"
-            accessibilityRole="button"
           >
-            <Text style={notificationStyles.approveButtonText}>Approve</Text>
+            <Text style={styles.approveButtonText}>Approve</Text>
           </TouchableOpacity>
-        ) }
+        )}
+        {numberChallenge && threeNumbers?.map((number, index) => (
+          <TouchableOpacity
+            key={index}
+            style={styles.numberBox}
+            onPress={
+              number === parseInt(numberChallenge)
+                ? () => sentPushAuthResponse(pushId, PushAuthResponseStatus.APPROVED)
+                : () => sentPushAuthResponse(pushId, PushAuthResponseStatus.DENIED)
+            }
+          >
+            <Text style={styles.numberText}>{number}</Text>
+          </TouchableOpacity>
+        ))}
         <TouchableOpacity
-          style={notificationStyles.denyButton}
+          style={numberChallenge ? [styles.denyButton, styles.smallDenyButton] : [styles.denyButton, styles.largeDenyButton]}
           onPress={() => sentPushAuthResponse(pushId, PushAuthResponseStatus.DENIED)}
-          accessibilityLabel="Deny login request"
-          accessibilityRole="button"
         >
-          <Text style={notificationStyles.denyButtonText}>Deny</Text>
+          <Text style={styles.denyButtonText}>Deny</Text>
         </TouchableOpacity>
       </View>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    backgroundColor: '#f5f6f9ff',
+    borderColor: '#d1d9e6',
+    borderWidth: 1,
+    borderRadius: 8,
+    padding: 16,
+    gap: 16
+  },
+  header: {
+    gap: 2,
+    paddingBottom: 12,
+    borderBottomColor: '#d1d9e6',
+    borderBottomWidth: 1
+  },
+  title: {
+    fontSize: 20,
+    fontWeight: '600',
+    color: '#56585eff'
+  },
+  subtitle: {
+    fontSize: 14,
+    fontWeight: '400',
+    color: '#868c99ff'
+  },
+  timeText: {
+    fontSize: 12,
+    fontWeight: '400',
+    color: '#868c99ff'
+  },
+  section: {
+    gap: 4
+  },
+  securitySection: {
+    paddingTop: 12,
+    borderTopColor: '#d1d9e6',
+    borderTopWidth: 1,
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+  sectionTitle: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#56585eff',
+    marginBottom: 8
+  },
+  infoRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center'
+  },
+  infoLabel: {
+    fontSize: 13,
+    color: '#868c99ff'
+  },
+  infoValue: {
+    fontSize: 13,
+    color: '#56585eff'
+  },
+  securityMsg: {
+    padding: 8,
+    backgroundColor: '#fcf4d5ff',
+    borderRadius: 8,
+    boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)'
+  },
+  securityText: {
+    fontSize: 13,
+    color: '#856404ff',
+    textAlign: 'center'
+  },
+  numberBox: {
+    flex: 1,
+    backgroundColor: '#3ae734ff',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 8
+  },
+  numberText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#ffffff',
+    textAlign: 'center'
+  },
+  buttonContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 16
+  },
+  approveButton: {
+    flex: 1,
+    backgroundColor: '#10b981',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 8
+  },
+  approveButtonText: {
+    color: '#ffffff',
+    fontSize: 16,
+    fontWeight: '600',
+    textAlign: 'center'
+  },
+  denyButton: {
+    backgroundColor: '#ef4444',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 8
+  },
+  largeDenyButton: {
+    flex: 1
+  },
+  smallDenyButton: {
+    flexShrink: 1
+  },
+  denyButtonText: {
+    color: '#ffffff',
+    fontSize: 16,
+    fontWeight: '600',
+    textAlign: 'center'
+  }
+})
 
 export default AppNotification;

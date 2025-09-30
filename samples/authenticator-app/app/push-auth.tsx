@@ -20,9 +20,9 @@ import usePushAuth from "@/src/contexts/push-auth/use-push-auth";
 import { PushAuthenticationDataInterface } from "@/src/models/push-notification";
 import { Router, useLocalSearchParams, useRouter } from "expo-router";
 import { FunctionComponent, ReactElement, useEffect, useMemo } from "react";
-import { SafeAreaView, ScrollView } from "react-native";
+import { ScrollView, StyleSheet, View } from "react-native";
 import AppNotification from "../src/components/push-auth/app-notification";
-import useTheme from "../src/contexts/theme/useTheme";
+import { EdgeInsets, useSafeAreaInsets } from "react-native-safe-area-context";
 
 /**
  * Push Authentication Screen
@@ -30,10 +30,10 @@ import useTheme from "../src/contexts/theme/useTheme";
  * @returns Push authentication screen component.
  */
 const PushAuthScreen: FunctionComponent = (): ReactElement | null => {
-  const { styles } = useTheme();
   const router: Router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
   const { getPushAuthMessageFromCache } = usePushAuth();
+  const insets: EdgeInsets = useSafeAreaInsets();
 
   const data: PushAuthenticationDataInterface | undefined = useMemo(() => {
     return getPushAuthMessageFromCache(id);
@@ -50,15 +50,32 @@ const PushAuthScreen: FunctionComponent = (): ReactElement | null => {
   }
 
   return (
-    <SafeAreaView style={[styles.colors.backgroundBody, { flex: 1 }]}>
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ flexGrow: 1, justifyContent: 'center' }}
-      >
-        <AppNotification {...data!} />
-      </ScrollView>
-    </SafeAreaView>
+    <View style={[styles.container]}>
+      <View style={[styles.scrollContainer, { marginTop: insets.top, marginBottom: insets.bottom }]}>
+        <ScrollView
+          contentContainerStyle={[styles.contentContainer]}
+        >
+          <AppNotification {...data!} />
+        </ScrollView>
+      </View>
+    </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#fbfbfb'
+  },
+  scrollContainer: {
+    flex: 1
+  },
+  contentContainer: {
+    flexGrow: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 24
+  }
+});
 
 export default PushAuthScreen;

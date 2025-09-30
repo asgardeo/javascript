@@ -30,6 +30,7 @@ import CryptoService from "../../utils/crypto-service";
 import Avatar from "../common/avatar";
 import CircularProgress from "./circular-porgress-bar";
 import { Router, useFocusEffect, useRouter } from "expo-router";
+import HistoryList from "../push-auth-history/history-list";
 
 /**
  * Props for the TOTPCode component.
@@ -62,18 +63,16 @@ const TOTPCode: FunctionComponent<TOTPCodeProps> = ({ id }: TOTPCodeProps): Reac
   /**
    * Fetch account details from storage when the component mounts or when the id changes.
    */
-  useEffect(() => {
-    const fetchAccountDetails = async () => {
+  useFocusEffect(
+    useCallback(() => {
       if (!id) return;
 
-      const storageData: StorageDataInterface[] = await AsyncStorageService.getListItemByItemKey(
-        StorageConstants.ACCOUNTS_DATA, 'id', id);
-
-      setAccountDetails(TypeConvert.toAccountInterface(storageData[0]));
-    }
-
-    fetchAccountDetails();
-  }, [id]);
+      AsyncStorageService.getListItemByItemKey(StorageConstants.ACCOUNTS_DATA, 'id', id)
+        .then((storageData: StorageDataInterface[]) => {
+          setAccountDetails(TypeConvert.toAccountInterface(storageData[0]));
+        })
+    }, [id])
+  );
 
   /**
    * Fetch push login history from storage when the component mounts or when the accountDetails changes.
@@ -119,7 +118,7 @@ const TOTPCode: FunctionComponent<TOTPCodeProps> = ({ id }: TOTPCodeProps): Reac
   };
 
   useEffect(() => {
-    if (!id) return;
+    if (!id || !accountDetails?.issuer) return;
 
     generateCode();
 
@@ -163,7 +162,7 @@ const TOTPCode: FunctionComponent<TOTPCodeProps> = ({ id }: TOTPCodeProps): Reac
     <>
       <ScrollView
         style={[
-          { marginBottom: pushLoginHistory.length > 0 ? insets.bottom + 45 : undefined },
+          { marginBottom: pushLoginHistory.length > 0 && accountDetails?.issuer ? insets.bottom + 45 : undefined },
           styles.colors.backgroundBody
         ]}
       >
@@ -187,89 +186,95 @@ const TOTPCode: FunctionComponent<TOTPCodeProps> = ({ id }: TOTPCodeProps): Reac
               </Text>
             </View>
           </View>
-          <View style={[localStyles.totpContainer]}>
-            <CircularProgress
-              size={270}
-              strokeWidth={10}
-              progress={progress}
-              color={getTimerColor()}
-              backgroundColor="#e2e3e4ff"
-              gapAngle={30}
-            >
-              <TouchableOpacity
-                style={[
-                  localStyles.codeCircle,
-                  styles.colors.backgroundNeutral
-                ]}
-                onPress={() => copyToClipboard()}
-                disabled={isGenerating || !totpCode}
-              >
-                {isGenerating ? (
-                  <Text style={[styles.typography.body2]}>
-                    Generating...
+          {
+            !accountDetails?.issuer ? (
+              <HistoryList id={id} style={{ padding: 0 }} />
+            ) : (
+              <View style={[localStyles.totpContainer]}>
+                <CircularProgress
+                  size={270}
+                  strokeWidth={10}
+                  progress={progress}
+                  color={getTimerColor()}
+                  backgroundColor="#e2e3e4ff"
+                  gapAngle={30}
+                >
+                  <TouchableOpacity
+                    style={[
+                      localStyles.codeCircle,
+                      styles.colors.backgroundNeutral
+                    ]}
+                    onPress={() => copyToClipboard()}
+                    disabled={isGenerating || !totpCode}
+                  >
+                    {isGenerating ? (
+                      <Text style={[styles.typography.body2]}>
+                        Generating...
+                      </Text>
+                    ) : (
+                      <>
+                        <Text style={[localStyles.codeText]}>
+                          {totpCode ? totpCode.match(/.{1,3}/g)?.join(" ") : "------"}
+                        </Text>
+                        <Text style={[localStyles.tapToCopyText]}>
+                          Tap to copy
+                        </Text>
+                        <Ionicons
+                          name="copy-outline"
+                          size={20}
+                          color='#00000066'
+                        />
+                      </>
+                    )}
+                  </TouchableOpacity>
+                </CircularProgress>
+                <View style={localStyles.timerContainer}>
+                  <Text style={[localStyles.timerText, { color: getTimerColor() }]}>
+                    {parseInt(remainingSeconds.toFixed(0))}
                   </Text>
-                ) : (
-                  <>
-                    <Text style={[localStyles.codeText]}>
-                      {totpCode ? totpCode.match(/.{1,3}/g)?.join(" ") : "------"}
-                    </Text>
-                    <Text style={[localStyles.tapToCopyText]}>
-                      Tap to copy
-                    </Text>
-                    <Ionicons
-                      name="copy-outline"
-                      size={20}
-                      color='#00000066'
-                    />
-                  </>
-                )}
-              </TouchableOpacity>
-            </CircularProgress>
-            <View style={localStyles.timerContainer}>
-              <Text style={[localStyles.timerText, { color: getTimerColor() }]}>
-                {parseInt(remainingSeconds.toFixed(0))}
-              </Text>
-            </View>
-            <TouchableOpacity
-              style={[
-                localStyles.copyButton,
-                { opacity: totpCode && !isGenerating ? 1 : 0.5 }
-              ]}
-              onPress={() => copyToClipboard()}
-              disabled={isGenerating || !totpCode}
-            >
-              <Ionicons
-                name="copy-outline"
-                size={24}
-                color='#ffffff'
-              />
-              <Text style={[localStyles.copyButtonText]}>
-                Copy Code
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[localStyles.nextTokenButton]}
-              onPress={() => copyToClipboard(true)}
-              disabled={isGenerating || !nextTOTPCode}
-            >
-              <Text style={[localStyles.nextTokenText]}>
-                Next Token :
-              </Text>
-              <Text style={[localStyles.nextTokenText]}>
-                {nextTOTPCode ? nextTOTPCode.match(/.{1,3}/g)?.join(" ") : "------"}
-              </Text>
-            </TouchableOpacity>
-          </View>
+                </View>
+                <TouchableOpacity
+                  style={[
+                    localStyles.copyButton,
+                    { opacity: totpCode && !isGenerating ? 1 : 0.5 }
+                  ]}
+                  onPress={() => copyToClipboard()}
+                  disabled={isGenerating || !totpCode}
+                >
+                  <Ionicons
+                    name="copy-outline"
+                    size={24}
+                    color='#ffffff'
+                  />
+                  <Text style={[localStyles.copyButtonText]}>
+                    Copy Code
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[localStyles.nextTokenButton]}
+                  onPress={() => copyToClipboard(true)}
+                  disabled={isGenerating || !nextTOTPCode}
+                >
+                  <Text style={[localStyles.nextTokenText]}>
+                    Next Token :
+                  </Text>
+                  <Text style={[localStyles.nextTokenText]}>
+                    {nextTOTPCode ? nextTOTPCode.match(/.{1,3}/g)?.join(" ") : "------"}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            )
+          }
         </View>
       </ScrollView>
       <View
         style={[
           localStyles.pushLoginHistoryContainer,
-          { height: pushLoginHistory.length === 0 ? insets.bottom : undefined }
+          { height: pushLoginHistory.length === 0 || !accountDetails?.issuer ? insets.bottom : undefined }
         ]}
       >
         {
-          pushLoginHistory.length > 0 && (
+          pushLoginHistory.length > 0 && accountDetails?.issuer && (
             <TouchableOpacity
               style={[localStyles.pushLoginHistoryButton, { marginBottom: insets.bottom }]}
               onPress={() => router.push(`/push-auth-history?id=${id}`)}
