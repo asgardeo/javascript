@@ -26,5 +26,6 @@ import {AuthContextInterface} from '../types';
  */
 export function useAsgardeo(): AuthContextInterface {
   const asgardeo: AuthContextInterface = useAsgardeoContext();
+
   return asgardeo;
 }
