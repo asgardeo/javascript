@@ -32,7 +32,6 @@ import AsyncStorageService from "../../utils/async-storage-service";
 import CryptoService from "../../utils/crypto-service";
 import MessagingService from "../../utils/messagging-service";
 import PushAuthContext from "./push-auth-context";
-import { authenticateAsync } from "expo-local-authentication";
 
 /**
  * Props for the PushAuthProvider component.
@@ -133,7 +132,8 @@ const PushAuthProvider: FunctionComponent<PropsWithChildren<PushAuthProviderProp
    */
   useEffect(() => {
     if (rootMounted) {
-      MessagingService.listenForNotificationOpenWhenAppIsClosed(handlePushAuthNotification);
+      MessagingService.listenForNotificationOpenWhenAppIsClosedExpo(handlePushAuthNotification);
+      MessagingService.listenForNotificationWhenAppIsClosedFCM(handlePushAuthNotification);
     }
   }, [rootMounted, handlePushAuthNotification]);
 
@@ -146,7 +146,7 @@ const PushAuthProvider: FunctionComponent<PropsWithChildren<PushAuthProviderProp
   const buildPushAuthUrl = useCallback((id: string): string => {
     const { tenantDomain, organizationId } = pushAuthMessageCache[id];
     // TODO: Use the host from the QR data.
-    const host = "http://192.168.1.128:8082";
+    const host = "http://192.168.1.105:8082";
 
     if (organizationId) {
       return `${host}/o/${organizationId}/push-auth/authenticate`;

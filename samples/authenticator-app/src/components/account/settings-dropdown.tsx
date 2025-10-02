@@ -29,7 +29,7 @@ export interface SettingsDropdownProps {
   /**
    * Callback function to be called when the delete action is triggered.
    */
-  onDelete: () => void;
+  onDelete: () => Promise<void>;
 }
 
 /**
@@ -43,13 +43,11 @@ const SettingsDropdown: FunctionComponent<SettingsDropdownProps> = ({ onDelete }
   const [isVisible, setIsVisible] = useState<boolean>(false);
 
   const handleDelete = async () => {
-    authenticateAsync()
-      .then((status: LocalAuthenticationResult) => {
-        if (status.success) {
-          setIsVisible(false);
-          onDelete();
-        }
-      });
+    setIsVisible(false);
+    const status = await authenticateAsync();
+    if (status.success) {
+      await onDelete();
+    }
   };
 
   const toggleDropdown = () => {

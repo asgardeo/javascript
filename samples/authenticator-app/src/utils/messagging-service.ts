@@ -21,7 +21,8 @@ import messaging, {
   getToken,
   onMessage,
   requestPermission,
-  onNotificationOpenedApp
+  onNotificationOpenedApp,
+  getInitialNotification
 } from '@react-native-firebase/messaging';
 import { PushAuthenticationDataInterface } from '../models/push-notification';
 import { PermissionsAndroid, Platform } from 'react-native';
@@ -154,7 +155,7 @@ class MessagingService {
    *
    * @param callback - The callback to execute on notification open.
    */
-  static listenForNotificationOpenWhenAppIsClosed(callback: (data: PushAuthenticationDataInterface) => void): void {
+  static listenForNotificationOpenWhenAppIsClosedExpo(callback: (data: PushAuthenticationDataInterface) => void): void {
     const response: NotificationResponse | null = getLastNotificationResponse();
     if (response) {
       const pushData: PushAuthenticationDataInterface | null = this.createPushDataPayloadFromExpo(response);
@@ -163,6 +164,23 @@ class MessagingService {
         callback(pushData);
       }
     }
+  }
+
+  /**
+   * Sets up a listener for when the app is closed using FCM.
+   *
+   * @param callback - The callback to execute on notification open.
+   */
+  static listenForNotificationWhenAppIsClosedFCM(callback: (data: PushAuthenticationDataInterface) => void): void {
+    getInitialNotification(messagingInstance)
+      .then((message: FirebaseMessagingTypes.RemoteMessage | null) => {
+        if (message) {
+          const pushData: PushAuthenticationDataInterface | null = this.createPushDataPayload(message);
+          if (pushData) {
+            callback(pushData);
+          }
+        }
+      });
   }
 }
 

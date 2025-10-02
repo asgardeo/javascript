@@ -174,7 +174,7 @@ const TOTPCode: FunctionComponent<TOTPCodeProps> = ({ id }: TOTPCodeProps): Reac
             ) : (
               <View style={[localStyles.totpContainer]}>
                 <CircularProgress
-                  size={270}
+                  size={290}
                   strokeWidth={10}
                   progress={progress}
                   color={getTimerColor()}
@@ -299,9 +299,9 @@ const localStyles = StyleSheet.create({
     gap: 16
   },
   codeCircle: {
-    width: 220,
-    height: 220,
-    borderRadius: 110,
+    width: 240,
+    height: 240,
+    borderRadius: 120,
     alignItems: 'center',
     justifyContent: 'center',
     shadowColor: '#000',
@@ -314,7 +314,7 @@ const localStyles = StyleSheet.create({
     elevation: 5
   },
   codeText: {
-    fontSize: 40,
+    fontSize: 36,
     fontWeight: '700',
     letterSpacing: 2,
     textAlign: 'center',

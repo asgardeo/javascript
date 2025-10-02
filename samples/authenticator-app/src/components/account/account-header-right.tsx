@@ -51,7 +51,7 @@ const AccountHeaderRight = ({ params }: AccountHeaderRightProps): ReactElement =
   const buildPushUnregistrationUrl = (data: AccountInterface): string => {
     const { tenantDomain, organizationId } = data;
     // TODO: Use the host from the QR data.
-    const host = "http://192.168.1.128:8082";
+    const host = "http://192.168.1.105:8082";
 
     if (organizationId) {
       return `${host}/o/${organizationId}/api/users/v1/me/push/devices/${data.deviceId}/remove`;
@@ -103,7 +103,7 @@ const AccountHeaderRight = ({ params }: AccountHeaderRightProps): ReactElement =
   }
 
   return (
-    <SettingsDropdown onDelete={() => handleDelete(params.id)} />
+    <SettingsDropdown onDelete={async () => await handleDelete(params.id)} />
   )
 }
 
