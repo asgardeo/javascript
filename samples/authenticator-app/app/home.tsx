@@ -24,13 +24,19 @@ import { StyleSheet, TouchableOpacity, View } from "react-native";
 import useTheme from "../src/contexts/theme/useTheme";
 import AsyncStorageService from "@/src/utils/async-storage-service";
 import StorageConstants from "@/src/constants/storage";
+import { authenticateAsync, LocalAuthenticationResult } from "expo-local-authentication";
 
 const Home: FunctionComponent = (): ReactElement => {
   const { styles } = useTheme();
   const router: Router = useRouter();
 
   const handleAddPress = () => {
-    router.push("/qr-scanner");
+    authenticateAsync()
+      .then((status: LocalAuthenticationResult) => {
+        if (status.success) {
+          router.push("/qr-scanner");
+        }
+      });
   };
 
   // useEffect(() => {

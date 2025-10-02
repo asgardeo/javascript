@@ -23,6 +23,7 @@ import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import useTheme from "../../contexts/theme/useTheme";
 import { AccountInterface } from "../../models/storage";
 import Avatar from "../common/avatar";
+import { authenticateAsync, LocalAuthenticationResult } from "expo-local-authentication";
 
 const AccountListItem: FunctionComponent<AccountInterface> = ({
   id,
@@ -33,7 +34,12 @@ const AccountListItem: FunctionComponent<AccountInterface> = ({
   const router = useRouter();
 
   const handleAccountPress = () => {
-    router.push(`/account?id=${id}`);
+    authenticateAsync()
+      .then((status: LocalAuthenticationResult) => {
+        if (status.success) {
+          router.push(`/account?id=${id}`);
+        }
+      });
   };
 
   return (

@@ -20,7 +20,8 @@ import { PushAuthenticationDataInterface, PushAuthResponseStatus } from "../../m
 import { FunctionComponent, ReactElement, useMemo } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import usePushAuth from "../../contexts/push-auth/use-push-auth";
-import { getTimeFromNow } from "@/src/utils/ui-utils";
+import { getTimeFromNow } from "../../utils/ui-utils";
+import { authenticateAsync, LocalAuthenticationResult } from "expo-local-authentication";
 
 /**
  * Generates three random numbers including the legitimate one
@@ -67,6 +68,20 @@ const AppNotification: FunctionComponent<PushAuthenticationDataInterface> = ({
   const threeNumbers = useMemo(() => {
     return numberChallenge ? generateThreeNumbers(parseInt(numberChallenge)) : [];
   }, [numberChallenge]);
+
+  /**
+   * Handles user response to the push authentication request.
+   *
+   * @param status - Push authentication response status.
+   */
+  const handleUserResponse = (status: PushAuthResponseStatus) => {
+    authenticateAsync()
+      .then((authStatus: LocalAuthenticationResult) => {
+        if (authStatus.success) {
+          sentPushAuthResponse(pushId, status);
+        }
+      });
+  }
 
   return (
     <View style={[styles.container]}>
@@ -125,7 +140,7 @@ const AppNotification: FunctionComponent<PushAuthenticationDataInterface> = ({
         {!numberChallenge && (
           <TouchableOpacity
             style={styles.approveButton}
-            onPress={() => sentPushAuthResponse(pushId, PushAuthResponseStatus.APPROVED)}
+            onPress={() => handleUserResponse(PushAuthResponseStatus.APPROVED)}
           >
             <Text style={styles.approveButtonText}>Approve</Text>
           </TouchableOpacity>
@@ -136,16 +151,22 @@ const AppNotification: FunctionComponent<PushAuthenticationDataInterface> = ({
             style={styles.numberBox}
             onPress={
               number === parseInt(numberChallenge)
-                ? () => sentPushAuthResponse(pushId, PushAuthResponseStatus.APPROVED)
-                : () => sentPushAuthResponse(pushId, PushAuthResponseStatus.DENIED)
+                ? () => handleUserResponse(PushAuthResponseStatus.APPROVED)
+                : () => handleUserResponse(PushAuthResponseStatus.DENIED)
             }
           >
-            <Text style={styles.numberText}>{number}</Text>
+            <Text style={styles.numberText}>
+              {
+                number === parseInt(numberChallenge) && numberChallenge.length === 1
+                  ? `0${number}`
+                  : number
+              }
+            </Text>
           </TouchableOpacity>
         ))}
         <TouchableOpacity
           style={numberChallenge ? [styles.denyButton, styles.smallDenyButton] : [styles.denyButton, styles.largeDenyButton]}
-          onPress={() => sentPushAuthResponse(pushId, PushAuthResponseStatus.DENIED)}
+          onPress={() => handleUserResponse(PushAuthResponseStatus.DENIED)}
         >
           <Text style={styles.denyButtonText}>Deny</Text>
         </TouchableOpacity>
