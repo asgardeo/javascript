@@ -31,7 +31,7 @@ const RootLayout = (): ReactElement => {
             name="home"
             options={{
               headerTitle: HeaderTitle,
-              headerRight: HeaderSettings
+              //headerRight: HeaderSettings
             }}
           />
           <Stack.Screen

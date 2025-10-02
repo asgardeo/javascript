@@ -29,7 +29,7 @@ import TypeConvert from '../utils/typer-convert';
  * Interface for the return type of the `useTOTPRegistration` hook.
  */
 export interface UseTOTPRegistrationPropsInterface {
-  registerTOTP: (qrData: TOTPQRDataInterface) => Promise<void>;
+  registerTOTP: (qrData: TOTPQRDataInterface) => Promise<string>;
   isRegistering: boolean;
 }
 
@@ -48,8 +48,9 @@ export const useTOTPRegistration = (): UseTOTPRegistrationPropsInterface => {
    * @returns A promise that resolves when the registration is complete.
    * @throws Will throw an error if registration fails.
    */
-  const registerTOTP = useCallback(async (qrData: TOTPQRDataInterface): Promise<void> => {
+  const registerTOTP = useCallback(async (qrData: TOTPQRDataInterface): Promise<string> => {
     setIsRegistering(true);
+    let accountId: string = "";
 
     try {
       let accountDetails: StorageDataInterface[] = await AsyncStorageService.getListItemByItemKey(
@@ -83,6 +84,8 @@ export const useTOTPRegistration = (): UseTOTPRegistrationPropsInterface => {
         await AsyncStorageService.addItem(StorageConstants.ACCOUNTS_DATA,
           TypeConvert.toStorageDataInterface(accountData));
         SecureStorageService.setItem(id, qrData.secret);
+
+        accountId = id;
       } else {
         // Update existing account.
         const accountDetail: AccountInterface = TypeConvert.toAccountInterface(accountDetails[0]);
@@ -94,7 +97,11 @@ export const useTOTPRegistration = (): UseTOTPRegistrationPropsInterface => {
         );
         await AsyncStorageService.addItem(StorageConstants.ACCOUNTS_DATA,
           TypeConvert.toStorageDataInterface(accountDetail));
+
+        accountId = accountDetail.id;
       }
+
+      return accountId;
     } catch {
       throw new Error('Failed to register TOTP account.');
     } finally {

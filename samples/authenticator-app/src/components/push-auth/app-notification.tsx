@@ -262,7 +262,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    gap: 16
+    gap: 8
   },
   approveButton: {
     flex: 1,

@@ -80,16 +80,28 @@ const QRScanner: FunctionComponent = (): ReactElement => {
       if (qrData.type === QRDataType.TOTP) {
         showAlert(AlertType.LOADING, 'Registering TOTP...', 'Please wait while we register your TOTP account.');
         try {
-          await registerTOTP(qrData.totpData!);
+          const accountId: string = await registerTOTP(qrData.totpData!);
           showAlert(AlertType.SUCCESS, 'QR Code Scanned Successfully!', 'TOTP registration completed successfully.');
+          if (accountId) {
+            router.replace({
+              pathname: '/account',
+              params: { id: accountId }
+            });
+          }
         } catch {
           showAlert(AlertType.ERROR, 'Registration Failed', 'Failed to register the TOTP account. Please try again.');
         }
       } else if (qrData.type === QRDataType.PUSH_NOTIFICATION) {
         showAlert(AlertType.LOADING, 'Registering Device...', 'Please wait while we register your device for push notifications.');
         try {
-          await registerPushDevice(qrData.pushNotificationData!);
+          const accountId: string = await registerPushDevice(qrData.pushNotificationData!);
           showAlert(AlertType.SUCCESS, 'QR Code Scanned Successfully!', 'Push notification device registration completed successfully.');
+          if (accountId) {
+            router.replace({
+              pathname: '/account',
+              params: { id: accountId }
+            });
+          }
         } catch {
           showAlert(AlertType.ERROR, 'Registration Failed', 'Failed to register the push notification device. Please try again.');
         }

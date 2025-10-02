@@ -17,7 +17,7 @@
  */
 
 import StorageConstants from "../../constants/storage";
-import { AccountInterface, PushAuthenticationDataStorageInterface, StorageDataInterface } from "../../models/storage";
+import { AccountInterface, StorageDataInterface } from "../../models/storage";
 import AsyncStorageService from "../../utils/async-storage-service";
 import TypeConvert from "../../utils/typer-convert";
 import { Ionicons, Octicons } from "@expo/vector-icons";
@@ -56,7 +56,6 @@ const TOTPCode: FunctionComponent<TOTPCodeProps> = ({ id }: TOTPCodeProps): Reac
   const previousTimeRef: RefObject<number> = useRef<number>(Number.NEGATIVE_INFINITY);
   const [isGenerating, setIsGenerating] = useState<boolean>(false);
   const [accountDetails, setAccountDetails] = useState<AccountInterface | null>(null);
-  const [pushLoginHistory, setPushLoginHistory] = useState<PushAuthenticationDataStorageInterface[]>([]);
   const insets: EdgeInsets = useSafeAreaInsets();
   const router: Router = useRouter();
 
@@ -72,27 +71,6 @@ const TOTPCode: FunctionComponent<TOTPCodeProps> = ({ id }: TOTPCodeProps): Reac
           setAccountDetails(TypeConvert.toAccountInterface(storageData[0]));
         })
     }, [id])
-  );
-
-  /**
-   * Fetch push login history from storage when the component mounts or when the accountDetails changes.
-   */
-  useFocusEffect(
-    useCallback(() => {
-      if (!accountDetails?.id) return;
-
-      AsyncStorageService.getItem(StorageConstants.replaceAccountId(
-        StorageConstants.PUSH_AUTHENTICATION_DATA, accountDetails.id))
-        .then((storageData: string | null) => {
-          if (!storageData) return;
-
-          const storageDataList: StorageDataInterface[] = JSON.parse(storageData);
-          if (!storageDataList || storageDataList.length === 0) return;
-
-          setPushLoginHistory(storageDataList.map(
-            item => TypeConvert.toPushAuthenticationDataStorageInterface(item)));
-        });
-    }, [accountDetails])
   );
 
   const generateCode = useCallback(async () => {
@@ -166,7 +144,7 @@ const TOTPCode: FunctionComponent<TOTPCodeProps> = ({ id }: TOTPCodeProps): Reac
     <>
       <ScrollView
         style={[
-          { marginBottom: pushLoginHistory.length > 0 && accountDetails?.issuer ? insets.bottom + 45 : undefined },
+          { marginBottom: accountDetails?.deviceId && accountDetails?.issuer ? insets.bottom + 45 : undefined },
           styles.colors.backgroundBody
         ]}
       >
@@ -225,7 +203,7 @@ const TOTPCode: FunctionComponent<TOTPCodeProps> = ({ id }: TOTPCodeProps): Reac
                         </Text>
                         <Ionicons
                           name="copy-outline"
-                          size={20}
+                          size={26}
                           color='#00000066'
                         />
                       </>
@@ -237,23 +215,6 @@ const TOTPCode: FunctionComponent<TOTPCodeProps> = ({ id }: TOTPCodeProps): Reac
                     {parseInt(remainingSeconds.toFixed(0))}
                   </Text>
                 </View>
-                <TouchableOpacity
-                  style={[
-                    localStyles.copyButton,
-                    { opacity: totpCode && !isGenerating ? 1 : 0.5 }
-                  ]}
-                  onPress={() => copyToClipboard()}
-                  disabled={isGenerating || !totpCode}
-                >
-                  <Ionicons
-                    name="copy-outline"
-                    size={24}
-                    color='#ffffff'
-                  />
-                  <Text style={[localStyles.copyButtonText]}>
-                    Copy Code
-                  </Text>
-                </TouchableOpacity>
                 <TouchableOpacity
                   style={[localStyles.nextTokenButton]}
                   onPress={() => copyToClipboard(true)}
@@ -274,11 +235,11 @@ const TOTPCode: FunctionComponent<TOTPCodeProps> = ({ id }: TOTPCodeProps): Reac
       <View
         style={[
           localStyles.pushLoginHistoryContainer,
-          { height: pushLoginHistory.length === 0 || !accountDetails?.issuer ? insets.bottom : undefined }
+          { height: !accountDetails?.deviceId || !accountDetails?.issuer ? insets.bottom : undefined }
         ]}
       >
         {
-          pushLoginHistory.length > 0 && accountDetails?.issuer && (
+          accountDetails?.deviceId && accountDetails?.issuer && (
             <TouchableOpacity
               style={[localStyles.pushLoginHistoryButton, { marginBottom: insets.bottom }]}
               onPress={() => router.push(`/push-auth-history?id=${id}`)}
@@ -343,7 +304,14 @@ const localStyles = StyleSheet.create({
     borderRadius: 110,
     alignItems: 'center',
     justifyContent: 'center',
-    elevation: 3
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.15,
+    shadowRadius: 12,
+    elevation: 5
   },
   codeText: {
     fontSize: 40,
@@ -355,6 +323,7 @@ const localStyles = StyleSheet.create({
   },
   tapToCopyText: {
     color: '#00000066',
+    fontSize: 16,
     marginBottom: 2
   },
   timerContainer: {
@@ -366,28 +335,17 @@ const localStyles = StyleSheet.create({
     fontSize: 24,
     fontWeight: '700'
   },
-  copyButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 24,
-    paddingVertical: 12,
-    marginBottom: 32,
-    backgroundColor: '#FF7300',
-    borderRadius: 8
-  },
-  copyButtonText: {
-    color: '#ffffff',
-    fontSize: 20,
-    fontWeight: '400',
-    marginLeft: 8
-  },
   nextTokenText: {
     color: '#868c99ff',
     fontSize: 15,
     fontWeight: '600'
   },
   nextTokenButton: {
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    marginBottom: 32,
+    backgroundColor: '#f0f1f3ff',
+    borderRadius: 8,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',

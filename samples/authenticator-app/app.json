@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "Authenticator",
-    "slug": "authenticator-app",
+    "name": "Asgardeo",
+    "slug": "Asgardeo",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/logo-icon.png",

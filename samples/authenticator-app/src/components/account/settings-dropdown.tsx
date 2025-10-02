@@ -20,6 +20,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { FunctionComponent, ReactElement, useState } from "react";
 import { Modal, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import useTheme from "../../contexts/theme/useTheme";
+import { authenticateAsync, LocalAuthenticationResult } from "expo-local-authentication";
 
 /**
  * Props for the SettingsDropdown component.
@@ -42,8 +43,13 @@ const SettingsDropdown: FunctionComponent<SettingsDropdownProps> = ({ onDelete }
   const [isVisible, setIsVisible] = useState<boolean>(false);
 
   const handleDelete = async () => {
-    setIsVisible(false);
-    onDelete();
+    authenticateAsync()
+      .then((status: LocalAuthenticationResult) => {
+        if (status.success) {
+          setIsVisible(false);
+          onDelete();
+        }
+      });
   };
 
   const toggleDropdown = () => {

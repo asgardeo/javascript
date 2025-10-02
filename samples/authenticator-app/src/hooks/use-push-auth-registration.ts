@@ -32,7 +32,7 @@ import TypeConvert from '../utils/typer-convert';
  * Interface for the return type of the `usePushAuthRegistration` hook.
  */
 export interface UsePushAuthRegistrationPropsInterface {
-  registerPushDevice: (qrData: PushNotificationQRDataInterface) => Promise<void>;
+  registerPushDevice: (qrData: PushNotificationQRDataInterface) => Promise<string>;
   isRegistering: boolean;
 }
 
@@ -70,7 +70,7 @@ export const usePushAuthRegistration = (): UsePushAuthRegistrationPropsInterface
    */
   const registerPushDevice = useCallback(async (
     qrData: PushNotificationQRDataInterface
-  ): Promise<void> => {
+  ): Promise<string> => {
     setIsRegistering(true);
 
     try {
@@ -106,7 +106,7 @@ export const usePushAuthRegistration = (): UsePushAuthRegistrationPropsInterface
       });
 
       if (response.status === 201) {
-        const id: string = CryptoService.generateRandomKey();
+        let accountId: string = "";
 
         let storageData: StorageDataInterface[] = await AsyncStorageService.getListItemByItemKey(
           StorageConstants.ACCOUNTS_DATA, 'username', `^(.+\\/${qrData.username}|${qrData.username})$`, 'tenantDomain', qrData.tenantDomain
@@ -131,6 +131,8 @@ export const usePushAuthRegistration = (): UsePushAuthRegistrationPropsInterface
         }
 
         if (storageData.length > 1 || storageData.length === 0) {
+          const id: string = CryptoService.generateRandomKey();
+
           const accountData: AccountInterface = {
             id,
             deviceId: qrData.deviceId,
@@ -141,6 +143,8 @@ export const usePushAuthRegistration = (): UsePushAuthRegistrationPropsInterface
           };
           await AsyncStorageService.addItem(StorageConstants.ACCOUNTS_DATA,
             TypeConvert.toStorageDataInterface(accountData));
+
+          accountId = id;
         } else {
           const accountDetail: AccountInterface = TypeConvert.toAccountInterface(storageData[0]);
           accountDetail.deviceId = qrData.deviceId;
@@ -151,7 +155,11 @@ export const usePushAuthRegistration = (): UsePushAuthRegistrationPropsInterface
           );
           await AsyncStorageService.addItem(StorageConstants.ACCOUNTS_DATA,
             TypeConvert.toStorageDataInterface(accountDetail));
+
+          accountId = accountDetail.id;
         }
+
+        return accountId;
       } else {
         throw new Error(`Registration failed with status ${response.status}`);
       }
