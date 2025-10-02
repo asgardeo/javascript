@@ -7,9 +7,9 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:34944661957:android:e9dcbc135739a6e0f3f3ac",
+        "mobilesdk_app_id": "1:34944661957:android:e5316ce3db72b448f3f3ac",
         "android_client_info": {
-          "package_name": "com.example.com"
+          "package_name": "io.asgardeo.dev.push.totp.authenticator"
         }
       },
       "oauth_client": [],

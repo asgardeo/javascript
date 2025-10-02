@@ -100,7 +100,6 @@ const TOTPCode: FunctionComponent<TOTPCodeProps> = ({ id }: TOTPCodeProps): Reac
 
     try {
       setIsGenerating(true);
-      console.log(accountDetails)
       const code = CryptoService.generateTOTP(id, accountDetails.period!, accountDetails.algorithm!, accountDetails.digits!);
       setTotpCode(code);
       const nextCode = CryptoService.generateNextTOTP(id, accountDetails.period!, accountDetails.algorithm!, accountDetails.digits!);
@@ -124,14 +123,18 @@ const TOTPCode: FunctionComponent<TOTPCodeProps> = ({ id }: TOTPCodeProps): Reac
     generateCode();
 
     const interval = setInterval(() => {
-      const remaining = CryptoService.getTOTPRemainingSeconds(id, accountDetails?.period!, accountDetails?.algorithm!, accountDetails?.digits!);
+      try {
+        const remaining = CryptoService.getTOTPRemainingSeconds(id, accountDetails?.period!, accountDetails?.algorithm!, accountDetails?.digits!);
 
-      if (remaining > previousTimeRef.current) {
-        generateCode();
+        if (remaining > previousTimeRef.current) {
+          generateCode();
+        }
+
+        setRemainingSeconds(remaining);
+        previousTimeRef.current = remaining;
+      } catch {
+        // Ignore the error since the next TOTP will be generated in the next interval.
       }
-
-      setRemainingSeconds(remaining);
-      previousTimeRef.current = remaining;
     }, 10);
 
     return () => clearInterval(interval);

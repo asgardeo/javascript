@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "authenticator-app",
+    "name": "Authenticator",
     "slug": "authenticator-app",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -19,7 +19,7 @@
           "remote-notification"
         ]
       },
-      "bundleIdentifier": "com.example.com",
+      "bundleIdentifier": "io.asgardeo.dev.push.totp.authenticator",
       "googleServicesFile": "./GoogleService-Info.plist",
       "entitlements": {
         "aps-environment": "production"
@@ -31,7 +31,7 @@
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.example.com",
+      "package": "io.asgardeo.dev.push.totp.authenticator",
       "permissions": [
         "CAMERA",
         "android.permission.CAMERA",

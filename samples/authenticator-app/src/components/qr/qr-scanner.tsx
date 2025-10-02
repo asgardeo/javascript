@@ -20,7 +20,7 @@ import { useTOTPRegistration } from "@/src/hooks/use-totp-registartion";
 import { MaterialIcons } from "@expo/vector-icons";
 import { BarcodeScanningResult, CameraView, useCameraPermissions } from "expo-camera";
 import { router } from "expo-router";
-import { FunctionComponent, ReactElement, useCallback, useState } from "react";
+import { FunctionComponent, ReactElement, RefObject, useCallback, useRef, useState } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import validateQRData from "../../../src/utils/validate-qr-data";
 import useTheme from "../../contexts/theme/useTheme";
@@ -39,7 +39,7 @@ const QRScanner: FunctionComponent = (): ReactElement => {
   const [permission, requestPermission] = useCameraPermissions();
   const { registerPushDevice } = usePushAuthRegistration();
   const { registerTOTP } = useTOTPRegistration();
-  const [scanned, setScanned] = useState(false);
+  const scanned: RefObject<boolean> = useRef<boolean>(false);
   const [alertVisible, setAlertVisible] = useState(false);
   const [alertType, setAlertType] = useState<AlertType>(AlertType.SUCCESS);
   const [alertTitle, setAlertTitle] = useState('');
@@ -59,8 +59,8 @@ const QRScanner: FunctionComponent = (): ReactElement => {
     setAlertVisible(false);
     if (alertType === AlertType.SUCCESS) {
       router.back();
-    } else {
-      setScanned(false);
+    } else if (alertType === AlertType.ERROR) {
+      scanned.current = false;
     }
   }, [alertType]);
 
@@ -70,12 +70,12 @@ const QRScanner: FunctionComponent = (): ReactElement => {
    * @param param0 - The scanned barcode data.
    */
   const handleBarCodeScanned = async ({ data }: BarcodeScanningResult) => {
-    if (scanned) return;
+    if (scanned.current) return;
 
     const qrData: QRDataValidationResponseInterface = validateQRData(data);
 
     if (qrData.isValid) {
-      setScanned(true);
+      scanned.current = true;
 
       if (qrData.type === QRDataType.TOTP) {
         showAlert(AlertType.LOADING, 'Registering TOTP...', 'Please wait while we register your TOTP account.');
@@ -143,23 +143,23 @@ const QRScanner: FunctionComponent = (): ReactElement => {
     <>
       <CameraView
         style={qrScannerStyles.camera}
-        onBarcodeScanned={scanned ? undefined : handleBarCodeScanned}
+        onBarcodeScanned={handleBarCodeScanned}
         barcodeScannerSettings={{
           barcodeTypes: ["qr"],
         }}
       />
       <View style={qrScannerStyles.overlay}>
-          <View style={qrScannerStyles.scanFrame} />
-          <Text style={qrScannerStyles.instructionText}>
-            Point your camera at a QR code
-          </Text>
+        <View style={qrScannerStyles.scanFrame} />
+        <Text style={qrScannerStyles.instructionText}>
+          Point your camera at a QR code
+        </Text>
 
-          <TouchableOpacity
-            style={qrScannerStyles.backButton}
-            onPress={handleGoBack}
-          >
-            <MaterialIcons name="arrow-back" size={24} color="white" />
-          </TouchableOpacity>
+        <TouchableOpacity
+          style={qrScannerStyles.backButton}
+          onPress={handleGoBack}
+        >
+          <MaterialIcons name="arrow-back" size={24} color="white" />
+        </TouchableOpacity>
       </View>
 
       <Alert

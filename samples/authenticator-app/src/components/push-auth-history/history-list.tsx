@@ -66,8 +66,6 @@ const HistoryList: FunctionComponent<PushAuthHistoryListProps> = ({ id, style }:
           const storageDataList: StorageDataInterface[] = JSON.parse(storageData);
           if (!storageDataList || storageDataList.length === 0) return;
 
-          console.log(storageDataList[0]);
-
           setPushLoginHistory(storageDataList.map(
             item => TypeConvert.toPushAuthenticationDataStorageInterface(item)));
         });

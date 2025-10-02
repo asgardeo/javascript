@@ -86,6 +86,13 @@ const PushAuthProvider: FunctionComponent<PropsWithChildren> = ({ children }: Pr
   }, [addPushAuthMessageToCache, router]);
 
   /**
+   * Request permission to receive notifications on component mount.
+   */
+  useEffect(() => {
+    MessagingService.requestUserPermission();
+  }, []);
+
+  /**
    * Build push authentication endpoint URL based on push ID.
    *
    * @param id - The push authentication ID.

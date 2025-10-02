@@ -19,9 +19,11 @@
 import AccountList from "../src/components/home/account-list";
 import { MaterialIcons } from "@expo/vector-icons";
 import { Router, useRouter } from "expo-router";
-import { FunctionComponent, ReactElement } from "react";
+import { FunctionComponent, ReactElement, use, useEffect } from "react";
 import { StyleSheet, TouchableOpacity, View } from "react-native";
 import useTheme from "../src/contexts/theme/useTheme";
+import AsyncStorageService from "@/src/utils/async-storage-service";
+import StorageConstants from "@/src/constants/storage";
 
 const Home: FunctionComponent = (): ReactElement => {
   const { styles } = useTheme();
@@ -30,6 +32,10 @@ const Home: FunctionComponent = (): ReactElement => {
   const handleAddPress = () => {
     router.push("/qr-scanner");
   };
+
+  // useEffect(() => {
+  //   AsyncStorageService.removeItem(StorageConstants.ACCOUNTS_DATA);
+  // }, []);
 
   return (
     <View

@@ -51,7 +51,6 @@ const validateQRData = (data: string): QRDataValidationResponseInterface => {
  */
 const validateTOTPFormat = (data: string): QRDataValidationResponseInterface => {
   const response: QRDataValidationResponseInterface = { isValid: false, type: QRDataType.TOTP };
-  console.log(data);
 
   try {
     if (!data.startsWith('otpauth://totp/')) {

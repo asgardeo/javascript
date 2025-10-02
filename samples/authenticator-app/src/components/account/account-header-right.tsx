@@ -92,6 +92,8 @@ const AccountHeaderRight = ({ params }: AccountHeaderRightProps): ReactElement =
         SecureStorageService.removeItem(accountData.deviceId!);
         SecureStorageService.removeItem(accountData.id);
         await AsyncStorageService.removeListItemByItemKey(StorageConstants.ACCOUNTS_DATA, 'id', accountData.id);
+      } else {
+        throw new Error('Push unregistration failed with status: ' + result.status);
       }
     } catch {
       // TODO: Show error to the user.

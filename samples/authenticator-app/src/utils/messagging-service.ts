@@ -16,8 +16,14 @@
  * under the License.
  */
 
-import messaging, { FirebaseMessagingTypes, getToken, onMessage, requestPermission } from '@react-native-firebase/messaging';
+import messaging, {
+  FirebaseMessagingTypes,
+  getToken,
+  onMessage,
+  requestPermission
+} from '@react-native-firebase/messaging';
 import { PushAuthenticationDataInterface } from '../models/push-notification';
+import { PermissionsAndroid, Platform } from 'react-native';
 
 const messagingInstance: FirebaseMessagingTypes.Module = messaging();
 
@@ -29,7 +35,11 @@ class MessagingService {
    * Requests user permissions to display offline notifications.
    */
   static async requestUserPermission(): Promise<void> {
-    await requestPermission(messagingInstance);
+    if (Platform.OS === 'ios') {
+      await requestPermission(messagingInstance);
+    } else if (Platform.OS === 'android') {
+      await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS);
+    }
   }
 
   /**
@@ -71,6 +81,10 @@ class MessagingService {
         callback(pushData);
       }
     });
+  }
+
+  static listenForNotificationWhenAppInBackground(callback: (data: PushAuthenticationDataInterface) => void): void {
+
   }
 }
 
