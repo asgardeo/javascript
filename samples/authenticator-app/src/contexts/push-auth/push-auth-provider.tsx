@@ -21,7 +21,12 @@ import { Router, useRouter } from "expo-router";
 import { FunctionComponent, PropsWithChildren, ReactElement, useCallback, useEffect, useState } from "react";
 import Alert, { AlertType } from "../../components/Alert";
 import StorageConstants from "../../constants/storage";
-import { PushAuthenticationDataInterface, PushAuthJWTBodyInterface, PushAuthJWTHeaderInterface, PushAuthResponseStatus } from "../../models/push-notification";
+import {
+  PushAuthenticationDataInterface,
+  PushAuthJWTBodyInterface,
+  PushAuthJWTHeaderInterface,
+  PushAuthResponseStatus
+} from "../../models/push-notification";
 import { AccountInterface, PushAuthenticationDataStorageInterface, StorageDataInterface } from "../../models/storage";
 import AsyncStorageService from "../../utils/async-storage-service";
 import CryptoService from "../../utils/crypto-service";
@@ -29,12 +34,25 @@ import MessagingService from "../../utils/messagging-service";
 import PushAuthContext from "./push-auth-context";
 
 /**
+ * Props for the PushAuthProvider component.
+ */
+export interface PushAuthProviderProps {
+  /**
+   * Indicates if the root component is mounted.
+   */
+  rootMounted?: boolean;
+}
+
+/**
  * Push Authentication Provider component.
  *
  * @param children - Child components.
  * @returns Push authentication provider component.
  */
-const PushAuthProvider: FunctionComponent<PropsWithChildren> = ({ children }: PropsWithChildren): ReactElement => {
+const PushAuthProvider: FunctionComponent<PropsWithChildren<PushAuthProviderProps>> = ({
+  children,
+  rootMounted
+}: PropsWithChildren<PushAuthProviderProps>): ReactElement => {
   const router: Router = useRouter();
   const [pushAuthMessageCache, setPushAuthMessageCache] = useState<Record<string, PushAuthenticationDataInterface>>({});
   const [alertVisible, setAlertVisible] = useState(false);
@@ -70,20 +88,26 @@ const PushAuthProvider: FunctionComponent<PropsWithChildren> = ({ children }: Pr
   }, [setPushAuthMessageCache]);
 
   /**
+   * Handles push authentication notifications.
+   *
+   * @param data - The push authentication data received from the notification.
+   */
+  const handlePushAuthNotification = useCallback((data: PushAuthenticationDataInterface) => {
+    addPushAuthMessageToCache(data.pushId, data);
+    router.push({
+      pathname: '/push-auth',
+      params: { id: data.pushId }
+    });
+  }, [addPushAuthMessageToCache, router]);
+
+  /**
    * Sets up a listener for when the app is in the foreground.
-   * When a message is received, it is added to the cache.
    */
   useEffect(() => {
-    const unsubscribe: () => void = MessagingService.listenForInAppMessages((data: PushAuthenticationDataInterface) => {
-      addPushAuthMessageToCache(data.pushId, data);
-      router.push({
-        pathname: '/push-auth',
-        params: { id: data.pushId }
-      });
-    });
+    const unsubscribe: () => void = MessagingService.listenForInAppMessages(handlePushAuthNotification);
 
     return unsubscribe;
-  }, [addPushAuthMessageToCache, router]);
+  }, [handlePushAuthNotification]);
 
   /**
    * Request permission to receive notifications on component mount.
@@ -93,7 +117,27 @@ const PushAuthProvider: FunctionComponent<PropsWithChildren> = ({ children }: Pr
   }, []);
 
   /**
-   * Build push authentication endpoint URL based on push ID.
+   * Sets up a listener for when the app is in the background.
+   */
+  useEffect(() => {
+    const unsubscribe: () => void = MessagingService.listenForNotificationOpenWhenAppInBackground(
+      handlePushAuthNotification
+    );
+
+    return unsubscribe;
+  }, [handlePushAuthNotification]);
+
+  /**
+   * Sets up a listener for when the app is closed.
+   */
+  useEffect(() => {
+    if (rootMounted) {
+      MessagingService.listenForNotificationOpenWhenAppIsClosed(handlePushAuthNotification);
+    }
+  }, [rootMounted, handlePushAuthNotification]);
+
+  /**
+   * Builds the push authentication URL based on the push ID.
    *
    * @param id - The push authentication ID.
    * @returns The constructed push authentication URL.

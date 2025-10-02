@@ -1,16 +1,25 @@
 import AccountHeaderRight from "../src/components/account/account-header-right";
 import PushAuthProvider from "../src/contexts/push-auth/push-auth-provider";
 import { Stack } from "expo-router";
-import { ReactElement } from "react";
+import { ReactElement, useEffect, useState } from "react";
 import HeaderSettings from "../src/components/home/header-settings";
 import HeaderTitle from "../src/components/home/header-title";
 import ThemeProvider from "../src/contexts/theme/ThemeProvider";
 
 const RootLayout = (): ReactElement => {
 
+  const [mounted, setMounted] = useState(false);
+
+  /**
+   * Sets the mounted state to true when the component is mounted.
+   */
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   return (
     <ThemeProvider>
-      <PushAuthProvider>
+      <PushAuthProvider rootMounted={mounted}>
         <Stack>
           <Stack.Screen
             name="index"

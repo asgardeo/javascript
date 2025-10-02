@@ -45,7 +45,8 @@ const validateQRData = (data: string): QRDataValidationResponseInterface => {
 
 /**
  * Validates TOTP QR code format.
- * Expected format: otpauth://totp/issuer:username?secret=SECRET&issuer=ISSUER&period=PERIOD.
+ * Expected format:
+ * otpauth://totp/issuer:username?secret=SECRET&issuer=ISSUER&period=PERIOD&algorithm=ALGORITHM&digits=DIGITS.
  *
  * @param data - The scanned QR code data as a string.
  */
