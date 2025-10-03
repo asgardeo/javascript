@@ -1,0 +1,86 @@
+# -------------------------------------------------------------------------------------
+#
+# Copyright (c) 2025, WSO2 LLC. (https://www.wso2.com).
+#
+# WSO2 LLC. licenses this file to you under the Apache License,
+# Version 2.0 (the "License"); you may not use this file except
+# in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied. See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+# --------------------------------------------------------------------------------------
+
+# This workflow will run the Codecov action on the repository.
+
+codecov:
+  require_ci_to_pass: yes
+  notify:
+    wait_for_ci: yes
+
+coverage:
+  status:
+    project:
+      default:
+        target: 50%
+      express:
+        target: 50%
+        flags:
+          - "@asgardeo/express"
+      i18n:
+        target: 50%
+        flags:
+          - "@asgardeo/i18n"
+      javascript:
+        target: 50%
+        flags:
+          - "@asgardeo/javascript"
+      nextjs:
+        target: 50%
+        flags:
+          - "@asgardeo/nextjs"
+      node:
+        target: 50%
+        flags:
+          - "@asgardeo/node"
+      nuxt:
+        target: 50%
+        flags:
+          - "@asgardeo/nuxt"
+      react:
+        target: 50%
+        flags:
+          - "@asgardeo/react"
+      "react-router":
+        target: 50%
+        flags:
+          - "@asgardeo/react-router"
+      vue:
+        target: 50%
+        flags:
+          - "@asgardeo/vue"
+
+comment:
+  layout: "diff, flags, files"
+  behavior: default
+  require_changes: false
+  require_base: yes
+  require_head: yes
+  branches: null
+
+flags:
+  "@asgardeo/js":
+    paths:
+      - packages/core/src/**/*.ts
+    carryforward: false
+  "@asgardeo/react":
+    paths:
+      - packages/react/src/**/*.ts
+    carryforward: false

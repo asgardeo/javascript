@@ -26,5 +26,8 @@ export default defineConfig({
       instances: [{browser: 'chromium'}],
       provider: 'playwright',
     },
+    coverage: {
+      provider: 'istanbul',
+    },
   },
 });

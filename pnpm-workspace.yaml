@@ -11,3 +11,6 @@ catalog:
   '@wso2/eslint-plugin': 'https://gitpkg.now.sh/brionmario/wso2-ui-configs/packages/eslint-plugin?a1fc6eb570653c999828aea9f5027cba06af4391'
   '@wso2/prettier-config': 'https://gitpkg.now.sh/brionmario/wso2-ui-configs/packages/prettier-config?a1fc6eb570653c999828aea9f5027cba06af4391'
   '@wso2/stylelint-config': 'https://gitpkg.now.sh/brionmario/wso2-ui-configs/packages/stylelint-config?a1fc6eb570653c999828aea9f5027cba06af4391'
+  '@vitest/browser': '^3.2.4'
+  '@vitest/coverage-istanbul': '^3.2.4'
+  'vitest': '^3.2.4'

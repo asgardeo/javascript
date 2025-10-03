@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import path from 'path';
+import {resolve} from 'path';
 import vue from '@vitejs/plugin-vue';
 import {defineConfig} from 'vitest/config';
 
@@ -24,10 +24,13 @@ export default defineConfig({
   plugins: [vue()],
   resolve: {
     alias: {
-      '@': path.resolve(__dirname),
+      '@': resolve(__dirname),
     },
   },
   test: {
+    coverage: {
+      provider: 'istanbul',
+    },
     deps: {
       inline: ['@asgardeo/auth-spa'],
     },

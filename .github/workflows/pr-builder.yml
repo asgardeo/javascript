@@ -10,6 +10,11 @@ on:
       - "LICENSE"
   workflow_dispatch:
 
+# Avoid running multiple builds for the same PR.
+concurrency:
+  group: pr-builder-${{ github.ref }}
+  cancel-in-progress: true
+
 env:
   GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -118,7 +123,7 @@ jobs:
       - name: 🧩 Install Dependencies
         id: install-dependencies
         run: pnpm install
-        
+
       - name: 🏗️ Build
         id: build
         run: pnpm build
@@ -170,7 +175,7 @@ jobs:
       - name: 🧩 Install Dependencies
         id: install-dependencies
         run: pnpm install
-        
+
       - name: 🏗️ Build
         id: build
         run: pnpm build
@@ -178,6 +183,78 @@ jobs:
       - name: 🃏 Run Jest & Collect Coverage
         id: run-jest-test-and-coverage
         run: pnpm test
+
+      - name: Upload `@asgardeo/browser` coverage reports to Codecov
+        id: upload-asgardeo-browser-coverage
+        uses: codecov/codecov-action@v4.0.1
+        with:
+          files: ./packages/browser/coverage/coverage-final.json
+          flags: "@asgardeo/browser"
+          token: ${{ secrets.CODECOV_TOKEN }}
+
+      - name: Upload `@asgardeo/i18n` coverage reports to Codecov
+        id: upload-asgardeo-i18n-coverage
+        uses: codecov/codecov-action@v4.0.1
+        with:
+          files: ./packages/i18n/coverage/coverage-final.json
+          flags: "@asgardeo/i18n"
+          token: ${{ secrets.CODECOV_TOKEN }}
+
+      - name: Upload `@asgardeo/javascript` coverage reports to Codecov
+        id: upload-asgardeo-javascript-coverage
+        uses: codecov/codecov-action@v4.0.1
+        with:
+          files: ./packages/javascript/coverage/coverage-final.json
+          flags: "@asgardeo/javascript"
+          token: ${{ secrets.CODECOV_TOKEN }}
+
+      - name: Upload `@asgardeo/nextjs` coverage reports to Codecov
+        id: upload-asgardeo-nextjs-coverage
+        uses: codecov/codecov-action@v4.0.1
+        with:
+          files: ./packages/nextjs/coverage/coverage-final.json
+          flags: "@asgardeo/nextjs"
+          token: ${{ secrets.CODECOV_TOKEN }}
+
+      - name: Upload `@asgardeo/node` coverage reports to Codecov
+        id: upload-asgardeo-node-coverage
+        uses: codecov/codecov-action@v4.0.1
+        with:
+          files: ./packages/node/coverage/coverage-final.json
+          flags: "@asgardeo/node"
+          token: ${{ secrets.CODECOV_TOKEN }}
+
+      - name: Upload `@asgardeo/nuxt` coverage reports to Codecov
+        id: upload-asgardeo-nuxt-coverage
+        uses: codecov/codecov-action@v4.0.1
+        with:
+          files: ./packages/nuxt/coverage/coverage-final.json
+          flags: "@asgardeo/nuxt"
+          token: ${{ secrets.CODECOV_TOKEN }}
+
+      - name: Upload `@asgardeo/react` coverage reports to Codecov
+        id: upload-asgardeo-react-coverage
+        uses: codecov/codecov-action@v4.0.1
+        with:
+          files: ./packages/react/coverage/coverage-final.json
+          flags: "@asgardeo/react"
+          token: ${{ secrets.CODECOV_TOKEN }}
+
+      - name: Upload `@asgardeo/react-router` coverage reports to Codecov
+        id: upload-asgardeo-react-router-coverage
+        uses: codecov/codecov-action@v4.0.1
+        with:
+          files: ./packages/react-router/coverage/coverage-final.json
+          flags: "@asgardeo/react-router"
+          token: ${{ secrets.CODECOV_TOKEN }}
+
+      - name: Upload `@asgardeo/vue` coverage reports to Codecov
+        id: upload-asgardeo-vue-coverage
+        uses: codecov/codecov-action@v4.0.1
+        with:
+          files: ./packages/vue/coverage/coverage-final.json
+          flags: "@asgardeo/vue"
+          token: ${{ secrets.CODECOV_TOKEN }}
 
   build:
     name: 🚧 Build
