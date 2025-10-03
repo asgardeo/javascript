@@ -20,18 +20,19 @@ import { Ionicons, Octicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { FunctionComponent, ReactElement } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import useTheme from "../../contexts/theme/useTheme";
 import { AccountInterface } from "../../models/storage";
 import Avatar from "../common/avatar";
 import { authenticateAsync, LocalAuthenticationResult } from "expo-local-authentication";
-import { getUsername } from "../../utils/ui-utils";
+import { getThemeConfigs, getUsername } from "../../utils/ui-utils";
+import { ThemeConfigs } from "../../models/ui";
+
+const theme: ThemeConfigs = getThemeConfigs();
 
 const AccountListItem: FunctionComponent<AccountInterface> = ({
   id,
   displayName,
   username
 }: AccountInterface): ReactElement => {
-  const { styles } = useTheme();
   const router = useRouter();
 
   const handleAccountPress = () => {
@@ -81,7 +82,7 @@ const AccountListItem: FunctionComponent<AccountInterface> = ({
         <Ionicons
           name="chevron-forward"
           size={26}
-          color={styles.colors.textSecondary.color}
+          color={theme.colors.typography.secondary}
         />
       </View>
     </TouchableOpacity>
@@ -94,9 +95,9 @@ const localStyles = StyleSheet.create({
     alignItems: 'center',
     padding: 12,
     borderRadius: 8,
-    backgroundColor: '#f5f6f9ff',
+    backgroundColor: theme.colors.card.background,
     borderWidth: 1,
-    borderColor: '#d1d9e6'
+    borderColor: theme.colors.card.border
   },
   iconContainer: {
     marginRight: 16,
@@ -110,7 +111,7 @@ const localStyles = StyleSheet.create({
   usernameText: {
     fontSize: 17,
     fontWeight: '800',
-    color: '#56585eff'
+    color: theme.colors.typography.primary
   },
   organizationContainer: {
     flexDirection: 'row',
@@ -121,7 +122,7 @@ const localStyles = StyleSheet.create({
   organizationText: {
     fontSize: 14,
     fontWeight: '400',
-    color: '#868c99ff'
+    color: theme.colors.typography.secondary
   },
   arrowContainer: {
     marginLeft: 24,

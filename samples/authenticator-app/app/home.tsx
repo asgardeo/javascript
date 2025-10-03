@@ -25,6 +25,10 @@ import useTheme from "../src/contexts/theme/useTheme";
 import AsyncStorageService from "@/src/utils/async-storage-service";
 import StorageConstants from "@/src/constants/storage";
 import { authenticateAsync, LocalAuthenticationResult } from "expo-local-authentication";
+import { ThemeConfigs } from "../src/models/ui";
+import { getThemeConfigs } from "../src/utils/ui-utils";
+
+const theme: ThemeConfigs = getThemeConfigs();
 
 const Home: FunctionComponent = (): ReactElement => {
   const { styles } = useTheme();
@@ -44,20 +48,10 @@ const Home: FunctionComponent = (): ReactElement => {
   // }, []);
 
   return (
-    <View
-      style={{
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-        backgroundColor: "#fbfbfb"
-      }}
-    >
+    <View style={[homeStyles.container]}>
       <AccountList />
       <TouchableOpacity
-        style={[
-          styles.buttons.primaryButton,
-          homeStyles.floatingAddButton
-        ]}
+        style={[homeStyles.floatingAddButton]}
         onPress={handleAddPress}
       >
         <MaterialIcons
@@ -74,12 +68,21 @@ const Home: FunctionComponent = (): ReactElement => {
  * Styles for the home component.
  */
 const homeStyles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: theme.colors.screen.background
+  },
   floatingAddButton: {
+    backgroundColor: theme.colors.button.primary.background,
+    color: theme.colors.button.primary.text,
     position: 'absolute',
     bottom: 30,
     right: 30,
     borderRadius: '50%',
-    minHeight: 0,
+    alignItems: 'center',
+    justifyContent: 'center',
     width: 'auto',
     height: 'auto',
     paddingVertical: 12,

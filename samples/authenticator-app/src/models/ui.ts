@@ -31,13 +31,6 @@ export interface AvatarColorPair {
 }
 
 /**
- * Interface representing the deployment configuration.
- */
-export interface DeploymentConfig {
-  ui: UIConfig;
-}
-
-/**
  * Interface representing the UI configuration.
  */
 export interface UIConfig {
@@ -65,6 +58,20 @@ export interface ThemeConfigs {
       background: string;
       text: string;
       icon: string;
+    },
+    button: {
+      primary: {
+        background: string;
+        text: string;
+      }
+    },
+    typography: {
+      primary: string;
+      secondary: string;
+    },
+    card: {
+      background: string;
+      border: string;
     }
   }
 }

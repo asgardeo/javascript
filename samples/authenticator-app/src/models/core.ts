@@ -18,6 +18,7 @@
 
 import { PushNotificationQRDataInterface } from "./push-notification";
 import { TOTPQRDataInterface } from "./totp";
+import { UIConfig } from "./ui";
 
 /**
  * Interface representing the response after validating QR code data.
@@ -36,4 +37,21 @@ export enum QRDataType {
   TOTP = "TOTP",
   PUSH_NOTIFICATION = "PUSH_NOTIFICATION",
   UNKNOWN = "UNKNOWN"
+}
+
+/**
+ * Interface representing the deployment configuration.
+ */
+export interface DeploymentConfig {
+  feature: FeatureConfig;
+  ui: UIConfig;
+}
+
+/**
+ * Feature configuration.
+ */
+export interface FeatureConfig {
+  push: {
+    numberOfHistoryRecords: 5
+  }
 }

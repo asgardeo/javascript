@@ -22,13 +22,15 @@ import { ReactElement, useCallback, useMemo, useState } from "react";
 import { ActivityIndicator, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import { EdgeInsets, useSafeAreaInsets } from "react-native-safe-area-context";
 import StorageConstants from "../../constants/storage";
-import useTheme from "../../contexts/theme/useTheme";
 import { AccountInterface } from "../../models/storage";
 import AsyncStorageService from "../../utils/async-storage-service";
 import AccountListItem from "./account-list-item";
+import { ThemeConfigs } from "../../models/ui";
+import { getThemeConfigs } from "../../utils/ui-utils";
+
+const theme: ThemeConfigs = getThemeConfigs();
 
 const AccountList = (): ReactElement => {
-  const { styles } = useTheme();
   const insets: EdgeInsets = useSafeAreaInsets();
 
   const [loading, setLoading] = useState<boolean>(true);
@@ -47,15 +49,15 @@ const AccountList = (): ReactElement => {
             const parsedAccounts: AccountInterface[] = JSON.parse(accounts);
             setAccountList(parsedAccounts);
           } else {
-              setAccountList([]);
-            }
-          })
-          .catch(() => {
             setAccountList([]);
-          })
-          .finally(() => {
-            setLoading(false);
-          });
+          }
+        })
+        .catch(() => {
+          setAccountList([]);
+        })
+        .finally(() => {
+          setLoading(false);
+        });
     }, [])
   );
 
@@ -66,24 +68,17 @@ const AccountList = (): ReactElement => {
     return accountList.filter((account: AccountInterface) =>
       account.username.toLowerCase().includes(searchQuery.toLowerCase()) ||
       account.displayName.toLowerCase().includes(searchQuery.toLowerCase()
-    ));
+      ));
   }, [accountList, searchQuery]);
 
   if (loading) {
     return (
-      <View style={[
-        localStyles.loadingContainer,
-        styles.colors.backgroundBody
-      ]}>
+      <View style={[localStyles.loadingContainer]}>
         <ActivityIndicator
           size="large"
-          color={styles.colors.textPrimary.color}
+          color={theme.colors.typography.primary}
         />
-        <Text style={[
-          localStyles.loadingText,
-          styles.typography.body1,
-          styles.colors.textSecondary
-        ]}>
+        <Text style={[localStyles.loadingText]}>
           Loading accounts...
         </Text>
       </View>
@@ -92,15 +87,8 @@ const AccountList = (): ReactElement => {
 
   if (accountList.length === 0) {
     return (
-      <View style={[
-        localStyles.emptyContainer,
-        styles.colors.backgroundBody
-      ]}>
-        <Text style={[
-          localStyles.emptyText,
-          styles.typography.body1,
-          styles.colors.textSecondary
-        ]}>
+      <View style={[localStyles.emptyContainer]}>
+        <Text style={[localStyles.emptyText]}>
           No accounts found. Add an account to get started.
         </Text>
       </View>
@@ -110,7 +98,6 @@ const AccountList = (): ReactElement => {
   return (
     <ScrollView style={[
       localStyles.container,
-      styles.colors.backgroundBody,
       { marginBottom: insets.bottom }
     ]}>
       <View style={[localStyles.listContainer]}>
@@ -120,7 +107,7 @@ const AccountList = (): ReactElement => {
             style={[localStyles.searchBox]}
             placeholder="Search accounts..."
             returnKeyType="search"
-            placeholderTextColor='#56585eff'
+            placeholderTextColor={theme.colors.typography.primary}
             value={searchQuery}
             onChangeText={(text: string) => setSearchQuery(text)}
           />
@@ -135,7 +122,8 @@ const AccountList = (): ReactElement => {
 
 const localStyles = StyleSheet.create({
   container: {
-    alignSelf: 'stretch'
+    alignSelf: 'stretch',
+    backgroundColor: theme.colors.screen.background
   },
   listContainer: {
     padding: 24,
@@ -146,25 +134,35 @@ const localStyles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: 32,
+    backgroundColor: theme.colors.screen.background
   },
   loadingText: {
     marginTop: 16,
     textAlign: 'center',
+    fontSize: 16,
+    fontWeight: '400',
+    lineHeight: 24,
+    color: theme.colors.typography.secondary
   },
   emptyContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: 32,
+    backgroundColor: theme.colors.screen.background
   },
   emptyText: {
+    fontSize: 16,
+    fontWeight: '400',
+    lineHeight: 24,
     textAlign: 'center',
     opacity: 0.7,
+    color: theme.colors.typography.secondary
   },
   searchBoxContainer: {
-    backgroundColor: '#f5f6f9ff',
+    backgroundColor: theme.colors.card.background,
     borderWidth: 1,
-    borderColor: '#d1d9e6',
+    borderColor: theme.colors.card.border,
     borderRadius: 8,
     padding: 8,
     flexDirection: 'row',
@@ -173,11 +171,11 @@ const localStyles = StyleSheet.create({
     marginBottom: 16
   },
   searchIcon: {
-    color: '#56585eff'
+    color: theme.colors.typography.primary
   },
   searchBox: {
     flex: 1,
-    color: '#56585eff',
+    color: theme.colors.typography.primary,
     padding: 0
   }
 });

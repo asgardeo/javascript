@@ -32,6 +32,10 @@ import AsyncStorageService from "../../utils/async-storage-service";
 import CryptoService from "../../utils/crypto-service";
 import MessagingService from "../../utils/messagging-service";
 import PushAuthContext from "./push-auth-context";
+import { getFeatureConfig } from "../../utils/core";
+import { FeatureConfig } from "../../models/core";
+
+const featureConfig: FeatureConfig = getFeatureConfig();
 
 /**
  * Props for the PushAuthProvider component.
@@ -147,12 +151,12 @@ const PushAuthProvider: FunctionComponent<PropsWithChildren<PushAuthProviderProp
   const buildPushAuthUrl = useCallback((id: string, accountDetails: AccountInterface): string => {
     const { tenantDomain, organizationId } = pushAuthMessageCache[id];
     // TODO: Use the host from the QR data.
-    //const host = "http://192.168.1.105:8082";
+    const host = "http://10.10.16.152:8082";
 
     if (organizationId) {
-      return `${accountDetails.host}/o/${organizationId}/push-auth/authenticate`;
+      return `${host}/o/${organizationId}/push-auth/authenticate`;
     } else if (tenantDomain) {
-      return `${accountDetails.host}/t/${tenantDomain}/push-auth/authenticate`;
+      return `${host}/t/${tenantDomain}/push-auth/authenticate`;
     } else {
       throw new Error('Neither organizationId nor tenantDomain found in QR data.');
     }
@@ -240,7 +244,7 @@ const PushAuthProvider: FunctionComponent<PropsWithChildren<PushAuthProviderProp
           StorageConstants.replaceAccountId(
             StorageConstants.PUSH_AUTHENTICATION_DATA, accountDetails.id),
           authStorageData,
-          5 // Keep a maximum of 3 records per device ID.
+          featureConfig.push.numberOfHistoryRecords
         );
       }
     } catch {

@@ -5,6 +5,10 @@ import { ReactElement, useEffect, useState } from "react";
 import HeaderSettings from "../src/components/home/header-settings";
 import HeaderTitle from "../src/components/home/header-title";
 import ThemeProvider from "../src/contexts/theme/ThemeProvider";
+import { ThemeConfigs } from "../src/models/ui";
+import { getThemeConfigs } from "../src/utils/ui-utils";
+
+const theme: ThemeConfigs = getThemeConfigs();
 
 const RootLayout = (): ReactElement => {
 
@@ -30,6 +34,7 @@ const RootLayout = (): ReactElement => {
           <Stack.Screen
             name="home"
             options={{
+              headerStyle: { backgroundColor: theme.colors.header.background },
               headerTitle: HeaderTitle,
               //headerRight: HeaderSettings
             }}
@@ -50,6 +55,7 @@ const RootLayout = (): ReactElement => {
           <Stack.Screen
             name="account"
             options={({ route }) => ({
+              headerStyle: { backgroundColor: theme.colors.header.background },
               headerTitle: HeaderTitle,
               headerRight: (): ReactElement => <AccountHeaderRight params={route.params as Record<string, string>} />
             })}
@@ -57,6 +63,7 @@ const RootLayout = (): ReactElement => {
           <Stack.Screen
             name="push-auth-history"
             options={({ route }) => ({
+              headerStyle: { backgroundColor: theme.colors.header.background },
               headerTitle: HeaderTitle,
               headerRight: (): ReactElement => <AccountHeaderRight params={route.params as Record<string, string>} />
             })}

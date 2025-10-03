@@ -17,8 +17,9 @@
  */
 
 import UIConstants from "../constants/ui";
-import { AvatarColorPair, DeploymentConfig, ThemeConfigs, ThemeMode } from "../models/ui";
+import { AvatarColorPair, ThemeConfigs, ThemeMode } from "../models/ui";
 import rawConfig from "../../config/deployment.config.json";
+import { DeploymentConfig } from "../models/core";
 
 const config: DeploymentConfig = rawConfig as DeploymentConfig;
 

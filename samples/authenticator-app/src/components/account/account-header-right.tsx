@@ -49,9 +49,9 @@ const AccountHeaderRight = ({ params }: AccountHeaderRightProps): ReactElement =
    * @returns The push unregistration URL.
    */
   const buildPushUnregistrationUrl = (data: AccountInterface): string => {
-    const { host, tenantDomain, organizationId } = data;
+    const { tenantDomain, organizationId } = data;
     // TODO: Use the host from the QR data.
-    //const host = "http://192.168.1.105:8082";
+    const host = "http://10.10.16.152:8082";
 
     if (organizationId) {
       return `${host}/o/${organizationId}/api/users/v1/me/push/devices/${data.deviceId}/remove`;

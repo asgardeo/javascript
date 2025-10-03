@@ -16,9 +16,13 @@
  * under the License.
  */
 
+import { ThemeConfigs } from "../../models/ui";
+import { getThemeConfigs } from "../../utils/ui-utils";
 import { HeaderTitleProps } from "@react-navigation/elements";
 import { ReactElement } from "react";
 import { Image, StyleSheet, Text, View } from "react-native";
+
+const theme: ThemeConfigs = getThemeConfigs();
 
 const HeaderTitle = (_props: HeaderTitleProps): ReactElement => {
   return (
@@ -47,7 +51,7 @@ const homeStyles = StyleSheet.create({
   appName: {
     fontSize: 17,
     fontWeight: '800',
-    color: '#17181aff'
+    color: theme.colors.header.text
   }
 });
 
