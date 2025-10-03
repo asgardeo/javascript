@@ -29,3 +29,50 @@ export interface AvatarColorPair {
    */
   text: string;
 }
+
+/**
+ * Interface representing the deployment configuration.
+ */
+export interface DeploymentConfig {
+  ui: UIConfig;
+}
+
+/**
+ * Interface representing the UI configuration.
+ */
+export interface UIConfig {
+  theme: Theme;
+}
+
+/**
+ * Interface representing the theme structure.
+ */
+export interface Theme {
+  activeTheme: ThemeMode;
+  light: ThemeConfigs;
+  dark: ThemeConfigs;
+}
+
+/**
+ * Interface representing theme configurations.
+ */
+export interface ThemeConfigs {
+  colors: {
+    screen: {
+      background: string;
+    },
+    header: {
+      background: string;
+      text: string;
+      icon: string;
+    }
+  }
+}
+
+/**
+ * Enum for theme modes.
+ */
+export enum ThemeMode {
+  LIGHT = "light",
+  DARK = "dark"
+}

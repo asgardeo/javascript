@@ -141,17 +141,18 @@ const PushAuthProvider: FunctionComponent<PropsWithChildren<PushAuthProviderProp
    * Builds the push authentication URL based on the push ID.
    *
    * @param id - The push authentication ID.
+   * @param accountDetails - The account details associated with the push authentication.
    * @returns The constructed push authentication URL.
    */
-  const buildPushAuthUrl = useCallback((id: string): string => {
+  const buildPushAuthUrl = useCallback((id: string, accountDetails: AccountInterface): string => {
     const { tenantDomain, organizationId } = pushAuthMessageCache[id];
     // TODO: Use the host from the QR data.
-    const host = "http://192.168.1.105:8082";
+    //const host = "http://192.168.1.105:8082";
 
     if (organizationId) {
-      return `${host}/o/${organizationId}/push-auth/authenticate`;
+      return `${accountDetails.host}/o/${organizationId}/push-auth/authenticate`;
     } else if (tenantDomain) {
-      return `${host}/t/${tenantDomain}/push-auth/authenticate`;
+      return `${accountDetails.host}/t/${tenantDomain}/push-auth/authenticate`;
     } else {
       throw new Error('Neither organizationId nor tenantDomain found in QR data.');
     }
@@ -170,6 +171,15 @@ const PushAuthProvider: FunctionComponent<PropsWithChildren<PushAuthProviderProp
     }
 
     showAlert(AlertType.LOADING, 'Sending Response', 'Please wait while we send your response...');
+
+    const storageData: StorageDataInterface[] = await AsyncStorageService.getListItemByItemKey(
+      StorageConstants.ACCOUNTS_DATA, "deviceId", pushAuthMessageCache[id].deviceId);
+
+    if (storageData.length === 0) {
+      return;
+    }
+
+    const accountDetails: AccountInterface = TypeConvert.toAccountInterface(storageData[0]);
 
     const header: PushAuthJWTHeaderInterface = {
       alg: 'RS256',
@@ -195,7 +205,7 @@ const PushAuthProvider: FunctionComponent<PropsWithChildren<PushAuthProviderProp
 
     try {
       const jwtResponse: string = CryptoService.generatePushResponseJWT(header, body);
-      const pushAuthUrl: string = buildPushAuthUrl(id);
+      const pushAuthUrl: string = buildPushAuthUrl(id, accountDetails);
 
       result = await fetch(pushAuthUrl, {
         method: 'POST',
@@ -216,15 +226,6 @@ const PushAuthProvider: FunctionComponent<PropsWithChildren<PushAuthProviderProp
 
     try {
       if (result?.status === 200) {
-        const storageData: StorageDataInterface[] = await AsyncStorageService.getListItemByItemKey(
-          StorageConstants.ACCOUNTS_DATA, "deviceId", pushAuthMessageCache[id].deviceId);
-
-        if (storageData.length === 0) {
-          return;
-        }
-
-        const accountDetails: AccountInterface = TypeConvert.toAccountInterface(storageData[0]);
-
         const authStorageData: PushAuthenticationDataStorageInterface = {
           applicationName: pushAuthMessageCache[id].applicationName,
           ipAddress: pushAuthMessageCache[id].ipAddress,

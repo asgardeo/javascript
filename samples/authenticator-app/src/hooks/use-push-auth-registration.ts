@@ -48,9 +48,9 @@ export const usePushAuthRegistration = (): UsePushAuthRegistrationPropsInterface
    * Build registration endpoint URL based on tenant or organization.
    */
   const buildRegistrationUrl = (qrData: PushNotificationQRDataInterface): string => {
-    const { tenantDomain, organizationId } = qrData;
+    const { host, tenantDomain, organizationId } = qrData;
     // TODO: Use the host from the QR data.
-    const host = "http://192.168.1.105:8082";
+    //const host = "http://192.168.1.105:8082";
 
     if (organizationId) {
       return `${host}/o/${organizationId}/api/users/v1/me/push/devices`;
@@ -136,6 +136,7 @@ export const usePushAuthRegistration = (): UsePushAuthRegistrationPropsInterface
           const accountData: AccountInterface = {
             id,
             deviceId: qrData.deviceId,
+            host: qrData.host,
             username: qrData.username,
             displayName: qrData.organizationName ?? qrData.tenantDomain,
             tenantDomain: qrData.tenantDomain,

@@ -17,7 +17,10 @@
  */
 
 import UIConstants from "../constants/ui";
-import { AvatarColorPair } from "../models/ui";
+import { AvatarColorPair, DeploymentConfig, ThemeConfigs, ThemeMode } from "../models/ui";
+import rawConfig from "../../config/deployment.config.json";
+
+const config: DeploymentConfig = rawConfig as DeploymentConfig;
 
 /**
  * Get avatar colors based on the provided name.
@@ -75,4 +78,15 @@ export const getTimeFromNow = (timestamp: number): string => {
   }
 
   return new Date(timestamp).toLocaleDateString();
+};
+
+/**
+ * Get the theme configurations based on the active theme.
+ *
+ * @returns The theme configurations based on the active theme.
+ */
+export const getThemeConfigs = (): ThemeConfigs => {
+  const activeTheme: ThemeMode = config.ui.theme.activeTheme;
+
+  return config.ui.theme[activeTheme];
 };

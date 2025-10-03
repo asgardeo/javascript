@@ -31,6 +31,7 @@ export interface StorageDataInterface {
 export interface AccountInterface {
   id: string;
   deviceId?: string;
+  host?: string;
   issuer?: string;
   displayName: string;
   tenantDomain?: string;

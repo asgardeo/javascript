@@ -20,7 +20,7 @@
         ]
       },
       "bundleIdentifier": "io.asgardeo.dev.push.totp.authenticator",
-      "googleServicesFile": "./GoogleService-Info.plist",
+      "googleServicesFile": "./config/GoogleService-Info.plist",
       "entitlements": {
         "aps-environment": "production"
       }
@@ -37,7 +37,7 @@
         "android.permission.CAMERA",
         "android.permission.RECORD_AUDIO"
       ],
-      "googleServicesFile": "./google-services.json"
+      "googleServicesFile": "./config/google-services.json"
     },
     "web": {
       "bundler": "metro",
