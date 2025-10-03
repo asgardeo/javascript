@@ -36,7 +36,7 @@ import AsgardeoRuntimeError from '../errors/AsgardeoRuntimeError';
  * processOpenIDScopes({}); // throws AsgardeoRuntimeError
  * ```
  */
-const processOpenIDScopes = (scopes: string | string[]): string => {
+const processOpenIDScopes = (scopes?: string | string[]): string => {
   let processedScopes: string[] = [];
 
   if (scopes) {

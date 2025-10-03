@@ -90,8 +90,19 @@ export interface GetSchemasConfig extends Omit<RequestInit, 'method'> {
  * ```
  */
 const getSchemas = async ({url, baseUrl, fetcher, ...requestConfig}: GetSchemasConfig): Promise<Schema[]> => {
+  const finalUrl = url ?? baseUrl;
+  if (!finalUrl) {
+    throw new AsgardeoAPIError(
+      'Either url or baseUrl must be provided',
+      'getSchemas-ValidationError-000',
+      'javascript',
+      400,
+      'Invalid Request',
+    );
+  }
+
   try {
-    new URL(url ?? baseUrl);
+    new URL(finalUrl);
   } catch (error) {
     throw new AsgardeoAPIError(
       `Invalid URL provided. ${error?.toString()}`,

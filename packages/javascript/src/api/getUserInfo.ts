@@ -37,6 +37,16 @@ import AsgardeoAPIError from '../errors/AsgardeoAPIError';
  * ```
  */
 const getUserInfo = async ({url, ...requestConfig}: Partial<Request>): Promise<User> => {
+  if (!url) {
+    throw new AsgardeoAPIError(
+      'URL is required',
+      'getUserInfo-ValidationError-000',
+      'javascript',
+      400,
+      'Invalid Request',
+    );
+  }
+
   try {
     new URL(url);
   } catch (error) {
@@ -49,14 +59,25 @@ const getUserInfo = async ({url, ...requestConfig}: Partial<Request>): Promise<U
     );
   }
 
+  // URL is guaranteed to be defined and valid due to validation above
+  const baseHeaders = {
+    'Content-Type': 'application/json',
+    Accept: 'application/json',
+  };
+
+  let finalHeaders: HeadersInit;
+  if (requestConfig.headers instanceof Headers) {
+    finalHeaders = requestConfig.headers;
+  } else if (requestConfig.headers && typeof requestConfig.headers === 'object') {
+    finalHeaders = { ...baseHeaders, ...(requestConfig.headers as Record<string, string>) };
+  } else {
+    finalHeaders = baseHeaders;
+  }
+
   const response: Response = await fetch(url, {
     ...requestConfig,
     method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-      Accept: 'application/json',
-      ...requestConfig.headers,
-    },
+    headers: finalHeaders,
   });
 
   if (!response.ok) {
