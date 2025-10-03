@@ -51,7 +51,7 @@ const AccountListItem: FunctionComponent<AccountInterface> = ({
       onPress={handleAccountPress}
       activeOpacity={0.7}
     >
-      <Avatar name={username || displayName} style={localStyles.iconContainer} />
+      <Avatar name={getUsername(username) || displayName} style={localStyles.iconContainer} />
 
       <View style={localStyles.contentContainer}>
         <Text

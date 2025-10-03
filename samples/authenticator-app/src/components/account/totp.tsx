@@ -152,7 +152,7 @@ const TOTPCode: FunctionComponent<TOTPCodeProps> = ({ id }: TOTPCodeProps): Reac
         <View style={[localStyles.container, styles.colors.backgroundBody]}>
           <View style={[localStyles.headerContainer]}>
             <Avatar
-              name={accountDetails?.username || accountDetails?.displayName}
+              name={getUsername(accountDetails?.username!) || accountDetails?.displayName}
               style={[localStyles.headerAvatar]}
             />
             <Text style={[localStyles.usernameText]}>
