@@ -1,0 +1,91 @@
+{
+  "expo": {
+    "name": "Asgardeo",
+    "slug": "Asgardeo",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/images/logo-icon.png",
+    "scheme": "authenticatorapp",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "ios": {
+      "config": {
+        "usesNonExemptEncryption": false
+      },
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSCameraUsageDescription": "This app needs access to the camera to scan QR codes.",
+        "UIBackgroundModes": [
+          "remote-notification"
+        ]
+      },
+      "bundleIdentifier": "io.asgardeo.dev.push.totp.authenticator",
+      "googleServicesFile": "./config/GoogleService-Info.plist",
+      "entitlements": {
+        "aps-environment": "production"
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/images/logo-icon.png",
+        "backgroundColor": "#ffffff"
+      },
+      "edgeToEdgeEnabled": true,
+      "package": "io.asgardeo.dev.push.totp.authenticator",
+      "permissions": [
+        "CAMERA",
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO"
+      ],
+      "googleServicesFile": "./config/google-services.json"
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "static",
+      "favicon": "./assets/images/logo-icon.png"
+    },
+    "plugins": [
+      "expo-router",
+      "@react-native-firebase/app",
+      "@react-native-firebase/messaging",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow this app to access your camera to scan QR codes."
+        }
+      ],
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/images/logo-icon.png",
+          "imageWidth": 200,
+          "resizeMode": "contain",
+          "backgroundColor": "#ffffff"
+        }
+      ],
+      [
+        "expo-secure-store",
+        {
+          "configureAndroidBackup": true
+        }
+      ],
+      [
+        "expo-build-properties",
+        {
+          "ios": {
+            "useFrameworks": "static"
+          }
+        }
+      ],
+      [
+        "expo-local-authentication",
+        {
+          "faceIDPermission": "Allow $(PRODUCT_NAME) to use Face ID."
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}

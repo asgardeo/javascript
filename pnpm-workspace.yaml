@@ -6,6 +6,7 @@ packages:
   - 'samples/*'
   - '!samples/__legacy__/*'
   - '!samples/teamspace-nextjs'
+  - '!samples/authenticator-app'
 
 catalog:
   '@wso2/eslint-plugin': 'https://gitpkg.now.sh/brionmario/wso2-ui-configs/packages/eslint-plugin?a1fc6eb570653c999828aea9f5027cba06af4391'
