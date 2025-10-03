@@ -98,6 +98,10 @@ export const getThemeConfigs = (): ThemeConfigs => {
  * @returns The extracted username without the domain part.
  */
 export const getUsername = (username: string): string => {
+  if (!username) {
+    return "";
+  }
+
   const domainSeparatorIndex = username.indexOf('/');
 
   if (domainSeparatorIndex !== -1) {
