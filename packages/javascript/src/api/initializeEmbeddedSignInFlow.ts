@@ -73,14 +73,24 @@ const initializeEmbeddedSignInFlow = async ({
     }
   });
 
+  const baseHeaders = {
+    'Content-Type': 'application/x-www-form-urlencoded',
+    Accept: 'application/json',
+  };
+
+  let finalHeaders: HeadersInit;
+  if (requestConfig.headers instanceof Headers) {
+    finalHeaders = requestConfig.headers;
+  } else if (requestConfig.headers && typeof requestConfig.headers === 'object') {
+    finalHeaders = { ...baseHeaders, ...(requestConfig.headers as Record<string, string>) };
+  } else {
+    finalHeaders = baseHeaders;
+  }
+
   const response: Response = await fetch(url ?? `${baseUrl}/oauth2/authorize`, {
     ...requestConfig,
     method: requestConfig.method || 'POST',
-    headers: {
-      ...requestConfig.headers,
-      'Content-Type': 'application/x-www-form-urlencoded',
-      Accept: 'application/json',
-    },
+    headers: finalHeaders,
     body: searchParams.toString(),
   });
 

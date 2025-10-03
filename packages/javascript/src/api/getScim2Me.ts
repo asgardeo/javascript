@@ -91,8 +91,19 @@ export interface GetScim2MeConfig extends Omit<RequestInit, 'method'> {
  * ```
  */
 const getScim2Me = async ({url, baseUrl, fetcher, ...requestConfig}: GetScim2MeConfig): Promise<User> => {
+  const finalUrl = url ?? baseUrl;
+  if (!finalUrl) {
+    throw new AsgardeoAPIError(
+      'Either url or baseUrl must be provided',
+      'getScim2Me-ValidationError-000',
+      'javascript',
+      400,
+      'Invalid Request',
+    );
+  }
+
   try {
-    new URL(url ?? baseUrl);
+    new URL(finalUrl);
   } catch (error) {
     throw new AsgardeoAPIError(
       `Invalid URL provided. ${error?.toString()}`,
