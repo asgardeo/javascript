@@ -31,6 +31,7 @@ import Avatar from "../common/avatar";
 import CircularProgress from "./circular-porgress-bar";
 import { Router, useFocusEffect, useRouter } from "expo-router";
 import HistoryList from "../push-auth-history/history-list";
+import { getUsername } from "@/src/utils/ui-utils";
 
 /**
  * Props for the TOTPCode component.
@@ -155,7 +156,7 @@ const TOTPCode: FunctionComponent<TOTPCodeProps> = ({ id }: TOTPCodeProps): Reac
               style={[localStyles.headerAvatar]}
             />
             <Text style={[localStyles.usernameText]}>
-              {accountDetails?.username}
+              {getUsername(accountDetails?.username!)}
             </Text>
             <View style={[localStyles.organizationContainer]}>
               <Octicons

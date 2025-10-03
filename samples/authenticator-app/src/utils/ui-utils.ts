@@ -90,3 +90,19 @@ export const getThemeConfigs = (): ThemeConfigs => {
 
   return config.ui.theme[activeTheme];
 };
+
+/**
+ * Extract the username from a full username string.
+ *
+ * @param username The full username string.
+ * @returns The extracted username without the domain part.
+ */
+export const getUsername = (username: string): string => {
+  const domainSeparatorIndex = username.indexOf('/');
+
+  if (domainSeparatorIndex !== -1) {
+    return username.substring(domainSeparatorIndex + 1);
+  }
+
+  return username;
+}

@@ -24,6 +24,7 @@ import useTheme from "../../contexts/theme/useTheme";
 import { AccountInterface } from "../../models/storage";
 import Avatar from "../common/avatar";
 import { authenticateAsync, LocalAuthenticationResult } from "expo-local-authentication";
+import { getUsername } from "../../utils/ui-utils";
 
 const AccountListItem: FunctionComponent<AccountInterface> = ({
   id,
@@ -58,7 +59,7 @@ const AccountListItem: FunctionComponent<AccountInterface> = ({
           ellipsizeMode="tail"
           style={[localStyles.usernameText]}
         >
-          {username}
+          {getUsername(username)}
         </Text>
         <View style={[localStyles.organizationContainer]}>
           <Octicons
