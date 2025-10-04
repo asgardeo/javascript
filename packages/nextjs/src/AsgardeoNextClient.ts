@@ -145,6 +145,25 @@ class AsgardeoNextClient<T extends AsgardeoNextConfig = AsgardeoNextConfig> exte
     );
   }
 
+  override async reInitialize(config: Partial<T>): Promise<boolean> {
+    let isInitialized: boolean = false;
+
+    try {
+      await this.asgardeo.reInitialize(config as any);
+
+      isInitialized = true;
+    } catch (error) {
+      throw new AsgardeoRuntimeError(
+        `Failed to re-initialize the client: ${error instanceof Error ? error.message : String(error)}`,
+        'AsgardeoNextClient-reInitialize-RuntimeError-001',
+        'nextjs',
+        'An error occurred while re-initializing the client. Please check your configuration and network connection.',
+      );
+    }
+
+    return isInitialized;
+  }
+
   override async getUser(userId?: string): Promise<User> {
     await this.ensureInitialized();
     const resolvedSessionId: string = userId || ((await getSessionId()) as string);

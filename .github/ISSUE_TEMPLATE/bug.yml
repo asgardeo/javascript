@@ -18,7 +18,7 @@ body:
   - type: dropdown
     id: area
     attributes:
-      label: Please select the package issue is related to
+      label: Please select the area the issue is related to
       options:
         - '@asgardeo/browser'
         - '@asgardeo/express'
@@ -29,7 +29,9 @@ body:
         - '@asgardeo/react'
         - '@asgardeo/react-router'
         - '@asgardeo/vue'
+        - '@asgardeo/i18n'
         - 'samples'
+        - 'other'
       default: 1
       multiple: true
     validations:
@@ -38,7 +40,7 @@ body:
     id: version
     attributes:
       label: Version
-      description: Enter package version or commit hash.
+      description: Enter package version or commit hash. (Use `N/A` if not applicable)
     validations:
       required: true
   - type: textarea

@@ -170,8 +170,45 @@ importers:
         specifier: ^3.1.3
         version: 3.1.3(@types/node@22.15.30)(@vitest/browser@3.1.3)(jiti@2.6.0)(jsdom@26.1.0)(lightningcss@1.30.1)(sass-embedded@1.92.1)(sass@1.92.1)(terser@5.39.2)(yaml@2.8.0)
 
+  packages/i18n:
+    dependencies:
+      tslib:
+        specifier: ^2.8.1
+        version: 2.8.1
+    devDependencies:
+      '@types/node':
+        specifier: ^22.15.30
+        version: 22.15.30
+      '@wso2/eslint-plugin':
+        specifier: 'catalog:'
+        version: https://gitpkg.now.sh/brionmario/wso2-ui-configs/packages/eslint-plugin?a1fc6eb570653c999828aea9f5027cba06af4391(eslint@8.57.0)(typescript@5.7.3)
+      '@wso2/prettier-config':
+        specifier: 'catalog:'
+        version: https://gitpkg.now.sh/brionmario/wso2-ui-configs/packages/prettier-config?a1fc6eb570653c999828aea9f5027cba06af4391(prettier@2.8.8)(typescript@5.7.3)
+      esbuild:
+        specifier: ^0.25.9
+        version: 0.25.10
+      eslint:
+        specifier: 8.57.0
+        version: 8.57.0
+      prettier:
+        specifier: ^2.6.2
+        version: 2.8.8
+      rimraf:
+        specifier: ^6.0.1
+        version: 6.0.1
+      typescript:
+        specifier: ~5.7.2
+        version: 5.7.3
+      vitest:
+        specifier: ^3.1.3
+        version: 3.1.3(@types/node@22.15.30)(@vitest/browser@3.1.3)(jiti@2.6.0)(jsdom@26.1.0)(lightningcss@1.30.1)(sass-embedded@1.92.1)(sass@1.92.1)(terser@5.39.2)(yaml@2.8.0)
+
   packages/javascript:
     dependencies:
+      '@asgardeo/i18n':
+        specifier: workspace:^
+        version: link:../i18n
       tslib:
         specifier: ^2.8.1
         version: 2.8.1
@@ -322,6 +359,9 @@ importers:
       '@asgardeo/browser':
         specifier: workspace:^
         version: link:../browser
+      '@asgardeo/i18n':
+        specifier: workspace:^
+        version: link:../i18n
       '@emotion/css':
         specifier: ^11.13.5
         version: 11.13.5
@@ -547,6 +587,9 @@ importers:
 
   samples/teamspace-react:
     dependencies:
+      '@asgardeo/i18n':
+        specifier: workspace:^
+        version: link:../../packages/i18n
       '@asgardeo/react':
         specifier: workspace:^
         version: link:../../packages/react
@@ -8380,7 +8423,7 @@ snapshots:
   '@typescript-eslint/visitor-keys@8.33.1':
     dependencies:
       '@typescript-eslint/types': 8.33.1
-      eslint-visitor-keys: 4.2.0
+      eslint-visitor-keys: 4.2.1
 
   '@ungap/structured-clone@1.3.0': {}
 
@@ -10094,7 +10137,7 @@ snapshots:
 
   eslint@8.57.0:
     dependencies:
-      '@eslint-community/eslint-utils': 4.7.0(eslint@8.57.0)
+      '@eslint-community/eslint-utils': 4.8.0(eslint@8.57.0)
       '@eslint-community/regexpp': 4.12.1
       '@eslint/eslintrc': 2.1.4
       '@eslint/js': 8.57.0
@@ -10191,8 +10234,8 @@ snapshots:
 
   espree@9.6.1:
     dependencies:
-      acorn: 8.14.1
-      acorn-jsx: 5.3.2(acorn@8.14.1)
+      acorn: 8.15.0
+      acorn-jsx: 5.3.2(acorn@8.15.0)
       eslint-visitor-keys: 3.4.3
 
   esprima@4.0.1: {}
@@ -13074,7 +13117,7 @@ snapshots:
 
   vite@6.3.5(@types/node@20.17.50)(jiti@2.6.0)(lightningcss@1.30.1)(sass-embedded@1.92.1)(sass@1.89.0)(terser@5.39.2)(yaml@2.8.0):
     dependencies:
-      esbuild: 0.25.9
+      esbuild: 0.25.10
       fdir: 6.4.4(picomatch@4.0.2)
       picomatch: 4.0.2
       postcss: 8.5.6
@@ -13092,7 +13135,7 @@ snapshots:
 
   vite@6.3.5(@types/node@22.15.30)(jiti@2.6.0)(lightningcss@1.30.1)(sass-embedded@1.92.1)(sass@1.92.1)(terser@5.39.2)(yaml@2.8.0):
     dependencies:
-      esbuild: 0.25.9
+      esbuild: 0.25.10
       fdir: 6.4.4(picomatch@4.0.2)
       picomatch: 4.0.2
       postcss: 8.5.6
@@ -13110,7 +13153,7 @@ snapshots:
 
   vite@6.3.5(@types/node@24.0.3)(jiti@2.6.0)(lightningcss@1.30.1)(sass-embedded@1.92.1)(sass@1.92.1)(terser@5.39.2)(yaml@2.8.0):
     dependencies:
-      esbuild: 0.25.9
+      esbuild: 0.25.10
       fdir: 6.4.4(picomatch@4.0.2)
       picomatch: 4.0.2
       postcss: 8.5.6

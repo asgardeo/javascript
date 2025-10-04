@@ -1,5 +1,30 @@
 # @asgardeo/react
 
+## 0.5.26
+
+### Patch Changes
+
+- [#179](https://github.com/asgardeo/javascript/pull/179)
+  [`283264a`](https://github.com/asgardeo/javascript/commit/283264a8dc923f04f08b04dce9375f5c13d51c6b) Thanks
+  [@brionmario](https://github.com/brionmario)! - Introduce a new `@asgardeo/i18n` package
+
+- Updated dependencies
+  [[`ed1aefc`](https://github.com/asgardeo/javascript/commit/ed1aefccdd853ea4a3d88ff0be2b56931ba7a0fb),
+  [`283264a`](https://github.com/asgardeo/javascript/commit/283264a8dc923f04f08b04dce9375f5c13d51c6b)]:
+  - @asgardeo/i18n@0.1.0
+  - @asgardeo/browser@0.1.19
+
+## 0.5.25
+
+### Patch Changes
+
+- [#181](https://github.com/asgardeo/javascript/pull/181)
+  [`0c34416`](https://github.com/asgardeo/javascript/commit/0c3441609a7de33d336b96e1acbe2443e9ea4132) Thanks
+  [@brionmario](https://github.com/brionmario)! - Expose `reInitialize` from `@asgardeo/react` & `@asgardeo/nextjs`
+
+- Updated dependencies []:
+  - @asgardeo/browser@0.1.18
+
 ## 0.5.24
 
 ### Patch Changes

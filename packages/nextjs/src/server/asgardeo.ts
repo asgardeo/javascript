@@ -19,6 +19,7 @@
 import {TokenExchangeRequestConfig} from '@asgardeo/node';
 import AsgardeoNextClient from '../AsgardeoNextClient';
 import getSessionIdAction from './actions/getSessionId';
+import {AsgardeoNextConfig} from '../models/config';
 
 const asgardeo = async () => {
   const getAccessToken = async (sessionId: string) => {
@@ -35,10 +36,16 @@ const asgardeo = async () => {
     return await client.exchangeToken(config, sessionId);
   };
 
+  const reInitialize = async (config: Partial<AsgardeoNextConfig>) => {
+    const client: AsgardeoNextClient = AsgardeoNextClient.getInstance();
+    return await client.reInitialize(config);
+  };
+
   return {
     getAccessToken,
     getSessionId,
     exchangeToken,
+    reInitialize,
   };
 };
 

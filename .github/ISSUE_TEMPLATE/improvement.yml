@@ -30,7 +30,9 @@ body:
         - '@asgardeo/react'
         - '@asgardeo/react-router'
         - '@asgardeo/vue'
+        - '@asgardeo/i18n'
         - 'samples'
+        - 'other'
       default: 1
       multiple: true
     validations:
@@ -39,7 +41,7 @@ body:
     id: version
     attributes:
       label: Version
-      description: Enter package version or commit hash.
+      description: Enter package version or commit hash. (Use `N/A` if not applicable)
     validations:
       required: true
   - type: checkboxes

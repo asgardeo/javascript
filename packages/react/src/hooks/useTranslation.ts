@@ -17,7 +17,8 @@
  */
 
 import {useContext, useMemo} from 'react';
-import {deepMerge, I18nBundle, I18nPreferences} from '@asgardeo/browser';
+import {I18nBundle} from '@asgardeo/i18n';
+import {deepMerge, I18nPreferences} from '@asgardeo/browser';
 import I18nContext, {I18nContextValue} from '../contexts/I18n/I18nContext';
 
 export interface UseTranslation {

@@ -106,6 +106,27 @@ class AsgardeoReactClient<T extends AsgardeoReactConfig = AsgardeoReactConfig> e
     });
   }
 
+  override reInitialize(config: Partial<AsgardeoReactConfig>): Promise<boolean> {
+    return this.withLoading(async () => {
+      let isInitialized: boolean;
+
+      try {
+        await this.asgardeo.reInitialize(config);
+
+        isInitialized = true;
+      } catch (error) {
+        throw new AsgardeoRuntimeError(
+          `Failed to check if the client is initialized: ${error instanceof Error ? error.message : String(error)}`,
+          'AsgardeoReactClient-reInitialize-RuntimeError-001',
+          'react',
+          'An error occurred while checking the initialization status of the client.',
+        );
+      }
+
+      return isInitialized;
+    });
+  }
+
   override async updateUserProfile(payload: any, userId?: string): Promise<User> {
     throw new Error('Not implemented');
   }

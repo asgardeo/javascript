@@ -430,6 +430,7 @@ const AsgardeoProvider: FC<PropsWithChildren<AsgardeoProviderProps>> = ({
         request: asgardeo.request.bind(asgardeo),
         requestAll: asgardeo.requestAll.bind(asgardeo),
       },
+      reInitialize: asgardeo.reInitialize.bind(asgardeo),
       signInOptions,
       getDecodedIdToken: asgardeo.getDecodedIdToken.bind(asgardeo),
       exchangeToken: asgardeo.exchangeToken.bind(asgardeo),

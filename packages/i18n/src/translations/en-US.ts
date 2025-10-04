@@ -17,6 +17,7 @@
  */
 
 /* eslint-disable sort-keys */
+/* eslint-disable @typescript-eslint/naming-convention */
 
 import {I18nTranslations, I18nMetadata, I18nBundle} from '../models/i18n';
 
@@ -25,7 +26,7 @@ const translations: I18nTranslations = {
   /* |                        Elements                               | */
   /* |---------------------------------------------------------------| */
 
-  //* Buttons */
+  /* Buttons */
   'elements.buttons.signIn': 'Sign In',
   'elements.buttons.signOut': 'Sign Out',
   'elements.buttons.signUp': 'Sign Up',
