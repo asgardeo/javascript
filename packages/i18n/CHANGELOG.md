@@ -1,5 +1,13 @@
 # @asgardeo/i18n
 
+## 0.2.0
+
+### Minor Changes
+
+- [#193](https://github.com/asgardeo/javascript/pull/193)
+  [`a29767b`](https://github.com/asgardeo/javascript/commit/a29767be0f32fc65943a2a5d26148f39e442c196) Thanks
+  [@TheekshanaCN](https://github.com/TheekshanaCN)! - Add Sinhala (si-LK) language support to @asgardeo/i18n package.
+
 ## 0.1.0
 
 ### Minor Changes
