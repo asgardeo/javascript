@@ -1,6 +1,6 @@
 # -------------------------------------------------------------------------------------
 #
-# Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com).
+# Copyright (c) 2025, WSO2 LLC. (https://www.wso2.com).
 #
 # WSO2 LLC. licenses this file to you under the Apache License,
 # Version 2.0 (the "License"); you may not use this file except
@@ -24,34 +24,46 @@ name: Security Audit
 
 on:
   pull_request:
-    branches: [ main ]
+    branches: [main]
+  workflow_dispatch:
 
 jobs:
   audit:
+    name: Security Audit
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [lts/*]
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - name: Checkout
+        id: checkout
+        uses: actions/checkout@v2.3.3
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - name: Setup node
+        id: setup-node
+        uses: actions/setup-node@v2
         with:
-          node-version: 18
+          node-version: ${{ matrix.node-version }}
 
-      - name: Install pnpm
-        uses: pnpm/action-setup@v4
+      - name: Setup pnpm
+        id: setup-pnpm
+        uses: pnpm/action-setup@v2.1.0
         with:
-          version: 9
+          version: latest
+          run_install: false
 
-      - name: Install dependencies
+      - name: Install Dependencies
+        id: install-dependencies
         run: pnpm install
 
-      - name: Run audit
+      - name: Run Security Audit
+        id: run-security-audit
         run: |
           pnpm audit --json > audit-results.json || true
           pnpm audit --audit-level=high
 
-      - name: Upload audit results
+      - name: Upload Audit Results
+        id: upload-audit-results
         uses: actions/upload-artifact@v4
         with:
           name: pnpm-audit-report
