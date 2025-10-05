@@ -26,18 +26,18 @@ import createTheme from '../theme/createTheme';
 type ColorVariant = {main?: string; dark?: string; contrastText?: string};
 type TextColors = {primary?: string; secondary?: string; dark?: string};
 
-const extractColorValue = (colorVariant?: ColorVariant, preferDark = false): string | undefined => {
+const extractColorValue = (colorVariant?: ColorVariant, preferDark = false, fallback = '#000000'): string => {
   if (preferDark && colorVariant?.dark && colorVariant.dark.trim()) {
     return colorVariant.dark;
   }
-  return colorVariant?.main;
+  return colorVariant?.main || fallback;
 };
 
 /**
  * Safely extracts contrast text color from the branding preference structure
  */
-const extractContrastText = (colorVariant?: {main?: string; contrastText?: string}) => {
-  return colorVariant?.contrastText;
+const extractContrastText = (colorVariant?: {main?: string; contrastText?: string}, fallback = '#ffffff'): string => {
+  return colorVariant?.contrastText || fallback;
 };
 
 /**
@@ -65,50 +65,50 @@ const transformThemeVariant = (themeVariant: ThemeVariant, isDark = false): Part
         activatedOpacity: 0.12,
       },
       primary: {
-        main: extractColorValue(colors?.primary as ColorVariant, isDark),
-        contrastText: extractContrastText(colors?.primary),
-        dark: colors?.primary?.dark || (colors?.primary as ColorVariant)?.main,
+        main: extractColorValue(colors?.primary as ColorVariant, isDark, '#1976d2'),
+        contrastText: extractContrastText(colors?.primary, '#ffffff'),
+        dark: colors?.primary?.dark || (colors?.primary as ColorVariant)?.main || '#1565c0',
       },
       secondary: {
-        main: extractColorValue(colors?.secondary as ColorVariant, isDark),
-        contrastText: extractContrastText(colors?.secondary),
-        dark: colors?.secondary?.dark || (colors?.secondary as ColorVariant)?.main,
+        main: extractColorValue(colors?.secondary as ColorVariant, isDark, '#dc004e'),
+        contrastText: extractContrastText(colors?.secondary, '#ffffff'),
+        dark: colors?.secondary?.dark || (colors?.secondary as ColorVariant)?.main || '#9a0036',
       },
       background: {
-        surface: extractColorValue(colors?.background?.surface as ColorVariant, isDark),
-        disabled: extractColorValue(colors?.background?.surface as ColorVariant, isDark),
+        surface: extractColorValue(colors?.background?.surface as ColorVariant, isDark, '#ffffff'),
+        disabled: extractColorValue(colors?.background?.surface as ColorVariant, isDark, '#f5f5f5'),
         dark:
-          (colors?.background?.surface as ColorVariant)?.dark || (colors?.background?.surface as ColorVariant)?.main,
+          (colors?.background?.surface as ColorVariant)?.dark || (colors?.background?.surface as ColorVariant)?.main || '#303030',
         body: {
-          main: extractColorValue(colors?.background?.body as ColorVariant, isDark),
-          dark: (colors?.background?.body as ColorVariant)?.dark || (colors?.background?.body as ColorVariant)?.main,
+          main: extractColorValue(colors?.background?.body as ColorVariant, isDark, '#fafafa'),
+          dark: (colors?.background?.body as ColorVariant)?.dark || (colors?.background?.body as ColorVariant)?.main || '#212121',
         },
       },
       text: {
-        primary: (colors?.text as TextColors)?.primary,
-        secondary: (colors?.text as TextColors)?.secondary,
-        dark: (colors?.text as TextColors)?.dark || (colors?.text as TextColors)?.primary,
+        primary: (colors?.text as TextColors)?.primary || '#000000',
+        secondary: (colors?.text as TextColors)?.secondary || '#666666',
+        dark: (colors?.text as TextColors)?.dark || (colors?.text as TextColors)?.primary || '#000000',
       },
-      border: colors?.outlined?.default,
+      border: colors?.outlined?.default || '#e0e0e0',
       error: {
-        main: extractColorValue(colors?.alerts?.error as ColorVariant, isDark),
-        contrastText: extractContrastText(colors?.alerts?.error),
-        dark: (colors?.alerts?.error as ColorVariant)?.dark || (colors?.alerts?.error as ColorVariant)?.main,
+        main: extractColorValue(colors?.alerts?.error as ColorVariant, isDark, '#d32f2f'),
+        contrastText: extractContrastText(colors?.alerts?.error, '#ffffff'),
+        dark: (colors?.alerts?.error as ColorVariant)?.dark || (colors?.alerts?.error as ColorVariant)?.main || '#c62828',
       },
       info: {
-        main: extractColorValue(colors?.alerts?.info as ColorVariant, isDark),
-        contrastText: extractContrastText(colors?.alerts?.info),
-        dark: (colors?.alerts?.info as ColorVariant)?.dark || (colors?.alerts?.info as ColorVariant)?.main,
+        main: extractColorValue(colors?.alerts?.info as ColorVariant, isDark, '#1976d2'),
+        contrastText: extractContrastText(colors?.alerts?.info, '#ffffff'),
+        dark: (colors?.alerts?.info as ColorVariant)?.dark || (colors?.alerts?.info as ColorVariant)?.main || '#1565c0',
       },
       success: {
-        main: extractColorValue(colors?.alerts?.neutral as ColorVariant, isDark),
-        contrastText: extractContrastText(colors?.alerts?.neutral),
-        dark: (colors?.alerts?.neutral as ColorVariant)?.dark || (colors?.alerts?.neutral as ColorVariant)?.main,
+        main: extractColorValue(colors?.alerts?.neutral as ColorVariant, isDark, '#2e7d32'),
+        contrastText: extractContrastText(colors?.alerts?.neutral, '#ffffff'),
+        dark: (colors?.alerts?.neutral as ColorVariant)?.dark || (colors?.alerts?.neutral as ColorVariant)?.main || '#1b5e20',
       },
       warning: {
-        main: extractColorValue(colors?.alerts?.warning as ColorVariant, isDark),
-        contrastText: extractContrastText(colors?.alerts?.warning),
-        dark: (colors?.alerts?.warning as ColorVariant)?.dark || (colors?.alerts?.warning as ColorVariant)?.main,
+        main: extractColorValue(colors?.alerts?.warning as ColorVariant, isDark, '#ed6c02'),
+        contrastText: extractContrastText(colors?.alerts?.warning, '#ffffff'),
+        dark: (colors?.alerts?.warning as ColorVariant)?.dark || (colors?.alerts?.warning as ColorVariant)?.main || '#e65100',
       },
     },
     images: {

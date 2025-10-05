@@ -59,14 +59,24 @@ const executeEmbeddedSignUpFlow = async ({
     );
   }
 
+  const baseHeaders = {
+    'Content-Type': 'application/json',
+    Accept: 'application/json',
+  };
+
+  let finalHeaders: HeadersInit;
+  if (requestConfig.headers instanceof Headers) {
+    finalHeaders = requestConfig.headers;
+  } else if (requestConfig.headers && typeof requestConfig.headers === 'object') {
+    finalHeaders = { ...baseHeaders, ...(requestConfig.headers as Record<string, string>) };
+  } else {
+    finalHeaders = baseHeaders;
+  }
+
   const response: Response = await fetch(url ?? `${baseUrl}/api/server/v1/flow/execute`, {
     ...requestConfig,
     method: requestConfig.method || 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Accept: 'application/json',
-      ...requestConfig.headers,
-    },
+    headers: finalHeaders,
     body: JSON.stringify({
       ...(payload ?? {}),
       flowType: EmbeddedFlowType.Registration,

@@ -62,11 +62,11 @@ const DefaultConfig: Partial<AuthClientConfig<unknown>> = {
  */
 export class AsgardeoAuthClient<T> {
   private _storageManager!: StorageManager<T>;
-  private _config: () => Promise<AuthClientConfig>;
-  private _oidcProviderMetaData: () => Promise<OIDCDiscoveryApiResponse>;
-  private _authenticationHelper: AuthenticationHelper<T>;
-  private _cryptoUtils: Crypto;
-  private _cryptoHelper: IsomorphicCrypto;
+  private _config!: () => Promise<AuthClientConfig>;
+  private _oidcProviderMetaData!: () => Promise<OIDCDiscoveryApiResponse>;
+  private _authenticationHelper!: AuthenticationHelper<T>;
+  private _cryptoUtils!: Crypto;
+  private _cryptoHelper!: IsomorphicCrypto;
 
   private static _instanceID: number;
 
@@ -241,7 +241,7 @@ export class AsgardeoAuthClient<T> {
         await this._storageManager.setTemporaryDataParameter(pkceKey, codeVerifier, userId);
       }
 
-      if (authRequestConfig['client_secret']) {
+      if (authRequestConfig['client_secret'] && configData.clientSecret) {
         authRequestConfig['client_secret'] = configData.clientSecret;
       }
 
@@ -250,10 +250,10 @@ export class AsgardeoAuthClient<T> {
           redirectUri: configData.afterSignInUrl,
           clientId: configData.clientId,
           scopes: processOpenIDScopes(configData.scopes),
-          responseMode: configData.responseMode,
+          ...(configData.responseMode && { responseMode: configData.responseMode }),
           codeChallengeMethod: PKCEConstants.DEFAULT_CODE_CHALLENGE_METHOD,
-          codeChallenge,
-          prompt: configData.prompt,
+          ...(codeChallenge && { codeChallenge }),
+          ...(configData.prompt && { prompt: configData.prompt }),
         },
         {key: pkceKey},
         authRequestConfig,
