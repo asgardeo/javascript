@@ -29,6 +29,12 @@ export interface AvatarProps {
   style?: StyleProp<ViewStyle>;
 }
 
+/**
+ * Avatar component to display user initials with a colored background.
+ *
+ * @param props - Props for the Avatar component.
+ * @returns Avatar component.
+ */
 const Avatar: FunctionComponent<AvatarProps> = ({
   name,
   style
@@ -68,6 +74,9 @@ const Avatar: FunctionComponent<AvatarProps> = ({
   )
 };
 
+/**
+ * Styles for the component.
+ */
 const styles = StyleSheet.create({
   iconWrapper: {
     width: 48,

@@ -16,30 +16,11 @@
  * under the License.
  */
 
-import UIConstants from "../constants/ui";
 import { AvatarColorPair, ThemeConfigs, ThemeMode } from "../models/ui";
 import rawConfig from "../../config/app.config.json";
 import { DeploymentConfig } from "../models/core";
 
 const config: DeploymentConfig = rawConfig as DeploymentConfig;
-
-/**
- * Get avatar colors based on the provided name.
- *
- * @param name Name for which to get avatar colors.
- * @returns AvatarColorPair containing background and text colors.
- */
-export const getAvatarColors = (name: string): AvatarColorPair => {
-  let hash: number = 0;
-
-  for (let i = 0; i < name.length; i++) {
-    hash = name.charCodeAt(i) + ((hash << 5) - hash);
-  }
-
-  const index: number = Math.abs(hash) % UIConstants.AVATAR_COLORS.length;
-
-  return UIConstants.AVATAR_COLORS[index];
-};
 
 /**
  * Generate initials from a given name.
@@ -111,3 +92,22 @@ export const getUsername = (username: string): string => {
 
   return username;
 }
+
+/**
+ * Get avatar colors based on the provided name.
+ *
+ * @param name Name for which to get avatar colors.
+ * @returns AvatarColorPair containing background and text colors.
+ */
+export const getAvatarColors = (name: string): AvatarColorPair => {
+  const avatarColors: AvatarColorPair[] = getThemeConfigs().colors.avatar;
+  let hash: number = 0;
+
+  for (let i = 0; i < name.length; i++) {
+    hash = name.charCodeAt(i) + ((hash << 5) - hash);
+  }
+
+  const index: number = Math.abs(hash) % avatarColors.length;
+
+  return avatarColors[index];
+};

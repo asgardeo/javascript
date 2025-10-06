@@ -22,12 +22,19 @@ import { FunctionComponent, ReactElement } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { AccountInterface } from "../../models/storage";
 import Avatar from "../common/avatar";
-import { authenticateAsync, LocalAuthenticationResult } from "expo-local-authentication";
 import { getThemeConfigs, getUsername } from "../../utils/ui-utils";
 import { ThemeConfigs } from "../../models/ui";
+import verifyLocalAuthentication from "../../utils/local-authentication";
+import AppPaths from "../../constants/paths";
 
 const theme: ThemeConfigs = getThemeConfigs();
 
+/**
+ * Account list item component.
+ *
+ * @param props - Props for the AccountListItem component.
+ * @returns AccountListItem component.
+ */
 const AccountListItem: FunctionComponent<AccountInterface> = ({
   id,
   displayName,
@@ -35,11 +42,14 @@ const AccountListItem: FunctionComponent<AccountInterface> = ({
 }: AccountInterface): ReactElement => {
   const router = useRouter();
 
+  /**
+   * Handle account press event.
+   */
   const handleAccountPress = () => {
-    authenticateAsync()
-      .then((status: LocalAuthenticationResult) => {
-        if (status.success) {
-          router.push(`/account?id=${id}`);
+    verifyLocalAuthentication()
+      .then((verified: boolean) => {
+        if (verified) {
+          router.push(`/${AppPaths.ACCOUNT}?id=${id}`);
         }
       });
   };
@@ -47,38 +57,38 @@ const AccountListItem: FunctionComponent<AccountInterface> = ({
   return (
     <TouchableOpacity
       style={[
-        localStyles.container
+        styles.container
       ]}
       onPress={handleAccountPress}
       activeOpacity={0.7}
     >
-      <Avatar name={getUsername(username) || displayName} style={localStyles.iconContainer} />
+      <Avatar name={getUsername(username) || displayName} style={styles.iconContainer} />
 
-      <View style={localStyles.contentContainer}>
+      <View style={styles.contentContainer}>
         <Text
           numberOfLines={1}
           ellipsizeMode="tail"
-          style={[localStyles.usernameText]}
+          style={[styles.usernameText]}
         >
           {getUsername(username)}
         </Text>
-        <View style={[localStyles.organizationContainer]}>
+        <View style={[styles.organizationContainer]}>
           <Octicons
-            style={[localStyles.organizationText]}
+            style={[styles.organizationText]}
             name="organization"
             size={14}
           />
           <Text
             numberOfLines={1}
             ellipsizeMode="tail"
-            style={[localStyles.organizationText]}
+            style={[styles.organizationText]}
           >
             {displayName}
           </Text>
         </View>
       </View>
 
-      <View style={localStyles.arrowContainer}>
+      <View style={styles.arrowContainer}>
         <Ionicons
           name="chevron-forward"
           size={26}
@@ -89,7 +99,10 @@ const AccountListItem: FunctionComponent<AccountInterface> = ({
   );
 };
 
-const localStyles = StyleSheet.create({
+/**
+ * Styles for the component.
+ */
+const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     alignItems: 'center',

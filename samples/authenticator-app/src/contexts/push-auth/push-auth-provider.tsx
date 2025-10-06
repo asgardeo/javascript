@@ -19,7 +19,7 @@
 import TypeConvert from "../../utils/typer-convert";
 import { Router, useRouter } from "expo-router";
 import { FunctionComponent, PropsWithChildren, ReactElement, useCallback, useEffect, useState } from "react";
-import Alert, { AlertType } from "../../components/Alert";
+import Alert, { AlertType } from "../../components/common/alert";
 import StorageConstants from "../../constants/storage";
 import {
   PushAuthenticationDataInterface,

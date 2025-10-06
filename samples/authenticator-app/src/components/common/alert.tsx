@@ -16,10 +16,13 @@
  * under the License.
  */
 
+import { ThemeConfigs } from "../../models/ui";
+import { getThemeConfigs } from "../../utils/ui-utils";
 import { MaterialIcons } from "@expo/vector-icons";
 import { FunctionComponent, ReactElement, useEffect } from "react";
 import { ActivityIndicator, Modal, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import useTheme from "../contexts/theme/useTheme";
+
+const theme: ThemeConfigs = getThemeConfigs();
 
 /**
  * Alert types for different notification states.
@@ -34,7 +37,7 @@ export enum AlertType {
 /**
  * Props for the Alert component.
  */
-interface AlertProps {
+export interface AlertProps {
   /**
    * Whether the alert is visible.
    */
@@ -80,9 +83,7 @@ interface AlertConfig {
   icon?: keyof typeof MaterialIcons.glyphMap;
   iconColor?: string;
   showLoader?: boolean;
-  background: {
-    backgroundColor: string;
-  };
+  background: string;
 }
 
 /**
@@ -102,8 +103,6 @@ const Alert: FunctionComponent<AlertProps> = ({
   onSecondaryPress,
   autoDismissTimeout,
 }: AlertProps): ReactElement => {
-  const { styles } = useTheme();
-
   /**
    * Get icon and color based on alert type.
    *
@@ -114,35 +113,39 @@ const Alert: FunctionComponent<AlertProps> = ({
       case AlertType.SUCCESS:
         return {
           icon: 'check-circle' as const,
-          iconColor: '#4CAF50',
-          background: styles.colors.backgroundNeutral,
+          iconColor: theme.colors.alert.success.text,
+          background: theme.colors.alert.success.background
         };
       case AlertType.ERROR:
         return {
           icon: 'error' as const,
-          iconColor: '#F44336',
-          background: styles.colors.backgroundError,
+          iconColor: theme.colors.alert.error.text,
+          background: theme.colors.alert.error.background
         };
       case AlertType.INFO:
         return {
           icon: 'info' as const,
-          iconColor: '#2196F3',
-          background: styles.colors.backgroundInfo,
+          iconColor: theme.colors.alert.info.text,
+          background: theme.colors.alert.info.background
         };
       case AlertType.LOADING:
         return {
           showLoader: true,
-          background: styles.colors.backgroundNeutral,
+          iconColor: theme.colors.alert.loading.text,
+          background: theme.colors.alert.loading.background
         };
       default:
         return {
           icon: 'info' as const,
-          iconColor: '#2196F3',
-          background: styles.colors.backgroundInfo,
+          iconColor: theme.colors.alert.info.text,
+          background: theme.colors.alert.info.background
         };
     }
   };
 
+  /**
+   * Alert configuration based on the type.
+   */
   const alertConfig: AlertConfig = getAlertConfig();
 
   /**
@@ -165,14 +168,14 @@ const Alert: FunctionComponent<AlertProps> = ({
       animationType="fade"
       statusBarTranslucent
     >
-      <View style={alertStyles.overlay}>
-        <View style={[alertStyles.container, alertConfig.background]}>
-          <View style={alertStyles.iconContainer}>
+      <View style={styles.overlay}>
+        <View style={[styles.container, { backgroundColor: alertConfig.background }]}>
+          <View style={styles.iconContainer}>
             {alertConfig.showLoader ? (
               <ActivityIndicator
                 size="large"
-                color={ styles.colors.backgroundPrimary.backgroundColor }
-                style={alertStyles.loader}
+                color={alertConfig.iconColor}
+                style={styles.loader}
               />
             ) : (
               <MaterialIcons
@@ -183,28 +186,28 @@ const Alert: FunctionComponent<AlertProps> = ({
             )}
           </View>
 
-          <Text style={[styles.typography.h3, alertStyles.title]}>
+          <Text style={[styles.title]}>
             {title}
           </Text>
 
-          <Text style={[styles.typography.body2, alertStyles.message]}>
+          <Text style={[styles.message]}>
             {message}
           </Text>
 
           {autoDismissTimeout && (
-            <Text style={[styles.typography.body3]}>
+            <Text style={[styles.redirectText]}>
               Redirecting...
             </Text>
           )}
 
           {(primaryButtonText || secondaryButtonText) && (
-            <View style={alertStyles.buttonContainer}>
+            <View style={styles.buttonContainer}>
               {secondaryButtonText && onSecondaryPress && (
                 <TouchableOpacity
-                  style={[styles.buttons.secondaryButton]}
+                  style={[styles.secondaryButton]}
                   onPress={onSecondaryPress}
                 >
-                  <Text style={styles.buttons.secondaryButtonText}>
+                  <Text style={[styles.secondaryButtonText]}>
                     {secondaryButtonText}
                   </Text>
                 </TouchableOpacity>
@@ -212,10 +215,10 @@ const Alert: FunctionComponent<AlertProps> = ({
 
               {primaryButtonText && onPrimaryPress && (
                 <TouchableOpacity
-                  style={[styles.buttons.primaryButton]}
+                  style={[styles.primaryButton]}
                   onPress={onPrimaryPress}
                 >
-                  <Text style={styles.buttons.primaryButtonText}>
+                  <Text style={[styles.primaryButtonText]}>
                     {primaryButtonText}
                   </Text>
                 </TouchableOpacity>
@@ -231,12 +234,12 @@ const Alert: FunctionComponent<AlertProps> = ({
 /**
  * Styles for the Alert component.
  */
-const alertStyles = StyleSheet.create({
+const styles = StyleSheet.create({
   overlay: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: theme.colors.screen.overlay
   },
   container: {
     margin: 20,
@@ -244,26 +247,59 @@ const alertStyles = StyleSheet.create({
     borderRadius: 16,
     alignItems: 'center',
     minWidth: 280,
-    maxWidth: 340,
+    maxWidth: 340
   },
   iconContainer: {
-    marginBottom: 16,
+    marginBottom: 16
   },
   loader: {
-    marginVertical: 8,
+    marginVertical: 8
   },
   title: {
-    textAlign: 'center',
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 8,
+    color: theme.colors.typography.primary,
+    textAlign: 'center'
   },
   message: {
     textAlign: 'center',
-    marginBottom: 24
+    marginBottom: 24,
+    color: theme.colors.typography.secondary,
+    fontSize: 16
+  },
+  redirectText: {
+    marginBottom: 16,
+    color: theme.colors.typography.primary,
+    fontSize: 14
   },
   buttonContainer: {
     display: 'flex',
     flexDirection: 'row',
-    justifyContent: 'center',
-    gap: 12
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    gap: 12,
+    marginBottom: 8
+  },
+  secondaryButton: {
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 8,
+    backgroundColor: theme.colors.button.secondary.background
+  },
+  secondaryButtonText: {
+    color: theme.colors.button.secondary.text,
+    fontSize: 16
+  },
+  primaryButton: {
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 8,
+    backgroundColor: theme.colors.button.primary.background
+  },
+  primaryButtonText: {
+    color: theme.colors.button.primary.text,
+    fontSize: 16
   }
 });
 

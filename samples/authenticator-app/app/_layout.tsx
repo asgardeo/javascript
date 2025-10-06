@@ -21,7 +21,7 @@ import PushAuthProvider from "../src/contexts/push-auth/push-auth-provider";
 import { Stack } from "expo-router";
 import { ReactElement, useEffect, useState } from "react";
 import HeaderSettings from "../src/components/home/header-settings";
-import HeaderTitle from "../src/components/home/header-title";
+import HeaderTitle from "../src/components/common/header-title";
 import ThemeProvider from "../src/contexts/theme/ThemeProvider";
 import { ThemeConfigs } from "../src/models/ui";
 import { getThemeConfigs } from "../src/utils/ui-utils";

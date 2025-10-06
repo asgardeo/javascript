@@ -26,7 +26,7 @@ import validateQRData from "../../../src/utils/validate-qr-data";
 import useTheme from "../../contexts/theme/useTheme";
 import { usePushAuthRegistration } from "../../hooks/use-push-auth-registration";
 import { QRDataType, QRDataValidationResponseInterface } from "../../models/core";
-import Alert, { AlertType } from "../Alert";
+import Alert, { AlertType } from "../common/alert";
 
 /**
  * QR Scanner Component.

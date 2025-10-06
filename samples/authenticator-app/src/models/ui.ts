@@ -53,6 +53,7 @@ export interface ThemeConfigs {
   colors: {
     screen: {
       background: string;
+      overlay: string;
     },
     header: {
       background: string;
@@ -61,6 +62,10 @@ export interface ThemeConfigs {
     },
     button: {
       primary: {
+        background: string;
+        text: string;
+      },
+      secondary: {
         background: string;
         text: string;
       }
@@ -72,7 +77,26 @@ export interface ThemeConfigs {
     card: {
       background: string;
       border: string;
-    }
+    },
+    alert: {
+      success: {
+        background: string,
+        text: string
+      },
+      error: {
+        background: string,
+        text: string
+      },
+      info: {
+        background: string,
+        text: string
+      },
+      loading: {
+        background: string,
+        text: string
+      }
+    },
+    avatar: AvatarColorPair[]
   }
 }
 

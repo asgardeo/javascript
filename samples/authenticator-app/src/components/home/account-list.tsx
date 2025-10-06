@@ -21,74 +21,61 @@ import { useFocusEffect } from "expo-router";
 import { ReactElement, useCallback, useMemo, useState } from "react";
 import { ActivityIndicator, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import { EdgeInsets, useSafeAreaInsets } from "react-native-safe-area-context";
-import StorageConstants from "../../constants/storage";
 import { AccountInterface } from "../../models/storage";
-import AsyncStorageService from "../../utils/async-storage-service";
 import AccountListItem from "./account-list-item";
 import { ThemeConfigs } from "../../models/ui";
 import { getThemeConfigs } from "../../utils/ui-utils";
+import useAccount from "../../contexts/account/use-account";
 
 const theme: ThemeConfigs = getThemeConfigs();
 
+/**
+ * Account list component.
+ *
+ * @returns Account list component.
+ */
 const AccountList = (): ReactElement => {
+  const { loading, accounts, fetchAccounts } = useAccount();
   const insets: EdgeInsets = useSafeAreaInsets();
-
-  const [loading, setLoading] = useState<boolean>(true);
-  const [accountList, setAccountList] = useState<AccountInterface[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>("");
 
   /**
-   * Fetch accounts from storage.
+   * Fetch accounts from storage when the screen is focused.
    */
   useFocusEffect(
     useCallback(() => {
-      setLoading(true);
-      AsyncStorageService.getItem(StorageConstants.ACCOUNTS_DATA)
-        .then((accounts: string | null) => {
-          if (accounts) {
-            const parsedAccounts: AccountInterface[] = JSON.parse(accounts);
-            setAccountList(parsedAccounts);
-          } else {
-            setAccountList([]);
-          }
-        })
-        .catch(() => {
-          setAccountList([]);
-        })
-        .finally(() => {
-          setLoading(false);
-        });
-    }, [])
+      fetchAccounts();
+    }, [fetchAccounts])
   );
 
   /**
    * Filter accounts based on search query.
    */
   const filteredAccountList: AccountInterface[] = useMemo(() => {
-    return accountList.filter((account: AccountInterface) =>
+    return accounts.filter((account: AccountInterface) =>
       account.username.toLowerCase().includes(searchQuery.toLowerCase()) ||
       account.displayName.toLowerCase().includes(searchQuery.toLowerCase()
       ));
-  }, [accountList, searchQuery]);
+  }, [accounts, searchQuery]);
 
   if (loading) {
     return (
-      <View style={[localStyles.loadingContainer]}>
+      <View style={[styles.loadingContainer]}>
         <ActivityIndicator
           size="large"
           color={theme.colors.typography.primary}
         />
-        <Text style={[localStyles.loadingText]}>
+        <Text style={[styles.loadingText]}>
           Loading accounts...
         </Text>
       </View>
     );
   }
 
-  if (accountList.length === 0) {
+  if (accounts.length === 0) {
     return (
-      <View style={[localStyles.emptyContainer]}>
-        <Text style={[localStyles.emptyText]}>
+      <View style={[styles.emptyContainer]}>
+        <Text style={[styles.emptyText]}>
           No accounts found. Add an account to get started.
         </Text>
       </View>
@@ -97,14 +84,14 @@ const AccountList = (): ReactElement => {
 
   return (
     <ScrollView style={[
-      localStyles.container,
+      styles.container,
       { marginBottom: insets.bottom }
     ]}>
-      <View style={[localStyles.listContainer]}>
-        <View style={[localStyles.searchBoxContainer]}>
-          <Ionicons style={localStyles.searchIcon} name="search" size={20} />
+      <View style={[styles.listContainer]}>
+        <View style={[styles.searchBoxContainer]}>
+          <Ionicons style={styles.searchIcon} name="search" size={20} />
           <TextInput
-            style={[localStyles.searchBox]}
+            style={[styles.searchBox]}
             placeholder="Search accounts..."
             returnKeyType="search"
             placeholderTextColor={theme.colors.typography.primary}
@@ -120,7 +107,10 @@ const AccountList = (): ReactElement => {
   );
 };
 
-const localStyles = StyleSheet.create({
+/**
+ * Styles for the component.
+ */
+const styles = StyleSheet.create({
   container: {
     alignSelf: 'stretch',
     backgroundColor: theme.colors.screen.background

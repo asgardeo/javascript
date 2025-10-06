@@ -24,19 +24,28 @@ import { Image, StyleSheet, Text, View } from "react-native";
 
 const theme: ThemeConfigs = getThemeConfigs();
 
+/**
+ * Header title component for the app.
+ *
+ * @param _props - Props for the header title component.
+ * @returns Header title component.
+ */
 const HeaderTitle = (_props: HeaderTitleProps): ReactElement => {
   return (
-    <View style={[homeStyles.appTitleContainer]}>
+    <View style={[styles.appTitleContainer]}>
       <Image
         source={require('../../../assets/images/logo.png')}
-        style={homeStyles.appLogo}
+        style={styles.appLogo}
       />
-      <Text style={[homeStyles.appName]}>Authenticator</Text>
+      <Text style={[styles.appName]}>Authenticator</Text>
     </View>
   );
 };
 
-const homeStyles = StyleSheet.create({
+/**
+ * Styles for the header title component.
+ */
+const styles = StyleSheet.create({
   appTitleContainer: {
     flexDirection: 'row',
     alignItems: 'center',

@@ -16,8 +16,10 @@
  * under the License.
  */
 
-import { FunctionComponent, PropsWithChildren, ReactElement } from "react";
+import { FunctionComponent, PropsWithChildren, ReactElement, useCallback, useState } from "react";
 import AsgardeoContext from "./asgardeo-context";
+import AccountProvider from "../account/account-provider";
+import Alert, { AlertProps, AlertType } from "../../components/common/alert";
 
 /**
  * Asgardeo provider props interface.
@@ -39,9 +41,58 @@ const AsgardeoProvider: FunctionComponent<PropsWithChildren<AsgardeoProviderProp
   isAppInitialized,
   children
 }: PropsWithChildren<AsgardeoProviderPropsInterface>): ReactElement => {
+  const [alertConfig, setAlertConfig] = useState<AlertProps>({
+    visible: false,
+    type: AlertType.INFO,
+    title: "",
+    message: ""
+  });
+
+  /**
+   * Show alert with the given configuration.
+   *
+   * @param config - Alert configuration.
+   */
+  const showAlert = useCallback((config: Omit<AlertProps, 'visible'>): void => {
+    setAlertConfig({
+      ...config,
+      visible: true
+    });
+  }, []);
+
+
+  /**
+   * Hide the alert.
+   */
+  const hideAlert = useCallback((): void => {
+    setAlertConfig({
+      visible: false,
+      type: AlertType.INFO,
+      title: "",
+      message: ""
+    });
+  }, []);
+
   return (
-    <AsgardeoContext.Provider value={{ isAppInitialized }}>
-      {children}
+    <AsgardeoContext.Provider value={{
+      isAppInitialized,
+      showAlert,
+      hideAlert
+    }}>
+      <AccountProvider>
+        {children}
+      </AccountProvider>
+      <Alert
+        visible={alertConfig.visible}
+        type={alertConfig.type}
+        title={alertConfig.title}
+        message={alertConfig.message}
+        primaryButtonText={alertConfig.primaryButtonText}
+        secondaryButtonText={alertConfig.secondaryButtonText}
+        onPrimaryPress={alertConfig.onPrimaryPress}
+        onSecondaryPress={alertConfig.onSecondaryPress}
+        autoDismissTimeout={alertConfig.autoDismissTimeout}
+      />
     </AsgardeoContext.Provider>
   )
 }

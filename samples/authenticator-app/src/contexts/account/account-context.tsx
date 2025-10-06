@@ -16,38 +16,41 @@
  * under the License.
  */
 
-import { AlertProps } from "../../components/common/alert";
 import { Context, createContext } from "react";
+import { AccountInterface } from "../../models/storage";
 
 /**
- * Asgardeo Context Interface.
+ * Account context interface.
  */
-export interface AsgardeoContextInterface {
+export interface AccountContextInterface {
   /**
-   * Indicates whether the app is initialized or not.
+   * List of registered accounts.
    */
-  isAppInitialized: boolean;
+  accounts: AccountInterface[];
   /**
-   * Function to show alert with the given configuration.
+   * Function to fetch accounts from storage.
    *
-   * @param config - Alert configuration.
+   * @returns A promise that resolves when accounts are fetched from storage.
    */
-  showAlert: (config: Omit<AlertProps, 'visible'>) => void;
+  fetchAccounts: () => Promise<void>;
   /**
-   * Function to hide the alert.
-   *
-   * @returns Function to hide the alert.
+   * Loading state.
    */
-  hideAlert: () => void;
+  loading: boolean;
+  /**
+   * Flag to indicate if accounts have been fetched at least once.
+   */
+  isAccountFetched: boolean;
 }
 
 /**
- * Asgardeo Context.
+ * Account context.
  */
-const AsgardeoContext: Context<AsgardeoContextInterface> = createContext<AsgardeoContextInterface>({
-  isAppInitialized: false,
-  showAlert: () => { },
-  hideAlert: () => { }
+const AccountContext: Context<AccountContextInterface> = createContext<AccountContextInterface>({
+  accounts: [],
+  fetchAccounts: async () => { },
+  loading: false,
+  isAccountFetched: false
 })
 
-export default AsgardeoContext;
+export default AccountContext;
