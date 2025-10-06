@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import TypeConvert from "@/src/utils/typer-convert";
+import TypeConvert from "../../utils/typer-convert";
 import { Router, useRouter } from "expo-router";
 import { FunctionComponent, PropsWithChildren, ReactElement, useCallback, useEffect, useState } from "react";
 import Alert, { AlertType } from "../../components/Alert";

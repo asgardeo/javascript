@@ -48,9 +48,9 @@ export interface PushAuthContextInterface {
  * Context to manage push authentication state and messages.
  */
 const PushAuthContext: Context<PushAuthContextInterface> = createContext<PushAuthContextInterface>({
-  addPushAuthMessageToCache: () => {},
+  addPushAuthMessageToCache: () => { },
   getPushAuthMessageFromCache: () => undefined,
-  sentPushAuthResponse: async () => {}
+  sentPushAuthResponse: async () => { }
 });
 
 export default PushAuthContext;
