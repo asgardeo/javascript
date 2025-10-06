@@ -1,4 +1,8 @@
 {
+  "security": {
+    "enableAppScreenLocks": true,
+    "enableSettingsScreenLock": true
+  },
   "feature": {
     "push": {
       "numberOfHistoryRecords": 5

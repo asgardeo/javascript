@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import { AccountInterface, PushAuthenticationDataStorageInterface, StorageDataInterface } from "../models/storage";
+import { AccountInterface, PushAuthenticationDataStorageInterface, StorageDataInterface, UserPreferenceInterface } from "../models/storage";
 
 /**
  * Class containing type conversion utility methods.
@@ -105,6 +105,35 @@ class TypeConvert {
   static toPushAuthenticationDataStorageInterface(data: unknown): PushAuthenticationDataStorageInterface {
     if (!this.isPushAuthenticationDataStorageInterfaceType(data)) {
       throw new Error("Invalid push authentication data");
+    }
+
+    return data;
+  }
+
+  /**
+   * Checks if the given data is of type UserPreferenceInterface.
+   *
+   * @param data - Data to be checked.
+   * @returns True if the data is of type UserPreferenceInterface, false otherwise.
+   */
+  static isUserPreferenceInterfaceType(data: unknown): data is UserPreferenceInterface {
+    if (typeof data !== "object" || data === null || Array.isArray(data)) {
+      return false;
+    }
+
+    return true;
+  }
+
+  /**
+   * Converts the given data to a UserPreferenceInterface.
+   *
+   * @param data - Data to be converted to UserPreferenceInterface.
+   * @returns The converted UserPreferenceInterface.
+   * @throws Error if the data is not a valid UserPreferenceInterface.
+   */
+  static toUserPreferenceInterface(data: unknown): UserPreferenceInterface {
+    if (!this.isUserPreferenceInterfaceType(data)) {
+      throw new Error("Invalid user preference data");
     }
 
     return data;

@@ -16,6 +16,7 @@
  * under the License.
  */
 
+import AppPaths from "../src/constants/paths";
 import { Redirect } from "expo-router";
 import { ReactElement } from "react";
 
@@ -23,7 +24,7 @@ import { ReactElement } from "react";
  * Index route that redirects to the home screen.
  */
 const Index = (): ReactElement => {
-  return <Redirect href="/home" />;
+  return <Redirect href={`/${AppPaths.HOME}`} />;
 };
 
 export default Index;

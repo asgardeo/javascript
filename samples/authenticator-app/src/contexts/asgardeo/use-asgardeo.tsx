@@ -16,4 +16,22 @@
  * under the License.
  */
 
+import { useContext } from "react";
+import AsgardeoContext, { AsgardeoContextInterface } from "./asgardeo-context";
 
+/**
+ * Custom hook to access the Asgardeo context.
+ *
+ * @returns Asgardeo context value.
+ */
+const useAsgardeo = (): AsgardeoContextInterface => {
+  const context = useContext(AsgardeoContext);
+
+  if (context === undefined) {
+    throw new Error("useAsgardeo must be used within an AsgardeoProvider");
+  }
+
+  return context;
+}
+
+export default useAsgardeo;

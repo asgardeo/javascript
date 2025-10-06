@@ -16,4 +16,34 @@
  * under the License.
  */
 
+import { FunctionComponent, PropsWithChildren, ReactElement } from "react";
+import AsgardeoContext from "./asgardeo-context";
 
+/**
+ * Asgardeo provider props interface.
+ */
+export interface AsgardeoProviderPropsInterface {
+  /**
+   * Flag to indicate whether the app is initialized or not.
+   */
+  isAppInitialized: boolean;
+}
+
+/**
+ * Asgardeo provider component.
+ *
+ * @param props - Props containing the children components and provider input props.
+ * @returns - Asgardeo provider wrapping the children components.
+ */
+const AsgardeoProvider: FunctionComponent<PropsWithChildren<AsgardeoProviderPropsInterface>> = ({
+  isAppInitialized,
+  children
+}: PropsWithChildren<AsgardeoProviderPropsInterface>): ReactElement => {
+  return (
+    <AsgardeoContext.Provider value={{ isAppInitialized }}>
+      {children}
+    </AsgardeoContext.Provider>
+  )
+}
+
+export default AsgardeoProvider;

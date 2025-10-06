@@ -56,3 +56,13 @@ export type PushAuthenticationDataStorageInterface = Pick<PushAuthenticationData
      */
     respondedTime: number;
   };
+
+/**
+ * Interface representing user preferences.
+ */
+export interface UserPreferenceInterface {
+  /**
+   * Indicates whether local authentication is enabled.
+   */
+  enableAppScreenLocks?: boolean;
+}

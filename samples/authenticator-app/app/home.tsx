@@ -19,45 +19,46 @@
 import AccountList from "../src/components/home/account-list";
 import { MaterialIcons } from "@expo/vector-icons";
 import { Router, useRouter } from "expo-router";
-import { FunctionComponent, ReactElement, use, useEffect } from "react";
+import { FunctionComponent, ReactElement } from "react";
 import { StyleSheet, TouchableOpacity, View } from "react-native";
-import useTheme from "../src/contexts/theme/useTheme";
-import AsyncStorageService from "@/src/utils/async-storage-service";
-import StorageConstants from "@/src/constants/storage";
-import { authenticateAsync, LocalAuthenticationResult } from "expo-local-authentication";
 import { ThemeConfigs } from "../src/models/ui";
 import { getThemeConfigs } from "../src/utils/ui-utils";
+import verifyLocalAuthentication from "../src/utils/local-authentication";
+import AppPaths from "../src/constants/paths";
 
 const theme: ThemeConfigs = getThemeConfigs();
 
+/**
+ * Home screen component.
+ *
+ * @returns Home screen component.
+ */
 const Home: FunctionComponent = (): ReactElement => {
-  const { styles } = useTheme();
   const router: Router = useRouter();
 
+  /**
+   * Handles the add button press event.
+   */
   const handleAddPress = () => {
-    authenticateAsync()
-      .then((status: LocalAuthenticationResult) => {
-        if (status.success) {
-          router.push("/qr-scanner");
+    verifyLocalAuthentication()
+      .then((verified: boolean) => {
+        if (verified) {
+          router.push(`/${AppPaths.QR_SCANNER}`);
         }
       });
   };
 
-  // useEffect(() => {
-  //   AsyncStorageService.removeItem(StorageConstants.ACCOUNTS_DATA);
-  // }, []);
-
   return (
-    <View style={[homeStyles.container]}>
+    <View style={[styles.container]}>
       <AccountList />
       <TouchableOpacity
-        style={[homeStyles.floatingAddButton]}
+        style={[styles.floatingAddButton]}
         onPress={handleAddPress}
       >
         <MaterialIcons
           name="add"
           size={30}
-          color={styles.buttons.primaryButtonText.color}
+          color={theme.colors.button.primary.text}
         />
       </TouchableOpacity>
     </View>
@@ -67,7 +68,7 @@ const Home: FunctionComponent = (): ReactElement => {
 /**
  * Styles for the home component.
  */
-const homeStyles = StyleSheet.create({
+const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: "center",
@@ -87,13 +88,7 @@ const homeStyles = StyleSheet.create({
     height: 'auto',
     paddingVertical: 12,
     paddingHorizontal: 12
-  },
-  backButton: {
-    position: 'absolute',
-    top: 50,
-    left: 20,
-    zIndex: 1000,
-  },
+  }
 });
 
 export default Home;

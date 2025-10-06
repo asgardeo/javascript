@@ -16,25 +16,39 @@
  * under the License.
  */
 
-import rawConfig from "../../config/app.config.json";
-import { DeploymentConfig, FeatureConfig, SecurityConfig } from "../models/core";
-
-const config: DeploymentConfig = rawConfig as DeploymentConfig;
-
 /**
- * Get Feature configuration.
- *
- * @returns Feature configuration.
+ * Class containing application path constants.
  */
-export const getFeatureConfig = (): FeatureConfig => {
-  return config.feature;
-};
+class AppPaths {
+  /**
+   * Path to the root screen.
+   */
+  static readonly ROOT = 'index';
 
-/**
- * Get Security configuration.
- *
- * @returns Security configuration.
- */
-export const getSecurityConfig = (): SecurityConfig => {
-  return config.security;
-};
+  /**
+   * Path to the home screen.
+   */
+  static readonly HOME = 'home';
+
+  /**
+   * Path to the account screen.
+   */
+  static readonly ACCOUNT = 'account';
+
+  /**
+   * Path to the QR scanner screen.
+   */
+  static readonly QR_SCANNER = 'qr-scanner';
+
+  /**
+   * Path to the push authentication screen.
+   */
+  static readonly PUSH_AUTH = 'push-auth';
+
+  /**
+   * Path to the push authentication history screen.
+   */
+  static readonly PUSH_AUTH_HISTORY = 'push-auth-history';
+}
+
+export default AppPaths;

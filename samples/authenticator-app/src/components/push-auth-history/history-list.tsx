@@ -38,7 +38,7 @@ export interface PushAuthHistoryListProps {
   /**
    * Style for the container.
    */
-  style: ViewStyle;
+  style?: ViewStyle;
 }
 
 /**

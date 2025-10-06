@@ -16,4 +16,23 @@
  * under the License.
  */
 
+import { Context, createContext } from "react";
 
+/**
+ * Asgardeo Context Interface.
+ */
+export interface AsgardeoContextInterface {
+  /**
+   * Indicates whether the app is initialized or not.
+   */
+  isAppInitialized: boolean;
+}
+
+/**
+ * Asgardeo Context.
+ */
+const AsgardeoContext: Context<AsgardeoContextInterface> = createContext<AsgardeoContextInterface>({
+  isAppInitialized: false
+})
+
+export default AsgardeoContext;

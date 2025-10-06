@@ -25,7 +25,6 @@ import QRScanner from "../src/components/qr/qr-scanner";
  * @returns QR Scanner Screen.
  */
 const QRScannerScreen: FunctionComponent = (): ReactElement => {
-
   return (
     <QRScanner />
   );

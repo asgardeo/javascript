@@ -16,13 +16,17 @@
  * under the License.
  */
 
-import usePushAuth from "@/src/contexts/push-auth/use-push-auth";
-import { PushAuthenticationDataInterface } from "@/src/models/push-notification";
+import usePushAuth from "../src/contexts/push-auth/use-push-auth";
+import { PushAuthenticationDataInterface } from "../src/models/push-notification";
 import { Router, useLocalSearchParams, useRouter } from "expo-router";
 import { FunctionComponent, ReactElement, useEffect, useMemo } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
 import AppNotification from "../src/components/push-auth/app-notification";
 import { EdgeInsets, useSafeAreaInsets } from "react-native-safe-area-context";
+import { getThemeConfigs } from "../src/utils/ui-utils";
+import { ThemeConfigs } from "../src/models/ui";
+
+const theme: ThemeConfigs = getThemeConfigs();
 
 /**
  * Push Authentication Screen
@@ -35,10 +39,16 @@ const PushAuthScreen: FunctionComponent = (): ReactElement | null => {
   const { getPushAuthMessageFromCache } = usePushAuth();
   const insets: EdgeInsets = useSafeAreaInsets();
 
+  /**
+   * Push authentication data retrieved from the cache.
+   */
   const data: PushAuthenticationDataInterface | undefined = useMemo(() => {
     return getPushAuthMessageFromCache(id);
   }, [id, getPushAuthMessageFromCache]);
 
+  /**
+   * If there is no data, navigate back to the previous screen.
+   */
   useEffect(() => {
     if (!data) {
       router.back();
@@ -62,10 +72,13 @@ const PushAuthScreen: FunctionComponent = (): ReactElement | null => {
   );
 }
 
+/**
+ * Styles for the push authentication screen.
+ */
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fbfbfb'
+    backgroundColor: theme.colors.screen.background
   },
   scrollContainer: {
     flex: 1

@@ -36,6 +36,11 @@ class StorageConstants {
   static readonly ACCOUNTS_DATA = 'accounts_data';
 
   /**
+   * Key for storing user preferences.
+   */
+  static readonly USER_PREFERENCE = 'user_preference';
+
+  /**
    * Replaces the account ID placeholder in a storage key.
    *
    * @param key The storage key with the account ID placeholder.

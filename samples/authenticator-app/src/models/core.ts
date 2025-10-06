@@ -43,7 +43,17 @@ export enum QRDataType {
  * Interface representing the deployment configuration.
  */
 export interface DeploymentConfig {
+  /**
+   * Security configuration.
+   */
+  security: SecurityConfig;
+  /**
+   * Feature configuration.
+   */
   feature: FeatureConfig;
+  /**
+   * UI configuration.
+   */
   ui: UIConfig;
 }
 
@@ -51,7 +61,24 @@ export interface DeploymentConfig {
  * Feature configuration.
  */
 export interface FeatureConfig {
+  /**
+   * Push notification related configurations.
+   */
   push: {
-    numberOfHistoryRecords: 5
+    /**
+     * Number of push authentication history records to retain.
+     */
+    numberOfHistoryRecords: number;
   }
+}
+
+export interface SecurityConfig {
+  /**
+   * Enable or disable app screen locks.
+   */
+  enableAppScreenLocks: boolean;
+  /**
+   * Enable or disable settings screen lock.
+   */
+  enableSettingsScreenLock: boolean;
 }
