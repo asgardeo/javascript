@@ -49,6 +49,21 @@ class AppPaths {
    * Path to the push authentication history screen.
    */
   static readonly PUSH_AUTH_HISTORY = 'push-auth-history';
+
+  /**
+   * Path to the push authentication registration API endpoint.
+   */
+  static readonly PUSH_AUTH_REGISTRATION_SERVER: string = '/api/users/v1/me/push/devices';
+
+  /**
+   * Organization path segment.
+   */
+  static readonly ORGANIZATION_PATH: string = '/o/';
+
+  /**
+   * Tenant path segment.
+   */
+  static readonly TENANT_PATH: string = '/t/';
 }
 
 export default AppPaths;

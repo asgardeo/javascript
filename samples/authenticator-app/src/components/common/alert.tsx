@@ -32,6 +32,7 @@ export enum AlertType {
   ERROR = 'error',
   INFO = 'info',
   LOADING = 'loading',
+  WARNING = 'warning'
 };
 
 /**
@@ -127,6 +128,12 @@ const Alert: FunctionComponent<AlertProps> = ({
           icon: 'info' as const,
           iconColor: theme.colors.alert.info.text,
           background: theme.colors.alert.info.background
+        };
+      case AlertType.WARNING:
+        return {
+          icon: 'warning' as const,
+          iconColor: theme.colors.alert.warning.text,
+          background: theme.colors.alert.warning.background
         };
       case AlertType.LOADING:
         return {
@@ -239,7 +246,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: theme.colors.screen.overlay
+    backgroundColor: theme.colors.overlay.background
   },
   container: {
     margin: 20,

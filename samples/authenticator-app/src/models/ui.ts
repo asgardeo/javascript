@@ -53,7 +53,10 @@ export interface ThemeConfigs {
   colors: {
     screen: {
       background: string;
-      overlay: string;
+    },
+    overlay: {
+      background: string;
+      text: string;
     },
     header: {
       background: string;
@@ -88,6 +91,10 @@ export interface ThemeConfigs {
         text: string
       },
       info: {
+        background: string,
+        text: string
+      },
+      warning: {
         background: string,
         text: string
       },

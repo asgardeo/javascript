@@ -16,58 +16,57 @@
  * under the License.
  */
 
-import { useTOTPRegistration } from "@/src/hooks/use-totp-registartion";
 import { MaterialIcons } from "@expo/vector-icons";
 import { BarcodeScanningResult, CameraView, useCameraPermissions } from "expo-camera";
 import { router } from "expo-router";
-import { FunctionComponent, ReactElement, RefObject, useCallback, useRef, useState } from "react";
+import { FunctionComponent, ReactElement, RefObject, useCallback, useEffect, useRef } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import validateQRData from "../../../src/utils/validate-qr-data";
-import useTheme from "../../contexts/theme/useTheme";
-import { usePushAuthRegistration } from "../../hooks/use-push-auth-registration";
 import { QRDataType, QRDataValidationResponseInterface } from "../../models/core";
-import Alert, { AlertType } from "../common/alert";
+import { AlertType } from "../common/alert";
+import useTOTP from "../../contexts/totp/use-totp";
+import useAsgardeo from "../../contexts/asgardeo/use-asgardeo";
+import AppPaths from "../../constants/paths";
+import { ThemeConfigs } from "../../models/ui";
+import { getThemeConfigs } from "../../utils/ui-utils";
+import usePushAuth from "../../contexts/push-auth/use-push-auth";
+
+const theme: ThemeConfigs = getThemeConfigs();
 
 /**
  * QR Scanner Component.
  *
- * @param param0 - Props for the QRScanner component.
+ * @param props - Props for the QRScanner component.
  * @returns QR Scanner Component.
  */
 const QRScanner: FunctionComponent = (): ReactElement => {
-  const { styles } = useTheme();
+  const { registerTOTP } = useTOTP();
+  const { showAlert, hideAlert } = useAsgardeo();
   const [permission, requestPermission] = useCameraPermissions();
-  const { registerPushDevice } = usePushAuthRegistration();
-  const { registerTOTP } = useTOTPRegistration();
+  const { registerPushDevice } = usePushAuth();
   const scanned: RefObject<boolean> = useRef<boolean>(false);
-  const [alertVisible, setAlertVisible] = useState(false);
-  const [alertType, setAlertType] = useState<AlertType>(AlertType.SUCCESS);
-  const [alertTitle, setAlertTitle] = useState('');
-  const [alertMessage, setAlertMessage] = useState('');
-
-  const showAlert = (type: AlertType, title: string, message: string) => {
-    setAlertType(type);
-    setAlertTitle(title);
-    setAlertMessage(message);
-    setAlertVisible(true);
-  };
 
   /**
-   * Handle the primary button press in the alert.
+   * Handle the account page redirection.
+   *
+   * @param accountId - The account ID to redirect to.
    */
-  const handleAlertPrimaryAction = useCallback(() => {
-    setAlertVisible(false);
-    if (alertType === AlertType.SUCCESS) {
+  const redirectToAccountPage = useCallback((accountId: string) => {
+    if (!accountId) {
       router.back();
-    } else if (alertType === AlertType.ERROR) {
-      scanned.current = false;
+      return;
     }
-  }, [alertType]);
+
+    router.replace({
+      pathname: `/${AppPaths.ACCOUNT}`,
+      params: { id: accountId }
+    });
+  }, []);
 
   /**
    * Handle the barcode scanned event.
    *
-   * @param param0 - The scanned barcode data.
+   * @param params - The scanned barcode data.
    */
   const handleBarCodeScanned = async ({ data }: BarcodeScanningResult) => {
     if (scanned.current) return;
@@ -78,75 +77,131 @@ const QRScanner: FunctionComponent = (): ReactElement => {
       scanned.current = true;
 
       if (qrData.type === QRDataType.TOTP) {
-        showAlert(AlertType.LOADING, 'Registering TOTP...', 'Please wait while we register your TOTP account.');
+        showAlert({
+          type: AlertType.LOADING,
+          title: 'Registering TOTP...',
+          message: 'Please wait while we register your TOTP account.'
+        });
+
         try {
           const accountId: string = await registerTOTP(qrData.totpData!);
-          showAlert(AlertType.SUCCESS, 'QR Code Scanned Successfully!', 'TOTP registration completed successfully.');
-          if (accountId) {
-            router.replace({
-              pathname: '/account',
-              params: { id: accountId }
-            });
-          }
+
+          showAlert({
+            type: AlertType.SUCCESS,
+            title: 'QR Code Scanned Successfully!',
+            message: 'TOTP registration completed successfully.',
+            autoDismissTimeout: 3000,
+            onPrimaryPress: () => {
+              hideAlert();
+              redirectToAccountPage(accountId);
+            }
+          });
         } catch {
-          showAlert(AlertType.ERROR, 'Registration Failed', 'Failed to register the TOTP account. Please try again.');
+          showAlert({
+            type: AlertType.ERROR,
+            title: 'Registration Failed',
+            message: 'Failed to register the TOTP account. Please try again.',
+            primaryButtonText: 'Scan Again',
+            secondaryButtonText: 'Go Back',
+            onPrimaryPress: () => {
+              hideAlert();
+              scanned.current = false;
+            },
+            onSecondaryPress: () => {
+              hideAlert();
+              router.back();
+            }
+          });
         }
       } else if (qrData.type === QRDataType.PUSH_NOTIFICATION) {
-        showAlert(AlertType.LOADING, 'Registering Device...', 'Please wait while we register your device for push notifications.');
+        showAlert({
+          type: AlertType.LOADING,
+          title: 'Registering Device...',
+          message: 'Please wait while we register your device for push notifications.'
+        });
         try {
           const accountId: string = await registerPushDevice(qrData.pushNotificationData!);
-          showAlert(AlertType.SUCCESS, 'QR Code Scanned Successfully!', 'Push notification device registration completed successfully.');
-          if (accountId) {
-            router.replace({
-              pathname: '/account',
-              params: { id: accountId }
-            });
-          }
+
+          showAlert({
+            type: AlertType.SUCCESS,
+            title: 'QR Code Scanned Successfully!',
+            message: 'Push notification device registration completed successfully.',
+            autoDismissTimeout: 3000,
+            onPrimaryPress: () => {
+              hideAlert();
+              redirectToAccountPage(accountId);
+            }
+          });
         } catch {
-          showAlert(AlertType.ERROR, 'Registration Failed', 'Failed to register the push notification device. Please try again.');
+          showAlert({
+            type: AlertType.ERROR,
+            title: 'Registration Failed',
+            message: 'Failed to register the push notification device. Please try again.',
+            primaryButtonText: 'Scan Again',
+            secondaryButtonText: 'Go Back',
+            onPrimaryPress: () => {
+              hideAlert();
+              scanned.current = false;
+            },
+            onSecondaryPress: () => {
+              hideAlert();
+              router.back();
+            }
+          });
         }
       }
     } else {
-      showAlert(AlertType.ERROR, 'Invalid QR Code', 'The QR code you scanned is not valid. Please try scanning a valid QR code.');
+      showAlert({
+        type: AlertType.ERROR,
+        title: 'Invalid QR Code',
+        message: 'The QR code you scanned is not valid. Please try scanning a valid QR code.',
+        primaryButtonText: 'Scan Again',
+        secondaryButtonText: 'Go Back',
+        onPrimaryPress: () => {
+          hideAlert();
+          scanned.current = false;
+        },
+        onSecondaryPress: () => {
+          hideAlert();
+          router.back();
+        }
+      });
     }
   };
 
   /**
-   * Handle the go back action.
+   * Handle camera permission request.
    */
-  const handleGoBack = useCallback(() => {
-    router.back();
-  }, []);
+  useEffect(() => {
+    if (!permission) {
+      return;
+    }
 
-  if (!permission) {
-    return (
-      <View style={[qrScannerStyles.container, styles.colors.backgroundBody]}>
-        <Text style={styles.typography.body1}>Loading camera permissions...</Text>
-      </View>
-    );
-  }
+    if (!permission?.granted) {
+      showAlert({
+        type: AlertType.WARNING,
+        title: "Camera Permission Required",
+        message: "Camera access is required to scan QR codes. Please grant camera permission.",
+        primaryButtonText: "Grant Permission",
+        secondaryButtonText: "Go Back",
+        onPrimaryPress: () => {
+          hideAlert();
+          requestPermission();
+        },
+        onSecondaryPress: () => {
+          hideAlert();
+          router.back();
+        }
+      })
+    }
+  }, [permission, requestPermission, showAlert, hideAlert]);
 
-  if (!permission.granted) {
+  if (!permission || !permission.granted) {
     return (
-      <View style={[qrScannerStyles.container, styles.colors.backgroundBody]}>
-        <Text style={[styles.typography.h3, qrScannerStyles.permissionText]}>
-          Camera permission required
+      <View style={styles.loadingContainer}>
+        <Text style={styles.loadingText}>
+          Loading camera...
         </Text>
-        <Text style={[styles.typography.body1, qrScannerStyles.permissionText]}>
-          We need camera access to scan QR codes
-        </Text>
-        <TouchableOpacity
-          style={[styles.buttons.primaryButton, qrScannerStyles.permissionButton]}
-          onPress={requestPermission}
-        >
-          <Text style={styles.buttons.primaryButtonText}>Grant Permission</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.buttons.secondaryButton, qrScannerStyles.permissionButton]}
-          onPress={handleGoBack}
-        >
-          <Text style={styles.buttons.secondaryButtonText}>Go Back</Text>
-        </TouchableOpacity>
       </View>
     );
   }
@@ -154,37 +209,25 @@ const QRScanner: FunctionComponent = (): ReactElement => {
   return (
     <>
       <CameraView
-        style={qrScannerStyles.camera}
+        style={styles.camera}
         onBarcodeScanned={handleBarCodeScanned}
         barcodeScannerSettings={{
           barcodeTypes: ["qr"],
         }}
       />
-      <View style={qrScannerStyles.overlay}>
-        <View style={qrScannerStyles.scanFrame} />
-        <Text style={qrScannerStyles.instructionText}>
+      <View style={styles.overlay}>
+        <View style={styles.scanFrame} />
+        <Text style={styles.instructionText}>
           Point your camera at a QR code
         </Text>
 
         <TouchableOpacity
-          style={qrScannerStyles.backButton}
-          onPress={handleGoBack}
+          style={styles.backButton}
+          onPress={() => router.back()}
         >
-          <MaterialIcons name="arrow-back" size={24} color="white" />
+          <MaterialIcons name="arrow-back" size={24} color={theme.colors.overlay.text} />
         </TouchableOpacity>
       </View>
-
-      <Alert
-        visible={alertVisible}
-        type={alertType}
-        title={alertTitle}
-        message={alertMessage}
-        primaryButtonText={alertType === AlertType.ERROR ? "Scan Again" : undefined}
-        secondaryButtonText={alertType === AlertType.ERROR ? "Go Back" : undefined}
-        onPrimaryPress={handleAlertPrimaryAction}
-        onSecondaryPress={alertType === AlertType.ERROR ? handleGoBack : undefined}
-        autoDismissTimeout={alertType === AlertType.SUCCESS ? 2000 : undefined}
-      />
     </>
   );
 };
@@ -192,13 +235,16 @@ const QRScanner: FunctionComponent = (): ReactElement => {
 /**
  * Styles for the QR scanner component.
  */
-const qrScannerStyles = StyleSheet.create({
-  container: {
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
+const styles = StyleSheet.create({
+  loadingContainer: {
     flex: 1,
-    backgroundColor: "transparent"
+    backgroundColor: theme.colors.screen.background,
+    justifyContent: "center",
+    alignItems: "center"
+  },
+  loadingText: {
+    color: theme.colors.typography.primary,
+    fontSize: 18
   },
   camera: {
     flex: 1,
@@ -211,43 +257,33 @@ const qrScannerStyles = StyleSheet.create({
     bottom: 0,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "transparent"
+    backgroundColor: theme.colors.overlay.background
   },
   scanFrame: {
     width: 250,
     height: 250,
     borderWidth: 2,
-    borderColor: "white",
+    borderColor: theme.colors.overlay.text,
     borderRadius: 20,
     backgroundColor: "transparent",
   },
   instructionText: {
-    color: "white",
+    color: theme.colors.overlay.text,
     fontSize: 16,
     marginTop: 20,
     textAlign: "center",
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
     padding: 10,
     borderRadius: 5,
+    backgroundColor: theme.colors.overlay.background
   },
   backButton: {
     position: "absolute",
     top: 50,
     left: 20,
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
     borderRadius: 20,
-    padding: 10
-  },
-  permissionText: {
-    alignSelf: "center",
-    textAlign: "center",
-    marginBottom: 20
-  },
-  permissionButton: {
-    marginBottom: 10,
-    width: "80%",
-    alignSelf: "center",
-  },
+    padding: 10,
+    backgroundColor: theme.colors.overlay.background
+  }
 });
 
 export default QRScanner;

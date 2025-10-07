@@ -1,4 +1,8 @@
 {
+  "devMode": {
+    "enabled": true,
+    "host": "http://10.10.16.152:8082"
+  },
   "security": {
     "enableAppScreenLocks": true,
     "enableSettingsScreenLock": true
@@ -14,8 +18,11 @@
       "light": {
         "colors": {
           "screen": {
-            "background": "#fbfbfb",
-            "overlay": "#00000080"
+            "background": "#fbfbfb"
+          },
+          "overlay": {
+            "background": "#00000080",
+            "text": "#ffffff"
           },
           "header": {
             "background": "#ffffff",
@@ -55,6 +62,10 @@
             "loading": {
               "background": "#fafafaff",
               "text": "#181818ff"
+            },
+            "warning": {
+              "background": "#fff4e5ff",
+              "text": "#FF9800"
             }
           },
           "avatar": [
@@ -144,8 +155,11 @@
       "dark": {
         "colors": {
           "screen": {
-            "background": "#fbfbfb",
-            "overlay": "#00000080"
+            "background": "#fbfbfb"
+          },
+          "overlay": {
+            "background": "#00000080",
+            "text": "#ffffff"
           },
           "header": {
             "background": "#ffffff",
@@ -185,6 +199,10 @@
             "loading": {
               "background": "#fafafaff",
               "text": "#181818ff"
+            },
+            "warning": {
+              "background": "#fff4e5ff",
+              "text": "#FF9800"
             }
           },
           "avatar": [

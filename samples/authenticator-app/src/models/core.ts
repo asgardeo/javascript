@@ -52,6 +52,10 @@ export interface DeploymentConfig {
    */
   feature: FeatureConfig;
   /**
+   * Dev mode configuration.
+   */
+  devMode: DevModeConfig;
+  /**
    * UI configuration.
    */
   ui: UIConfig;
@@ -72,6 +76,9 @@ export interface FeatureConfig {
   }
 }
 
+/**
+ * Security configuration.
+ */
 export interface SecurityConfig {
   /**
    * Enable or disable app screen locks.
@@ -81,4 +88,18 @@ export interface SecurityConfig {
    * Enable or disable settings screen lock.
    */
   enableSettingsScreenLock: boolean;
+}
+
+/**
+ * Dev mode configuration.
+ */
+export interface DevModeConfig {
+  /**
+   * Enable or disable dev mode.
+   */
+  enabled: boolean;
+  /**
+   * The host URL to be used in dev mode.
+   */
+  host: string;
 }

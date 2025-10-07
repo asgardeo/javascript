@@ -16,56 +16,61 @@
  * under the License.
  */
 
-import { useCallback, useState } from 'react';
-import StorageConstants from '../constants/storage';
-import { AccountInterface, StorageDataInterface } from '../models/storage';
-import { TOTPQRDataInterface } from '../models/totp';
-import AsyncStorageService from '../utils/async-storage-service';
-import CryptoService from '../utils/crypto-service';
-import SecureStorageService from '../utils/secure-storage-service';
-import TypeConvert from '../utils/typer-convert';
+import { FunctionComponent, PropsWithChildren, ReactElement, useCallback } from "react";
+import TOTPContext from "./totp-context";
+import { TOTPQRDataInterface } from "../../models/totp";
+import { AccountInterface, StorageDataInterface } from "../../models/storage";
+import AsyncStorageService from "../../utils/async-storage-service";
+import StorageConstants from "../../constants/storage";
+import CryptoService from "../../utils/crypto-service";
+import TypeConvert from "../../utils/typer-convert";
+import SecureStorageService from "../../utils/secure-storage-service";
 
 /**
- * Interface for the return type of the `useTOTPRegistration` hook.
- */
-export interface UseTOTPRegistrationPropsInterface {
-  registerTOTP: (qrData: TOTPQRDataInterface) => Promise<string>;
-  isRegistering: boolean;
-}
-
-/**
- * Hook to handle TOTP authentication registration.
+ * TOTP Provider component to provide TOTP context to its children.
  *
- * @returns Hook for TOTP authentication registration.
+ * @param props - Props for the TOTPProvider component.
+ * @returns TOTP Provider component.
  */
-export const useTOTPRegistration = (): UseTOTPRegistrationPropsInterface => {
-  const [isRegistering, setIsRegistering] = useState(false);
-
+const TOTPProvider: FunctionComponent<PropsWithChildren> = ({
+  children
+}: PropsWithChildren): ReactElement => {
   /**
    * Register TOTP using the provided QR data.
    *
    * @param qrData - The TOTP QR data.
-   * @returns A promise that resolves when the registration is complete.
+   * @returns A promise that resolves to the registered account ID.
    * @throws Will throw an error if registration fails.
    */
   const registerTOTP = useCallback(async (qrData: TOTPQRDataInterface): Promise<string> => {
-    setIsRegistering(true);
     let accountId: string = "";
 
     try {
       let accountDetails: StorageDataInterface[] = await AsyncStorageService.getListItemByItemKey(
-        StorageConstants.ACCOUNTS_DATA, 'username', `^(.+\\/${qrData.username}|${qrData.username})$`, 'tenantDomain', qrData.issuer
+        StorageConstants.ACCOUNTS_DATA,
+        'username',
+        `^(.+\\/${qrData.username}|${qrData.username})$`,
+        'tenantDomain',
+        qrData.issuer
       );
 
       if (accountDetails.length === 0) {
         accountDetails = await AsyncStorageService.getListItemByItemKey(
-          StorageConstants.ACCOUNTS_DATA, 'username', `^(.+\\/${qrData.username}|${qrData.username})$`, 'organizationId', qrData.issuer
+          StorageConstants.ACCOUNTS_DATA,
+          'username',
+          `^(.+\\/${qrData.username}|${qrData.username})$`,
+          'organizationId',
+          qrData.issuer
         );
       }
 
       if (accountDetails.length === 0) {
         accountDetails = await AsyncStorageService.getListItemByItemKey(
-          StorageConstants.ACCOUNTS_DATA, 'username', `^(.+\\/${qrData.username}|${qrData.username})$`, 'issuer', qrData.issuer
+          StorageConstants.ACCOUNTS_DATA,
+          'username',
+          `^(.+\\/${qrData.username}|${qrData.username})$`,
+          'issuer',
+          qrData.issuer
         );
       }
 
@@ -104,14 +109,16 @@ export const useTOTPRegistration = (): UseTOTPRegistrationPropsInterface => {
       return accountId;
     } catch {
       throw new Error('Failed to register TOTP account.');
-    } finally {
-      setIsRegistering(false);
     }
   }, []);
 
-  return {
-    registerTOTP,
-    isRegistering
-  };
-};
+  return (
+    <TOTPContext.Provider value={{
+      registerTOTP
+    }}>
+      {children}
+    </TOTPContext.Provider>
+  )
+}
 
+export default TOTPProvider;

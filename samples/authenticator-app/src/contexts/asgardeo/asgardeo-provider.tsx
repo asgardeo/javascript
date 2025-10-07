@@ -20,6 +20,8 @@ import { FunctionComponent, PropsWithChildren, ReactElement, useCallback, useSta
 import AsgardeoContext from "./asgardeo-context";
 import AccountProvider from "../account/account-provider";
 import Alert, { AlertProps, AlertType } from "../../components/common/alert";
+import TOTPProvider from "../totp/totp-provider";
+import PushAuthProvider from "../push-auth/push-auth-provider";
 
 /**
  * Asgardeo provider props interface.
@@ -80,7 +82,11 @@ const AsgardeoProvider: FunctionComponent<PropsWithChildren<AsgardeoProviderProp
       hideAlert
     }}>
       <AccountProvider>
-        {children}
+        <TOTPProvider>
+          <PushAuthProvider>
+            {children}
+          </PushAuthProvider>
+        </TOTPProvider>
       </AccountProvider>
       <Alert
         visible={alertConfig.visible}

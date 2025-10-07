@@ -25,27 +25,23 @@ import {
   PushAuthenticationDataInterface,
   PushAuthJWTBodyInterface,
   PushAuthJWTHeaderInterface,
-  PushAuthResponseStatus
+  PushAuthResponseStatus,
+  PushNotificationQRDataInterface
 } from "../../models/push-notification";
 import { AccountInterface, PushAuthenticationDataStorageInterface, StorageDataInterface } from "../../models/storage";
 import AsyncStorageService from "../../utils/async-storage-service";
 import CryptoService from "../../utils/crypto-service";
 import MessagingService from "../../utils/messagging-service";
 import PushAuthContext from "./push-auth-context";
-import { getFeatureConfig } from "../../utils/core";
+import { getFeatureConfig, resolveHostName } from "../../utils/core";
 import { FeatureConfig } from "../../models/core";
+import useAsgardeo from "../asgardeo/use-asgardeo";
+import AppPaths from "../../constants/paths";
+import SecureStorageService from "../../utils/secure-storage-service";
+import { deviceName, modelName } from 'expo-device';
+import { Platform } from "react-native";
 
 const featureConfig: FeatureConfig = getFeatureConfig();
-
-/**
- * Props for the PushAuthProvider component.
- */
-export interface PushAuthProviderProps {
-  /**
-   * Indicates if the root component is mounted.
-   */
-  rootMounted?: boolean;
-}
 
 /**
  * Push Authentication Provider component.
@@ -53,11 +49,11 @@ export interface PushAuthProviderProps {
  * @param children - Child components.
  * @returns Push authentication provider component.
  */
-const PushAuthProvider: FunctionComponent<PropsWithChildren<PushAuthProviderProps>> = ({
-  children,
-  rootMounted
-}: PropsWithChildren<PushAuthProviderProps>): ReactElement => {
+const PushAuthProvider: FunctionComponent<PropsWithChildren> = ({
+  children
+}: PropsWithChildren): ReactElement => {
   const router: Router = useRouter();
+  const { isAppInitialized } = useAsgardeo();
   const [pushAuthMessageCache, setPushAuthMessageCache] = useState<Record<string, PushAuthenticationDataInterface>>({});
   const [alertVisible, setAlertVisible] = useState(false);
   const [alertType, setAlertType] = useState<AlertType>(AlertType.SUCCESS);
@@ -135,11 +131,11 @@ const PushAuthProvider: FunctionComponent<PropsWithChildren<PushAuthProviderProp
    * Sets up a listener for when the app is closed.
    */
   useEffect(() => {
-    if (rootMounted) {
+    if (isAppInitialized) {
       MessagingService.listenForNotificationOpenWhenAppIsClosedExpo(handlePushAuthNotification);
       MessagingService.listenForNotificationWhenAppIsClosedFCM(handlePushAuthNotification);
     }
-  }, [rootMounted, handlePushAuthNotification]);
+  }, [isAppInitialized, handlePushAuthNotification]);
 
   /**
    * Builds the push authentication URL based on the push ID.
@@ -262,9 +258,152 @@ const PushAuthProvider: FunctionComponent<PropsWithChildren<PushAuthProviderProp
     return pushAuthMessageCache[id];
   }, [pushAuthMessageCache]);
 
+  /**
+   * Build registration endpoint URL based on tenant or organization.
+   */
+  const buildRegistrationUrl = (qrData: PushNotificationQRDataInterface): string => {
+    const { host, tenantDomain, organizationId } = qrData;
+    const hostName = resolveHostName(host);
+
+    if (organizationId) {
+      return `${hostName}${AppPaths.ORGANIZATION_PATH}${organizationId}${AppPaths.PUSH_AUTH_REGISTRATION_SERVER}`;
+    } else if (tenantDomain) {
+      return `${hostName}${AppPaths.TENANT_PATH}${tenantDomain}${AppPaths.PUSH_AUTH_REGISTRATION_SERVER}`;
+    } else {
+      throw new Error('Neither organizationId nor tenantDomain found in QR data.');
+    }
+  };
+
+  /**
+   * Register push device using the provided QR data.
+   *
+   * @param qrData - The push notification QR data.
+   * @returns A promise that resolves when the registration is complete.
+   * @throws Will throw an error if registration fails.
+   */
+  const registerPushDevice = useCallback(async (
+    qrData: PushNotificationQRDataInterface
+  ): Promise<string> => {
+    try {
+      // Generate fcm device token.
+      const deviceToken = await MessagingService.generateFCMToken();
+
+      // Generate RSA 2048-bit key pair.
+      const rsaKeyPair = CryptoService.generateKeyPair();
+
+      // Store private key securely.
+      SecureStorageService.setItem(qrData.deviceId, rsaKeyPair.privateKey);
+
+      // Generate challenge signature.
+      const signature = CryptoService.generateChallengeSignature(qrData.challenge, deviceToken, rsaKeyPair.privateKey);
+
+      const registrationUrl = buildRegistrationUrl(qrData);
+
+      const body: string = JSON.stringify({
+        deviceId: qrData.deviceId,
+        name: deviceName || (Platform.OS === 'ios' ? 'iOS Device' : 'Android Device'),
+        model: modelName || (Platform.OS === 'ios' ? 'iOS Device' : 'Android Device'),
+        deviceToken,
+        publicKey: CryptoService.getBase64Text(rsaKeyPair.publicKey),
+        signature: signature,
+      });
+
+      const response = await fetch(registrationUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body,
+      });
+
+      if (response.status === 201) {
+        let accountId: string = "";
+
+        let storageData: StorageDataInterface[] = await AsyncStorageService.getListItemByItemKey(
+          StorageConstants.ACCOUNTS_DATA,
+          'username',
+          `^(.+\\/${qrData.username}|${qrData.username})$`,
+          'tenantDomain',
+          qrData.tenantDomain
+        );
+
+        if (storageData.length === 0) {
+          storageData = await AsyncStorageService.getListItemByItemKey(
+            StorageConstants.ACCOUNTS_DATA,
+            'username',
+            `^(.+\\/${qrData.username}|${qrData.username})$`,
+            'organizationId',
+            qrData.organizationId
+          );
+        }
+
+        if (storageData.length === 0) {
+          storageData = await AsyncStorageService.getListItemByItemKey(
+            StorageConstants.ACCOUNTS_DATA,
+            'username',
+            `^(.+\\/${qrData.username}|${qrData.username})$`,
+            'issuer',
+            qrData.tenantDomain
+          );
+        }
+
+        if (storageData.length === 0) {
+          storageData = await AsyncStorageService.getListItemByItemKey(
+            StorageConstants.ACCOUNTS_DATA,
+            'username',
+            `^(.+\\/${qrData.username}|${qrData.username})$`,
+            'issuer',
+            qrData.organizationId
+          );
+        }
+
+        if (storageData.length > 1 || storageData.length === 0) {
+          const id: string = CryptoService.generateRandomKey();
+
+          const accountData: AccountInterface = {
+            id,
+            deviceId: qrData.deviceId,
+            host: qrData.host,
+            username: qrData.username,
+            displayName: qrData.organizationName ?? qrData.tenantDomain,
+            tenantDomain: qrData.tenantDomain,
+            organizationId: qrData.organizationId
+          };
+          await AsyncStorageService.addItem(StorageConstants.ACCOUNTS_DATA,
+            TypeConvert.toStorageDataInterface(accountData));
+
+          accountId = id;
+        } else {
+          const accountDetail: AccountInterface = TypeConvert.toAccountInterface(storageData[0]);
+          accountDetail.deviceId = qrData.deviceId;
+          accountDetail.organizationId = qrData.organizationId;
+          accountDetail.tenantDomain = qrData.tenantDomain;
+          await AsyncStorageService.removeListItemByItemKey(
+            StorageConstants.ACCOUNTS_DATA, 'id', accountDetail.id
+          );
+          await AsyncStorageService.addItem(StorageConstants.ACCOUNTS_DATA,
+            TypeConvert.toStorageDataInterface(accountDetail));
+
+          accountId = accountDetail.id;
+        }
+
+        return accountId;
+      } else {
+        throw new Error(`Registration failed with status ${response.status}`);
+      }
+    } catch {
+      throw new Error('Push device registration failed.');
+    }
+  }, []);
+
   return (
     <PushAuthContext.Provider
-      value={{ addPushAuthMessageToCache, getPushAuthMessageFromCache, sentPushAuthResponse }}
+      value={{
+        addPushAuthMessageToCache,
+        getPushAuthMessageFromCache,
+        sentPushAuthResponse,
+        registerPushDevice
+      }}
     >
       {children}
       <Alert

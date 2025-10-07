@@ -17,7 +17,7 @@
  */
 
 import { Context, createContext } from "react";
-import { PushAuthenticationDataInterface, PushAuthResponseStatus } from "../../models/push-notification";
+import { PushAuthenticationDataInterface, PushAuthResponseStatus, PushNotificationQRDataInterface } from "../../models/push-notification";
 
 export interface PushAuthContextInterface {
   /**
@@ -42,6 +42,14 @@ export interface PushAuthContextInterface {
    * @returns A promise that resolves when the response has been sent.
    */
   sentPushAuthResponse: (id: string, status: PushAuthResponseStatus) => Promise<void>;
+  /**
+   * Register push device using the provided QR data.
+   *
+   * @param qrData - The push notification QR data.
+   * @returns A promise that resolves when the registration is complete.
+   * @throws Will throw an error if registration fails.
+   */
+  registerPushDevice: (qrData: PushNotificationQRDataInterface) => Promise<string>;
 }
 
 /**
@@ -50,7 +58,8 @@ export interface PushAuthContextInterface {
 const PushAuthContext: Context<PushAuthContextInterface> = createContext<PushAuthContextInterface>({
   addPushAuthMessageToCache: () => { },
   getPushAuthMessageFromCache: () => undefined,
-  sentPushAuthResponse: async () => { }
+  sentPushAuthResponse: async () => { },
+  registerPushDevice: async () => ""
 });
 
 export default PushAuthContext;
