@@ -19,7 +19,7 @@
 /* eslint-disable sort-keys */
 /* eslint-disable @typescript-eslint/naming-convention */
 
-import { I18nTranslations, I18nMetadata, I18nBundle } from '../models/i18n';
+import {I18nTranslations, I18nMetadata, I18nBundle} from '../models/i18n';
 
 const translations: I18nTranslations = {
   /* |---------------------------------------------------------------| */
