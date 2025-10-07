@@ -19,6 +19,9 @@
 import { AvatarColorPair, ThemeConfigs, ThemeMode } from "../models/ui";
 import rawConfig from "../../config/app.config.json";
 import { DeploymentConfig } from "../models/core";
+import FastStorage from "./fast-storage";
+import StorageConstants from "../constants/storage";
+import { Appearance } from "react-native";
 
 const config: DeploymentConfig = rawConfig as DeploymentConfig;
 
@@ -69,8 +72,23 @@ export const getTimeFromNow = (timestamp: number): string => {
  */
 export const getThemeConfigs = (): ThemeConfigs => {
   const activeTheme: ThemeMode = config.ui.theme.activeTheme;
+  let userPreference: ThemeMode | 'system';
 
-  return config.ui.theme[activeTheme];
+  try {
+    userPreference = FastStorage.getItem(StorageConstants.THEME_MODE) as ThemeMode ?? 'system';
+  } catch {
+    userPreference = 'system';
+  }
+
+  if (userPreference === 'system' && Appearance.getColorScheme()) {
+    userPreference = Appearance.getColorScheme() === 'dark' ? ThemeMode.DARK : ThemeMode.LIGHT;
+  }
+
+  if (userPreference === 'system') {
+    userPreference = activeTheme;
+  }
+
+  return config.ui.theme[userPreference];
 };
 
 /**

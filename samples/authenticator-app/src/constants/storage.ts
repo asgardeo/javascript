@@ -41,6 +41,11 @@ class StorageConstants {
   static readonly USER_PREFERENCE = 'user_preference';
 
   /**
+   * Key for storing the selected theme mode.
+   */
+  static readonly THEME_MODE = 'theme_mode';
+
+  /**
    * Replaces the account ID placeholder in a storage key.
    *
    * @param key The storage key with the account ID placeholder.
