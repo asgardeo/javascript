@@ -61,7 +61,9 @@ export interface ThemeConfigs {
     header: {
       background: string;
       text: string;
-      icon: string;
+      dropdown: {
+        background: string;
+      };
     },
     button: {
       primary: {

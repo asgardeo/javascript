@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import { FunctionComponent, PropsWithChildren, ReactElement, RefObject, useCallback, useRef, useState } from "react";
+import { FunctionComponent, PropsWithChildren, ReactElement, RefObject, useCallback, useEffect, useRef, useState } from "react";
 import AccountContext from "./account-context";
 import { AccountInterface } from "../../models/storage";
 import AsyncStorageService from "../../utils/async-storage-service";
@@ -70,12 +70,40 @@ const AccountProvider: FunctionComponent<PropsWithChildren> = ({
       });
   }, [showAlert, hideAlert]);
 
+  /**
+   * Fetch accounts on component mount.
+   */
+  useEffect(() => {
+    fetchAccounts();
+  }, [fetchAccounts]);
+
+  /**
+   * Get account by item key and value.
+   *
+   * @param itemKey - The key to search by.
+   * @param itemValue - The value to search for.
+   * @param fallbackItemKey - The fallback key to search by.
+   * @param fallbackItemValue - The fallback value to search for.
+   * @returns The account(s) matching the criteria.
+   */
+  const getAccountByItemKey = useCallback((
+    itemKey: keyof AccountInterface,
+    itemValue: string,
+    fallbackItemKey?: keyof AccountInterface,
+    fallbackItemValue?: string
+  ): AccountInterface[] => {
+    return accounts.filter((item: AccountInterface) => new RegExp(itemValue).test(item[itemKey] as string)
+      && (!fallbackItemKey || !fallbackItemValue ||
+        new RegExp(fallbackItemValue).test(item[fallbackItemKey] as string)));
+  }, [accounts]);
+
   return (
     <AccountContext.Provider value={{
       accounts,
       fetchAccounts,
       loading,
-      isAccountFetched: isAccountFetched.current
+      isAccountFetched: isAccountFetched.current,
+      getAccountByItemKey
     }}>
       {children}
     </AccountContext.Provider>

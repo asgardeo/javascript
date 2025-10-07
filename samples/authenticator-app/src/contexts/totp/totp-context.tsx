@@ -31,6 +31,14 @@ export interface TOTPContextInterface {
    */
   registerTOTP: (qrData: TOTPQRDataInterface) => Promise<string>;
   /**
+   * Unregister TOTP for the given account ID.
+   *
+   * @param id - The account ID.
+   * @returns A promise that resolves when the unregistration is complete.
+   * @throws Will throw an error if unregistration fails.
+   */
+  unregisterTOTP: (id: string) => Promise<void>;
+  /**
    * Indicates if a TOTP code generation is in progress.
    */
   isGenerating?: boolean;
@@ -53,6 +61,7 @@ export interface TOTPContextInterface {
  */
 const TOTPContext: Context<TOTPContextInterface> = createContext<TOTPContextInterface>({
   registerTOTP: async () => "",
+  unregisterTOTP: async () => { },
   isGenerating: false,
   code: "",
   remainingTime: 0,

@@ -17,8 +17,7 @@
  */
 
 import { Ionicons } from "@expo/vector-icons";
-import { useFocusEffect } from "expo-router";
-import { ReactElement, useCallback, useMemo, useState } from "react";
+import { ReactElement, useMemo, useState } from "react";
 import { ActivityIndicator, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import { EdgeInsets, useSafeAreaInsets } from "react-native-safe-area-context";
 import { AccountInterface } from "../../models/storage";
@@ -35,18 +34,9 @@ const theme: ThemeConfigs = getThemeConfigs();
  * @returns Account list component.
  */
 const AccountList = (): ReactElement => {
-  const { loading, accounts, fetchAccounts } = useAccount();
+  const { loading, accounts } = useAccount();
   const insets: EdgeInsets = useSafeAreaInsets();
   const [searchQuery, setSearchQuery] = useState<string>("");
-
-  /**
-   * Fetch accounts from storage when the screen is focused.
-   */
-  useFocusEffect(
-    useCallback(() => {
-      fetchAccounts();
-    }, [fetchAccounts])
-  );
 
   /**
    * Filter accounts based on search query.

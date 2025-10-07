@@ -50,6 +50,13 @@ export interface PushAuthContextInterface {
    * @throws Will throw an error if registration fails.
    */
   registerPushDevice: (qrData: PushNotificationQRDataInterface) => Promise<string>;
+  /**
+   * Unregister push device using the provided account id.
+   *
+   * @param id - Account id of the device to be unregistered.
+   * @returns A promise that resolves when the unregistration is complete.
+   */
+  unregisterPushDevice: (id: string) => Promise<void>;
 }
 
 /**
@@ -59,7 +66,8 @@ const PushAuthContext: Context<PushAuthContextInterface> = createContext<PushAut
   addPushAuthMessageToCache: () => { },
   getPushAuthMessageFromCache: () => undefined,
   sentPushAuthResponse: async () => { },
-  registerPushDevice: async () => ""
+  registerPushDevice: async () => "",
+  unregisterPushDevice: async () => { }
 });
 
 export default PushAuthContext;

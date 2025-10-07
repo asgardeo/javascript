@@ -17,19 +17,30 @@
  */
 
 import { Ionicons } from "@expo/vector-icons";
-import { FunctionComponent, ReactElement, useState } from "react";
+import { FunctionComponent, ReactElement, useMemo, useState } from "react";
 import { Modal, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import useTheme from "../../contexts/theme/useTheme";
-import { authenticateAsync, LocalAuthenticationResult } from "expo-local-authentication";
+import { ThemeConfigs } from "../../models/ui";
+import { getThemeConfigs } from "../../utils/ui-utils";
+import { AccountInterface } from "../../models/storage";
+import useAccount from "../../contexts/account/use-account";
+import useAsgardeo from "../../contexts/asgardeo/use-asgardeo";
+import { AlertType } from "../common/alert";
+import verifyLocalAuthentication from "../../utils/local-authentication";
+import useTOTP from "../../contexts/totp/use-totp";
+import { Router, useRouter } from "expo-router";
+import AppPaths from "../../constants/paths";
+import usePushAuth from "../../contexts/push-auth/use-push-auth";
+
+const theme: ThemeConfigs = getThemeConfigs();
 
 /**
  * Props for the SettingsDropdown component.
  */
 export interface SettingsDropdownProps {
   /**
-   * Callback function to be called when the delete action is triggered.
+   * Account id of the current account.
    */
-  onDelete: () => Promise<void>;
+  accountId?: string;
 }
 
 /**
@@ -38,36 +49,154 @@ export interface SettingsDropdownProps {
  * @param onDelete Function to call when delete is pressed.
  * @returns A React element representing the settings dropdown component.
  */
-const SettingsDropdown: FunctionComponent<SettingsDropdownProps> = ({ onDelete }: SettingsDropdownProps): ReactElement => {
-  const { styles } = useTheme();
+const SettingsDropdown: FunctionComponent<SettingsDropdownProps> = ({
+  accountId
+}: SettingsDropdownProps): ReactElement => {
+  const { accounts } = useAccount();
+  const { showAlert, hideAlert } = useAsgardeo();
+  const { unregisterTOTP } = useTOTP();
+  const { unregisterPushDevice } = usePushAuth();
+  const router: Router = useRouter();
   const [isVisible, setIsVisible] = useState<boolean>(false);
 
-  const handleDelete = async () => {
+  /**
+   * Get the account data for the given account ID.
+   */
+  const accountData: AccountInterface | null = useMemo(() => {
+    if (!accountId) {
+      return null;
+    }
+
+    return accounts.find(account => account.id === accountId) ?? null;
+  }, [accountId, accounts]);
+
+  /**
+   * Handle the TOTP account deletion.
+   */
+  const handleTOTPDelete = () => {
+    verifyLocalAuthentication()
+      .then((verified: boolean) => {
+        if (verified) {
+          showAlert({
+            type: AlertType.LOADING,
+            title: "Deleting TOTP Account",
+            message: "Please wait while we delete the TOTP account."
+          })
+          unregisterTOTP(accountId!)
+            .then(() => {
+              showAlert({
+                type: AlertType.SUCCESS,
+                title: "TOTP Account Deleted",
+                message: "The TOTP account has been deleted successfully.",
+                onPrimaryPress: () => {
+                  hideAlert();
+                  router.replace(`/${AppPaths.HOME}`);
+                },
+                autoDismissTimeout: 3000
+              });
+            })
+            .catch(() => {
+              showAlert({
+                type: AlertType.ERROR,
+                title: "Error Deleting TOTP Account",
+                message: "An error occurred while deleting the TOTP account. Please try again.",
+                primaryButtonText: "OK",
+                onPrimaryPress: () => { hideAlert(); }
+              });
+            });
+        }
+      })
+  }
+
+  /**
+   * Handle the Push account deletion.
+   */
+  const handlePushDelete = () => {
+    verifyLocalAuthentication()
+      .then((verified: boolean) => {
+        if (verified) {
+          showAlert({
+            type: AlertType.LOADING,
+            title: "Deleting Push Account",
+            message: "Please wait while we delete the push account."
+          })
+          unregisterPushDevice(accountId!)
+            .then(() => {
+              showAlert({
+                type: AlertType.SUCCESS,
+                title: "Push Account Deleted",
+                message: "The push account has been deleted successfully.",
+                onPrimaryPress: () => {
+                  hideAlert();
+                  router.replace(`/${AppPaths.HOME}`);
+                },
+                autoDismissTimeout: 3000
+              });
+            })
+            .catch(() => {
+              showAlert({
+                type: AlertType.ERROR,
+                title: "Error Deleting Push Account",
+                message: "An error occurred while deleting the push account. Please try again.",
+                primaryButtonText: "OK",
+                onPrimaryPress: () => { hideAlert(); }
+              });
+            });
+        }
+      })
+  }
+
+  /**
+   * Show confirmation alert before deleting the account.
+   *
+   * @param isTOTP - Flag to indicate if the deleting account is a TOTP account.
+   */
+  const showConfirmationAlert = (isTOTP: boolean) => {
     setIsVisible(false);
-    const status = await authenticateAsync();
-    if (status.success) {
-      await onDelete();
+    if (isTOTP) {
+      showAlert({
+        type: AlertType.WARNING,
+        title: "Delete Local TOTP Account",
+        message: "Are you sure you want to delete local TOTP account? This action cannot be undone. " +
+          "This will not delete the account from the server.",
+        primaryButtonText: "Confirm",
+        secondaryButtonText: "Cancel",
+        onPrimaryPress: handleTOTPDelete,
+        onSecondaryPress: () => hideAlert()
+      });
+    } else {
+      showAlert({
+        type: AlertType.WARNING,
+        title: "Delete Push Account",
+        message: "Are you sure you want to delete the push account? This action cannot be undone.",
+        primaryButtonText: "Confirm",
+        secondaryButtonText: "Cancel",
+        onPrimaryPress: handlePushDelete,
+        onSecondaryPress: () => hideAlert()
+      });
     }
   };
 
+  /**
+   * Toggle the visibility of the dropdown menu.
+   */
   const toggleDropdown = () => {
     setIsVisible(!isVisible);
   };
 
   return (
-    <View style={localStyles.container}>
+    <View style={styles.container}>
       <TouchableOpacity
-        style={localStyles.triggerButton}
         onPress={toggleDropdown}
         activeOpacity={0.7}
+        style={[styles.button]}
       >
         <Ionicons
           name="ellipsis-vertical"
           size={24}
-          color={styles.colors.textPrimary.color}
+          color={theme.colors.header.text}
         />
       </TouchableOpacity>
-
       <Modal
         visible={isVisible}
         transparent
@@ -75,44 +204,43 @@ const SettingsDropdown: FunctionComponent<SettingsDropdownProps> = ({ onDelete }
         onRequestClose={() => setIsVisible(false)}
       >
         <TouchableOpacity
-          style={localStyles.overlay}
+          style={styles.overlay}
           activeOpacity={1}
           onPress={() => setIsVisible(false)}
         >
-          <View style={localStyles.dropdownContainer}>
-            <View style={[
-              localStyles.dropdown,
-              styles.colors.backgroundSurface,
-              {
-                shadowColor: styles.colors.textPrimary.color,
-                shadowOffset: { width: 0, height: 4 },
-                shadowOpacity: 0.1,
-                shadowRadius: 8,
-                elevation: 8
-              }
-            ]}>
+          <View style={[styles.dropdown]}>
+            {accountData?.deviceId && (
               <TouchableOpacity
-                style={[
-                  localStyles.dropdownItem,
-                  { borderBottomColor: styles.colors.backgroundSurfaceLight.backgroundColor }
-                ]}
-                onPress={handleDelete}
+                style={[styles.dropdownItem]}
+                onPress={() => showConfirmationAlert(false)}
                 activeOpacity={0.7}
               >
                 <Ionicons
                   name="trash-outline"
                   size={20}
-                  color="#ef4444"
+                  color={theme.colors.alert.error.text}
                 />
-                <Text style={[
-                  localStyles.dropdownItemText,
-                  styles.typography.body2,
-                  { color: "#ef4444" }
-                ]}>
-                  Delete Account
+                <Text style={[styles.dropdownItemText]}>
+                  Delete Push Account
                 </Text>
               </TouchableOpacity>
-            </View>
+            )}
+            {accountData?.issuer && (
+              <TouchableOpacity
+                style={[styles.dropdownItem]}
+                onPress={() => showConfirmationAlert(true)}
+                activeOpacity={0.7}
+              >
+                <Ionicons
+                  name="trash-outline"
+                  size={20}
+                  color={theme.colors.alert.error.text}
+                />
+                <Text style={[styles.dropdownItemText]}>
+                  Delete TOTP Account
+                </Text>
+              </TouchableOpacity>
+            )}
           </View>
         </TouchableOpacity>
       </Modal>
@@ -120,40 +248,39 @@ const SettingsDropdown: FunctionComponent<SettingsDropdownProps> = ({ onDelete }
   );
 };
 
-// Local styles for component-specific styling
-const localStyles = StyleSheet.create({
-  container: {
-    position: 'relative',
+// Styles for the component.
+const styles = StyleSheet.create({
+  button: {
+    padding: 8
   },
-  triggerButton: {
-    padding: 8,
-    borderRadius: 20,
+  container: {
+    position: 'relative'
   },
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.4)',
+    backgroundColor: theme.colors.overlay.background,
     justifyContent: 'flex-start',
     alignItems: 'flex-end',
-    paddingTop: 80, // Account for header height
-    paddingRight: 16,
-  },
-  dropdownContainer: {
-    position: 'relative',
+    paddingTop: 65,
+    paddingRight: 16
   },
   dropdown: {
     minWidth: 180,
     borderRadius: 8,
     paddingVertical: 8,
+    backgroundColor: theme.colors.header.dropdown.background
   },
   dropdownItem: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 16,
-    paddingVertical: 12,
+    paddingVertical: 12
   },
   dropdownItemText: {
     marginLeft: 12,
     fontWeight: '500',
+    fontSize: 16,
+    color: theme.colors.alert.error.text
   },
 });
 

@@ -40,6 +40,7 @@ import AppPaths from "../../constants/paths";
 import SecureStorageService from "../../utils/secure-storage-service";
 import { deviceName, modelName } from 'expo-device';
 import { Platform } from "react-native";
+import useAccount from "../account/use-account";
 
 const featureConfig: FeatureConfig = getFeatureConfig();
 
@@ -59,6 +60,7 @@ const PushAuthProvider: FunctionComponent<PropsWithChildren> = ({
   const [alertType, setAlertType] = useState<AlertType>(AlertType.SUCCESS);
   const [alertTitle, setAlertTitle] = useState('');
   const [alertMessage, setAlertMessage] = useState('');
+  const { getAccountByItemKey, fetchAccounts } = useAccount();
 
   /**
    * Shows an alert message.
@@ -146,13 +148,12 @@ const PushAuthProvider: FunctionComponent<PropsWithChildren> = ({
    */
   const buildPushAuthUrl = useCallback((id: string, accountDetails: AccountInterface): string => {
     const { tenantDomain, organizationId } = pushAuthMessageCache[id];
-    // TODO: Use the host from the QR data.
-    const host = "http://10.10.16.152:8082";
+    const hostName: string = resolveHostName(accountDetails.host!);
 
     if (organizationId) {
-      return `${host}/o/${organizationId}/push-auth/authenticate`;
+      return `${hostName}/o/${organizationId}/push-auth/authenticate`;
     } else if (tenantDomain) {
-      return `${host}/t/${tenantDomain}/push-auth/authenticate`;
+      return `${hostName}/t/${tenantDomain}/push-auth/authenticate`;
     } else {
       throw new Error('Neither organizationId nor tenantDomain found in QR data.');
     }
@@ -266,9 +267,9 @@ const PushAuthProvider: FunctionComponent<PropsWithChildren> = ({
     const hostName = resolveHostName(host);
 
     if (organizationId) {
-      return `${hostName}${AppPaths.ORGANIZATION_PATH}${organizationId}${AppPaths.PUSH_AUTH_REGISTRATION_SERVER}`;
+      return hostName + AppPaths.ORGANIZATION_PATH + organizationId + AppPaths.PUSH_AUTH_REGISTRATION_SERVER;
     } else if (tenantDomain) {
-      return `${hostName}${AppPaths.TENANT_PATH}${tenantDomain}${AppPaths.PUSH_AUTH_REGISTRATION_SERVER}`;
+      return hostName + AppPaths.TENANT_PATH + tenantDomain + AppPaths.PUSH_AUTH_REGISTRATION_SERVER;
     } else {
       throw new Error('Neither organizationId nor tenantDomain found in QR data.');
     }
@@ -319,8 +320,7 @@ const PushAuthProvider: FunctionComponent<PropsWithChildren> = ({
       if (response.status === 201) {
         let accountId: string = "";
 
-        let storageData: StorageDataInterface[] = await AsyncStorageService.getListItemByItemKey(
-          StorageConstants.ACCOUNTS_DATA,
+        let storageData: AccountInterface[] = getAccountByItemKey(
           'username',
           `^(.+\\/${qrData.username}|${qrData.username})$`,
           'tenantDomain',
@@ -328,8 +328,7 @@ const PushAuthProvider: FunctionComponent<PropsWithChildren> = ({
         );
 
         if (storageData.length === 0) {
-          storageData = await AsyncStorageService.getListItemByItemKey(
-            StorageConstants.ACCOUNTS_DATA,
+          storageData = getAccountByItemKey(
             'username',
             `^(.+\\/${qrData.username}|${qrData.username})$`,
             'organizationId',
@@ -338,8 +337,7 @@ const PushAuthProvider: FunctionComponent<PropsWithChildren> = ({
         }
 
         if (storageData.length === 0) {
-          storageData = await AsyncStorageService.getListItemByItemKey(
-            StorageConstants.ACCOUNTS_DATA,
+          storageData = getAccountByItemKey(
             'username',
             `^(.+\\/${qrData.username}|${qrData.username})$`,
             'issuer',
@@ -348,8 +346,7 @@ const PushAuthProvider: FunctionComponent<PropsWithChildren> = ({
         }
 
         if (storageData.length === 0) {
-          storageData = await AsyncStorageService.getListItemByItemKey(
-            StorageConstants.ACCOUNTS_DATA,
+          storageData = getAccountByItemKey(
             'username',
             `^(.+\\/${qrData.username}|${qrData.username})$`,
             'issuer',
@@ -374,7 +371,7 @@ const PushAuthProvider: FunctionComponent<PropsWithChildren> = ({
 
           accountId = id;
         } else {
-          const accountDetail: AccountInterface = TypeConvert.toAccountInterface(storageData[0]);
+          const accountDetail: AccountInterface = storageData[0];
           accountDetail.deviceId = qrData.deviceId;
           accountDetail.organizationId = qrData.organizationId;
           accountDetail.tenantDomain = qrData.tenantDomain;
@@ -387,6 +384,8 @@ const PushAuthProvider: FunctionComponent<PropsWithChildren> = ({
           accountId = accountDetail.id;
         }
 
+        fetchAccounts();
+
         return accountId;
       } else {
         throw new Error(`Registration failed with status ${response.status}`);
@@ -394,7 +393,81 @@ const PushAuthProvider: FunctionComponent<PropsWithChildren> = ({
     } catch {
       throw new Error('Push device registration failed.');
     }
-  }, []);
+  }, [getAccountByItemKey, fetchAccounts]);
+
+  /**
+   * Builds the push unregistration URL for the given account data.
+   *
+   * @param data Account data.
+   * @returns The push unregistration URL.
+   */
+  const buildPushUnregistrationUrl = (data: AccountInterface): string => {
+    const { host, tenantDomain, organizationId } = data;
+    const hostName = resolveHostName(host!);
+
+    if (organizationId) {
+      return hostName + AppPaths.ORGANIZATION_PATH + organizationId +
+        AppPaths.PUSH_AUTH_UNREGISTRATION_SERVER.replace('{{id}}', data.deviceId!);
+    } else if (tenantDomain) {
+      return hostName + AppPaths.TENANT_PATH + tenantDomain +
+        AppPaths.PUSH_AUTH_UNREGISTRATION_SERVER.replace('{{id}}', data.deviceId!);
+    } else {
+      throw new Error('Neither organizationId nor tenantDomain found in QR data.');
+    }
+  };
+
+  /**
+   * Unregister push device and delete associated data.
+   *
+   * @param id - The account ID.
+   */
+  const unregisterPushDevice = useCallback(async (id: string) => {
+    try {
+      const storageData: AccountInterface[] = getAccountByItemKey('id', id);
+      const accountData: AccountInterface = storageData[0];
+
+      const isPushAuthConfigured: boolean = !!accountData.deviceId;
+
+      const result: Response | undefined = !isPushAuthConfigured ? undefined : await fetch(
+        buildPushUnregistrationUrl(accountData), {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          token: CryptoService.generatePushUnregistrationJWT(accountData.deviceId!)
+        })
+      });
+
+      if (!result || result.status === 204) {
+        await AsyncStorageService.removeItem(StorageConstants.replaceAccountId(
+          StorageConstants.PUSH_AUTHENTICATION_DATA, accountData.id));
+        SecureStorageService.removeItem(accountData.deviceId!);
+        await AsyncStorageService.removeListItemByItemKey(StorageConstants.ACCOUNTS_DATA, 'id', accountData.id);
+
+        // Retain TOTP data if exists.
+        if (accountData.issuer) {
+          const totpAccountData: AccountInterface = {
+            id: accountData.id,
+            username: accountData.username,
+            displayName: accountData.displayName,
+            issuer: accountData.issuer,
+            period: accountData.period,
+            algorithm: accountData.algorithm,
+            digits: accountData.digits
+          }
+          await AsyncStorageService.addItem(StorageConstants.ACCOUNTS_DATA,
+            TypeConvert.toStorageDataInterface(totpAccountData));
+        }
+
+        fetchAccounts();
+      } else {
+        throw new Error('Push unregistration failed with status: ' + result.status);
+      }
+    } catch {
+      throw new Error('Push device unregistration failed.');
+    }
+  }, [getAccountByItemKey, fetchAccounts]);
 
   return (
     <PushAuthContext.Provider
@@ -402,7 +475,8 @@ const PushAuthProvider: FunctionComponent<PropsWithChildren> = ({
         addPushAuthMessageToCache,
         getPushAuthMessageFromCache,
         sentPushAuthResponse,
-        registerPushDevice
+        registerPushDevice,
+        unregisterPushDevice
       }}
     >
       {children}

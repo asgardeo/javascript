@@ -19,7 +19,6 @@
 import AccountHeaderRight from "../src/components/account/account-header-right";
 import { Stack } from "expo-router";
 import { ReactElement, useEffect, useState } from "react";
-import HeaderSettings from "../src/components/home/header-settings";
 import HeaderTitle from "../src/components/common/header-title";
 import ThemeProvider from "../src/contexts/theme/ThemeProvider";
 import { ThemeConfigs } from "../src/models/ui";
@@ -58,8 +57,7 @@ const RootLayout = (): ReactElement => {
             name={AppPaths.HOME}
             options={{
               headerStyle: { backgroundColor: theme.colors.header.background },
-              headerTitle: HeaderTitle,
-              headerRight: HeaderSettings
+              headerTitle: HeaderTitle
             }}
           />
           <Stack.Screen

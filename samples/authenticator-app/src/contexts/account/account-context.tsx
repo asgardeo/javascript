@@ -41,6 +41,21 @@ export interface AccountContextInterface {
    * Flag to indicate if accounts have been fetched at least once.
    */
   isAccountFetched: boolean;
+  /**
+   * Get account by item key and value.
+   *
+   * @param itemKey - The key to search by.
+   * @param itemValue - The value to search for.
+   * @param fallbackItemKey - The fallback key to search by.
+   * @param fallbackItemValue - The fallback value to search for.
+   * @returns The account(s) matching the criteria.
+   */
+  getAccountByItemKey: (
+    itemKey: keyof AccountInterface,
+    itemValue: string,
+    fallbackItemKey?: keyof AccountInterface,
+    fallbackItemValue?: string
+  ) => AccountInterface[]
 }
 
 /**
@@ -50,7 +65,8 @@ const AccountContext: Context<AccountContextInterface> = createContext<AccountCo
   accounts: [],
   fetchAccounts: async () => { },
   loading: false,
-  isAccountFetched: false
+  isAccountFetched: false,
+  getAccountByItemKey: () => []
 })
 
 export default AccountContext;

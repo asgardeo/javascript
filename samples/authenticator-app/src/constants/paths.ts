@@ -56,6 +56,11 @@ class AppPaths {
   static readonly PUSH_AUTH_REGISTRATION_SERVER: string = '/api/users/v1/me/push/devices';
 
   /**
+   * Path to the push authentication unregistration API endpoint.
+   */
+  static readonly PUSH_AUTH_UNREGISTRATION_SERVER: string = '/api/users/v1/me/push/devices/{{id}}/remove';
+
+  /**
    * Organization path segment.
    */
   static readonly ORGANIZATION_PATH: string = '/o/';

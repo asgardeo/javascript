@@ -1,7 +1,7 @@
 {
   "devMode": {
     "enabled": true,
-    "host": "http://10.10.16.152:8082"
+    "host": "http://192.168.1.105:8082"
   },
   "security": {
     "enableAppScreenLocks": true,
@@ -26,7 +26,10 @@
           },
           "header": {
             "background": "#ffffff",
-            "text": "#17181aff"
+            "text": "#17181aff",
+            "dropdown": {
+              "background": "#ffffff"
+            }
           },
           "button": {
             "primary": {
@@ -163,7 +166,10 @@
           },
           "header": {
             "background": "#ffffff",
-            "text": "#17181aff"
+            "text": "#17181aff",
+            "dropdown": {
+              "background": "#ffffff"
+            }
           },
           "button": {
             "primary": {

@@ -19,12 +19,13 @@
 import { FunctionComponent, PropsWithChildren, ReactElement, useCallback } from "react";
 import TOTPContext from "./totp-context";
 import { TOTPQRDataInterface } from "../../models/totp";
-import { AccountInterface, StorageDataInterface } from "../../models/storage";
+import { AccountInterface } from "../../models/storage";
 import AsyncStorageService from "../../utils/async-storage-service";
 import StorageConstants from "../../constants/storage";
 import CryptoService from "../../utils/crypto-service";
 import TypeConvert from "../../utils/typer-convert";
 import SecureStorageService from "../../utils/secure-storage-service";
+import useAccount from "../account/use-account";
 
 /**
  * TOTP Provider component to provide TOTP context to its children.
@@ -35,6 +36,8 @@ import SecureStorageService from "../../utils/secure-storage-service";
 const TOTPProvider: FunctionComponent<PropsWithChildren> = ({
   children
 }: PropsWithChildren): ReactElement => {
+  const { getAccountByItemKey, fetchAccounts } = useAccount();
+
   /**
    * Register TOTP using the provided QR data.
    *
@@ -46,8 +49,7 @@ const TOTPProvider: FunctionComponent<PropsWithChildren> = ({
     let accountId: string = "";
 
     try {
-      let accountDetails: StorageDataInterface[] = await AsyncStorageService.getListItemByItemKey(
-        StorageConstants.ACCOUNTS_DATA,
+      let accountDetails: AccountInterface[] = getAccountByItemKey(
         'username',
         `^(.+\\/${qrData.username}|${qrData.username})$`,
         'tenantDomain',
@@ -55,8 +57,7 @@ const TOTPProvider: FunctionComponent<PropsWithChildren> = ({
       );
 
       if (accountDetails.length === 0) {
-        accountDetails = await AsyncStorageService.getListItemByItemKey(
-          StorageConstants.ACCOUNTS_DATA,
+        accountDetails = getAccountByItemKey(
           'username',
           `^(.+\\/${qrData.username}|${qrData.username})$`,
           'organizationId',
@@ -65,8 +66,7 @@ const TOTPProvider: FunctionComponent<PropsWithChildren> = ({
       }
 
       if (accountDetails.length === 0) {
-        accountDetails = await AsyncStorageService.getListItemByItemKey(
-          StorageConstants.ACCOUNTS_DATA,
+        accountDetails = getAccountByItemKey(
           'username',
           `^(.+\\/${qrData.username}|${qrData.username})$`,
           'issuer',
@@ -93,7 +93,7 @@ const TOTPProvider: FunctionComponent<PropsWithChildren> = ({
         accountId = id;
       } else {
         // Update existing account.
-        const accountDetail: AccountInterface = TypeConvert.toAccountInterface(accountDetails[0]);
+        const accountDetail: AccountInterface = accountDetails[0];
         SecureStorageService.setItem(accountDetail.id, qrData.secret);
         accountDetail.issuer = qrData.issuer;
         accountDetail.period = qrData.period || 30;
@@ -106,15 +106,53 @@ const TOTPProvider: FunctionComponent<PropsWithChildren> = ({
         accountId = accountDetail.id;
       }
 
+      fetchAccounts();
+
       return accountId;
     } catch {
       throw new Error('Failed to register TOTP account.');
     }
-  }, []);
+  }, [getAccountByItemKey, fetchAccounts]);
+
+  /**
+   * Unregister TOTP for the given account ID.
+   *
+   * @param id - The account ID.
+   * @returns A promise that resolves when the unregistration is complete.
+   * @throws Will throw an error if unregistration fails.
+   */
+  const unregisterTOTP = useCallback(async (id: string): Promise<void> => {
+    try {
+      const storageData: AccountInterface[] = getAccountByItemKey('id', id);
+      const accountData: AccountInterface = storageData[0];
+      await AsyncStorageService.removeListItemByItemKey(StorageConstants.ACCOUNTS_DATA, 'id', accountData.id);
+      await SecureStorageService.removeItem(accountData.id);
+
+      // If the account is associated with a deviceId, retain the account data for push auth.
+      if (accountData.deviceId) {
+        const newAccountData: AccountInterface = {
+          id: accountData.id,
+          deviceId: accountData.deviceId,
+          host: accountData.host,
+          username: accountData.username,
+          displayName: accountData.displayName,
+          tenantDomain: accountData.tenantDomain,
+          organizationId: accountData.organizationId
+        }
+        await AsyncStorageService.addItem(StorageConstants.ACCOUNTS_DATA,
+          TypeConvert.toStorageDataInterface(newAccountData));
+      }
+
+      fetchAccounts();
+    } catch {
+      throw new Error('Failed to unregister TOTP account.');
+    }
+  }, [getAccountByItemKey, fetchAccounts]);
 
   return (
     <TOTPContext.Provider value={{
-      registerTOTP
+      registerTOTP,
+      unregisterTOTP
     }}>
       {children}
     </TOTPContext.Provider>
