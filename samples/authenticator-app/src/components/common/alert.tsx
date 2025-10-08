@@ -32,7 +32,8 @@ export enum AlertType {
   ERROR = 'error',
   INFO = 'info',
   LOADING = 'loading',
-  WARNING = 'warning'
+  WARNING = 'warning',
+  MESSAGE = 'message'
 };
 
 /**
@@ -75,6 +76,10 @@ export interface AlertProps {
    * Auto dismiss timeout in milliseconds (optional).
    */
   autoDismissTimeout?: number;
+  /**
+   * Icon name for the alert (optional).
+   */
+  icon?: keyof typeof MaterialIcons.glyphMap;
 }
 
 /**
@@ -103,6 +108,7 @@ const Alert: FunctionComponent<AlertProps> = ({
   onPrimaryPress,
   onSecondaryPress,
   autoDismissTimeout,
+  icon
 }: AlertProps): ReactElement => {
   /**
    * Get icon and color based on alert type.
@@ -140,6 +146,12 @@ const Alert: FunctionComponent<AlertProps> = ({
           showLoader: true,
           iconColor: theme.colors.alert.loading.text,
           background: theme.colors.alert.loading.background
+        };
+      case AlertType.MESSAGE:
+        return {
+          icon,
+          iconColor: theme.colors.alert.message.text,
+          background: theme.colors.alert.message.background
         };
       default:
         return {
@@ -186,7 +198,7 @@ const Alert: FunctionComponent<AlertProps> = ({
               />
             ) : (
               <MaterialIcons
-                name={alertConfig.icon!}
+                name={icon ?? alertConfig.icon!}
                 size={48}
                 color={alertConfig.iconColor}
               />
@@ -209,17 +221,6 @@ const Alert: FunctionComponent<AlertProps> = ({
 
           {(primaryButtonText || secondaryButtonText) && (
             <View style={styles.buttonContainer}>
-              {secondaryButtonText && onSecondaryPress && (
-                <TouchableOpacity
-                  style={[styles.secondaryButton]}
-                  onPress={onSecondaryPress}
-                >
-                  <Text style={[styles.secondaryButtonText]}>
-                    {secondaryButtonText}
-                  </Text>
-                </TouchableOpacity>
-              )}
-
               {primaryButtonText && onPrimaryPress && (
                 <TouchableOpacity
                   style={[styles.primaryButton]}
@@ -227,6 +228,16 @@ const Alert: FunctionComponent<AlertProps> = ({
                 >
                   <Text style={[styles.primaryButtonText]}>
                     {primaryButtonText}
+                  </Text>
+                </TouchableOpacity>
+              )}
+              {secondaryButtonText && onSecondaryPress && (
+                <TouchableOpacity
+                  style={[styles.secondaryButton]}
+                  onPress={onSecondaryPress}
+                >
+                  <Text style={[styles.secondaryButtonText]}>
+                    {secondaryButtonText}
                   </Text>
                 </TouchableOpacity>
               )}
@@ -281,32 +292,35 @@ const styles = StyleSheet.create({
     fontSize: 14
   },
   buttonContainer: {
-    display: 'flex',
-    flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     gap: 12,
-    marginBottom: 8
+    marginBottom: 8,
+    alignSelf: 'stretch'
   },
   secondaryButton: {
     paddingVertical: 12,
     paddingHorizontal: 24,
     borderRadius: 8,
-    backgroundColor: theme.colors.button.secondary.background
+    backgroundColor: theme.colors.button.secondary.background,
+    alignSelf: 'stretch'
   },
   secondaryButtonText: {
     color: theme.colors.button.secondary.text,
-    fontSize: 16
+    fontSize: 16,
+    textAlign: 'center'
   },
   primaryButton: {
     paddingVertical: 12,
     paddingHorizontal: 24,
     borderRadius: 8,
-    backgroundColor: theme.colors.button.primary.background
+    backgroundColor: theme.colors.button.primary.background,
+    alignSelf: 'stretch'
   },
   primaryButtonText: {
     color: theme.colors.button.primary.text,
-    fontSize: 16
+    fontSize: 16,
+    textAlign: 'center'
   }
 });
 

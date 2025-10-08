@@ -134,6 +134,7 @@ const AsgardeoProvider: FunctionComponent<PropsWithChildren<AsgardeoProviderProp
         onPrimaryPress={alertConfig.onPrimaryPress}
         onSecondaryPress={alertConfig.onSecondaryPress}
         autoDismissTimeout={alertConfig.autoDismissTimeout}
+        icon={alertConfig.icon}
       />
     </AsgardeoContext.Provider>
   )

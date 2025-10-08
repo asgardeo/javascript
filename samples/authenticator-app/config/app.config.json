@@ -74,6 +74,10 @@
               "background": "#fafafaff",
               "text": "#181818ff"
             },
+            "message": {
+              "background": "#e0f7faff",
+              "text": "#00bcd4"
+            },
             "warning": {
               "background": "#fff4e5ff",
               "text": "#FF9800"
@@ -235,6 +239,10 @@
             "loading": {
               "background": "#fafafaff",
               "text": "#181818ff"
+            },
+            "message": {
+              "background": "#ffffffff",
+              "text": "#a2a2a2ff"
             },
             "warning": {
               "background": "#fff4e5ff",

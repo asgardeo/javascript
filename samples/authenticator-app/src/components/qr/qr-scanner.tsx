@@ -179,11 +179,12 @@ const QRScanner: FunctionComponent = (): ReactElement => {
 
     if (!permission?.granted) {
       showAlert({
-        type: AlertType.WARNING,
+        type: AlertType.MESSAGE,
         title: "Camera Permission Required",
         message: "Camera access is required to scan QR codes. Please grant camera permission.",
-        primaryButtonText: "Grant Permission",
-        secondaryButtonText: "Go Back",
+        primaryButtonText: "Allow",
+        secondaryButtonText: "Deny",
+        icon: "camera-alt",
         onPrimaryPress: () => {
           hideAlert();
           requestPermission();
@@ -218,7 +219,7 @@ const QRScanner: FunctionComponent = (): ReactElement => {
       <View style={styles.overlay}>
         <View style={styles.scanFrame} />
         <Text style={styles.instructionText}>
-          Point your camera at a QR code
+          Point your camera at the QR code
         </Text>
 
         <TouchableOpacity

@@ -108,6 +108,10 @@ export interface ThemeConfigs {
         background: string,
         text: string
       },
+      message: {
+        background: string,
+        text: string
+      },
       loading: {
         background: string,
         text: string
