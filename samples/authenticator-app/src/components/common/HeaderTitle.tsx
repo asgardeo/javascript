@@ -34,7 +34,7 @@ const HeaderTitle = (_props: HeaderTitleProps): ReactElement => {
   return (
     <View style={[styles.appTitleContainer]}>
       <Image
-        source={require('../../../assets/images/logo.png')}
+        source={require('../../../assets/images/full-logo.png')}
         style={styles.appLogo}
       />
       <Text style={[styles.appName]}>Authenticator</Text>
@@ -48,13 +48,12 @@ const HeaderTitle = (_props: HeaderTitleProps): ReactElement => {
 const styles = StyleSheet.create({
   appTitleContainer: {
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'flex-end',
     justifyContent: 'flex-start',
     gap: 8
   },
   appLogo: {
-    width: 30,
-    height: 30,
+    width: 100,
     resizeMode: 'contain'
   },
   appName: {
