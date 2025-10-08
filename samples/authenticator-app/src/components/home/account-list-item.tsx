@@ -24,7 +24,6 @@ import { AccountInterface } from "../../models/storage";
 import Avatar from "../common/avatar";
 import { getThemeConfigs, getUsername } from "../../utils/ui-utils";
 import { ThemeConfigs } from "../../models/ui";
-import verifyLocalAuthentication from "../../utils/local-authentication";
 import AppPaths from "../../constants/paths";
 
 const theme: ThemeConfigs = getThemeConfigs();
@@ -46,12 +45,7 @@ const AccountListItem: FunctionComponent<AccountInterface> = ({
    * Handle account press event.
    */
   const handleAccountPress = () => {
-    verifyLocalAuthentication()
-      .then((verified: boolean) => {
-        if (verified) {
-          router.push(`/${AppPaths.ACCOUNT}?id=${id}`);
-        }
-      });
+    router.push(`/${AppPaths.ACCOUNT}?id=${id}`);
   };
 
   return (

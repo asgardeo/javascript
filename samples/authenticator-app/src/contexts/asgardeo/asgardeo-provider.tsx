@@ -16,12 +16,14 @@
  * under the License.
  */
 
-import { FunctionComponent, PropsWithChildren, ReactElement, useCallback, useState } from "react";
+import { FunctionComponent, PropsWithChildren, ReactElement, useCallback, useEffect, useState } from "react";
 import AsgardeoContext from "./asgardeo-context";
 import AccountProvider from "../account/account-provider";
 import Alert, { AlertProps, AlertType } from "../../components/common/alert";
 import TOTPProvider from "../totp/totp-provider";
 import PushAuthProvider from "../push-auth/push-auth-provider";
+import verifyLocalAuthentication from "../../utils/local-authentication";
+import { AppAuthenticationStatus } from "../../models/core";
 
 /**
  * Asgardeo provider props interface.
@@ -49,6 +51,10 @@ const AsgardeoProvider: FunctionComponent<PropsWithChildren<AsgardeoProviderProp
     title: "",
     message: ""
   });
+  const [
+    authenticationStatus,
+    setAuthenticationStatus
+  ] = useState<AppAuthenticationStatus>(AppAuthenticationStatus.PENDING);
 
   /**
    * Show alert with the given configuration.
@@ -75,19 +81,49 @@ const AsgardeoProvider: FunctionComponent<PropsWithChildren<AsgardeoProviderProp
     });
   }, []);
 
+  /**
+   * Effect to verify local authentication on component mount.
+   */
+  useEffect(() => {
+    if (authenticationStatus === AppAuthenticationStatus.PENDING) {
+      verifyLocalAuthentication()
+        .then((verified: boolean) => {
+          if (verified) {
+            setAuthenticationStatus(AppAuthenticationStatus.AUTHENTICATED);
+          } else {
+            setAuthenticationStatus(AppAuthenticationStatus.UNAUTHENTICATED);
+            showAlert({
+              type: AlertType.ERROR,
+              title: "Authentication Failed",
+              message: "Failed to authenticate the user. Please try again.",
+              primaryButtonText: "Retry",
+              onPrimaryPress: () => {
+                setAuthenticationStatus(AppAuthenticationStatus.PENDING)
+                hideAlert();
+              }
+            });
+          }
+        });
+    }
+  }, [authenticationStatus, showAlert, hideAlert]);
+
   return (
     <AsgardeoContext.Provider value={{
       isAppInitialized,
       showAlert,
       hideAlert
     }}>
-      <AccountProvider>
-        <TOTPProvider>
-          <PushAuthProvider>
-            {children}
-          </PushAuthProvider>
-        </TOTPProvider>
-      </AccountProvider>
+      {
+        authenticationStatus === AppAuthenticationStatus.AUTHENTICATED && (
+          <AccountProvider>
+            <TOTPProvider>
+              <PushAuthProvider>
+                {children}
+              </PushAuthProvider>
+            </TOTPProvider>
+          </AccountProvider>
+        )
+      }
       <Alert
         visible={alertConfig.visible}
         type={alertConfig.type}

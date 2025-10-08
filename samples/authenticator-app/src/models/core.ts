@@ -103,3 +103,12 @@ export interface DevModeConfig {
    */
   host: string;
 }
+
+/**
+ * Enum representing the app authentication status.
+ */
+export enum AppAuthenticationStatus {
+  PENDING = "PENDING",
+  AUTHENTICATED = "AUTHENTICATED",
+  UNAUTHENTICATED = "UNAUTHENTICATED"
+}
