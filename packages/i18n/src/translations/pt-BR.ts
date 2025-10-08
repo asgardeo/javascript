@@ -136,9 +136,9 @@ const translations: I18nTranslations = {
   'errors.title': 'Erro',
   'errors.sign.in.initialization': 'Ocorreu um erro ao inicializar. Tente novamente mais tarde.',
   'errors.sign.in.flow.failure': 'Ocorreu um erro durante o login. Tente novamente mais tarde.',
-  'errors.sign.in.flow.completion.failure':
-    'Ocorreu um erro ao completar o login. Tente novamente mais tarde.',
-  'errors.sign.in.flow.passkeys.failure': 'Ocorreu um erro ao entrar com as chaves de acesso (passkeys). Tente novamente mais tarde.',
+  'errors.sign.in.flow.completion.failure': 'Ocorreu um erro ao completar o login. Tente novamente mais tarde.',
+  'errors.sign.in.flow.passkeys.failure':
+    'Ocorreu um erro ao entrar com as chaves de acesso (passkeys). Tente novamente mais tarde.',
   'errors.sign.in.flow.passkeys.completion.failure':
     'Ocorreu um erro ao completar o login com as chaves de acesso (passkeys). Tente novamente mais tarde.',
 };
