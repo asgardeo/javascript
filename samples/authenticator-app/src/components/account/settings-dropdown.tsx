@@ -25,7 +25,7 @@ import { AccountInterface } from "../../models/storage";
 import useAccount from "../../contexts/account/use-account";
 import useAsgardeo from "../../contexts/asgardeo/use-asgardeo";
 import { AlertType } from "../common/alert";
-import verifyLocalAuthentication from "../../utils/local-authentication";
+import verifyLocalAuthentication from "../../utils/verifyLocalAuthentication";
 import useTOTP from "../../contexts/totp/use-totp";
 import { Router, useRouter } from "expo-router";
 import AppPaths from "../../constants/paths";

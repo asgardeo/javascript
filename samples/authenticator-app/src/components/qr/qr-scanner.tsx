@@ -21,7 +21,7 @@ import { BarcodeScanningResult, CameraView, useCameraPermissions } from "expo-ca
 import { router } from "expo-router";
 import { FunctionComponent, ReactElement, RefObject, useCallback, useEffect, useRef } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import validateQRData from "../../../src/utils/validate-qr-data";
+import validateQRData from "../../utils/validateQRData";
 import { QRDataType, QRDataValidationResponseInterface } from "../../models/core";
 import { AlertType } from "../common/alert";
 import useTOTP from "../../contexts/totp/use-totp";

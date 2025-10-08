@@ -17,36 +17,9 @@
  */
 
 import rawConfig from "../../config/app.config.json";
-import { DeploymentConfig, DevModeConfig, FeatureConfig, SecurityConfig } from "../models/core";
+import { DeploymentConfig } from "../models/core";
 
 const config: DeploymentConfig = rawConfig as DeploymentConfig;
-
-/**
- * Get Feature configuration.
- *
- * @returns Feature configuration.
- */
-export const getFeatureConfig = (): FeatureConfig => {
-  return config.feature;
-};
-
-/**
- * Get Security configuration.
- *
- * @returns Security configuration.
- */
-export const getSecurityConfig = (): SecurityConfig => {
-  return config.security;
-};
-
-/**
- * Get Dev mode configuration.
- *
- * @returns Dev mode configuration.
- */
-export const getDevModeConfig = (): DevModeConfig => {
-  return config.devMode;
-};
 
 /**
  * Resolve host name based on dev mode configuration.
@@ -54,10 +27,12 @@ export const getDevModeConfig = (): DevModeConfig => {
  * @param host - Original host name.
  * @returns Resolved host name based on dev mode configuration.
  */
-export const resolveHostName = (host: string): string => {
-  if (getDevModeConfig().enabled) {
-    return getDevModeConfig().host;
+const resolveHostName = (host: string): string => {
+  if (config.devMode.enabled) {
+    return config.devMode.host;
   }
 
   return host;
 }
+
+export default resolveHostName;

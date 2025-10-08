@@ -20,11 +20,11 @@ import { FunctionComponent, PropsWithChildren, ReactElement, useCallback } from 
 import TOTPContext from "./totp-context";
 import { TOTPQRDataInterface } from "../../models/totp";
 import { AccountInterface } from "../../models/storage";
-import AsyncStorageService from "../../utils/async-storage-service";
+import AsyncStorageService from "../../utils/AsyncStorageService";
 import StorageConstants from "../../constants/storage";
-import CryptoService from "../../utils/crypto-service";
-import TypeConvert from "../../utils/typer-convert";
-import SecureStorageService from "../../utils/secure-storage-service";
+import CryptoService from "../../utils/CryptoService";
+import TypeConvert from "../../utils/TyperConvert";
+import SecureStorageService from "../../utils/SecureStorageService";
 import useAccount from "../account/use-account";
 
 /**

@@ -22,7 +22,7 @@ import AccountProvider from "../account/account-provider";
 import Alert, { AlertProps, AlertType } from "../../components/common/alert";
 import TOTPProvider from "../totp/totp-provider";
 import PushAuthProvider from "../push-auth/push-auth-provider";
-import verifyLocalAuthentication from "../../utils/local-authentication";
+import verifyLocalAuthentication from "../../utils/verifyLocalAuthentication";
 import { AppAuthenticationStatus } from "../../models/core";
 
 /**

@@ -20,7 +20,7 @@ import { TOTP } from 'otpauth';
 import QuickCrypto from 'react-native-quick-crypto';
 import { KeyPair } from '../models/crypto';
 import { PushAuthJWTBodyInterface, PushAuthJWTHeaderInterface } from '../models/push-notification';
-import SecureStorageService from './secure-storage-service';
+import SecureStorageService from './SecureStorageService';
 
 // Node buffer polyfill for React Native environment.
 import { Buffer } from 'buffer';

@@ -19,9 +19,9 @@
 import { useFocusEffect } from "expo-router";
 import { PushAuthenticationDataStorageInterface, StorageDataInterface } from "../../models/storage";
 import { FunctionComponent, useCallback, useState } from "react";
-import AsyncStorageService from "../../utils/async-storage-service";
+import AsyncStorageService from "../../utils/AsyncStorageService";
 import StorageConstants from "../../constants/storage";
-import TypeConvert from "../../utils/typer-convert";
+import TypeConvert from "../../utils/TyperConvert";
 import { ScrollView, StyleSheet, View, Text, ViewStyle } from "react-native";
 import HistoryCard from "./history-card";
 import { EdgeInsets, useSafeAreaInsets } from "react-native-safe-area-context";

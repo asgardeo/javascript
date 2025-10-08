@@ -19,7 +19,7 @@
 import { AvatarColorPair, ThemeConfigs, ThemeMode } from "../models/ui";
 import rawConfig from "../../config/app.config.json";
 import { DeploymentConfig } from "../models/core";
-import FastStorage from "./fast-storage";
+import FastStorage from "./FastStorage";
 import StorageConstants from "../constants/storage";
 import { Appearance } from "react-native";
 

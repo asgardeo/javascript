@@ -19,9 +19,12 @@
 import { authenticateAsync, LocalAuthenticationResult } from "expo-local-authentication";
 import StorageConstants from "../constants/storage"
 import { UserPreferenceInterface } from "../models/storage";
-import AsyncStorageService from "./async-storage-service"
-import { getSecurityConfig } from "./core";
-import TypeConvert from "./typer-convert";
+import AsyncStorageService from "./AsyncStorageService"
+import TypeConvert from "./TyperConvert";
+import rawConfig from "../../config/app.config.json";
+import { DeploymentConfig } from "../models/core";
+
+const config: DeploymentConfig = rawConfig as DeploymentConfig;
 
 /**
  * Verify local authentication.
@@ -33,13 +36,13 @@ const verifyLocalAuthentication = async (settings: boolean = false): Promise<boo
   try {
     // Check if the requested page is settings page.
     if (settings) {
-      if (!getSecurityConfig().enableSettingsScreenLock) {
+      if (!config.security.enableSettingsScreenLock) {
         return true;
       }
     } else {
       const userPreferences: UserPreferenceInterface = TypeConvert.toUserPreferenceInterface(
         await AsyncStorageService.getItem(StorageConstants.USER_PREFERENCE) ?? {});
-      const appScreenLocksEnabledInAppConfig: boolean = getSecurityConfig().enableAppScreenLocks;
+      const appScreenLocksEnabledInAppConfig: boolean = config.security.enableAppScreenLocks;
 
       if (userPreferences?.enableAppScreenLocks === false || !appScreenLocksEnabledInAppConfig) {
         return true;

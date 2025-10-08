@@ -18,14 +18,14 @@
 
 import StorageConstants from "../../constants/storage";
 import { AccountInterface, StorageDataInterface } from "../../models/storage";
-import AsyncStorageService from "../../utils/async-storage-service";
-import TypeConvert from "../../utils/typer-convert";
+import AsyncStorageService from "../../utils/AsyncStorageService";
+import TypeConvert from "../../utils/TyperConvert";
 import { Ionicons, Octicons } from "@expo/vector-icons";
 import { setStringAsync } from 'expo-clipboard';
 import React, { FunctionComponent, ReactElement, RefObject, useCallback, useEffect, useRef, useState } from "react";
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { EdgeInsets, useSafeAreaInsets } from "react-native-safe-area-context";
-import CryptoService from "../../utils/crypto-service";
+import CryptoService from "../../utils/CryptoService";
 import Avatar from "../common/avatar";
 import CircularProgress from "./circular-porgress-bar";
 import { Router, useFocusEffect, useRouter } from "expo-router";

@@ -23,7 +23,7 @@ import { FunctionComponent, ReactElement } from "react";
 import { StyleSheet, TouchableOpacity, View } from "react-native";
 import { ThemeConfigs } from "../src/models/ui";
 import { getThemeConfigs } from "../src/utils/ui-utils";
-import verifyLocalAuthentication from "../src/utils/local-authentication";
+import verifyLocalAuthentication from "../src/utils/verifyLocalAuthentication";
 import AppPaths from "../src/constants/paths";
 
 const theme: ThemeConfigs = getThemeConfigs();

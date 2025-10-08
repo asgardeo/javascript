@@ -19,7 +19,7 @@
 import { FunctionComponent, PropsWithChildren, ReactElement, RefObject, useCallback, useEffect, useRef, useState } from "react";
 import AccountContext from "./account-context";
 import { AccountInterface } from "../../models/storage";
-import AsyncStorageService from "../../utils/async-storage-service";
+import AsyncStorageService from "../../utils/AsyncStorageService";
 import StorageConstants from "../../constants/storage";
 import useAsgardeo from "../asgardeo/use-asgardeo";
 import { AlertType } from "../../components/common/alert";

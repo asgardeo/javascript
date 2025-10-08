@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import TypeConvert from "../../utils/typer-convert";
+import TypeConvert from "../../utils/TyperConvert";
 import { Router, useRouter } from "expo-router";
 import { FunctionComponent, PropsWithChildren, ReactElement, useCallback, useEffect, useState } from "react";
 import Alert, { AlertType } from "../../components/common/alert";
@@ -29,20 +29,21 @@ import {
   PushNotificationQRDataInterface
 } from "../../models/push-notification";
 import { AccountInterface, PushAuthenticationDataStorageInterface, StorageDataInterface } from "../../models/storage";
-import AsyncStorageService from "../../utils/async-storage-service";
-import CryptoService from "../../utils/crypto-service";
-import MessagingService from "../../utils/messagging-service";
+import AsyncStorageService from "../../utils/AsyncStorageService";
+import CryptoService from "../../utils/CryptoService";
+import MessagingService from "../../utils/MessagingService";
 import PushAuthContext from "./push-auth-context";
-import { getFeatureConfig, resolveHostName } from "../../utils/core";
-import { FeatureConfig } from "../../models/core";
+import resolveHostName from "../../utils/resolveHostName";
+import { DeploymentConfig } from "../../models/core";
 import useAsgardeo from "../asgardeo/use-asgardeo";
 import AppPaths from "../../constants/paths";
-import SecureStorageService from "../../utils/secure-storage-service";
+import SecureStorageService from "../../utils/SecureStorageService";
 import { deviceName, modelName } from 'expo-device';
 import { Platform } from "react-native";
 import useAccount from "../account/use-account";
+import rawConfig from "../../../config/app.config.json";
 
-const featureConfig: FeatureConfig = getFeatureConfig();
+const config: DeploymentConfig = rawConfig as DeploymentConfig;
 
 /**
  * Push Authentication Provider component.
@@ -241,7 +242,7 @@ const PushAuthProvider: FunctionComponent<PropsWithChildren> = ({
           StorageConstants.replaceAccountId(
             StorageConstants.PUSH_AUTHENTICATION_DATA, accountDetails.id),
           authStorageData,
-          featureConfig.push.numberOfHistoryRecords
+          config.feature.push.numberOfHistoryRecords
         );
       }
     } catch {
