@@ -17,9 +17,9 @@
  */
 
 import { authenticateAsync, LocalAuthenticationResult } from "expo-local-authentication";
-import StorageConstants from "../constants/StorageConstants"
+import StorageConstants from "../constants/StorageConstants";
 import { UserPreferenceInterface } from "../models/storage";
-import AsyncStorageService from "./AsyncStorageService"
+import AsyncStorageService from "./AsyncStorageService";
 import TypeConvert from "./TyperConvert";
 import rawConfig from "../../config/app.config.json";
 import { DeploymentConfig } from "../models/core";
