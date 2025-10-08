@@ -23,15 +23,15 @@ import { FunctionComponent, ReactElement, RefObject, useCallback, useEffect, use
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import validateQRData from "../../utils/validateQRData";
 import { QRDataType, QRDataValidationResponseInterface } from "../../models/core";
-import { AlertType } from "../common/alert";
-import useTOTP from "../../contexts/totp/use-totp";
-import useAsgardeo from "../../contexts/asgardeo/use-asgardeo";
-import AppPaths from "../../constants/paths";
+import { AlertType } from "../common/AlertWidget";
+import useTOTP from "../../contexts/totp/useTOTP";
+import useAsgardeo from "../../contexts/asgardeo/useAsgardeo";
+import AppPaths from "../../constants/AppPaths";
 import { ThemeConfigs } from "../../models/ui";
-import { getThemeConfigs } from "../../utils/ui-utils";
-import usePushAuth from "../../contexts/push-auth/use-push-auth";
+import usePushAuth from "../../contexts/push-auth/usePushAuth";
+import Theme from "../../utils/Theme";
 
-const theme: ThemeConfigs = getThemeConfigs();
+const theme: ThemeConfigs = Theme.getInstance().getConfigs();
 
 /**
  * QR Scanner Component.

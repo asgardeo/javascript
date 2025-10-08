@@ -20,18 +20,18 @@ import { Ionicons } from "@expo/vector-icons";
 import { FunctionComponent, ReactElement, useMemo, useState } from "react";
 import { Modal, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { ThemeConfigs } from "../../models/ui";
-import { getThemeConfigs } from "../../utils/ui-utils";
 import { AccountInterface } from "../../models/storage";
-import useAccount from "../../contexts/account/use-account";
-import useAsgardeo from "../../contexts/asgardeo/use-asgardeo";
-import { AlertType } from "../common/alert";
+import useAccount from "../../contexts/account/useAccount";
+import useAsgardeo from "../../contexts/asgardeo/useAsgardeo";
+import { AlertType } from "../common/AlertWidget";
 import verifyLocalAuthentication from "../../utils/verifyLocalAuthentication";
-import useTOTP from "../../contexts/totp/use-totp";
+import useTOTP from "../../contexts/totp/useTOTP";
 import { Router, useRouter } from "expo-router";
-import AppPaths from "../../constants/paths";
-import usePushAuth from "../../contexts/push-auth/use-push-auth";
+import AppPaths from "../../constants/AppPaths";
+import usePushAuth from "../../contexts/push-auth/usePushAuth";
+import Theme from "../../utils/Theme";
 
-const theme: ThemeConfigs = getThemeConfigs();
+const theme: ThemeConfigs = Theme.getInstance().getConfigs();
 
 /**
  * Props for the SettingsDropdown component.

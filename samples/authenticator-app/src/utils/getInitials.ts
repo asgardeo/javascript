@@ -16,22 +16,18 @@
  * under the License.
  */
 
-import { useContext } from "react";
-import AsgardeoContext, { AsgardeoContextInterface } from "./asgardeo-context";
-
 /**
- * Custom hook to access the Asgardeo context.
+ * Generate initials from a given name.
  *
- * @returns Asgardeo context value.
+ * @param name Name to generate initials from.
+ * @returns Initials generated from the name.
  */
-const useAsgardeo = (): AsgardeoContextInterface => {
-  const context = useContext(AsgardeoContext);
+const getInitials = (name: string): string => {
+  return name
+    .split(' ')
+    .map(word => word.charAt(0).toUpperCase())
+    .slice(0, 2)
+    .join('');
+};
 
-  if (context === undefined) {
-    throw new Error("useAsgardeo must be used within an AsgardeoProvider");
-  }
-
-  return context;
-}
-
-export default useAsgardeo;
+export default getInitials;

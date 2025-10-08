@@ -16,26 +16,24 @@
  * under the License.
  */
 
-import { NativeStackHeaderRightProps } from "@react-navigation/native-stack";
-import { ReactElement } from "react";
-import SettingsDropdown from "./settings-dropdown";
-
-export interface AccountHeaderRightProps extends NativeStackHeaderRightProps {
-  /**
-   * Route parameters.
-   */
-  params: Record<string, string>;
-}
-
 /**
- * Account Header Right component with settings dropdown.
+ * Extract the username from a full username string.
  *
- * @returns Account Header Right component with settings dropdown.
+ * @param username The full username string.
+ * @returns The extracted username without the domain part.
  */
-const AccountHeaderRight = ({ params }: AccountHeaderRightProps): ReactElement => {
-  return (
-    <SettingsDropdown accountId={params.id} />
-  )
+const getUsername = (username: string): string => {
+  if (!username) {
+    return "";
+  }
+
+  const domainSeparatorIndex = username.indexOf('/');
+
+  if (domainSeparatorIndex !== -1) {
+    return username.substring(domainSeparatorIndex + 1);
+  }
+
+  return username;
 }
 
-export default AccountHeaderRight;
+export default getUsername;

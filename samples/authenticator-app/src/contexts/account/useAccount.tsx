@@ -16,21 +16,22 @@
  * under the License.
  */
 
-import { useLocalSearchParams } from "expo-router";
-import { FunctionComponent, ReactElement } from "react";
-import TOTPCode from "../src/components/account/TOTPCode";
+import { useContext } from "react";
+import AccountContext, { AccountContextInterface } from "./AccountContext";
 
 /**
- * Account Screen component.
+ * Custom hook to access the Account context.
  *
- * @returns Account screen component.
+ * @returns Account context.
  */
-const AccountScreen: FunctionComponent = (): ReactElement | null => {
-  const { id } = useLocalSearchParams<{ id: string }>();
+const useAccount = (): AccountContextInterface => {
+  const context: AccountContextInterface = useContext<AccountContextInterface>(AccountContext);
 
-  return (
-    <TOTPCode id={id} />
-  );
+  if (context === undefined) {
+    throw new Error("useAccount must be used within an AccountProvider");
+  }
+
+  return context;
 }
 
-export default AccountScreen;
+export default useAccount;

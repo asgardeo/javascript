@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import StorageConstants from "../../constants/storage";
+import StorageConstants from "../../constants/StorageConstants";
 import { AccountInterface, StorageDataInterface } from "../../models/storage";
 import AsyncStorageService from "../../utils/AsyncStorageService";
 import TypeConvert from "../../utils/TyperConvert";
@@ -26,14 +26,15 @@ import React, { FunctionComponent, ReactElement, RefObject, useCallback, useEffe
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { EdgeInsets, useSafeAreaInsets } from "react-native-safe-area-context";
 import CryptoService from "../../utils/CryptoService";
-import Avatar from "../common/avatar";
-import CircularProgress from "./circular-porgress-bar";
+import AvatarWidget from "../common/AvatarWidget";
+import CircularProgress from "./CircularProgress";
 import { Router, useFocusEffect, useRouter } from "expo-router";
-import HistoryList from "../push-auth-history/history-list";
-import { getThemeConfigs, getUsername } from "../../utils/ui-utils";
+import HistoryList from "../push-auth-history/HistoryList";
 import { ThemeConfigs } from "../../models/ui";
+import getUsername from "../../utils/getUsername";
+import Theme from "../../utils/Theme";
 
-const theme: ThemeConfigs = getThemeConfigs();
+const theme: ThemeConfigs = Theme.getInstance().getConfigs();
 
 /**
  * Props for the TOTPCode component.
@@ -155,7 +156,7 @@ const TOTPCode: FunctionComponent<TOTPCodeProps> = ({ id }: TOTPCodeProps): Reac
       >
         <View style={[localStyles.container]}>
           <View style={[localStyles.headerContainer]}>
-            <Avatar
+            <AvatarWidget
               name={getUsername(accountDetails?.username!) || accountDetails?.displayName}
               style={[localStyles.headerAvatar]}
             />

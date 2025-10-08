@@ -17,11 +17,11 @@
  */
 
 import { FunctionComponent, PropsWithChildren, ReactElement, useCallback, useEffect, useState } from "react";
-import AsgardeoContext from "./asgardeo-context";
-import AccountProvider from "../account/account-provider";
-import Alert, { AlertProps, AlertType } from "../../components/common/alert";
-import TOTPProvider from "../totp/totp-provider";
-import PushAuthProvider from "../push-auth/push-auth-provider";
+import AsgardeoContext from "./AsgardeoContext";
+import AccountProvider from "../account/AccountProvider";
+import AlertWidget, { AlertProps, AlertType } from "../../components/common/AlertWidget";
+import TOTPProvider from "../totp/TOTPProvider";
+import PushAuthProvider from "../push-auth/PushAuthProvider";
 import verifyLocalAuthentication from "../../utils/verifyLocalAuthentication";
 import { AppAuthenticationStatus } from "../../models/core";
 
@@ -124,7 +124,7 @@ const AsgardeoProvider: FunctionComponent<PropsWithChildren<AsgardeoProviderProp
           </AccountProvider>
         )
       }
-      <Alert
+      <AlertWidget
         visible={alertConfig.visible}
         type={alertConfig.type}
         title={alertConfig.title}

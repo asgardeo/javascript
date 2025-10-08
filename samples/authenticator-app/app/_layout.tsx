@@ -16,16 +16,16 @@
  * under the License.
  */
 
-import AccountHeaderRight from "../src/components/account/account-header-right";
+import AccountHeaderRight from "../src/components/account/AccountHeaderRight";
 import { Stack } from "expo-router";
 import { ReactElement, useEffect, useState } from "react";
-import HeaderTitle from "../src/components/common/header-title";
+import HeaderTitle from "../src/components/common/HeaderTitle";
 import { ThemeConfigs } from "../src/models/ui";
-import { getThemeConfigs } from "../src/utils/ui-utils";
-import AsgardeoProvider from "../src/contexts/asgardeo/asgardeo-provider";
-import AppPaths from "../src/constants/paths";
+import AsgardeoProvider from "../src/contexts/asgardeo/AsgardeoProvider";
+import AppPaths from "../src/constants/AppPaths";
+import Theme from "../src/utils/Theme";
 
-const theme: ThemeConfigs = getThemeConfigs();
+const theme: ThemeConfigs = Theme.getInstance().getConfigs();
 
 /**
  * Root Layout component.

@@ -19,8 +19,8 @@
 import TypeConvert from "../../utils/TyperConvert";
 import { Router, useRouter } from "expo-router";
 import { FunctionComponent, PropsWithChildren, ReactElement, useCallback, useEffect, useState } from "react";
-import Alert, { AlertType } from "../../components/common/alert";
-import StorageConstants from "../../constants/storage";
+import AlertWidget, { AlertType } from "../../components/common/AlertWidget";
+import StorageConstants from "../../constants/StorageConstants";
 import {
   PushAuthenticationDataInterface,
   PushAuthJWTBodyInterface,
@@ -32,15 +32,15 @@ import { AccountInterface, PushAuthenticationDataStorageInterface, StorageDataIn
 import AsyncStorageService from "../../utils/AsyncStorageService";
 import CryptoService from "../../utils/CryptoService";
 import MessagingService from "../../utils/MessagingService";
-import PushAuthContext from "./push-auth-context";
+import PushAuthContext from "./PushAuthContext";
 import resolveHostName from "../../utils/resolveHostName";
 import { DeploymentConfig } from "../../models/core";
-import useAsgardeo from "../asgardeo/use-asgardeo";
-import AppPaths from "../../constants/paths";
+import useAsgardeo from "../asgardeo/useAsgardeo";
+import AppPaths from "../../constants/AppPaths";
 import SecureStorageService from "../../utils/SecureStorageService";
 import { deviceName, modelName } from 'expo-device';
 import { Platform } from "react-native";
-import useAccount from "../account/use-account";
+import useAccount from "../account/useAccount";
 import rawConfig from "../../../config/app.config.json";
 
 const config: DeploymentConfig = rawConfig as DeploymentConfig;
@@ -481,7 +481,7 @@ const PushAuthProvider: FunctionComponent<PropsWithChildren> = ({
       }}
     >
       {children}
-      <Alert
+      <AlertWidget
         visible={alertVisible}
         type={alertType}
         title={alertTitle}

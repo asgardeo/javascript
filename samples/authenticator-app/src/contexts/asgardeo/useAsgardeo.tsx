@@ -17,21 +17,21 @@
  */
 
 import { useContext } from "react";
-import TOTPContext, { TOTPContextInterface } from "./totp-context";
+import AsgardeoContext, { AsgardeoContextInterface } from "./AsgardeoContext";
 
 /**
- * Hook to access the TOTP context.
+ * Custom hook to access the Asgardeo context.
  *
- * @returns TOTP context.
+ * @returns Asgardeo context value.
  */
-const useTOTP = (): TOTPContextInterface => {
-  const context = useContext(TOTPContext);
+const useAsgardeo = (): AsgardeoContextInterface => {
+  const context = useContext(AsgardeoContext);
 
   if (context === undefined) {
-    throw new Error("useTOTP must be used within a TOTPProvider");
+    throw new Error("useAsgardeo must be used within an AsgardeoProvider");
   }
 
   return context;
 }
 
-export default useTOTP;
+export default useAsgardeo;

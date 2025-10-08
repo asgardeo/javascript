@@ -17,15 +17,15 @@
  */
 
 import { FunctionComponent, PropsWithChildren, ReactElement, useCallback } from "react";
-import TOTPContext from "./totp-context";
+import TOTPContext from "./TOTPContext";
 import { TOTPQRDataInterface } from "../../models/totp";
 import { AccountInterface } from "../../models/storage";
 import AsyncStorageService from "../../utils/AsyncStorageService";
-import StorageConstants from "../../constants/storage";
+import StorageConstants from "../../constants/StorageConstants";
 import CryptoService from "../../utils/CryptoService";
 import TypeConvert from "../../utils/TyperConvert";
 import SecureStorageService from "../../utils/SecureStorageService";
-import useAccount from "../account/use-account";
+import useAccount from "../account/useAccount";
 
 /**
  * TOTP Provider component to provide TOTP context to its children.

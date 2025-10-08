@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import AppPaths from "../src/constants/paths";
+import AppPaths from "../src/constants/AppPaths";
 import { Redirect } from "expo-router";
 import { ReactElement } from "react";
 

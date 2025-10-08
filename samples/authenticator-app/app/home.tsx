@@ -16,17 +16,17 @@
  * under the License.
  */
 
-import AccountList from "../src/components/home/account-list";
+import AccountList from "../src/components/home/AccountList";
 import { MaterialIcons } from "@expo/vector-icons";
 import { Router, useRouter } from "expo-router";
 import { FunctionComponent, ReactElement } from "react";
 import { StyleSheet, TouchableOpacity, View } from "react-native";
 import { ThemeConfigs } from "../src/models/ui";
-import { getThemeConfigs } from "../src/utils/ui-utils";
 import verifyLocalAuthentication from "../src/utils/verifyLocalAuthentication";
-import AppPaths from "../src/constants/paths";
+import AppPaths from "../src/constants/AppPaths";
+import Theme from "../src/utils/Theme";
 
-const theme: ThemeConfigs = getThemeConfigs();
+const theme: ThemeConfigs = Theme.getInstance().getConfigs();
 
 /**
  * Home screen component.

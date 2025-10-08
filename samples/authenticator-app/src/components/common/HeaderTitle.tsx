@@ -16,13 +16,13 @@
  * under the License.
  */
 
+import Theme from "../../utils/Theme";
 import { ThemeConfigs } from "../../models/ui";
-import { getThemeConfigs } from "../../utils/ui-utils";
 import { HeaderTitleProps } from "@react-navigation/elements";
 import { ReactElement } from "react";
 import { Image, StyleSheet, Text, View } from "react-native";
 
-const theme: ThemeConfigs = getThemeConfigs();
+const theme: ThemeConfigs = Theme.getInstance().getConfigs();
 
 /**
  * Header title component for the app.

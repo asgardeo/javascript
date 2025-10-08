@@ -19,12 +19,13 @@
 import { PushAuthenticationDataInterface, PushAuthResponseStatus } from "../../models/push-notification";
 import { FunctionComponent, ReactElement, useMemo } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import usePushAuth from "../../contexts/push-auth/use-push-auth";
-import { getThemeConfigs, getTimeFromNow } from "../../utils/ui-utils";
+import usePushAuth from "../../contexts/push-auth/usePushAuth";
 import { authenticateAsync, LocalAuthenticationResult } from "expo-local-authentication";
 import { ThemeConfigs } from "../../models/ui";
+import getTimeFromNow from "../../utils/getTimeFromNow";
+import Theme from "../../utils/Theme";
 
-const theme: ThemeConfigs = getThemeConfigs();
+const theme: ThemeConfigs = Theme.getInstance().getConfigs();
 
 /**
  * Generates three random numbers including the legitimate one

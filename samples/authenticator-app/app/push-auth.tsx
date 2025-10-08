@@ -16,17 +16,17 @@
  * under the License.
  */
 
-import usePushAuth from "../src/contexts/push-auth/use-push-auth";
+import usePushAuth from "../src/contexts/push-auth/usePushAuth";
 import { PushAuthenticationDataInterface } from "../src/models/push-notification";
 import { Router, useLocalSearchParams, useRouter } from "expo-router";
 import { FunctionComponent, ReactElement, useEffect, useMemo } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
-import AppNotification from "../src/components/push-auth/app-notification";
+import AppNotification from "../src/components/push-auth/AppNotification";
 import { EdgeInsets, useSafeAreaInsets } from "react-native-safe-area-context";
-import { getThemeConfigs } from "../src/utils/ui-utils";
 import { ThemeConfigs } from "../src/models/ui";
+import Theme from "../src/utils/Theme";
 
-const theme: ThemeConfigs = getThemeConfigs();
+const theme: ThemeConfigs = Theme.getInstance().getConfigs();
 
 /**
  * Push Authentication Screen

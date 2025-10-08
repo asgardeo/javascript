@@ -16,21 +16,22 @@
  * under the License.
  */
 
-import { useLocalSearchParams } from "expo-router";
-import { FunctionComponent, ReactElement } from "react";
-import TOTPCode from "../src/components/account/TOTPCode";
+import { useContext } from "react";
+import PushAuthContext from "./PushAuthContext";
 
 /**
- * Account Screen component.
+ * Custom hook to access the push authentication context.
  *
- * @returns Account screen component.
+ * @returns Push authentication context.
  */
-const AccountScreen: FunctionComponent = (): ReactElement | null => {
-  const { id } = useLocalSearchParams<{ id: string }>();
+const usePushAuth = () => {
+  const pushAuthContext = useContext(PushAuthContext);
 
-  return (
-    <TOTPCode id={id} />
-  );
+  if (!pushAuthContext) {
+    throw new Error("usePushAuth must be used within a PushAuthProvider");
+  }
+
+  return pushAuthContext;
 }
 
-export default AccountScreen;
+export default usePushAuth;

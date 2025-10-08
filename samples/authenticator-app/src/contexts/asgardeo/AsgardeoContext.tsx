@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import { AlertProps } from "../../components/common/alert";
+import { AlertProps } from "../../components/common/AlertWidget";
 import { Context, createContext } from "react";
 
 /**

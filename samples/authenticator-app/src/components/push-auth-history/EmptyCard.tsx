@@ -20,9 +20,9 @@ import { StyleSheet, View, Text } from "react-native";
 import { FunctionComponent } from "react";
 import { Ionicons } from "@expo/vector-icons";
 import { ThemeConfigs } from "../../models/ui";
-import { getThemeConfigs } from "../../utils/ui-utils";
+import Theme from "../../utils/Theme";
 
-const theme: ThemeConfigs = getThemeConfigs();
+const theme: ThemeConfigs = Theme.getInstance().getConfigs();
 
 /**
  * Empty card component to display when no push authentication history is available.

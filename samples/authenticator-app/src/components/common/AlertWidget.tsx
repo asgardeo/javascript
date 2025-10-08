@@ -16,13 +16,13 @@
  * under the License.
  */
 
+import Theme from "../../utils/Theme";
 import { ThemeConfigs } from "../../models/ui";
-import { getThemeConfigs } from "../../utils/ui-utils";
 import { MaterialIcons } from "@expo/vector-icons";
 import { FunctionComponent, ReactElement, useEffect } from "react";
 import { ActivityIndicator, Modal, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
-const theme: ThemeConfigs = getThemeConfigs();
+const theme: ThemeConfigs = Theme.getInstance().getConfigs();
 
 /**
  * Alert types for different notification states.
@@ -98,7 +98,7 @@ interface AlertConfig {
  * @param props - Props for the Alert component.
  * @returns Alert Component.
  */
-const Alert: FunctionComponent<AlertProps> = ({
+const AlertWidget: FunctionComponent<AlertProps> = ({
   visible,
   type,
   title,
@@ -324,4 +324,4 @@ const styles = StyleSheet.create({
   }
 });
 
-export default Alert;
+export default AlertWidget;

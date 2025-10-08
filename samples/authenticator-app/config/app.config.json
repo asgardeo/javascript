@@ -4,7 +4,7 @@
     "host": "http://10.10.16.152:8082"
   },
   "security": {
-    "enableAppScreenLocks": true,
+    "enableAppScreenLocks": false,
     "enableSettingsScreenLock": true
   },
   "feature": {

@@ -21,12 +21,13 @@ import { useRouter } from "expo-router";
 import { FunctionComponent, ReactElement } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { AccountInterface } from "../../models/storage";
-import Avatar from "../common/avatar";
-import { getThemeConfigs, getUsername } from "../../utils/ui-utils";
+import AvatarWidget from "../common/AvatarWidget";
 import { ThemeConfigs } from "../../models/ui";
-import AppPaths from "../../constants/paths";
+import AppPaths from "../../constants/AppPaths";
+import getUsername from "../../utils/getUsername";
+import Theme from "../../utils/Theme";
 
-const theme: ThemeConfigs = getThemeConfigs();
+const theme: ThemeConfigs = Theme.getInstance().getConfigs();
 
 /**
  * Account list item component.
@@ -56,7 +57,7 @@ const AccountListItem: FunctionComponent<AccountInterface> = ({
       onPress={handleAccountPress}
       activeOpacity={0.7}
     >
-      <Avatar name={getUsername(username) || displayName} style={styles.iconContainer} />
+      <AvatarWidget name={getUsername(username) || displayName} style={styles.iconContainer} />
 
       <View style={styles.contentContainer}>
         <Text

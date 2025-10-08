@@ -17,12 +17,12 @@
  */
 
 import { FunctionComponent, PropsWithChildren, ReactElement, RefObject, useCallback, useEffect, useRef, useState } from "react";
-import AccountContext from "./account-context";
+import AccountContext from "./AccountContext";
 import { AccountInterface } from "../../models/storage";
 import AsyncStorageService from "../../utils/AsyncStorageService";
-import StorageConstants from "../../constants/storage";
-import useAsgardeo from "../asgardeo/use-asgardeo";
-import { AlertType } from "../../components/common/alert";
+import StorageConstants from "../../constants/StorageConstants";
+import useAsgardeo from "../asgardeo/useAsgardeo";
+import { AlertType } from "../../components/common/AlertWidget";
 
 /**
  * Account provider component.

@@ -19,12 +19,13 @@
 import { StyleSheet, View, Text } from "react-native";
 import { PushAuthenticationDataStorageInterface } from "../../models/storage";
 import { FunctionComponent } from "react";
-import { getThemeConfigs, getTimeFromNow } from "../../utils/ui-utils";
 import { Ionicons } from "@expo/vector-icons";
 import { PushAuthResponseStatus } from "../../models/push-notification";
-import { ThemeConfigs } from "@/src/models/ui";
+import { ThemeConfigs } from "../../models/ui";
+import getTimeFromNow from "../../utils/getTimeFromNow";
+import Theme from "../../utils/Theme";
 
-const theme: ThemeConfigs = getThemeConfigs();
+const theme: ThemeConfigs = Theme.getInstance().getConfigs();
 
 /**
  * History card component to display individual push authentication history items.

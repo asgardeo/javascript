@@ -19,7 +19,8 @@
 import { AvatarColorPair } from "@/src/models/ui";
 import { FunctionComponent, ReactElement, useMemo } from "react";
 import { StyleProp, StyleSheet, Text, View, ViewStyle } from "react-native";
-import { getAvatarColors, getInitials } from "../../utils/ui-utils";
+import getInitials from "../../utils/getInitials";
+import getAvatarColors from "../../utils/getAvatarColors";
 
 /**
  * Avatar component props.
@@ -35,7 +36,7 @@ export interface AvatarProps {
  * @param props - Props for the Avatar component.
  * @returns Avatar component.
  */
-const Avatar: FunctionComponent<AvatarProps> = ({
+const AvatarWidget: FunctionComponent<AvatarProps> = ({
   name,
   style
 }: AvatarProps): ReactElement => {
@@ -90,4 +91,4 @@ const styles = StyleSheet.create({
   }
 });
 
-export default Avatar;
+export default AvatarWidget;

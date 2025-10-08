@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import HistoryList from "../src/components/push-auth-history/history-list";
+import HistoryList from "../src/components/push-auth-history/HistoryList";
 import { useLocalSearchParams } from "expo-router";
 import { FunctionComponent, ReactElement } from "react";
 

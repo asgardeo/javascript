@@ -20,16 +20,16 @@ import { useFocusEffect } from "expo-router";
 import { PushAuthenticationDataStorageInterface, StorageDataInterface } from "../../models/storage";
 import { FunctionComponent, useCallback, useState } from "react";
 import AsyncStorageService from "../../utils/AsyncStorageService";
-import StorageConstants from "../../constants/storage";
+import StorageConstants from "../../constants/StorageConstants";
 import TypeConvert from "../../utils/TyperConvert";
 import { ScrollView, StyleSheet, View, Text, ViewStyle } from "react-native";
-import HistoryCard from "./history-card";
+import HistoryCard from "./HistoryCard";
 import { EdgeInsets, useSafeAreaInsets } from "react-native-safe-area-context";
-import EmptyCard from "./empty-card";
+import EmptyCard from "./EmptyCard";
 import { ThemeConfigs } from "../../models/ui";
-import { getThemeConfigs } from "../../utils/ui-utils";
+import Theme from "../../utils/Theme";
 
-const theme: ThemeConfigs = getThemeConfigs();
+const theme: ThemeConfigs = Theme.getInstance().getConfigs();
 
 /**
  * Props for the PushAuthHistoryList component.

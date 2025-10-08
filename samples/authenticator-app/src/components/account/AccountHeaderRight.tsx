@@ -16,22 +16,26 @@
  * under the License.
  */
 
-import { useContext } from "react";
-import PushAuthContext from "./push-auth-context";
+import { NativeStackHeaderRightProps } from "@react-navigation/native-stack";
+import { ReactElement } from "react";
+import SettingsDropdown from "./SettingsDropdown";
 
-/**
- * Custom hook to access the push authentication context.
- *
- * @returns Push authentication context.
- */
-const usePushAuth = () => {
-  const pushAuthContext = useContext(PushAuthContext);
-
-  if (!pushAuthContext) {
-    throw new Error("usePushAuth must be used within a PushAuthProvider");
-  }
-
-  return pushAuthContext;
+export interface AccountHeaderRightProps extends NativeStackHeaderRightProps {
+  /**
+   * Route parameters.
+   */
+  params: Record<string, string>;
 }
 
-export default usePushAuth;
+/**
+ * Account Header Right component with settings dropdown.
+ *
+ * @returns Account Header Right component with settings dropdown.
+ */
+const AccountHeaderRight = ({ params }: AccountHeaderRightProps): ReactElement => {
+  return (
+    <SettingsDropdown accountId={params.id} />
+  )
+}
+
+export default AccountHeaderRight;

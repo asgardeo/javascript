@@ -16,22 +16,26 @@
  * under the License.
  */
 
-import { useContext } from "react";
-import AccountContext, { AccountContextInterface } from "./account-context";
+import { AvatarColorPair } from "../models/ui";
+import Theme from "./Theme";
 
 /**
- * Custom hook to access the Account context.
+ * Get avatar colors based on the provided name.
  *
- * @returns Account context.
+ * @param name Name for which to get avatar colors.
+ * @returns AvatarColorPair containing background and text colors.
  */
-const useAccount = (): AccountContextInterface => {
-  const context: AccountContextInterface = useContext<AccountContextInterface>(AccountContext);
+const getAvatarColors = (name: string): AvatarColorPair => {
+  const avatarColors: AvatarColorPair[] = Theme.getInstance().getConfigs().colors.avatar;
+  let hash: number = 0;
 
-  if (context === undefined) {
-    throw new Error("useAccount must be used within an AccountProvider");
+  for (let i = 0; i < name.length; i++) {
+    hash = name.charCodeAt(i) + ((hash << 5) - hash);
   }
 
-  return context;
-}
+  const index: number = Math.abs(hash) % avatarColors.length;
 
-export default useAccount;
+  return avatarColors[index];
+};
+
+export default getAvatarColors;

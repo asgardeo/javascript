@@ -17,7 +17,7 @@
  */
 
 import { FunctionComponent, ReactElement } from "react";
-import QRScanner from "../src/components/qr/qr-scanner";
+import QRScanner from "../src/components/qr/QRScanner";
 
 /**
  * QR Scanner Screen.

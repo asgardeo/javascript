@@ -21,12 +21,12 @@ import { ReactElement, useMemo, useState } from "react";
 import { ActivityIndicator, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import { EdgeInsets, useSafeAreaInsets } from "react-native-safe-area-context";
 import { AccountInterface } from "../../models/storage";
-import AccountListItem from "./account-list-item";
+import AccountListItem from "./AccountListItem";
 import { ThemeConfigs } from "../../models/ui";
-import { getThemeConfigs } from "../../utils/ui-utils";
-import useAccount from "../../contexts/account/use-account";
+import useAccount from "../../contexts/account/useAccount";
+import Theme from "../../utils/Theme";
 
-const theme: ThemeConfigs = getThemeConfigs();
+const theme: ThemeConfigs = Theme.getInstance().getConfigs();
 
 /**
  * Account list component.
