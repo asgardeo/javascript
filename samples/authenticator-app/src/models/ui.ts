@@ -73,6 +73,14 @@ export interface ThemeConfigs {
       secondary: {
         background: string;
         text: string;
+      },
+      success: {
+        background: string;
+        text: string;
+      },
+      danger: {
+        background: string;
+        text: string;
       }
     },
     typography: {
@@ -105,6 +113,20 @@ export interface ThemeConfigs {
         text: string
       }
     },
+    codeCircle: {
+      background: string;
+      timer: {
+        background: string;
+        validity: {
+          low: string;
+          medium: string;
+          high: string;
+        }
+      },
+      shadowColor: string;
+      text: string;
+      subText: string;
+    }
     avatar: AvatarColorPair[]
   }
 }

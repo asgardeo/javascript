@@ -1,7 +1,7 @@
 {
   "devMode": {
     "enabled": true,
-    "host": "http://192.168.1.105:8082"
+    "host": "http://10.10.16.152:8082"
   },
   "security": {
     "enableAppScreenLocks": true,
@@ -39,6 +39,14 @@
             "secondary": {
               "background": "#dcdcdcff",
               "text": "#56585eff"
+            },
+            "success": {
+              "background": "#4CAF50",
+              "text": "#ffffff"
+            },
+            "danger": {
+              "background": "#F44336",
+              "text": "#ffffff"
             }
           },
           "typography": {
@@ -70,6 +78,20 @@
               "background": "#fff4e5ff",
               "text": "#FF9800"
             }
+          },
+          "codeCircle": {
+            "background": "#f8f8f9",
+            "timer": {
+              "background": "#e2e3e4ff",
+              "validity": {
+                "low": "#F44336",
+                "medium": "#FF9800",
+                "high": "#4CAF50"
+              }
+            },
+            "shadowColor": "#000000",
+            "text": "#000000de",
+            "subText": "#00000066"
           },
           "avatar": [
             {
@@ -177,8 +199,16 @@
               "text": "#ffffff"
             },
             "secondary": {
-              "background": "#dcdcdcff",
-              "text": "#56585eff"
+              "background": "#f0f1f3ff",
+              "text": "#868c99ff"
+            },
+            "success": {
+              "background": "#4CAF50",
+              "text": "#ffffff"
+            },
+            "danger": {
+              "background": "#F44336",
+              "text": "#ffffff"
             }
           },
           "typography": {
@@ -210,6 +240,20 @@
               "background": "#fff4e5ff",
               "text": "#FF9800"
             }
+          },
+          "codeCircle": {
+            "background": "#f8f8f9",
+            "timer": {
+              "background": "#e2e3e4ff",
+              "validity": {
+                "low": "#F44336",
+                "medium": "#FF9800",
+                "high": "#4CAF50"
+              }
+            },
+            "shadowColor": "#000000",
+            "text": "#000000de",
+            "subText": "#00000066"
           },
           "avatar": [
             {

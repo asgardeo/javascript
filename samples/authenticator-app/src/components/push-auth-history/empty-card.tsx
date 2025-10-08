@@ -19,6 +19,10 @@
 import { StyleSheet, View, Text } from "react-native";
 import { FunctionComponent } from "react";
 import { Ionicons } from "@expo/vector-icons";
+import { ThemeConfigs } from "../../models/ui";
+import { getThemeConfigs } from "../../utils/ui-utils";
+
+const theme: ThemeConfigs = getThemeConfigs();
 
 /**
  * Empty card component to display when no push authentication history is available.
@@ -29,7 +33,7 @@ const EmptyCard: FunctionComponent = () => {
   return (
     <View style={styles.cardContainer}>
       <View style={styles.cardContent}>
-        <Ionicons name="notifications-off-outline" size={48} color="#868c99ff" />
+        <Ionicons name="notifications-off-outline" size={48} color={theme.colors.typography.primary} />
         <Text style={styles.emptyTitle}>No Push Login History</Text>
         <Text style={styles.emptySubtitle}>
           You haven&apos;t received any push login requests yet. When you receive login requests
@@ -41,11 +45,14 @@ const EmptyCard: FunctionComponent = () => {
   );
 };
 
+/**
+ * Styles for the EmptyCard component.
+ */
 const styles = StyleSheet.create({
   cardContainer: {
     padding: 32,
-    backgroundColor: '#f5f6f9ff',
-    borderColor: '#d1d9e6',
+    backgroundColor: theme.colors.card.background,
+    borderColor: theme.colors.card.border,
     borderWidth: 1,
     borderRadius: 8,
     alignItems: 'center',
@@ -60,12 +67,12 @@ const styles = StyleSheet.create({
   emptyTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#56585eff',
+    color: theme.colors.typography.primary,
     textAlign: 'center'
   },
   emptySubtitle: {
     fontSize: 14,
-    color: '#868c99ff',
+    color: theme.colors.typography.secondary,
     textAlign: 'center',
     lineHeight: 20
   }

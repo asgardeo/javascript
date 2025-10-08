@@ -25,13 +25,15 @@ import { setStringAsync } from 'expo-clipboard';
 import React, { FunctionComponent, ReactElement, RefObject, useCallback, useEffect, useRef, useState } from "react";
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { EdgeInsets, useSafeAreaInsets } from "react-native-safe-area-context";
-import useTheme from "../../contexts/theme/useTheme";
 import CryptoService from "../../utils/crypto-service";
 import Avatar from "../common/avatar";
 import CircularProgress from "./circular-porgress-bar";
 import { Router, useFocusEffect, useRouter } from "expo-router";
 import HistoryList from "../push-auth-history/history-list";
-import { getUsername } from "@/src/utils/ui-utils";
+import { getThemeConfigs, getUsername } from "../../utils/ui-utils";
+import { ThemeConfigs } from "../../models/ui";
+
+const theme: ThemeConfigs = getThemeConfigs();
 
 /**
  * Props for the TOTPCode component.
@@ -50,7 +52,6 @@ export interface TOTPCodeProps {
  * @returns A React element representing the TOTP code component.
  */
 const TOTPCode: FunctionComponent<TOTPCodeProps> = ({ id }: TOTPCodeProps): ReactElement => {
-  const { styles } = useTheme();
   const [totpCode, setTotpCode] = useState<string>("");
   const [nextTOTPCode, setNextTOTPCode] = useState<string>("");
   const [remainingSeconds, setRemainingSeconds] = useState<number>(30);
@@ -79,9 +80,11 @@ const TOTPCode: FunctionComponent<TOTPCodeProps> = ({ id }: TOTPCodeProps): Reac
 
     try {
       setIsGenerating(true);
-      const code = CryptoService.generateTOTP(id, accountDetails.period!, accountDetails.algorithm!, accountDetails.digits!);
+      const code = CryptoService.generateTOTP(
+        id, accountDetails.period!, accountDetails.algorithm!, accountDetails.digits!);
       setTotpCode(code);
-      const nextCode = CryptoService.generateNextTOTP(id, accountDetails.period!, accountDetails.algorithm!, accountDetails.digits!);
+      const nextCode = CryptoService.generateNextTOTP(
+        id, accountDetails.period!, accountDetails.algorithm!, accountDetails.digits!);
       setNextTOTPCode(nextCode);
     } catch {
       // Show code generation error.
@@ -103,7 +106,8 @@ const TOTPCode: FunctionComponent<TOTPCodeProps> = ({ id }: TOTPCodeProps): Reac
 
     const interval = setInterval(() => {
       try {
-        const remaining = CryptoService.getTOTPRemainingSeconds(id, accountDetails?.period!, accountDetails?.algorithm!, accountDetails?.digits!);
+        const remaining = CryptoService.getTOTPRemainingSeconds(
+          id, accountDetails?.period!, accountDetails?.algorithm!, accountDetails?.digits!);
 
         if (remaining > previousTimeRef.current) {
           generateCode();
@@ -119,22 +123,22 @@ const TOTPCode: FunctionComponent<TOTPCodeProps> = ({ id }: TOTPCodeProps): Reac
     return () => clearInterval(interval);
   }, [id, generateCode, accountDetails]);
 
-  // Calculate timer properties
+  // Calculate timer properties.
   const progress = remainingSeconds / 30;
   const isWarning = remainingSeconds <= 10;
   const isDanger = remainingSeconds <= 5;
 
-  // Timer color based on remaining time
+  // Timer color based on remaining time.
   const getTimerColor = () => {
-    if (isDanger) return "#ef4444"; // red
-    if (isWarning) return "#f59e0b"; // amber
-    return "#10b981"; // green
+    if (isDanger) return theme.colors.codeCircle.timer.validity.low;
+    if (isWarning) return theme.colors.codeCircle.timer.validity.medium;
+    return theme.colors.codeCircle.timer.validity.high;
   };
 
   if (!id) {
     return (
-      <View style={[localStyles.container, styles.colors.backgroundSurface]}>
-        <Text style={[styles.typography.body1, styles.colors.textSecondary]}>
+      <View style={[localStyles.container]}>
+        <Text style={[localStyles.emptyText]}>
           No account selected
         </Text>
       </View>
@@ -146,10 +150,10 @@ const TOTPCode: FunctionComponent<TOTPCodeProps> = ({ id }: TOTPCodeProps): Reac
       <ScrollView
         style={[
           { marginBottom: accountDetails?.deviceId && accountDetails?.issuer ? insets.bottom + 45 : undefined },
-          styles.colors.backgroundBody
+          localStyles.scrollContainer
         ]}
       >
-        <View style={[localStyles.container, styles.colors.backgroundBody]}>
+        <View style={[localStyles.container]}>
           <View style={[localStyles.headerContainer]}>
             <Avatar
               name={getUsername(accountDetails?.username!) || accountDetails?.displayName}
@@ -179,19 +183,16 @@ const TOTPCode: FunctionComponent<TOTPCodeProps> = ({ id }: TOTPCodeProps): Reac
                   strokeWidth={10}
                   progress={progress}
                   color={getTimerColor()}
-                  backgroundColor="#e2e3e4ff"
+                  backgroundColor={theme.colors.codeCircle.timer.background}
                   gapAngle={30}
                 >
                   <TouchableOpacity
-                    style={[
-                      localStyles.codeCircle,
-                      styles.colors.backgroundNeutral
-                    ]}
+                    style={[localStyles.codeCircle]}
                     onPress={() => copyToClipboard()}
                     disabled={isGenerating || !totpCode}
                   >
                     {isGenerating ? (
-                      <Text style={[styles.typography.body2]}>
+                      <Text style={[localStyles.codeLoadingText]}>
                         Generating...
                       </Text>
                     ) : (
@@ -205,7 +206,7 @@ const TOTPCode: FunctionComponent<TOTPCodeProps> = ({ id }: TOTPCodeProps): Reac
                         <Ionicons
                           name="copy-outline"
                           size={26}
-                          color='#00000066'
+                          color={theme.colors.codeCircle.subText}
                         />
                       </>
                     )}
@@ -246,10 +247,10 @@ const TOTPCode: FunctionComponent<TOTPCodeProps> = ({ id }: TOTPCodeProps): Reac
               onPress={() => router.push(`/push-auth-history?id=${id}`)}
             >
               <View style={[localStyles.pushLoginHistoryContent]}>
-                <Ionicons name='time-outline' size={30} color="#00000066" />
+                <Ionicons name='time-outline' size={30} color={theme.colors.button.secondary.text} />
                 <Text style={[localStyles.pushLoginHistoryButtonText]}>View Push Login History</Text>
               </View>
-              <Ionicons name="chevron-forward" size={30} color="#00000066" />
+              <Ionicons name="chevron-forward" size={30} color={theme.colors.button.secondary.text} />
             </TouchableOpacity>
           )
         }
@@ -264,7 +265,15 @@ const localStyles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'flex-start',
-    padding: 24
+    padding: 24,
+    backgroundColor: theme.colors.screen.background
+  },
+  emptyText: {
+    fontSize: 16,
+    color: theme.colors.typography.secondary
+  },
+  scrollContainer: {
+    backgroundColor: theme.colors.screen.background
   },
   headerContainer: {
     justifyContent: 'center',
@@ -279,7 +288,7 @@ const localStyles = StyleSheet.create({
   usernameText: {
     fontSize: 17,
     fontWeight: '800',
-    color: '#56585eff'
+    color: theme.colors.typography.primary
   },
   organizationContainer: {
     flexDirection: 'row',
@@ -290,7 +299,7 @@ const localStyles = StyleSheet.create({
   organizationText: {
     fontSize: 14,
     fontWeight: '400',
-    color: '#868c99ff'
+    color: theme.colors.typography.secondary
   },
   totpContainer: {
     alignSelf: 'stretch',
@@ -300,12 +309,13 @@ const localStyles = StyleSheet.create({
     gap: 16
   },
   codeCircle: {
+    backgroundColor: theme.colors.codeCircle.background,
     width: 240,
     height: 240,
     borderRadius: 120,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#000',
+    shadowColor: theme.colors.codeCircle.shadowColor,
     shadowOffset: {
       width: 0,
       height: 4,
@@ -314,16 +324,21 @@ const localStyles = StyleSheet.create({
     shadowRadius: 12,
     elevation: 5
   },
+  codeLoadingText: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: theme.colors.codeCircle.subText
+  },
   codeText: {
     fontSize: 36,
     fontWeight: '700',
     letterSpacing: 2,
     textAlign: 'center',
     marginBottom: 4,
-    color: '#000000de'
+    color: theme.colors.codeCircle.text
   },
   tapToCopyText: {
-    color: '#00000066',
+    color: theme.colors.codeCircle.subText,
     fontSize: 16,
     marginBottom: 2
   },
@@ -337,7 +352,7 @@ const localStyles = StyleSheet.create({
     fontWeight: '700'
   },
   nextTokenText: {
-    color: '#868c99ff',
+    color: theme.colors.button.secondary.text,
     fontSize: 15,
     fontWeight: '600'
   },
@@ -345,7 +360,7 @@ const localStyles = StyleSheet.create({
     paddingHorizontal: 24,
     paddingVertical: 12,
     marginBottom: 32,
-    backgroundColor: '#f0f1f3ff',
+    backgroundColor: theme.colors.button.secondary.background,
     borderRadius: 8,
     flexDirection: 'row',
     alignItems: 'center',
@@ -356,7 +371,7 @@ const localStyles = StyleSheet.create({
     position: 'absolute',
     bottom: 0,
     width: '100%',
-    backgroundColor: '#fbfbfb'
+    backgroundColor: theme.colors.screen.background,
   },
   pushLoginHistoryContent: {
     flexDirection: 'row',
@@ -370,11 +385,11 @@ const localStyles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 24,
-    backgroundColor: '#e8e9ebff',
+    backgroundColor: theme.colors.button.secondary.background,
     width: '100%'
   },
   pushLoginHistoryButtonText: {
-    color: '#00000066',
+    color: theme.colors.button.secondary.text,
     fontSize: 16,
     fontWeight: '600'
   }

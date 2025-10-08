@@ -19,9 +19,12 @@
 import { StyleSheet, View, Text } from "react-native";
 import { PushAuthenticationDataStorageInterface } from "../../models/storage";
 import { FunctionComponent } from "react";
-import { getTimeFromNow } from "../../utils/ui-utils";
+import { getThemeConfigs, getTimeFromNow } from "../../utils/ui-utils";
 import { Ionicons } from "@expo/vector-icons";
-import { PushAuthResponseStatus } from "@/src/models/push-notification";
+import { PushAuthResponseStatus } from "../../models/push-notification";
+import { ThemeConfigs } from "@/src/models/ui";
+
+const theme: ThemeConfigs = getThemeConfigs();
 
 /**
  * History card component to display individual push authentication history items.
@@ -81,11 +84,14 @@ const HistoryCard: FunctionComponent<PushAuthenticationDataStorageInterface> = (
   );
 };
 
+/**
+ * Styles for the HistoryCard component.
+ */
 const styles = StyleSheet.create({
   cardContainer: {
     padding: 16,
-    backgroundColor: '#f5f6f9ff',
-    borderColor: '#d1d9e6',
+    backgroundColor: theme.colors.card.background,
+    borderColor: theme.colors.card.border,
     borderWidth: 1,
     borderRadius: 8,
     gap: 16
@@ -95,7 +101,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingBottom: 16,
-    borderBottomColor: '#d1d9e6',
+    borderBottomColor: theme.colors.card.border,
     borderBottomWidth: 1
   },
   cardHeaderContent: {
@@ -104,17 +110,17 @@ const styles = StyleSheet.create({
   cardHeaderTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#10b981'
+    color: theme.colors.alert.success.text
   },
   success: {
-    color: '#10b981'
+    color: theme.colors.alert.success.text
   },
   error: {
-    color: '#ef4444'
+    color: theme.colors.alert.error.text
   },
   cardHeaderSubtitle: {
     fontSize: 13,
-    color: '#868c99ff'
+    color: theme.colors.typography.secondary
   },
   cardContent: {
     gap: 6
@@ -126,11 +132,11 @@ const styles = StyleSheet.create({
   },
   contentMain: {
     fontSize: 13,
-    color: '#868c99ff'
+    color: theme.colors.typography.secondary
   },
   contentSub: {
     fontSize: 13,
-    color: '#56585eff'
+    color: theme.colors.typography.primary
   }
 });
 

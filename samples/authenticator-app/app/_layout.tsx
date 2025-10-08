@@ -20,7 +20,6 @@ import AccountHeaderRight from "../src/components/account/account-header-right";
 import { Stack } from "expo-router";
 import { ReactElement, useEffect, useState } from "react";
 import HeaderTitle from "../src/components/common/header-title";
-import ThemeProvider from "../src/contexts/theme/ThemeProvider";
 import { ThemeConfigs } from "../src/models/ui";
 import { getThemeConfigs } from "../src/utils/ui-utils";
 import AsgardeoProvider from "../src/contexts/asgardeo/asgardeo-provider";
@@ -45,52 +44,50 @@ const RootLayout = (): ReactElement => {
 
   return (
     <AsgardeoProvider isAppInitialized={mounted}>
-      <ThemeProvider>
-        <Stack>
-          <Stack.Screen
-            name={AppPaths.ROOT}
-            options={{
-              headerShown: false
-            }}
-          />
-          <Stack.Screen
-            name={AppPaths.HOME}
-            options={{
-              headerStyle: { backgroundColor: theme.colors.header.background },
-              headerTitle: HeaderTitle
-            }}
-          />
-          <Stack.Screen
-            name={AppPaths.QR_SCANNER}
-            options={{
-              headerShown: false,
-              presentation: "modal"
-            }}
-          />
-          <Stack.Screen
-            name={AppPaths.PUSH_AUTH}
-            options={{
-              headerShown: false
-            }}
-          />
-          <Stack.Screen
-            name={AppPaths.ACCOUNT}
-            options={({ route }) => ({
-              headerStyle: { backgroundColor: theme.colors.header.background },
-              headerTitle: HeaderTitle,
-              headerRight: (): ReactElement => <AccountHeaderRight params={route.params as Record<string, string>} />
-            })}
-          />
-          <Stack.Screen
-            name={AppPaths.PUSH_AUTH_HISTORY}
-            options={({ route }) => ({
-              headerStyle: { backgroundColor: theme.colors.header.background },
-              headerTitle: HeaderTitle,
-              headerRight: (): ReactElement => <AccountHeaderRight params={route.params as Record<string, string>} />
-            })}
-          />
-        </Stack>
-      </ThemeProvider>
+      <Stack>
+        <Stack.Screen
+          name={AppPaths.ROOT}
+          options={{
+            headerShown: false
+          }}
+        />
+        <Stack.Screen
+          name={AppPaths.HOME}
+          options={{
+            headerStyle: { backgroundColor: theme.colors.header.background },
+            headerTitle: HeaderTitle
+          }}
+        />
+        <Stack.Screen
+          name={AppPaths.QR_SCANNER}
+          options={{
+            headerShown: false,
+            presentation: "modal"
+          }}
+        />
+        <Stack.Screen
+          name={AppPaths.PUSH_AUTH}
+          options={{
+            headerShown: false
+          }}
+        />
+        <Stack.Screen
+          name={AppPaths.ACCOUNT}
+          options={({ route }) => ({
+            headerStyle: { backgroundColor: theme.colors.header.background },
+            headerTitle: HeaderTitle,
+            headerRight: (): ReactElement => <AccountHeaderRight params={route.params as Record<string, string>} />
+          })}
+        />
+        <Stack.Screen
+          name={AppPaths.PUSH_AUTH_HISTORY}
+          options={({ route }) => ({
+            headerStyle: { backgroundColor: theme.colors.header.background },
+            headerTitle: HeaderTitle,
+            headerRight: (): ReactElement => <AccountHeaderRight params={route.params as Record<string, string>} />
+          })}
+        />
+      </Stack>
     </AsgardeoProvider>
   );
 }

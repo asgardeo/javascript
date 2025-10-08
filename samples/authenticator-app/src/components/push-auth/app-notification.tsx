@@ -20,8 +20,11 @@ import { PushAuthenticationDataInterface, PushAuthResponseStatus } from "../../m
 import { FunctionComponent, ReactElement, useMemo } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import usePushAuth from "../../contexts/push-auth/use-push-auth";
-import { getTimeFromNow } from "../../utils/ui-utils";
+import { getThemeConfigs, getTimeFromNow } from "../../utils/ui-utils";
 import { authenticateAsync, LocalAuthenticationResult } from "expo-local-authentication";
+import { ThemeConfigs } from "../../models/ui";
+
+const theme: ThemeConfigs = getThemeConfigs();
 
 /**
  * Generates three random numbers including the legitimate one
@@ -177,8 +180,8 @@ const AppNotification: FunctionComponent<PushAuthenticationDataInterface> = ({
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#f5f6f9ff',
-    borderColor: '#d1d9e6',
+    backgroundColor: theme.colors.card.background,
+    borderColor: theme.colors.card.border,
     borderWidth: 1,
     borderRadius: 8,
     padding: 16,
@@ -187,30 +190,30 @@ const styles = StyleSheet.create({
   header: {
     gap: 2,
     paddingBottom: 12,
-    borderBottomColor: '#d1d9e6',
+    borderBottomColor: theme.colors.card.border,
     borderBottomWidth: 1
   },
   title: {
     fontSize: 20,
     fontWeight: '600',
-    color: '#56585eff'
+    color: theme.colors.typography.primary
   },
   subtitle: {
     fontSize: 14,
     fontWeight: '400',
-    color: '#868c99ff'
+    color: theme.colors.typography.secondary
   },
   timeText: {
     fontSize: 12,
     fontWeight: '400',
-    color: '#868c99ff'
+    color: theme.colors.typography.secondary
   },
   section: {
     gap: 4
   },
   securitySection: {
     paddingTop: 12,
-    borderTopColor: '#d1d9e6',
+    borderTopColor: theme.colors.card.border,
     borderTopWidth: 1,
     justifyContent: 'center',
     alignItems: 'center'
@@ -218,7 +221,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 14,
     fontWeight: '500',
-    color: '#56585eff',
+    color: theme.colors.typography.primary,
     marginBottom: 8
   },
   infoRow: {
@@ -228,26 +231,27 @@ const styles = StyleSheet.create({
   },
   infoLabel: {
     fontSize: 13,
-    color: '#868c99ff'
+    color: theme.colors.typography.secondary
   },
   infoValue: {
     fontSize: 13,
-    color: '#56585eff'
+    color: theme.colors.typography.primary
   },
   securityMsg: {
     padding: 8,
-    backgroundColor: '#fcf4d5ff',
-    borderRadius: 8,
-    boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)'
+    backgroundColor: theme.colors.alert.warning.background,
+    borderWidth: 1,
+    borderColor: theme.colors.alert.warning.text,
+    borderRadius: 8
   },
   securityText: {
     fontSize: 13,
-    color: '#856404ff',
+    color: theme.colors.alert.warning.text,
     textAlign: 'center'
   },
   numberBox: {
     flex: 1,
-    backgroundColor: '#3ae734ff',
+    backgroundColor: theme.colors.button.success.background,
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 8
@@ -255,7 +259,7 @@ const styles = StyleSheet.create({
   numberText: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#ffffff',
+    color: theme.colors.button.success.text,
     textAlign: 'center'
   },
   buttonContainer: {
@@ -266,19 +270,19 @@ const styles = StyleSheet.create({
   },
   approveButton: {
     flex: 1,
-    backgroundColor: '#10b981',
+    backgroundColor: theme.colors.button.success.background,
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 8
   },
   approveButtonText: {
-    color: '#ffffff',
+    color: theme.colors.button.success.text,
     fontSize: 16,
     fontWeight: '600',
     textAlign: 'center'
   },
   denyButton: {
-    backgroundColor: '#ef4444',
+    backgroundColor: theme.colors.button.danger.background,
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 8
@@ -290,7 +294,7 @@ const styles = StyleSheet.create({
     flexShrink: 1
   },
   denyButtonText: {
-    color: '#ffffff',
+    color: theme.colors.button.danger.text,
     fontSize: 16,
     fontWeight: '600',
     textAlign: 'center'

@@ -26,6 +26,10 @@ import { ScrollView, StyleSheet, View, Text, ViewStyle } from "react-native";
 import HistoryCard from "./history-card";
 import { EdgeInsets, useSafeAreaInsets } from "react-native-safe-area-context";
 import EmptyCard from "./empty-card";
+import { ThemeConfigs } from "../../models/ui";
+import { getThemeConfigs } from "../../utils/ui-utils";
+
+const theme: ThemeConfigs = getThemeConfigs();
 
 /**
  * Props for the PushAuthHistoryList component.
@@ -95,7 +99,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignSelf: "stretch",
-    backgroundColor: "#fbfbfb",
+    backgroundColor: theme.colors.screen.background,
   },
   itemContainer: {
     padding: 24,
@@ -109,7 +113,7 @@ const styles = StyleSheet.create({
   itemContainerHeaderText: {
     fontSize: 14,
     fontWeight: "600",
-    color: "#56585eff"
+    color: theme.colors.typography.primary
   }
 });
 
