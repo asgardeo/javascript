@@ -50,3 +50,6 @@ Thumbs.db
 # Experimental Samples
 # NOTE to Developers: Please use this samples folder for experimental code only and do not commit.
 samples/__experimental__/
+
+
+storybook-static
