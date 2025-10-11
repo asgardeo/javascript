@@ -38,7 +38,9 @@
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx,.cjs,.mjs",
     "test": "vitest",
     "test:browser": "vitest --workspace=vitest.workspace.ts",
-    "typecheck": "tsc -p tsconfig.lib.json"
+    "typecheck": "tsc -p tsconfig.lib.json",
+    "storybook": "storybook dev -p 6006 -c ./.storybook",
+    "build-storybook": "storybook build -c ./.storybook -o ../../dist/storybook/asgardeo-react"
   },
   "devDependencies": {
     "@testing-library/dom": "^10.4.0",

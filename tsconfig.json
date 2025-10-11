@@ -3,7 +3,14 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "@asgardeo/react": ["packages/react/src/index.ts"],
+      "@asgardeo/react": ["packages/react/src/index.ts"]
+    },
+    "skipLibCheck": true
+  },
+  "ts-node": {
+    "compilerOptions": {
+      "module": "commonjs",
+      "moduleResolution": "node10"
     }
   }
 }
