@@ -18,6 +18,27 @@
 
 import type {Preview} from '@storybook/react';
 import ThemeProvider from '../src/contexts/Theme/ThemeProvider';
+import I18nProvider from '../src/contexts/I18n/I18nProvider';
+import {en_US, fr_FR, hi_IN, si_LK} from '@asgardeo/i18n';
+
+export const globalTypes = {
+  locale: {
+    name: 'Locale',
+    description: 'Internationalization locale',
+    toolbar: {
+      title: 'Locale',
+      icon: 'globe',
+      items: [
+        {value: 'en-US', title: 'English'},
+        {value: 'fr-FR', title: 'French'},
+        {value: 'hi-IN', title: 'Hindi'},
+        {value: 'si-LK', title: 'Sinhala'},
+      ],
+      showName: true,
+      dynamicTitle: true,
+    },
+  },
+};
 
 const preview: Preview = {
   parameters: {
@@ -30,11 +51,25 @@ const preview: Preview = {
     },
   },
   decorators: [
-    Story => (
-      <ThemeProvider mode="light" inheritFromBranding={false}>
-        <Story />
-      </ThemeProvider>
-    ),
+    (Story, context) => {
+      const locale = context.globals['locale'];
+
+      // Create custom bundles that include all available languages for Storybook
+      const storybookBundles = {
+        'en-US': en_US,
+        'fr-FR': fr_FR,
+        'hi-IN': hi_IN,
+        'si-LK': si_LK,
+      };
+
+      return (
+        <ThemeProvider mode="light" inheritFromBranding={false}>
+          <I18nProvider preferences={{bundles: storybookBundles, language: locale}}>
+            <Story />
+          </I18nProvider>
+        </ThemeProvider>
+      );
+    },
   ],
 };
 
