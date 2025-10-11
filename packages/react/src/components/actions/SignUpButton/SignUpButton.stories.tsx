@@ -17,12 +17,12 @@
  */
 
 import type {Meta, StoryObj} from '@storybook/react';
-import SignOutButton from './SignOutButton';
+import SignUpButton from './SignUpButton';
 import useI18n from '../../../contexts/I18n/useI18n';
 
-const meta: Meta<typeof SignOutButton> = {
-  title: 'Components/Actions/SignOutButton',
-  component: SignOutButton,
+const meta: Meta<typeof SignUpButton> = {
+  title: 'Components/Actions/SignUpButton',
+  component: SignUpButton,
   parameters: {
     layout: 'centered',
   },
@@ -31,11 +31,11 @@ const meta: Meta<typeof SignOutButton> = {
     children: {
       control: 'text',
       description:
-        'Custom text to display on the button. If not provided, uses translation key "elements.buttons.signOut"',
+        'Custom text to display on the button. If not provided, uses translation key "elements.buttons.signUp"',
     },
     onClick: {
       action: 'clicked',
-      description: 'Callback function called after successful sign out',
+      description: 'Callback function called after successful sign up',
     },
     className: {
       control: 'text',
@@ -60,56 +60,56 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 /**
- * Default SignOutButton with automatic translation support.
+ * Default SignUpButton with automatic translation support.
  * The button text will change based on the locale selected in the Storybook toolbar.
  */
 export const Default: Story = {
   render: args => {
     const {t} = useI18n();
-    const signOutText = t('elements.buttons.signOut');
+    const signUpText = t('elements.buttons.signUp');
 
-    return <SignOutButton {...args}>{signOutText}</SignOutButton>;
+    return <SignUpButton {...args}>{signUpText}</SignUpButton>;
   },
   args: {},
 };
 
 /**
- * SignOutButton with custom text that overrides the translation system.
+ * SignUpButton with custom text that overrides the translation system.
  * This demonstrates how to provide custom text regardless of the current locale.
  */
 export const WithCustomText: Story = {
   args: {
-    children: 'Sign Out',
+    children: 'Create Account',
   },
 };
 
 /**
- * SignOutButton using the render props pattern.
- * This demonstrates advanced usage where you can access the signOut function and loading state.
+ * SignUpButton using the render props pattern.
+ * This demonstrates advanced usage where you can access the signUp function and loading state.
  */
 export const WithRenderProps: Story = {
   render: args => {
     const {t} = useI18n();
-    const signOutText = t('elements.buttons.signOut');
+    const signUpText = t('elements.buttons.signUp');
     const loadingText = t('messages.loading');
 
     return (
-      <SignOutButton
+      <SignUpButton
         {...args}
-        children={({signOut, isLoading}) => (
+        children={({signUp, isLoading}) => (
           <button
-            onClick={signOut}
+            onClick={signUp}
             disabled={isLoading}
             style={{
               padding: '12px 24px',
-              backgroundColor: isLoading ? '#ccc' : '#007bff',
+              backgroundColor: isLoading ? '#ccc' : '#28a745',
               color: 'white',
               border: 'none',
               borderRadius: '4px',
               cursor: isLoading ? 'not-allowed' : 'pointer',
             }}
           >
-            {isLoading ? loadingText : signOutText}
+            {isLoading ? loadingText : signUpText}
           </button>
         )}
       />
@@ -119,20 +119,20 @@ export const WithRenderProps: Story = {
 };
 
 /**
- * SignOutButton with custom styling applied via className and inline styles.
+ * SignUpButton with custom styling applied via className and inline styles.
  * This demonstrates how to customize the button's appearance.
  */
 export const WithCustomStyling: Story = {
   render: args => {
     const {t} = useI18n();
-    const signOutText = t('elements.buttons.signOut');
+    const signUpText = t('elements.buttons.signUp');
 
     return (
-      <SignOutButton
+      <SignUpButton
         {...args}
-        className="custom-sign-out-button"
+        className="custom-sign-up-button"
         style={{
-          backgroundColor: '#dc3545',
+          backgroundColor: '#17a2b8',
           color: 'white',
           padding: '10px 20px',
           borderRadius: '6px',
@@ -141,50 +141,83 @@ export const WithCustomStyling: Story = {
           fontWeight: 'bold',
         }}
       >
-        {signOutText}
-      </SignOutButton>
+        {signUpText}
+      </SignUpButton>
     );
   },
   args: {},
 };
 
 /**
- * SignOutButton in a disabled state.
+ * SignUpButton in a disabled state.
  * This demonstrates the button's disabled appearance and behavior.
  */
 export const Disabled: Story = {
   render: args => {
     const {t} = useI18n();
-    const signOutText = t('elements.buttons.signOut');
+    const signUpText = t('elements.buttons.signUp');
 
     return (
-      <SignOutButton {...args} disabled>
-        {signOutText}
-      </SignOutButton>
+      <SignUpButton {...args} disabled>
+        {signUpText}
+      </SignUpButton>
     );
   },
   args: {},
 };
 
 /**
- * SignOutButton with a custom onClick handler.
- * This demonstrates how to handle the click event and perform additional actions after sign out.
+ * SignUpButton with a custom onClick handler.
+ * This demonstrates how to handle the click event and perform additional actions after sign up.
  */
 export const WithOnClickHandler: Story = {
   render: args => {
     const {t} = useI18n();
-    const signOutText = t('elements.buttons.signOut');
+    const signUpText = t('elements.buttons.signUp');
 
     return (
-      <SignOutButton
+      <SignUpButton
         {...args}
         onClick={event => {
-          console.log('Sign out completed!', event);
-          alert('You have been signed out successfully!');
+          console.log('Sign up completed!', event);
+          alert('Account created successfully!');
         }}
       >
-        {signOutText}
-      </SignOutButton>
+        {signUpText}
+      </SignUpButton>
+    );
+  },
+  args: {},
+};
+
+/**
+ * SignUpButton with component-level i18n preferences.
+ * This demonstrates how to override translations at the component level.
+ */
+export const WithCustomTranslations: Story = {
+  render: args => {
+    return (
+      <SignUpButton
+        {...args}
+        preferences={{
+          i18n: {
+            bundles: {
+              'en-US': {
+                metadata: {
+                  localeCode: 'en-US',
+                  countryCode: 'US',
+                  languageCode: 'en',
+                  displayName: 'English (United States)',
+                  direction: 'ltr',
+                },
+                translations: {
+                  'elements.buttons.signUp': 'Join Us Today',
+                } as any, // Type assertion to avoid requiring all translation keys
+              },
+            },
+          },
+        }}
+      />
     );
   },
   args: {},
