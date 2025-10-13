@@ -20,6 +20,7 @@ import type {Preview} from '@storybook/react';
 import ThemeProvider from '../src/contexts/Theme/ThemeProvider';
 import I18nProvider from '../src/contexts/I18n/I18nProvider';
 import {en_US, fr_FR, hi_IN, si_LK} from '@asgardeo/i18n';
+import './preview-styles.css';
 
 export const globalTypes = {
   locale: {
