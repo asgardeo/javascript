@@ -469,7 +469,7 @@ const AsgardeoProvider: FC<PropsWithChildren<AsgardeoProviderProps>> = ({
           <ThemeProvider
             inheritFromBranding={preferences?.theme?.inheritFromBranding}
             theme={preferences?.theme?.overrides}
-            mode={getActiveTheme(preferences.theme.mode)}
+            mode={getActiveTheme(preferences?.theme?.mode)}
           >
             <FlowProvider>
               <UserProvider profile={userProfile} onUpdateProfile={handleProfileUpdate}>

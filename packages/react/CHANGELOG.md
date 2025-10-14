@@ -1,5 +1,18 @@
 # @asgardeo/react
 
+## 0.5.27
+
+### Patch Changes
+
+- [#207](https://github.com/asgardeo/javascript/pull/207)
+  [`a7d68d3`](https://github.com/asgardeo/javascript/commit/a7d68d33e0b4ad1de94ed1244c851e447a9654d2) Thanks
+  [@brionmario](https://github.com/brionmario)! - Fix NPE `ThemeProvider`
+
+- Updated dependencies
+  [[`a29767b`](https://github.com/asgardeo/javascript/commit/a29767be0f32fc65943a2a5d26148f39e442c196)]:
+  - @asgardeo/i18n@0.2.0
+  - @asgardeo/browser@0.1.20
+
 ## 0.5.26
 
 ### Patch Changes

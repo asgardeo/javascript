@@ -1,5 +1,12 @@
 # @asgardeo/browser
 
+## 0.1.20
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @asgardeo/javascript@0.1.19
+
 ## 0.1.19
 
 ### Patch Changes
