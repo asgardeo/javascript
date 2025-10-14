@@ -109,7 +109,6 @@ const translations: I18nTranslations = {
   'organization.switcher.loading.more': 'ஏற்றப்படுகிறது...',
   'organization.switcher.no.organizations': 'எந்த அமைப்பும் கிடைக்கவில்லை',
   'organization.switcher.error.prefix': 'பிழை:',
-
   'organization.profile.title': 'அமைப்பு சுயவிவரம்',
   'organization.profile.loading': 'அமைப்பை ஏற்றுகிறது...',
   'organization.profile.error': 'அமைப்பை ஏற்ற முடியவில்லை',
