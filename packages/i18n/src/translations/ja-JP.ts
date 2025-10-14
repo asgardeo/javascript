@@ -151,7 +151,7 @@ const metadata: I18nMetadata = {
   direction: 'ltr',
 };
 
-const en_US: I18nBundle = {
+const ja_JP: I18nBundle = {
   metadata,
   translations,
 };
