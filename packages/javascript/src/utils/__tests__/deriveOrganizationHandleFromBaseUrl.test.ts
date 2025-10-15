@@ -59,40 +59,51 @@ describe('deriveOrganizationHandleFromBaseUrl', () => {
   });
 
   describe('Invalid URLs - Custom Domains', () => {
-    it('should throw error for custom domain without asgardeo.io', () => {
-      expect(() => {
-        deriveOrganizationHandleFromBaseUrl('https://custom.example.com/auth');
-      }).toThrow(AsgardeoRuntimeError);
+    let warnSpy: ReturnType<typeof vi.spyOn>;
 
-      expect(() => {
-        deriveOrganizationHandleFromBaseUrl('https://custom.example.com/auth');
-      }).toThrow('Organization handle is required since a custom domain is configured.');
+    beforeEach(() => {
+      warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
     });
 
-    it('should throw error for URLs without /t/ pattern', () => {
-      expect(() => {
-        deriveOrganizationHandleFromBaseUrl('https://auth.asgardeo.io/oauth2/token');
-      }).toThrow(AsgardeoRuntimeError);
+    afterEach(() => {
+      warnSpy.mockRestore();
+    });
+  
+    it('should return empty string and warn for custom domain without asgardeo.io', () => {
+      const result = deriveOrganizationHandleFromBaseUrl('https://custom.example.com/auth');
 
-      expect(() => {
-        deriveOrganizationHandleFromBaseUrl('https://auth.asgardeo.io/oauth2/token');
-      }).toThrow('Organization handle is required since a custom domain is configured.');
+      expect(result).toBe('');
+      expect(warnSpy).toHaveBeenCalled();
+        expect(warnSpy.mock.calls[0][0]).toContain(
+          'Organization handle is required since a custom domain is configured.'
+        );
+        warnSpy.mockRestore();
+      });
+
+      it('should return empty string and warn for URLs without /t/ pattern', () => {
+      const result = deriveOrganizationHandleFromBaseUrl('https://auth.asgardeo.io/oauth2/token');
+
+      expect(result).toBe('');
+      expect(warnSpy).toHaveBeenCalled();
+      expect(warnSpy.mock.calls[0][0]).toContain(
+        'Organization handle is required since a custom domain is configured.'
+      );
     });
 
-    it('should throw error for URLs with malformed /t/ pattern', () => {
-      expect(() => {
-        deriveOrganizationHandleFromBaseUrl('https://dev.asgardeo.io/t/');
-      }).toThrow(AsgardeoRuntimeError);
+    it('should return empty string and warn for URLs with malformed /t/ pattern', () => {
+      const result1 = deriveOrganizationHandleFromBaseUrl('https://dev.asgardeo.io/t/');
+      const result2 = deriveOrganizationHandleFromBaseUrl('https://dev.asgardeo.io/t');
 
-      expect(() => {
-        deriveOrganizationHandleFromBaseUrl('https://dev.asgardeo.io/t');
-      }).toThrow(AsgardeoRuntimeError);
+      expect(result1).toBe('');
+      expect(result2).toBe('');
+      expect(warnSpy).toHaveBeenCalled();
     });
 
-    it('should throw error for URLs with empty organization handle', () => {
-      expect(() => {
-        deriveOrganizationHandleFromBaseUrl('https://dev.asgardeo.io/t//');
-      }).toThrow(AsgardeoRuntimeError);
+    it('should return empty string and warn for URLs with empty organization handle', () => {
+      const result = deriveOrganizationHandleFromBaseUrl('https://dev.asgardeo.io/t//');
+
+      expect(result).toBe('');
+      expect(warnSpy).toHaveBeenCalled();
     });
   });
 
@@ -135,7 +146,7 @@ describe('deriveOrganizationHandleFromBaseUrl', () => {
       } catch (error) {
         expect(error).toBeInstanceOf(AsgardeoRuntimeError);
         expect(error.code).toBe('javascript-deriveOrganizationHandleFromBaseUrl-ValidationError-001');
-        expect(error.origin).toBe('javascript');
+        expect(error.origin).toBe('@asgardeo/javascript');
       }
 
       try {
@@ -143,7 +154,7 @@ describe('deriveOrganizationHandleFromBaseUrl', () => {
       } catch (error) {
         expect(error).toBeInstanceOf(AsgardeoRuntimeError);
         expect(error.code).toBe('javascript-deriveOrganizationHandleFromBaseUrl-ValidationError-002');
-        expect(error.origin).toBe('javascript');
+        expect(error.origin).toBe('@asgardeo/javascript');
       }
 
       try {
@@ -151,7 +162,7 @@ describe('deriveOrganizationHandleFromBaseUrl', () => {
       } catch (error) {
         expect(error).toBeInstanceOf(AsgardeoRuntimeError);
         expect(error.code).toBe('javascript-deriveOrganizationHandleFromBaseUrl-CustomDomainError-001');
-        expect(error.origin).toBe('javascript');
+        expect(error.origin).toBe('@asgardeo/javascript');
       }
     });
   });

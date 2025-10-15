@@ -26,6 +26,18 @@ const executeEmbeddedSignInFlow = async ({
   payload,
   ...requestConfig
 }: EmbeddedFlowExecuteRequestConfig): Promise<EmbeddedSignInFlowHandleResponse> => {
+  try {
+    new URL(url ?? baseUrl);
+  } catch (error) {
+    throw new AsgardeoAPIError(
+      `Invalid URL provided. ${error?.toString()}`,
+      'executeEmbeddedSignInFlow-ValidationError-001',
+      'javascript',
+      400,
+      'The provided `url` or `baseUrl` path does not adhere to the URL schema.',
+    );
+  }
+
   if (!payload) {
     throw new AsgardeoAPIError(
       'Authorization payload is required',
@@ -36,30 +48,44 @@ const executeEmbeddedSignInFlow = async ({
     );
   }
 
-  const response: Response = await fetch(url ?? `${baseUrl}/oauth2/authn`, {
-    ...requestConfig,
-    method: requestConfig.method || 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Accept: 'application/json',
-      ...requestConfig.headers,
-    },
-    body: JSON.stringify(payload),
-  });
+  try {
+    const response: Response = await fetch(url ?? `${baseUrl}/oauth2/authn`, {
+      ...requestConfig,
+      method: requestConfig.method || 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+        ...requestConfig.headers,
+      },
+      body: JSON.stringify(payload),
+    });
 
-  if (!response.ok) {
-    const errorText = await response.text();
+    if (!response.ok) {
+      const errorText = await response.text();
+
+      throw new AsgardeoAPIError(
+        `Authorization request failed: ${errorText}`,
+        'initializeEmbeddedSignInFlow-ResponseError-001',
+        'javascript',
+        response.status,
+        response.statusText,
+      );
+    }
+
+    return (await response.json()) as EmbeddedSignInFlowHandleResponse;
+  } catch (error) {
+    if (error instanceof AsgardeoAPIError) {
+      throw error;
+    }
 
     throw new AsgardeoAPIError(
-      `Authorization request failed: ${errorText}`,
-      'initializeEmbeddedSignInFlow-ResponseError-001',
+      `Network or parsing error: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      'executeEmbeddedSignInFlow-NetworkError-001',
       'javascript',
-      response.status,
-      response.statusText,
+      0,
+      'Network Error',
     );
   }
-
-  return (await response.json()) as EmbeddedSignInFlowHandleResponse;
 };
 
 export default executeEmbeddedSignInFlow;

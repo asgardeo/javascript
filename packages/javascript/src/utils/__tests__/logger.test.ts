@@ -16,91 +16,104 @@
  * under the License.
  */
 
-import logger, {createLogger, createComponentLogger, LogLevel} from '../logger';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import logger, { createLogger, createComponentLogger } from '../logger';
 
 describe('Logger', () => {
+  let logSpy: ReturnType<typeof vi.spyOn>;
+  let infoSpy: ReturnType<typeof vi.spyOn>;
+  let warnSpy: ReturnType<typeof vi.spyOn>;
+  let errorSpy: ReturnType<typeof vi.spyOn>;
+  let debugSpy: ReturnType<typeof vi.spyOn>;
+
   beforeEach(() => {
-    // Reset console methods before each test
-    jest.spyOn(console, 'log').mockImplementation();
-    jest.spyOn(console, 'info').mockImplementation();
-    jest.spyOn(console, 'warn').mockImplementation();
-    jest.spyOn(console, 'error').mockImplementation();
-    jest.spyOn(console, 'debug').mockImplementation();
+    // Reset logger state if it is a singleton
+    if (logger?.setLevel) {
+      logger.setLevel("info" as any);
+    }
+
+    // Spy on console methods
+    logSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+    infoSpy = vi.spyOn(console, 'info').mockImplementation(() => {});
+    warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    debugSpy = vi.spyOn(console, 'debug').mockImplementation(() => {});
   });
 
   afterEach(() => {
-    jest.restoreAllMocks();
+    vi.restoreAllMocks();
   });
 
   describe('Basic logging', () => {
     it('should log info messages', () => {
       logger.info('Test info message');
-      expect(console.info).toHaveBeenCalled();
+      expect(infoSpy).toHaveBeenCalled();
     });
 
     it('should log warning messages', () => {
       logger.warn('Test warning message');
-      expect(console.warn).toHaveBeenCalled();
+      expect(warnSpy).toHaveBeenCalled();
     });
 
     it('should log error messages', () => {
       logger.error('Test error message');
-      expect(console.error).toHaveBeenCalled();
+      expect(errorSpy).toHaveBeenCalled();
     });
 
-    it('should log debug messages when level is DEBUG', () => {
-      logger.setLevel(LogLevel.DEBUG);
+    it('should log debug messages when level is debug', () => {
+      logger.setLevel('debug' as any);
       logger.debug('Test debug message');
-      expect(console.debug).toHaveBeenCalled();
+      expect(debugSpy).toHaveBeenCalled();
     });
 
-    it('should not log debug messages when level is INFO', () => {
-      logger.setLevel(LogLevel.INFO);
+    it('should not log debug messages when level is info', () => {
+      logger.setLevel('info' as any);
       logger.debug('Test debug message');
-      expect(console.debug).not.toHaveBeenCalled();
+      expect(debugSpy).not.toHaveBeenCalled();
     });
   });
 
   describe('Log levels', () => {
     it('should respect log level filtering', () => {
-      logger.setLevel(LogLevel.WARN);
+      logger.setLevel('warn' as any);
 
       logger.debug('Debug message');
       logger.info('Info message');
       logger.warn('Warning message');
       logger.error('Error message');
 
-      expect(console.debug).not.toHaveBeenCalled();
-      expect(console.info).not.toHaveBeenCalled();
-      expect(console.warn).toHaveBeenCalled();
-      expect(console.error).toHaveBeenCalled();
+      expect(debugSpy).not.toHaveBeenCalled();
+      expect(infoSpy).not.toHaveBeenCalled();
+      expect(warnSpy).toHaveBeenCalled();
+      expect(errorSpy).toHaveBeenCalled();
     });
 
-    it('should silence all logs when level is SILENT', () => {
-      logger.setLevel(LogLevel.SILENT);
+   it('should silence all logs when level is silent', () => {
+      // cast to any if the type union does not include "silent"
+      logger.setLevel('silent' as any);
 
       logger.debug('Debug message');
       logger.info('Info message');
       logger.warn('Warning message');
       logger.error('Error message');
 
-      expect(console.debug).not.toHaveBeenCalled();
-      expect(console.info).not.toHaveBeenCalled();
-      expect(console.warn).not.toHaveBeenCalled();
-      expect(console.error).not.toHaveBeenCalled();
+      expect(debugSpy).not.toHaveBeenCalled();
+      expect(infoSpy).not.toHaveBeenCalled();
+      expect(warnSpy).not.toHaveBeenCalled();
+      expect(errorSpy).not.toHaveBeenCalled();
     });
   });
 
   describe('Custom loggers', () => {
     it('should create logger with custom configuration', () => {
       const customLogger = createLogger({
-        level: LogLevel.DEBUG,
+        level: 'debug' as any,
         prefix: 'Custom',
         timestamps: false,
         showLevel: false,
       });
 
-      expect(customLogger.getLevel()).toBe(LogLevel.DEBUG);
+      expect(customLogger.getLevel()).toBe('debug');
       expect(customLogger.getConfig().prefix).toBe('Custom');
       expect(customLogger.getConfig().timestamps).toBe(false);
       expect(customLogger.getConfig().showLevel).toBe(false);
@@ -108,46 +121,45 @@ describe('Logger', () => {
 
     it('should create component logger with nested prefix', () => {
       const componentLogger = createComponentLogger('Authentication');
-
       componentLogger.info('Test message');
-
-      expect(console.info).toHaveBeenCalled();
-      // The exact format depends on environment detection
+      expect(infoSpy).toHaveBeenCalled();
     });
 
     it('should create child logger', () => {
-      const parentLogger = createLogger({prefix: 'Parent'});
+      const parentLogger = createLogger({ prefix: 'Parent' });
       const childLogger = parentLogger.child('Child');
-
       expect(childLogger.getConfig().prefix).toBe('Parent - Child');
     });
   });
 
   describe('Configuration', () => {
     it('should update configuration', () => {
-      const testLogger = createLogger({level: LogLevel.INFO});
+      const testLogger = createLogger({ level: 'info' as any });
 
       testLogger.configure({
-        level: LogLevel.DEBUG,
+        level: 'debug' as any,
         prefix: 'Updated',
       });
 
-      expect(testLogger.getLevel()).toBe(LogLevel.DEBUG);
+      expect(testLogger.getLevel()).toBe('debug');
       expect(testLogger.getConfig().prefix).toBe('Updated');
     });
   });
 
   describe('Custom formatter', () => {
     it('should use custom formatter when provided', () => {
-      const mockFormatter = jest.fn();
-      const customLogger = createLogger({
-        formatter: mockFormatter,
-      });
+      const mockFormatter = vi.fn();
+      const customLogger = createLogger({ formatter: mockFormatter });
 
-      customLogger.info('Test message', {data: 'test'});
+      customLogger.info('Test message', { data: 'test' });
 
-      expect(mockFormatter).toHaveBeenCalledWith(LogLevel.INFO, 'Test message', {data: 'test'});
-      expect(console.info).not.toHaveBeenCalled();
+      expect(mockFormatter).toHaveBeenCalledWith(
+        'info',
+        'Test message',
+        { data: 'test' }
+      );
+      // When a custom formatter is provided, the logger should defer to it
+      expect(infoSpy).not.toHaveBeenCalled();
     });
   });
 });

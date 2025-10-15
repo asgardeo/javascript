@@ -49,29 +49,42 @@ const getUserInfo = async ({url, ...requestConfig}: Partial<Request>): Promise<U
     );
   }
 
-  const response: Response = await fetch(url, {
-    ...requestConfig,
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-      Accept: 'application/json',
-      ...requestConfig.headers,
-    },
-  });
+  try {
+    const response: Response = await fetch(url, {
+      ...requestConfig,
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+        ...requestConfig.headers,
+      },
+    });
 
-  if (!response.ok) {
-    const errorText = await response.text();
+    if (!response.ok) {
+      const errorText = await response.text();
 
+      throw new AsgardeoAPIError(
+        `Failed to fetch user info: ${errorText}`,
+        'getUserInfo-ResponseError-001',
+        'javascript',
+        response.status,
+        response.statusText,
+      );
+    }
+
+    return (await response.json()) as User;
+  } catch (error) {
+    if (error instanceof AsgardeoAPIError) {
+      throw error;
+    }
     throw new AsgardeoAPIError(
-      `Failed to fetch user info: ${errorText}`,
-      'getUserInfo-ResponseError-001',
+      `Network or parsing error: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      'getUserInfo-NetworkError-001',
       'javascript',
-      response.status,
-      response.statusText,
+      0,
+      'Network Error',
     );
   }
-
-  return (await response.json()) as User;
 };
 
 export default getUserInfo;

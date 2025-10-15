@@ -26,7 +26,7 @@ describe('getUserInfo', (): void => {
     vi.resetAllMocks();
   });
 
-  it('should fetch user info successfully', async (): void => {
+  it('should fetch user info successfully', async (): Promise<void> => {
     const mockUserInfo: User = {
       id: 'test-id',
       name: 'Test User',
@@ -60,7 +60,7 @@ describe('getUserInfo', (): void => {
     });
   });
 
-  it('should handle missing optional fields', async (): void => {
+  it('should handle missing optional fields', async (): Promise<void> => {
     const mockUserInfo: User = {
       id: 'test-id',
       name: 'Test User',
@@ -82,7 +82,7 @@ describe('getUserInfo', (): void => {
     });
   });
 
-  it('should throw AsgardeoAPIError on fetch failure', async (): void => {
+  it('should throw AsgardeoAPIError on fetch failure', async (): Promise<void> => {
     const errorText: string = 'Failed to fetch';
 
     global.fetch = vi.fn().mockResolvedValue({
@@ -103,41 +103,92 @@ describe('getUserInfo', (): void => {
     expect(error.name).toBe('AsgardeoAPIError');
   });
 
-  it('should throw AsgardeoAPIError for invalid URL', async (): void => {
+  it('should throw AsgardeoAPIError for invalid URL', async (): Promise<void> => {
     const invalidUrl: string = 'not-a-valid-url';
 
     await expect(getUserInfo({url: invalidUrl})).rejects.toThrow(AsgardeoAPIError);
 
     const error: AsgardeoAPIError = await getUserInfo({url: invalidUrl}).catch(e => e);
 
-    expect(error.message).toBe(
-      '🛡️ Asgardeo - @asgardeo/javascript: Invalid endpoint URL provided\n\n(code="getUserInfo-ValidationError-001")\n',
-    );
+    expect(error.message).toBe('Invalid endpoint URL provided');
     expect(error.code).toBe('getUserInfo-ValidationError-001');
     expect(error.name).toBe('AsgardeoAPIError');
   });
 
-  it('should throw AsgardeoAPIError for undefined URL', async (): void => {
+  it('should throw AsgardeoAPIError for undefined URL', async (): Promise<void> => {
     await expect(getUserInfo({})).rejects.toThrow(AsgardeoAPIError);
 
     const error: AsgardeoAPIError = await getUserInfo({}).catch(e => e);
 
-    expect(error.message).toBe(
-      '🛡️ Asgardeo - @asgardeo/javascript: Invalid endpoint URL provided\n\n(code="getUserInfo-ValidationError-001")\n',
-    );
+    expect(error.message).toBe('Invalid endpoint URL provided');
     expect(error.code).toBe('getUserInfo-ValidationError-001');
     expect(error.name).toBe('AsgardeoAPIError');
   });
 
-  it('should throw AsgardeoAPIError for empty string URL', async (): void => {
+  it('should throw AsgardeoAPIError for empty string URL', async (): Promise<void> => {
     await expect(getUserInfo({url: ''})).rejects.toThrow(AsgardeoAPIError);
 
     const error: AsgardeoAPIError = await getUserInfo({url: ''}).catch(e => e);
 
-    expect(error.message).toBe(
-      '🛡️ Asgardeo - @asgardeo/javascript: Invalid endpoint URL provided\n\n(code="getUserInfo-ValidationError-001")\n',
-    );
+    expect(error.message).toBe('Invalid endpoint URL provided');
     expect(error.code).toBe('getUserInfo-ValidationError-001');
     expect(error.name).toBe('AsgardeoAPIError');
+  });
+
+  it('should handle network errors', async () => {
+    const mockFetch = vi.fn().mockRejectedValue(new Error('Network error'));
+
+    global.fetch = mockFetch;
+
+    await expect(
+      getUserInfo({
+        url: 'https://api.asgardeo.io/t/test/oauth2/userinfo',
+      }),
+    ).rejects.toThrow(AsgardeoAPIError);
+    await expect(
+      getUserInfo({
+        url: 'https://api.asgardeo.io/t/test/oauth2/userinfo',
+      }),
+    ).rejects.toThrow('Network or parsing error: Network error');
+  });
+
+  it('should handle non-Error rejections', async (): Promise<void> => {
+    global.fetch = vi.fn().mockRejectedValue('unexpected failure');
+
+    const url: string = 'https://api.asgardeo.io/t/dxlab';
+
+    await expect(getUserInfo({url})).rejects.toThrow(AsgardeoAPIError);
+    await expect(getUserInfo({url})).rejects.toThrow('Network or parsing error: Unknown error');
+  });
+
+  it('should pass through custom headers', async () => {
+    const mockUserInfo: User = {
+      id: 'test-id',
+      name: 'Test User',
+      email: 'test@example.com',
+      roles: ['user'],
+      groups: ['group1'],
+    };
+    const mockFetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve(mockUserInfo),
+    });
+    global.fetch = mockFetch;
+    const customHeaders = {
+      Authorization: 'Bearer token',
+      'X-Custom-Header': 'custom-value',
+    };
+    const url: string = 'https://api.asgardeo.io/t/<ORGANIZATION>/oauth2/userinfo';
+    const result: User = await getUserInfo({url, headers: customHeaders});
+
+    expect(result).toEqual(mockUserInfo);
+    expect(mockFetch).toHaveBeenCalledWith(url, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+        ...customHeaders,
+      },
+    });
   });
 });
