@@ -34,6 +34,7 @@ import {cx} from '@emotion/css';
 import {FC, ReactElement, ReactNode, useState} from 'react';
 import useTheme from '../../../contexts/Theme/useTheme';
 import useTranslation from '../../../hooks/useTranslation';
+import useRTL from '../../../hooks/useRTL';
 import {Avatar} from '../../primitives/Avatar/Avatar';
 import Button from '../../primitives/Button/Button';
 import Building from '../../primitives/Icons/Building';
@@ -191,6 +192,7 @@ export const BaseOrganizationSwitcher: FC<BaseOrganizationSwitcherProps> = ({
   const [isOpen, setIsOpen] = useState(false);
   const [hoveredItemIndex, setHoveredItemIndex] = useState<number | null>(null);
   const {t} = useTranslation();
+  const {isRTL} = useRTL();
 
   const {refs, floatingStyles, context} = useFloating({
     open: isOpen,
@@ -308,7 +310,7 @@ export const BaseOrganizationSwitcher: FC<BaseOrganizationSwitcherProps> = ({
             )}
           </>
         )}
-        <ChevronDown width="16" height="16" />
+        <ChevronDown width="16" height="16" style={{transform: isRTL ? 'scaleX(-1)' : 'none'}} />
       </Button>
 
       {isOpen && (

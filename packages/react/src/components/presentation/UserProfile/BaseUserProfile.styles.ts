@@ -55,7 +55,7 @@ const useStyles = (theme: Theme, colorScheme: string) => {
     display: flex;
     gap: calc(${theme.vars.spacing.unit} / 2);
     align-items: center;
-    margin-left: calc(${theme.vars.spacing.unit} * 4);
+    margin-inline-start: calc(${theme.vars.spacing.unit} * 4);
   `;
 
   const complexTextarea = css`
@@ -135,7 +135,7 @@ const useStyles = (theme: Theme, colorScheme: string) => {
       width: 120px;
       flex-shrink: 0;
       line-height: 28px;
-      text-align: left;
+      text-align: start;
     `;
 
     const value = css`
@@ -151,7 +151,7 @@ const useStyles = (theme: Theme, colorScheme: string) => {
       text-overflow: ellipsis;
       white-space: nowrap;
       max-width: 350px;
-      text-align: left;
+      text-align: start;
 
       .${withVendorCSSClassPrefix('form-control')} {
         margin-bottom: 0;
