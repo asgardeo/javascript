@@ -2,16 +2,8 @@
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "outDir": "dist",
-    "module": "commonjs",
+    "module": "ESNext",
     "types": ["jest", "node"]
   },
-  "include": [
-    "test-configs",
-    "jest.config.js",
-    "**/*.test.ts",
-    "**/*.spec.ts",
-    "**/*.test.js",
-    "**/*.spec.js",
-    "**/*.d.ts"
-  ]
+  "include": ["src/**/*.test.ts", "src/**/*.spec.ts", "src/__tests__/**/*"]
 }
