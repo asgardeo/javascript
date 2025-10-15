@@ -34,13 +34,13 @@ import logger from './logger';
 const getRedirectBasedSignUpUrl = (config: Config): string => {
   const {baseUrl} = config;
 
-  if (!isRecognizedBaseUrlPattern(baseUrl)) return '';
+  if (!baseUrl || !isRecognizedBaseUrlPattern(baseUrl)) return '';
 
   let signUpBaseUrl: string = baseUrl;
 
   if (identifyPlatform(config) === Platform.Asgardeo) {
     try {
-      const url: URL = new URL(baseUrl!);
+      const url: URL = new URL(baseUrl);
 
       // Replace 'api.' with 'accounts.' in the hostname, preserving subdomains like 'dev.'
       if (/([a-z0-9-]+\.)*api\.asgardeo\.io$/i.test(url.hostname)) {

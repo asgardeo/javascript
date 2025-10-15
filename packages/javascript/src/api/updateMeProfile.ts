@@ -89,8 +89,19 @@ const updateMeProfile = async ({
   fetcher,
   ...requestConfig
 }: UpdateMeProfileConfig): Promise<User> => {
+  const finalUrl = url ?? baseUrl;
+  if (!finalUrl) {
+    throw new AsgardeoAPIError(
+      'Either url or baseUrl must be provided',
+      'updateMeProfile-ValidationError-000',
+      'javascript',
+      400,
+      'Invalid Request',
+    );
+  }
+
   try {
-    new URL(url ?? baseUrl);
+    new URL(finalUrl);
   } catch (error) {
     throw new AsgardeoAPIError(
       `Invalid URL provided. ${error?.toString()}`,
@@ -146,12 +157,28 @@ const updateMeProfile = async ({
       throw error;
     }
 
+    // Type guard for error object with response/data properties
+    const isErrorWithResponse = (err: unknown): err is { response?: { data?: { detail?: string } } } => {
+      return typeof err === 'object' && err !== null;
+    };
+
+    const isErrorWithData = (err: unknown): err is { data?: { status?: number } } => {
+      return typeof err === 'object' && err !== null;
+    };
+
+    const errorMessage = isErrorWithResponse(error) && error.response?.data?.detail 
+      ? error.response.data.detail
+      : 'An error occurred while updating the user profile. Please try again.';
+
+    const errorStatus = isErrorWithData(error) && error.data?.status 
+      ? error.data.status 
+      : 500;
+
     throw new AsgardeoAPIError(
-      error?.response?.data?.detail ||
-        'An error occurred while updating the user profile. Please try again.',
+      errorMessage,
       'updateMeProfile-NetworkError-001',
       'javascript',
-      error?.data?.status,
+      errorStatus,
       'Network Error',
     );
   }
