@@ -22,7 +22,7 @@
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true
   },
-  "exclude": ["node_modules", "tmp", "dist"],
+  "exclude": ["node_modules", "tmp", "dist", "src/__temp__"],
   "files": [],
   "include": [],
   "references": [
