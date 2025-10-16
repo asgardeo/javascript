@@ -134,6 +134,13 @@ const I18nProvider: FC<PropsWithChildren<I18nProviderProps>> = ({
     storeLanguage(currentLanguage);
   }, [currentLanguage]);
 
+  // Sync language with preferences when they change (e.g., Storybook toolbar)
+  useEffect(() => {
+    if (preferences?.language && preferences.language !== currentLanguage) {
+      setCurrentLanguage(preferences.language);
+    }
+  }, [preferences?.language, currentLanguage]);
+
   // Translation function
   const t = useCallback(
     (key: string, params?: Record<string, string | number>): string => {
