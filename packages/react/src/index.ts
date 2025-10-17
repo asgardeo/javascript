@@ -91,6 +91,9 @@ export * from './hooks/useForm';
 export {default as useBranding} from './hooks/useBranding';
 export * from './hooks/useBranding';
 
+export {default as useRTL} from './hooks/useRTL';
+export * from './hooks/useRTL';
+
 export {default as BaseSignInButton} from './components/actions/SignInButton/BaseSignInButton';
 export * from './components/actions/SignInButton/BaseSignInButton';
 
