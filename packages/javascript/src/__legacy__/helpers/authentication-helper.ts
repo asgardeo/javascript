@@ -51,7 +51,9 @@ export class AuthenticationHelper<T> {
       Object.keys(configData.endpoints).forEach((endpointName: string) => {
         const snakeCasedName: string = endpointName.replace(/[A-Z]/g, (letter: string) => `_${letter.toLowerCase()}`);
 
-        oidcProviderMetaData[snakeCasedName] = configData?.endpoints ? configData.endpoints[endpointName] : '';
+        (oidcProviderMetaData as Record<string, string>)[snakeCasedName] = configData?.endpoints 
+          ? (configData.endpoints as Record<string, string>)[endpointName] ?? ''
+          : '';
       });
 
     return {...response, ...oidcProviderMetaData};
@@ -100,7 +102,9 @@ export class AuthenticationHelper<T> {
       Object.keys(configData.endpoints).forEach((endpointName: string) => {
         const snakeCasedName: string = endpointName.replace(/[A-Z]/g, (letter: string) => `_${letter.toLowerCase()}`);
 
-        oidcProviderMetaData[snakeCasedName] = configData?.endpoints ? configData.endpoints[endpointName] : '';
+        (oidcProviderMetaData as Record<string, string>)[snakeCasedName] = configData?.endpoints 
+          ? (configData.endpoints as Record<string, string>)[endpointName] ?? ''
+          : '';
       });
 
     return {...oidcProviderMetaData};
@@ -124,7 +128,9 @@ export class AuthenticationHelper<T> {
       Object.keys(configData.endpoints).forEach((endpointName: string) => {
         const snakeCasedName: string = endpointName.replace(/[A-Z]/g, (letter: string) => `_${letter.toLowerCase()}`);
 
-        oidcProviderMetaData[snakeCasedName] = configData?.endpoints ? configData.endpoints[endpointName] : '';
+        (oidcProviderMetaData as Record<string, string>)[snakeCasedName] = configData?.endpoints 
+          ? (configData.endpoints as Record<string, string>)[endpointName] ?? ''
+          : '';
       });
 
     const defaultEndpoints: OIDCDiscoveryApiResponse = {
@@ -231,7 +237,7 @@ export class AuthenticationHelper<T> {
       .replace(TokenExchangeConstants.Placeholders.ACCESS_TOKEN, sessionData.access_token)
       .replace(
         TokenExchangeConstants.Placeholders.USERNAME,
-        this.getAuthenticatedUserInfo(sessionData.id_token).username,
+        this.getAuthenticatedUserInfo(sessionData.id_token).username || '',
       )
       .replace(TokenExchangeConstants.Placeholders.SCOPES, scope)
       .replace(TokenExchangeConstants.Placeholders.CLIENT_ID, configData.clientId)

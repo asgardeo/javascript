@@ -68,7 +68,7 @@ class StorageManager<T> {
 
     const dataToBeSaved: PartialData<T> = {...existingData};
 
-    delete dataToBeSaved[attribute as string];
+    Reflect.deleteProperty(dataToBeSaved, attribute as string);
 
     const dataToBeSavedJSON: string = JSON.stringify(dataToBeSaved);
 

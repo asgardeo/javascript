@@ -71,7 +71,7 @@ const getAuthorizeRequestUrlParams = (
   authorizeRequestParams.set('response_type', 'code');
   authorizeRequestParams.set('client_id', clientId as string);
 
-  authorizeRequestParams.set('scope', scopes);
+  authorizeRequestParams.set('scope', scopes ?? ScopeConstants.OPENID);
   authorizeRequestParams.set('redirect_uri', redirectUri as string);
 
   if (responseMode) {
