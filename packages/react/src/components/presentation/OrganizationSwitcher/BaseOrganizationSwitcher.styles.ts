@@ -122,7 +122,7 @@ const useStyles = (theme: Theme, colorScheme: string) => {
 
     const manageButton = css`
       min-width: auto;
-      margin-left: auto;
+      margin-inline-start: auto;
     `;
 
     const menu = css`
@@ -144,7 +144,7 @@ const useStyles = (theme: Theme, colorScheme: string) => {
       background-color: transparent;
       cursor: pointer;
       font-size: 0.875rem;
-      text-align: left;
+      text-align: start;
       border-radius: ${theme.vars.borderRadius.medium};
       transition: background-color 0.15s ease-in-out;
 

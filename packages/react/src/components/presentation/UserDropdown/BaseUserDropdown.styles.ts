@@ -95,7 +95,7 @@ const useStyles = (theme: Theme, colorScheme: string) => {
       border: none;
       cursor: pointer;
       font-size: 0.875rem;
-      text-align: left;
+      text-align: start;
       border-radius: ${theme.vars.borderRadius.medium};
       transition: none;
       box-shadow: none;
@@ -125,7 +125,7 @@ const useStyles = (theme: Theme, colorScheme: string) => {
       background: none;
       cursor: pointer;
       font-size: 0.875rem;
-      text-align: left;
+      text-align: start;
       border-radius: ${theme.vars.borderRadius.medium};
       transition: background-color 0.15s ease-in-out;
 
