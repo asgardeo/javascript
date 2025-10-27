@@ -23,7 +23,7 @@ export interface DefaultAuthClientConfig {
   afterSignInUrl: string;
   afterSignOutUrl?: string;
   clientHost?: string;
-  clientId: string;
+  clientId?: string;
   clientSecret?: string;
   enablePKCE?: boolean;
   prompt?: string;

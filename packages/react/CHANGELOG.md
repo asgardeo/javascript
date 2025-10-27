@@ -1,5 +1,37 @@
 # @asgardeo/react
 
+## 0.5.31
+
+### Patch Changes
+
+- [#218](https://github.com/asgardeo/javascript/pull/218)
+  [`2bf7be4`](https://github.com/asgardeo/javascript/commit/2bf7be42f298273fb6888bd55cf55e5eba3476a9) Thanks
+  [@brionmario](https://github.com/brionmario)! - `ProtectedRoute` should work without any props
+
+## 0.5.30
+
+### Patch Changes
+
+- [#217](https://github.com/asgardeo/javascript/pull/217)
+  [`218f930`](https://github.com/asgardeo/javascript/commit/218f930c5f32b779c12af6c1a9fd0c5ea6879525) Thanks
+  [@brionmario](https://github.com/brionmario)! - Fix `SignInButton` issue with `AsgardeoV2`
+
+- Updated dependencies []:
+  - @asgardeo/browser@0.1.23
+
+## 0.5.29
+
+### Patch Changes
+
+- [#213](https://github.com/asgardeo/javascript/pull/213)
+  [`b411539`](https://github.com/asgardeo/javascript/commit/b4115392902db7f3fbf1be4e136deaaf9f256c68) Thanks
+  [@brionmario](https://github.com/brionmario)! - Add `asagrdeo/thunder` support
+
+- Updated dependencies
+  [[`b411539`](https://github.com/asgardeo/javascript/commit/b4115392902db7f3fbf1be4e136deaaf9f256c68)]:
+  - @asgardeo/browser@0.1.22
+  - @asgardeo/i18n@0.3.1
+
 ## 0.5.28
 
 ### Patch Changes

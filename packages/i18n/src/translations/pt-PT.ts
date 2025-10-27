@@ -36,11 +36,14 @@ const translations: I18nTranslations = {
   'elements.buttons.microsoft': 'Iniciar Sessão com Microsoft',
   'elements.buttons.linkedin': 'Iniciar Sessão com LinkedIn',
   'elements.buttons.ethereum': 'Iniciar Sessão com Ethereum',
+  'elements.buttons.smsotp': 'Iniciar Sessão com SMS',
   'elements.buttons.multi.option': 'Iniciar Sessão com {connection}',
   'elements.buttons.social': 'Iniciar Sessão com {connection}',
 
   /* Fields */
   'elements.fields.placeholder': 'Introduza o seu {field}',
+  'elements.fields.username': 'Nome de utilizador',
+  'elements.fields.password': 'Palavra-passe',
 
   /* |---------------------------------------------------------------| */
   /* |                        Widgets                                | */

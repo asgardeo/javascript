@@ -439,6 +439,17 @@ class AuthAPI {
       })
       .catch(error => Promise.reject(error));
   }
+
+  /**
+   * This method clears the session for the specified session ID.
+   *
+   * @param sessionId - Optional session ID to clear the session for.
+   *
+   * @return void
+   */
+  public clearSession(sessionId?: string): void {
+    this._client.clearSession(sessionId);
+  }
 }
 
 AuthAPI.DEFAULT_STATE = {

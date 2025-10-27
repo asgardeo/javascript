@@ -19,7 +19,6 @@
 import {describe, it, expect, vi} from 'vitest';
 import getAuthorizeRequestUrlParams from '../getAuthorizeRequestUrlParams';
 import OIDCRequestConstants from '../../constants/OIDCRequestConstants';
-import ScopeConstants from '../../constants/ScopeConstants';
 import AsgardeoRuntimeError from '../../errors/AsgardeoRuntimeError';
 
 vi.mock(
@@ -34,28 +33,12 @@ vi.mock(
 describe('getAuthorizeRequestUrlParams', (): void => {
   const pkceKey: string = 'pkce_code_verifier_1';
 
-  it('should include openid in scope (array)', (): void => {
+  it('should include openid in scopes (string)', (): void => {
     const params: Map<string, string> = getAuthorizeRequestUrlParams(
       {
         redirectUri: 'https://app/callback',
         clientId: 'client123',
-        scope: 'profile', // pass as string, not array
-      },
-      {key: pkceKey},
-      {},
-    );
-
-    expect(params.get('scope')).toContain('openid');
-    expect(params.get('client_id')).toBe('client123');
-    expect(params.get('redirect_uri')).toBe('https://app/callback');
-  });
-
-  it('should include openid in scope (string)', (): void => {
-    const params: Map<string, string> = getAuthorizeRequestUrlParams(
-      {
-        redirectUri: 'https://app/callback',
-        clientId: 'client123',
-        scope: 'profile',
+        scopes: 'openid',
       },
       {key: pkceKey},
       {},
@@ -69,7 +52,7 @@ describe('getAuthorizeRequestUrlParams', (): void => {
       {
         redirectUri: 'https://app/callback',
         clientId: 'client123',
-        scope: 'openid profile',
+        scopes: 'openid profile',
       },
       {key: pkceKey},
       {},
@@ -164,7 +147,7 @@ describe('getAuthorizeRequestUrlParams', (): void => {
     expect(params.get(OIDCRequestConstants.Params.STATE)).toBe('customState_request_1');
   });
 
-  it('should default to openid scope if none provided', (): void => {
+  it('should set scope to undefined if none provided', (): void => {
     const params: Map<string, string> = getAuthorizeRequestUrlParams(
       {
         redirectUri: 'https://app/callback',
@@ -174,6 +157,9 @@ describe('getAuthorizeRequestUrlParams', (): void => {
       {},
     );
 
-    expect(params.get('scope')).toBe(ScopeConstants.OPENID);
+    // Since the implementation does not default to "openid"
+    expect(params.get('scope')).toBeUndefined();
+    expect(params.get('client_id')).toBe('client123');
+    expect(params.get('redirect_uri')).toBe('https://app/callback');
   });
 });

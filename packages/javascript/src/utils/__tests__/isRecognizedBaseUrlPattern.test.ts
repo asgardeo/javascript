@@ -23,21 +23,21 @@ import AsgardeoRuntimeError from '../../errors/AsgardeoRuntimeError';
 vi.mock('../logger', () => ({default: {warn: vi.fn()}}));
 
 describe('isRecognizedBaseUrlPattern', () => {
-  it('returns true for recognized Asgardeo base URL pattern', () => {
+  it('should return true for recognized Asgardeo base URL pattern', () => {
     expect(isRecognizedBaseUrlPattern('https://dev.asgardeo.io/t/dxlab')).toBe(true);
     expect(isRecognizedBaseUrlPattern('https://example.com/t/org')).toBe(true);
     expect(isRecognizedBaseUrlPattern('https://foo.com/t/bar/')).toBe(true);
     expect(isRecognizedBaseUrlPattern('https://foo.com/t/bar/extra')).toBe(true);
   });
 
-  it('returns false for unrecognized base URL pattern', () => {
+  it('should return false for unrecognized base URL pattern', () => {
     expect(isRecognizedBaseUrlPattern('https://dev.asgardeo.io/tenant/dxlab')).toBe(false);
     expect(isRecognizedBaseUrlPattern('https://dev.asgardeo.io/')).toBe(false);
     expect(isRecognizedBaseUrlPattern('https://dev.asgardeo.io/t')).toBe(false);
     expect(isRecognizedBaseUrlPattern('https://dev.asgardeo.io/other/path')).toBe(false);
   });
 
-  it('throws AsgardeoRuntimeError if baseUrl is undefined', () => {
+  it('should throw AsgardeoRuntimeError if baseUrl is undefined', () => {
     expect(() => isRecognizedBaseUrlPattern(undefined)).toThrow(AsgardeoRuntimeError);
 
     try {
@@ -48,7 +48,7 @@ describe('isRecognizedBaseUrlPattern', () => {
     }
   });
 
-  it('throws AsgardeoRuntimeError for invalid URL format', () => {
+  it('should throw AsgardeoRuntimeError for invalid URL format', () => {
     expect(() => isRecognizedBaseUrlPattern('not-a-valid-url')).toThrow(AsgardeoRuntimeError);
 
     try {

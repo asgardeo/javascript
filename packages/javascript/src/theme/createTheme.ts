@@ -4,23 +4,7 @@
  * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License.
- * You may obtain a cop  // Shadows
-  if (theme.shadows?.small) {
-    cssVars[`--${prefix}-shadow-small`] = theme.shadows.small;
-  }
-  if (theme.shadows?.medium) {
-    cssVars[`--${prefix}-shadow-medium`] = theme.shadows.medium;
-  }
-  if (theme.shadows?.large) {
-    cssVars[`--${prefix}-shadow-large`] = theme.shadows.large;
-  }
-
-  // Typography - Font Family
-  if (theme.typography?.fontFamily) {
-    cssVars[`--${prefix}-typography-fontFamily`] = theme.typography.fontFamily;
-  }
-
-  // Typography - Font Sizesense at
+ * You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
  *

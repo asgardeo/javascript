@@ -41,9 +41,9 @@ import AsgardeoRuntimeError from '../errors/AsgardeoRuntimeError';
  * const handle2 = deriveOrganizationHandleFromBaseUrl('https://stage.asgardeo.io/t/myorg');
  * // Returns: 'myorg'
  *
- * // Custom domain - throws error
- * deriveOrganizationHandleFromBaseUrl('https://custom.example.com/auth');
- * // Throws: AsgardeoRuntimeError
+ * // Custom domain - returns empty string with a warning
+ * const handle2 = deriveOrganizationHandleFromBaseUrl('https://custom.example.com/auth');
+ * // Returns: '' and logs a warning
  * ```
  */
 const deriveOrganizationHandleFromBaseUrl = (baseUrl?: string): string => {

@@ -109,17 +109,17 @@ export * from './components/actions/SignUpButton/BaseSignUpButton';
 export {default as SignUpButton} from './components/actions/SignUpButton/SignUpButton';
 export * from './components/actions/SignUpButton/SignUpButton';
 
-export {default as SignedIn} from './components/control/SignedIn/SignedIn';
-export * from './components/control/SignedIn/SignedIn';
+export {default as SignedIn} from './components/control/SignedIn';
+export * from './components/control/SignedIn';
 
-export {default as SignedOut} from './components/control/SignedOut/SignedOut';
-export * from './components/control/SignedOut/SignedOut';
+export {default as SignedOut} from './components/control/SignedOut';
+export * from './components/control/SignedOut';
 
-export {default as Loading} from './components/control/Loading/Loading';
-export * from './components/control/Loading/Loading';
+export {default as Loading} from './components/control/Loading';
+export * from './components/control/Loading';
 
-export {default as BaseSignIn} from './components/presentation/SignIn/BaseSignIn';
-export * from './components/presentation/SignIn/BaseSignIn';
+export {default as BaseSignIn} from './components/presentation/SignIn/non-component-driven/BaseSignIn';
+export * from './components/presentation/SignIn/non-component-driven/BaseSignIn';
 
 export {default as SignIn} from './components/presentation/SignIn/SignIn';
 export * from './components/presentation/SignIn/SignIn';
@@ -131,20 +131,20 @@ export {default as SignUp} from './components/presentation/SignUp/SignUp';
 export * from './components/presentation/SignUp/SignUp';
 
 // Sign-In Options
-export {default as IdentifierFirst} from './components/presentation/SignIn/options/IdentifierFirst';
-export {default as UsernamePassword} from './components/presentation/SignIn/options/UsernamePassword';
-export {default as GoogleButton} from './components/presentation/options/GoogleButton';
-export {default as GitHubButton} from './components/presentation/options/GitHubButton';
-export {default as MicrosoftButton} from './components/presentation/options/MicrosoftButton';
-export {default as FacebookButton} from './components/presentation/options/FacebookButton';
-export {default as LinkedInButton} from './components/presentation/options/LinkedInButton';
-export {default as SignInWithEthereumButton} from './components/presentation/options/SignInWithEthereumButton';
-export {default as EmailOtp} from './components/presentation/SignIn/options/EmailOtp';
-export {default as Totp} from './components/presentation/SignIn/options/Totp';
-export {default as SmsOtp} from './components/presentation/SignIn/options/SmsOtp';
-export {default as SocialButton} from './components/presentation/options/SocialButton';
-export {default as MultiOptionButton} from './components/presentation/SignIn/options/MultiOptionButton';
-export * from './components/presentation/SignIn/options/SignInOptionFactory';
+export {default as IdentifierFirst} from './components/presentation/SignIn/non-component-driven/options/IdentifierFirst';
+export {default as UsernamePassword} from './components/presentation/SignIn/non-component-driven/options/UsernamePassword';
+export {default as GoogleButton} from './components/adapters/GoogleButton';
+export {default as GitHubButton} from './components/adapters/GitHubButton';
+export {default as MicrosoftButton} from './components/adapters/MicrosoftButton';
+export {default as FacebookButton} from './components/adapters/FacebookButton';
+export {default as LinkedInButton} from './components/adapters/LinkedInButton';
+export {default as SignInWithEthereumButton} from './components/adapters/SignInWithEthereumButton';
+export {default as EmailOtp} from './components/presentation/SignIn/non-component-driven/options/EmailOtp';
+export {default as Totp} from './components/presentation/SignIn/non-component-driven/options/Totp';
+export {default as SmsOtp} from './components/presentation/SignIn/non-component-driven/options/SmsOtp';
+export {default as SocialButton} from './components/presentation/SignIn/non-component-driven/options/SocialButton';
+export {default as MultiOptionButton} from './components/presentation/SignIn/non-component-driven/options/MultiOptionButton';
+export * from './components/presentation/SignIn/non-component-driven/options/SignInOptionFactory';
 
 export {default as BaseUser} from './components/presentation/User/BaseUser';
 export * from './components/presentation/User/BaseUser';
@@ -273,4 +273,4 @@ export {default as updateMeProfile, UpdateMeProfileConfig} from './api/updateMeP
 export {default as getMeProfile} from './api/getScim2Me';
 export * from './api/getScim2Me';
 
-export {AsgardeoRuntimeError, http, getActiveTheme} from '@asgardeo/browser';
+export {AsgardeoRuntimeError, http, getActiveTheme, navigate} from '@asgardeo/browser';

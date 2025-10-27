@@ -94,4 +94,28 @@ describe('extractUserClaimsFromIdToken', (): void => {
       customClaim: 'value',
     });
   });
+
+  it('should preserve non-string claim values such as objects and arrays', () => {
+    const payload = {
+      roles: ['admin', 'editor'],
+      metadata_info: {active: true, level: 2},
+    } as IdToken;
+
+    expect(extractUserClaimsFromIdToken(payload)).toEqual({
+      roles: ['admin', 'editor'],
+      metadataInfo: {active: true, level: 2},
+    });
+  });
+
+  it('should retain null and undefined claim values', () => {
+    const payload = {
+      nickname: null,
+      preferred_username: undefined,
+    } as IdToken;
+
+    expect(extractUserClaimsFromIdToken(payload)).toEqual({
+      nickname: null,
+      preferredUsername: undefined,
+    });
+  });
 });

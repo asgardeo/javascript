@@ -304,4 +304,66 @@ describe('deepMerge', (): void => {
       },
     });
   });
+
+  it('should not overwrite with undefined from source', () => {
+    const target = {a: 1, b: 2};
+    const source = {a: undefined, b: undefined};
+    const result = deepMerge(target, source);
+    expect(result).toEqual({a: 1, b: 2});
+  });
+
+  it('should overwrite with null from source', () => {
+    const target = {a: 1, b: {x: 1}};
+    const source = {a: null, b: null};
+    const result = deepMerge(target, source);
+    expect(result).toEqual({a: null, b: null});
+  });
+
+  it('should not mutate original nested objects', () => {
+    const target = {a: {x: 1}, b: {y: 2}};
+    const source = {a: {z: 3}};
+    const result = deepMerge(target, source);
+    // mutate originals
+    target.a.x = 999;
+    (source.a as any).z = 777;
+    expect(result).toEqual({a: {x: 1, z: 3}, b: {y: 2}});
+  });
+
+  it('should handle multiple sources with nested merges', () => {
+    const target = {cfg: {mode: 'a', depth: 1}, k: 1};
+    const s1 = {cfg: {mode: 'b'}, k: 2};
+    const s2 = {cfg: {mode: 'c', extra: true}, k: 3};
+    const result = deepMerge(target, s1, s2);
+    expect(result).toEqual({cfg: {mode: 'c', depth: 1, extra: true}, k: 3});
+  });
+
+  it('should replace non-plain with plain (and vice versa) instead of merging', () => {
+    const d = new Date('2024-01-01');
+    const target = {a: d, b: {x: 1}, c: /re/g, f: () => 1};
+    const source = {a: {y: 2}, b: new Date('2024-02-02'), c: {z: 3}, f: {k: 1}};
+    const result = deepMerge(target, source as any);
+    // a: Date -> plain object (replace)
+    expect(result.a).toEqual({y: 2});
+    // b: plain -> Date (replace)
+    expect(result.b).toBeInstanceOf(Date);
+    // c: RegExp -> plain object (replace)
+    expect(result.c).toEqual({z: 3});
+    // f: function -> plain object (replace)
+    expect((result as any).f).toEqual({k: 1});
+  });
+
+  it('should replace nested arrays instead of merging them', () => {
+    const target = {cfg: {list: [1, 2, 3], other: 1}};
+    const source = {cfg: {list: ['a']}};
+    const result = deepMerge(target, source);
+    expect(result).toEqual({cfg: {list: ['a'], other: 1}});
+  });
+
+  it('should not add keys for undefined-only sources', () => {
+    const target = {a: 1};
+    const source = {b: undefined};
+    const result = deepMerge(target, source);
+    expect(result).toEqual({a: 1});
+    expect('b' in result).toBe(false);
+  });
 });

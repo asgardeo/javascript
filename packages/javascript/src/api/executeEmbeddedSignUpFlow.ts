@@ -59,33 +59,59 @@ const executeEmbeddedSignUpFlow = async ({
     );
   }
 
-  const response: Response = await fetch(url ?? `${baseUrl}/api/server/v1/flow/execute`, {
-    ...requestConfig,
-    method: requestConfig.method || 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Accept: 'application/json',
-      ...requestConfig.headers,
-    },
-    body: JSON.stringify({
-      ...(payload ?? {}),
-      flowType: EmbeddedFlowType.Registration,
-    }),
-  });
-
-  if (!response.ok) {
-    const errorText = await response.text();
-
+  try {
+    new URL(url ?? baseUrl);
+  } catch (error) {
     throw new AsgardeoAPIError(
-      `Embedded SignUp flow execution failed: ${errorText}`,
-      'javascript-executeEmbeddedSignUpFlow-ResponseError-100',
+      `Invalid URL provided. ${error?.toString()}`,
+      'executeEmbeddedSignUpFlow-ValidationError-001',
       'javascript',
-      response.status,
-      response.statusText,
+      400,
+      'The provided `url` or `baseUrl` path does not adhere to the URL schema.',
     );
   }
 
-  return (await response.json()) as EmbeddedFlowExecuteResponse;
+  try {
+    const response: Response = await fetch(url ?? `${baseUrl}/api/server/v1/flow/execute`, {
+      ...requestConfig,
+      method: requestConfig.method || 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+        ...requestConfig.headers,
+      },
+      body: JSON.stringify({
+        ...(payload ?? {}),
+        flowType: EmbeddedFlowType.Registration,
+      }),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+
+      throw new AsgardeoAPIError(
+        `Embedded SignUp flow execution failed: ${errorText}`,
+        'javascript-executeEmbeddedSignUpFlow-ResponseError-100',
+        'javascript',
+        response.status,
+        response.statusText,
+      );
+    }
+
+    return (await response.json()) as EmbeddedFlowExecuteResponse;
+  } catch (error) {
+    if (error instanceof AsgardeoAPIError) {
+      throw error;
+    }
+
+    throw new AsgardeoAPIError(
+      `Network or parsing error: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      'executeEmbeddedSignUpFlow-NetworkError-001',
+      'javascript',
+      0,
+      'Network Error',
+    );
+  }
 };
 
 export default executeEmbeddedSignUpFlow;

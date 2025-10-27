@@ -20,17 +20,23 @@ import {
   EmbeddedSignInFlowInitiateResponse,
   EmbeddedSignInFlowHandleResponse,
   EmbeddedSignInFlowHandleRequestPayload,
+  Platform,
 } from '@asgardeo/browser';
-import {FC} from 'react';
-import BaseSignIn, {BaseSignInProps} from './BaseSignIn';
+import {FC, ReactElement} from 'react';
+import BaseSignIn, {BaseSignInProps} from './non-component-driven/BaseSignIn';
+import ComponentDrivenSignIn, {SignInRenderProps} from './component-driven/SignIn';
 import useAsgardeo from '../../../contexts/Asgardeo/useAsgardeo';
-import {CardProps} from '../../primitives/Card/Card';
 
 /**
  * Props for the SignIn component.
  * Extends BaseSignInProps for full compatibility with the React BaseSignIn component
  */
-export type SignInProps = Pick<BaseSignInProps, 'className' | 'onSuccess' | 'onError' | 'variant' | 'size'>;
+export type SignInProps = Pick<BaseSignInProps, 'className' | 'onSuccess' | 'onError' | 'variant' | 'size'> & {
+  /**
+   * Render function for custom UI (render props pattern).
+   */
+  children?: (props: SignInRenderProps) => ReactElement;
+};
 
 /**
  * A styled SignIn component that provides native authentication flow with pre-built styling.
@@ -57,8 +63,8 @@ export type SignInProps = Pick<BaseSignInProps, 'className' | 'onSuccess' | 'onE
  * };
  * ```
  */
-const SignIn: FC<SignInProps> = ({className, size = 'medium', ...rest}: SignInProps) => {
-  const {signIn, afterSignInUrl, isInitialized, isLoading} = useAsgardeo();
+const SignIn: FC<SignInProps> = ({className, size = 'medium', children, ...rest}: SignInProps) => {
+  const {signIn, afterSignInUrl, isInitialized, isLoading, platform} = useAsgardeo();
 
   /**
    * Initialize the authentication flow.
@@ -93,6 +99,20 @@ const SignIn: FC<SignInProps> = ({className, size = 'medium', ...rest}: SignInPr
       window.location.href = url.toString();
     }
   };
+
+  if (platform === Platform.AsgardeoV2) {
+    return (
+      <ComponentDrivenSignIn
+        className={className}
+        size={size}
+        variant={rest.variant}
+        onSuccess={rest.onSuccess}
+        onError={rest.onError}
+      >
+        {children}
+      </ComponentDrivenSignIn>
+    );
+  }
 
   return (
     <BaseSignIn

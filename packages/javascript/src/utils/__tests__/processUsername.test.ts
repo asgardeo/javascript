@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import processUsername, {removeUserstorePrefixp} from '../processUsername';
+import processUsername, {removeUserstorePrefix} from '../processUsername';
 
 describe('processUsername', () => {
   describe('removeUserstorePrefix', () => {
@@ -86,7 +86,7 @@ describe('processUsername', () => {
     });
   });
 
-  describe('processUserUsername', () => {
+  describe('processUsername', () => {
     it('should process DEFAULT/ username in user object', () => {
       const user = {
         username: 'DEFAULT/john.doe',
@@ -94,7 +94,7 @@ describe('processUsername', () => {
         givenName: 'John',
       };
 
-      const result = processUserUsername(user);
+      const result = processUsername(user);
 
       expect(result.username).toBe('john.doe');
       expect(result.email).toBe('john@example.com');
@@ -108,7 +108,7 @@ describe('processUsername', () => {
         givenName: 'Jane',
       };
 
-      const result = processUserUsername(user);
+      const result = processUsername(user);
 
       expect(result.username).toBe('jane.doe');
       expect(result.email).toBe('jane@example.com');
@@ -122,7 +122,7 @@ describe('processUsername', () => {
         givenName: 'Admin',
       };
 
-      const result = processUserUsername(user);
+      const result = processUsername(user);
 
       expect(result.username).toBe('admin');
       expect(result.email).toBe('admin@example.com');
@@ -135,7 +135,7 @@ describe('processUsername', () => {
         givenName: 'John',
       };
 
-      const result = processUserUsername(user);
+      const result = processUsername(user);
 
       expect(result).toEqual(user);
     });
@@ -146,15 +146,15 @@ describe('processUsername', () => {
         email: 'john@example.com',
       };
 
-      const result = processUserUsername(user);
+      const result = processUsername(user);
 
       expect(result.username).toBe('');
       expect(result.email).toBe('john@example.com');
     });
 
     it('should handle null/undefined user object', () => {
-      expect(processUserUsername(null as any)).toBe(null);
-      expect(processUserUsername(undefined as any)).toBe(undefined);
+      expect(processUsername(null as any)).toBe(null);
+      expect(processUsername(undefined as any)).toBe(undefined);
     });
 
     it('should preserve other properties in user object', () => {
@@ -166,7 +166,7 @@ describe('processUsername', () => {
         customProperty: 'customValue',
       };
 
-      const result = processUserUsername(user);
+      const result = processUsername(user);
 
       expect(result.username).toBe('jane.doe');
       expect(result.email).toBe('jane@example.com');

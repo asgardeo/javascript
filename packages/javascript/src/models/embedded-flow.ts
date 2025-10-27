@@ -17,6 +17,7 @@
  */
 
 export enum EmbeddedFlowType {
+  Authentication = 'AUTHENTICATION',
   Registration = 'REGISTRATION',
 }
 

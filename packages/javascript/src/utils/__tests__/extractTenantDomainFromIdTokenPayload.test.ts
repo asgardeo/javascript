@@ -50,4 +50,30 @@ describe('extractTenantDomainFromIdTokenPayload', (): void => {
 
     expect(extractTenantDomainFromIdTokenPayload(payload)).toBe('');
   });
+
+  it('should extract the last part when multiple separators exist', () => {
+    const payload: IdToken = {
+      sub: 'user@foo@bar@tenant.org',
+    };
+    expect(extractTenantDomainFromIdTokenPayload(payload)).toBe('tenant.org');
+  });
+
+  it('should return empty string when sub ends with separator', () => {
+    const payload: IdToken = {
+      sub: 'user@foo@',
+    };
+    expect(extractTenantDomainFromIdTokenPayload(payload)).toBe('');
+  });
+
+  it('should return empty string when custom separator is not found', () => {
+    const payload: IdToken = {
+      sub: 'user@foo@tenant.com',
+    };
+    expect(extractTenantDomainFromIdTokenPayload(payload, '#')).toBe('');
+  });
+
+  it('should return empty string when sub is not a string', () => {
+    const payload = {sub: undefined} as unknown as IdToken;
+    expect(extractTenantDomainFromIdTokenPayload(payload)).toBe('');
+  });
 });

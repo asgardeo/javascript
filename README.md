@@ -48,6 +48,14 @@ Follow these simple steps to get started with Asgardeo:
 
 Please read [Contributing Guide](CONTRIBUTING.md) for details on how to contribute to Asgardeo JavaScript SDKs. Refer to [General Contribution Guidelines](http://wso2.github.io/) for details on our code of conduct, and the process for submitting pull requests to us.
 
+### Contributors ❤️
+
+Hats off to all the people who have contributed to this project, including those who created issues and participated in discussions. 🙌
+
+<a href="https://github.com/asgardeo/javascript/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=asgardeo/javascript" />
+</a>
+
 ### Reporting issues
 
 We encourage you to report issues, improvements, and feature requests creating [Github Issues](https://github.com/asgardeo/javascript/issues).

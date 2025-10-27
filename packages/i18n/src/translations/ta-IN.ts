@@ -36,11 +36,14 @@ const translations: I18nTranslations = {
   'elements.buttons.microsoft': 'Microsoft மூலம் தொடரவும்',
   'elements.buttons.linkedin': 'LinkedIn மூலம் தொடரவும்',
   'elements.buttons.ethereum': 'Ethereum மூலம் உள்நுழை',
+  'elements.buttons.smsotp': 'SMS மூலம் தொடரவும்',
   'elements.buttons.multi.option': '{connection} மூலம் தொடரவும்',
   'elements.buttons.social': '{connection} மூலம் தொடரவும்',
 
   /* Fields */
   'elements.fields.placeholder': '{field} உள்ளிடவும்',
+  'elements.fields.username': 'பயனர்பெயர்',
+  'elements.fields.password': 'கடவுச்சொல்',
 
   /* |---------------------------------------------------------------| */
   /* |                        Widgets                                | */

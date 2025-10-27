@@ -32,6 +32,7 @@ import {
   executeEmbeddedSignUpFlow,
   EmbeddedSignInFlowHandleRequestPayload,
   executeEmbeddedSignInFlow,
+  executeEmbeddedSignInFlowV2,
   Organization,
   IdToken,
   EmbeddedFlowExecuteRequestConfig,
@@ -46,6 +47,8 @@ import {
   getRedirectBasedSignUpUrl,
   Config,
   TokenExchangeRequestConfig,
+  Platform,
+  isEmpty,
 } from '@asgardeo/browser';
 import AuthAPI from './__temp__/api';
 import getMeOrganizations from './api/getMeOrganizations';
@@ -230,14 +233,23 @@ class AsgardeoReactClient<T extends AsgardeoReactConfig = AsgardeoReactConfig> e
   }
 
   override async getCurrentOrganization(): Promise<Organization | null> {
-    return this.withLoading(async () => {
-      const idToken: IdToken = await this.getDecodedIdToken();
-      return {
-        orgHandle: idToken?.org_handle,
-        name: idToken?.org_name,
-        id: idToken?.org_id,
-      };
-    });
+    try {
+      return this.withLoading(async () => {
+        const idToken: IdToken = await this.getDecodedIdToken();
+        return {
+          orgHandle: idToken?.org_handle,
+          name: idToken?.org_name,
+          id: idToken?.org_id,
+        };
+      });
+    } catch (error) {
+      throw new AsgardeoRuntimeError(
+        `Failed to fetch the current organization: ${error instanceof Error ? error.message : String(error)}`,
+        'AsgardeoReactClient-getCurrentOrganization-RuntimeError-001',
+        'react',
+        'An error occurred while fetching the current organization of the signed-in user.',
+      );
+    }
   }
 
   override async switchOrganization(organization: Organization, sessionId?: string): Promise<TokenResponse | Response> {
@@ -321,6 +333,24 @@ class AsgardeoReactClient<T extends AsgardeoReactConfig = AsgardeoReactConfig> e
       const arg1 = args[0];
       const arg2 = args[1];
 
+      const config: AsgardeoReactConfig = (await this.asgardeo.getConfigData()) as AsgardeoReactConfig;
+
+      if (
+        config.platform === Platform.AsgardeoV2 &&
+        typeof arg1 === 'object' &&
+        !isEmpty(arg1) &&
+        ('flowId' in arg1 || 'applicationId' in arg1)
+      ) {
+        const sessionDataKey: string = new URL(window.location.href).searchParams.get('sessionDataKey');
+
+        return executeEmbeddedSignInFlowV2({
+          payload: arg1 as EmbeddedSignInFlowHandleRequestPayload,
+          url: arg2?.url,
+          baseUrl: config?.baseUrl,
+          sessionDataKey,
+        });
+      }
+
       if (typeof arg1 === 'object' && 'flowId' in arg1 && typeof arg2 === 'object' && 'url' in arg2) {
         return executeEmbeddedSignInFlow({
           payload: arg1,
@@ -347,6 +377,17 @@ class AsgardeoReactClient<T extends AsgardeoReactConfig = AsgardeoReactConfig> e
   override async signOut(...args: any[]): Promise<string> {
     if (args[1] && typeof args[1] !== 'function') {
       throw new Error('The second argument must be a function.');
+    }
+
+    const config: AsgardeoReactConfig = (await this.asgardeo.getConfigData()) as AsgardeoReactConfig;
+
+    // TEMPORARY: Handle Asgardeo V2 sign-out differently until the sign-out flow is implemented in the platform.
+    // Tracker: https://github.com/asgardeo/javascript/issues/212#issuecomment-3435713699
+    if (config.platform === Platform.AsgardeoV2) {
+      this.asgardeo.clearSession();
+      args[1]?.(config.afterSignOutUrl || '');
+
+      return Promise.resolve(config.afterSignOutUrl || '');
     }
 
     const response: boolean = await this.asgardeo.signOut(args[1]);
@@ -384,6 +425,10 @@ class AsgardeoReactClient<T extends AsgardeoReactConfig = AsgardeoReactConfig> e
     return this.withLoading(async () => {
       return this.asgardeo.getAccessToken(sessionId);
     });
+  }
+
+  override clearSession(sessionId?: string): void {
+    this.asgardeo.clearSession(sessionId);
   }
 }
 

@@ -47,6 +47,11 @@ export interface AsgardeoClient<T> {
    */
   getMyOrganizations(options?: any, sessionId?: string): Promise<Organization[]>;
 
+  /**
+   * Gets all organizations available to the user.
+   * @param options - Optional parameters for the request.
+   * @param sessionId - Optional session ID to be used for the request.
+   */
   getAllOrganizations(options?: any, sessionId?: string): Promise<AllOrganizationsApiResponse>;
 
   /**
@@ -63,6 +68,10 @@ export interface AsgardeoClient<T> {
    */
   switchOrganization(organization: Organization, sessionId?: string): Promise<TokenResponse | Response>;
 
+  /**
+   * Gets the client configuration.
+   * @returns The client configuration.
+   */
   getConfiguration(): T;
 
   /**
@@ -72,6 +81,11 @@ export interface AsgardeoClient<T> {
    */
   exchangeToken(config: TokenExchangeRequestConfig, sessionId?: string): Promise<TokenResponse | Response>;
 
+  /**
+   * Updates the user profile with the provided payload.
+   * @param payload - The new user profile data.
+   * @param userId - Optional user ID to specify which user's profile to update.
+   */
   updateUserProfile(payload: any, userId?: string): Promise<User>;
 
   /**
@@ -211,4 +225,10 @@ export interface AsgardeoClient<T> {
    * @returns A promise that resolves to the access token string.
    */
   getAccessToken(sessionId?: string): Promise<string>;
+
+  /**
+   * Clears the session for the specified session ID.
+   * @param sessionId - Optional session ID to clear the session for.
+   */
+  clearSession(sessionId?: string): void;
 }

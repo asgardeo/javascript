@@ -33,7 +33,7 @@ describe('getRedirectBasedSignUpUrl', () => {
     vi.clearAllMocks();
   });
 
-  it('returns the correct sign-up URL if baseUrl is recognized and both params are present', () => {
+  it('should return the correct sign-up URL if baseUrl is recognized and both params are present', () => {
     (isRecognizedBaseUrlPattern as unknown as ReturnType<typeof vi.fn>).mockReturnValue(true);
     const config: Config = {baseUrl, clientId, applicationId};
     const url: URL = new URL(expectedBaseUrl + '/accountrecoveryendpoint/register.do');
@@ -42,7 +42,7 @@ describe('getRedirectBasedSignUpUrl', () => {
     expect(getRedirectBasedSignUpUrl(config)).toBe(url.toString());
   });
 
-  it('returns the correct sign-up URL if only clientId is present', () => {
+  it('should return the correct sign-up URL if only clientId is present', () => {
     (isRecognizedBaseUrlPattern as unknown as ReturnType<typeof vi.fn>).mockReturnValue(true);
     const config: Config = {baseUrl, clientId};
     const url: URL = new URL(expectedBaseUrl + '/accountrecoveryendpoint/register.do');
@@ -50,7 +50,7 @@ describe('getRedirectBasedSignUpUrl', () => {
     expect(getRedirectBasedSignUpUrl(config)).toBe(url.toString());
   });
 
-  it('returns the correct sign-up URL if only applicationId is present', () => {
+  it('should return the correct sign-up URL if only applicationId is present', () => {
     (isRecognizedBaseUrlPattern as unknown as ReturnType<typeof vi.fn>).mockReturnValue(true);
     const config: Config = {baseUrl, applicationId, clientId: ''};
     const url: URL = new URL(expectedBaseUrl + '/accountrecoveryendpoint/register.do');
@@ -58,14 +58,14 @@ describe('getRedirectBasedSignUpUrl', () => {
     expect(getRedirectBasedSignUpUrl(config)).toBe(url.toString());
   });
 
-  it('returns the correct sign-up URL if neither param is present', () => {
+  it('should return the correct sign-up URL if neither param is present', () => {
     (isRecognizedBaseUrlPattern as unknown as ReturnType<typeof vi.fn>).mockReturnValue(true);
     const config: Config = {baseUrl, clientId: ''};
     const url: URL = new URL(expectedBaseUrl + '/accountrecoveryendpoint/register.do');
     expect(getRedirectBasedSignUpUrl(config)).toBe(url.toString());
   });
 
-  it('returns empty string if baseUrl is not recognized', () => {
+  it('should return empty string if baseUrl is not recognized', () => {
     (isRecognizedBaseUrlPattern as unknown as ReturnType<typeof vi.fn>).mockReturnValue(false);
     const config: Config = {baseUrl, clientId, applicationId};
     expect(getRedirectBasedSignUpUrl(config)).toBe('');

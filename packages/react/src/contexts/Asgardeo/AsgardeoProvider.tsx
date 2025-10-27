@@ -28,6 +28,8 @@ import {
   BrandingPreference,
   IdToken,
   getActiveTheme,
+  Platform,
+  extractUserClaimsFromIdToken,
 } from '@asgardeo/browser';
 import {FC, RefObject, PropsWithChildren, ReactElement, useEffect, useMemo, useRef, useState, useCallback} from 'react';
 import AsgardeoContext from './AsgardeoContext';
@@ -253,21 +255,44 @@ const AsgardeoProvider: FC<PropsWithChildren<AsgardeoProviderProps>> = ({
         setBaseUrl(_baseUrl);
       }
 
-      const user: User = await asgardeo.getUser({baseUrl: _baseUrl});
-      const userProfile: UserProfile = await asgardeo.getUserProfile({baseUrl: _baseUrl});
-      const currentOrganization: Organization = await asgardeo.getCurrentOrganization();
-      const myOrganizations: Organization[] = await asgardeo.getMyOrganizations();
+      // TEMPORARY: Asgardeo V2 platform does not support SCIM2, Organizations endpoints yet.
+      // Tracker: https://github.com/asgardeo/javascript/issues/212
+      if (config.platform === Platform.AsgardeoV2) {
+        setUser(extractUserClaimsFromIdToken(decodedToken));
+      } else {
+        try {
+          const user: User = await asgardeo.getUser({baseUrl: _baseUrl});
+          setUser(user);
+        } catch (error) {
+          // TODO: Add an error log.
+        }
 
-      // Update user data first
-      setUser(user);
-      setUserProfile(userProfile);
-      setCurrentOrganization(currentOrganization);
-      setMyOrganizations(myOrganizations);
+        try {
+          const userProfile: UserProfile = await asgardeo.getUserProfile({baseUrl: _baseUrl});
+          setUserProfile(userProfile);
+        } catch (error) {
+          // TODO: Add an error log.
+        }
+
+        try {
+          const currentOrganization: Organization = await asgardeo.getCurrentOrganization();
+          setCurrentOrganization(currentOrganization);
+        } catch (error) {
+          // TODO: Add an error log.
+        }
+
+        try {
+          const myOrganizations: Organization[] = await asgardeo.getMyOrganizations();
+          setMyOrganizations(myOrganizations);
+        } catch (error) {
+          // TODO: Add an error log.
+        }
+      }
 
       // CRITICAL: Update sign-in status BEFORE setting loading to false
       // This prevents the race condition where ProtectedRoute sees isLoading=false but isSignedIn=false
       const currentSignInStatus = await asgardeo.isSignedIn();
-      setIsSignedInSync(await asgardeo.isSignedIn());
+      setIsSignedInSync(currentSignInStatus);
     } catch (error) {
       // TODO: Add an error log.
     } finally {
@@ -319,6 +344,12 @@ const AsgardeoProvider: FC<PropsWithChildren<AsgardeoProviderProps>> = ({
 
   // Auto-fetch branding when initialized and configured
   useEffect(() => {
+    // TEMPORARY: Asgardeo V2 platform does not support branding preference yet.
+    // Tracker: https://github.com/asgardeo/javascript/issues/212
+    if (config.platform === Platform.AsgardeoV2) {
+      return;
+    }
+
     // Enable branding by default or when explicitly enabled
     const shouldFetchBranding = preferences?.theme?.inheritFromBranding !== false;
 
@@ -416,6 +447,7 @@ const AsgardeoProvider: FC<PropsWithChildren<AsgardeoProviderProps>> = ({
       signUpUrl,
       afterSignInUrl,
       baseUrl,
+      clearSession: asgardeo.clearSession.bind(asgardeo),
       getAccessToken: asgardeo.getAccessToken.bind(asgardeo),
       isInitialized: isInitializedSync,
       isLoading: isLoadingSync,
@@ -435,6 +467,7 @@ const AsgardeoProvider: FC<PropsWithChildren<AsgardeoProviderProps>> = ({
       getDecodedIdToken: asgardeo.getDecodedIdToken.bind(asgardeo),
       exchangeToken: asgardeo.exchangeToken.bind(asgardeo),
       syncSession,
+      platform: config?.platform,
     }),
     [
       applicationId,

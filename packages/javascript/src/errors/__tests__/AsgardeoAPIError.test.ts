@@ -17,6 +17,7 @@
  */
 
 import AsgardeoAPIError from '../AsgardeoAPIError';
+import AsgardeoError from '../AsgardeoError';
 
 describe('AsgardeoAPIError', (): void => {
   it('should create an API error with status code and text', (): void => {
@@ -27,10 +28,13 @@ describe('AsgardeoAPIError', (): void => {
     const statusText: string = 'Not Found';
     const error = new AsgardeoAPIError(message, code, origin, statusCode, statusText);
 
-    expect(error.message).toBe('🛡️ Asgardeo - @asgardeo/react: Not Found Error\n\n(code="API_NOT_FOUND")\n');
+    expect(error.message).toBe(message);
     expect(error.code).toBe(code);
     expect(error.statusCode).toBe(statusCode);
     expect(error.statusText).toBe(statusText);
+    expect(error.toString()).toBe(
+      '[AsgardeoAPIError] (code="API_NOT_FOUND") (HTTP 404 - Not Found)\nMessage: Not Found Error',
+    );
   });
 
   it('should create an API error without status code and text', (): void => {
@@ -39,12 +43,13 @@ describe('AsgardeoAPIError', (): void => {
     const origin: string = 'javascript';
     const error = new AsgardeoAPIError(message, code, origin);
 
-    expect(error.message).toBe('🛡️ Asgardeo - @asgardeo/javascript: Unknown API Error\n\n(code="API_ERROR")\n');
+    expect(error.message).toBe(message);
     expect(error.statusCode).toBeUndefined();
     expect(error.statusText).toBeUndefined();
+    expect(error.toString()).toBe('[AsgardeoAPIError] (code="API_ERROR")\nMessage: Unknown API Error');
   });
 
-  it('should have correct name and be instance of Error and AsgardeoAPIError', (): void => {
+  it('should have correct name and be instance of Error, AsgardeoError, and AsgardeoAPIError', (): void => {
     const message: string = 'Test Error';
     const code: string = 'TEST_ERROR';
     const origin: string = 'react';
@@ -53,6 +58,7 @@ describe('AsgardeoAPIError', (): void => {
     expect(error.name).toBe('AsgardeoAPIError');
     expect(error).toBeInstanceOf(Error);
     expect(error).toBeInstanceOf(AsgardeoAPIError);
+    expect(error).toBeInstanceOf(AsgardeoError);
   });
 
   it('should format toString with status when available', (): void => {
@@ -64,8 +70,7 @@ describe('AsgardeoAPIError', (): void => {
     const error = new AsgardeoAPIError(message, code, origin, statusCode, statusText);
 
     const expected: string =
-      '[AsgardeoAPIError] (code="API_BAD_REQUEST") (HTTP 400 - Bad Request)\n' +
-      'Message: 🛡️ Asgardeo - @asgardeo/react: Bad Request\n\n(code="API_BAD_REQUEST")\n';
+      '[AsgardeoAPIError] (code="API_BAD_REQUEST") (HTTP 400 - Bad Request)\nMessage: Bad Request';
 
     expect(error.toString()).toBe(expected);
   });
@@ -76,9 +81,7 @@ describe('AsgardeoAPIError', (): void => {
     const origin: string = 'react';
     const error = new AsgardeoAPIError(message, code, origin);
 
-    const expected: string =
-      '[AsgardeoAPIError] (code="TEST_ERROR")\n' +
-      'Message: 🛡️ Asgardeo - @asgardeo/react: Test Error\n\n(code="TEST_ERROR")\n';
+    const expected: string = '[AsgardeoAPIError] (code="TEST_ERROR")\nMessage: Test Error';
 
     expect(error.toString()).toBe(expected);
   });
@@ -86,8 +89,19 @@ describe('AsgardeoAPIError', (): void => {
   it('should default to the agnostic SDK if no origin is provided', (): void => {
     const message: string = 'Test message';
     const code: string = 'TEST_ERROR';
-    const error: AsgardeoError = new AsgardeoAPIError(message, code, '');
+    const error: AsgardeoAPIError = new AsgardeoAPIError(message, code, '');
 
     expect(error.origin).toBe('@asgardeo/javascript');
+  });
+
+  it('should have a stack trace that includes the error message', () => {
+    const err = new AsgardeoAPIError('Trace me', 'TRACE', 'js');
+    expect(err.stack).toBeDefined();
+    expect(String(err.stack)).toContain('Trace me');
+  });
+
+  it('toString includes status when statusCode is present but statusText is missing', () => {
+    const err = new AsgardeoAPIError('Oops', 'CODE', 'js', 500);
+    expect(err.toString()).toBe('[AsgardeoAPIError] (code="CODE") (HTTP 500 - undefined)\nMessage: Oops');
   });
 });

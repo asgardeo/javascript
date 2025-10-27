@@ -27,7 +27,7 @@ import {
 } from '@asgardeo/browser';
 import {cx} from '@emotion/css';
 import {FC, ReactElement, useEffect, useState, useCallback, useRef} from 'react';
-import {renderSignUpComponents} from './options/SignUpOptionFactory';
+import {renderSignUpComponents} from './SignUpOptionFactory';
 import FlowProvider from '../../../contexts/Flow/FlowProvider';
 import useFlow from '../../../contexts/Flow/useFlow';
 import {useForm, FormField} from '../../../hooks/useForm';

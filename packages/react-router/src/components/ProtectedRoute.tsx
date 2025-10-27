@@ -21,7 +21,7 @@ import {AsgardeoRuntimeError} from '@asgardeo/browser';2025, WSO2 LLC. (https://
 
 import {FC, ReactElement, ReactNode} from 'react';
 import {Navigate} from 'react-router';
-import {useAsgardeo, AsgardeoRuntimeError} from '@asgardeo/react';
+import {useAsgardeo, AsgardeoRuntimeError, navigate} from '@asgardeo/react';
 
 /**
  * Props for the ProtectedRoute component.
@@ -45,6 +45,37 @@ export interface ProtectedRouteProps {
    * Custom loading element to render while authentication status is being determined.
    */
   loader?: ReactNode;
+  /**
+   * Custom sign-in function to override the default behavior.
+   * If provided, this function will be called instead of the default signIn method
+   * when the user is not authenticated and no fallback or redirectTo is specified.
+   * This allows you to pass additional parameters or implement custom sign-in logic.
+   *
+   * @param defaultSignIn - The default signIn method from useAsgardeo hook
+   * @param signInOptions - Merged sign-in options (context + component props)
+   */
+  onSignIn?: (defaultSignIn: (options?: Record<string, any>) => void, signInOptions?: Record<string, any>) => void;
+  /**
+   * Additional parameters to pass to the authorize request.
+   * These will be merged with the default signInOptions from the Asgardeo context.
+   * Common options include:
+   * - prompt: "login" | "none" | "consent" | "select_account"
+   * - fidp: Federation Identity Provider identifier
+   * - kc_idp_hint: Keycloak identity provider hint
+   * - login_hint: Hint to help with the username/identifier in the login form
+   * - max_age: Maximum authentication age in seconds
+   * - ui_locales: End-user's preferred languages and scripts for the user interface
+   *
+   * @example
+   * ```tsx
+   * signInOptions={{
+   *   prompt: "login",
+   *   fidp: "OrganizationSSO",
+   *   login_hint: "user@example.com"
+   * }}
+   * ```
+   */
+  signInOptions?: Record<string, any>;
 }
 
 /**
@@ -80,9 +111,47 @@ export interface ProtectedRouteProps {
  *   }
  * />
  * ```
+ *
+ * @example With custom sign-in parameters
+ * ```tsx
+ * <Route
+ *   path="/secure"
+ *   element={
+ *     <ProtectedRoute signInOptions={{ prompt: "login", fidp: "OrganizationSSO" }}>
+ *       <SecureContent />
+ *     </ProtectedRoute>
+ *   }
+ * />
+ * ```
+ *
+ * @example With custom sign-in handler
+ * ```tsx
+ * <Route
+ *   path="/custom"
+ *   element={
+ *     <ProtectedRoute
+ *       onSignIn={(defaultSignIn, options) => {
+ *         // Custom logic before sign-in
+ *         console.log('Initiating custom sign-in');
+ *         defaultSignIn({ ...options, prompt: "login" });
+ *       }}
+ *       signInOptions={{ fidp: "CustomIDP" }}
+ *     >
+ *       <CustomContent />
+ *     </ProtectedRoute>
+ *   }
+ * />
+ * ```
  */
-const ProtectedRoute: FC<ProtectedRouteProps> = ({children, fallback, redirectTo, loader = null}) => {
-  const {isSignedIn, isLoading} = useAsgardeo();
+const ProtectedRoute: FC<ProtectedRouteProps> = ({
+  children,
+  fallback,
+  redirectTo,
+  loader = null,
+  onSignIn,
+  signInOptions: overriddenSignInOptions = {},
+}) => {
+  const {isSignedIn, isLoading, signIn, signInOptions, signInUrl} = useAsgardeo();
 
   // Always wait for loading to finish before making authentication decisions
   if (isLoading) {
@@ -101,11 +170,34 @@ const ProtectedRoute: FC<ProtectedRouteProps> = ({children, fallback, redirectTo
     return <Navigate to={redirectTo} replace />;
   }
 
+  if (!isSignedIn) {
+    if (signInUrl) {
+      navigate(signInUrl);
+    } else {
+      if (onSignIn) {
+        onSignIn(signIn, overriddenSignInOptions);
+      } else {
+        (async () => {
+          try {
+            await signIn(overriddenSignInOptions ?? signInOptions);
+          } catch (error) {
+            throw new AsgardeoRuntimeError(
+              'Sign-in failed in ProtectedRoute.',
+              'ProtectedRoute-SignInError-001',
+              'react-router',
+              `An error occurred during sign-in: ${(error as Error).message}`,
+            );
+          }
+        })();
+      }
+    }
+  }
+
   throw new AsgardeoRuntimeError(
-    '"fallback" or "redirectTo" prop is required.',
-    'ProtectedRoute-ValidationError-001',
+    'ProtectedRoute misconfiguration.',
+    'ProtectedRoute-Misconfiguration-001',
     'react-router',
-    'Either "fallback" or "redirectTo" prop must be provided to handle unauthenticated users.',
+    'The internal handler failed to process the state. Please try with a fallback or redirectTo prop.',
   );
 };
 

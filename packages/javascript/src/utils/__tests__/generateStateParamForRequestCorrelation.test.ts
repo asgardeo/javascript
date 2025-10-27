@@ -46,4 +46,21 @@ describe('generateStateParamForRequestCorrelation', (): void => {
 
     expect(generateStateParamForRequestCorrelation(pkceKey, customState)).toBe('complex_state_123_request_5');
   });
+
+  it('should use the last separator segment as index if prefix contains the separator', () => {
+    const sep = PKCEConstants.Storage.StorageKeys.SEPARATOR;
+    const base = `${PKCEConstants.Storage.StorageKeys.CODE_VERIFIER}`;
+    const pkceKey = `${base}${sep}12`;
+    expect(generateStateParamForRequestCorrelation(pkceKey)).toBe('request_12');
+  });
+
+  it('should handle non-numeric indices', () => {
+    const pkceKey = `${PKCEConstants.Storage.StorageKeys.CODE_VERIFIER}`;
+    expect(generateStateParamForRequestCorrelation(pkceKey)).toBe('request_NaN');
+  });
+
+  it('should handle zero-padded indices consistently', () => {
+    const pkceKey = `${PKCEConstants.Storage.StorageKeys.CODE_VERIFIER}${PKCEConstants.Storage.StorageKeys.SEPARATOR}007`;
+    expect(generateStateParamForRequestCorrelation(pkceKey)).toBe('request_7');
+  });
 });

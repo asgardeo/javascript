@@ -32,6 +32,7 @@ import Card from '../../primitives/Card/Card';
 import useStyles from './BaseUserProfile.styles';
 import useTranslation from '../../../hooks/useTranslation';
 import Alert from '../../primitives/Alert/Alert';
+import getDisplayName from '../../../utils/getDisplayName';
 
 interface ExtendedFlatSchema {
   path?: string;
@@ -303,7 +304,7 @@ const BaseUserProfile: FC<BaseUserProfileProps> = ({
 
   const styles = useStyles(theme, colorScheme);
 
-  const defaultAttributeMappings = {
+  const defaultAttributeMappings: {[key: string]: string | string[] | undefined} = {
     picture: ['profile', 'profileUrl', 'picture', 'URL'],
     firstName: ['name.givenName', 'given_name'],
     lastName: ['name.familyName', 'family_name'],
@@ -311,7 +312,10 @@ const BaseUserProfile: FC<BaseUserProfileProps> = ({
     username: ['userName', 'username', 'user_name'],
   };
 
-  const mergedMappings = {...defaultAttributeMappings, ...attributeMapping};
+  const mergedMappings: {[key: string]: string | string[] | undefined} = {
+    ...defaultAttributeMappings,
+    ...attributeMapping,
+  };
 
   const renderSchemaField = (
     schema: Schema,
@@ -574,17 +578,6 @@ const BaseUserProfile: FC<BaseUserProfileProps> = ({
     );
   };
 
-  const getDisplayName = () => {
-    const firstName = getMappedUserProfileValue('firstName', mergedMappings, profile);
-    const lastName = getMappedUserProfileValue('lastName', mergedMappings, profile);
-
-    if (firstName && lastName) {
-      return `${firstName} ${lastName}`;
-    }
-
-    return getMappedUserProfileValue('username', mergedMappings, profile) || '';
-  };
-
   if (!profile && !flattenedProfile) {
     return fallback;
   }
@@ -636,9 +629,9 @@ const BaseUserProfile: FC<BaseUserProfileProps> = ({
       <div className={styles.header}>
         <Avatar
           imageUrl={getMappedUserProfileValue('picture', mergedMappings, currentUser)}
-          name={getDisplayName()}
+          name={getDisplayName(mergedMappings, profile)}
           size={80}
-          alt={`${getDisplayName()}'s avatar`}
+          alt={`${getDisplayName(mergedMappings, profile)}'s avatar`}
           isLoading={isLoading}
         />
       </div>

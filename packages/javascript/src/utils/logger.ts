@@ -91,6 +91,13 @@ const BROWSER_STYLES = {
   timestamp: 'color: #6b7280; font-size: 0.9em;',
 };
 
+const LOG_LEVEL_ORDER: Record<LogLevel, number> = {
+    debug: 0,
+    info: 1,
+    warn: 2,
+    error: 3,
+};
+
 /**
  * Universal logger class that works in both browser and Node.js environments
  */
@@ -119,7 +126,7 @@ class Logger {
    * Check if a log level should be output
    */
   private shouldLog(level: LogLevel): boolean {
-    return level >= this.config.level;
+    return LOG_LEVEL_ORDER[level] >= LOG_LEVEL_ORDER[this.config.level];
   }
 
   /**

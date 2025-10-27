@@ -1157,4 +1157,12 @@ export class AsgardeoSPAClient {
 
     return;
   }
+
+  /**
+   * This method clears the session information from the storage.
+   * @param sessionId - The session ID of the session to be cleared. If not provided, the current session will be cleared.
+   */
+  public clearSession(sessionId?: string): void {
+    AsgardeoAuthClient.clearSession(sessionId);
+  }
 }

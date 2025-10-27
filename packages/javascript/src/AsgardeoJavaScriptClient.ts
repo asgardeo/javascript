@@ -85,6 +85,8 @@ abstract class AsgardeoJavaScriptClient<T = Config> implements AsgardeoClient<T>
   abstract signUp(payload?: unknown): Promise<void> | Promise<EmbeddedFlowExecuteResponse>;
 
   abstract getAccessToken(sessionId?: string): Promise<string>;
+
+  abstract clearSession(sessionId?: string): void;
 }
 
 export default AsgardeoJavaScriptClient;

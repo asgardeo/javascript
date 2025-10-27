@@ -19,6 +19,7 @@
 import {I18nBundle} from '@asgardeo/i18n';
 import {RecursivePartial} from './utility-types';
 import {ThemeConfig, ThemeMode} from '../theme/types';
+import {Platform} from './platforms';
 
 /**
  * Interface representing the additional parameters to be sent in the sign-in request.
@@ -111,6 +112,13 @@ export interface BaseConfig<T = unknown> extends WithPreferences {
    * Not recommended for public clients like browser applications.
    */
   clientSecret?: string | undefined;
+
+  /**
+   * Optional platform where the application is running.
+   * This helps the SDK to optimize its behavior based on the platform.
+   * If not provided, the SDK will attempt to auto-detect the platform.
+   */
+  platform?: keyof typeof Platform;
 
   /**
    * The scopes to request during authentication.

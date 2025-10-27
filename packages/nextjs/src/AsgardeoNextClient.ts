@@ -567,6 +567,15 @@ class AsgardeoNextClient<T extends AsgardeoNextConfig = AsgardeoNextConfig> exte
     await this.ensureInitialized();
     return this.asgardeo.getStorageManager();
   }
+
+  public async clearSession(): Promise<void> {
+    throw new AsgardeoRuntimeError(
+      'Not implemented',
+      'AsgardeoNextClient-clearSession-NotImplementedError-001',
+      'nextjs',
+      'The clearSession method is not implemented in the Next.js client.',
+    );
+  }
 }
 
 export default AsgardeoNextClient;

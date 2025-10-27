@@ -1,5 +1,34 @@
 # @asgardeo/javascript
 
+## 0.1.22
+
+### Patch Changes
+
+- [#217](https://github.com/asgardeo/javascript/pull/217)
+  [`218f930`](https://github.com/asgardeo/javascript/commit/218f930c5f32b779c12af6c1a9fd0c5ea6879525) Thanks
+  [@brionmario](https://github.com/brionmario)! - Fix `SignInButton` issue with `AsgardeoV2`
+
+- [#204](https://github.com/asgardeo/javascript/pull/204)
+  [`8158824`](https://github.com/asgardeo/javascript/commit/8158824e669e0125e50a4711d0c9f4938f8dfe00) Thanks
+  [@PasanMadhuranga](https://github.com/PasanMadhuranga)! - Fix multiple logic and error-handling issues in core SDK
+  modules to align with expected behavior.
+
+  - Use numeric ordering for log levels instead of string comparison.
+  - Handle network and parsing errors gracefully in getUserInfo.
+  - Improve error handling for invalid URLs and network failures in embedded sign-in and sign-up flows.
+
+## 0.1.21
+
+### Patch Changes
+
+- [#213](https://github.com/asgardeo/javascript/pull/213)
+  [`b411539`](https://github.com/asgardeo/javascript/commit/b4115392902db7f3fbf1be4e136deaaf9f256c68) Thanks
+  [@brionmario](https://github.com/brionmario)! - Add `asagrdeo/thunder` support
+
+- Updated dependencies
+  [[`b411539`](https://github.com/asgardeo/javascript/commit/b4115392902db7f3fbf1be4e136deaaf9f256c68)]:
+  - @asgardeo/i18n@0.3.1
+
 ## 0.1.20
 
 ### Patch Changes
