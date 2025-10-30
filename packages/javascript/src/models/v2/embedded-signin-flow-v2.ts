@@ -30,10 +30,22 @@ export enum EmbeddedSignInFlowTypeV2 {
 }
 
 /**
+ * Extended response structure for the embedded sign-in flow V2.
+ * @remarks This response is only done from the SDK level.
+ * @experimental
+ */
+export interface ExtendedEmbeddedSignInFlowResponseV2 {
+  /**
+   * The URL to redirect the user after completing the sign-in flow.
+   */
+  redirectUrl?: string;
+}
+
+/**
  * Response structure for the new Asgardeo V2 embedded sign-in flow.
  * @experimental
  */
-export interface EmbeddedSignInFlowResponseV2 {
+export interface EmbeddedSignInFlowResponseV2 extends ExtendedEmbeddedSignInFlowResponseV2 {
   flowId: string;
   flowStatus: EmbeddedSignInFlowStatusV2;
   type: EmbeddedSignInFlowTypeV2;

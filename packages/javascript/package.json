@@ -1,6 +1,6 @@
 {
   "name": "@asgardeo/javascript",
-  "version": "0.1.22",
+  "version": "0.1.23",
   "description": "Framework agnostic JavaScript SDK for Asgardeo.",
   "keywords": [
     "asgardeo",

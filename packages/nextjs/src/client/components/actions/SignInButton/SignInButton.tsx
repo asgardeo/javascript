@@ -77,7 +77,7 @@ const SignInButton = forwardRef<HTMLButtonElement, SignInButtonProps>(
         if (signInUrl) {
           router.push(signInUrl);
         } else {
-          await signIn(signInOptions);
+          signIn && await signIn(signInOptions);
         }
 
         if (onClick) {

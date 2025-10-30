@@ -19,6 +19,7 @@
 'use client';
 
 import {
+  AsgardeoRuntimeError,
   EmbeddedFlowExecuteRequestPayload,
   EmbeddedFlowExecuteResponse,
   EmbeddedFlowResponseType,
@@ -72,18 +73,35 @@ const SignUp: FC<SignUpProps> = ({className, size = 'medium', variant = 'outline
   const handleInitialize = async (
     payload?: EmbeddedFlowExecuteRequestPayload,
   ): Promise<EmbeddedFlowExecuteResponse> => {
-    return await signUp(
+    if (!signUp) {
+      throw new AsgardeoRuntimeError(
+        '`signUp` function is not available.',
+        'SignUp-handleInitialize-RuntimeError-001',
+        'nextjs',
+      );
+    }
+
+    return (await signUp(
       payload || {
         flowType: EmbeddedFlowType.Registration,
       },
-    );
+    )) as unknown as Promise<EmbeddedFlowExecuteResponse>;
   };
 
   /**
    * Handle sign-up steps.
    */
-  const handleOnSubmit = async (payload: EmbeddedFlowExecuteRequestPayload): Promise<EmbeddedFlowExecuteResponse> =>
-    await signUp(payload);
+  const handleOnSubmit = async (payload: EmbeddedFlowExecuteRequestPayload): Promise<EmbeddedFlowExecuteResponse> => {
+    if (!signUp) {
+      throw new AsgardeoRuntimeError(
+        '`signUp` function is not available.',
+        'SignUp-handleOnSubmit-RuntimeError-001',
+        'nextjs',
+      );
+    }
+
+    return (await signUp(payload)) as unknown as Promise<EmbeddedFlowExecuteResponse>;
+  };
 
   return (
     <BaseSignUp

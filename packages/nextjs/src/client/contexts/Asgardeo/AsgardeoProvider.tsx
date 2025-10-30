@@ -31,6 +31,7 @@ import {
   BrandingPreference,
   TokenResponse,
   CreateOrganizationPayload,
+  AsgardeoRuntimeError,
 } from '@asgardeo/node';
 import {
   I18nProvider,
@@ -191,6 +192,14 @@ const AsgardeoClientProvider: FC<PropsWithChildren<AsgardeoClientProviderProps>>
     payload: EmbeddedSignInFlowHandleRequestPayload,
     request: EmbeddedFlowExecuteRequestConfig,
   ) => {
+    if (!signIn) {
+      throw new AsgardeoRuntimeError(
+        '`signIn` function is not available.',
+        'AsgardeoClientProvider-handleSignIn-RuntimeError-001',
+        'nextjs',
+      );
+    }
+
     try {
       const result = await signIn(payload, request);
 
@@ -222,6 +231,14 @@ const AsgardeoClientProvider: FC<PropsWithChildren<AsgardeoClientProviderProps>>
     payload: EmbeddedFlowExecuteRequestPayload,
     request: EmbeddedFlowExecuteRequestConfig,
   ) => {
+    if (!signUp) {
+      throw new AsgardeoRuntimeError(
+        '`signUp` function is not available.',
+        'AsgardeoClientProvider-handleSignUp-RuntimeError-001',
+        'nextjs',
+      );
+    }
+
     try {
       const result = await signUp(payload, request);
 

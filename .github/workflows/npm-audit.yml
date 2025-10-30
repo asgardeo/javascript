@@ -34,6 +34,7 @@ jobs:
     strategy:
       matrix:
         node-version: [lts/*]
+        pnpm-version: [latest]
     steps:
       - name: ⬇️ Checkout
         id: checkout
@@ -49,7 +50,7 @@ jobs:
         id: setup-pnpm
         uses: pnpm/action-setup@v2.1.0
         with:
-          version: latest
+          version: ${{ matrix.pnpm-version }}
           run_install: false
 
       - name: 🧩 Install Dependencies

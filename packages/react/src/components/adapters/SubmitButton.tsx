@@ -33,10 +33,10 @@ const ButtonComponent: FC<BaseSignUpOptionProps> = ({
   onSubmit,
   size = 'medium',
 }) => {
-  const config = component.config || {};
-  const buttonText = config['text'] || config['label'] || 'Continue';
-  const buttonType = config['type'] || 'submit';
-  const componentVariant = component.variant?.toUpperCase() || 'PRIMARY';
+  const config: Record<string, unknown> = component.config || {};
+  const buttonText: string = (config['text'] as string) || (config['label'] as string) || 'Continue';
+  const buttonType: string = (config['type'] as string) || 'submit';
+  const componentVariant: string = component.variant?.toUpperCase() || 'PRIMARY';
 
   // Map component variants to Button primitive props
   const getButtonProps = () => {

@@ -32,18 +32,18 @@ const CheckboxInput: FC<BaseSignUpOptionProps> = ({
   onInputChange,
   inputClassName,
 }) => {
-  const config = component.config || {};
-  const fieldName = config['identifier'] || config['name'] || component.id;
-  const value = formValues[fieldName] || '';
-  const error = touchedFields[fieldName] ? formErrors[fieldName] : undefined;
+  const config: Record<string, unknown> = component.config || {};
+  const fieldName: string = (config['identifier'] as string) || (config['name'] as string) || component.id;
+  const value: string | boolean = (formValues[fieldName] as string) || false;
+  const error: string | undefined = touchedFields[fieldName] ? formErrors[fieldName] : undefined;
 
   return createField({
     type: FieldType.Checkbox,
     name: fieldName,
-    label: config['label'] || '',
-    placeholder: config['placeholder'] || '',
-    required: config['required'] || false,
-    value,
+    label: (config['label'] as string) || '',
+    placeholder: (config['placeholder'] as string) || '',
+    required: (config['required'] as boolean) || false,
+    value: value as string,
     error,
     onChange: (newValue: string) => onInputChange(fieldName, newValue),
     className: inputClassName,

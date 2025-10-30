@@ -206,7 +206,7 @@ const SignIn: FC<SignInProps> = ({className, size = 'medium', onSuccess, onError
       const response: EmbeddedSignInFlowResponseV2 = await signIn({
         applicationId: applicationId || applicationIdFromUrl,
         flowType: EmbeddedFlowType.Authentication,
-      });
+      }) as EmbeddedSignInFlowResponseV2;
 
       const {flowId, components} = normalizeFlowResponse(response, t);
 
@@ -241,10 +241,10 @@ const SignIn: FC<SignInProps> = ({className, size = 'medium', onSuccess, onError
       setIsSubmitting(true);
       setFlowError(null);
 
-      const response = await signIn({
+      const response: EmbeddedSignInFlowResponseV2 = await signIn({
         flowId: currentFlowId,
         ...payload,
-      });
+      }) as EmbeddedSignInFlowResponseV2;
 
       const {flowId, components} = normalizeFlowResponse(response, t);
 

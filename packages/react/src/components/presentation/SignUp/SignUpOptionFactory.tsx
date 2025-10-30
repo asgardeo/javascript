@@ -114,8 +114,8 @@ export const createSignUpComponent = ({component, onSubmit, ...rest}: BaseSignUp
 
     case EmbeddedFlowComponentType.Input:
       // Determine input type based on variant or config
-      const inputVariant = component.variant?.toUpperCase();
-      const inputType = component.config['type']?.toLowerCase();
+      const inputVariant: string = component.variant?.toUpperCase();
+      const inputType: string = (component.config['type'] as string)?.toLowerCase();
 
       if (inputVariant === 'EMAIL' || inputType === 'email') {
         return <EmailInput component={component} onSubmit={onSubmit} {...rest} />;
@@ -145,7 +145,7 @@ export const createSignUpComponent = ({component, onSubmit, ...rest}: BaseSignUp
 
     case EmbeddedFlowComponentType.Button: {
       const buttonVariant: string | undefined = component.variant?.toUpperCase();
-      const buttonText: string = component.config['text'] || component.config['label'] || '';
+      const buttonText: string = component.config['text'] as string || component.config['label'] as string || '';
 
       // TODO: The connection type should come as metadata.
       if (buttonVariant === 'SOCIAL') {

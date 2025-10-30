@@ -51,9 +51,9 @@ export interface EmbeddedSignUpFlowData {
 
 export interface EmbeddedFlowComponent {
   components: EmbeddedFlowComponent[];
-  config: Record<string, any>;
+  config: Record<string, unknown>;
   id: string;
-  type: EmbeddedFlowComponentType;
+  type: EmbeddedFlowComponentType | string;
   variant?: string;
 }
 

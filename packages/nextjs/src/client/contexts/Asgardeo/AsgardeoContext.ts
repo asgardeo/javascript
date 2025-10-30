@@ -40,9 +40,9 @@ const AsgardeoContext: Context<AsgardeoContextProps | null> = createContext<null
   isInitialized: false,
   isLoading: true,
   isSignedIn: false,
-  signIn: null,
-  signOut: null,
-  signUp: null,
+  signIn: () => Promise.resolve({} as any),
+  signOut: () => Promise.resolve({} as any),
+  signUp: () => Promise.resolve({} as any),
   user: null,
 });
 

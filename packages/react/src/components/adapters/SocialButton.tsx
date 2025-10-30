@@ -31,8 +31,8 @@ const SocialButton: FC<BaseSignUpOptionProps> = ({
   size = 'medium',
   onSubmit,
 }) => {
-  const config = component.config || {};
-  const buttonText: string = config['text'] || config['label'] || 'Continue with Social';
+  const config: Record<string, unknown> = component.config || {};
+  const buttonText: string = (config['text'] as string) || (config['label'] as string) || 'Continue with Social';
 
   const handleClick = (): void => {
     if (onSubmit) {

@@ -1,5 +1,16 @@
 # @asgardeo/react
 
+## 0.5.32
+
+### Patch Changes
+
+- [#226](https://github.com/asgardeo/javascript/pull/226)
+  [`4fd4daf`](https://github.com/asgardeo/javascript/commit/4fd4dafb5c014be139af80ecbc941c70a73bf578) Thanks
+  [@brionmario](https://github.com/brionmario)! - Update types and improve type safety across components and models
+
+- Updated dependencies []:
+  - @asgardeo/browser@0.1.24
+
 ## 0.5.31
 
 ### Patch Changes

@@ -26,9 +26,9 @@ import useTheme from '../../contexts/Theme/useTheme';
  */
 const DividerComponent: FC<BaseSignUpOptionProps> = ({component}) => {
   const {theme} = useTheme();
-  const config = component.config || {};
-  const text = config['text'] || '';
-  const variant = component.variant?.toLowerCase() || 'horizontal';
+  const config: Record<string, unknown> = component.config || {};
+  const text = (config['text'] as string) || '';
+  const variant = (component.variant?.toLowerCase() as string) || 'horizontal';
 
   return (
     <Divider

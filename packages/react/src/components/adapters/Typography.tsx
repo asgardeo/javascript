@@ -26,9 +26,9 @@ import useTheme from '../../contexts/Theme/useTheme';
  */
 const TypographyComponent: FC<BaseSignUpOptionProps> = ({component}) => {
   const {theme} = useTheme();
-  const config = component.config || {};
-  const text = config['text'] || config['content'] || '';
-  const variant = component.variant?.toLowerCase() || 'body1';
+  const config: Record<string, unknown> = component.config || {};
+  const text: string = (config['text'] as string) || (config['content'] as string) || '';
+  const variant: string = component.variant?.toLowerCase() || 'body1';
 
   // Map component variants to Typography variants
   let typographyVariant: any = 'body1';

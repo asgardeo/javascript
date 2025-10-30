@@ -266,7 +266,7 @@ const BaseSignInContent: FC<BaseSignInProps> = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const isLoading = externalIsLoading || isSubmitting;
+  const isLoading: boolean = externalIsLoading || isSubmitting;
 
   /**
    * Extract form fields from flow components
@@ -278,10 +278,10 @@ const BaseSignInContent: FC<BaseSignInProps> = ({
       const processComponents = (comps: EmbeddedFlowComponent[]) => {
         comps.forEach(component => {
           if (component.type === 'INPUT' && component.config) {
-            const identifier = component.config['identifier'] || component.id;
+            const identifier: string = (component.config['identifier'] as string) || component.id;
             fields.push({
               name: identifier,
-              required: component.config['required'] || false,
+              required: component.config['required'] as unknown as boolean || false,
               initialValue: '',
               validator: (value: string) => {
                 if (component.config['required'] && (!value || value.trim() === '')) {
@@ -363,7 +363,7 @@ const BaseSignInContent: FC<BaseSignInProps> = ({
       if (component.config['actionId']) {
         payload = {
           ...payload,
-          actionId: component.config['actionId'],
+          actionId: component.config['actionId'] as string,
         };
       } else {
         payload = {

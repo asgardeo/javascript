@@ -93,7 +93,7 @@ const convertSimpleInputToComponent = (
       type: input.type === 'string' ? 'text' : input.type,
       label,
       placeholder,
-      required: input.required,
+      required: input.required as boolean,
       identifier: input.name,
       hint: '',
     },

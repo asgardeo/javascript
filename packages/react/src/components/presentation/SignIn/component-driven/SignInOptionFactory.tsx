@@ -79,22 +79,22 @@ const createSignInComponentFromFlow = (
     variant?: any;
   } = {},
 ): ReactElement | null => {
-  const key = options.key || component.id;
+  const key: string | number = options.key || component.id;
 
   switch (component.type) {
     case EmbeddedFlowComponentType.Input: {
-      const identifier = component.config['identifier'] || component.id;
-      const value = formValues[identifier] || '';
-      const isTouched = touchedFields[identifier] || false;
-      const error = isTouched ? formErrors[identifier] : undefined;
-      const fieldType = getFieldType(component.variant || 'TEXT');
+      const identifier: string = component.config['identifier'] as string || component.id;
+      const value: string = formValues[identifier] || '';
+      const isTouched: boolean = touchedFields[identifier] || false;
+      const error: string = isTouched ? formErrors[identifier] : undefined;
+      const fieldType: string = getFieldType(component.variant || 'TEXT');
 
       const field = createField({
-        type: fieldType,
+        type: fieldType as FieldType,
         name: identifier,
-        label: component.config['label'] || '',
-        placeholder: component.config['placeholder'] || '',
-        required: component.config['required'] || false,
+        label: component.config['label'] as string || '',
+        placeholder: component.config['placeholder'] as string || '',
+        required: component.config['required'] as unknown as boolean || false,
         value,
         error,
         onChange: (newValue: string) => onInputChange(identifier, newValue),
@@ -118,7 +118,7 @@ const createSignInComponentFromFlow = (
       };
 
       // Render branded social login buttons for known action IDs
-      const actionId: string = component.config['actionId'];
+      const actionId: string = component.config['actionId'] as string;
 
       if (actionId === 'google_auth') {
         return <GoogleButton key={key} onClick={handleClick} className={options.buttonClassName} />;
@@ -144,7 +144,7 @@ const createSignInComponentFromFlow = (
           variant={component.variant?.toLowerCase() === 'primary' ? 'solid' : 'outline'}
           color={component.variant?.toLowerCase() === 'primary' ? 'primary' : 'secondary'}
         >
-          {component.config['text'] || 'Submit'}
+          {component.config['text'] as string || 'Submit'}
         </Button>
       );
     }
@@ -153,7 +153,7 @@ const createSignInComponentFromFlow = (
       const variant = getTypographyVariant(component.variant || 'H3');
       return (
         <Typography key={key} variant={variant}>
-          {component.config['text'] || ''}
+          {component.config['text'] as string || ''}
         </Typography>
       );
     }

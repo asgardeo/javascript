@@ -80,13 +80,13 @@ const SignUp: FC<SignUpProps> = ({
       payload || {
         flowType: EmbeddedFlowType.Registration,
       },
-    );
+    ) as EmbeddedFlowExecuteResponse;
 
   /**
    * Handle sign-up steps.
    */
   const handleOnSubmit = async (payload: EmbeddedFlowExecuteRequestPayload): Promise<EmbeddedFlowExecuteResponse> =>
-    await signUp(payload);
+    await signUp(payload) as EmbeddedFlowExecuteResponse;
 
   /**
    * Handle successful sign-up and redirect.

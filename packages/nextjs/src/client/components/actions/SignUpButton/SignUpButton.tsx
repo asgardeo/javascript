@@ -88,7 +88,7 @@ const SignUpButton: ForwardRefExoticComponent<SignUpButtonProps & RefAttributes<
       if (signUpUrl) {
         router.push(signUpUrl);
       } else {
-        await signUp();
+        signUp && await signUp();
       }
 
       if (onClick) {

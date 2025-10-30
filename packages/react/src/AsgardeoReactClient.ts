@@ -49,6 +49,7 @@ import {
   TokenExchangeRequestConfig,
   Platform,
   isEmpty,
+  EmbeddedSignInFlowResponseV2,
 } from '@asgardeo/browser';
 import AuthAPI from './__temp__/api';
 import getMeOrganizations from './api/getMeOrganizations';
@@ -328,7 +329,7 @@ class AsgardeoReactClient<T extends AsgardeoReactConfig = AsgardeoReactConfig> e
     sessionId?: string,
     onSignInSuccess?: (afterSignInUrl: string) => void,
   ): Promise<User>;
-  override async signIn(...args: any[]): Promise<User> {
+  override async signIn(...args: any[]): Promise<User | EmbeddedSignInFlowResponseV2> {
     return this.withLoading(async () => {
       const arg1 = args[0];
       const arg2 = args[1];

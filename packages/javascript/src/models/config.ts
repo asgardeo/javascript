@@ -104,7 +104,7 @@ export interface BaseConfig<T = unknown> extends WithPreferences {
    * The client ID obtained from the Asgardeo application registration.
    * This is used to identify your application during authentication.
    */
-  clientId: string | undefined;
+  clientId?: string | undefined;
 
   /**
    * Optional client secret for the application.

@@ -32,13 +32,20 @@ const PasswordInput: FC<BaseSignUpOptionProps> = ({
   onInputChange,
   inputClassName,
 }) => {
-  const config = component.config || {};
-  const fieldName = config['identifier'] || config['name'] || component.id;
-  const value = formValues[fieldName] || '';
-  const error = touchedFields[fieldName] ? formErrors[fieldName] : undefined;
+  const config: Record<string, unknown> = component.config || {};
+  const fieldName: string = (config['identifier'] as string) || (config['name'] as string) || component.id;
+  const value: string = formValues[fieldName] || '';
+  const error: string | undefined = touchedFields[fieldName] ? formErrors[fieldName] : undefined;
 
   // Extract validation rules from the component config if available
-  const validations = config['validations'] || [];
+  const validations: {
+    conditions?: {key: string; value: string}[];
+    name: string;
+  }[] =
+    (config['validations'] as {
+      conditions?: {key: string; value: string}[];
+      name: string;
+    }[]) || [];
   const validationHints: string[] = [];
 
   validations.forEach((validation: any) => {
@@ -76,9 +83,9 @@ const PasswordInput: FC<BaseSignUpOptionProps> = ({
   return createField({
     type: FieldType.Password,
     name: fieldName,
-    label: config['label'] || 'Password',
-    placeholder: config['placeholder'] || 'Enter your password',
-    required: config['required'] || false,
+    label: (config['label'] as string) || 'Password',
+    placeholder: (config['placeholder'] as string) || 'Enter your password',
+    required: (config['required'] as boolean) || false,
     value,
     error,
     onChange: (newValue: string) => onInputChange(fieldName, newValue),

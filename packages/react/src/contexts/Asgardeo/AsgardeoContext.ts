@@ -18,6 +18,8 @@
 
 import {Context, createContext} from 'react';
 import {
+  EmbeddedFlowExecuteResponse,
+  EmbeddedSignInFlowResponseV2,
   HttpRequestConfig,
   HttpResponse,
   IdToken,
@@ -25,6 +27,7 @@ import {
   SignInOptions,
   TokenExchangeRequestConfig,
   TokenResponse,
+  User,
 } from '@asgardeo/browser';
 import AsgardeoReactClient from '../../AsgardeoReactClient';
 import {AsgardeoReactConfig} from '../../models/config';
@@ -53,7 +56,11 @@ export type AsgardeoContextProps = {
    * @remark This is the programmatic version of the `SignInButton` component.
    * TODO: Fix the types.
    */
-  signIn: any;
+  signIn: (...args: any) => Promise<any>;
+  /**
+   * Silent sign-in function to re-authenticate the user without user interaction.
+   * @remark This is the programmatic version of the `SilentSignIn` component.
+   */
   signInSilently: AsgardeoReactClient['signInSilently'];
   /**
    * Sign-out function to terminate the authentication session.
@@ -64,9 +71,8 @@ export type AsgardeoContextProps = {
   /**
    * Sign-up function to initiate the registration process.
    * @remark This is the programmatic version of the `SignUpButton` component.
-   * FIXME: Fix the types.
    */
-  signUp: any;
+  signUp: (...args: any[]) => Promise<any>;
   user: any;
   organization: Organization;
   /**
@@ -150,10 +156,10 @@ const AsgardeoContext: Context<AsgardeoContextProps | null> = createContext<null
   isLoading: true,
   isSignedIn: false,
   organization: null,
-  signIn: null,
-  signInSilently: null,
-  signOut: null,
-  signUp: null,
+  signIn: () => Promise.resolve({} as any),
+  signInSilently: () => Promise.resolve({} as any),
+  signOut: () => Promise.resolve({} as any),
+  signUp: () => Promise.resolve({} as any),
   user: null,
   http: {
     request: () => null,

@@ -25,10 +25,10 @@ import useTheme from '../../contexts/Theme/useTheme';
  */
 const ImageComponent: FC<BaseSignUpOptionProps> = ({component}) => {
   const {theme} = useTheme();
-  const config = component.config || {};
-  const src = config['src'] || '';
-  const alt = config['alt'] || config['label'] || 'Image';
-  const variant = component.variant?.toLowerCase() || 'image_block';
+  const config: Record<string, unknown> = component.config || {};
+  const src = (config['src'] as string) || '';
+  const alt = (config['alt'] as string) || (config['label'] as string) || 'Image';
+  const variant = (component.variant?.toLowerCase() as string) || 'image_block';
 
   const imageStyle: React.CSSProperties = {
     maxWidth: '100%',

@@ -19,6 +19,7 @@
 'use client';
 
 import {
+  AsgardeoRuntimeError,
   EmbeddedFlowExecuteRequestConfig,
   EmbeddedSignInFlowHandleRequestPayload,
   EmbeddedSignInFlowHandleResponse,
@@ -81,19 +82,28 @@ const SignIn: FC<SignInProps> = ({size = 'medium', variant = 'outlined', ...rest
   const {signIn, afterSignInUrl} = useAsgardeo();
 
   const handleInitialize = async (): Promise<EmbeddedSignInFlowInitiateResponse> =>
-    await signIn({
+    signIn &&
+    (await signIn({
       flowId: '',
       selectedAuthenticator: {
         authenticatorId: '',
         params: {},
       },
-    });
+    }));
 
   const handleOnSubmit = async (
     payload: EmbeddedSignInFlowHandleRequestPayload,
     request: EmbeddedFlowExecuteRequestConfig,
   ): Promise<EmbeddedSignInFlowHandleResponse> => {
-    return await signIn(payload, request);
+    if (!signIn) {
+      throw new AsgardeoRuntimeError(
+        '`signIn` function is not available.',
+        'SignIn-handleOnSubmit-RuntimeError-001',
+        'nextjs',
+      );
+    }
+
+    return (await signIn(payload, request)) as Promise<EmbeddedSignInFlowHandleResponse>;
   };
 
   return (

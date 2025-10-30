@@ -70,7 +70,7 @@ const SignIn: FC<SignInProps> = ({className, size = 'medium', children, ...rest}
    * Initialize the authentication flow.
    */
   const handleInitialize = async (): Promise<EmbeddedSignInFlowInitiateResponse> => {
-    return await signIn({response_mode: 'direct'});
+    return await signIn({response_mode: 'direct'}) as EmbeddedSignInFlowInitiateResponse;
   };
 
   /**
@@ -80,7 +80,7 @@ const SignIn: FC<SignInProps> = ({className, size = 'medium', children, ...rest}
     payload: EmbeddedSignInFlowHandleRequestPayload,
     request: Request,
   ): Promise<EmbeddedSignInFlowHandleResponse> => {
-    return await signIn(payload, request);
+    return await signIn(payload, request) as EmbeddedSignInFlowHandleResponse;
   };
 
   /**
