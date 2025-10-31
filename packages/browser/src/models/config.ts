@@ -16,6 +16,9 @@
  * under the License.
  */
 
-import {Config} from '@asgardeo/javascript';
+import { Config } from '@asgardeo/javascript';
 
-export type AsgardeoBrowserConfig = Config<'sessionStorage' | 'localStorage' | 'browserMemory' | 'webWorker'>;
+export type AsgardeoBrowserConfig = Config<'sessionStorage' | 'localStorage' | 'browserMemory' | 'webWorker'> & {
+    signInRedirectURL?: string;
+    signOutRedirectURL?: string;
+};
