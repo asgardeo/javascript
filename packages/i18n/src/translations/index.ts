@@ -24,3 +24,4 @@ export {default as pt_BR} from './pt-BR';
 export {default as pt_PT} from './pt-PT';
 export {default as ta_IN} from './ta-IN';
 export {default as si_LK} from './si-LK';
+export {default as zh_CN} from './zh-CN';
