@@ -224,6 +224,11 @@ export type Config<T = unknown> = BaseConfig<T>;
 
 export interface ThemePreferences {
   /**
+   * The text direction for the UI.
+   * @default 'ltr'
+   */
+  direction?: 'ltr' | 'rtl';
+  /**
    * Inherit from Branding from WSO2 Identity Server or Asgardeo.
    */
   inheritFromBranding?: boolean;

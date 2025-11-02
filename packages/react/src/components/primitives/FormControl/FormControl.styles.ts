@@ -40,14 +40,14 @@ const useStyles = (
 ) => {
   return useMemo(() => {
     const formControl = css`
-      text-align: left;
+      text-align: start;
       margin-bottom: calc(${theme.vars.spacing.unit} * 2);
     `;
 
     const helperText = css`
       margin-top: calc(${theme.vars.spacing.unit} / 2);
-      text-align: ${helperTextAlign};
-      ${helperTextMarginLeft && `margin-left: ${helperTextMarginLeft};`}
+      text-align: ${helperTextAlign === 'left' ? 'start' : helperTextAlign};
+      ${helperTextMarginLeft && `margin-inline-start: ${helperTextMarginLeft};`}
     `;
 
     const helperTextError = css`

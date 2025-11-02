@@ -48,10 +48,7 @@ const useStyles = (theme: Theme, colorScheme: string) => {
 
       &__loading-overlay {
         position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
+        inset: 0;
         background-color: color-mix(in srgb, ${theme.vars.colors.background.surface} 80%, transparent);
         display: flex;
         align-items: center;
@@ -77,10 +74,7 @@ const useStyles = (theme: Theme, colorScheme: string) => {
       `,
       loadingOverlay: css`
         position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
+        inset: 0;
         background-color: color-mix(in srgb, ${theme.vars.colors.background.surface} 80%, transparent);
         display: flex;
         align-items: center;

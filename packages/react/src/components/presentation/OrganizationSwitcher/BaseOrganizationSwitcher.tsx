@@ -186,11 +186,12 @@ export const BaseOrganizationSwitcher: FC<BaseOrganizationSwitcherProps> = ({
   avatarSize = 24,
   fallback = null,
 }): ReactElement => {
-  const {theme, colorScheme} = useTheme();
+  const {theme, colorScheme, direction} = useTheme();
   const styles = useStyles(theme, colorScheme);
   const [isOpen, setIsOpen] = useState(false);
   const [hoveredItemIndex, setHoveredItemIndex] = useState<number | null>(null);
   const {t} = useTranslation();
+  const isRTL = direction === 'rtl';
 
   const {refs, floatingStyles, context} = useFloating({
     open: isOpen,
@@ -308,7 +309,9 @@ export const BaseOrganizationSwitcher: FC<BaseOrganizationSwitcherProps> = ({
             )}
           </>
         )}
-        <ChevronDown width="16" height="16" />
+        <span style={{transform: isRTL ? 'scaleX(-1)' : 'none', display: 'inline-flex'}}>
+          <ChevronDown width="16" height="16" />
+        </span>
       </Button>
 
       {isOpen && (

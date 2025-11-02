@@ -54,8 +54,9 @@ const useStyles = (
       height: 100%;
       min-height: calc(${theme.vars.spacing.unit} * 2);
       width: 1px;
-      border-left: 1px ${borderStyle} ${baseColor};
-      margin: 0 calc(${theme.vars.spacing.unit} * 1);
+      border-inline-start: 1px ${borderStyle} ${baseColor};
+      margin-block: 0;
+      margin-inline: calc(${theme.vars.spacing.unit} * 1);
     `;
 
     const horizontalDivider = css`

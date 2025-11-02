@@ -213,6 +213,9 @@ const ThemeProvider: FC<PropsWithChildren<ThemeProviderProps>> = ({
 
   const theme = useMemo(() => createTheme(finalThemeConfig, colorScheme === 'dark'), [finalThemeConfig, colorScheme]);
 
+  // Get direction from theme config or default to 'ltr'
+  const direction = (finalThemeConfig as any)?.direction || 'ltr';
+
   const handleThemeChange = useCallback((isDark: boolean) => {
     setColorScheme(isDark ? 'dark' : 'light');
   }, []);
@@ -262,9 +265,17 @@ const ThemeProvider: FC<PropsWithChildren<ThemeProviderProps>> = ({
     applyThemeToDOM(theme);
   }, [theme]);
 
+  // Apply direction to document
+  useEffect(() => {
+    if (typeof document !== 'undefined') {
+      document.documentElement.dir = direction;
+    }
+  }, [direction]);
+
   const value = {
     theme,
     colorScheme,
+    direction,
     toggleTheme,
     isBrandingLoading,
     brandingError,

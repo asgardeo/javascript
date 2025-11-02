@@ -501,7 +501,10 @@ const AsgardeoProvider: FC<PropsWithChildren<AsgardeoProviderProps>> = ({
         >
           <ThemeProvider
             inheritFromBranding={preferences?.theme?.inheritFromBranding}
-            theme={preferences?.theme?.overrides}
+            theme={{
+              ...preferences?.theme?.overrides,
+              direction: preferences?.theme?.direction,
+            }}
             mode={getActiveTheme(preferences?.theme?.mode)}
           >
             <FlowProvider>

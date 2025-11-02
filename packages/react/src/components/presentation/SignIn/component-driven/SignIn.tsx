@@ -165,7 +165,7 @@ export type SignInProps = {
  * ```
  */
 const SignIn: FC<SignInProps> = ({className, size = 'medium', onSuccess, onError, variant, children}) => {
-  const {applicationId, afterSignInUrl, signIn, isInitialized, isLoading, baseUrl} = useAsgardeo();
+  const {applicationId, afterSignInUrl, signIn, isInitialized, isLoading} = useAsgardeo();
   const {t} = useTranslation();
 
   // State management for the flow
@@ -186,13 +186,20 @@ const SignIn: FC<SignInProps> = ({className, size = 'medium', onSuccess, onError
 
   /**
    * Initialize the authentication flow.
+   * Priority: flowId > applicationId (from context) > applicationId (from URL)
    */
   const initializeFlow = async (): Promise<void> => {
-    const applicationIdFromUrl: string = new URL(window.location.href).searchParams.get('applicationId');
+    const urlParams = new URL(window.location.href).searchParams;
+    const flowIdFromUrl: string = urlParams.get('flowId');
+    const applicationIdFromUrl: string = urlParams.get('applicationId');
 
-    if (!applicationIdFromUrl && !applicationId) {
+    // Priority order: flowId from URL > applicationId from context > applicationId from URL
+    const effectiveApplicationId = applicationId || applicationIdFromUrl;
+
+    // Validate that we have either flowId or applicationId
+    if (!flowIdFromUrl && !effectiveApplicationId) {
       const error = new AsgardeoRuntimeError(
-        `Application ID is required for authentication`,
+        'Either flowId or applicationId is required for authentication',
         'SignIn-initializeFlow-RuntimeError-001',
         'react',
         'Something went wrong while trying to sign in. Please try again later.',
@@ -203,10 +210,20 @@ const SignIn: FC<SignInProps> = ({className, size = 'medium', onSuccess, onError
 
     try {
       setFlowError(null);
-      const response: EmbeddedSignInFlowResponseV2 = await signIn({
-        applicationId: applicationId || applicationIdFromUrl,
-        flowType: EmbeddedFlowType.Authentication,
-      }) as EmbeddedSignInFlowResponseV2;
+
+      let response: EmbeddedSignInFlowResponseV2;
+
+      // Use flowId if available (priority), otherwise use applicationId
+      if (flowIdFromUrl) {
+        response = await signIn({
+          flowId: flowIdFromUrl,
+        }) as EmbeddedSignInFlowResponseV2;
+      } else {
+        response = await signIn({
+          applicationId: effectiveApplicationId,
+          flowType: EmbeddedFlowType.Authentication,
+        }) as EmbeddedSignInFlowResponseV2;
+      }
 
       const {flowId, components} = normalizeFlowResponse(response, t);
 

@@ -22,6 +22,10 @@ import {Theme} from '@asgardeo/browser';
 export interface ThemeContextValue {
   theme: Theme;
   colorScheme: 'light' | 'dark';
+  /**
+   * The text direction for the UI.
+   */
+  direction: 'ltr' | 'rtl';
   toggleTheme: () => void;
   /**
    * Whether branding theme is currently loading

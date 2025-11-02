@@ -149,6 +149,11 @@ export interface ThemeConfig {
     small: string;
   };
   colors: ThemeColors;
+  /**
+   * The text direction for the UI.
+   * @default 'ltr'
+   */
+  direction?: 'ltr' | 'rtl';
   shadows: {
     large: string;
     medium: string;

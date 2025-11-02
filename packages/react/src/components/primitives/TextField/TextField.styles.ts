@@ -39,10 +39,10 @@ const useStyles = (
   hasEndIcon: boolean,
 ) => {
   return useMemo(() => {
-    const leftPadding = hasStartIcon
+    const inlineStartPadding = hasStartIcon
       ? `calc(${theme.vars.spacing.unit} * 5)`
       : `calc(${theme.vars.spacing.unit} * 1.5)`;
-    const rightPadding = hasEndIcon ? `calc(${theme.vars.spacing.unit} * 5)` : `calc(${theme.vars.spacing.unit} * 1.5)`;
+    const inlineEndPadding = hasEndIcon ? `calc(${theme.vars.spacing.unit} * 5)` : `calc(${theme.vars.spacing.unit} * 1.5)`;
 
     const inputContainer = css`
       position: relative;
@@ -52,7 +52,9 @@ const useStyles = (
 
     const input = css`
       width: 100%;
-      padding: ${theme.vars.spacing.unit} ${rightPadding} ${theme.vars.spacing.unit} ${leftPadding};
+      padding-block: ${theme.vars.spacing.unit};
+      padding-inline-start: ${inlineStartPadding};
+      padding-inline-end: ${inlineEndPadding};
       border: 1px solid ${hasError ? theme.vars.colors.error.main : theme.vars.colors.border};
       border-radius: ${theme.vars.components?.Field?.root?.borderRadius || theme.vars.borderRadius.medium};
       font-size: ${theme.vars.typography.fontSizes.md};
@@ -127,12 +129,12 @@ const useStyles = (
 
     const startIcon = css`
       ${icon};
-      left: ${theme.vars.spacing.unit};
+      inset-inline-start: ${theme.vars.spacing.unit};
     `;
 
     const endIcon = css`
       ${icon};
-      right: ${theme.vars.spacing.unit};
+      inset-inline-end: ${theme.vars.spacing.unit};
     `;
 
     return {

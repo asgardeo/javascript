@@ -1,5 +1,13 @@
 # @asgardeo/react
 
+## 0.5.33
+
+### Patch Changes
+
+- [#229](https://github.com/asgardeo/javascript/pull/229)
+  [`57bab5c`](https://github.com/asgardeo/javascript/commit/57bab5c76d935fcd3096169596dac5b6586751d7) Thanks
+  [@senthalan](https://github.com/senthalan)! - chore: Support already initiated flow in '@asgardeo/react' <SignIn/>
+
 ## 0.5.32
 
 ### Patch Changes

@@ -1,6 +1,6 @@
 {
   "name": "@asgardeo/tanstack-router",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "TanStack Router integration for Asgardeo React SDK with protected routes.",
   "keywords": [
     "asgardeo",
