@@ -23,9 +23,19 @@ export default defineConfig({
     browser: {
       enabled: true,
       headless: true,
-      instances: [{browser: 'chromium'}],
+      instances: [{ browser: 'chromium' }],
       provider: 'playwright',
     },
     globals: true,
+    coverage: {
+      provider: 'v8',               
+      enabled: true,
+      all: true,
+      include: ['src/**/*.ts'],
+      exclude: ['src/**/__tests__/**'],
+      reporter: ['text', 'html', 'lcov'],
+      reportsDirectory: 'coverage',
+      thresholds: { lines: 85, functions: 85, branches: 80, statements: 85 },
+    },
   },
 });

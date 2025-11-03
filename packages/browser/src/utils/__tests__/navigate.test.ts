@@ -20,7 +20,7 @@ import {vi} from 'vitest';
 import navigate from '../navigate';
 
 describe('navigate', () => {
-  const originalLocation = window.location;
+  const originalLocation: Location = window.location;
 
   beforeEach(() => {
     // @ts-ignore
@@ -35,8 +35,8 @@ describe('navigate', () => {
     window.location = {
       ...originalLocation,
       assign: vi.fn(),
-      origin: 'https://localhost:5173',
       href: 'https://localhost:5173/',
+      origin: 'https://localhost:5173',
     };
   });
 
@@ -56,15 +56,15 @@ describe('navigate', () => {
     navigate('/test-url');
     expect(window.dispatchEvent).toHaveBeenCalledWith(
       expect.objectContaining({
-        type: 'popstate',
         state: null,
+        type: 'popstate',
       }),
     );
     expect(window.location.assign).not.toHaveBeenCalled();
   });
 
   it('should use window.location.assign for cross-origin URLs', () => {
-    const crossOriginUrl = 'https://accounts.asgardeo.io/t/dxlab/accountrecoveryendpoint/register.do';
+    const crossOriginUrl: string = 'https://accounts.asgardeo.io/t/dxlab/accountrecoveryendpoint/register.do';
     navigate(crossOriginUrl);
     expect(window.location.assign).toHaveBeenCalledWith(crossOriginUrl);
     expect(window.history.pushState).not.toHaveBeenCalled();
@@ -72,7 +72,7 @@ describe('navigate', () => {
   });
 
   it('should use window.location.assign for malformed URLs', () => {
-    const malformedUrl = 'http://[::1'; // Invalid URL
+    const malformedUrl: string = 'http://[::1'; // Invalid URL
     navigate(malformedUrl);
     expect(window.location.assign).toHaveBeenCalledWith(malformedUrl);
     expect(window.history.pushState).not.toHaveBeenCalled();
