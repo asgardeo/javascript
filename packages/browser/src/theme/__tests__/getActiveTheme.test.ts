@@ -16,116 +16,116 @@
  * under the License.
  */
 
-import { DEFAULT_THEME, ThemeMode } from "@asgardeo/javascript";
-import getActiveTheme from "../getActiveTheme";
+import {DEFAULT_THEME, ThemeMode} from '@asgardeo/javascript';
+import getActiveTheme from '../getActiveTheme';
 
-describe("getActiveTheme", () => {
-    const originalMatchMedia = window.matchMedia;
+describe('getActiveTheme', () => {
+  const originalMatchMedia: typeof window.matchMedia = window.matchMedia;
 
-    beforeEach(() => {
-        // Mock matchMedia
-        window.matchMedia = vi.fn().mockImplementation((query) => ({
-            matches: false,
-            media: query,
-            onchange: null,
-            addListener: vi.fn(),
-            removeListener: vi.fn(),
-            addEventListener: vi.fn(),
-            removeEventListener: vi.fn(),
-            dispatchEvent: vi.fn()
-        }));
+  beforeEach((): void => {
+    // Mock matchMedia
+    window.matchMedia = vi.fn().mockImplementation((query: string) => ({
+      addEventListener: vi.fn(),
+      addListener: vi.fn(),
+      dispatchEvent: vi.fn(),
+      matches: false,
+      media: query,
+      onchange: null,
+      removeEventListener: vi.fn(),
+      removeListener: vi.fn(),
+    }));
+  });
+
+  afterEach(() => {
+    // Restore original matchMedia
+    window.matchMedia = originalMatchMedia;
+    vi.clearAllMocks();
+  });
+
+  describe('explicit theme modes', () => {
+    it("should return 'dark' when mode is 'dark'", () => {
+      expect(getActiveTheme('dark')).toBe('dark');
     });
 
-    afterEach(() => {
-        // Restore original matchMedia
-        window.matchMedia = originalMatchMedia;
-        vi.clearAllMocks();
+    it("should return 'light' when mode is 'light'", () => {
+      expect(getActiveTheme('light')).toBe('light');
     });
 
-    describe("explicit theme modes", () => {
-        it("should return 'dark' when mode is 'dark'", () => {
-            expect(getActiveTheme("dark")).toBe("dark");
-        });
+    it('should return default theme for unknown mode', () => {
+      expect(getActiveTheme('unknown' as ThemeMode)).toBe(DEFAULT_THEME);
+    });
+  });
 
-        it("should return 'light' when mode is 'light'", () => {
-            expect(getActiveTheme("light")).toBe("light");
-        });
+  describe('system theme mode', () => {
+    it('should detect dark system theme', () => {
+      window.matchMedia = vi.fn().mockImplementation((query: string) => ({
+        addEventListener: vi.fn(),
+        addListener: vi.fn(),
+        dispatchEvent: vi.fn(),
+        matches: query === '(prefers-color-scheme: dark)',
+        media: query,
+        onchange: null,
+        removeEventListener: vi.fn(),
+        removeListener: vi.fn(),
+      }));
 
-        it("should return default theme for unknown mode", () => {
-            expect(getActiveTheme("unknown" as ThemeMode)).toBe(DEFAULT_THEME);
-        });
+      expect(getActiveTheme('system')).toBe('dark');
     });
 
-    describe("system theme mode", () => {
-        it("should detect dark system theme", () => {
-            window.matchMedia = vi.fn().mockImplementation((query) => ({
-                matches: query === "(prefers-color-scheme: dark)",
-                media: query,
-                onchange: null,
-                addListener: vi.fn(),
-                removeListener: vi.fn(),
-                addEventListener: vi.fn(),
-                removeEventListener: vi.fn(),
-                dispatchEvent: vi.fn()
-            }));
+    it('should detect light system theme', () => {
+      window.matchMedia = vi.fn().mockImplementation((query: string) => ({
+        addEventListener: vi.fn(),
+        addListener: vi.fn(),
+        dispatchEvent: vi.fn(),
+        matches: false,
+        media: query,
+        onchange: null,
+        removeEventListener: vi.fn(),
+        removeListener: vi.fn(),
+      }));
 
-            expect(getActiveTheme("system")).toBe("dark");
-        });
-
-        it("should detect light system theme", () => {
-            window.matchMedia = vi.fn().mockImplementation((query) => ({
-                matches: false,
-                media: query,
-                onchange: null,
-                addListener: vi.fn(),
-                removeListener: vi.fn(),
-                addEventListener: vi.fn(),
-                removeEventListener: vi.fn(),
-                dispatchEvent: vi.fn()
-            }));
-
-            expect(getActiveTheme("system")).toBe("light");
-        });
-
-        it("should return default theme when matchMedia is not available", () => {
-            delete (window as any).matchMedia;
-            expect(getActiveTheme("system")).toBe(DEFAULT_THEME);
-        });
+      expect(getActiveTheme('system')).toBe('light');
     });
 
-    describe("class-based theme mode", () => {
-        it("should handle class-based theme detection", () => {
-            const config = {
-                darkClass: "dark-mode",
-                element: document.body
-            };
+    it('should return default theme when matchMedia is not available', () => {
+      delete (window as any).matchMedia;
+      expect(getActiveTheme('system')).toBe(DEFAULT_THEME);
+    });
+  });
 
-            document.body.classList.add("dark-mode");
-            expect(getActiveTheme("class", config)).toBe("dark");
-            document.body.classList.remove("dark-mode");
-        });
+  describe('class-based theme mode', () => {
+    it('should handle class-based theme detection', () => {
+      const config: {darkClass: string; element: HTMLElement} = {
+        darkClass: 'dark-mode',
+        element: document.body,
+      };
 
-        it("should default to light theme when no dark class is present", () => {
-            const config = {
-                darkClass: "dark-mode",
-                element: document.body
-            };
-
-            expect(getActiveTheme("class", config)).toBe("light");
-        });
+      document.body.classList.add('dark-mode');
+      expect(getActiveTheme('class', config)).toBe('dark');
+      document.body.classList.remove('dark-mode');
     });
 
-    describe("edge cases", () => {
-        it("should handle undefined config for class mode", () => {
-            expect(getActiveTheme("class")).toBe(DEFAULT_THEME);
-        });
+    it('should default to light theme when no dark class is present', () => {
+      const config: {darkClass: string; element: HTMLElement} = {
+        darkClass: 'dark-mode',
+        element: document.body,
+      };
 
-        it("should handle null values gracefully", () => {
-            expect(getActiveTheme(null as unknown as ThemeMode)).toBe(DEFAULT_THEME);
-        });
-
-        it("should handle empty string mode", () => {
-            expect(getActiveTheme("" as ThemeMode)).toBe(DEFAULT_THEME);
-        });
+      expect(getActiveTheme('class', config)).toBe('light');
     });
+  });
+
+  describe('edge cases', () => {
+    it('should handle undefined config for class mode', () => {
+      expect(getActiveTheme('class')).toBe(DEFAULT_THEME);
+    });
+
+    it('should handle null values gracefully', () => {
+      expect(getActiveTheme(null as unknown as ThemeMode)).toBe(DEFAULT_THEME);
+    });
+
+    it('should handle empty string mode', () => {
+      expect(getActiveTheme('' as ThemeMode)).toBe(DEFAULT_THEME);
+    });
+  });
 });

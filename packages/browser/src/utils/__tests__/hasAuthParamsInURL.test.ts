@@ -3,7 +3,8 @@
  *
  * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License. You may obtain a copy of the License at
+ * in compliance with the License.
+ * You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -15,11 +16,11 @@
  * under the License.
  */
 
-import { vi } from 'vitest';
+import {vi} from 'vitest';
 import hasAuthParamsInUrl from '../hasAuthParamsInUrl';
 
 describe('hasAuthParamsInUrl', () => {
-  const originalLocation = window.location;
+  const originalLocation: Location = window.location;
 
   beforeEach(() => {
     // Delete the original location property and redefine it
@@ -134,7 +135,7 @@ describe('hasAuthParamsInUrl', () => {
 
   describe('edge cases', () => {
     it('should handle very long parameter values', () => {
-      const longCode = 'a'.repeat(1000);
+      const longCode: string = 'a'.repeat(1000);
       expect(hasAuthParamsInUrl(`?code=${longCode}`)).toBe(true);
     });
 
