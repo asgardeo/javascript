@@ -50,6 +50,7 @@
     "@wso2/prettier-config": "catalog:",
     "esbuild-plugin-preserve-directives": "^0.0.11",
     "eslint": "8.57.0",
+    "playwright": "^1.52.0",
     "prettier": "^2.6.2",
     "react": "^19.1.0",
     "rimraf": "^6.0.1",

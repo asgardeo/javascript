@@ -16,11 +16,15 @@
  * under the License.
  */
 
-import { defineConfig } from 'vitest/config';
+import {defineConfig} from 'vitest/config';
 
 export default defineConfig({
   test: {
-    environment: 'jsdom', //use jsdom environment for React testing
+    browser: {
+      enabled: true,
+      headless: true,
+      instances: [{browser: 'chromium'}],
+      provider: 'playwright',
+    },
   },
 });
-
