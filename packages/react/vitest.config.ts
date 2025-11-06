@@ -20,7 +20,7 @@ import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
   test: {
-    environment: 'jsdom',
+    environment: 'jsdom', //use jsdom environment for React testing
   },
 });
 
