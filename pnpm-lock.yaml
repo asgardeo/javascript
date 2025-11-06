@@ -12,9 +12,6 @@ catalogs:
     '@wso2/prettier-config':
       specifier: https://gitpkg.now.sh/brionmario/wso2-ui-configs/packages/prettier-config?a1fc6eb570653c999828aea9f5027cba06af4391
       version: 0.1.0
-    '@wso2/stylelint-config':
-      specifier: https://gitpkg.now.sh/brionmario/wso2-ui-configs/packages/stylelint-config?a1fc6eb570653c999828aea9f5027cba06af4391
-      version: 0.1.0
 
 importers:
 
@@ -408,9 +405,6 @@ importers:
       eslint:
         specifier: 8.57.0
         version: 8.57.0
-      playwright:
-        specifier: ^1.52.0
-        version: 1.52.0
       prettier:
         specifier: ^2.6.2
         version: 2.8.8
