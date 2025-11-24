@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import {render, screen, waitFor} from '@testing-library/react';
+import {render, screen, waitFor, cleanup} from '@testing-library/react';
 import {describe, it, expect, vi, beforeEach, afterEach} from 'vitest';
 import {BaseOrganizationSwitcher, Organization} from './BaseOrganizationSwitcher';
 import React from 'react';
@@ -25,16 +25,65 @@ import React from 'react';
 vi.mock('../../../contexts/Theme/useTheme', () => ({
   default: () => ({
     theme: {
+      colors: {
+        text: {primary: '#1a1a1a', secondary: '#666666'},
+        background: {surface: '#ffffff'},
+        border: '#e0e0e0',
+        action: {
+          hover: 'rgba(0, 0, 0, 0.04)',
+          selected: 'rgba(0, 0, 0, 0.08)',
+          focus: 'rgba(0, 0, 0, 0.12)',
+        },
+        primary: {
+          main: '#1a73e8',
+          contrastText: '#ffffff',
+          dark: '#174ea6',
+        },
+        secondary: {
+          main: '#424242',
+          contrastText: '#ffffff',
+          dark: '#212121',
+        },
+        error: {
+          main: '#d32f2f',
+          contrastText: '#d52828',
+          dark: '#b71c1c',
+        },
+      },
+      spacing: {unit: 8},
       vars: {
         colors: {
-          text: {primary: '#000', secondary: '#666'},
-          background: {surface: '#fff'},
-          border: '#ccc',
-          action: {hover: '#f0f0f0'},
+          text: {primary: '#1a1a1a', secondary: '#666666'},
+          background: {surface: '#ffffff'},
+          border: '#e0e0e0',
+          action: {
+            hover: 'rgba(0, 0, 0, 0.04)',
+            selected: 'rgba(0, 0, 0, 0.08)',
+            focus: 'rgba(0, 0, 0, 0.12)',
+          },
+          primary: {
+            main: '#1a73e8',
+            contrastText: '#ffffff',
+            dark: '#174ea6',
+          },
+          secondary: {
+            main: '#424242',
+            contrastText: '#ffffff',
+            dark: '#212121',
+          },
         },
         spacing: {unit: '8px'},
-        borderRadius: {medium: '4px', large: '8px'},
-        shadows: {medium: '0 2px 4px rgba(0,0,0,0.1)'},
+        borderRadius: {small: '4px', medium: '8px', large: '16px'},
+        shadows: {medium: '0 4px 16px rgba(0, 0, 0, 0.15)'},
+        typography: {
+          fontSizes: {
+            xs: '0.75rem',
+            sm: '0.875rem',
+            md: '1rem',
+            lg: '1.125rem',
+            xl: '1.25rem',
+          },
+        },
       },
     },
     colorScheme: 'light',
@@ -75,6 +124,7 @@ describe('BaseOrganizationSwitcher RTL Support', () => {
 
   afterEach(() => {
     document.documentElement.removeAttribute('dir');
+    cleanup();
   });
 
   it('should render correctly in LTR mode', () => {
@@ -89,14 +139,14 @@ describe('BaseOrganizationSwitcher RTL Support', () => {
       />,
     );
 
-    expect(screen.getByText('Organization 1')).toBeInTheDocument();
+    expect(screen.getByText('Organization 1')).toBeTruthy();
   });
 
   it('should render correctly in RTL mode', () => {
     document.documentElement.setAttribute('dir', 'rtl');
     const handleSwitch = vi.fn();
 
-    render(
+    const {container} = render(
       <BaseOrganizationSwitcher
         organizations={mockOrganizations}
         currentOrganization={mockOrganizations[0]}
@@ -104,7 +154,9 @@ describe('BaseOrganizationSwitcher RTL Support', () => {
       />,
     );
 
-    expect(screen.getByText('Organization 1')).toBeInTheDocument();
+    // Check that the component rendered by finding it in the container
+    const organizationText = container.querySelector('p');
+    expect(organizationText?.textContent).toBe('Organization 1');
   });
 
   it('should flip chevron icon in RTL mode', async () => {
@@ -123,9 +175,9 @@ describe('BaseOrganizationSwitcher RTL Support', () => {
       const chevronIcon = container.querySelector('svg');
       expect(chevronIcon).toBeTruthy();
       if (chevronIcon) {
-        const style = window.getComputedStyle(chevronIcon);
+        const parentSpan = chevronIcon.parentElement;
         // In RTL mode, the transform should be scaleX(-1)
-        expect(chevronIcon.style.transform).toContain('scaleX(-1)');
+        expect(parentSpan?.style.transform).toContain('scaleX(-1)');
       }
     });
   });
@@ -146,8 +198,9 @@ describe('BaseOrganizationSwitcher RTL Support', () => {
       const chevronIcon = container.querySelector('svg');
       expect(chevronIcon).toBeTruthy();
       if (chevronIcon) {
+        const parentSpan = chevronIcon.parentElement;
         // In LTR mode, the transform should be none
-        expect(chevronIcon.style.transform).toBe('none');
+        expect(parentSpan?.style.transform).toBe('none');
       }
     });
   });
@@ -166,7 +219,8 @@ describe('BaseOrganizationSwitcher RTL Support', () => {
 
     // Initially LTR
     let chevronIcon = container.querySelector('svg');
-    expect(chevronIcon?.style.transform).toBe('none');
+    let parentSpan = chevronIcon?.parentElement;
+    expect(parentSpan?.style.transform).toBe('none');
 
     // Change to RTL
     document.documentElement.setAttribute('dir', 'rtl');
@@ -182,7 +236,8 @@ describe('BaseOrganizationSwitcher RTL Support', () => {
 
     await waitFor(() => {
       chevronIcon = container.querySelector('svg');
-      expect(chevronIcon?.style.transform).toContain('scaleX(-1)');
+      parentSpan = chevronIcon?.parentElement;
+      expect(parentSpan?.style.transform).toContain('scaleX(-1)');
     });
   });
 });
