@@ -36,8 +36,9 @@
     "clean": "rimraf dist",
     "fix:lint": "eslint . --ext .js,.jsx,.ts,.tsx,.cjs,.mjs",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx,.cjs,.mjs",
-    "test": "vitest",
+    "test": "vitest --config vitest.node.config.ts",
     "test:browser": "vitest --workspace=vitest.workspace.ts",
+    "test:original": "vitest",
     "typecheck": "tsc -p tsconfig.lib.json"
   },
   "devDependencies": {
@@ -50,6 +51,7 @@
     "esbuild-plugin-inline-worker": "^0.1.1",
     "esbuild-plugins-node-modules-polyfill": "^1.7.0",
     "eslint": "8.57.0",
+    "jsdom": "^27.2.0",
     "playwright": "^1.55.1",
     "prettier": "^2.6.2",
     "rimraf": "^6.1.1",

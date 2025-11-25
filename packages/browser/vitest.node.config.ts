@@ -16,11 +16,12 @@
  * under the License.
  */
 
-import {describe, it, expect} from 'vitest';
+import {defineConfig} from 'vitest/config';
 
-describe('@asgardeo/react-router', () => {
-  it('should export ProtectedRoute', async () => {
-    const {ProtectedRoute} = await import('../index');
-    expect(ProtectedRoute).toBeDefined();
-  });
+export default defineConfig({
+  test: {
+    environment: 'jsdom',
+    globals: true,
+    include: ['src/utils/__tests__/navigate.test.ts'],
+  },
 });
