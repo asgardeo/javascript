@@ -51,6 +51,7 @@
     "@wso2/prettier-config": "catalog:",
     "esbuild-plugin-preserve-directives": "^0.0.11",
     "eslint": "8.57.0",
+    "jsdom": "^27.2.0",
     "playwright": "^1.55.1",
     "prettier": "^2.6.2",
     "react": "^19.1.0",
@@ -64,8 +65,8 @@
     "react": ">=16.8.0"
   },
   "dependencies": {
-    "@asgardeo/i18n": "workspace:^",
     "@asgardeo/browser": "workspace:^",
+    "@asgardeo/i18n": "workspace:^",
     "@emotion/css": "^11.13.5",
     "@floating-ui/react": "^0.27.12",
     "@types/react-dom": "^19.1.5",
