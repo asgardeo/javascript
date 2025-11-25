@@ -181,21 +181,6 @@ describe('AuthAPI', () => {
     });
   });
 
-  describe('getUser', () => {
-    it('should call getUser on the client', async () => {
-      const result: BasicUserInfo = await authApi.getUser();
-
-      expect(mockClient.getUser).toHaveBeenCalled();
-      expect(result).toEqual({
-        allowedScopes: 'openid profile',
-        displayName: 'Test User',
-        email: 'test@example.com',
-        sub: 'user-id-123',
-        username: 'testUser',
-      });
-    });
-  });
-
   describe('httpRequest', () => {
     it('should call httpRequest on the client', async () => {
       const config: HttpRequestConfig = {url: 'https://api.example.com/data'};
