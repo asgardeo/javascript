@@ -580,7 +580,12 @@ const toThemeVars = (theme: ThemeConfig): ThemeVars => {
   return themeVars;
 };
 
-const createTheme = (config: RecursivePartial<ThemeConfig> = {}, isDark = false): Theme => {
+/**
+ * Theme configuration for createTheme function (excludes runtime detection properties)
+ */
+type CreateThemeConfig = Omit<ThemeConfig, 'mode' | 'detection'>;
+
+const createTheme = (config: RecursivePartial<CreateThemeConfig> = {}, isDark = false): Theme => {
   const baseTheme = isDark ? darkTheme : lightTheme;
 
   const mergedConfig = {
