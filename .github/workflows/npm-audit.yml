@@ -55,7 +55,7 @@ jobs:
 
       - name: 🧩 Install Dependencies
         id: install-dependencies
-        run: pnpm install
+        run: pnpm install --frozen-lockfile
 
       - name: 🧩 Run Security Audit
         id: run-security-audit

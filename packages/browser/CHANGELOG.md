@@ -1,5 +1,32 @@
 # @asgardeo/browser
 
+## 0.1.30
+
+### Patch Changes
+
+- Updated dependencies
+  [[`a035bed`](https://github.com/asgardeo/javascript/commit/a035bed825aa0860e761ac3c89c77ca385e201f7)]:
+  - @asgardeo/javascript@0.2.5
+
+## 0.1.29
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @asgardeo/javascript@0.2.4
+
+## 0.1.28
+
+### Patch Changes
+
+- [#261](https://github.com/asgardeo/javascript/pull/261)
+  [`f2acb21`](https://github.com/asgardeo/javascript/commit/f2acb21e8c95391a40c77c43612bf0ef83f9b19c) Thanks
+  [@DonOmalVindula](https://github.com/DonOmalVindula)! - Demote dependencies to versions before 1/11/2025
+
+- Updated dependencies
+  [[`f2acb21`](https://github.com/asgardeo/javascript/commit/f2acb21e8c95391a40c77c43612bf0ef83f9b19c)]:
+  - @asgardeo/javascript@0.2.3
+
 ## 0.1.27
 
 ### Patch Changes

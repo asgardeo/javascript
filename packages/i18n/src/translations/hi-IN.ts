@@ -43,6 +43,9 @@ const translations: I18nTranslations = {
   'elements.fields.placeholder': '{field} दर्ज करें',
   'elements.fields.username': 'उपयोगकर्ता नाम',
   'elements.fields.password': 'पासवर्ड',
+  'elements.fields.ouName': 'संगठन का नाम',
+  'elements.fields.ouHandle': 'संगठन हैंडल',
+  'elements.fields.ouDescription': 'संगठन विवरण',
 
   /* Validation */
   'field.required': 'यह फील्ड आवश्यक है',

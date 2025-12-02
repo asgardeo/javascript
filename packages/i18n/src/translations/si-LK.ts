@@ -44,6 +44,9 @@ const translations: I18nTranslations = {
   'elements.fields.placeholder': 'ඔබේ {field} ඇතුලත් කරන්න',
   'elements.fields.username': 'පරිශීලක නාමය',
   'elements.fields.password': 'මුරපදය',
+  'elements.fields.ouName': 'සංවිධානයේ නම',
+  'elements.fields.ouHandle': 'සංවිධාන හැඳුනුම්පත',
+  'elements.fields.ouDescription': 'සංවිධානයේ විස්තරය',
 
   /* Validation */
   'field.required': 'මෙම ක්ෂේත්‍රය අවශ්‍යයි',

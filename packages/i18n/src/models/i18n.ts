@@ -41,6 +41,9 @@ export interface I18nTranslations {
   'elements.fields.placeholder': string;
   'elements.fields.username': string;
   'elements.fields.password': string;
+  'elements.fields.ouName': string;
+  'elements.fields.ouHandle': string;
+  'elements.fields.ouDescription': string;
 
   /* Validation */
   'field.required': string;

@@ -55,24 +55,24 @@
     "typecheck": "nuxt prepare && vue-tsc --noEmit"
   },
   "dependencies": {
-    "@asgardeo/node": "workspace:^",
-    "@nuxt/kit": "^3.16.2",
-    "defu": "^6.1.4"
+    "@asgardeo/node": "workspace:*",
+    "@nuxt/kit": "3.16.2",
+    "defu": "6.1.4"
   },
   "devDependencies": {
-    "@nuxt/devtools": "^2.4.0",
-    "@nuxt/eslint-config": "^1.3.0",
-    "@nuxt/module-builder": "^1.0.1",
-    "@nuxt/schema": "^3.16.2",
-    "@nuxt/test-utils": "^3.17.2",
-    "@types/node": "latest",
-    "changelogen": "^0.6.1",
-    "cookie-es": "^2.0.0",
+    "@nuxt/devtools": "2.4.0",
+    "@nuxt/eslint-config": "1.3.0",
+    "@nuxt/module-builder": "1.0.1",
+    "@nuxt/schema": "3.16.2",
+    "@nuxt/test-utils": "3.17.2",
+    "@types/node": "22.13.4",
+    "changelogen": "0.6.1",
+    "cookie-es": "2.0.0",
     "eslint": "8.57.0",
-    "nuxt": "^3.16.2",
-    "typescript": "~5.8.3",
-    "vitest": "^3.1.1",
-    "vue-tsc": "^2.2.8"
+    "nuxt": "3.16.2",
+    "typescript": "5.8.3",
+    "vitest": "3.1.1",
+    "vue-tsc": "2.2.8"
   },
   "publishConfig": {
     "access": "public"

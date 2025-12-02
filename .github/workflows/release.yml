@@ -51,7 +51,7 @@ jobs:
 
       - name: 🧩 Install Dependencies
         id: install-dependencies
-        run: pnpm install
+        run: pnpm install --frozen-lockfile
 
       - name: 🏗️ Build
         id: build
@@ -64,6 +64,6 @@ jobs:
           title: '[Release] [GitHub Action] Update package versions'
           publish: pnpm publish:packages
           version: pnpm version:packages
-          commit: "[WSO2 Release] [GitHub Action] [Release] [skip ci] update package versions"
+          commit: '[WSO2 Release] [GitHub Action] [Release] [skip ci] update package versions'
         env:
           GITHUB_TOKEN: ${{ env.GH_TOKEN }}

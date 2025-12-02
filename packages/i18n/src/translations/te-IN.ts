@@ -44,6 +44,9 @@ const translations: I18nTranslations = {
   'elements.fields.placeholder': 'మీ {field} ను నమోదు చేయండి',
   'elements.fields.username': 'వినియోగదారు పేరు',
   'elements.fields.password': 'పాస్వర్డ్',
+  'elements.fields.ouName': 'సంస్థ పేరు',
+  'elements.fields.ouHandle': 'సంస్థ హ్యాండిల్',
+  'elements.fields.ouDescription': 'సంస్థ వివరణ',
 
   /* Validation */
   'field.required': 'ఈ ఫీల్డ్ అవసరం',

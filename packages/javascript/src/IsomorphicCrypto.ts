@@ -124,6 +124,9 @@ export class IsomorphicCrypto<T = any> {
             'ID token validation returned false',
           ),
         );
+      })
+      .catch((error: AsgardeoAuthException) => {
+        return Promise.reject(error);
       });
   }
 

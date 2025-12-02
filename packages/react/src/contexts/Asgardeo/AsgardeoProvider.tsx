@@ -156,19 +156,36 @@ const AsgardeoProvider: FC<PropsWithChildren<AsgardeoProviderProps>> = ({
 
       const isV2Platform = config.platform === Platform.AsgardeoV2;
 
-      if (hasAuthParamsResult && !isV2Platform) {
+      if (hasAuthParamsResult) {
         try {
-          await signIn(
-            {callOnlyOnRedirect: true},
-            // authParams?.authorizationCode,
-            // authParams?.sessionState,
-            // authParams?.state,
-          );
+          if (isV2Platform) {
+            // For V2 platform, check if this is an embedded flow or traditional OAuth
+            const urlParams = currentUrl.searchParams;
+            const code = urlParams.get('code');
+            const flowIdFromUrl = urlParams.get('flowId');
+            const storedFlowId = sessionStorage.getItem('asgardeo_flow_id');
+
+            // If there's a code and no flowId, exchange OAuth code for tokens
+            if (code && !flowIdFromUrl && !storedFlowId) {
+              await signIn();
+            }
+          } else {
+            // If non-V2 platform, use traditional OAuth callback handling
+            await signIn(
+              {callOnlyOnRedirect: true},
+              // authParams?.authorizationCode,
+              // authParams?.sessionState,
+              // authParams?.state,
+            );
+          }
           // setError(null);
         } catch (error) {
-          if (error && Object.prototype.hasOwnProperty.call(error, 'code')) {
-            // setError(error);
-          }
+          throw new AsgardeoRuntimeError(
+            `Sign in failed: ${error instanceof Error ? error.message : String(JSON.stringify(error))}`,
+            'asgardeo-signIn-Error',
+            'react',
+            'An error occurred while trying to sign in.',
+          );
         }
       } else {
         // TODO: Add a debug log to indicate that the user is not signed in
@@ -404,7 +421,12 @@ const AsgardeoProvider: FC<PropsWithChildren<AsgardeoProviderProps>> = ({
 
       return response as User;
     } catch (error) {
-      throw new Error(`Error while signing in: ${error instanceof Error ? error.message : String(error)}`);
+      throw new AsgardeoRuntimeError(
+        `Sign in failed: ${error instanceof Error ? error.message : String(JSON.stringify(error))}`,
+        'asgardeo-signIn-Error',
+        'react',
+        'An error occurred while trying to sign in.',
+      );
     } finally {
       if (!isV2FlowRequest) {
         setIsUpdatingSession(false);
@@ -426,7 +448,7 @@ const AsgardeoProvider: FC<PropsWithChildren<AsgardeoProviderProps>> = ({
       return response;
     } catch (error) {
       throw new AsgardeoRuntimeError(
-        `Error while signing in silently: ${error.message || error}`,
+        `Error while signing in silently: ${error instanceof Error ? error.message : String(JSON.stringify(error))}`,
         'asgardeo-signInSilently-Error',
         'react',
         'An error occurred while trying to sign in silently.',
@@ -448,7 +470,7 @@ const AsgardeoProvider: FC<PropsWithChildren<AsgardeoProviderProps>> = ({
       }
     } catch (error) {
       throw new AsgardeoRuntimeError(
-        `Failed to switch organization: ${error.message || error}`,
+        `Failed to switch organization: ${error instanceof Error ? error.message : String(JSON.stringify(error))}`,
         'asgardeo-switchOrganization-Error',
         'react',
         'An error occurred while switching to the specified organization.',

@@ -1,5 +1,21 @@
 # @asgardeo/i18n
 
+## 0.3.5
+
+### Patch Changes
+
+- [#267](https://github.com/asgardeo/javascript/pull/267)
+  [`2b763d6`](https://github.com/asgardeo/javascript/commit/2b763d69e6f9abe38a24edff996e587c4e2139ad) Thanks
+  [@thiva-k](https://github.com/thiva-k)! - Add OU i18n
+
+## 0.3.4
+
+### Patch Changes
+
+- [#261](https://github.com/asgardeo/javascript/pull/261)
+  [`f2acb21`](https://github.com/asgardeo/javascript/commit/f2acb21e8c95391a40c77c43612bf0ef83f9b19c) Thanks
+  [@DonOmalVindula](https://github.com/DonOmalVindula)! - Demote dependencies to versions before 1/11/2025
+
 ## 0.3.3
 
 ### Patch Changes

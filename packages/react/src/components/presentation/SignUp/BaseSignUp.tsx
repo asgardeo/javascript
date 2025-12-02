@@ -754,8 +754,29 @@ const BaseSignUpContent: FC<BaseSignUpProps> = ({
     ],
   );
 
+  /**
+   * Parse URL parameters to check for OAuth redirect state.
+   */
+  const getUrlParams = () => {
+    const urlParams = new URL(window?.location?.href ?? '').searchParams;
+    return {
+      code: urlParams.get('code'),
+      state: urlParams.get('state'),
+      error: urlParams.get('error'),
+    };
+  };
+
   // Initialize the flow on component mount
   useEffect(() => {
+    // Skip initialization if we're in an OAuth redirect state
+    // Only apply this check for AsgardeoV2 platform
+    if (platform === Platform.AsgardeoV2) {
+      const urlParams = getUrlParams();
+      if (urlParams.code || urlParams.state) {
+        return;
+      }
+    }
+
     if (isInitialized && !isFlowInitialized && !initializationAttemptedRef.current) {
       initializationAttemptedRef.current = true;
 

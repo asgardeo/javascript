@@ -1,5 +1,51 @@
 # @asgardeo/nextjs
 
+## 0.1.48
+
+### Patch Changes
+
+- Updated dependencies
+  [[`a035bed`](https://github.com/asgardeo/javascript/commit/a035bed825aa0860e761ac3c89c77ca385e201f7)]:
+  - @asgardeo/react@0.6.13
+  - @asgardeo/node@0.0.31
+
+## 0.1.47
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @asgardeo/react@0.6.12
+  - @asgardeo/node@0.0.30
+
+## 0.1.46
+
+### Patch Changes
+
+- Updated dependencies
+  [[`932126a`](https://github.com/asgardeo/javascript/commit/932126a2fdac16c6a4cdfe43d9f25d84297f3f70)]:
+  - @asgardeo/react@0.6.11
+
+## 0.1.45
+
+### Patch Changes
+
+- Updated dependencies
+  [[`ef9ae48`](https://github.com/asgardeo/javascript/commit/ef9ae48d5450c400b16fa2b2b500b75833b8ed11)]:
+  - @asgardeo/react@0.6.10
+
+## 0.1.44
+
+### Patch Changes
+
+- [#261](https://github.com/asgardeo/javascript/pull/261)
+  [`f2acb21`](https://github.com/asgardeo/javascript/commit/f2acb21e8c95391a40c77c43612bf0ef83f9b19c) Thanks
+  [@DonOmalVindula](https://github.com/DonOmalVindula)! - Demote dependencies to versions before 1/11/2025
+
+- Updated dependencies
+  [[`f2acb21`](https://github.com/asgardeo/javascript/commit/f2acb21e8c95391a40c77c43612bf0ef83f9b19c)]:
+  - @asgardeo/react@0.6.9
+  - @asgardeo/node@0.0.29
+
 ## 0.1.43
 
 ### Patch Changes

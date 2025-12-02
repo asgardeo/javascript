@@ -44,6 +44,9 @@ const translations: I18nTranslations = {
   'elements.fields.placeholder': '{field}を入力してください',
   'elements.fields.username': 'ユーザー名',
   'elements.fields.password': 'パスワード',
+  'elements.fields.ouName': '組織名',
+  'elements.fields.ouHandle': '組織ハンドル',
+  'elements.fields.ouDescription': '組織の説明',
 
   /* Validation */
   'field.required': 'この項目は必須です',

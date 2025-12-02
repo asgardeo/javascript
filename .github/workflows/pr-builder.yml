@@ -6,8 +6,8 @@ on:
   pull_request:
     branches: [main]
     paths-ignore:
-      - "**.md"
-      - "LICENSE"
+      - '**.md'
+      - 'LICENSE'
   workflow_dispatch:
 
 env:
@@ -39,7 +39,7 @@ jobs:
         id: set-shas
         uses: nrwl/nx-set-shas@v3
         with:
-          main-branch-name: "main"
+          main-branch-name: 'main'
 
       - name: 🥡 Setup pnpm
         id: setup-pnpm
@@ -64,7 +64,7 @@ jobs:
 
       - name: 🧩 Install Dependencies
         id: install-dependencies
-        run: pnpm install
+        run: pnpm install --frozen-lockfile
 
       - name: 🦄 Lint All Files
         id: lint-with-eslint
@@ -95,7 +95,7 @@ jobs:
         id: set-shas
         uses: nrwl/nx-set-shas@v3
         with:
-          main-branch-name: "main"
+          main-branch-name: 'main'
 
       - name: 🥡 Setup pnpm
         uses: pnpm/action-setup@v2.1.0
@@ -119,7 +119,7 @@ jobs:
 
       - name: 🧩 Install Dependencies
         id: install-dependencies
-        run: pnpm install
+        run: pnpm install --frozen-lockfile
 
       - name: 🏗️ Build
         id: build
@@ -172,7 +172,7 @@ jobs:
 
       - name: 🧩 Install Dependencies
         id: install-dependencies
-        run: pnpm install
+        run: pnpm install --frozen-lockfile
 
       - name: 🏗️ Build
         id: build
@@ -223,7 +223,7 @@ jobs:
 
       - name: 🧩 Install Dependencies
         id: install-dependencies
-        run: pnpm install
+        run: pnpm install --frozen-lockfile
 
       - name: 🏗️ Build
         id: build

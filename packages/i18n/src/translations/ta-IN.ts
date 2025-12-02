@@ -44,6 +44,9 @@ const translations: I18nTranslations = {
   'elements.fields.placeholder': '{field} உள்ளிடவும்',
   'elements.fields.username': 'பயனர்பெயர்',
   'elements.fields.password': 'கடவுச்சொல்',
+  'elements.fields.ouName': 'அமைப்பின் பெயர்',
+  'elements.fields.ouHandle': 'அமைப்பு கையாளுதல்',
+  'elements.fields.ouDescription': 'அமைப்பு விளக்கம்',
 
   /* Validation */
   'field.required': 'இந்த புலம் தேவை',

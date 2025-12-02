@@ -1,5 +1,54 @@
 # @asgardeo/react
 
+## 0.6.13
+
+### Patch Changes
+
+- [#271](https://github.com/asgardeo/javascript/pull/271)
+  [`a035bed`](https://github.com/asgardeo/javascript/commit/a035bed825aa0860e761ac3c89c77ca385e201f7) Thanks
+  [@brionmario](https://github.com/brionmario)! - Throw JWT verification errors
+
+- Updated dependencies []:
+  - @asgardeo/browser@0.1.30
+
+## 0.6.12
+
+### Patch Changes
+
+- Updated dependencies
+  [[`2b763d6`](https://github.com/asgardeo/javascript/commit/2b763d69e6f9abe38a24edff996e587c4e2139ad)]:
+  - @asgardeo/i18n@0.3.5
+  - @asgardeo/browser@0.1.29
+
+## 0.6.11
+
+### Patch Changes
+
+- [#265](https://github.com/asgardeo/javascript/pull/265)
+  [`932126a`](https://github.com/asgardeo/javascript/commit/932126a2fdac16c6a4cdfe43d9f25d84297f3f70) Thanks
+  [@thiva-k](https://github.com/thiva-k)! - Handle code exchange for V2
+
+## 0.6.10
+
+### Patch Changes
+
+- [#260](https://github.com/asgardeo/javascript/pull/260)
+  [`ef9ae48`](https://github.com/asgardeo/javascript/commit/ef9ae48d5450c400b16fa2b2b500b75833b8ed11) Thanks
+  [@thiva-k](https://github.com/thiva-k)! - Improve sign-in v2 error handling flows
+
+## 0.6.9
+
+### Patch Changes
+
+- [#261](https://github.com/asgardeo/javascript/pull/261)
+  [`f2acb21`](https://github.com/asgardeo/javascript/commit/f2acb21e8c95391a40c77c43612bf0ef83f9b19c) Thanks
+  [@DonOmalVindula](https://github.com/DonOmalVindula)! - Demote dependencies to versions before 1/11/2025
+
+- Updated dependencies
+  [[`f2acb21`](https://github.com/asgardeo/javascript/commit/f2acb21e8c95391a40c77c43612bf0ef83f9b19c)]:
+  - @asgardeo/browser@0.1.28
+  - @asgardeo/i18n@0.3.4
+
 ## 0.6.8
 
 ### Patch Changes

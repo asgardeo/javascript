@@ -44,6 +44,9 @@ const translations: I18nTranslations = {
   'elements.fields.placeholder': 'Introduza o seu {field}',
   'elements.fields.username': 'Nome de utilizador',
   'elements.fields.password': 'Palavra-passe',
+  'elements.fields.ouName': 'Nome da Organização',
+  'elements.fields.ouHandle': 'Identificador da Organização',
+  'elements.fields.ouDescription': 'Descrição da Organização',
 
   /* Validation */
   'field.required': 'Este campo é obrigatório',
