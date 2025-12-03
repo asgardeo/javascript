@@ -17,11 +17,11 @@
  */
 
 import {createContext} from 'react';
-import {Theme} from '@asgardeo/browser';
+import {Theme, ThemeMode} from '@asgardeo/browser';
 
 export interface ThemeContextValue {
   theme: Theme;
-  colorScheme: 'light' | 'dark';
+  colorScheme: ThemeMode;
   /**
    * The text direction for the UI.
    */
