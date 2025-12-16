@@ -1,6 +1,6 @@
 {
   "name": "@asgardeo/node",
-  "version": "0.0.35",
+  "version": "0.0.36",
   "description": "Node.js runtime specific implementation of Asgardeo JavaScript SDK.",
   "keywords": [
     "asgardeo",
