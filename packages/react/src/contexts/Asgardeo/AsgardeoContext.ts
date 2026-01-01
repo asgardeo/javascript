@@ -114,6 +114,14 @@ export type AsgardeoContextProps = {
   getDecodedIdToken: () => Promise<IdToken>;
 
   /**
+   * Function to retrieve the ID token.
+   * This function retrieves the ID token and returns it.
+   * 
+   * @returns A promise that resolves to the ID token.
+   */
+  getIdToken: () => Promise<string>;
+
+  /**
    * Retrieves the access token stored in the storage.
    * This function retrieves the access token and returns it.
    * @remarks This does not work in the `webWorker` or any other worker environment.
@@ -167,6 +175,7 @@ const AsgardeoContext: Context<AsgardeoContextProps | null> = createContext<null
   },
   signInOptions: {},
   getDecodedIdToken: null,
+  getIdToken: null,
   getAccessToken: null,
   exchangeToken: null,
   storage: 'sessionStorage',
