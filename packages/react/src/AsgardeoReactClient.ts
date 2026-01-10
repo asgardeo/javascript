@@ -155,9 +155,7 @@ class AsgardeoReactClient<T extends AsgardeoReactConfig = AsgardeoReactConfig> e
   }
 
   async getDecodedIdToken(sessionId?: string): Promise<IdToken> {
-    return this.withLoading(async () => {
-      return this.asgardeo.getDecodedIdToken(sessionId);
-    });
+    return this.asgardeo.getDecodedIdToken(sessionId);
   }
 
   async getUserProfile(options?: any): Promise<UserProfile> {
@@ -447,9 +445,7 @@ class AsgardeoReactClient<T extends AsgardeoReactConfig = AsgardeoReactConfig> e
   }
 
   override async getAccessToken(sessionId?: string): Promise<string> {
-    return this.withLoading(async () => {
-      return this.asgardeo.getAccessToken(sessionId);
-    });
+    return this.asgardeo.getAccessToken(sessionId);
   }
 
   override clearSession(sessionId?: string): void {
