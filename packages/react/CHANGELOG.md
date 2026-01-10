@@ -1,5 +1,13 @@
 # @asgardeo/react
 
+## 0.6.28
+
+### Patch Changes
+
+- [#312](https://github.com/asgardeo/javascript/pull/312)
+  [`4329d94`](https://github.com/asgardeo/javascript/commit/4329d943c0f82e7ec4aedca55c157825cd4fa20c) Thanks
+  [@brionmario](https://github.com/brionmario)! - Fix render loops due to `bind`
+
 ## 0.6.27
 
 ### Patch Changes
