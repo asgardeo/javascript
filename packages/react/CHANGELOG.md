@@ -1,5 +1,14 @@
 # @asgardeo/react
 
+## 0.6.29
+
+### Patch Changes
+
+- [#314](https://github.com/asgardeo/javascript/pull/314)
+  [`2b8bf7b`](https://github.com/asgardeo/javascript/commit/2b8bf7b118a03b2fc510de7f9542378bcac277ed) Thanks
+  [@brionmario](https://github.com/brionmario)! - Remove unnecessary loading state management from getDecodedIdToken and
+  getAccessToken methods
+
 ## 0.6.28
 
 ### Patch Changes
