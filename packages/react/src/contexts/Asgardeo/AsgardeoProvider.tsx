@@ -493,6 +493,63 @@ const AsgardeoProvider: FC<PropsWithChildren<AsgardeoProviderProps>> = ({
     }));
   };
 
+  const getDecodedIdToken = useCallback(async (): Promise<IdToken> => {
+    return await asgardeo.getDecodedIdToken();
+  }, [asgardeo]);
+
+  const getAccessToken = useCallback(async (): Promise<string> => {
+    return await asgardeo.getAccessToken();
+  }, [asgardeo]);
+
+  const request = useCallback(
+    async (...args: any[]): Promise<any> => {
+      return await asgardeo.request(...args);
+    },
+    [asgardeo],
+  );
+
+  const requestAll = useCallback(
+    async (...args: any[]): Promise<any> => {
+      return await asgardeo.requestAll(...args);
+    },
+    [asgardeo],
+  );
+
+  const exchangeToken = useCallback(
+    async (config: any, sessionId?: string): Promise<any> => {
+      return await asgardeo.exchangeToken(config, sessionId);
+    },
+    [asgardeo],
+  );
+
+  const signOut = useCallback(
+    async (...args: any[]): Promise<any> => {
+      return await asgardeo.signOut(...args);
+    },
+    [asgardeo],
+  );
+
+  const signUp = useCallback(
+    async (...args: any[]): Promise<any> => {
+      return await asgardeo.signUp(...args);
+    },
+    [asgardeo],
+  );
+
+  const clearSession = useCallback(
+    async (...args: any[]): Promise<any> => {
+      return await asgardeo.clearSession(...args);
+    },
+    [asgardeo],
+  );
+
+  const reInitialize = useCallback(
+    async (config: any): Promise<any> => {
+      return await asgardeo.reInitialize(config);
+    },
+    [asgardeo],
+  );
+
   const value = useMemo(
     () => ({
       applicationId,
@@ -501,25 +558,25 @@ const AsgardeoProvider: FC<PropsWithChildren<AsgardeoProviderProps>> = ({
       signUpUrl,
       afterSignInUrl,
       baseUrl,
-      clearSession: asgardeo.clearSession.bind(asgardeo),
-      getAccessToken: asgardeo.getAccessToken.bind(asgardeo),
+      clearSession,
+      getAccessToken,
       isInitialized: isInitializedSync,
       isLoading: isLoadingSync,
       isSignedIn: isSignedInSync,
       organization: currentOrganization,
       signIn,
       signInSilently,
-      signOut: asgardeo.signOut.bind(asgardeo),
-      signUp: asgardeo.signUp.bind(asgardeo),
+      signOut,
+      signUp,
       user,
       http: {
-        request: asgardeo.request.bind(asgardeo),
-        requestAll: asgardeo.requestAll.bind(asgardeo),
+        request,
+        requestAll,
       },
-      reInitialize: asgardeo.reInitialize.bind(asgardeo),
+      reInitialize,
       signInOptions,
-      getDecodedIdToken: asgardeo.getDecodedIdToken.bind(asgardeo),
-      exchangeToken: asgardeo.exchangeToken.bind(asgardeo),
+      getDecodedIdToken,
+      exchangeToken,
       syncSession,
       platform: config?.platform,
       switchOrganization,
@@ -542,6 +599,15 @@ const AsgardeoProvider: FC<PropsWithChildren<AsgardeoProviderProps>> = ({
       signInOptions,
       syncSession,
       switchOrganization,
+      getDecodedIdToken,
+      getAccessToken,
+      request,
+      requestAll,
+      exchangeToken,
+      signOut,
+      signUp,
+      clearSession,
+      reInitialize,
     ],
   );
 
