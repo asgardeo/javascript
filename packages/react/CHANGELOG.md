@@ -1,5 +1,14 @@
 # @asgardeo/react
 
+## 0.6.30
+
+### Patch Changes
+
+- [#316](https://github.com/asgardeo/javascript/pull/316)
+  [`cc90868`](https://github.com/asgardeo/javascript/commit/cc90868c4d975ae85adcf192168a699930174d5b) Thanks
+  [@brionmario](https://github.com/brionmario)! - fix: remove unnecessary loading state management from signInSilently
+  method
+
 ## 0.6.29
 
 ### Patch Changes
