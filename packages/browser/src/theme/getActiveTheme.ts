@@ -43,7 +43,7 @@ const getActiveTheme = (mode: ThemeMode, config: BrowserThemeDetection = {}): Th
     return DEFAULT_THEME;
   }
 
-  if (mode === 'class') {
+  if (mode === 'auto') {
     return detectThemeMode(mode, config);
   }
 

@@ -16,62 +16,130 @@
  * under the License.
  */
 
-import {ThemeDetection, ThemeMode} from '@asgardeo/javascript';
+import {ThemeDetection, ThemeMode, ThemeDetectionStrategy, DEFAULT_THEME} from '@asgardeo/javascript';
 
 /**
  * Extended theme detection config that includes DOM-specific options
  */
 export interface BrowserThemeDetection extends ThemeDetection {
   /**
-   * The element to observe for class changes
+   * The element to observe for changes (class or data attribute)
    * @default document.documentElement (html element)
    */
   targetElement?: HTMLElement;
 }
 
 /**
+ * Detects theme from data attribute
+ */
+const detectFromDataAttribute = (
+  targetElement: HTMLElement,
+  config: BrowserThemeDetection,
+): 'light' | 'dark' | null => {
+  const attrName: string = config.dataAttribute?.name || 'theme';
+  const lightValue: string = config.dataAttribute?.values?.light || 'light';
+  const darkValue: string = config.dataAttribute?.values?.dark || 'dark';
+
+  const attrValue: string | null = targetElement.getAttribute(`data-${attrName}`);
+
+  if (attrValue === darkValue) return 'dark';
+  if (attrValue === lightValue) return 'light';
+
+  return null;
+};
+
+/**
+ * Detects theme from CSS classes
+ */
+const detectFromClasses = (targetElement: HTMLElement, config: BrowserThemeDetection): 'light' | 'dark' | null => {
+  const darkClass: string = config.classes?.dark || 'dark';
+  const lightClass: string = config.classes?.light || 'light';
+
+  const classList: DOMTokenList = targetElement.classList;
+
+  if (classList.contains(darkClass)) return 'dark';
+  if (classList.contains(lightClass)) return 'light';
+
+  return null;
+};
+
+/**
+ * Detects theme from system preference
+ */
+const detectFromSystem = (): ThemeMode => {
+  if (typeof window !== 'undefined' && window.matchMedia) {
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  }
+
+  return DEFAULT_THEME;
+};
+
+/**
  * Detects the current theme mode based on the specified method
  */
-export const detectThemeMode = (mode: ThemeMode, config: BrowserThemeDetection = {}): 'light' | 'dark' => {
-  const {
-    darkClass = 'dark',
-    lightClass = 'light',
-    targetElement = typeof document !== 'undefined' ? document.documentElement : null,
-  } = config;
+export const detectThemeMode = (mode: ThemeMode, config: BrowserThemeDetection = {}): ThemeMode => {
+  const targetElement: HTMLElement | null = (config.targetElement ||
+    (typeof document !== 'undefined' ? document.documentElement : null)) as HTMLElement | null;
 
   if (mode === 'light') return 'light';
   if (mode === 'dark') return 'dark';
 
   if (mode === 'system') {
-    if (typeof window !== 'undefined' && window.matchMedia) {
-      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-    }
-    return 'light';
+    return detectFromSystem();
   }
 
-  if (mode === 'class') {
+  if (mode === 'auto') {
     if (!targetElement) {
-      console.warn('ThemeDetection: targetElement is required for class-based detection, falling back to light mode');
-      return 'light';
+      console.warn('ThemeDetection: targetElement is required for auto detection, falling back to system');
+      return detectFromSystem();
     }
 
-    const classList = targetElement.classList;
+    // Get strategy and priority
+    // For legacy 'class' mode, default to 'class' strategy
+    const strategy: ThemeDetectionStrategy = config.strategy || 'auto';
+    const priority: ThemeDetectionStrategy[] = config.priority || ['dataAttribute', 'class', 'system'];
 
-    // Check for explicit dark class first
-    if (classList.contains(darkClass)) {
-      return 'dark';
+    if (strategy === 'auto') {
+      // Try detection methods in priority order
+      for (const method of priority) {
+        let result: ThemeMode | null = null;
+
+        switch (method) {
+          case 'dataAttribute':
+            result = detectFromDataAttribute(targetElement, config);
+            break;
+          case 'class':
+            result = detectFromClasses(targetElement, config);
+            break;
+          case 'system':
+            result = detectFromSystem();
+            break;
+        }
+
+        if (result !== null) {
+          return result;
+        }
+      }
+
+      // Fallback to light if nothing detected
+      return DEFAULT_THEME;
+    } else {
+      // Use specific strategy
+      switch (strategy) {
+        case 'dataAttribute':
+          return detectFromDataAttribute(targetElement, config) || DEFAULT_THEME;
+        case 'class':
+          return detectFromClasses(targetElement, config) || DEFAULT_THEME;
+        case 'system':
+          return detectFromSystem();
+        case 'manual':
+        default:
+          return DEFAULT_THEME;
+      }
     }
-
-    // Check for explicit light class
-    if (classList.contains(lightClass)) {
-      return 'light';
-    }
-
-    // If neither class is present, default to light
-    return 'light';
   }
 
-  return 'light';
+  return DEFAULT_THEME;
 };
 
 /**
@@ -82,12 +150,13 @@ export const createClassObserver = (
   callback: (isDark: boolean) => void,
   config: BrowserThemeDetection = {},
 ): MutationObserver => {
-  const {darkClass = 'dark', lightClass = 'light'} = config;
+  const darkClass: string = config.classes?.dark || 'dark';
+  const lightClass: string = config.classes?.light || 'light';
 
-  const observer = new MutationObserver(mutations => {
+  const observer: MutationObserver = new MutationObserver(mutations => {
     mutations.forEach(mutation => {
       if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
-        const classList = targetElement.classList;
+        const classList: DOMTokenList = targetElement.classList;
 
         if (classList.contains(darkClass)) {
           callback(true);
@@ -109,6 +178,72 @@ export const createClassObserver = (
 };
 
 /**
+ * Creates a MutationObserver to watch for data attribute changes on the target element
+ */
+export const createDataAttributeObserver = (
+  targetElement: HTMLElement,
+  callback: (isDark: boolean) => void,
+  config: BrowserThemeDetection = {},
+): MutationObserver => {
+  const attrName: string = config.dataAttribute?.name || 'theme';
+  const lightValue: string = config.dataAttribute?.values?.light || 'light';
+  const darkValue: string = config.dataAttribute?.values?.dark || 'dark';
+
+  const observer: MutationObserver = new MutationObserver(mutations => {
+    mutations.forEach(mutation => {
+      if (mutation.type === 'attributes' && mutation.attributeName === `data-${attrName}`) {
+        const attrValue: string | null = targetElement.getAttribute(`data-${attrName}`);
+
+        if (attrValue === darkValue) {
+          callback(true);
+        } else if (attrValue === lightValue) {
+          callback(false);
+        }
+        // If the value doesn't match expected values, don't trigger callback
+      }
+    });
+  });
+
+  observer.observe(targetElement, {
+    attributes: true,
+    attributeFilter: [`data-${attrName}`],
+  });
+
+  return observer;
+};
+
+/**
+ * Creates observers for auto-detection based on priority
+ */
+export const createAutoObserver = (
+  targetElement: HTMLElement,
+  callback: (isDark: boolean) => void,
+  config: BrowserThemeDetection = {},
+): {observers: MutationObserver[]; mediaQuery: MediaQueryList | null} => {
+  const priority: ThemeDetectionStrategy[] = config.priority || ['dataAttribute', 'class', 'system'];
+  const observers: MutationObserver[] = [];
+  let mediaQuery: MediaQueryList | null = null;
+
+  for (const strategy of priority) {
+    switch (strategy) {
+      case 'dataAttribute':
+        observers.push(createDataAttributeObserver(targetElement, callback, config));
+        break;
+      case 'class':
+        observers.push(createClassObserver(targetElement, callback, config));
+        break;
+      case 'system':
+        if (!mediaQuery) {
+          mediaQuery = createMediaQueryListener(callback);
+        }
+        break;
+    }
+  }
+
+  return {observers, mediaQuery};
+};
+
+/**
  * Creates a media query listener for system theme changes
  */
 export const createMediaQueryListener = (callback: (isDark: boolean) => void): MediaQueryList | null => {
@@ -116,7 +251,7 @@ export const createMediaQueryListener = (callback: (isDark: boolean) => void): M
     return null;
   }
 
-  const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+  const mediaQuery: MediaQueryList = window.matchMedia('(prefers-color-scheme: dark)');
 
   const handleChange = (e: MediaQueryListEvent) => {
     callback(e.matches);
