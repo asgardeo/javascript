@@ -351,7 +351,8 @@ const BaseSignUpContent: FC<BaseSignUpProps> = ({
           if (
             component.type === EmbeddedFlowComponentType.TextInput ||
             component.type === EmbeddedFlowComponentType.PasswordInput ||
-            component.type === EmbeddedFlowComponentType.EmailInput
+            component.type === EmbeddedFlowComponentType.EmailInput ||
+            component.type === EmbeddedFlowComponentType.Select
           ) {
             // Use component.ref (mapped identifier) as the field name instead of component.id
             // This ensures form field names match what the input components use

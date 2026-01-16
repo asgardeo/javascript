@@ -38,6 +38,7 @@ import MicrosoftButton from '../../adapters/MicrosoftButton';
 import LinkedInButton from '../../adapters/LinkedInButton';
 import SignInWithEthereumButton from '../../adapters/SignInWithEthereumButton';
 import {TypographyVariant} from '../../primitives/Typography/Typography.styles';
+import Select from '../../primitives/Select/Select';
 
 export type AuthType = 'signin' | 'signup';
 
@@ -227,6 +228,35 @@ const createAuthComponentFromFlow = (
 
     case EmbeddedFlowComponentType.Divider: {
       return <Divider key={key}>{component.label || ''}</Divider>;
+    }
+
+    case EmbeddedFlowComponentType.Select: {
+      const identifier: string = component.ref;
+      const value: string = formValues[identifier] || '';
+      const isTouched: boolean = touchedFields[identifier] || false;
+      const error: string = isTouched ? formErrors[identifier] : undefined;
+
+      // Options are pre-sanitized by flowTransformer to {value: string, label: string} format
+      const selectOptions = (component.options || []).map((opt: any) => ({
+        value: typeof opt === 'string' ? opt : String(opt.value ?? ''),
+        label: typeof opt === 'string' ? opt : String(opt.label ?? opt.value ?? ''),
+      }));
+
+      return (
+        <Select
+          key={key}
+          name={identifier}
+          label={component.label || ''}
+          placeholder={component.placeholder}
+          required={component.required}
+          options={selectOptions}
+          value={value}
+          error={error}
+          onChange={(e) => onInputChange(identifier, e.target.value)}
+          onBlur={() => options.onInputBlur?.(identifier)}
+          className={options.inputClassName}
+        />
+      );
     }
 
     case EmbeddedFlowComponentType.Block: {
