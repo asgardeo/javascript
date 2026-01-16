@@ -64,6 +64,9 @@ export enum EmbeddedFlowComponentType {
 
   /** Divider component for visual separation of content */
   Divider = 'DIVIDER',
+
+  /** Select/dropdown input component for single choice selection */
+  Select = 'SELECT',
 }
 
 /**
@@ -244,6 +247,12 @@ export interface EmbeddedFlowComponent {
    * Nested child components for container components like Block.
    */
   components?: EmbeddedFlowComponent[];
+
+  /**
+   * Options for SELECT components.
+   * Each option can be a string value or an object with value and label.
+   */
+  options?: Array<string | {value: string; label: string}>;
 }
 
 /**

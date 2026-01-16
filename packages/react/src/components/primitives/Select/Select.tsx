@@ -61,6 +61,10 @@ export interface SelectProps extends Omit<SelectHTMLAttributes<HTMLSelectElement
    */
   helperText?: string;
   /**
+   * Placeholder text for the default/empty option
+   */
+  placeholder?: string;
+  /**
    * The options to display in the select
    */
   options: SelectOption[];
@@ -73,6 +77,7 @@ const Select: FC<SelectProps> = ({
   required,
   disabled,
   helperText,
+  placeholder,
   options,
   style = {},
   ...rest
@@ -107,6 +112,11 @@ const Select: FC<SelectProps> = ({
         aria-required={required}
         {...rest}
       >
+        {placeholder && (
+          <option value="" disabled>
+            {placeholder}
+          </option>
+        )}
         {options.map(option => (
           <option key={option.value} value={option.value} className={styles.option}>
             {option.label}

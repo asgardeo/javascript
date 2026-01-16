@@ -131,19 +131,42 @@ const createActionRefMapping = (response: any): Map<string, string> => {
  * @param components - Array of components to transform
  * @param refMapping - Map of ref to identifier
  * @param actionMapping - Map of action ref to nextNode
+ * @param inputsData - Array of input data for resolving SELECT options
  * @returns Transformed components with correct identifiers and action references
  */
 const applyInputRefMapping = (
   components: EmbeddedFlowComponent[],
   refMapping: Map<string, string>,
   actionMapping: Map<string, string>,
+  inputsData: any[] = [],
 ): EmbeddedFlowComponent[] => {
   return components.map(component => {
-    const transformedComponent = {...component} as EmbeddedFlowComponent & {actionRef?: string};
+    const transformedComponent = {...component} as EmbeddedFlowComponent & {
+      actionRef?: string;
+      options?: Array<{value: string; label: string}>;
+    };
 
     // If this component has a ref that maps to an identifier, update it
     if (transformedComponent.ref && refMapping.has(transformedComponent.ref)) {
       transformedComponent.ref = refMapping.get(transformedComponent.ref);
+    }
+
+    // For SELECT components, copy options from data.inputs
+    // The component.id matches the input.ref in the data structure
+    if (transformedComponent.type === 'SELECT' && component.id) {
+      const inputData = inputsData.find((input: any) => input.ref === component.id);
+      if (inputData?.options) {
+        transformedComponent.options = inputData.options.map((opt: any) => {
+          if (typeof opt === 'string') {
+            return { value: opt, label: opt };
+          }
+          // Safely handle non-string values to prevent React key crashes
+          const value = typeof opt.value === 'object' ? JSON.stringify(opt.value) : String(opt.value || '');
+          const label = typeof opt.label === 'object' ? JSON.stringify(opt.label) : String(opt.label || value);
+
+          return {value, label};
+        });
+      }
     }
 
     // If this is an action component, map its id to the nextNode
@@ -162,6 +185,7 @@ const applyInputRefMapping = (
         transformedComponent.components,
         refMapping,
         actionMapping,
+        inputsData,
       );
     }
 
@@ -197,9 +221,12 @@ export const transformComponents = (
   // Create mapping from action ref to nextNode based on data.actions
   const actionMapping = createActionRefMapping(response);
 
+  // Get inputs data for SELECT option resolution
+  const inputsData = response?.data?.inputs || [];
+
   // Apply ref and action mapping if there are any mappings
-  if (refMapping.size > 0 || actionMapping.size > 0) {
-    components = applyInputRefMapping(components, refMapping, actionMapping);
+  if (refMapping.size > 0 || actionMapping.size > 0 || inputsData.length > 0) {
+    components = applyInputRefMapping(components, refMapping, actionMapping, inputsData);
   }
 
   return resolveTranslations ? resolveTranslationsInArray(components, t) : components;
