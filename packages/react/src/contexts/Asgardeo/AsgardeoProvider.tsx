@@ -497,6 +497,10 @@ const AsgardeoProvider: FC<PropsWithChildren<AsgardeoProviderProps>> = ({
     return await asgardeo.getDecodedIdToken();
   }, [asgardeo]);
 
+  const getIdToken = useCallback(async (): Promise<string> => {
+    return await asgardeo.getIdToken();
+  }, [asgardeo]);
+
   const getAccessToken = useCallback(async (): Promise<string> => {
     return await asgardeo.getAccessToken();
   }, [asgardeo]);
@@ -576,6 +580,7 @@ const AsgardeoProvider: FC<PropsWithChildren<AsgardeoProviderProps>> = ({
       reInitialize,
       signInOptions,
       getDecodedIdToken,
+      getIdToken,
       exchangeToken,
       syncSession,
       platform: config?.platform,
