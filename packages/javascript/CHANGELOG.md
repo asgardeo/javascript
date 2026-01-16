@@ -1,5 +1,13 @@
 # @asgardeo/javascript
 
+## 0.2.17
+
+### Patch Changes
+
+- [#318](https://github.com/asgardeo/javascript/pull/318)
+  [`674c047`](https://github.com/asgardeo/javascript/commit/674c0474992ec7be071f320072a915fe592f9724) Thanks
+  [@ThaminduDilshan](https://github.com/ThaminduDilshan)! - Add capability to render Select/ dropdown
+
 ## 0.2.16
 
 ### Patch Changes
