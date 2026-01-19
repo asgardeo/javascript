@@ -1,5 +1,14 @@
 # @asgardeo/javascript
 
+## 0.3.0
+
+### Minor Changes
+
+- [#320](https://github.com/asgardeo/javascript/pull/320)
+  [`0d62260`](https://github.com/asgardeo/javascript/commit/0d62260d1068ddb48703332b54fdeb061db24ad0) Thanks
+  [@DonOmalVindula](https://github.com/DonOmalVindula)! - Remove attribute transformation logic when extracting claims
+  from ID Token
+
 ## 0.2.17
 
 ### Patch Changes
