@@ -20,10 +20,10 @@ import {IdToken} from '../models/token';
 
 /**
  * Removes standard protocol-specific claims from the ID token payload
- * and returns a camelCased object of user-specific claims.
+ * and returns an object of user-specific claims with original attribute names preserved.
  *
  * @param payload The raw ID token payload.
- * @returns A cleaned-up, camelCased object containing only user-specific claims.
+ * @returns A cleaned-up object containing only user-specific claims with original attribute names.
  *
  * @example
  * ````typescript
@@ -32,13 +32,15 @@ import {IdToken} from '../models/token';
  *   aud: 'client_id',
  *   exp: 1712345678,
  *   iat: 1712345670,
- *   email: 'user@example.com'
+ *   email: 'user@example.com',
+ *   given_name: 'John'
  *  };
  *
  * const userClaims = extractUserClaimsFromIdToken(idTokenPayload);
- * // // userClaims will be:
+ * // userClaims will be:
  * // {
- * //   email: 'user@example.com'
+ * //   email: 'user@example.com',
+ * //   given_name: 'John'
  * // }
  * ```
  */
@@ -68,18 +70,7 @@ const extractUserClaimsFromIdToken = (payload: IdToken): Record<string, unknown>
     delete filteredPayload[claim as keyof IdToken];
   });
 
-  const userClaims: Record<string, unknown> = {};
-
-  Object.entries(filteredPayload).forEach(([key, value]) => {
-    const camelCasedKey = key
-      .split('_')
-      .map((part, i) => (i === 0 ? part : part[0].toUpperCase() + part.slice(1)))
-      .join('');
-
-    userClaims[camelCasedKey] = value;
-  });
-
-  return userClaims;
+  return filteredPayload as Record<string, unknown>;
 };
 
 export default extractUserClaimsFromIdToken;
