@@ -21,7 +21,7 @@ import extractUserClaimsFromIdToken from '../extractUserClaimsFromIdToken';
 import {IdToken} from '../../models/id-token';
 
 describe('extractUserClaimsFromIdToken', (): void => {
-  it('should remove protocol claims and keep user claims', (): void => {
+  it('should remove protocol claims and keep user claims with original attribute names', (): void => {
     const payload: IdToken = {
       iss: 'https://example.com',
       aud: 'client_id',
@@ -34,12 +34,12 @@ describe('extractUserClaimsFromIdToken', (): void => {
 
     const expected: {
       email: string;
-      givenName: string;
-      familyName: string;
+      given_name: string;
+      family_name: string;
     } = {
       email: 'user@example.com',
-      givenName: 'John',
-      familyName: 'Doe',
+      given_name: 'John',
+      family_name: 'Doe',
     };
 
     expect(extractUserClaimsFromIdToken(payload)).toEqual(expected);
@@ -51,7 +51,7 @@ describe('extractUserClaimsFromIdToken', (): void => {
     expect(extractUserClaimsFromIdToken(payload)).toEqual({});
   });
 
-  it('should convert snake_case to camelCase', (): void => {
+  it('should preserve original attribute names without transformation', (): void => {
     const payload: IdToken = {
       phone_number: '+1234567890',
       custom_claim_value: 'test',
@@ -59,12 +59,12 @@ describe('extractUserClaimsFromIdToken', (): void => {
     } as IdToken;
 
     const expected: {
-      phoneNumber: string;
-      customClaimValue: string;
+      phone_number: string;
+      custom_claim_value: string;
       normalClaim: string;
     } = {
-      phoneNumber: '+1234567890',
-      customClaimValue: 'test',
+      phone_number: '+1234567890',
+      custom_claim_value: 'test',
       normalClaim: 'value',
     };
 
@@ -91,7 +91,7 @@ describe('extractUserClaimsFromIdToken', (): void => {
     } as IdToken;
 
     expect(extractUserClaimsFromIdToken(payload)).toEqual({
-      customClaim: 'value',
+      custom_claim: 'value',
     });
   });
 
@@ -103,7 +103,7 @@ describe('extractUserClaimsFromIdToken', (): void => {
 
     expect(extractUserClaimsFromIdToken(payload)).toEqual({
       roles: ['admin', 'editor'],
-      metadataInfo: {active: true, level: 2},
+      metadata_info: {active: true, level: 2},
     });
   });
 
@@ -115,7 +115,7 @@ describe('extractUserClaimsFromIdToken', (): void => {
 
     expect(extractUserClaimsFromIdToken(payload)).toEqual({
       nickname: null,
-      preferredUsername: undefined,
+      preferred_username: undefined,
     });
   });
 });
