@@ -25,7 +25,11 @@ const pkg = JSON.parse(readFileSync('./package.json', 'utf8'));
 const commonOptions = {
   bundle: true,
   entryPoints: ['src/index.ts'],
-  external: [...Object.keys(pkg.dependencies || {}), ...Object.keys(pkg.peerDependencies || {})],
+  external: [
+    ...Object.keys(pkg.dependencies || {}),
+    ...Object.keys(pkg.devDependencies || {}),
+    ...Object.keys(pkg.peerDependencies || {}),
+  ],
   metafile: true,
   platform: 'browser',
   plugins: [
