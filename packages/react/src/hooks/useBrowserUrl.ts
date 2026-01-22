@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import {hasAuthParamsInUrl} from '@asgardeo/browser';
+import {hasAuthParamsInUrl, hasCalledForThisInstanceInUrl} from '@asgardeo/browser';
 
 /**
  * Interface for the useBrowserUrl hook return value.
@@ -30,6 +30,15 @@ export interface UseBrowserUrl {
    * @returns True if the URL contains authentication parameters and matches the afterSignInUrl, or if it contains an error parameter
    */
   hasAuthParams: (url: URL, afterSignInUrl: string) => boolean;
+
+  /**
+   * Checks if the URL indicates that the authentication flow has been called for this instance.
+   *
+   * @param url - The URL object to check
+   * @param instanceId - The instance ID to check against
+   * @returns True if the URL indicates the flow has been called for this instance
+   */
+  hasCalledForThisInstance: (url: URL, instanceId: number) => boolean;
 }
 
 /**
@@ -53,7 +62,10 @@ const useBrowserUrl = (): UseBrowserUrl => {
     // authParams?.authorizationCode || // FIXME: These are sent externally. Need to see what we can do about this.
     url.searchParams.get('error') !== null;
 
-  return {hasAuthParams};
+  const hasCalledForThisInstance = (url: URL, instanceId: number): boolean => 
+    (hasCalledForThisInstanceInUrl(instanceId, url.search));
+
+  return {hasAuthParams, hasCalledForThisInstance};
 };
 
 export default useBrowserUrl;
