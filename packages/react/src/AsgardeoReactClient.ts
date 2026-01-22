@@ -68,12 +68,26 @@ import getAllOrganizations from './api/getAllOrganizations';
 class AsgardeoReactClient<T extends AsgardeoReactConfig = AsgardeoReactConfig> extends AsgardeoBrowserClient<T> {
   private asgardeo: AuthAPI;
   private _isLoading: boolean = false;
+  private _instanceId: number;
 
-  constructor() {
+  /**
+   * Creates a new AsgardeoReactClient instance.
+   * @param instanceId - Optional instance ID for multi-auth context support. Defaults to 0 for backward compatibility.
+   */
+  constructor(instanceId: number = 0) {
     super();
+    this._instanceId = instanceId;
 
     // FIXME: This has to be the browser client from `@asgardeo/browser` package.
-    this.asgardeo = new AuthAPI();
+    this.asgardeo = new AuthAPI(undefined, instanceId);
+  }
+
+  /**
+   * Get the instance ID for this client.
+   * @returns The instance ID used for multi-auth context support.
+   */
+  public getInstanceId(): number {
+    return this._instanceId;
   }
 
   /**
