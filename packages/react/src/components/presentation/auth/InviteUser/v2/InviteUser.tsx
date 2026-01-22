@@ -1,0 +1,198 @@
+/**
+ * Copyright (c) 2025, WSO2 LLC. (https://www.wso2.com).
+ *
+ * WSO2 LLC. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
+import {FC, ReactNode} from 'react';
+import {EmbeddedFlowType} from '@asgardeo/browser';
+import BaseInviteUser, {
+  BaseInviteUserRenderProps,
+  InviteUserFlowResponse,
+} from './BaseInviteUser';
+import useAsgardeo from '../../../../../contexts/Asgardeo/useAsgardeo';
+
+/**
+ * Render props for InviteUser (re-exported for convenience).
+ */
+export type InviteUserRenderProps = BaseInviteUserRenderProps;
+
+/**
+ * Props for the InviteUser component.
+ */
+export interface InviteUserProps {
+  /**
+   * Callback when the invite link is generated successfully.
+   */
+  onInviteLinkGenerated?: (inviteLink: string, flowId: string) => void;
+
+  /**
+   * Callback when an error occurs.
+   */
+  onError?: (error: Error) => void;
+
+  /**
+   * Callback when the flow state changes.
+   */
+  onFlowChange?: (response: InviteUserFlowResponse) => void;
+
+  /**
+   * Custom CSS class name.
+   */
+  className?: string;
+
+  /**
+   * Render props function for custom UI.
+   * If not provided, default UI will be rendered by the SDK.
+   */
+  children?: (props: InviteUserRenderProps) => ReactNode;
+
+  /**
+   * Size variant for the component.
+   */
+  size?: 'small' | 'medium' | 'large';
+
+  /**
+   * Theme variant for the component card.
+   */
+  variant?: 'outlined' | 'elevated';
+
+  /**
+   * Whether to show the title.
+   */
+  showTitle?: boolean;
+
+  /**
+   * Whether to show the subtitle.
+   */
+  showSubtitle?: boolean;
+}
+
+/**
+ * InviteUser component for initiating invite user flow.
+ *
+ * This component is designed for admin users in the thunder-develop app to:
+ * 1. Select a user type (if multiple available)
+ * 2. Enter user details (username, email)
+ * 3. Generate an invite link for the end user
+ *
+ * The component uses the authenticated Asgardeo SDK context to make API calls
+ * with the admin's access token (requires 'system' scope).
+ *
+ * @example
+ * ```tsx
+ * import { InviteUser } from '@asgardeo/react';
+ *
+ * const InviteUserPage = () => {
+ *   const [inviteLink, setInviteLink] = useState<string>();
+ *
+ *   return (
+ *     <InviteUser
+ *       onInviteLinkGenerated={(link, flowId) => setInviteLink(link)}
+ *       onError={(error) => console.error(error)}
+ *     >
+ *       {({ values, components, isLoading, handleInputChange, handleSubmit, inviteLink, isInviteGenerated }) => (
+ *         <div>
+ *           {isInviteGenerated ? (
+ *             <div>
+ *               <h2>Invite Link Generated!</h2>
+ *               <p>{inviteLink}</p>
+ *             </div>
+ *           ) : (
+ *             // Render form based on components
+ *           )}
+ *         </div>
+ *       )}
+ *     </InviteUser>
+ *   );
+ * };
+ * ```
+ */
+const InviteUser: FC<InviteUserProps> = ({
+  onInviteLinkGenerated,
+  onError,
+  onFlowChange,
+  className,
+  children,
+  size = 'medium',
+  variant = 'outlined',
+  showTitle = true,
+  showSubtitle = true,
+}) => {
+  const {http, baseUrl, isInitialized} = useAsgardeo();
+
+  /**
+   * Initialize the invite user flow.
+   * Makes an authenticated request to /flow/execute with flowType: USER_ONBOARDING.
+   */
+  const handleInitialize = async (payload: Record<string, any>): Promise<InviteUserFlowResponse> => {
+    const response = await http.request({
+      url: `${baseUrl}/flow/execute`,
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      },
+      data: {
+        ...payload,
+        flowType: EmbeddedFlowType.UserOnboarding,
+        verbose: true,
+      },
+    } as any);
+
+    return response.data as InviteUserFlowResponse;
+  };
+
+  /**
+   * Submit flow step data.
+   * Makes an authenticated request to /flow/execute with the step data.
+   */
+  const handleSubmit = async (payload: Record<string, any>): Promise<InviteUserFlowResponse> => {
+    const response = await http.request({
+      url: `${baseUrl}/flow/execute`,
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      },
+      data: {
+        ...payload,
+        verbose: true,
+      },
+    } as any);
+
+    return response.data as InviteUserFlowResponse;
+  };
+
+  return (
+    <BaseInviteUser
+      onInitialize={handleInitialize}
+      onSubmit={handleSubmit}
+      onInviteLinkGenerated={onInviteLinkGenerated}
+      onError={onError}
+      onFlowChange={onFlowChange}
+      className={className}
+      isInitialized={isInitialized}
+      size={size}
+      variant={variant}
+      showTitle={showTitle}
+      showSubtitle={showSubtitle}
+    >
+      {children}
+    </BaseInviteUser>
+  );
+};
+
+export default InviteUser;

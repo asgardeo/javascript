@@ -47,6 +47,10 @@ export {default as updateMeProfile, UpdateMeProfileConfig} from './api/updateMeP
 export {default as getBrandingPreference, GetBrandingPreferenceConfig} from './api/getBrandingPreference';
 export {default as executeEmbeddedSignInFlowV2} from './api/v2/executeEmbeddedSignInFlowV2';
 export {default as executeEmbeddedSignUpFlowV2} from './api/v2/executeEmbeddedSignUpFlowV2';
+export {
+  default as executeEmbeddedUserOnboardingFlowV2,
+  EmbeddedUserOnboardingFlowResponse,
+} from './api/v2/executeEmbeddedUserOnboardingFlowV2';
 
 export {default as ApplicationNativeAuthenticationConstants} from './constants/ApplicationNativeAuthenticationConstants';
 export {default as TokenConstants} from './constants/TokenConstants';

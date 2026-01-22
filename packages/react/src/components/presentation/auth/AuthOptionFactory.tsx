@@ -373,3 +373,43 @@ export const renderSignUpComponents = (
       ),
     )
     .filter(Boolean);
+
+/**
+ * Processes an array of components and renders them as React elements for invite user.
+ * This is used by both InviteUser and AcceptInvite components.
+ */
+export const renderInviteUserComponents = (
+  components: EmbeddedFlowComponent[],
+  formValues: Record<string, string>,
+  touchedFields: Record<string, boolean>,
+  formErrors: Record<string, string>,
+  isLoading: boolean,
+  isFormValid: boolean,
+  onInputChange: (name: string, value: string) => void,
+  options?: {
+    buttonClassName?: string;
+    inputClassName?: string;
+    onInputBlur?: (name: string) => void;
+    onSubmit?: (component: EmbeddedFlowComponent, data?: Record<string, any>, skipValidation?: boolean) => void;
+    size?: 'small' | 'medium' | 'large';
+    variant?: any;
+  },
+): ReactElement[] =>
+  components
+    .map((component, index) =>
+      createAuthComponentFromFlow(
+        component,
+        formValues,
+        touchedFields,
+        formErrors,
+        isLoading,
+        isFormValid,
+        onInputChange,
+        'signup',
+        {
+          ...options,
+          key: component.id || index,
+        },
+      ),
+    )
+    .filter(Boolean);
