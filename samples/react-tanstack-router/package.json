@@ -17,6 +17,7 @@
     "react-dom": "19.1.4"
   },
   "devDependencies": {
+    "@eslint/js": "catalog:",
     "@types/react": "19.1.2",
     "@types/react-dom": "19.1.2",
     "@vitejs/plugin-basic-ssl": "2.0.0",

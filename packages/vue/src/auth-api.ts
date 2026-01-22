@@ -144,6 +144,15 @@ class AuthAPI {
   }
 
   /**
+   * This method returns a Promise that resolves with the basic user information obtained from the ID token.
+   *
+   * @return {Promise<BasicUserInfo>} a promise that resolves with the user information.
+   */
+  public async getUser(): Promise<BasicUserInfo> {
+    return this._client.getBasicUserInfo();
+  }
+
+  /**
    * This method sends an API request to a protected endpoint.
    * The access token is automatically attached to the header of the request.
    * This is the only way by which protected endpoints can be accessed

@@ -40,7 +40,7 @@
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts",
     "lint:fix": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix",
     "typecheck": "vue-tsc --noEmit",
-    "test": "vitest --config src/vitest.config.ts --environment=jsdom --run --passWithNoTests"
+    "test": "vitest --config src/vitest.config.ts --environment=jsdom --passWithNoTests"
   },
   "devDependencies": {
     "vite": "7.1.12",

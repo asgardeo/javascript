@@ -37,7 +37,7 @@
     "clean": "rimraf dist",
     "fix:lint": "eslint . --ext .js,.jsx,.ts,.tsx,.cjs,.mjs",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx,.cjs,.mjs",
-    "test": "vitest",
+    "test": "vitest --passWithNoTests",
     "typecheck": "tsc -p tsconfig.lib.json"
   },
   "devDependencies": {

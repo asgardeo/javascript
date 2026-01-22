@@ -44,6 +44,7 @@
   },
   "devDependencies": {
     "@asgardeo/react": "workspace:*",
+    "@testing-library/react": "16.2.0",
     "@types/node": "22.15.3",
     "@types/react": "19.1.4",
     "@wso2/eslint-plugin": "catalog:",

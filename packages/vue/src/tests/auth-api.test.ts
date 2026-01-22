@@ -185,7 +185,7 @@ describe('AuthAPI', () => {
     it('should call getUser on the client', async () => {
       const result: BasicUserInfo = await authApi.getUser();
 
-      expect(mockClient.getUser).toHaveBeenCalled();
+      expect(mockClient.getBasicUserInfo).toHaveBeenCalled();
       expect(result).toEqual({
         allowedScopes: 'openid profile',
         displayName: 'Test User',

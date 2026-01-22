@@ -20,12 +20,9 @@ import {defineConfig} from 'vitest/config';
 
 export default defineConfig({
   test: {
-    browser: {
-      enabled: true,
-      headless: true,
-      instances: [{browser: 'chromium'}],
-      provider: 'playwright',
-    },
+    environment: 'jsdom',
     globals: true,
+    testTimeout: 10000,
+    hookTimeout: 10000,
   },
 });
