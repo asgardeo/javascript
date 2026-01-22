@@ -91,8 +91,8 @@ class AuthAPI {
             allowedScopes: response.allowedScopes,
             displayName: response.displayName,
             email: response.email,
-            isSignedIn: true,
             isLoading: false,
+            isSignedIn: true,
             isSigningOut: false,
             sub: response.sub,
             username: response.username,
@@ -195,8 +195,8 @@ class AuthAPI {
           Object.assign(this._authState, {
             ...this._authState,
             ...(response as BasicUserInfo),
-            isSignedIn: true,
             isLoading: false,
+            isSignedIn: true,
           });
         }
         if (callback) {
@@ -401,8 +401,8 @@ class AuthAPI {
             allowedScopes: basicUserInfo.allowedScopes,
             displayName: basicUserInfo.displayName,
             email: basicUserInfo.email,
-            isSignedIn: true,
             isLoading: false,
+            isSignedIn: true,
             sub: basicUserInfo.sub,
             username: basicUserInfo.username,
           });
@@ -417,8 +417,8 @@ AuthAPI.DEFAULT_STATE = {
   allowedScopes: '',
   displayName: '',
   email: '',
-  isSignedIn: false,
   isLoading: true,
+  isSignedIn: false,
   sub: '',
   username: '',
 };

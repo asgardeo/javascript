@@ -1,7 +1,7 @@
 /**
- * Copyright (c) 2022, WSO2 Inc. (http://www.wso2.com) All Rights Reserved.
+ * Copyright (c) 2025, WSO2 LLC. (https://www.wso2.com).
  *
- * WSO2 Inc. licenses this file to you under the Apache License,
+ * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License.
  * You may obtain a copy of the License at
@@ -36,22 +36,25 @@ import {Logger, SessionUtils} from '../utils';
 import {NodeCryptoUtils} from '../utils/crypto-utils';
 
 export class AsgardeoNodeCore<T> {
-  private _auth: AsgardeoAuthClient<T>;
-  private _cryptoUtils: Crypto;
-  private _store: Storage;
-  private _storageManager: StorageManager<T>;
+  private auth: AsgardeoAuthClient<T>;
+
+  private cryptoUtils: Crypto;
+
+  private store: Storage;
+
+  private storageManager: StorageManager<T>;
 
   constructor(config: AuthClientConfig<T>, store?: Storage) {
-    //Initialize the default memory cache store if an external store is not passed.
+    // Initialize the default memory cache store if an external store is not passed.
     if (!store) {
-      this._store = new MemoryCacheStore();
+      this.store = new MemoryCacheStore();
     } else {
-      this._store = store;
+      this.store = store;
     }
-    this._cryptoUtils = new NodeCryptoUtils();
-    this._auth = new AsgardeoAuthClient();
-    this._auth.initialize(config, this._store, this._cryptoUtils);
-    this._storageManager = this._auth.getStorageManager();
+    this.cryptoUtils = new NodeCryptoUtils();
+    this.auth = new AsgardeoAuthClient();
+    this.auth.initialize(config, this.store, this.cryptoUtils);
+    this.storageManager = this.auth.getStorageManager();
     Logger.debug('Initialized AsgardeoAuthClient successfully');
   }
 
@@ -74,7 +77,7 @@ export class AsgardeoNodeCore<T> {
     }
 
     if (await this.isSignedIn(userId)) {
-      const sessionData: SessionData = await this._storageManager.getSessionData(userId);
+      const sessionData: SessionData = await this.storageManager.getSessionData(userId);
 
       return Promise.resolve({
         accessToken: sessionData.access_token,
@@ -87,8 +90,8 @@ export class AsgardeoNodeCore<T> {
       });
     }
 
-    //Check if the authorization code or session state is there.
-    //If so, generate the access token, otherwise generate the auth URL and return with callback function.
+    // Check if the authorization code or session state is there.
+    // If so, generate the access token, otherwise generate the auth URL and return with callback function.
     if (!authorizationCode || !state) {
       if (!authURLCallback || typeof authURLCallback !== 'function') {
         return Promise.reject(
@@ -99,7 +102,7 @@ export class AsgardeoNodeCore<T> {
           ),
         );
       }
-      const authURL = await this.getAuthURL(userId, signInConfig);
+      const authURL: string = await this.getAuthURL(userId, signInConfig);
       authURLCallback(authURL);
 
       return Promise.resolve({
@@ -118,19 +121,18 @@ export class AsgardeoNodeCore<T> {
   }
 
   public async getAuthURL(userId: string, signInConfig?: Record<string, string | boolean>): Promise<string> {
-    const authURL = await this._auth.getSignInUrl(signInConfig, userId);
+    const authURL: string | undefined = await this.auth.getSignInUrl(signInConfig, userId);
 
     if (authURL) {
       return Promise.resolve(authURL.toString());
-    } else {
-      return Promise.reject(
-        new AsgardeoAuthException(
-          'NODE-AUTH_CORE-GAU-NF01',
-          'Getting Authorization URL failed.',
-          'No authorization URL was returned by the Asgardeo Auth JS SDK.',
-        ),
-      );
     }
+    return Promise.reject(
+      new AsgardeoAuthException(
+        'NODE-AUTH_CORE-GAU-NF01',
+        'Getting Authorization URL failed.',
+        'No authorization URL was returned by the Asgardeo Auth JS SDK.',
+      ),
+    );
   }
 
   public async requestAccessToken(
@@ -139,12 +141,12 @@ export class AsgardeoNodeCore<T> {
     userId: string,
     state: string,
   ): Promise<TokenResponse> {
-    return this._auth.requestAccessToken(authorizationCode, sessionState, state, userId);
+    return this.auth.requestAccessToken(authorizationCode, sessionState, state, userId);
   }
 
   public async getIdToken(userId: string): Promise<string> {
-    const is_logged_in = await this.isSignedIn(userId);
-    if (!is_logged_in) {
+    const isLoggedIn: boolean = await this.isSignedIn(userId);
+    if (!isLoggedIn) {
       return Promise.reject(
         new AsgardeoAuthException(
           'NODE-AUTH_CORE-GIT-NF01',
@@ -153,42 +155,41 @@ export class AsgardeoNodeCore<T> {
         ),
       );
     }
-    const idToken = await this._auth.getIdToken(userId);
+    const idToken: string = await this.auth.getIdToken(userId);
     if (idToken) {
       return Promise.resolve(idToken);
-    } else {
-      return Promise.reject(
-        new AsgardeoAuthException(
-          'NODE-AUTH_CORE-GIT-NF02',
-          'Requesting ID Token Failed',
-          'No ID Token was returned by the Asgardeo Auth JS SDK.',
-        ),
-      );
     }
+    return Promise.reject(
+      new AsgardeoAuthException(
+        'NODE-AUTH_CORE-GIT-NF02',
+        'Requesting ID Token Failed',
+        'No ID Token was returned by the Asgardeo Auth JS SDK.',
+      ),
+    );
   }
 
   public async refreshAccessToken(userId?: string): Promise<TokenResponse> {
-    return this._auth.refreshAccessToken(userId);
+    return this.auth.refreshAccessToken(userId);
   }
 
   public async isSignedIn(userId: string): Promise<boolean> {
     try {
-      if (!(await this._auth.isSignedIn(userId))) {
+      if (!(await this.auth.isSignedIn(userId))) {
         return Promise.resolve(false);
       }
 
-      if (await SessionUtils.validateSession(await this._storageManager.getSessionData(userId))) {
+      if (await SessionUtils.validateSession(await this.storageManager.getSessionData(userId))) {
         return Promise.resolve(true);
       }
 
-      const refreshed_token = await this.refreshAccessToken(userId);
+      const refreshedToken: TokenResponse = await this.refreshAccessToken(userId);
 
-      if (refreshed_token) {
+      if (refreshedToken) {
         return Promise.resolve(true);
       }
 
-      this._storageManager.removeSessionData(userId);
-      this._storageManager.getTemporaryData(userId);
+      this.storageManager.removeSessionData(userId);
+      this.storageManager.getTemporaryData(userId);
       return Promise.resolve(false);
     } catch (error) {
       return Promise.reject(error);
@@ -196,7 +197,7 @@ export class AsgardeoNodeCore<T> {
   }
 
   public async signOut(userId: string): Promise<string> {
-    const signOutURL = await this._auth.getSignOutUrl(userId);
+    const signOutURL: string = await this.auth.getSignOutUrl(userId);
 
     if (!signOutURL) {
       return Promise.reject(
@@ -212,35 +213,35 @@ export class AsgardeoNodeCore<T> {
   }
 
   public async getUser(userId: string): Promise<User> {
-    return this._auth.getUser(userId);
+    return this.auth.getUser(userId);
   }
 
   public async getConfigData(): Promise<AuthClientConfig<T>> {
-    return this._storageManager.getConfigData();
+    return this.storageManager.getConfigData();
   }
 
   public async getOpenIDProviderEndpoints(): Promise<OIDCEndpoints> {
-    return this._auth.getOpenIDProviderEndpoints() as Promise<OIDCEndpoints>;
+    return this.auth.getOpenIDProviderEndpoints() as Promise<OIDCEndpoints>;
   }
 
   public async getDecodedIdToken(userId?: string, idToken?: string): Promise<IdToken> {
-    return this._auth.getDecodedIdToken(userId, idToken);
+    return this.auth.getDecodedIdToken(userId, idToken);
   }
 
   public async getAccessToken(userId?: string): Promise<string> {
-    return this._auth.getAccessToken(userId);
+    return this.auth.getAccessToken(userId);
   }
 
   public async exchangeToken(config: TokenExchangeRequestConfig, userId?: string): Promise<TokenResponse | Response> {
-    return this._auth.exchangeToken(config, userId);
+    return this.auth.exchangeToken(config, userId);
   }
 
   public async reInitialize(config: Partial<AuthClientConfig<T>>): Promise<void> {
-    return this._auth.reInitialize(config);
+    return this.auth.reInitialize(config);
   }
 
   public async revokeAccessToken(userId?: string): Promise<Response> {
-    return this._auth.revokeAccessToken(userId);
+    return this.auth.revokeAccessToken(userId);
   }
 
   public static didSignOutFail(afterSignOutUrl: string): boolean {
@@ -252,6 +253,6 @@ export class AsgardeoNodeCore<T> {
   }
 
   public getStorageManager(): StorageManager<T> {
-    return this._storageManager;
+    return this.storageManager;
   }
 }

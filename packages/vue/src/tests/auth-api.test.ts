@@ -51,8 +51,8 @@ describe('AuthAPI', () => {
         allowedScopes: '',
         displayName: '',
         email: '',
-        isSignedIn: false,
         isLoading: true,
+        isSignedIn: false,
         sub: '',
         username: '',
       });
@@ -68,10 +68,10 @@ describe('AuthAPI', () => {
   describe('init', () => {
     it('should call initialize on the client with the provided config', async () => {
       const config: AuthVueConfig = {
-        baseUrl: 'https://api.asgardeo.io/t/mock-tenant',
-        clientId: 'mock-client-id',
         afterSignInUrl: 'http://localhost:5173/',
         afterSignOutUrl: 'http://localhost:5173/',
+        baseUrl: 'https://api.asgardeo.io/t/mock-tenant',
+        clientId: 'mock-client-id',
       };
 
       await authApi.init(config);
@@ -107,8 +107,8 @@ describe('AuthAPI', () => {
         allowedScopes: 'openid profile',
         displayName: 'Test User',
         email: 'test@example.com',
-        isSignedIn: true,
         isLoading: false,
+        isSignedIn: true,
         isSigningOut: false,
         sub: 'user-id-123',
         username: 'testUser',
@@ -167,8 +167,8 @@ describe('AuthAPI', () => {
     it('should update the auth state', () => {
       const newState: AuthStateInterface = {
         allowedScopes: 'read write',
-        isSignedIn: true,
         isLoading: false,
+        isSignedIn: true,
         username: 'newUser',
       };
 
@@ -240,8 +240,8 @@ describe('AuthAPI', () => {
       expect(authApi.getState()).toMatchObject({
         displayName: 'Test User',
         email: 'test@example.com',
-        isSignedIn: true,
         isLoading: false,
+        isSignedIn: true,
         username: 'testUser',
       });
     });
@@ -302,8 +302,8 @@ describe('AuthAPI', () => {
       authApi.updateState({
         allowedScopes: 'read write',
         email: 'test@example.com',
-        isSignedIn: true,
         isLoading: false,
+        isSignedIn: true,
         username: 'testUser',
       });
 
@@ -457,8 +457,8 @@ describe('AuthAPI', () => {
         allowedScopes: 'openid profile',
         displayName: 'Test User',
         email: 'test@example.com',
-        isSignedIn: true,
         isLoading: false,
+        isSignedIn: true,
         sub: 'user-id-123',
         username: 'testUser',
       });

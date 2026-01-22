@@ -1,5 +1,5 @@
 /**
- * Copyright (c) {{year}}, WSO2 LLC. (https://www.wso2.com).
+ * Copyright (c) 2025, WSO2 LLC. (https://www.wso2.com).
  *
  * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -37,7 +37,7 @@ import {AuthURLCallback} from './models';
  * @class AsgardeoNodeClient
  */
 export class AsgardeoNodeClient<T> {
-  private _authCore: AsgardeoNodeCore<T>;
+  private authCore: AsgardeoNodeCore<T>;
 
   /**
     * This is the constructor method that returns an instance of the `AsgardeoNodeClient` class.
@@ -60,10 +60,11 @@ export class AsgardeoNodeClient<T> {
     * @link https://github.com/asgardeo/asgardeo-auth-js-sdk/tree/master#constructor
     * @preserve
     */
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   constructor() {}
 
   public async initialize(config: AuthClientConfig<T>, store?: Storage): Promise<boolean> {
-    this._authCore = new AsgardeoNodeCore(config, store);
+    this.authCore = new AsgardeoNodeCore(config, store);
 
     return Promise.resolve(true);
   }
@@ -108,7 +109,7 @@ export class AsgardeoNodeClient<T> {
     state?: string,
     signInConfig?: Record<string, string | boolean>,
   ): Promise<TokenResponse> {
-    return this._authCore.signIn(authURLCallback, userId, authorizationCode, sessionState, state, signInConfig);
+    return this.authCore.signIn(authURLCallback, userId, authorizationCode, sessionState, state, signInConfig);
   }
 
   /**
@@ -117,7 +118,7 @@ export class AsgardeoNodeClient<T> {
    * @returns {Promise<AuthClientConfig<Config>>} - A promise that resolves with the configuration data.
    */
   public async getConfigData(): Promise<AuthClientConfig<T>> {
-    return this._authCore.getConfigData();
+    return this.authCore.getConfigData();
   }
 
   /**
@@ -138,7 +139,7 @@ export class AsgardeoNodeClient<T> {
    *
    */
   public async signOut(userId: string): Promise<string> {
-    return this._authCore.signOut(userId);
+    return this.authCore.signOut(userId);
   }
 
   /**
@@ -159,7 +160,7 @@ export class AsgardeoNodeClient<T> {
    *
    */
   public async isSignedIn(userId: string): Promise<boolean> {
-    return this._authCore.isSignedIn(userId);
+    return this.authCore.isSignedIn(userId);
   }
 
   /**
@@ -180,7 +181,7 @@ export class AsgardeoNodeClient<T> {
    *
    */
   public async getIdToken(userId: string): Promise<string> {
-    return this._authCore.getIdToken(userId);
+    return this.authCore.getIdToken(userId);
   }
 
   /**
@@ -202,7 +203,7 @@ export class AsgardeoNodeClient<T> {
    *
    */
   public async getUser(userId: string): Promise<User> {
-    return this._authCore.getUser(userId);
+    return this.authCore.getUser(userId);
   }
 
   /**
@@ -221,7 +222,7 @@ export class AsgardeoNodeClient<T> {
    *
    */
   public async getOpenIDProviderEndpoints(): Promise<OIDCEndpoints> {
-    return this._authCore.getOpenIDProviderEndpoints();
+    return this.authCore.getOpenIDProviderEndpoints();
   }
 
   /**
@@ -243,7 +244,7 @@ export class AsgardeoNodeClient<T> {
    *
    */
   public async getDecodedIdToken(userId?: string, idToken?: string): Promise<IdToken> {
-    return this._authCore.getDecodedIdToken(userId, idToken);
+    return this.authCore.getDecodedIdToken(userId, idToken);
   }
 
   /**
@@ -265,7 +266,7 @@ export class AsgardeoNodeClient<T> {
    *
    */
   public async getAccessToken(userId?: string): Promise<string> {
-    return this._authCore.getAccessToken(userId);
+    return this.authCore.getAccessToken(userId);
   }
 
   /**
@@ -309,7 +310,7 @@ export class AsgardeoNodeClient<T> {
      *
      */
   public async exchangeToken(config: TokenExchangeRequestConfig, userId?: string): Promise<TokenResponse | Response> {
-    return this._authCore.exchangeToken(config, userId);
+    return this.authCore.exchangeToken(config, userId);
   }
 
   /**
@@ -332,11 +333,11 @@ export class AsgardeoNodeClient<T> {
    *
    */
   public async reInitialize(config: Partial<AuthClientConfig<T>>): Promise<void> {
-    return this._authCore.reInitialize(config);
+    return this.authCore.reInitialize(config);
   }
 
   public async getSignInUrl(requestConfig?: ExtendedAuthorizeRequestUrlParams, userId?: string): Promise<string> {
-    return this._authCore.getAuthURL(userId, requestConfig);
+    return this.authCore.getAuthURL(userId, requestConfig);
   }
 
   /**
@@ -357,7 +358,7 @@ export class AsgardeoNodeClient<T> {
    *
    */
   public async revokeAccessToken(userId?: string): Promise<Response> {
-    return this._authCore.revokeAccessToken(userId);
+    return this.authCore.revokeAccessToken(userId);
   }
 
   /**
@@ -379,7 +380,7 @@ export class AsgardeoNodeClient<T> {
    * @memberof AsgardeoNodeClient
    */
   public refreshAccessToken(userId?: string): Promise<TokenResponse> {
-    return this._authCore.refreshAccessToken(userId);
+    return this.authCore.refreshAccessToken(userId);
   }
 
   /**
@@ -425,6 +426,6 @@ export class AsgardeoNodeClient<T> {
   }
 
   public async getStorageManager(): Promise<StorageManager<T>> {
-    return this._authCore.getStorageManager();
+    return this.authCore.getStorageManager();
   }
 }
