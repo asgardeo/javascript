@@ -69,7 +69,7 @@ export class AsgardeoAuthClient<T> {
 
   private cryptoHelper: IsomorphicCrypto;
 
-  private static instanceIdValue: number;
+  private instanceIdValue: number;
 
   // FIXME: Validate this.
   // Ref: https://github.com/asgardeo/asgardeo-auth-js-core/pull/205
@@ -121,20 +121,20 @@ export class AsgardeoAuthClient<T> {
   ): Promise<void> {
     const {clientId} = config;
 
-    if (!AsgardeoAuthClient.instanceIdValue) {
-      AsgardeoAuthClient.instanceIdValue = 0;
+    if (!this.instanceIdValue) {
+      this.instanceIdValue = 0;
     } else {
-      AsgardeoAuthClient.instanceIdValue += 1;
+      this.instanceIdValue += 1;
     }
 
     if (instanceID) {
-      AsgardeoAuthClient.instanceIdValue = instanceID;
+      this.instanceIdValue = instanceID;
     }
 
     if (!clientId) {
-      this.storageManager = new StorageManager<T>(`instance_${AsgardeoAuthClient.instanceIdValue}`, store);
+      this.storageManager = new StorageManager<T>(`instance_${this.instanceIdValue}`, store);
     } else {
-      this.storageManager = new StorageManager<T>(`instance_${AsgardeoAuthClient.instanceIdValue}-${clientId}`, store);
+      this.storageManager = new StorageManager<T>(`instance_${this.instanceIdValue}-${clientId}`, store);
     }
 
     this.cryptoUtils = inputCryptoUtils;
@@ -187,7 +187,7 @@ export class AsgardeoAuthClient<T> {
    */
   // eslint-disable-next-line class-methods-use-this
   public getInstanceId(): number {
-    return AsgardeoAuthClient.instanceIdValue;
+    return this.instanceIdValue;
   }
 
   /**
@@ -249,6 +249,8 @@ export class AsgardeoAuthClient<T> {
       if (authRequestConfig['client_secret']) {
         authRequestConfig['client_secret'] = configData.clientSecret;
       }
+
+      authRequestConfig['state'] = 'instance_' + this.getInstanceId() + '-' + configData.clientId; 
 
       const authorizeRequestParams: Map<string, string> = getAuthorizeRequestUrlParams(
         {
