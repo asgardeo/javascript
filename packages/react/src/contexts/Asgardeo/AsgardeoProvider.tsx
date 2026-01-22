@@ -69,7 +69,7 @@ const AsgardeoProvider: FC<PropsWithChildren<AsgardeoProviderProps>> = ({
 }: PropsWithChildren<AsgardeoProviderProps>): ReactElement => {
   const reRenderCheckRef: RefObject<boolean> = useRef(false);
   const asgardeo: AsgardeoReactClient = useMemo(() => new AsgardeoReactClient(instanceId), [instanceId]);
-  const {hasAuthParams} = useBrowserUrl();
+  const {hasAuthParams, hasCalledForThisInstance} = useBrowserUrl();
   const [user, setUser] = useState<any | null>(null);
   const [currentOrganization, setCurrentOrganization] = useState<Organization | null>(null);
 
@@ -154,7 +154,7 @@ const AsgardeoProvider: FC<PropsWithChildren<AsgardeoProviderProps>> = ({
       }
 
       const currentUrl: URL = new URL(window.location.href);
-      const hasAuthParamsResult: boolean = hasAuthParams(currentUrl, afterSignInUrl);
+      const hasAuthParamsResult: boolean = hasAuthParams(currentUrl, afterSignInUrl) && hasCalledForThisInstance(currentUrl, instanceId ?? 1);
 
       const isV2Platform = config.platform === Platform.AsgardeoV2;
 

@@ -68,7 +68,7 @@ export class AsgardeoAuthClient<T> {
   private _cryptoUtils: Crypto;
   private _cryptoHelper: IsomorphicCrypto;
 
-  private static _instanceID: number;
+  private _instanceID: number;
 
   // FIXME: Validate this.
   // Ref: https://github.com/asgardeo/asgardeo-auth-js-core/pull/205
@@ -118,20 +118,20 @@ export class AsgardeoAuthClient<T> {
   ): Promise<void> {
     const clientId: string = config.clientId;
 
-    if (!AsgardeoAuthClient._instanceID) {
-      AsgardeoAuthClient._instanceID = 0;
+    if (!this._instanceID) {
+      this._instanceID = 0;
     } else {
-      AsgardeoAuthClient._instanceID += 1;
+      this._instanceID += 1;
     }
 
     if (instanceID) {
-      AsgardeoAuthClient._instanceID = instanceID;
+      this._instanceID = instanceID;
     }
 
     if (!clientId) {
-      this._storageManager = new StorageManager<T>(`instance_${AsgardeoAuthClient._instanceID}`, store);
+      this._storageManager = new StorageManager<T>(`instance_${this._instanceID}`, store);
     } else {
-      this._storageManager = new StorageManager<T>(`instance_${AsgardeoAuthClient._instanceID}-${clientId}`, store);
+      this._storageManager = new StorageManager<T>(`instance_${this._instanceID}-${clientId}`, store);
     }
 
     this._cryptoUtils = cryptoUtils;
@@ -182,7 +182,7 @@ export class AsgardeoAuthClient<T> {
    * @preserve
    */
   public getInstanceId(): number {
-    return AsgardeoAuthClient._instanceID;
+    return this._instanceID;
   }
 
   /**
@@ -244,6 +244,8 @@ export class AsgardeoAuthClient<T> {
       if (authRequestConfig['client_secret']) {
         authRequestConfig['client_secret'] = configData.clientSecret;
       }
+
+      authRequestConfig['state'] = 'instance_' + this.getInstanceId() + '-' + configData.clientId; 
 
       const authorizeRequestParams: Map<string, string> = getAuthorizeRequestUrlParams(
         {
