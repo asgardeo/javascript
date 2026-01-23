@@ -124,7 +124,7 @@ export class AsgardeoAuthClient<T> {
       this._instanceID += 1;
     }
 
-    if (instanceID) {
+    if (instanceID !== undefined) {
       this._instanceID = instanceID;
     }
 
