@@ -1,5 +1,13 @@
 # @asgardeo/i18n
 
+## 0.4.0
+
+### Minor Changes
+
+- [#331](https://github.com/asgardeo/javascript/pull/331)
+  [`f0b6f11`](https://github.com/asgardeo/javascript/commit/f0b6f115a87fa55003156309cf26c8d45ae40bca) Thanks
+  [@KaveeshaPiumini](https://github.com/KaveeshaPiumini)! - add passkey support
+
 ## 0.3.9
 
 ### Patch Changes
