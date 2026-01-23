@@ -19,6 +19,7 @@
 export enum EmbeddedFlowType {
   Authentication = 'AUTHENTICATION',
   Registration = 'REGISTRATION',
+  UserOnboarding = 'USER_ONBOARDING',
 }
 
 export interface EmbeddedFlowExecuteRequestPayload {
