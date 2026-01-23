@@ -1,5 +1,18 @@
 # @asgardeo/react
 
+## 0.8.0
+
+### Minor Changes
+
+- [#330](https://github.com/asgardeo/javascript/pull/330)
+  [`4b8a153`](https://github.com/asgardeo/javascript/commit/4b8a1531968913854742fe5f42ae9deb2efd2647) Thanks
+  [@thiva-k](https://github.com/thiva-k)! - Add user onboarding components for v2
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @asgardeo/browser@0.2.1
+
 ## 0.7.0
 
 ### Minor Changes
