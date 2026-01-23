@@ -25,8 +25,6 @@ import {
   UpdateMeProfileConfig as BaseUpdateMeProfileConfig,
 } from '@asgardeo/browser';
 
-const httpClient: HttpInstance = AsgardeoSPAClient.getInstance().httpRequest.bind(AsgardeoSPAClient.getInstance());
-
 /**
  * Configuration for the updateMeProfile request (React-specific)
  */
@@ -36,6 +34,10 @@ export interface UpdateMeProfileConfig extends Omit<BaseUpdateMeProfileConfig, '
    * which is a wrapper around axios http.request
    */
   fetcher?: (url: string, config: RequestInit) => Promise<Response>;
+  /**
+   * Optional instance ID for multi-instance support. Defaults to 0.
+   */
+  instanceId?: number;
 }
 
 /**
@@ -63,8 +65,11 @@ export interface UpdateMeProfileConfig extends Omit<BaseUpdateMeProfileConfig, '
  * });
  * ```
  */
-const updateMeProfile = async ({fetcher, ...requestConfig}: UpdateMeProfileConfig): Promise<User> => {
+const updateMeProfile = async ({fetcher, instanceId = 0, ...requestConfig}: UpdateMeProfileConfig): Promise<User> => {
   const defaultFetcher = async (url: string, config: RequestInit): Promise<Response> => {
+    const httpClient: HttpInstance = AsgardeoSPAClient.getInstance(instanceId).httpRequest.bind(
+      AsgardeoSPAClient.getInstance(instanceId)
+    );
     const response = await httpClient({
       url,
       method: config.method || 'PATCH',
