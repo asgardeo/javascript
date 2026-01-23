@@ -102,6 +102,12 @@ const translations: I18nTranslations = {
   'username.password.heading': 'ログイン',
   'username.password.subheading': 'ユーザー名とパスワードを入力してください。',
 
+  /* Passkeys */
+  'passkey.button.use': 'パスキーでサインイン',
+  'passkey.signin.heading': 'パスキーでサインイン',
+  'passkey.register.heading': 'パスキーを登録',
+  'passkey.register.description': 'パスワードなしでアカウントに安全にサインインするためのパスキーを作成します。',
+
   /* |---------------------------------------------------------------| */
   /* |                          User Profile                         | */
   /* |---------------------------------------------------------------| */

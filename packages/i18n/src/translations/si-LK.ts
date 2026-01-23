@@ -102,6 +102,12 @@ const translations: I18nTranslations = {
   'username.password.heading': 'ලොග් වෙන්න',
   'username.password.subheading': 'ඉදිරියට යාමට ඔබේ පරිශීලක නාමය සහ මුරපදය ඇතුළත් කරන්න.',
 
+  /* Passkeys */
+  'passkey.button.use': 'Passkey මගින් ඇතුල් වන්න',
+  'passkey.signin.heading': 'Passkey මගින් ඇතුල් වන්න',
+  'passkey.register.heading': 'Passkey ලියාපදිංචි කරන්න',
+  'passkey.register.description': 'මුරපදයක් නොමැතිව ඔබේ ගිණුමට ආරක්ෂිතව ඇතුල් වීමට passkey එකක් සාදන්න.',
+
   /* |---------------------------------------------------------------| */
   /* |                          User Profile                         | */
   /* |---------------------------------------------------------------| */

@@ -102,6 +102,12 @@ const translations: I18nTranslations = {
   'username.password.heading': 'Iniciar Sessão',
   'username.password.subheading': 'Introduza o seu utilizador e palavra-passe para continuar.',
 
+  /* Passkeys */
+  'passkey.button.use': 'Iniciar sessão com Passkey',
+  'passkey.signin.heading': 'Iniciar sessão com Passkey',
+  'passkey.register.heading': 'Registar Passkey',
+  'passkey.register.description': 'Crie uma passkey para iniciar sessão na sua conta com segurança sem palavra-passe.',
+
   /* |---------------------------------------------------------------| */
   /* |                          User Profile                         | */
   /* |---------------------------------------------------------------| */

@@ -30,6 +30,7 @@ import {
 } from '@asgardeo/browser';
 import {normalizeFlowResponse} from '../../../../../utils/v2/flowTransformer';
 import useTranslation from '../../../../../hooks/useTranslation';
+import { handlePasskeyAuthentication, handlePasskeyRegistration } from '../../../../../utils/v2/passkey';
 
 /**
  * Render props function parameters
@@ -105,6 +106,18 @@ export type SignInProps = {
 };
 
 /**
+ * State for tracking passkey registration
+ */
+interface PasskeyState {
+  isActive: boolean;
+  challenge: string | null;
+  creationOptions: string | null;
+  flowId: string | null;
+  actionId: string | null;
+  error: Error | null;
+}
+
+/**
  * A component-driven SignIn component that provides authentication flow with pre-built styling.
  * This component handles the flow API calls for authentication and delegates UI logic to BaseSignIn.
  * It automatically transforms simple input-based responses into component-driven UI format.
@@ -175,9 +188,17 @@ const SignIn: FC<SignInProps> = ({className, size = 'medium', onSuccess, onError
   const [isFlowInitialized, setIsFlowInitialized] = useState(false);
   const [flowError, setFlowError] = useState<Error | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [passkeyState, setPasskeyState] = useState<PasskeyState>({
+      isActive: false,
+      challenge: null,
+      creationOptions: null,
+      flowId: null,
+      actionId: null,
+      error: null,
+  });
   const initializationAttemptedRef = useRef(false);
   const oauthCodeProcessedRef = useRef(false);
-
+  const passkeyProcessedRef = useRef(false);
   /**
    * Sets flowId between sessionStorage and state.
    * This ensures both are always in sync.
@@ -444,6 +465,28 @@ const SignIn: FC<SignInProps> = ({className, size = 'medium', onSuccess, onError
         return;
       }
 
+      if (response.data?.additionalData?.['passkeyChallenge'] || response.data?.additionalData?.['passkeyCreationOptions']) {
+        const passkeyChallenge = response.data.additionalData['passkeyChallenge'];
+        const passkeyCreationOptions = response.data.additionalData['passkeyCreationOptions'];
+        const effectiveFlowIdForPasskey = response.flowId || effectiveFlowId;
+        
+        // Reset passkey processed ref to allow processing
+        passkeyProcessedRef.current = false;
+        
+        // Set passkey state to trigger the passkey
+        setPasskeyState({
+          isActive: true,
+          challenge: passkeyChallenge,
+          creationOptions: passkeyCreationOptions,
+          flowId: effectiveFlowIdForPasskey,
+          actionId: 'submit',
+          error: null,
+        });
+        setIsSubmitting(false);
+
+        return;
+      }
+
       const {flowId, components, ...rest} = normalizeFlowResponse(response, t, {
         resolveTranslations: !children,
       });
@@ -563,6 +606,67 @@ const SignIn: FC<SignInProps> = ({className, size = 'medium', onSuccess, onError
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isFlowInitialized, currentFlowId, isInitialized, isLoading, isSubmitting, signIn]);
+
+
+  /**
+   * Handle passkey authentication/registration when passkey state becomes active.
+   * This effect auto-triggers the browser passkey popup and submits the result.
+   */
+  useEffect(() => {
+    if (!passkeyState.isActive || (!passkeyState.challenge && !passkeyState.creationOptions) || !passkeyState.flowId) {
+      return;
+    }
+
+    // Prevent re-processing
+    if (passkeyProcessedRef.current) {
+      return;
+    }
+    passkeyProcessedRef.current = true;
+
+    const performPasskeyProcess = async () => {
+      let inputs: Record<string, string>;
+
+      if (passkeyState.challenge) {
+        const passkeyResponse = await handlePasskeyAuthentication(passkeyState.challenge!);
+        const passkeyResponseObj = JSON.parse(passkeyResponse);
+
+        inputs = {
+          credentialId: passkeyResponseObj.id,
+          authenticatorData: passkeyResponseObj.response.authenticatorData,
+          clientDataJSON: passkeyResponseObj.response.clientDataJSON,
+          signature: passkeyResponseObj.response.signature,
+          userHandle: passkeyResponseObj.response.userHandle,
+        };
+      } else if (passkeyState.creationOptions) {
+        const passkeyResponse = await handlePasskeyRegistration(passkeyState.creationOptions!);
+        const passkeyResponseObj = JSON.parse(passkeyResponse);
+
+        inputs = {
+          credentialId: passkeyResponseObj.id,
+          clientDataJSON: passkeyResponseObj.response.clientDataJSON,
+          attestationObject: passkeyResponseObj.response.attestationObject,
+        };
+      } else {
+        throw new Error('No passkey challenge or creation options available');
+      }
+
+      await handleSubmit({
+        flowId: passkeyState.flowId!,
+        inputs,
+      });
+    };
+
+    performPasskeyProcess()
+      .then(() => {
+        setPasskeyState({ isActive: false, challenge: null, creationOptions: null, flowId: null, actionId: null, error: null });
+      })
+      .catch((error) => {
+        setPasskeyState(prev => ({ ...prev, isActive: false, error: error as Error }));
+        setFlowError(error as Error);
+        onError?.(error as Error);
+      });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [passkeyState.isActive, passkeyState.challenge, passkeyState.creationOptions, passkeyState.flowId]);
 
   if (children) {
     const renderProps: SignInRenderProps = {

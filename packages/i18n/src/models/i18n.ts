@@ -99,6 +99,12 @@ export interface I18nTranslations {
   'username.password.heading': string;
   'username.password.subheading': string;
 
+  /* Passkeys */
+  'passkey.button.use': string;
+  'passkey.signin.heading': string;
+  'passkey.register.heading': string;
+  'passkey.register.description': string;
+
   /* |---------------------------------------------------------------| */
   /* |                          User Profile                         | */
   /* |---------------------------------------------------------------| */

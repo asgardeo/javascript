@@ -102,6 +102,13 @@ const translations: I18nTranslations = {
   'username.password.heading': 'Se connecter',
   'username.password.subheading': "Entrez votre nom d'utilisateur et votre mot de passe pour continuer.",
 
+  /* Passkeys */
+  'passkey.button.use': "Se connecter avec une clé d'accès",
+  'passkey.signin.heading': "Se connecter avec une clé d'accès",
+  'passkey.register.heading': "Enregistrer une clé d'accès",
+  'passkey.register.description':
+    "Créez une clé d'accès pour vous connecter en toute sécurité à votre compte sans mot de passe.",
+
   /* |---------------------------------------------------------------| */
   /* |                          User Profile                         | */
   /* |---------------------------------------------------------------| */

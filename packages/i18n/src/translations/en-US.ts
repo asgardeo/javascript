@@ -102,6 +102,12 @@ const translations: I18nTranslations = {
   'username.password.subheading': 'Enter your username and password to continue.',
   'username.password.buttons.submit.text': 'Continue',
 
+  /* Passkeys */
+  'passkey.button.use': 'Sign in with Passkey',
+  'passkey.signin.heading': 'Sign in with Passkey',
+  'passkey.register.heading': 'Register Passkey',
+  'passkey.register.description': 'Create a passkey to securely sign in to your account without a password.',
+
   /* |---------------------------------------------------------------| */
   /* |                          User Profile                         | */
   /* |---------------------------------------------------------------| */
