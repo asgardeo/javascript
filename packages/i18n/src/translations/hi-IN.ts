@@ -101,6 +101,12 @@ const translations: I18nTranslations = {
   'username.password.heading': 'साइन इन',
   'username.password.subheading': 'अपना उपयोगकर्ता नाम और पासवर्ड दर्ज करें।',
 
+  /* Passkeys */
+  'passkey.button.use': 'Passkey के साथ साइन इन करें',
+  'passkey.signin.heading': 'Passkey के साथ साइन इन करें',
+  'passkey.register.heading': 'Passkey पंजीकृत करें',
+  'passkey.register.description': 'बिना पासवर्ड के अपने खाते में सुरक्षित रूप से साइन इन करने के लिए एक Passkey बनाएं।',
+
   /* |---------------------------------------------------------------| */
   /* |                          User Profile                         | */
   /* |---------------------------------------------------------------| */

@@ -102,6 +102,12 @@ const translations: I18nTranslations = {
   'username.password.heading': 'உள்நுழை',
   'username.password.subheading': 'தொடர உங்கள் பயனர்பெயர் மற்றும் கடவுச்சொல்லை உள்ளிடவும்.',
 
+  /* Passkeys */
+  'passkey.button.use': 'Passkey மூலம் உள்நுழையவும்',
+  'passkey.signin.heading': 'Passkey மூலம் உள்நுழையவும்',
+  'passkey.register.heading': 'Passkey-ஐ பதிவு செய்யவும்',
+  'passkey.register.description': 'கடவுச்சொல் இல்லாமல் பாதுகாப்பாக உள்நுழைய ஒரு passkey-ஐ உருவாக்கவும்.',
+
   /* |---------------------------------------------------------------| */
   /* |                          User Profile                         | */
   /* |---------------------------------------------------------------| */

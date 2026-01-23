@@ -102,6 +102,13 @@ const translations: I18nTranslations = {
   'username.password.heading': 'సైన్ ఇన్ చేయండి',
   'username.password.subheading': 'మీ యూజర్ పేరు మరియు పాస్‌వర్డ్ ఇవ్వండి.',
 
+  /* Passkeys */
+  'passkey.button.use': 'Passkey తో సైన్ ఇన్ చేయండి',
+  'passkey.signin.heading': 'Passkey తో సైన్ ఇన్ చేయండి',
+  'passkey.register.heading': 'Passkey ని నమోదు చేయండి',
+  'passkey.register.description':
+    'పాస్‌వర్డ్ లేకుండా మీ ఖాతాలోకి సురక్షితంగా సైన్ ఇన్ చేయడానికి Passkey ని సృష్టించండి.',
+
   /* |---------------------------------------------------------------| */
   /* |                          User Profile                         | */
   /* |---------------------------------------------------------------| */

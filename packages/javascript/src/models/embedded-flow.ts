@@ -48,6 +48,7 @@ export enum EmbeddedFlowResponseType {
 export interface EmbeddedSignUpFlowData {
   components?: EmbeddedFlowComponent[];
   redirectURL?: string;
+  additionalData?: Record<string, any>;
 }
 
 export interface EmbeddedFlowComponent {

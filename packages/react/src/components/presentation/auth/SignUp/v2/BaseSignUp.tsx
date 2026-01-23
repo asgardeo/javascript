@@ -41,6 +41,18 @@ import Spinner from '../../../../primitives/Spinner/Spinner';
 import Typography from '../../../../primitives/Typography/Typography';
 import useStyles from '../BaseSignUp.styles';
 import getAuthComponentHeadings from '../../../../../utils/v2/getAuthComponentHeadings';
+import { handlePasskeyRegistration } from '../../../../../utils/v2/passkey';
+
+/**
+ * State for tracking passkey registration
+ */
+interface PasskeyState {
+  isActive: boolean;
+  creationOptions: string | null;
+  flowId: string | null;
+  actionId: string | null;
+  error: Error | null;
+}
 
 /**
  * Render props for custom UI rendering
@@ -298,8 +310,16 @@ const BaseSignUpContent: FC<BaseSignUpProps> = ({
   const [isFlowInitialized, setIsFlowInitialized] = useState(false);
   const [currentFlow, setCurrentFlow] = useState<EmbeddedFlowExecuteResponse | null>(null);
   const [apiError, setApiError] = useState<Error | null>(null);
+  const [passkeyState, setPasskeyState] = useState<PasskeyState>({
+    isActive: false,
+    creationOptions: null,
+    flowId: null,
+    actionId: null,
+    error: null,
+  });
 
   const initializationAttemptedRef = useRef(false);
+  const passkeyProcessedRef = useRef(false);
 
   /**
    * Normalize flow response to ensure component-driven format
@@ -510,6 +530,24 @@ const BaseSignUpContent: FC<BaseSignUpProps> = ({
           return;
         }
 
+        if (response.data?.additionalData?.['passkeyCreationOptions']) {
+          const passkeyCreationOptions = response.data.additionalData['passkeyCreationOptions'];
+          const effectiveFlowIdForPasskey = response.flowId || currentFlow?.flowId;
+          
+          // Reset passkey processed ref to allow processing
+          passkeyProcessedRef.current = false;
+          
+          // Set passkey state to trigger the passkey
+          setPasskeyState({
+            isActive: true,
+            creationOptions: passkeyCreationOptions,
+            flowId: effectiveFlowIdForPasskey,
+            actionId: component.id || 'submit',
+            error: null,
+          });
+          setIsLoading(false);
+          return;
+        }
         setCurrentFlow(response);
         setupFormFields(response);
       }
@@ -520,6 +558,65 @@ const BaseSignUpContent: FC<BaseSignUpProps> = ({
       setIsLoading(false);
     }
   };
+
+  /**
+   * Handle passkey registration when passkey state becomes active.
+   * This effect auto-triggers the browser passkey popup and submits the result.
+   */
+  useEffect(() => {
+    if (!passkeyState.isActive || !passkeyState.creationOptions || !passkeyState.flowId) {
+      return;
+    }
+
+    // Prevent re-processing
+    if (passkeyProcessedRef.current) {
+      return;
+    }
+    passkeyProcessedRef.current = true;
+
+    const performPasskeyRegistration = async () => {
+      const passkeyResponse = await handlePasskeyRegistration(passkeyState.creationOptions!);
+      const passkeyResponseObj = JSON.parse(passkeyResponse);
+
+      const inputs = {
+        credentialId: passkeyResponseObj.id,
+        clientDataJSON: passkeyResponseObj.response.clientDataJSON,
+        attestationObject: passkeyResponseObj.response.attestationObject,
+      };
+
+      // After successful registration, submit the result to the server
+      const payload: EmbeddedFlowExecuteRequestPayload = {
+        flowId: passkeyState.flowId as string,
+        flowType: (currentFlow as any)?.flowType || 'REGISTRATION',
+        actionId: passkeyState.actionId || 'submit',
+        inputs: inputs,
+      } as any;
+
+      const nextResponse = await onSubmit(payload);
+      const processedResponse = normalizeFlowResponseLocal(nextResponse);
+      onFlowChange?.(processedResponse);
+
+      if (processedResponse.flowStatus === EmbeddedFlowStatus.Complete) {
+        onComplete?.(processedResponse);
+        return;
+      } else {
+        setCurrentFlow(processedResponse);
+        setupFormFields(processedResponse);
+        return;
+      }
+    };
+
+    performPasskeyRegistration()
+      .then(() => {
+        setPasskeyState({ isActive: false, creationOptions: null, flowId: null, actionId: null, error: null });
+      })
+      .catch((error) => {
+        setPasskeyState(prev => ({ ...prev, isActive: false, error: error as Error }));
+        handleError(error);
+        onError?.(error as Error);
+      });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [passkeyState.isActive, passkeyState.creationOptions, passkeyState.flowId]);
 
   /**
    * Check if the response contains a redirection URL and perform the redirect if necessary.

@@ -358,6 +358,12 @@ export interface EmbeddedFlowResponseData {
    * Optional redirect URL for flow completion or external authentication.
    */
   redirectURL?: string;
+
+  /**
+   * Additional data dictionary for dynamic flow response properties.
+   * Can be used to pass custom data like passkey challenges, server alerts, etc.
+   */
+  additionalData?: Record<string, any>;
 }
 
 /**
