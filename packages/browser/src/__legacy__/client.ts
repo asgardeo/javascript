@@ -67,6 +67,8 @@ const DefaultConfig: Partial<AuthClientConfig<Config>> = {
 
 /**
  * This class provides the necessary methods to implement authentication in a Single Page Application.
+ * Implements a Multiton pattern to support multi-tenancy scenarios where multiple authentication
+ * contexts need to coexist in the same application.
  *
  * @export
  * @class AsgardeoSPAClient
@@ -175,15 +177,22 @@ export class AsgardeoSPAClient {
   }
 
   /**
-   * This method returns the instance of the singleton class.
+   * This method returns the instance of the client for the specified ID.
+   * Implements a Multiton pattern to support multiple authentication contexts.
    * If an ID is provided, it will return the instance with the given ID.
-   * If no ID is provided, it will return the default instance value 0.
+   * If no ID is provided, it will return the default instance (ID: 0).
    *
-   * @return {AsgardeoSPAClient} - Returns the instance of the singleton class.
+   * @param {number} id - Optional unique identifier for the instance.
+   * @return {AsgardeoSPAClient} - Returns the instance associated with the ID.
    *
    * @example
    * ```
+   * // Single tenant application (default instance)
    * const auth = AsgardeoSPAClient.getInstance();
+   *
+   * // Multi-instance application
+   * const instance1 = AsgardeoSPAClient.getInstance(1);
+   * const instance2 = AsgardeoSPAClient.getInstance(2);
    * ```
    *
    * @link https://github.com/asgardeo/asgardeo-auth-spa-sdk/tree/master#getinstance
@@ -192,22 +201,113 @@ export class AsgardeoSPAClient {
    *
    * @preserve
    */
-  public static getInstance(id?: number): AsgardeoSPAClient | undefined {
-    if (id && this._instances?.get(id)) {
-      return this._instances.get(id);
-    } else if (!id && this._instances?.get(0)) {
-      return this._instances.get(0);
-    }
-
-    if (id) {
+  public static getInstance(id: number = 0): AsgardeoSPAClient {
+    if (!this._instances.has(id)) {
       this._instances.set(id, new AsgardeoSPAClient(id));
-
-      return this._instances.get(id);
     }
 
-    this._instances.set(0, new AsgardeoSPAClient(0));
+    return this._instances.get(id)!;
+  }
 
-    return this._instances.get(0);
+  /**
+   * This method checks if an instance exists for the given ID.
+   *
+   * @param {number} id - Optional unique identifier for the instance.
+   * @return {boolean} - Returns true if an instance exists for the ID.
+   *
+   * @example
+   * ```
+   * if (AsgardeoSPAClient.hasInstance(1)) {
+   *   const auth = AsgardeoSPAClient.getInstance(1);
+   * }
+   * ```
+   *
+   * @memberof AsgardeoSPAClient
+   *
+   * @preserve
+   */
+  public static hasInstance(id: number = 0): boolean {
+    return this._instances.has(id);
+  }
+
+  /**
+   * This method removes and cleans up a specific instance.
+   * Useful when an instance is no longer needed.
+   *
+   * @param {number} id - Optional unique identifier for the instance to destroy.
+   * @return {boolean} - Returns true if the instance was found and removed.
+   *
+   * @example
+   * ```
+   * // Remove a specific instance
+   * AsgardeoSPAClient.destroyInstance(1);
+   *
+   * // Remove the default instance
+   * AsgardeoSPAClient.destroyInstance();
+   * ```
+   *
+   * @memberof AsgardeoSPAClient
+   *
+   * @preserve
+   */
+  public static destroyInstance(id: number = 0): boolean {
+    return this._instances.delete(id);
+  }
+
+  /**
+   * This method returns all active instance IDs.
+   * Useful for debugging or managing multiple instances.
+   *
+   * @return {number[]} - Returns an array of all active instance IDs.
+   *
+   * @example
+   * ```
+   * const activeInstances = AsgardeoSPAClient.getInstanceKeys();
+   * console.log('Active instances:', activeInstances);
+   * ```
+   *
+   * @memberof AsgardeoSPAClient
+   *
+   * @preserve
+   */
+  public static getInstanceKeys(): number[] {
+    return Array.from(this._instances.keys());
+  }
+
+  /**
+   * This method removes all instances.
+   * Useful for cleanup in testing scenarios or application teardown.
+   *
+   * @example
+   * ```
+   * AsgardeoSPAClient.destroyAllInstances();
+   * ```
+   *
+   * @memberof AsgardeoSPAClient
+   *
+   * @preserve
+   */
+  public static destroyAllInstances(): void {
+    this._instances.clear();
+  }
+
+  /**
+   * This method returns the instance ID for this client instance.
+   *
+   * @return {number} - The instance ID.
+   *
+   * @example
+   * ```
+   * const auth = AsgardeoSPAClient.getInstance(1);
+   * console.log(auth.getInstanceId()); // 1
+   * ```
+   *
+   * @memberof AsgardeoSPAClient
+   *
+   * @preserve
+   */
+  public getInstanceId(): number {
+    return this._instanceID;
   }
 
   /**
