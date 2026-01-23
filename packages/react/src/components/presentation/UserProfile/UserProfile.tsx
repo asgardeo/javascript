@@ -65,7 +65,7 @@ export type UserProfileProps = Omit<BaseUserProfileProps, 'user' | 'profile' | '
  * ```
  */
 const UserProfile: FC<UserProfileProps> = ({...rest}: UserProfileProps): ReactElement => {
-  const {baseUrl} = useAsgardeo();
+  const {baseUrl, instanceId} = useAsgardeo();
   const {profile, flattenedProfile, schemas, onUpdateProfile} = useUser();
   const {t} = useTranslation();
 
@@ -75,7 +75,7 @@ const UserProfile: FC<UserProfileProps> = ({...rest}: UserProfileProps): ReactEl
     setError(null);
 
     try {
-      const response: User = await updateMeProfile({baseUrl, payload});
+      const response: User = await updateMeProfile({baseUrl, payload, instanceId});
       onUpdateProfile(response);
     } catch (caughtError: unknown) {
       let message: string = t('user.profile.update.generic.error');

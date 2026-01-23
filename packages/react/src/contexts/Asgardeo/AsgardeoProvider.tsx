@@ -587,6 +587,7 @@ const AsgardeoProvider: FC<PropsWithChildren<AsgardeoProviderProps>> = ({
       switchOrganization,
       syncSession,
       user,
+      instanceId,
     }),
     [
       applicationId,
@@ -615,6 +616,7 @@ const AsgardeoProvider: FC<PropsWithChildren<AsgardeoProviderProps>> = ({
       signUp,
       clearSession,
       reInitialize,
+      instanceId,
     ],
   );
 

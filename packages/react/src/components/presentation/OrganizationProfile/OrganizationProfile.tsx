@@ -146,7 +146,7 @@ const OrganizationProfile: FC<OrganizationProfileProps> = ({
   errorFallback,
   ...rest
 }: OrganizationProfileProps): ReactElement => {
-  const {baseUrl} = useAsgardeo();
+  const {baseUrl, instanceId} = useAsgardeo();
   const {t} = useTranslation();
   const [organization, setOrganization] = useState<OrganizationDetails | null>(null);
 
@@ -159,6 +159,7 @@ const OrganizationProfile: FC<OrganizationProfileProps> = ({
       const orgData: any = await getOrganization({
         baseUrl,
         organizationId,
+        instanceId,
       });
       setOrganization(orgData);
     } catch (err) {
@@ -182,6 +183,7 @@ const OrganizationProfile: FC<OrganizationProfileProps> = ({
         baseUrl,
         operations,
         organizationId,
+        instanceId,
       });
       // Refetch organization data after update
       await fetchOrganization();

@@ -146,6 +146,10 @@ export type AsgardeoContextProps = {
   signUpUrl: string | undefined;
 
   user: any;
+  /**
+   * Instance ID for multi-instance support.
+   */
+  instanceId: number;
 } & Pick<AsgardeoReactConfig, 'storage' | 'platform'> &
   Pick<AsgardeoReactClient, 'clearSession' | 'switchOrganization'>;
 
@@ -182,6 +186,7 @@ const AsgardeoContext: Context<AsgardeoContextProps | null> = createContext<null
   storage: 'sessionStorage',
   switchOrganization: null,
   user: null,
+  instanceId: 0,
 });
 
 AsgardeoContext.displayName = 'AsgardeoContext';
