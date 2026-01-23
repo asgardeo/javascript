@@ -1,6 +1,6 @@
 {
   "name": "@asgardeo/i18n",
-  "version": "0.3.9",
+  "version": "0.4.0",
   "description": "Internationalization (i18n) package for Asgardeo JavaScript SDKs.",
   "keywords": [
     "asgardeo",
