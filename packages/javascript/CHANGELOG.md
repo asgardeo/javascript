@@ -1,5 +1,13 @@
 # @asgardeo/javascript
 
+## 0.4.0
+
+### Minor Changes
+
+- [#330](https://github.com/asgardeo/javascript/pull/330)
+  [`4b8a153`](https://github.com/asgardeo/javascript/commit/4b8a1531968913854742fe5f42ae9deb2efd2647) Thanks
+  [@thiva-k](https://github.com/thiva-k)! - Add user onboarding components for v2
+
 ## 0.3.0
 
 ### Minor Changes
