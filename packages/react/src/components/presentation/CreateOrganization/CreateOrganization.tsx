@@ -76,7 +76,7 @@ export const CreateOrganization: FC<CreateOrganizationProps> = ({
   defaultParentId,
   ...props
 }: CreateOrganizationProps): ReactElement => {
-  const {isSignedIn, baseUrl} = useAsgardeo();
+  const {isSignedIn, baseUrl, instanceId} = useAsgardeo();
   const {currentOrganization, revalidateMyOrganizations} = useOrganization();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -112,6 +112,7 @@ export const CreateOrganization: FC<CreateOrganizationProps> = ({
             ...payload,
             parentId,
           },
+          instanceId,
         });
       }
 
