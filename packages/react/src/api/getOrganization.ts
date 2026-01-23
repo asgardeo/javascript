@@ -26,8 +26,6 @@ import {
   OrganizationDetails,
 } from '@asgardeo/browser';
 
-const httpClient: HttpInstance = AsgardeoSPAClient.getInstance().httpRequest.bind(AsgardeoSPAClient.getInstance());
-
 /**
  * Configuration for the getOrganization request (React-specific)
  */
@@ -37,6 +35,10 @@ export interface GetOrganizationConfig extends Omit<BaseGetOrganizationConfig, '
    * which is a wrapper around axios http.request
    */
   fetcher?: (url: string, config: RequestInit) => Promise<Response>;
+  /**
+   * Optional instance ID for multi-instance support. Defaults to 0.
+   */
+  instanceId?: number;
 }
 
 /**
@@ -78,8 +80,11 @@ export interface GetOrganizationConfig extends Omit<BaseGetOrganizationConfig, '
  * }
  * ```
  */
-const getOrganization = async ({fetcher, ...requestConfig}: GetOrganizationConfig): Promise<OrganizationDetails> => {
+const getOrganization = async ({fetcher, instanceId = 0, ...requestConfig}: GetOrganizationConfig): Promise<OrganizationDetails> => {
   const defaultFetcher = async (url: string, config: RequestInit): Promise<Response> => {
+    const httpClient: HttpInstance = AsgardeoSPAClient.getInstance(instanceId).httpRequest.bind(
+      AsgardeoSPAClient.getInstance(instanceId)
+    );
     const response: HttpResponse<any> = await httpClient({
       headers: config.headers as Record<string, string>,
       method: config.method || 'GET',

@@ -26,8 +26,6 @@ import {
   GetScim2MeConfig as BaseGetScim2MeConfig,
 } from '@asgardeo/browser';
 
-const httpClient: HttpInstance = AsgardeoSPAClient.getInstance().httpRequest.bind(AsgardeoSPAClient.getInstance());
-
 /**
  * Configuration for the getScim2Me request (React-specific)
  */
@@ -37,6 +35,10 @@ export interface GetScim2MeConfig extends Omit<BaseGetScim2MeConfig, 'fetcher'> 
    * which is a wrapper around axios http.request
    */
   fetcher?: (url: string, config: RequestInit) => Promise<Response>;
+  /**
+   * Optional instance ID for multi-instance support. Defaults to 0.
+   */
+  instanceId?: number;
 }
 
 /**
@@ -76,8 +78,11 @@ export interface GetScim2MeConfig extends Omit<BaseGetScim2MeConfig, 'fetcher'> 
  * }
  * ```
  */
-const getScim2Me = async ({fetcher, ...requestConfig}: GetScim2MeConfig): Promise<User> => {
+const getScim2Me = async ({fetcher, instanceId = 0, ...requestConfig}: GetScim2MeConfig): Promise<User> => {
   const defaultFetcher = async (url: string, config: RequestInit): Promise<Response> => {
+    const httpClient: HttpInstance = AsgardeoSPAClient.getInstance(instanceId).httpRequest.bind(
+      AsgardeoSPAClient.getInstance(instanceId)
+    );
     const response: HttpResponse<any> = await httpClient({
       headers: config.headers as Record<string, string>,
       method: config.method || 'GET',
