@@ -17,10 +17,10 @@
  */
 
 import {describe, expect, it} from 'vitest';
-import getDefaultI18nBundles from '../getDefaultI18nBundles';
 import TranslationBundleConstants from '../../constants/TranslationBundleConstants';
 import type {I18nBundle} from '../../models/i18n';
 import {en_US} from '../../translations';
+import getDefaultI18nBundles from '../getDefaultI18nBundles';
 
 describe('getDefaultI18nBundles', (): void => {
   it('should return a collection of i18n bundles', (): void => {
@@ -86,7 +86,7 @@ describe('getDefaultI18nBundles', (): void => {
     const bundles: Record<string, I18nBundle> = getDefaultI18nBundles();
 
     Object.values(bundles).forEach((bundle: I18nBundle) => {
-      const translations = bundle.translations;
+      const {translations} = bundle;
 
       expect(translations).toHaveProperty('elements.buttons.signin.text');
       expect(translations).toHaveProperty('elements.buttons.signout.text');

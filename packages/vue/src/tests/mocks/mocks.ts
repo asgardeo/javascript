@@ -26,8 +26,8 @@ export const mockAuthContext: Partial<AuthContextInterface> = {
   state: {
     allowedScopes: 'openid profile email',
     displayName: 'John Doe',
-    isSignedIn: true,
     isLoading: false,
+    isSignedIn: true,
   },
 };
 
@@ -35,8 +35,8 @@ export const mockState: AuthStateInterface = {
   allowedScopes: '',
   displayName: '',
   email: '',
-  isSignedIn: false,
   isLoading: true,
+  isSignedIn: false,
   sub: '',
   username: '',
 };
@@ -44,33 +44,43 @@ export const mockState: AuthStateInterface = {
 export type MockAuthAPI = {
   disableHttpHandler: Mock;
   enableHttpHandler: Mock;
+  exchangeToken: Mock;
   getAccessToken: Mock;
-  getUser: Mock;
   getDecodedIdToken: Mock;
   getHttpClient: Mock;
   getIdToken: Mock;
   getOpenIDProviderEndpoints: Mock;
   getState: Mock;
+  getUser: Mock;
   httpRequest: Mock;
   httpRequestAll: Mock;
   init: Mock;
-  isSignedIn: Mock;
   isSessionActive: Mock;
+  isSignedIn: Mock;
   on: Mock;
+  reInitialize: Mock;
   refreshAccessToken: Mock;
-  exchangeToken: Mock;
   revokeAccessToken: Mock;
   signIn: Mock;
-  signOut: Mock;
   signInSilently: Mock;
-  reInitialize: Mock;
+  signOut: Mock;
   updateState: Mock;
 };
 
 export const mockAuthAPI: MockAuthAPI = {
   disableHttpHandler: vi.fn().mockResolvedValue(true),
   enableHttpHandler: vi.fn().mockResolvedValue(true),
+  exchangeToken: vi.fn().mockResolvedValue({
+    displayName: 'Test User',
+    email: 'test@example.com',
+    username: 'testUser',
+  } as BasicUserInfo),
   getAccessToken: vi.fn().mockResolvedValue('mock-access-token'),
+  getDecodedIdToken: vi.fn().mockResolvedValue({aud: 'client-id', iss: 'https://test.com', sub: 'user-id-123'}),
+  getHttpClient: vi.fn().mockResolvedValue({}),
+  getIdToken: vi.fn().mockResolvedValue('mock-id-token'),
+  getOpenIDProviderEndpoints: vi.fn().mockResolvedValue({}),
+  getState: vi.fn().mockReturnValue(mockState),
   getUser: vi.fn().mockResolvedValue({
     allowedScopes: 'openid profile',
     displayName: 'Test User',
@@ -78,27 +88,18 @@ export const mockAuthAPI: MockAuthAPI = {
     sub: 'user-id-123',
     username: 'testUser',
   }),
-  getDecodedIdToken: vi.fn().mockResolvedValue({aud: 'client-id', iss: 'https://test.com', sub: 'user-id-123'}),
-  getHttpClient: vi.fn().mockResolvedValue({}),
-  getIdToken: vi.fn().mockResolvedValue('mock-id-token'),
-  getOpenIDProviderEndpoints: vi.fn().mockResolvedValue({}),
-  getState: vi.fn().mockReturnValue(mockState),
   httpRequest: vi.fn().mockResolvedValue({data: {}, status: 200}),
   httpRequestAll: vi.fn().mockResolvedValue([{data: {}, status: 200}]),
   init: vi.fn().mockResolvedValue(true),
-  isSignedIn: vi.fn().mockResolvedValue(true),
   isSessionActive: vi.fn().mockResolvedValue(true),
+  isSignedIn: vi.fn().mockResolvedValue(true),
   on: vi.fn(),
+  reInitialize: vi.fn().mockResolvedValue(undefined),
   refreshAccessToken: vi.fn().mockResolvedValue({
     displayName: 'Test User',
     email: 'test@example.com',
     username: 'testUser',
   }),
-  exchangeToken: vi.fn().mockResolvedValue({
-    displayName: 'Test User',
-    email: 'test@example.com',
-    username: 'testUser',
-  } as BasicUserInfo),
   revokeAccessToken: vi.fn().mockResolvedValue(true),
   signIn: vi.fn().mockResolvedValue({
     allowedScopes: 'openid profile',
@@ -107,9 +108,8 @@ export const mockAuthAPI: MockAuthAPI = {
     sub: 'user-id-123',
     username: 'testUser',
   }),
-  signOut: vi.fn().mockResolvedValue(true),
   signInSilently: vi.fn().mockResolvedValue(false),
-  reInitialize: vi.fn().mockResolvedValue(undefined),
+  signOut: vi.fn().mockResolvedValue(true),
   updateState: vi.fn().mockImplementation((newState: AuthStateInterface) => {
     Object.assign(mockState, newState);
   }),
@@ -118,8 +118,13 @@ export const mockAuthAPI: MockAuthAPI = {
 export const mockAsgardeoSPAClient: Partial<AsgardeoSPAClient> = {
   disableHttpHandler: vi.fn().mockResolvedValue(true),
   enableHttpHandler: vi.fn().mockResolvedValue(true),
+  exchangeToken: vi.fn().mockResolvedValue({
+    displayName: 'Test User',
+    email: 'test@example.com',
+    username: 'testUser',
+  }),
   getAccessToken: vi.fn().mockResolvedValue('mock-access-token'),
-  getUser: vi.fn().mockResolvedValue({
+  getBasicUserInfo: vi.fn().mockResolvedValue({
     allowedScopes: 'openid profile',
     displayName: 'Test User',
     email: 'test@example.com',
@@ -134,15 +139,11 @@ export const mockAsgardeoSPAClient: Partial<AsgardeoSPAClient> = {
   httpRequest: vi.fn().mockResolvedValue({data: {}, status: 200}),
   httpRequestAll: vi.fn().mockResolvedValue([{data: {}, status: 200}]),
   initialize: vi.fn().mockResolvedValue(true),
-  isSignedIn: vi.fn().mockResolvedValue(true),
   isSessionActive: vi.fn().mockResolvedValue(true),
+  isSignedIn: vi.fn().mockResolvedValue(true),
   on: vi.fn().mockResolvedValue(undefined),
+  reInitialize: vi.fn().mockResolvedValue(undefined),
   refreshAccessToken: vi.fn().mockResolvedValue({
-    displayName: 'Test User',
-    email: 'test@example.com',
-    username: 'testUser',
-  }),
-  exchangeToken: vi.fn().mockResolvedValue({
     displayName: 'Test User',
     email: 'test@example.com',
     username: 'testUser',
@@ -155,7 +156,6 @@ export const mockAsgardeoSPAClient: Partial<AsgardeoSPAClient> = {
     sub: 'user-id-123',
     username: 'testUser',
   }),
-  signOut: vi.fn().mockResolvedValue(true),
   signInSilently: vi.fn().mockResolvedValue({
     allowedScopes: 'openid profile',
     displayName: 'Test User',
@@ -163,7 +163,7 @@ export const mockAsgardeoSPAClient: Partial<AsgardeoSPAClient> = {
     sub: 'user-id-123',
     username: 'testUser',
   }),
-  reInitialize: vi.fn().mockResolvedValue(undefined),
+  signOut: vi.fn().mockResolvedValue(true),
 };
 
 export class MockAsgardeoAuthException extends Error {
@@ -199,8 +199,8 @@ export const asgardeoAuthSPAMock: any = {
 };
 
 export const mockConfig: AuthVueConfig = {
-  baseUrl: 'https://api.asgardeo.io/t/mock-tenant',
-  clientId: 'mock-client-id',
   afterSignInUrl: 'http://localhost:5173/',
   afterSignOutUrl: 'http://localhost:5173/',
+  baseUrl: 'https://api.asgardeo.io/t/mock-tenant',
+  clientId: 'mock-client-id',
 };

@@ -2,6 +2,7 @@
 
 import {ChevronDown, LogOut, Settings, UserIcon, Workflow, LayoutDashboard, Bug} from 'lucide-react';
 import {UserDropdown as _UserDropdown, SignOutButton, UserProfile} from '@asgardeo/react';
+import type {UserDropdownRenderProps} from '@asgardeo/react';
 import {useState, useRef} from 'react';
 import {Link} from 'react-router';
 
@@ -17,7 +18,7 @@ export default function UserDropdown({mode = 'default'}: UserDropdownProps) {
   if (mode === 'custom') {
     return (
       <_UserDropdown>
-        {({user, isLoading}: {user: any; isLoading: boolean}) => (
+        {({user, isLoading}: UserDropdownRenderProps) => (
           <>
             <div className="relative" ref={userDropdownRef}>
               <button

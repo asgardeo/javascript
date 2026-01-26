@@ -1,7 +1,7 @@
 /**
- * Copyright (c) 2022, WSO2 Inc. (http://www.wso2.com) All Rights Reserved.
+ * Copyright (c) 2025, WSO2 LLC. (https://www.wso2.com).
  *
- * WSO2 Inc. licenses this file to you under the Apache License,
+ * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License.
  * You may obtain a copy of the License at
@@ -16,15 +16,28 @@
  * under the License.
  */
 
-export const LOGGER_CONFIG = {
-    bgGreen: "\x1b[42m",
-    bgRed: "\x1b[41m",
-    bgWhite: "\x1b[47m",
-    bgYellow: "\x1b[43m",
-    fgBlack: "\x1b[30m",
-    fgGreen: "\x1b[32m",
-    fgRed: "\x1b[31m",
-    fgWhite: "\x1b[37m",
-    fgYellow: "\x1b[33m",
-    reset: "\x1b[0m"
+interface LoggerConfig {
+  bgGreen: string;
+  bgRed: string;
+  bgWhite: string;
+  bgYellow: string;
+  fgBlack: string;
+  fgGreen: string;
+  fgRed: string;
+  fgWhite: string;
+  fgYellow: string;
+  reset: string;
 }
+
+export const LOGGER_CONFIG: LoggerConfig = {
+  bgGreen: '\x1b[42m',
+  bgRed: '\x1b[41m',
+  bgWhite: '\x1b[47m',
+  bgYellow: '\x1b[43m',
+  fgBlack: '\x1b[30m',
+  fgGreen: '\x1b[32m',
+  fgRed: '\x1b[31m',
+  fgWhite: '\x1b[37m',
+  fgYellow: '\x1b[33m',
+  reset: '\x1b[0m',
+};

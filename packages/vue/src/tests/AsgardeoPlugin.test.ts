@@ -48,8 +48,8 @@ describe('asgardeoPlugin', () => {
       allowedScopes: '',
       displayName: '',
       email: '',
-      isSignedIn: false,
       isLoading: true,
+      isSignedIn: false,
       sub: '',
       username: '',
     });
@@ -68,12 +68,12 @@ describe('asgardeoPlugin', () => {
   it('should call AuthAPI init on install', async () => {
     expect(mockAuthAPI.init).toHaveBeenCalledWith(
       expect.objectContaining({
+        afterSignInUrl: 'http://localhost:5173/',
+        afterSignOutUrl: 'http://localhost:5173/',
         baseUrl: 'https://api.asgardeo.io/t/mock-tenant',
         clientId: 'mock-client-id',
         disableAutoSignIn: true,
         disableTrySignInSilently: true,
-        afterSignInUrl: 'http://localhost:5173/',
-        afterSignOutUrl: 'http://localhost:5173/',
       }),
     );
   });
@@ -84,8 +84,8 @@ describe('asgardeoPlugin', () => {
       allowedScopes: 'openid profile',
       displayName: 'Test User',
       email: 'test@example.com',
-      isSignedIn: true,
       isLoading: false,
+      isSignedIn: true,
       sub: 'user-id-123',
       username: 'testUser',
     };
@@ -106,8 +106,8 @@ describe('asgardeoPlugin', () => {
       allowedScopes: '',
       displayName: '',
       email: '',
-      isSignedIn: false,
       isLoading: false,
+      isSignedIn: false,
       sub: '',
       username: '',
     };

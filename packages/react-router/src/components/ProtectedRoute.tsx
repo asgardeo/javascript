@@ -1,8 +1,5 @@
 /**
- * Copyright (import React, {FC, ReactElement, ReactNode} from 'react';
-import {Navigate} from 'react-router';
-import {useAsgardeo} from '@asgardeo/react';
-import {AsgardeoRuntimeError} from '@asgardeo/browser';2025, WSO2 LLC. (https://www.wso2.com).
+ * Copyright (c) 2025, WSO2 LLC. (https://www.wso2.com).
  *
  * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -19,9 +16,9 @@ import {AsgardeoRuntimeError} from '@asgardeo/browser';2025, WSO2 LLC. (https://
  * under the License.
  */
 
+import {AsgardeoRuntimeError, navigate, useAsgardeo} from '@asgardeo/react';
 import {FC, ReactElement, ReactNode} from 'react';
 import {Navigate} from 'react-router';
-import {useAsgardeo, AsgardeoRuntimeError, navigate} from '@asgardeo/react';
 
 /**
  * Props for the ProtectedRoute component.
@@ -37,11 +34,6 @@ export interface ProtectedRouteProps {
    */
   fallback?: ReactElement;
   /**
-   * URL to redirect to when the user is not authenticated.
-   * Required unless a fallback element is provided.
-   */
-  redirectTo?: string;
-  /**
    * Custom loading element to render while authentication status is being determined.
    */
   loader?: ReactNode;
@@ -55,6 +47,11 @@ export interface ProtectedRouteProps {
    * @param signInOptions - Merged sign-in options (context + component props)
    */
   onSignIn?: (defaultSignIn: (options?: Record<string, any>) => void, signInOptions?: Record<string, any>) => void;
+  /**
+   * URL to redirect to when the user is not authenticated.
+   * Required unless a fallback element is provided.
+   */
+  redirectTo?: string;
   /**
    * Additional parameters to pass to the authorize request.
    * These will be merged with the default signInOptions from the Asgardeo context.
@@ -150,7 +147,7 @@ const ProtectedRoute: FC<ProtectedRouteProps> = ({
   loader = null,
   onSignIn,
   signInOptions: overriddenSignInOptions = {},
-}) => {
+}: ProtectedRouteProps) => {
   const {isSignedIn, isLoading, signIn, signInOptions, signInUrl} = useAsgardeo();
 
   // Always wait for loading to finish before making authentication decisions
@@ -173,23 +170,21 @@ const ProtectedRoute: FC<ProtectedRouteProps> = ({
   if (!isSignedIn) {
     if (signInUrl) {
       navigate(signInUrl);
+    } else if (onSignIn) {
+      onSignIn(signIn, overriddenSignInOptions);
     } else {
-      if (onSignIn) {
-        onSignIn(signIn, overriddenSignInOptions);
-      } else {
-        (async () => {
-          try {
-            await signIn(overriddenSignInOptions ?? signInOptions);
-          } catch (error) {
-            throw new AsgardeoRuntimeError(
-              'Sign-in failed in ProtectedRoute.',
-              'ProtectedRoute-SignInError-001',
-              'react-router',
-              `An error occurred during sign-in: ${(error as Error).message}`,
-            );
-          }
-        })();
-      }
+      (async (): Promise<void> => {
+        try {
+          await signIn(overriddenSignInOptions ?? signInOptions);
+        } catch (error) {
+          throw new AsgardeoRuntimeError(
+            'Sign-in failed in ProtectedRoute.',
+            'ProtectedRoute-SignInError-001',
+            'react-router',
+            `An error occurred during sign-in: ${(error as Error).message}`,
+          );
+        }
+      })();
     }
   }
 

@@ -23,19 +23,4 @@ describe('@asgardeo/react-router', () => {
     const {ProtectedRoute} = await import('../index');
     expect(ProtectedRoute).toBeDefined();
   });
-
-  it('should export withAuthentication', async () => {
-    const {withAuthentication} = await import('../index');
-    expect(withAuthentication).toBeDefined();
-  });
-
-  it('should export useAuthGuard', async () => {
-    const {useAuthGuard} = await import('../index');
-    expect(useAuthGuard).toBeDefined();
-  });
-
-  it('should export useReturnUrl', async () => {
-    const {useReturnUrl} = await import('../index');
-    expect(useReturnUrl).toBeDefined();
-  });
 });

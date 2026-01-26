@@ -17,8 +17,8 @@
  */
 
 import {useAsgardeo} from '@asgardeo/react';
-import {render, screen} from '@testing-library/react';
-import {describe, it, expect, vi, beforeEach} from 'vitest';
+import {cleanup, render, screen} from '@testing-library/react';
+import {describe, it, expect, vi, beforeEach, afterEach} from 'vitest';
 import ProtectedRoute from '../ProtectedRoute';
 
 vi.mock('@asgardeo/react', () => ({
@@ -47,6 +47,10 @@ vi.mock('@tanstack/react-router', () => ({
 describe('ProtectedRoute', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+  });
+
+  afterEach(() => {
+    cleanup();
   });
 
   it('should render loader when isLoading is true', () => {

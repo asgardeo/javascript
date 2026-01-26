@@ -50,6 +50,7 @@
     "esbuild-plugin-inline-worker": "0.1.1",
     "esbuild-plugins-node-modules-polyfill": "1.7.0",
     "eslint": "8.57.0",
+    "jsdom": "^27.4.0",
     "playwright": "1.55.1",
     "prettier": "2.6.2",
     "rimraf": "6.1.0",

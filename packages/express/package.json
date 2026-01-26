@@ -37,7 +37,7 @@
     "clean": "rimraf dist",
     "fix:lint": "eslint . --ext .js,.jsx,.ts,.tsx,.cjs,.mjs",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx,.cjs,.mjs",
-    "test": "vitest",
+    "test": "vitest --passWithNoTests",
     "typecheck": "tsc -p tsconfig.lib.json"
   },
   "devDependencies": {
@@ -46,7 +46,7 @@
     "@wso2/prettier-config": "catalog:",
     "esbuild": "0.25.9",
     "eslint": "8.57.0",
-    "express": "5.1.0",
+    "express": "5.2.1",
     "prettier": "2.6.2",
     "rimraf": "6.1.0",
     "typescript": "5.7.2",

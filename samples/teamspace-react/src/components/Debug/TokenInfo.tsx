@@ -9,8 +9,8 @@ interface TokenInfoProps {
 }
 
 const TokenInfo: React.FC<TokenInfoProps> = ({isOpen, onClose, isPage = false}) => {
-  const [sessionData, setSessionData] = useState<any>(null);
-  const [decodedToken, setDecodedToken] = useState<any>(null);
+  const [sessionData, setSessionData] = useState<Record<string, unknown> | null>(null);
+  const [decodedToken, setDecodedToken] = useState<Record<string, unknown> | null>(null);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -70,7 +70,7 @@ const TokenInfo: React.FC<TokenInfoProps> = ({isOpen, onClose, isPage = false}) 
     return new Date(timestamp * 1000).toLocaleString();
   };
 
-  const highlightJSON = (obj: any) => {
+  const highlightJSON = (obj: Record<string, unknown>) => {
     const jsonString = JSON.stringify(obj, null, 2);
     const lines = jsonString.split('\n');
 
@@ -112,7 +112,7 @@ const TokenInfo: React.FC<TokenInfoProps> = ({isOpen, onClose, isPage = false}) 
     // Format the session data with readable timestamps
     const formattedData = {...sessionData};
     if (formattedData.created_at) {
-      formattedData.created_at_readable = formatDate(formattedData.created_at / 1000);
+      formattedData.created_at_readable = formatDate((formattedData.created_at as number) / 1000);
     }
 
     const highlightedJSON = highlightJSON(formattedData);
@@ -134,7 +134,7 @@ const TokenInfo: React.FC<TokenInfoProps> = ({isOpen, onClose, isPage = false}) 
     const formattedToken = {...decodedToken};
     ['exp', 'iat', 'nbf'].forEach(key => {
       if (formattedToken[key]) {
-        formattedToken[`${key}_readable`] = formatDate(formattedToken[key]);
+        formattedToken[`${key}_readable`] = formatDate(formattedToken[key] as number);
       }
     });
 

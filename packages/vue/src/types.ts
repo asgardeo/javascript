@@ -72,13 +72,13 @@ export interface AuthStateInterface {
    */
   email?: string;
   /**
-   * Specifies if the user is authenticated or not.
-   */
-  isSignedIn: boolean;
-  /**
    * Are the Auth requests loading.
    */
   isLoading: boolean;
+  /**
+   * Specifies if the user is authenticated or not.
+   */
+  isSignedIn: boolean;
   /**
    * The uid corresponding to the user who the ID token belonged to.
    */
@@ -93,20 +93,21 @@ export interface AuthContextInterface {
   disableHttpHandler(): Promise<boolean>;
   enableHttpHandler(): Promise<boolean>;
   error: AsgardeoAuthException;
+  exchangeToken(config: TokenExchangeRequestConfig, callback?: (response: BasicUserInfo | Response) => void): void;
   getAccessToken(): Promise<string>;
-  getUser(): Promise<BasicUserInfo>;
   getDecodedIdToken(): Promise<IdToken>;
   getHttpClient(): Promise<HttpClientInstance>;
   getIdToken(): Promise<string>;
   getOpenIDProviderEndpoints(): Promise<OIDCEndpoints>;
+  getUser(): Promise<BasicUserInfo>;
   httpRequest(config: HttpRequestConfig): Promise<HttpResponse<any>>;
   httpRequestAll(configs: HttpRequestConfig[]): Promise<HttpResponse<any>[]>;
   isSignedIn(): Promise<boolean>;
   on(hook: Hooks.CustomGrant, callback: (response?: any) => void, id: string): void;
   on(hook: Exclude<Hooks, Hooks.CustomGrant>, callback: (response?: any) => void): void;
   on(hook: Hooks, callback: (response?: any) => void, id?: string): void;
+  reInitialize(config: Partial<AuthClientConfig<Config>>): Promise<void>;
   refreshAccessToken(): Promise<BasicUserInfo>;
-  exchangeToken(config: TokenExchangeRequestConfig, callback?: (response: BasicUserInfo | Response) => void): void;
   revokeAccessToken(): Promise<boolean>;
   signIn: (
     config?: SignInConfig,
@@ -118,13 +119,12 @@ export interface AuthContextInterface {
       params: Record<string, unknown>;
     },
   ) => Promise<BasicUserInfo>;
-  signOut: (callback?: (response: boolean) => void) => Promise<boolean>;
-  state: AuthStateInterface;
   signInSilently: (
     additionalParams?: Record<string, string | boolean>,
     tokenRequestConfig?: {params: Record<string, unknown>},
   ) => Promise<boolean | BasicUserInfo>;
-  reInitialize(config: Partial<AuthClientConfig<Config>>): Promise<void>;
+  signOut: (callback?: (response: boolean) => void) => Promise<boolean>;
+  state: AuthStateInterface;
 }
 
 /**

@@ -16,7 +16,11 @@
  * under the License.
  */
 
-import {vi} from 'vitest';
+/**
+ * @vitest-environment jsdom
+ */
+
+import {vi, describe, it, expect, beforeEach, afterEach} from 'vitest';
 import navigate from '../navigate';
 
 describe('navigate', () => {
@@ -27,8 +31,6 @@ describe('navigate', () => {
     window.history.pushState = vi.fn();
     // @ts-ignore
     window.dispatchEvent = vi.fn();
-    // @ts-ignore
-    window.location.assign = vi.fn();
     // @ts-ignore
     delete window.location;
     // @ts-ignore
