@@ -1,5 +1,13 @@
 # @asgardeo/react
 
+## 0.9.1
+
+### Patch Changes
+
+- [#336](https://github.com/asgardeo/javascript/pull/336)
+  [`d361c69`](https://github.com/asgardeo/javascript/commit/d361c69dbac84500fff20839f3ad7b31867f0075) Thanks
+  [@thiva-k](https://github.com/thiva-k)! - Fix auto login
+
 ## 0.9.0
 
 ### Minor Changes
