@@ -89,6 +89,14 @@ const SignUp: FC<SignUpProps> = ({
   const handleComplete = (response: EmbeddedFlowExecuteResponse) => {
     onComplete?.(response);
 
+    // Check if OAuth flow completed and we have a redirect URL with authorization code
+    // This happens when registration completes with assertion and OAuth authorize succeeds
+    const oauthRedirectUrl = (response as any)?.redirectUrl;
+    if (shouldRedirectAfterSignUp && oauthRedirectUrl) {
+      window.location.href = oauthRedirectUrl;
+      return;
+    }
+
     // For non-redirection responses (regular sign-up completion), handle redirect if configured
     if (shouldRedirectAfterSignUp && response?.type !== EmbeddedFlowResponseType.Redirection && afterSignUpUrl) {
       window.location.href = afterSignUpUrl;

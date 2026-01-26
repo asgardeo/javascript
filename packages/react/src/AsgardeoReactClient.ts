@@ -415,8 +415,19 @@ class AsgardeoReactClient<T extends AsgardeoReactConfig = AsgardeoReactConfig> e
     const baseUrl: string = config?.baseUrl;
 
     if (config.platform === Platform.AsgardeoV2) {
+      // Read authId from URL params or sessionStorage
+      // This is needed to complete the OAuth flow after registration
+      const authIdFromUrl: string = new URL(window.location.href).searchParams.get('authId');
+      const authIdFromStorage: string = sessionStorage.getItem('asgardeo_auth_id');
+      const authId: string = authIdFromUrl || authIdFromStorage;
+
+      if (authIdFromUrl && !authIdFromStorage) {
+        sessionStorage.setItem('asgardeo_auth_id', authIdFromUrl);
+      }
+
       return executeEmbeddedSignUpFlowV2({
         baseUrl,
+        authId,
         payload:
           typeof firstArg === 'object' && 'flowType' in firstArg
             ? {...(firstArg as EmbeddedFlowExecuteRequestPayload), verbose: true}
