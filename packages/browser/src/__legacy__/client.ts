@@ -413,7 +413,7 @@ export class AsgardeoSPAClient {
         return response;
       })
       .catch(error => {
-        return Promise.reject(error)
+        return Promise.reject(error);
       });
   }
 
@@ -720,6 +720,32 @@ export class AsgardeoSPAClient {
   }
 
   /**
+   * This method decodes a JWT token payload and returns it.
+   *
+   * @param {string} token - The token to decode (optional).
+   *
+   * @return {Promise<Record<string, unknown>>} - A Promise that resolves with
+   * the decoded payload of the token.
+   *
+   * @example
+   * ```
+   * auth.decodeJwtToken<T>(token).then((response)=>{
+   *     // console.log(response);
+   * }).catch((error)=>{
+   *     // console.error(error);
+   * });
+   * ```
+   * @link https://github.com/asgardeo/asgardeo-auth-spa-sdk/tree/master#decodetoken
+   *
+   * @memberof AsgardeoSPAClient
+   *
+   * @preserve
+   */
+  public async decodeJwtToken<T = Record<string, unknown>>(token?: string): Promise<T | undefined> {
+    return this._client?.decodeJwtToken<T>(token);
+  }
+
+  /**
    * This method decodes the payload of the id token and returns it.
    *
    * @return {Promise<DecodedIdTokenPayloadInterface>} - A Promise that resolves with
@@ -894,8 +920,6 @@ export class AsgardeoSPAClient {
    * @preserve
    */
   public async getStorageManager(): Promise<StorageManager<MainThreadClientConfig>> {
-    await this._validateMethod();
-
     if (this._storage && [(BrowserStorage.WebWorker, BrowserStorage.BrowserMemory)].includes(this._storage)) {
       return Promise.reject(
         new AsgardeoAuthException(

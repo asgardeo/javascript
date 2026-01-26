@@ -73,6 +73,7 @@ export interface MainThreadClientInterface {
     tokenRequestConfig?: {params: Record<string, unknown>},
   ): Promise<User | boolean>;
   isSessionActive(): Promise<boolean>;
+  decodeJwtToken: <T = Record<string, unknown>>(token: string) => Promise<T>;
 }
 
 export interface WebWorkerClientInterface {
@@ -111,4 +112,5 @@ export interface WebWorkerClientInterface {
     additionalParams?: Record<string, string | boolean>,
     tokenRequestConfig?: {params: Record<string, unknown>},
   ): Promise<User | boolean>;
+  decodeJwtToken: <T = Record<string, unknown>>(token: string) => Promise<T>;
 }

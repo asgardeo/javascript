@@ -196,14 +196,14 @@ export class AuthenticationHelper<T> {
       jwk,
       (await this._config()).clientId,
       issuer ?? '',
-      this._cryptoHelper.decodeIdToken(idToken).sub,
+      this._cryptoHelper.decodeJwtToken<IdToken>(idToken).sub,
       (await this._config()).tokenValidation?.idToken?.clockTolerance,
       (await this._config()).tokenValidation?.idToken?.validateIssuer ?? true,
     );
   }
 
   public getAuthenticatedUserInfo(idToken: string): User {
-    const payload: IdToken = this._cryptoHelper.decodeIdToken(idToken);
+    const payload: IdToken = this._cryptoHelper.decodeJwtToken<IdToken>(idToken);
     const username: string = payload?.['username'] ?? '';
     const givenName: string = payload?.['given_name'] ?? '';
     const familyName: string = payload?.['family_name'] ?? '';

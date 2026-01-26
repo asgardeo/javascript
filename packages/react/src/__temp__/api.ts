@@ -89,6 +89,10 @@ class AuthAPI {
     return this._client.getConfigData();
   }
 
+  public async getStorageManager(): Promise<any> {
+    return this._client.getStorageManager();
+  }
+
   /**
    * Method to get the configuration data.
    *
@@ -283,6 +287,16 @@ class AuthAPI {
    */
   public async getHttpClient(): Promise<HttpClientInstance> {
     return this._client.getHttpClient();
+  }
+
+  /**
+   * This method decodes a JWT token payload and returns it.
+   *
+   * @param token - The token to decode.
+   * @returns The decoded token payload.
+   */
+  public async decodeJwtToken<T = Record<string, unknown>>(token: string): Promise<T> {
+    return this._client.decodeJwtToken<T>(token);
   }
 
   /**

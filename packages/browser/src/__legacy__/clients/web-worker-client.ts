@@ -182,14 +182,14 @@ export const WebWorkerClient = async (
               error = new AsgardeoAuthException(
                 'SPA-WEB_WORKER_CLIENT-COM-PE01',
                 'Worker communication error.',
-                `Failed to parse worker error response: ${data.error}`
+                `Failed to parse worker error response: ${data.error}`,
               );
             }
           } else {
             error = new AsgardeoAuthException(
               'SPA-WEB_WORKER_CLIENT-COM-UE01',
               'Unknown worker error.',
-              'An unknown error occurred in the web worker.'
+              'An unknown error occurred in the web worker.',
             );
           }
           reject(error);
@@ -857,6 +857,10 @@ export const WebWorkerClient = async (
     }
   };
 
+  const decodeJwtToken = async <T = Record<string, unknown>>(token: string): Promise<T> => {
+    return _authenticationClient.decodeJwtToken<T>(token);
+  };
+
   return {
     disableHttpHandler,
     enableHttpHandler,
@@ -882,5 +886,6 @@ export const WebWorkerClient = async (
     signOut,
     signInSilently,
     reInitialize,
+    decodeJwtToken
   };
 };

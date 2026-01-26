@@ -227,8 +227,22 @@ export interface AsgardeoClient<T> {
   getAccessToken(sessionId?: string): Promise<string>;
 
   /**
+   * Sets the session data for the specified session ID.
+   * @param sessionData - The session data to be set.
+   * @param sessionId - Optional session ID to set the session data for.
+   */
+  setSession(sessionData: Record<string, unknown>, sessionId?: string): Promise<void>;
+
+  /**
    * Clears the session for the specified session ID.
    * @param sessionId - Optional session ID to clear the session for.
    */
   clearSession(sessionId?: string): void;
+
+  /**
+   * Decodes a JWT token and returns its payload.
+   * @param token - The JWT token to be decoded.
+   * @returns A promise that resolves to the decoded token payload.
+   */
+  decodeJwtToken<T = Record<string, unknown>>(token: string): Promise<T>;
 }

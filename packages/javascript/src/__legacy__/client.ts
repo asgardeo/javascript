@@ -574,6 +574,21 @@ export class AsgardeoAuthClient<T> {
   }
 
   /**
+   * This method decodes a given JWT token and returns the payload.
+   *
+   * @param token - The token to be decoded.
+   * @returns - A Promise that resolves with the decoded token payload.
+   *
+   * @example
+   * ```
+   * const decodedToken = await auth.decodeJwtToken(token);
+   * ```
+   */
+  public async decodeJwtToken<T = Record<string, unknown>>(token: string): Promise<T> {
+    return this._cryptoHelper.decodeJwtToken(token);
+  }
+
+  /**
    * This method decodes the payload of the ID token and returns it.
    *
    * @param userId - (Optional) A unique ID of the user to be authenticated. This is useful in multi-user
@@ -592,7 +607,7 @@ export class AsgardeoAuthClient<T> {
    */
   public async getDecodedIdToken(userId?: string, idToken?: string): Promise<IdToken> {
     const _idToken: string = (await this._storageManager.getSessionData(userId)).id_token;
-    const payload: IdToken = this._cryptoHelper.decodeIdToken(_idToken ?? idToken);
+    const payload: IdToken = this._cryptoHelper.decodeJwtToken<IdToken>(_idToken ?? idToken);
 
     return payload;
   }
