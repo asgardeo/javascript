@@ -1,5 +1,17 @@
 # @asgardeo/react
 
+## 0.9.2
+
+### Patch Changes
+
+- [#340](https://github.com/asgardeo/javascript/pull/340)
+  [`7e8ff02`](https://github.com/asgardeo/javascript/commit/7e8ff02efa823ff534284eaa6f367f7d20f378a9) Thanks
+  [@brionmario](https://github.com/brionmario)! - Fix app-native flow issues in AsgardeoV2
+
+- Updated dependencies
+  [[`7e8ff02`](https://github.com/asgardeo/javascript/commit/7e8ff02efa823ff534284eaa6f367f7d20f378a9)]:
+  - @asgardeo/browser@0.2.3
+
 ## 0.9.1
 
 ### Patch Changes

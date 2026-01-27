@@ -1,5 +1,13 @@
 # @asgardeo/javascript
 
+## 0.5.1
+
+### Patch Changes
+
+- [#340](https://github.com/asgardeo/javascript/pull/340)
+  [`7e8ff02`](https://github.com/asgardeo/javascript/commit/7e8ff02efa823ff534284eaa6f367f7d20f378a9) Thanks
+  [@brionmario](https://github.com/brionmario)! - Fix app-native flow issues in AsgardeoV2
+
 ## 0.5.0
 
 ### Minor Changes
