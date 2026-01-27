@@ -413,6 +413,10 @@ export const MainThreadClient = async (
     }
   };
 
+  const decodeJwtToken = async <T = Record<string, unknown>>(token: string): Promise<T> => {
+    return _authenticationClient.decodeJwtToken<T>(token);
+  };
+
   return {
     disableHttpHandler,
     enableHttpHandler,
@@ -440,5 +444,6 @@ export const MainThreadClient = async (
     signOut,
     signInSilently,
     reInitialize,
+    decodeJwtToken,
   };
 };

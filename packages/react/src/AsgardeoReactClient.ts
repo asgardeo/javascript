@@ -51,6 +51,7 @@ import {
   isEmpty,
   EmbeddedSignInFlowResponseV2,
   executeEmbeddedSignUpFlowV2,
+  EmbeddedSignInFlowStatusV2,
 } from '@asgardeo/browser';
 import AuthAPI from './__temp__/api';
 import getMeOrganizations from './api/getMeOrganizations';
@@ -357,12 +358,49 @@ class AsgardeoReactClient<T extends AsgardeoReactConfig = AsgardeoReactConfig> e
         const baseUrlFromStorage: string = sessionStorage.getItem('asgardeo_base_url');
         const baseUrl: string = config?.baseUrl || baseUrlFromStorage;
 
-        return executeEmbeddedSignInFlowV2({
+        const response = await executeEmbeddedSignInFlowV2({
           payload: arg1 as EmbeddedSignInFlowHandleRequestPayload,
           url: arg2?.url,
           baseUrl,
           authId,
         });
+
+        /**
+         * NOTE: For Asgardeo V2, if the embedded (App Native) sign-in flow returns a completed status along with an assertion (ID
+         * token), we manually set the session using that assertion. This is a temporary workaround until the platform
+         * fully supports session management for embedded flows.
+         *
+         * Tracker: 
+         */
+        if (
+          isV2Platform &&
+          response &&
+          typeof response === 'object' &&
+          response['flowStatus'] === EmbeddedSignInFlowStatusV2.Complete &&
+          response['assertion']
+        ) {
+          const decodedAssertion = await this.decodeJwtToken<{
+            iat?: number;
+            exp?: number;
+            scope?: string;
+            [key: string]: unknown;
+          }>(response['assertion']);
+
+          const createdAt = decodedAssertion.iat ? decodedAssertion.iat * 1000 : Date.now();
+          const expiresIn =
+            decodedAssertion.exp && decodedAssertion.iat ? decodedAssertion.exp - decodedAssertion.iat : 3600;
+
+          await this.setSession({
+            access_token: response['assertion'],
+            id_token: response['assertion'],
+            token_type: 'Bearer',
+            expires_in: expiresIn,
+            created_at: createdAt,
+            scope: decodedAssertion.scope,
+          });
+        }
+
+        return response;
       }
 
       if (typeof arg1 === 'object' && 'flowId' in arg1 && typeof arg2 === 'object' && 'url' in arg2) {
@@ -459,6 +497,14 @@ class AsgardeoReactClient<T extends AsgardeoReactConfig = AsgardeoReactConfig> e
 
   override clearSession(sessionId?: string): void {
     this.asgardeo.clearSession(sessionId);
+  }
+
+  override async setSession(sessionData: Record<string, unknown>, sessionId?: string): Promise<void> {
+    return await (await this.asgardeo.getStorageManager()).setSessionData(sessionData, sessionId);
+  }
+
+  override decodeJwtToken<T = Record<string, unknown>>(token: string): Promise<T> {
+    return this.asgardeo.decodeJwtToken<T>(token);
   }
 }
 

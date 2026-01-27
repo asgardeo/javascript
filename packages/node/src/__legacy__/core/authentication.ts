@@ -254,4 +254,8 @@ export class AsgardeoNodeCore<T> {
   public getStorageManager(): StorageManager<T> {
     return this._storageManager;
   }
+
+  public async decodeJwtToken<K = Record<string, unknown>>(token: string): Promise<K> {
+    return this._auth.decodeJwtToken<K>(token);
+  }
 }

@@ -87,6 +87,10 @@ abstract class AsgardeoJavaScriptClient<T = Config> implements AsgardeoClient<T>
   abstract getAccessToken(sessionId?: string): Promise<string>;
 
   abstract clearSession(sessionId?: string): void;
+
+  abstract setSession(sessionData: Record<string, unknown>, sessionId?: string): Promise<void>;
+
+  abstract decodeJwtToken<T = Record<string, unknown>>(token: string): Promise<T>;
 }
 
 export default AsgardeoJavaScriptClient;

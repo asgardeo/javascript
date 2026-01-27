@@ -431,7 +431,6 @@ const BaseSignInContent: FC<BaseSignInProps> = ({
     setIsSubmitting(true);
     setApiError(null);
     clearMessages();
-    console.log('Submitting component:', component, 'with data:', data);
 
     try {
       // Filter out empty or undefined input values

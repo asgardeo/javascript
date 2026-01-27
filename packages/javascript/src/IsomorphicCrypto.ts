@@ -130,23 +130,14 @@ export class IsomorphicCrypto<T = any> {
       });
   }
 
-  /**
-   * This function decodes the payload of an id token and returns it.
-   *
-   * @param idToken - The id token to be decoded.
-   *
-   * @returns - The decoded payload of the id token.
-   *
-   * @throws
-   */
-  public decodeIdToken(idToken: string): IdToken {
+  public decodeJwtToken<T = Record<string, unknown>>(token: string): T {
     try {
-      const utf8String: string = this._cryptoUtils.base64URLDecode(idToken?.split('.')[1]);
-      const payload: IdToken = JSON.parse(utf8String);
+      const utf8String: string = this._cryptoUtils.base64URLDecode(token?.split('.')[1]);
+      const payload: T = JSON.parse(utf8String);
 
       return payload;
     } catch (error: any) {
-      throw new AsgardeoAuthException('JS-CRYPTO_UTIL-DIT-IV01', 'Decoding ID token failed.', error);
+      throw new AsgardeoAuthException('JS-CRYPTO_UTIL-DIT-IV02', 'Decoding token failed.', error);
     }
   }
 }

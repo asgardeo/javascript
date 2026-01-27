@@ -576,6 +576,14 @@ class AsgardeoNextClient<T extends AsgardeoNextConfig = AsgardeoNextConfig> exte
       'The clearSession method is not implemented in the Next.js client.',
     );
   }
+
+  override async setSession(sessionData: Record<string, unknown>, sessionId?: string): Promise<void> {
+    return await (await this.asgardeo.getStorageManager()).setSessionData(sessionData, sessionId);
+  }
+
+  override decodeJwtToken<T = Record<string, unknown>>(token: string): Promise<T> {
+    return this.asgardeo.decodeJwtToken<T>(token);
+  }
 }
 
 export default AsgardeoNextClient;
