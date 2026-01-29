@@ -64,10 +64,11 @@ const AsgardeoProvider: FC<PropsWithChildren<AsgardeoProviderProps>> = ({
   applicationId,
   signInOptions,
   syncSession,
+  instanceId = 0,
   ...rest
 }: PropsWithChildren<AsgardeoProviderProps>): ReactElement => {
   const reRenderCheckRef: RefObject<boolean> = useRef(false);
-  const asgardeo: AsgardeoReactClient = useMemo(() => new AsgardeoReactClient(), []);
+  const asgardeo: AsgardeoReactClient = useMemo(() => new AsgardeoReactClient(instanceId), [instanceId]);
   const {hasAuthParams} = useBrowserUrl();
   const [user, setUser] = useState<any | null>(null);
   const [currentOrganization, setCurrentOrganization] = useState<Organization | null>(null);
