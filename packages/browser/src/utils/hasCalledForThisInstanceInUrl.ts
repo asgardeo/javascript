@@ -16,13 +16,17 @@
  * under the License.
  */
 
-import {AsgardeoBrowserConfig} from '@asgardeo/browser';
+/**
+ * Utility to check if `state` is available in the URL as a search param and matches the provided instance.
+ *
+ * @param params - The URL search params to check. Defaults to `window.location.search`.
+ * @param instanceId - The instance ID to match against the `state` param.
+ * @return `true` if the URL contains a matching `state` search param, otherwise `false`.
+ */
+const hasCalledForThisInstanceInUrl = (instanceId: number, params: string = window.location.search): boolean => {
+  const MATCHER: RegExp = new RegExp(`[?&]state=instance_${instanceId}-[^&]+`);
 
-export interface AsgardeoReactConfig extends AsgardeoBrowserConfig {
-  /**
-   * Optional instance ID for multi-auth context support.
-   * Use this when you need multiple authentication contexts in the same application.
-   * Defaults to 0 for backward compatibility.
-   */
-  instanceId?: number;
-}
+  return MATCHER.test(params);
+};
+
+export default hasCalledForThisInstanceInUrl;
