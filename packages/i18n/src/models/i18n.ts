@@ -176,7 +176,7 @@ export interface I18nMetadata {
   countryCode: string;
   languageCode: string;
   displayName: string;
-  direction: I18nTextDirection;
+  direction: I18nTextDirection | string;
 }
 
 export interface I18nBundle {

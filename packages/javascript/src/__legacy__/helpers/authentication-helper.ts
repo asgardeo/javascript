@@ -20,8 +20,10 @@ import OIDCDiscoveryConstants from '../../constants/OIDCDiscoveryConstants';
 import TokenExchangeConstants from '../../constants/TokenExchangeConstants';
 import {AsgardeoAuthException} from '../../errors/exception';
 import {IsomorphicCrypto} from '../../IsomorphicCrypto';
+import {Config} from '../../models/config';
 import {JWKInterface} from '../../models/crypto';
 import {OIDCDiscoveryEndpointsApiResponse, OIDCDiscoveryApiResponse} from '../../models/oidc-discovery';
+import {Platform} from '../../models/platforms';
 import {SessionData} from '../../models/session';
 import {IdToken, TokenResponse, AccessTokenApiResponse} from '../../models/token';
 import {User} from '../../models/user';
@@ -144,6 +146,19 @@ export class AuthenticationHelper<T> {
       [OIDCDiscoveryConstants.Storage.StorageKeys.Endpoints
         .USERINFO]: `${baseUrl}${OIDCDiscoveryConstants.Endpoints.USERINFO}`,
     };
+
+    // For AsgardeoV2 (Thunder), the issuer must be the base URL (e.g., https://localhost:8090)
+    // to comply with RFC 8414 (Section 2 & 3) and OpenID Connect Discovery specs.
+    // The issuer should be a URL using "https" scheme with no query or fragment components.
+    // The well-known metadata endpoint is derived by inserting "/.well-known/oauth-authorization-server"
+    // between the host and path components of the issuer identifier.
+    // Reference: https://datatracker.ietf.org/doc/html/rfc8414#section-2
+    // Trackers:
+    //     - https://github.com/asgardeo/thunder/issues/815
+    //     - https://github.com/asgardeo/javascript/issues/322
+    if ((configData as Config).platform === Platform.AsgardeoV2) {
+      defaultEndpoints[OIDCDiscoveryConstants.Storage.StorageKeys.Endpoints.ISSUER] = `${baseUrl}`;
+    }
 
     return {...defaultEndpoints, ...oidcProviderMetaData};
   }
