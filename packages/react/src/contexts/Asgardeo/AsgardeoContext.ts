@@ -138,6 +138,10 @@ export type AsgardeoContextProps = {
    * @returns Promise resolving to boolean indicating success.
    */
   reInitialize: (config: Partial<AsgardeoReactConfig>) => Promise<boolean>;
+  /**
+   * Instance ID for multi-instance support.
+   */
+  instanceId: number;
 } & Pick<AsgardeoReactConfig, 'storage' | 'platform'> &
   Pick<AsgardeoReactClient, 'clearSession' | 'switchOrganization'>;
 
@@ -173,6 +177,7 @@ const AsgardeoContext: Context<AsgardeoContextProps | null> = createContext<null
   switchOrganization: null,
   reInitialize: null,
   platform: undefined,
+  instanceId: 0,
 });
 
 AsgardeoContext.displayName = 'AsgardeoContext';
