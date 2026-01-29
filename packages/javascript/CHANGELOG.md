@@ -1,5 +1,18 @@
 # @asgardeo/javascript
 
+## 0.5.2
+
+### Patch Changes
+
+- [#342](https://github.com/asgardeo/javascript/pull/342)
+  [`ff86e3b`](https://github.com/asgardeo/javascript/commit/ff86e3b01a1f01decb781ce3d833d50773574259) Thanks
+  [@brionmario](https://github.com/brionmario)! - Add support for AsgardeoV2 platform in AuthenticationHelper to comply
+  with RFC 8414
+
+- Updated dependencies
+  [[`ff86e3b`](https://github.com/asgardeo/javascript/commit/ff86e3b01a1f01decb781ce3d833d50773574259)]:
+  - @asgardeo/i18n@0.4.1
+
 ## 0.5.1
 
 ### Patch Changes
