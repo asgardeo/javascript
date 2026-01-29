@@ -18,11 +18,4 @@
 
 import {AsgardeoBrowserConfig} from '@asgardeo/browser';
 
-export interface AsgardeoReactConfig extends AsgardeoBrowserConfig {
-  /**
-   * Optional instance ID for multi-auth context support.
-   * Use this when you need multiple authentication contexts in the same application.
-   * Defaults to 0 for backward compatibility.
-   */
-  instanceId?: number;
-}
+export type AsgardeoReactConfig = AsgardeoBrowserConfig;

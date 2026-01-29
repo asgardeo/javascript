@@ -229,6 +229,11 @@ export interface BaseConfig<T = unknown> extends WithPreferences {
    * The values should be defined at the framework layer.
    */
   storage?: T;
+  /**
+   * Optional instance ID for multi-auth context support.
+   * Use this when you need multiple authentication contexts in the same application.
+   */
+  instanceId?: number;
 }
 
 export interface WithPreferences {
