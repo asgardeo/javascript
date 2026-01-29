@@ -1,5 +1,13 @@
 # @asgardeo/nextjs
 
+## 0.1.72
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @asgardeo/node@0.0.48
+  - @asgardeo/react@0.9.3
+
 ## 0.1.71
 
 ### Patch Changes

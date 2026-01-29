@@ -1,5 +1,14 @@
 # @asgardeo/react
 
+## 0.9.3
+
+### Patch Changes
+
+- Updated dependencies
+  [[`ff86e3b`](https://github.com/asgardeo/javascript/commit/ff86e3b01a1f01decb781ce3d833d50773574259)]:
+  - @asgardeo/i18n@0.4.1
+  - @asgardeo/browser@0.2.4
+
 ## 0.9.2
 
 ### Patch Changes
