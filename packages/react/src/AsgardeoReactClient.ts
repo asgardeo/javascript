@@ -159,6 +159,12 @@ class AsgardeoReactClient<T extends AsgardeoReactConfig = AsgardeoReactConfig> e
     return this.asgardeo.getDecodedIdToken(sessionId);
   }
 
+  async getIdToken(): Promise<string> {
+    return this.withLoading(async () => {
+      return this.asgardeo.getIdToken();
+    });
+  }
+
   async getUserProfile(options?: any): Promise<UserProfile> {
     return this.withLoading(async () => {
       try {
