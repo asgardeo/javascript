@@ -42,14 +42,14 @@ export type AsgardeoContextProps = {
    * @param config - Configuration for the token exchange request.
    * @returns A promise that resolves to the token response or the raw response.
    */
-  exchangeToken: (config: TokenExchangeRequestConfig) => Promise<TokenResponse | Response>;
+  exchangeToken: (config: TokenExchangeRequestConfig) => Promise<TokenResponse | Response | undefined>;
   /**
    * Retrieves the access token stored in the storage.
    * This function retrieves the access token and returns it.
    * @remarks This does not work in the `webWorker` or any other worker environment.
-   * @returns A promise that resolves to the access token.
+   * @returns A promise that resolves to the access token, or undefined if not available.
    */
-  getAccessToken: () => Promise<string>;
+  getAccessToken: () => Promise<string | undefined>;
   /**
    * Function to retrieve the decoded ID token.
    * This function decodes the ID token and returns its payload.
@@ -57,14 +57,14 @@ export type AsgardeoContextProps = {
    *
    * @returns A promise that resolves to the decoded ID token payload.
    */
-  getDecodedIdToken: () => Promise<IdToken>;
+  getDecodedIdToken: () => Promise<IdToken | undefined>;
   /**
    * Function to retrieve the ID token.
    * This function retrieves the ID token and returns it.
    *
-   * @returns A promise that resolves to the ID token.
+   * @returns A promise that resolves to the ID token, or undefined if not available.
    */
-  getIdToken: () => Promise<string>;
+  getIdToken: () => Promise<string | undefined>;
   /**
    * HTTP request function to make API calls.
    * @param requestConfig - Configuration for the HTTP request.

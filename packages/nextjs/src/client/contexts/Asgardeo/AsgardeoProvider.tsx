@@ -79,6 +79,10 @@ export type AsgardeoClientProviderProps = Partial<Omit<AsgardeoProviderProps, 'b
     ) => Promise<{data: {user: User}; error: string; success: boolean}>;
     user: User | null;
     userProfile: UserProfile;
+    getIdToken: AsgardeoContextProps['getIdToken'];
+    getDecodedIdToken: AsgardeoContextProps['getDecodedIdToken'];
+    getAccessToken: AsgardeoContextProps['getAccessToken'];
+    exchangeToken: AsgardeoContextProps['exchangeToken'];
   };
 
 const AsgardeoClientProvider: FC<PropsWithChildren<AsgardeoClientProviderProps>> = ({
@@ -104,6 +108,10 @@ const AsgardeoClientProvider: FC<PropsWithChildren<AsgardeoClientProviderProps>>
   getAllOrganizations,
   switchOrganization,
   brandingPreference,
+  getIdToken,
+  getDecodedIdToken,
+  getAccessToken,
+  exchangeToken,
 }: PropsWithChildren<AsgardeoClientProviderProps>) => {
   const reRenderCheckRef: RefObject<boolean> = useRef(false);
   const router: AppRouterInstance = useRouter();
@@ -292,6 +300,10 @@ const AsgardeoClientProvider: FC<PropsWithChildren<AsgardeoClientProviderProps>>
     () => ({
       applicationId,
       baseUrl,
+      exchangeToken,
+      getAccessToken,
+      getDecodedIdToken,
+      getIdToken,
       isLoading,
       isSignedIn,
       organizationHandle,
@@ -302,7 +314,7 @@ const AsgardeoClientProvider: FC<PropsWithChildren<AsgardeoClientProviderProps>>
       signUpUrl,
       user,
     }),
-    [baseUrl, user, isSignedIn, isLoading, signInUrl, signUpUrl, applicationId, organizationHandle],
+    [baseUrl, user, isSignedIn, isLoading, signInUrl, signUpUrl, applicationId, organizationHandle, getIdToken, getDecodedIdToken, getAccessToken, exchangeToken],
   );
 
   const handleProfileUpdate = (payload: User): void => {

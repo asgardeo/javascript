@@ -411,8 +411,11 @@ class AsgardeoNextClient<T extends AsgardeoNextConfig = AsgardeoNextConfig> exte
    * Gets the access token from the session cookie if no sessionId is provided,
    * otherwise falls back to legacy client method.
    */
-  // eslint-disable-next-line class-methods-use-this, @typescript-eslint/no-unused-vars
-  async getAccessToken(_sessionId?: string): Promise<string> {
+  async getAccessToken(sessionId?: string): Promise<string> {
+    if (sessionId) {
+      return this.asgardeo.getAccessToken(sessionId);
+    }
+
     const {default: getAccessToken} = await import('./server/actions/getAccessToken');
     const token: string | undefined = await getAccessToken();
 

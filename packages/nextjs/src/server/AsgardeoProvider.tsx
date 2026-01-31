@@ -18,7 +18,7 @@
 
 'use server';
 
-import {BrandingPreference, AsgardeoRuntimeError, IdToken, Organization, User, UserProfile} from '@asgardeo/node';
+import {BrandingPreference, AsgardeoRuntimeError, IdToken, Organization, TokenExchangeRequestConfig, User, UserProfile} from '@asgardeo/node';
 import {AsgardeoProviderProps} from '@asgardeo/react';
 import {FC, PropsWithChildren, ReactElement} from 'react';
 import createOrganization from './actions/createOrganization';
@@ -42,6 +42,10 @@ import AsgardeoClientProvider from '../client/contexts/Asgardeo/AsgardeoProvider
 import {AsgardeoNextConfig} from '../models/config';
 import logger from '../utils/logger';
 import {SessionTokenPayload} from '../utils/SessionManager';
+import getAccessToken from './actions/getAccessToken';
+import getIdToken from './actions/getIdToken';
+import getDecodedIdToken from './actions/getDecodedIdToken';
+import exchangeToken from './actions/exchangeToken';
 
 /**
  * Props interface of {@link AsgardeoServerProvider}
@@ -209,6 +213,12 @@ const AsgardeoServerProvider: FC<PropsWithChildren<AsgardeoServerProviderProps>>
       switchOrganization={switchOrganization}
       brandingPreference={brandingPreference}
       createOrganization={createOrganization}
+      getAccessToken={async () => {'use server'; return await getAccessToken();}}
+      getIdToken={async () => {'use server'; return await getIdToken(sessionId);}}
+      exchangeToken={async (exchangeConfig: TokenExchangeRequestConfig) => {
+        'use server'; return await exchangeToken(exchangeConfig, sessionId)
+      }}
+      getDecodedIdToken={async () => {'use server'; return await getDecodedIdToken(sessionId);}}
     >
       {children}
     </AsgardeoClientProvider>
