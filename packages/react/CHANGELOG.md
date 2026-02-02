@@ -1,5 +1,19 @@
 # @asgardeo/react
 
+## 0.10.0
+
+### Minor Changes
+
+- [#325](https://github.com/asgardeo/javascript/pull/325)
+  [`45cbc37`](https://github.com/asgardeo/javascript/commit/45cbc37771d94852fd39316195155a4ed99e7998) Thanks
+  [@kavindadimuthu](https://github.com/kavindadimuthu)! - Add support to pass `instanceId` externally through
+  `AsgardeoProvider` props to allow multi-organization setups
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @asgardeo/browser@0.2.5
+
 ## 0.9.3
 
 ### Patch Changes
