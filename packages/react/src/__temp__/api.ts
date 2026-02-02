@@ -37,17 +37,27 @@ class AuthAPI {
 
   private _authState = AuthAPI.DEFAULT_STATE;
   private _client: AsgardeoSPAClient;
+  private _instanceId: number;
 
   private _isLoading: boolean;
 
-  constructor(spaClient?: AsgardeoSPAClient) {
-    this._client = spaClient ?? AsgardeoSPAClient.getInstance();
+  constructor(spaClient?: AsgardeoSPAClient, instanceId: number = 0) {
+    this._instanceId = instanceId;
+    this._client = spaClient ?? AsgardeoSPAClient.getInstance(instanceId);
 
     this.getState = this.getState.bind(this);
     this.init = this.init.bind(this);
     this.signIn = this.signIn.bind(this);
     this.signOut = this.signOut.bind(this);
     this.updateState = this.updateState.bind(this);
+  }
+
+  /**
+   * Get the instance ID for this AuthAPI instance.
+   * @returns The instance ID used for multi-auth context support.
+   */
+  public getInstanceId(): number {
+    return this._instanceId;
   }
 
   public _setIsLoading(isLoading: boolean): void {
