@@ -1,6 +1,6 @@
 {
   "name": "@asgardeo/react",
-  "version": "0.9.3",
+  "version": "0.10.0",
   "description": "React implementation of Asgardeo JavaScript SDK.",
   "keywords": [
     "asgardeo",
