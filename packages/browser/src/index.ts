@@ -56,9 +56,12 @@ export * from '@asgardeo/javascript';
 export {
   detectThemeMode,
   createClassObserver,
+  createDataAttributeObserver,
+  createAutoObserver,
   createMediaQueryListener,
-  BrowserThemeDetection,
 } from './theme/themeDetection';
+
+export type {BrowserThemeDetection} from './theme/themeDetection';
 export {default as getActiveTheme} from './theme/getActiveTheme';
 
 export {default as handleWebAuthnAuthentication} from './utils/handleWebAuthnAuthentication';

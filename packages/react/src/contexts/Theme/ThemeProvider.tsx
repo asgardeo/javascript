@@ -25,6 +25,8 @@ import {
   RecursivePartial,
   detectThemeMode,
   createClassObserver,
+  createDataAttributeObserver,
+  createAutoObserver,
   createMediaQueryListener,
   BrowserThemeDetection,
   ThemePreferences,
@@ -40,10 +42,8 @@ export interface ThemeProviderProps {
    * - 'light': Always use light theme
    * - 'dark': Always use dark theme
    * - 'system': Use system preference (prefers-color-scheme media query)
-   * - 'class': Detect theme based on CSS classes on HTML element
-   * - 'branding': Use active theme from branding preference (requires inheritFromBranding=true)
    */
-  mode?: ThemeMode | 'branding';
+  mode?: ThemeMode;
   /**
    * Configuration for theme detection when using 'class' or 'system' mode
    */
@@ -110,20 +110,17 @@ const applyThemeToDOM = (theme: Theme) => {
 const ThemeProvider: FC<PropsWithChildren<ThemeProviderProps>> = ({
   children,
   theme: themeConfig,
-  mode = DEFAULT_THEME,
+  mode = 'auto',
   detection = {},
   inheritFromBranding = true,
 }: PropsWithChildren<ThemeProviderProps>): ReactElement => {
-  const [colorScheme, setColorScheme] = useState<'light' | 'dark'>(() => {
+  const [colorScheme, setColorScheme] = useState<ThemeMode>(() => {
     // Initialize with detected theme mode or fallback to defaultMode
     if (mode === 'light' || mode === 'dark') {
       return mode;
     }
-    // For 'branding' mode, start with system preference and update when branding loads
-    if (mode === 'branding') {
-      return detectThemeMode('system', detection);
-    }
-    return detectThemeMode(mode, detection);
+
+    return detectThemeMode(mode as ThemeMode, detection);
   });
 
   // Use branding theme if inheritFromBranding is enabled
@@ -149,15 +146,12 @@ const ThemeProvider: FC<PropsWithChildren<ThemeProviderProps>> = ({
     }
   }
 
-  // Update color scheme based on branding active theme when available
+  /**
+   * Update color scheme based on branding active theme when available
+   */
   useEffect(() => {
     if (inheritFromBranding && brandingActiveTheme) {
-      // Update color scheme based on mode preference
-      if (mode === 'branding') {
-        // Always follow branding active theme
-        setColorScheme(brandingActiveTheme);
-      } else if (mode === 'system' && !isBrandingLoading) {
-        // For system mode, prefer branding but allow system override if no branding
+      if (!isBrandingLoading) {
         setColorScheme(brandingActiveTheme);
       }
     }
@@ -225,18 +219,43 @@ const ThemeProvider: FC<PropsWithChildren<ThemeProviderProps>> = ({
   }, []);
 
   useEffect(() => {
-    let observer: MutationObserver | null = null;
+    let observers: MutationObserver[] = [];
     let mediaQuery: MediaQueryList | null = null;
 
-    // Don't set up automatic theme detection for branding mode
-    if (mode === 'branding') {
-      return null;
-    }
+    const targetElement = (detection.targetElement || document.documentElement) as HTMLElement;
 
-    if (mode === 'class') {
-      const targetElement = detection.targetElement || document.documentElement;
-      if (targetElement) {
-        observer = createClassObserver(targetElement, handleThemeChange, detection);
+    if (mode === 'auto') {
+      // Auto-detection: try multiple strategies based on priority
+      const strategy = detection.strategy || 'auto';
+
+      if (strategy === 'auto') {
+        // Use createAutoObserver for multi-strategy detection
+        const {observers: autoObservers, mediaQuery: autoMediaQuery} = createAutoObserver(
+          targetElement,
+          handleThemeChange,
+          detection,
+        );
+        observers = autoObservers;
+        mediaQuery = autoMediaQuery;
+      } else {
+        // Use specific strategy
+        switch (strategy) {
+          case 'dataAttribute':
+            if (targetElement) {
+              observers.push(createDataAttributeObserver(targetElement, handleThemeChange, detection));
+            }
+            break;
+          case 'class':
+            if (targetElement) {
+              observers.push(createClassObserver(targetElement, handleThemeChange, detection));
+            }
+            break;
+          case 'system':
+            if (!inheritFromBranding || !brandingActiveTheme) {
+              mediaQuery = createMediaQueryListener(handleThemeChange);
+            }
+            break;
+        }
       }
     } else if (mode === 'system') {
       // Only set up system listener if not using branding or branding hasn't loaded yet
@@ -246,11 +265,15 @@ const ThemeProvider: FC<PropsWithChildren<ThemeProviderProps>> = ({
     }
 
     return () => {
-      if (observer) {
-        observer.disconnect();
-      }
+      // Clean up all observers
+      observers.forEach(observer => {
+        if (observer) {
+          observer.disconnect();
+        }
+      });
+
+      // Clean up media query listener
       if (mediaQuery) {
-        // Clean up media query listener
         if (mediaQuery.removeEventListener) {
           mediaQuery.removeEventListener('change', handleThemeChange as any);
         } else {

@@ -198,6 +198,15 @@ export interface ThemeConfig {
    * Component style overrides
    */
   components?: ThemeComponents;
+  /**
+   * Theme mode configuration
+   * @default 'auto' (automatically detects theme from data attributes, classes, or system preference)
+   */
+  mode?: ThemeMode;
+  /**
+   * Theme detection configuration (used when mode is 'auto' or 'system')
+   */
+  detection?: ThemeDetection;
 }
 
 export interface ThemeComponentVars {
@@ -349,19 +358,66 @@ export interface Theme extends ThemeConfig {
   vars: ThemeVars;
 }
 
-export type ThemeMode = 'light' | 'dark' | 'system' | 'class';
+export type ThemeMode = 'light' | 'dark' | 'system' | 'auto';
+
+export type ThemeDetectionStrategy = 'system' | 'class' | 'dataAttribute' | 'manual' | 'auto';
 
 export interface ThemeDetection {
   /**
-   * The CSS class name to detect for dark mode (without the dot)
-   * @default 'dark'
+   * How to detect the current theme when mode is 'auto'
+   * @default 'auto' (tries dataAttribute -> class -> system in that order)
    */
-  darkClass?: string;
+  strategy?: ThemeDetectionStrategy;
   /**
-   * The CSS class name to detect for light mode (without the dot)
-   * @default 'light'
+   * The target element to observe for theme changes
+   * @default document.documentElement (html element)
    */
-  lightClass?: string;
+  targetElement?: HTMLElement | null;
+  /**
+   * CSS class configuration (for 'class' strategy)
+   */
+  classes?: {
+    /**
+     * The CSS class name to detect for dark mode (without the dot)
+     * @default 'dark'
+     */
+    dark?: string;
+    /**
+     * The CSS class name to detect for light mode (without the dot)
+     * @default 'light'
+     */
+    light?: string;
+  };
+  /**
+   * Data attribute configuration (for 'dataAttribute' strategy)
+   */
+  dataAttribute?: {
+    /**
+     * The data attribute name to observe (without 'data-' prefix)
+     * @default 'theme' (observes data-theme attribute)
+     */
+    name?: string;
+    /**
+     * Value mapping for theme modes
+     */
+    values?: {
+      /**
+       * Data attribute value for light theme
+       * @default 'light'
+       */
+      light?: string;
+      /**
+       * Data attribute value for dark theme
+       * @default 'dark'
+       */
+      dark?: string;
+    };
+  };
+  /**
+   * Detection priority when strategy is 'auto'
+   * @default ['dataAttribute', 'class', 'system']
+   */
+  priority?: ThemeDetectionStrategy[];
 }
 
 export interface ThemeImage {

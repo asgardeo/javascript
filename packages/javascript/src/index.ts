@@ -162,7 +162,7 @@ export {FieldType} from './models/field';
 export {default as AsgardeoJavaScriptClient} from './AsgardeoJavaScriptClient';
 
 export {default as createTheme, DEFAULT_THEME} from './theme/createTheme';
-export {ThemeColors, ThemeConfig, Theme, ThemeMode, ThemeDetection} from './theme/types';
+export {ThemeColors, ThemeConfig, Theme, ThemeMode, ThemeDetection, ThemeDetectionStrategy} from './theme/types';
 
 export {default as arrayBufferToBase64url} from './utils/arrayBufferToBase64url';
 export {default as base64urlToArrayBuffer} from './utils/base64urlToArrayBuffer';
