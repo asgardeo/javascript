@@ -1,5 +1,13 @@
 # @asgardeo/javascript
 
+## 0.7.0
+
+### Minor Changes
+
+- [#347](https://github.com/asgardeo/javascript/pull/347)
+  [`481f002`](https://github.com/asgardeo/javascript/commit/481f0021378b4367e7a0c539cd25c7b455fd4557) Thanks
+  [@thiva-k](https://github.com/thiva-k)! - Update post login/signin callback url for V2
+
 ## 0.6.0
 
 ### Minor Changes
