@@ -266,7 +266,7 @@ const AsgardeoProvider: FC<PropsWithChildren<AsgardeoProviderProps>> = ({
       }
 
       const currentUrl: URL = new URL(window.location.href);
-      const hasAuthParamsResult: boolean = hasAuthParams(currentUrl, afterSignInUrl) && hasCalledForThisInstance(currentUrl, instanceId ?? 1);
+      const hasAuthParamsResult: boolean = hasAuthParams(currentUrl, afterSignInUrl) && hasCalledForThisInstance(currentUrl, instanceId ?? 0);
 
       const isV2Platform: boolean = config.platform === Platform.AsgardeoV2;
 
