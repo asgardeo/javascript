@@ -93,10 +93,10 @@ const executeEmbeddedSignUpFlowV2 = async ({
   const flowResponse: EmbeddedSignUpFlowResponseV2 = await response.json();
 
   // IMPORTANT: Only applicable for Asgardeo V2 platform.
-  // Check if the flow is complete and has an assertion and authId is provided, then call OAuth2 authorize.
+  // Check if the flow is complete and has an assertion and authId is provided, then call OAuth2 auth callback.
   if (flowResponse.flowStatus === EmbeddedSignUpFlowStatusV2.Complete && (flowResponse as any).assertion && authId) {
     try {
-      const oauth2Response: Response = await fetch(`${baseUrl}/oauth2/authorize`, {
+      const oauth2Response: Response = await fetch(`${baseUrl}/oauth2/auth/callback`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

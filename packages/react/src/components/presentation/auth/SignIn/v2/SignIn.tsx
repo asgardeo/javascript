@@ -505,7 +505,7 @@ const SignIn: FC<SignInProps> = ({className, size = 'medium', onSuccess, onError
       }
 
       if (response.flowStatus === EmbeddedSignInFlowStatusV2.Complete) {
-        // Get redirectUrl from response (from /oauth2/authorize) or fall back to afterSignInUrl
+        // Get redirectUrl from response (from /oauth2/auth/callback) or fall back to afterSignInUrl
         const redirectUrl = (response as any)?.redirectUrl || (response as any)?.redirect_uri;
         const finalRedirectUrl = redirectUrl || afterSignInUrl;
 

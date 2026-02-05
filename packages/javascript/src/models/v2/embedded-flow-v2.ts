@@ -398,7 +398,7 @@ export interface EmbeddedFlowExecuteRequestConfig<T = any> extends EmbeddedFlowE
    *
    * When the embedded flow completes successfully and returns an assertion,
    * this authId is used to complete the OAuth2 authorization flow by calling
-   * the `/oauth2/authorize` endpoint. This enables seamless transition from
+   * the `/oauth2/auth/callback` endpoint. This enables seamless transition from
    * embedded flow to traditional OAuth2 flow completion.
    *
    * @example "auth_abc123def456"
