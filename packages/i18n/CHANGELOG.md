@@ -1,5 +1,13 @@
 # @asgardeo/i18n
 
+## 0.4.2
+
+### Patch Changes
+
+- [#328](https://github.com/asgardeo/javascript/pull/328)
+  [`019cd19`](https://github.com/asgardeo/javascript/commit/019cd19cb946729ffad5e1511e65da1c5b14720d) Thanks
+  [@DonOmalVindula](https://github.com/DonOmalVindula)! - Fix failures in the CI
+
 ## 0.4.1
 
 ### Patch Changes

@@ -1,6 +1,6 @@
 {
   "name": "@asgardeo/vue",
-  "version": "0.0.9",
+  "version": "0.0.10",
   "description": "Vue SDK for Asgardeo - Authentication and Identity Management",
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",

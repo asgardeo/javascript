@@ -1,5 +1,22 @@
 # @asgardeo/react
 
+## 0.11.1
+
+### Patch Changes
+
+- [#354](https://github.com/asgardeo/javascript/pull/354)
+  [`e4328db`](https://github.com/asgardeo/javascript/commit/e4328db4c129fde1129928c1dbcab0f741c56ef2) Thanks
+  [@DonOmalVindula](https://github.com/DonOmalVindula)! - Fix UserProfile component in AsgardeoV2 platform
+
+- [#328](https://github.com/asgardeo/javascript/pull/328)
+  [`019cd19`](https://github.com/asgardeo/javascript/commit/019cd19cb946729ffad5e1511e65da1c5b14720d) Thanks
+  [@DonOmalVindula](https://github.com/DonOmalVindula)! - Fix failures in the CI
+
+- Updated dependencies
+  [[`019cd19`](https://github.com/asgardeo/javascript/commit/019cd19cb946729ffad5e1511e65da1c5b14720d)]:
+  - @asgardeo/browser@0.2.7
+  - @asgardeo/i18n@0.4.2
+
 ## 0.11.0
 
 ### Minor Changes

@@ -1,5 +1,16 @@
 # @asgardeo/browser
 
+## 0.2.7
+
+### Patch Changes
+
+- [#328](https://github.com/asgardeo/javascript/pull/328)
+  [`019cd19`](https://github.com/asgardeo/javascript/commit/019cd19cb946729ffad5e1511e65da1c5b14720d) Thanks
+  [@DonOmalVindula](https://github.com/DonOmalVindula)! - Fix failures in the CI
+
+- Updated dependencies []:
+  - @asgardeo/javascript@0.7.1
+
 ## 0.2.6
 
 ### Patch Changes
