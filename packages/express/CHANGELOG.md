@@ -1,5 +1,18 @@
 # @asgardeo/express
 
+## 0.0.50
+
+### Patch Changes
+
+- [#328](https://github.com/asgardeo/javascript/pull/328)
+  [`019cd19`](https://github.com/asgardeo/javascript/commit/019cd19cb946729ffad5e1511e65da1c5b14720d) Thanks
+  [@DonOmalVindula](https://github.com/DonOmalVindula)! - Fix failures in the CI
+
+- Updated dependencies
+  [[`4684e3a`](https://github.com/asgardeo/javascript/commit/4684e3a6b1f7e9a78d55428cd78fbea9cfabfd3b),
+  [`019cd19`](https://github.com/asgardeo/javascript/commit/019cd19cb946729ffad5e1511e65da1c5b14720d)]:
+  - @asgardeo/node@0.0.51
+
 ## 0.0.49
 
 ### Patch Changes

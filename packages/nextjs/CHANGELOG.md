@@ -1,5 +1,20 @@
 # @asgardeo/nextjs
 
+## 0.1.75
+
+### Patch Changes
+
+- [#328](https://github.com/asgardeo/javascript/pull/328)
+  [`019cd19`](https://github.com/asgardeo/javascript/commit/019cd19cb946729ffad5e1511e65da1c5b14720d) Thanks
+  [@DonOmalVindula](https://github.com/DonOmalVindula)! - Fix failures in the CI
+
+- Updated dependencies
+  [[`e4328db`](https://github.com/asgardeo/javascript/commit/e4328db4c129fde1129928c1dbcab0f741c56ef2),
+  [`4684e3a`](https://github.com/asgardeo/javascript/commit/4684e3a6b1f7e9a78d55428cd78fbea9cfabfd3b),
+  [`019cd19`](https://github.com/asgardeo/javascript/commit/019cd19cb946729ffad5e1511e65da1c5b14720d)]:
+  - @asgardeo/react@0.11.1
+  - @asgardeo/node@0.0.51
+
 ## 0.1.74
 
 ### Patch Changes
