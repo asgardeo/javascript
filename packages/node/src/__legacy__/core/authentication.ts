@@ -257,6 +257,6 @@ export class AsgardeoNodeCore<T> {
   }
 
   public async decodeJwtToken<K = Record<string, unknown>>(token: string): Promise<K> {
-    return this._auth.decodeJwtToken<K>(token);
+    return this.auth.decodeJwtToken<K>(token);
   }
 }
