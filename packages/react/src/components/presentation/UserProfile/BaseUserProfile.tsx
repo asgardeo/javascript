@@ -32,6 +32,8 @@ import Card from '../../primitives/Card/Card';
 import useStyles from './BaseUserProfile.styles';
 import useTranslation from '../../../hooks/useTranslation';
 import Alert from '../../primitives/Alert/Alert';
+import Divider from '../../primitives/Divider/Divider';
+import Typography from '../../primitives/Typography/Typography';
 import getDisplayName from '../../../utils/getDisplayName';
 
 interface ExtendedFlatSchema {
@@ -79,6 +81,7 @@ export interface BaseUserProfileProps {
   title?: string;
   error?: string | null;
   isLoading?: boolean;
+  displayNameAttributes?: string[];
 }
 
 // Fields to skip based on schema.name
@@ -124,6 +127,7 @@ const BaseUserProfile: FC<BaseUserProfileProps> = ({
   isLoading = false,
   showFields = [],
   hideFields = [],
+  displayNameAttributes = [],
 }): ReactElement => {
   const {theme, colorScheme} = useTheme();
   const [editedUser, setEditedUser] = useState(flattenedProfile || profile);
@@ -308,7 +312,7 @@ const BaseUserProfile: FC<BaseUserProfileProps> = ({
     picture: ['profile', 'profileUrl', 'picture', 'URL'],
     firstName: ['name.givenName', 'given_name'],
     lastName: ['name.familyName', 'family_name'],
-    email: ['emails'],
+    email: ['emails', 'email'],
     username: ['userName', 'username', 'user_name'],
   };
 
@@ -596,22 +600,45 @@ const BaseUserProfile: FC<BaseUserProfileProps> = ({
   const renderProfileWithoutSchemas = () => {
     if (!currentUser) return null;
 
+    const displayName = getDisplayName(mergedMappings, profile, displayNameAttributes);
+
     const profileEntries = Object.entries(currentUser)
       .filter(([key, value]) => {
         if (!shouldShowField(key)) return false;
 
         return value !== undefined && value !== '' && value !== null;
       })
-      .sort(([a], [b]) => a.localeCompare(b)); // Sort alphabetically
+      .sort(([a], [b]) => a.localeCompare(b));
 
     return (
       <>
-        {profileEntries.map(([key, value]) => (
-          <div key={key} className={styles.field}>
-            <span className={styles.label}>{formatLabel(key)}</span>
-            <div className={styles.value}>
-              {typeof value === 'object' ? JSON.stringify(value, null, 2) : String(value)}
+        <div className={styles.profileSummary}>
+          <Avatar
+            imageUrl={getMappedUserProfileValue('picture', mergedMappings, currentUser)}
+            name={displayName}
+            size={70}
+            alt={`${displayName}'s avatar`}
+            isLoading={isLoading}
+          />
+          <Typography variant="h3" fontWeight="medium">
+            {displayName}
+          </Typography>
+          {getMappedUserProfileValue('email', mergedMappings, currentUser) && (
+            <Typography variant="body2" color="textSecondary">
+              {getMappedUserProfileValue('email', mergedMappings, currentUser)}
+            </Typography>
+          )}
+        </div>
+        <Divider />
+        {profileEntries.map(([key, value], index) => (
+          <div key={key}>
+            <div className={styles.sectionRow}>
+              <div className={styles.sectionLabel}>{formatLabel(key)}</div>
+              <div className={styles.sectionValue}>
+                {typeof value === 'object' ? <ObjectDisplay data={value} /> : String(value)}
+              </div>
             </div>
+            {index < profileEntries.length - 1 && <Divider />}
           </div>
         ))}
       </>
@@ -626,15 +653,17 @@ const BaseUserProfile: FC<BaseUserProfileProps> = ({
           <Alert.Description>{error}</Alert.Description>
         </Alert>
       )}
-      <div className={styles.header}>
-        <Avatar
-          imageUrl={getMappedUserProfileValue('picture', mergedMappings, currentUser)}
-          name={getDisplayName(mergedMappings, profile)}
-          size={80}
-          alt={`${getDisplayName(mergedMappings, profile)}'s avatar`}
-          isLoading={isLoading}
-        />
-      </div>
+      {schemas && schemas.length > 0 && (
+        <div className={styles.header}>
+          <Avatar
+            imageUrl={getMappedUserProfileValue('picture', mergedMappings, currentUser)}
+            name={getDisplayName(mergedMappings, profile)}
+            size={80}
+            alt={`${getDisplayName(mergedMappings, profile)}'s avatar`}
+            isLoading={isLoading}
+          />
+        </div>
+      )}
       <div className={styles.infoContainer}>
         {schemas && schemas.length > 0
           ? schemas

@@ -107,6 +107,35 @@ const useStyles = (theme: Theme, colorScheme: string) => {
       color: ${theme.vars.colors.text.primary};
     `;
 
+    const profileSummary = css`
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+    `;
+
+    const sectionRow = css`
+      display: flex;
+      align-items: center;
+      padding: calc(${theme.vars.spacing.unit} * 1) 0;
+    `;
+
+    const sectionLabel = css`
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: ${theme.vars.colors.text.primary};
+      width: 160px;
+      flex-shrink: 0;
+    `;
+
+    const sectionValue = css`
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: calc(${theme.vars.spacing.unit} * 1.5);
+      font-size: 0.875rem;
+      color: ${theme.vars.colors.text.primary};
+    `;
+
     const infoContainer = css`
       display: flex;
       flex-direction: column;
@@ -186,6 +215,7 @@ const useStyles = (theme: Theme, colorScheme: string) => {
       card,
       header,
       profileInfo,
+      profileSummary,
       name,
       infoContainer,
       info,
@@ -201,6 +231,9 @@ const useStyles = (theme: Theme, colorScheme: string) => {
       complexTextarea,
       objectKey,
       objectValue,
+      sectionRow,
+      sectionLabel,
+      sectionValue,
     };
   }, [
     theme.vars.colors.background.surface,
