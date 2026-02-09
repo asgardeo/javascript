@@ -24,29 +24,39 @@ import getMappedUserProfileValue from './getMappedUserProfileValue';
  *
  * @param mergedMappings - The merged attribute mappings.
  * @param user - The user object containing profile information.
+ * @param displayAttributes - Optional array of attribute keys or paths to try first.
+ *   Each entry is resolved via `getMappedUserProfileValue`. The first non-empty
+ *   value found is returned. If none resolve, the default fallback chain is used.
  *
  * @example
  * ```ts
- * const mergedMappings = {
- *   firstName: ['name.givenName', 'given_name'],
- *   lastName: ['name.familyName', 'family_name'],
- *   username: ['userName', 'username', 'user_name'],
- *   email: ['emails[0].value', 'email'],
- *   name: ['name', 'fullName'],
- * };
- *
- * const user: User = {
- *   id: '1',
- *   name: 'John Doe',
- *   email: 'john.doe@example.com',
- * };
- *
+ * // Default behavior — tries firstName+lastName, then username, email, name
  * const displayName = getDisplayName(mergedMappings, user);
+ *
+ * // Custom attributes — try 'nickname' first, then fall back to defaults
+ * const displayName = getDisplayName(mergedMappings, user, ['nickname']);
+ *
+ * // Multiple custom attributes
+ * const displayName = getDisplayName(mergedMappings, user, ['preferred_username', 'nickname']);
  * ```
  *
  * @returns The display name of the user.
  */
-const getDisplayName = (mergedMappings: {[key: string]: string | string[] | undefined}, user: User): string => {
+const getDisplayName = (
+  mergedMappings: {[key: string]: string | string[] | undefined},
+  user: User,
+  displayAttributes?: string[],
+): string => {  
+  if (displayAttributes && displayAttributes.length > 0) {
+    for (const attr of displayAttributes) {
+      const value = getMappedUserProfileValue(attr, mergedMappings, user);      
+
+      if (value !== undefined && value !== null && value !== '') {
+        return String(value);
+      }
+    }
+  }
+
   const firstName = getMappedUserProfileValue('firstName', mergedMappings, user);
   const lastName = getMappedUserProfileValue('lastName', mergedMappings, user);
 
