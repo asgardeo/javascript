@@ -91,8 +91,8 @@ class AuthAPI {
             allowedScopes: response.allowedScopes,
             displayName: response.displayName,
             email: response.email,
-            isSignedIn: true,
             isLoading: false,
+            isSignedIn: true,
             isSigningOut: false,
             sub: response.sub,
             username: response.username,
@@ -140,6 +140,15 @@ class AuthAPI {
    * @return {Promise<BasicUserInfo>} a promise that resolves with the user information.
    */
   public async getBasicUserInfo(): Promise<BasicUserInfo> {
+    return this._client.getBasicUserInfo();
+  }
+
+  /**
+   * This method returns a Promise that resolves with the basic user information obtained from the ID token.
+   *
+   * @return {Promise<BasicUserInfo>} a promise that resolves with the user information.
+   */
+  public async getUser(): Promise<BasicUserInfo> {
     return this._client.getBasicUserInfo();
   }
 
@@ -195,8 +204,8 @@ class AuthAPI {
           Object.assign(this._authState, {
             ...this._authState,
             ...(response as BasicUserInfo),
-            isSignedIn: true,
             isLoading: false,
+            isSignedIn: true,
           });
         }
         if (callback) {
@@ -401,8 +410,8 @@ class AuthAPI {
             allowedScopes: basicUserInfo.allowedScopes,
             displayName: basicUserInfo.displayName,
             email: basicUserInfo.email,
-            isSignedIn: true,
             isLoading: false,
+            isSignedIn: true,
             sub: basicUserInfo.sub,
             username: basicUserInfo.username,
           });
@@ -417,8 +426,8 @@ AuthAPI.DEFAULT_STATE = {
   allowedScopes: '',
   displayName: '',
   email: '',
-  isSignedIn: false,
   isLoading: true,
+  isSignedIn: false,
   sub: '',
   username: '',
 };

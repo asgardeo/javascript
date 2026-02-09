@@ -16,25 +16,85 @@
  * under the License.
  */
 
-import {render, screen, waitFor} from '@testing-library/react';
+import {cleanup, render, screen, waitFor} from '@testing-library/react';
 import {describe, it, expect, vi, beforeEach, afterEach} from 'vitest';
 import {BaseOrganizationSwitcher, Organization} from './BaseOrganizationSwitcher';
-import React from 'react';
+
+// Mock theme data
+const mockColors = {
+  text: {primary: '#000', secondary: '#666'},
+  background: {surface: '#fff', disabled: '#eee', body: {main: '#fff'}},
+  border: '#ccc',
+  action: {
+    hover: '#f0f0f0',
+    active: '#e0e0e0',
+    selected: '#d0d0d0',
+    disabled: '#bbb',
+    disabledBackground: '#f5f5f5',
+    focus: '#0066cc',
+    hoverOpacity: 0.08,
+    selectedOpacity: 0.12,
+    disabledOpacity: 0.38,
+    focusOpacity: 0.12,
+    activatedOpacity: 0.12,
+  },
+  primary: {main: '#0066cc', contrastText: '#fff'},
+  secondary: {main: '#666', contrastText: '#fff'},
+  error: {main: '#d32f2f', contrastText: '#fff'},
+  success: {main: '#2e7d32', contrastText: '#fff'},
+  warning: {main: '#ed6c02', contrastText: '#fff'},
+  info: {main: '#0288d1', contrastText: '#fff'},
+};
+
+const mockTypography = {
+  fontFamily: 'Arial, sans-serif',
+  fontSizes: {xs: '0.75rem', sm: '0.875rem', md: '1rem', lg: '1.125rem', xl: '1.25rem', '2xl': '1.5rem', '3xl': '1.875rem'},
+  fontWeights: {normal: 400, medium: 500, semibold: 600, bold: 700},
+  lineHeights: {tight: 1.25, normal: 1.5, relaxed: 1.75},
+};
+
+const mockTypographyVars = {
+  fontFamily: 'Arial, sans-serif',
+  fontSizes: {xs: '0.75rem', sm: '0.875rem', md: '1rem', lg: '1.125rem', xl: '1.25rem', '2xl': '1.5rem', '3xl': '1.875rem'},
+  fontWeights: {normal: '400', medium: '500', semibold: '600', bold: '700'},
+  lineHeights: {tight: '1.25', normal: '1.5', relaxed: '1.75'},
+};
+
+const mockColorsVars = {
+  ...mockColors,
+  action: {
+    hover: '#f0f0f0',
+    active: '#e0e0e0',
+    selected: '#d0d0d0',
+    disabled: '#bbb',
+    disabledBackground: '#f5f5f5',
+    focus: '#0066cc',
+    hoverOpacity: '0.08',
+    selectedOpacity: '0.12',
+    disabledOpacity: '0.38',
+    focusOpacity: '0.12',
+    activatedOpacity: '0.12',
+  },
+};
 
 // Mock the dependencies
 vi.mock('../../../contexts/Theme/useTheme', () => ({
   default: () => ({
     theme: {
+      // ThemeConfig properties (direct access)
+      colors: mockColors,
+      typography: mockTypography,
+      spacing: {unit: 8},
+      borderRadius: {small: '2px', medium: '4px', large: '8px'},
+      shadows: {small: '0 1px 2px rgba(0,0,0,0.1)', medium: '0 2px 4px rgba(0,0,0,0.1)', large: '0 4px 8px rgba(0,0,0,0.1)'},
+      cssVariables: {},
+      // ThemeVars (CSS variable references)
       vars: {
-        colors: {
-          text: {primary: '#000', secondary: '#666'},
-          background: {surface: '#fff'},
-          border: '#ccc',
-          action: {hover: '#f0f0f0'},
-        },
+        colors: mockColorsVars,
         spacing: {unit: '8px'},
-        borderRadius: {medium: '4px', large: '8px'},
-        shadows: {medium: '0 2px 4px rgba(0,0,0,0.1)'},
+        borderRadius: {small: '2px', medium: '4px', large: '8px'},
+        shadows: {small: '0 1px 2px rgba(0,0,0,0.1)', medium: '0 2px 4px rgba(0,0,0,0.1)', large: '0 4px 8px rgba(0,0,0,0.1)'},
+        typography: mockTypographyVars,
       },
     },
     colorScheme: 'light',
@@ -74,6 +134,7 @@ describe('BaseOrganizationSwitcher RTL Support', () => {
   });
 
   afterEach(() => {
+    cleanup();
     document.documentElement.removeAttribute('dir');
   });
 
@@ -89,7 +150,7 @@ describe('BaseOrganizationSwitcher RTL Support', () => {
       />,
     );
 
-    expect(screen.getByText('Organization 1')).toBeInTheDocument();
+    expect(screen.getByText('Organization 1')).toBeDefined();
   });
 
   it('should render correctly in RTL mode', () => {
@@ -104,7 +165,7 @@ describe('BaseOrganizationSwitcher RTL Support', () => {
       />,
     );
 
-    expect(screen.getByText('Organization 1')).toBeInTheDocument();
+    expect(screen.getByText('Organization 1')).toBeDefined();
   });
 
   it('should flip chevron icon in RTL mode', async () => {
@@ -123,9 +184,9 @@ describe('BaseOrganizationSwitcher RTL Support', () => {
       const chevronIcon = container.querySelector('svg');
       expect(chevronIcon).toBeTruthy();
       if (chevronIcon) {
-        const style = window.getComputedStyle(chevronIcon);
-        // In RTL mode, the transform should be scaleX(-1)
-        expect(chevronIcon.style.transform).toContain('scaleX(-1)');
+        // The transform is on the parent span, not the SVG itself
+        const parentSpan = chevronIcon.parentElement;
+        expect(parentSpan?.style.transform).toContain('scaleX(-1)');
       }
     });
   });
@@ -146,8 +207,10 @@ describe('BaseOrganizationSwitcher RTL Support', () => {
       const chevronIcon = container.querySelector('svg');
       expect(chevronIcon).toBeTruthy();
       if (chevronIcon) {
-        // In LTR mode, the transform should be none
-        expect(chevronIcon.style.transform).toBe('none');
+        // The transform is on the parent span, not the SVG itself
+        // In LTR mode, the transform should be 'none'
+        const parentSpan = chevronIcon.parentElement;
+        expect(parentSpan?.style.transform).toBe('none');
       }
     });
   });
@@ -164,9 +227,10 @@ describe('BaseOrganizationSwitcher RTL Support', () => {
       />,
     );
 
-    // Initially LTR
+    // Initially LTR - style.transform is 'none' on parent span
     let chevronIcon = container.querySelector('svg');
-    expect(chevronIcon?.style.transform).toBe('none');
+    let parentSpan = chevronIcon?.parentElement;
+    expect(parentSpan?.style.transform).toBe('none');
 
     // Change to RTL
     document.documentElement.setAttribute('dir', 'rtl');
@@ -182,7 +246,8 @@ describe('BaseOrganizationSwitcher RTL Support', () => {
 
     await waitFor(() => {
       chevronIcon = container.querySelector('svg');
-      expect(chevronIcon?.style.transform).toContain('scaleX(-1)');
+      parentSpan = chevronIcon?.parentElement;
+      expect(parentSpan?.style.transform).toContain('scaleX(-1)');
     });
   });
 });

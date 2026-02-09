@@ -30,7 +30,7 @@
   },
   "devDependencies": {
     "@changesets/changelog-github": "0.5.1",
-    "@changesets/cli": "2.29.4",
+    "@changesets/cli": "2.29.8",
     "@wso2/eslint-plugin": "catalog:",
     "@wso2/prettier-config": "catalog:",
     "eslint": "8.57.0",
@@ -46,7 +46,18 @@
       "test-exclude>glob": "10.5.0",
       "js-beautify>glob": "10.5.0",
       "@types/react": "19.1.5",
-      "@types/react-dom": "19.1.5"
+      "@types/react-dom": "19.1.5",
+      "js-yaml": "4.1.1",
+      "read-yaml-file": "2.1.0",
+      "brace-expansion": "2.0.2",
+      "@eslint/plugin-kit": "0.3.4",
+      "tmp": "0.2.4",
+      "min-document": "2.19.1",
+      "lodash": "4.17.23",
+      "tar": "7.5.4",
+      "seroval": "1.4.1",
+      "qs": "6.14.1",
+      "@vitejs/plugin-vue>vite": "7.1.12"
     }
   },
   "publishConfig": {
