@@ -136,22 +136,19 @@ export class AuthenticationHelper<T> {
       });
     }
 
+    const endpointKeys: typeof OIDCDiscoveryConstants.Storage.StorageKeys.Endpoints =
+      OIDCDiscoveryConstants.Storage.StorageKeys.Endpoints;
+    const endpointPaths: typeof OIDCDiscoveryConstants.Endpoints = OIDCDiscoveryConstants.Endpoints;
+
     const defaultEndpoints: OIDCDiscoveryApiResponse = {
-      [OIDCDiscoveryConstants.Storage.StorageKeys.Endpoints
-        .AUTHORIZATION]: `${baseUrl}${OIDCDiscoveryConstants.Endpoints.AUTHORIZATION}`,
-      [OIDCDiscoveryConstants.Storage.StorageKeys.Endpoints
-        .END_SESSION]: `${baseUrl}${OIDCDiscoveryConstants.Endpoints.END_SESSION}`,
-      [OIDCDiscoveryConstants.Storage.StorageKeys.Endpoints
-        .ISSUER]: `${baseUrl}${OIDCDiscoveryConstants.Endpoints.ISSUER}`,
-      [OIDCDiscoveryConstants.Storage.StorageKeys.Endpoints.JWKS]: `${baseUrl}${OIDCDiscoveryConstants.Endpoints.JWKS}`,
-      [OIDCDiscoveryConstants.Storage.StorageKeys.Endpoints
-        .SESSION_IFRAME]: `${baseUrl}${OIDCDiscoveryConstants.Endpoints.SESSION_IFRAME}`,
-      [OIDCDiscoveryConstants.Storage.StorageKeys.Endpoints
-        .REVOCATION]: `${baseUrl}${OIDCDiscoveryConstants.Endpoints.REVOCATION}`,
-      [OIDCDiscoveryConstants.Storage.StorageKeys.Endpoints
-        .TOKEN]: `${baseUrl}${OIDCDiscoveryConstants.Endpoints.TOKEN}`,
-      [OIDCDiscoveryConstants.Storage.StorageKeys.Endpoints
-        .USERINFO]: `${baseUrl}${OIDCDiscoveryConstants.Endpoints.USERINFO}`,
+      [endpointKeys.AUTHORIZATION]: `${baseUrl}${endpointPaths.AUTHORIZATION}`,
+      [endpointKeys.END_SESSION]: `${baseUrl}${endpointPaths.END_SESSION}`,
+      [endpointKeys.ISSUER]: `${baseUrl}${endpointPaths.ISSUER}`,
+      [endpointKeys.JWKS]: `${baseUrl}${endpointPaths.JWKS}`,
+      [endpointKeys.SESSION_IFRAME]: `${baseUrl}${endpointPaths.SESSION_IFRAME}`,
+      [endpointKeys.REVOCATION]: `${baseUrl}${endpointPaths.REVOCATION}`,
+      [endpointKeys.TOKEN]: `${baseUrl}${endpointPaths.TOKEN}`,
+      [endpointKeys.USERINFO]: `${baseUrl}${endpointPaths.USERINFO}`,
     };
 
     // For AsgardeoV2 (Thunder), the issuer must be the base URL (e.g., https://localhost:8090)
