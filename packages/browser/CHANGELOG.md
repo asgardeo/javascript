@@ -1,5 +1,13 @@
 # @asgardeo/browser
 
+## 0.2.8
+
+### Patch Changes
+
+- [#358](https://github.com/asgardeo/javascript/pull/358)
+  [`0c264d8`](https://github.com/asgardeo/javascript/commit/0c264d89645300ae066600f8067403630c9320a0) Thanks
+  [@DonOmalVindula](https://github.com/DonOmalVindula)! - Update libraries (axios, nextjs) across multiple packages
+
 ## 0.2.7
 
 ### Patch Changes
