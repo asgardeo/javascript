@@ -33,7 +33,15 @@
  * const separator = PKCEConstants.Storage.StorageKeys.SEPARATOR;
  * ```
  */
-const PKCEConstants = {
+const PKCEConstants: {
+  readonly DEFAULT_CODE_CHALLENGE_METHOD: string;
+  readonly Storage: {
+    readonly StorageKeys: {
+      readonly CODE_VERIFIER: string;
+      readonly SEPARATOR: string;
+    };
+  };
+} = {
   DEFAULT_CODE_CHALLENGE_METHOD: 'S256',
   /**
    * Storage-related constants for managing PKCE state

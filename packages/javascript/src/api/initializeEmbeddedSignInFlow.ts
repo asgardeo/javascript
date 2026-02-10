@@ -57,6 +57,7 @@ const initializeEmbeddedSignInFlow = async ({
   ...requestConfig
 }: EmbeddedFlowExecuteRequestConfig): Promise<EmbeddedSignInFlowInitiateResponse> => {
   try {
+    // eslint-disable-next-line no-new
     new URL(url ?? baseUrl);
   } catch (error) {
     throw new AsgardeoAPIError(
@@ -78,8 +79,8 @@ const initializeEmbeddedSignInFlow = async ({
     );
   }
 
-  const searchParams = new URLSearchParams();
-  Object.entries(payload).forEach(([key, value]) => {
+  const searchParams: URLSearchParams = new URLSearchParams();
+  Object.entries(payload).forEach(([key, value]: [string, unknown]) => {
     if (value !== undefined && value !== null) {
       searchParams.append(key, String(value));
     }
@@ -88,17 +89,17 @@ const initializeEmbeddedSignInFlow = async ({
   try {
     const response: Response = await fetch(url ?? `${baseUrl}/oauth2/authorize`, {
       ...requestConfig,
-      method: requestConfig.method || 'POST',
+      body: searchParams.toString(),
       headers: {
         ...requestConfig.headers,
-        'Content-Type': 'application/x-www-form-urlencoded',
         Accept: 'application/json',
+        'Content-Type': 'application/x-www-form-urlencoded',
       },
-      body: searchParams.toString(),
+      method: requestConfig.method || 'POST',
     });
 
     if (!response.ok) {
-      const errorText = await response.text();
+      const errorText: string = await response.text();
 
       throw new AsgardeoAPIError(
         `Authorization request failed: ${errorText}`,

@@ -17,9 +17,9 @@
  */
 
 import {describe, it, expect, vi, beforeEach} from 'vitest';
-import getUserInfo from '../getUserInfo';
-import {User} from '../../models/user';
 import AsgardeoAPIError from '../../errors/AsgardeoAPIError';
+import {User} from '../../models/user';
+import getUserInfo from '../getUserInfo';
 
 describe('getUserInfo', (): void => {
   beforeEach((): void => {
@@ -28,57 +28,57 @@ describe('getUserInfo', (): void => {
 
   it('should fetch user info successfully', async (): Promise<void> => {
     const mockUserInfo: User = {
+      email: 'test@example.com',
+      groups: ['group1'],
       id: 'test-id',
       name: 'Test User',
-      email: 'test@example.com',
       roles: ['user'],
-      groups: ['group1'],
     };
 
     global.fetch = vi.fn().mockResolvedValue({
-      ok: true,
       json: () => Promise.resolve(mockUserInfo),
+      ok: true,
     });
 
     const url: string = 'https://api.asgardeo.io/t/<ORGANIZATION>/oauth2/userinfo';
     const result: User = await getUserInfo({url});
 
     expect(fetch).toHaveBeenCalledWith(url, {
-      method: 'GET',
       headers: {
-        'Content-Type': 'application/json',
         Accept: 'application/json',
+        'Content-Type': 'application/json',
       },
+      method: 'GET',
     });
 
     expect(result).toEqual({
+      email: 'test@example.com',
+      groups: ['group1'],
       id: 'test-id',
       name: 'Test User',
-      email: 'test@example.com',
       roles: ['user'],
-      groups: ['group1'],
     });
   });
 
   it('should handle missing optional fields', async (): Promise<void> => {
     const mockUserInfo: User = {
+      email: 'test@example.com',
       id: 'test-id',
       name: 'Test User',
-      email: 'test@example.com',
     };
 
     global.fetch = vi.fn().mockResolvedValue({
-      ok: true,
       json: () => Promise.resolve(mockUserInfo),
+      ok: true,
     });
 
     const url: string = 'https://api.asgardeo.io/t/<ORGANIZATION>/oauth2/userinfo';
     const result: User = await getUserInfo({url});
 
     expect(result).toEqual({
+      email: 'test@example.com',
       id: 'test-id',
       name: 'Test User',
-      email: 'test@example.com',
     });
   });
 
@@ -87,9 +87,9 @@ describe('getUserInfo', (): void => {
 
     global.fetch = vi.fn().mockResolvedValue({
       ok: false,
-      text: () => Promise.resolve(errorText),
       status: 400,
       statusText: 'Bad Request',
+      text: () => Promise.resolve(errorText),
     });
 
     const url: string = 'https://api.asgardeo.io/t/<ORGANIZATION>/oauth2/userinfo';
@@ -97,7 +97,7 @@ describe('getUserInfo', (): void => {
     await expect(getUserInfo({url})).rejects.toThrow(AsgardeoAPIError);
     await expect(getUserInfo({url})).rejects.toThrow(`Failed to fetch user info: ${errorText}`);
 
-    const error: AsgardeoAPIError = await getUserInfo({url}).catch(e => e);
+    const error: AsgardeoAPIError = await getUserInfo({url}).catch((e: AsgardeoAPIError) => e);
 
     expect(error.code).toBe('getUserInfo-ResponseError-001');
     expect(error.name).toBe('AsgardeoAPIError');
@@ -108,7 +108,7 @@ describe('getUserInfo', (): void => {
 
     await expect(getUserInfo({url: invalidUrl})).rejects.toThrow(AsgardeoAPIError);
 
-    const error: AsgardeoAPIError = await getUserInfo({url: invalidUrl}).catch(e => e);
+    const error: AsgardeoAPIError = await getUserInfo({url: invalidUrl}).catch((e: AsgardeoAPIError) => e);
 
     expect(error.message).toBe('Invalid endpoint URL provided');
     expect(error.code).toBe('getUserInfo-ValidationError-001');
@@ -118,7 +118,7 @@ describe('getUserInfo', (): void => {
   it('should throw AsgardeoAPIError for undefined URL', async (): Promise<void> => {
     await expect(getUserInfo({})).rejects.toThrow(AsgardeoAPIError);
 
-    const error: AsgardeoAPIError = await getUserInfo({}).catch(e => e);
+    const error: AsgardeoAPIError = await getUserInfo({}).catch((e: AsgardeoAPIError) => e);
 
     expect(error.message).toBe('Invalid endpoint URL provided');
     expect(error.code).toBe('getUserInfo-ValidationError-001');
@@ -128,7 +128,7 @@ describe('getUserInfo', (): void => {
   it('should throw AsgardeoAPIError for empty string URL', async (): Promise<void> => {
     await expect(getUserInfo({url: ''})).rejects.toThrow(AsgardeoAPIError);
 
-    const error: AsgardeoAPIError = await getUserInfo({url: ''}).catch(e => e);
+    const error: AsgardeoAPIError = await getUserInfo({url: ''}).catch((e: AsgardeoAPIError) => e);
 
     expect(error.message).toBe('Invalid endpoint URL provided');
     expect(error.code).toBe('getUserInfo-ValidationError-001');
@@ -136,7 +136,7 @@ describe('getUserInfo', (): void => {
   });
 
   it('should handle network errors', async () => {
-    const mockFetch = vi.fn().mockRejectedValue(new Error('Network error'));
+    const mockFetch: typeof fetch = vi.fn().mockRejectedValue(new Error('Network error'));
 
     global.fetch = mockFetch;
 
@@ -163,32 +163,32 @@ describe('getUserInfo', (): void => {
 
   it('should pass through custom headers', async () => {
     const mockUserInfo: User = {
+      email: 'test@example.com',
+      groups: ['group1'],
       id: 'test-id',
       name: 'Test User',
-      email: 'test@example.com',
       roles: ['user'],
-      groups: ['group1'],
     };
-    const mockFetch = vi.fn().mockResolvedValue({
-      ok: true,
+    const mockFetch: typeof fetch = vi.fn().mockResolvedValue({
       json: () => Promise.resolve(mockUserInfo),
+      ok: true,
     });
     global.fetch = mockFetch;
-    const customHeaders = {
+    const customHeaders: Record<string, string> = {
       Authorization: 'Bearer token',
       'X-Custom-Header': 'custom-value',
     };
     const url: string = 'https://api.asgardeo.io/t/<ORGANIZATION>/oauth2/userinfo';
-    const result: User = await getUserInfo({url, headers: customHeaders});
+    const result: User = await getUserInfo({headers: customHeaders, url});
 
     expect(result).toEqual(mockUserInfo);
     expect(mockFetch).toHaveBeenCalledWith(url, {
-      method: 'GET',
       headers: {
-        'Content-Type': 'application/json',
         Accept: 'application/json',
+        'Content-Type': 'application/json',
         ...customHeaders,
       },
+      method: 'GET',
     });
   });
 });

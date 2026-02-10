@@ -17,9 +17,9 @@
  */
 
 import {describe, it, expect, vi} from 'vitest';
-import getAuthorizeRequestUrlParams from '../getAuthorizeRequestUrlParams';
 import OIDCRequestConstants from '../../constants/OIDCRequestConstants';
 import AsgardeoRuntimeError from '../../errors/AsgardeoRuntimeError';
+import getAuthorizeRequestUrlParams from '../getAuthorizeRequestUrlParams';
 
 vi.mock(
   '../generateStateParamForRequestCorrelation',
@@ -36,8 +36,8 @@ describe('getAuthorizeRequestUrlParams', (): void => {
   it('should include openid in scopes (string)', (): void => {
     const params: Map<string, string> = getAuthorizeRequestUrlParams(
       {
-        redirectUri: 'https://app/callback',
         clientId: 'client123',
+        redirectUri: 'https://app/callback',
         scopes: 'openid',
       },
       {key: pkceKey},
@@ -50,8 +50,8 @@ describe('getAuthorizeRequestUrlParams', (): void => {
   it('should not duplicate openid in scope', (): void => {
     const params: Map<string, string> = getAuthorizeRequestUrlParams(
       {
-        redirectUri: 'https://app/callback',
         clientId: 'client123',
+        redirectUri: 'https://app/callback',
         scopes: 'openid profile',
       },
       {key: pkceKey},
@@ -65,8 +65,8 @@ describe('getAuthorizeRequestUrlParams', (): void => {
   it('should set response_mode if provided', (): void => {
     const params: Map<string, string> = getAuthorizeRequestUrlParams(
       {
-        redirectUri: 'https://app/callback',
         clientId: 'client123',
+        redirectUri: 'https://app/callback',
         responseMode: 'fragment',
       },
       {key: pkceKey},
@@ -79,10 +79,10 @@ describe('getAuthorizeRequestUrlParams', (): void => {
   it('should set code_challenge and code_challenge_method if provided', (): void => {
     const params: Map<string, string> = getAuthorizeRequestUrlParams(
       {
-        redirectUri: 'https://app/callback',
         clientId: 'client123',
         codeChallenge: 'abc',
         codeChallengeMethod: 'S256',
+        redirectUri: 'https://app/callback',
       },
       {key: pkceKey},
       {},
@@ -94,11 +94,11 @@ describe('getAuthorizeRequestUrlParams', (): void => {
 
   it('should throw if code_challenge is provided without code_challenge_method', (): void => {
     expect((): void => {
-      const params: Map<string, string> = getAuthorizeRequestUrlParams(
+      getAuthorizeRequestUrlParams(
         {
-          redirectUri: 'https://app/callback',
           clientId: 'client123',
           codeChallenge: 'abc',
+          redirectUri: 'https://app/callback',
         },
         {key: pkceKey},
         {},
@@ -109,9 +109,9 @@ describe('getAuthorizeRequestUrlParams', (): void => {
   it('should set prompt if provided', (): void => {
     const params: Map<string, string> = getAuthorizeRequestUrlParams(
       {
-        redirectUri: 'https://app/callback',
         clientId: 'client123',
         prompt: 'login',
+        redirectUri: 'https://app/callback',
       },
       {key: pkceKey},
       {},
@@ -123,8 +123,8 @@ describe('getAuthorizeRequestUrlParams', (): void => {
   it('should add custom params except state', (): void => {
     const params: Map<string, string> = getAuthorizeRequestUrlParams(
       {
-        redirectUri: 'https://app/callback',
         clientId: 'client123',
+        redirectUri: 'https://app/callback',
       },
       {key: pkceKey},
       {foo: 'bar', [OIDCRequestConstants.Params.STATE]: 'shouldNotAppear'},
@@ -137,8 +137,8 @@ describe('getAuthorizeRequestUrlParams', (): void => {
   it('should generate state param using pkceKey and custom state', (): void => {
     const params: Map<string, string> = getAuthorizeRequestUrlParams(
       {
-        redirectUri: 'https://app/callback',
         clientId: 'client123',
+        redirectUri: 'https://app/callback',
       },
       {key: pkceKey},
       {[OIDCRequestConstants.Params.STATE]: 'customState'},
@@ -150,8 +150,8 @@ describe('getAuthorizeRequestUrlParams', (): void => {
   it('should set scope to undefined if none provided', (): void => {
     const params: Map<string, string> = getAuthorizeRequestUrlParams(
       {
-        redirectUri: 'https://app/callback',
         clientId: 'client123',
+        redirectUri: 'https://app/callback',
       },
       {key: pkceKey},
       {},

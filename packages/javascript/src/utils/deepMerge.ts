@@ -22,16 +22,13 @@
  * @param value - The value to check
  * @returns True if the value is a plain object
  */
-const isPlainObject = (value: unknown): value is Record<string, unknown> => {
-  return (
-    typeof value === 'object' &&
-    value !== null &&
-    !Array.isArray(value) &&
-    !(value instanceof Date) &&
-    !(value instanceof RegExp) &&
-    Object.prototype.toString.call(value) === '[object Object]'
-  );
-};
+const isPlainObject = (value: unknown): value is Record<string, unknown> =>
+  typeof value === 'object' &&
+  value !== null &&
+  !Array.isArray(value) &&
+  !(value instanceof Date) &&
+  !(value instanceof RegExp) &&
+  Object.prototype.toString.call(value) === '[object Object]';
 
 /**
  * Recursively merges the properties of source objects into a target object.
@@ -66,16 +63,16 @@ const deepMerge = <T extends Record<string, any>>(
     throw new Error('Target must be an object');
   }
 
-  const result = {...target} as T;
+  const result: T = {...target} as T;
 
-  sources.forEach(source => {
+  sources.forEach((source: Record<string, any> | undefined | null) => {
     if (!source || typeof source !== 'object') {
       return;
     }
 
-    Object.keys(source).forEach(key => {
-      const sourceValue = source[key];
-      const targetValue = (result as any)[key];
+    Object.keys(source).forEach((key: string) => {
+      const sourceValue: any = source[key];
+      const targetValue: any = (result as any)[key];
 
       if (isPlainObject(sourceValue) && isPlainObject(targetValue)) {
         (result as any)[key] = deepMerge(targetValue, sourceValue);

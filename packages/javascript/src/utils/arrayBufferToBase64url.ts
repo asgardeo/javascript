@@ -49,7 +49,7 @@ const arrayBufferToBase64url = (buffer: ArrayBuffer): string => {
   const bytes: Uint8Array<ArrayBuffer> = new Uint8Array(buffer);
   let binary: string = '';
 
-  for (let i = 0; i < bytes.byteLength; i++) {
+  for (let i: number = 0; i < bytes.byteLength; i += 1) {
     binary += String.fromCharCode(bytes[i]);
   }
 

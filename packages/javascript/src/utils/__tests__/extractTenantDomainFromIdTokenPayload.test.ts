@@ -17,8 +17,8 @@
  */
 
 import {describe, expect, it} from 'vitest';
+import {IdToken} from '../../models/token';
 import extractTenantDomainFromIdTokenPayload from '../extractTenantDomainFromIdTokenPayload';
-import {IdToken} from '../../models/id-token';
 
 describe('extractTenantDomainFromIdTokenPayload', (): void => {
   it('should extract tenant domain from sub claim with default separator', (): void => {
@@ -38,7 +38,7 @@ describe('extractTenantDomainFromIdTokenPayload', (): void => {
   });
 
   it('should return empty string when sub claim is missing', (): void => {
-    const payload = {} as IdToken;
+    const payload: IdToken = {} as IdToken;
 
     expect(extractTenantDomainFromIdTokenPayload(payload)).toBe('');
   });
@@ -73,7 +73,7 @@ describe('extractTenantDomainFromIdTokenPayload', (): void => {
   });
 
   it('should return empty string when sub is not a string', () => {
-    const payload = {sub: undefined} as unknown as IdToken;
+    const payload: IdToken = {sub: undefined} as unknown as IdToken;
     expect(extractTenantDomainFromIdTokenPayload(payload)).toBe('');
   });
 });

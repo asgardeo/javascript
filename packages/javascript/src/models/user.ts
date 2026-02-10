@@ -19,11 +19,11 @@
 import {Schema} from './scim2-schema';
 
 export interface KnownUser {
-  username?: string;
-  email?: string;
-  givenName?: string;
-  familyName?: string;
   displayName?: string;
+  email?: string;
+  familyName?: string;
+  givenName?: string;
+  username?: string;
 }
 
 export interface User extends KnownUser {
@@ -31,7 +31,7 @@ export interface User extends KnownUser {
 }
 
 export interface UserProfile {
-  schemas: Schema[];
-  profile: User;
   flattenedProfile: User;
+  profile: User;
+  schemas: Schema[];
 }

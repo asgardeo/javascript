@@ -16,8 +16,8 @@
  * under the License.
  */
 
-import AsgardeoRuntimeError from "../errors/AsgardeoRuntimeError";
-import logger from "./logger";
+import logger from './logger';
+import AsgardeoRuntimeError from '../errors/AsgardeoRuntimeError';
 
 /**
  * Utility to determine if sensible Asgardeo fallbacks can be used based on the given base URL.
@@ -33,7 +33,7 @@ import logger from "./logger";
  * isRecognizedBaseUrlPattern('https://custom.example.com/auth'); // false
  */
 const isRecognizedBaseUrlPattern = (baseUrl: string | undefined): boolean => {
- if (!baseUrl) {
+  if (!baseUrl) {
     throw new AsgardeoRuntimeError(
       'Base URL is required to derive if the `baseUrl` is recognized.',
       'isRecognizedBaseUrlPattern-ValidationError-001',
@@ -56,10 +56,12 @@ const isRecognizedBaseUrlPattern = (baseUrl: string | undefined): boolean => {
   }
 
   // Extract the organization handle from the path pattern: /t/{orgHandle}
-  const pathSegments = parsedUrl.pathname?.split('/')?.filter(segment => segment?.length > 0);
+  const pathSegments: string[] = parsedUrl.pathname?.split('/')?.filter((segment: string) => segment?.length > 0);
 
   if (pathSegments.length < 2 || pathSegments[0] !== 't') {
-    logger.warn('[isRecognizedBaseUrlPattern] The provided base URL does not follow the expected URL pattern (/t/{orgHandle}).');
+    logger.warn(
+      '[isRecognizedBaseUrlPattern] The provided base URL does not follow the expected URL pattern (/t/{orgHandle}).',
+    );
 
     return false;
   }

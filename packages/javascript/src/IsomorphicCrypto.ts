@@ -16,16 +16,15 @@
  * under the License.
  */
 
+import TokenConstants from './constants/TokenConstants';
 import {AsgardeoAuthException} from './errors/exception';
 import {Crypto, JWKInterface} from './models/crypto';
-import {IdToken} from './models/token';
-import TokenConstants from './constants/TokenConstants';
 
 export class IsomorphicCrypto<T = any> {
-  private _cryptoUtils: Crypto<T>;
+  private cryptoUtils: Crypto<T>;
 
   public constructor(cryptoUtils: Crypto<T>) {
-    this._cryptoUtils = cryptoUtils;
+    this.cryptoUtils = cryptoUtils;
   }
 
   /**
@@ -34,7 +33,7 @@ export class IsomorphicCrypto<T = any> {
    * @returns code verifier.
    */
   public getCodeVerifier(): string {
-    return this._cryptoUtils.base64URLEncode(this._cryptoUtils.generateRandomBytes(32));
+    return this.cryptoUtils.base64URLEncode(this.cryptoUtils.generateRandomBytes(32));
   }
 
   /**
@@ -45,7 +44,7 @@ export class IsomorphicCrypto<T = any> {
    * @returns - code challenge.
    */
   public getCodeChallenge(verifier: string): string {
-    return this._cryptoUtils.base64URLEncode(this._cryptoUtils.hashSha256(verifier));
+    return this.cryptoUtils.base64URLEncode(this.cryptoUtils.hashSha256(verifier));
   }
 
   /**
@@ -60,21 +59,22 @@ export class IsomorphicCrypto<T = any> {
    */
   /* eslint-disable @typescript-eslint/no-explicit-any */
   public getJWKForTheIdToken(jwtHeader: string, keys: JWKInterface[]): JWKInterface {
-    const headerJSON: Record<string, string> = JSON.parse(this._cryptoUtils.base64URLDecode(jwtHeader));
+    const headerJSON: Record<string, string> = JSON.parse(this.cryptoUtils.base64URLDecode(jwtHeader));
 
-    for (const key of keys) {
-      if (headerJSON['kid'] === key.kid) {
-        return key;
-      }
+    const matchingKey: JWKInterface | undefined = keys.find(
+      (key: JWKInterface): boolean => headerJSON['kid'] === key.kid,
+    );
+
+    if (matchingKey) {
+      return matchingKey;
     }
 
     throw new AsgardeoAuthException(
       'JS-CRYPTO_UTIL-GJFTIT-IV01',
       'kid not found.',
-      "Failed to find the 'kid' specified in the id_token. 'kid' found in the header : " +
-        headerJSON['kid'] +
-        ', Expected values: ' +
-        keys.map((key: JWKInterface) => key.kid).join(', '),
+      `Failed to find the 'kid' specified in the id_token. 'kid' found in the header : ${
+        headerJSON['kid']
+      }, Expected values: ${keys.map((key: JWKInterface) => key.kid).join(', ')}`,
     );
   }
 
@@ -101,7 +101,7 @@ export class IsomorphicCrypto<T = any> {
     clockTolerance: number | undefined,
     validateJwtIssuer: boolean | undefined,
   ): Promise<boolean> {
-    return this._cryptoUtils
+    return this.cryptoUtils
       .verifyJwt(
         idToken,
         jwk,
@@ -125,15 +125,13 @@ export class IsomorphicCrypto<T = any> {
           ),
         );
       })
-      .catch((error: AsgardeoAuthException) => {
-        return Promise.reject(error);
-      });
+      .catch((error: AsgardeoAuthException) => Promise.reject(error));
   }
 
-  public decodeJwtToken<T = Record<string, unknown>>(token: string): T {
+  public decodeJwtToken<R = Record<string, unknown>>(token: string): R {
     try {
-      const utf8String: string = this._cryptoUtils.base64URLDecode(token?.split('.')[1]);
-      const payload: T = JSON.parse(utf8String);
+      const utf8String: string = this.cryptoUtils.base64URLDecode(token?.split('.')[1]);
+      const payload: R = JSON.parse(utf8String);
 
       return payload;
     } catch (error: any) {

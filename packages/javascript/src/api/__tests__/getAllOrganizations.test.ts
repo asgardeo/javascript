@@ -17,9 +17,9 @@
  */
 
 import {describe, it, expect, vi, beforeEach} from 'vitest';
-import getAllOrganizations from '../getAllOrganizations';
 import AsgardeoAPIError from '../../errors/AsgardeoAPIError';
 import {AllOrganizationsApiResponse} from '../../models/organization';
+import getAllOrganizations from '../getAllOrganizations';
 
 describe('getAllOrganizations', (): void => {
   beforeEach((): void => {
@@ -30,27 +30,27 @@ describe('getAllOrganizations', (): void => {
     const mockResponse: AllOrganizationsApiResponse = {
       hasMore: false,
       nextCursor: null,
-      totalCount: 2,
       organizations: [
         {id: 'org1', name: 'Org One', orgHandle: 'org-one'},
         {id: 'org2', name: 'Org Two', orgHandle: 'org-two'},
       ],
+      totalCount: 2,
     };
 
     global.fetch = vi.fn().mockResolvedValue({
-      ok: true,
       json: () => Promise.resolve(mockResponse),
+      ok: true,
     });
 
-    const baseUrl = 'https://api.asgardeo.io/t/demo';
-    const result = await getAllOrganizations({baseUrl});
+    const baseUrl: string = 'https://api.asgardeo.io/t/demo';
+    const result: AllOrganizationsApiResponse = await getAllOrganizations({baseUrl});
 
     expect(fetch).toHaveBeenCalledWith(`${baseUrl}/api/server/v1/organizations?limit=10&recursive=false`, {
-      method: 'GET',
       headers: {
-        'Content-Type': 'application/json',
         Accept: 'application/json',
+        'Content-Type': 'application/json',
       },
+      method: 'GET',
     });
     expect(result).toEqual(mockResponse);
   });
@@ -59,16 +59,16 @@ describe('getAllOrganizations', (): void => {
     const mockResponse: AllOrganizationsApiResponse = {
       hasMore: true,
       nextCursor: 'abc123',
-      totalCount: 5,
       organizations: [],
+      totalCount: 5,
     };
 
     global.fetch = vi.fn().mockResolvedValue({
-      ok: true,
       json: () => Promise.resolve(mockResponse),
+      ok: true,
     });
 
-    const baseUrl = 'https://api.asgardeo.io/t/demo';
+    const baseUrl: string = 'https://api.asgardeo.io/t/demo';
     await getAllOrganizations({
       baseUrl,
       filter: 'type eq TENANT',
@@ -86,17 +86,17 @@ describe('getAllOrganizations', (): void => {
     const mockResponse: AllOrganizationsApiResponse = {
       hasMore: false,
       nextCursor: null,
-      totalCount: 1,
       organizations: [{id: 'org1', name: 'Custom Org', orgHandle: 'custom-org'}],
+      totalCount: 1,
     };
 
-    const customFetcher = vi.fn().mockResolvedValue({
-      ok: true,
+    const customFetcher: typeof fetch = vi.fn().mockResolvedValue({
       json: () => Promise.resolve(mockResponse),
+      ok: true,
     });
 
-    const baseUrl = 'https://api.asgardeo.io/t/demo';
-    const result = await getAllOrganizations({baseUrl, fetcher: customFetcher});
+    const baseUrl: string = 'https://api.asgardeo.io/t/demo';
+    const result: AllOrganizationsApiResponse = await getAllOrganizations({baseUrl, fetcher: customFetcher});
 
     expect(result).toEqual(mockResponse);
     expect(customFetcher).toHaveBeenCalledWith(
@@ -108,11 +108,11 @@ describe('getAllOrganizations', (): void => {
   });
 
   it('should handle errors thrown directly by custom fetcher', async (): Promise<void> => {
-    const customFetcher = vi.fn().mockImplementation(() => {
+    const customFetcher: typeof fetch = vi.fn().mockImplementation(() => {
       throw new Error('Custom fetcher failure');
     });
 
-    const baseUrl = 'https://api.asgardeo.io/t/demo';
+    const baseUrl: string = 'https://api.asgardeo.io/t/demo';
 
     await expect(getAllOrganizations({baseUrl, fetcher: customFetcher})).rejects.toThrow(
       'Network or parsing error: Custom fetcher failure',
@@ -142,7 +142,7 @@ describe('getAllOrganizations', (): void => {
       text: () => Promise.resolve('Invalid query'),
     });
 
-    const baseUrl = 'https://api.asgardeo.io/t/demo';
+    const baseUrl: string = 'https://api.asgardeo.io/t/demo';
 
     await expect(getAllOrganizations({baseUrl})).rejects.toThrow(AsgardeoAPIError);
     await expect(getAllOrganizations({baseUrl})).rejects.toThrow('Failed to get organizations: Invalid query');
@@ -151,7 +151,7 @@ describe('getAllOrganizations', (): void => {
   it('should handle network or parsing errors', async (): Promise<void> => {
     global.fetch = vi.fn().mockRejectedValue(new Error('Network error'));
 
-    const baseUrl = 'https://api.asgardeo.io/t/demo';
+    const baseUrl: string = 'https://api.asgardeo.io/t/demo';
 
     await expect(getAllOrganizations({baseUrl})).rejects.toThrow(AsgardeoAPIError);
     await expect(getAllOrganizations({baseUrl})).rejects.toThrow('Network or parsing error: Network error');
@@ -160,7 +160,7 @@ describe('getAllOrganizations', (): void => {
   it('should handle non-Error rejections', async (): Promise<void> => {
     global.fetch = vi.fn().mockRejectedValue('unexpected failure');
 
-    const baseUrl = 'https://api.asgardeo.io/t/demo';
+    const baseUrl: string = 'https://api.asgardeo.io/t/demo';
 
     await expect(getAllOrganizations({baseUrl})).rejects.toThrow('Network or parsing error: Unknown error');
   });
@@ -169,21 +169,21 @@ describe('getAllOrganizations', (): void => {
     const mockResponse: AllOrganizationsApiResponse = {
       hasMore: false,
       nextCursor: null,
-      totalCount: 1,
       organizations: [],
+      totalCount: 1,
     };
 
     global.fetch = vi.fn().mockResolvedValue({
-      ok: true,
       json: () => Promise.resolve(mockResponse),
+      ok: true,
     });
 
-    const baseUrl = 'https://api.asgardeo.io/t/demo';
-    const customHeaders = {
-      Authorization: 'Bearer token',
-      'X-Custom-Header': 'custom-value',
-      'Content-Type': 'text/plain',
+    const baseUrl: string = 'https://api.asgardeo.io/t/demo';
+    const customHeaders: Record<string, string> = {
       Accept: 'text/plain',
+      Authorization: 'Bearer token',
+      'Content-Type': 'text/plain',
+      'X-Custom-Header': 'custom-value',
     };
 
     await getAllOrganizations({
@@ -192,29 +192,29 @@ describe('getAllOrganizations', (): void => {
     });
 
     expect(fetch).toHaveBeenCalledWith(`${baseUrl}/api/server/v1/organizations?limit=10&recursive=false`, {
-      method: 'GET',
       headers: {
-        'Content-Type': 'application/json',
         Accept: 'application/json',
         Authorization: 'Bearer token',
+        'Content-Type': 'application/json',
         'X-Custom-Header': 'custom-value',
       },
+      method: 'GET',
     });
   });
 
   it('should return an empty organization list if none exist', async (): Promise<void> => {
     global.fetch = vi.fn().mockResolvedValue({
-      ok: true,
       json: () =>
         Promise.resolve({
           hasMore: false,
           nextCursor: null,
           totalCount: 0, // missing organizations
         }),
+      ok: true,
     });
 
-    const baseUrl = 'https://api.asgardeo.io/t/demo';
-    const result = await getAllOrganizations({baseUrl});
+    const baseUrl: string = 'https://api.asgardeo.io/t/demo';
+    const result: AllOrganizationsApiResponse = await getAllOrganizations({baseUrl});
 
     expect(result.organizations).toEqual([]);
     expect(result.totalCount).toBe(0);

@@ -52,7 +52,7 @@ describe('set', () => {
 
   it('should return the object unchanged if path is falsy', () => {
     const obj: any = {a: 1};
-    const out = set(obj, '', 1);
+    const out: any = set(obj, '', 1);
     expect(out).toBe(obj);
     expect(obj).toEqual({a: 1});
   });
@@ -65,7 +65,7 @@ describe('set', () => {
 
   it('should reuse existing objects when traversing', () => {
     const obj: any = {a: {b: {c: 1}}};
-    const refB = obj.a.b;
+    const refB: any = obj.a.b;
     set(obj, 'a.b.d', 2);
     expect(obj.a.b).toBe(refB);
     expect(obj).toEqual({a: {b: {c: 1, d: 2}}});

@@ -17,9 +17,9 @@
  */
 
 import {describe, it, expect, vi, afterEach} from 'vitest';
-import identifyPlatform from '../identifyPlatform';
-import {Platform} from '../../models/platforms';
 import {Config} from '../../models/config';
+import {Platform} from '../../models/platforms';
+import identifyPlatform from '../identifyPlatform';
 
 vi.mock('../logger', () => ({default: {debug: vi.fn(), warn: vi.fn()}}));
 
@@ -30,36 +30,36 @@ describe('identifyPlatform', () => {
 
   it('should return Platform.Asgardeo for recognized asgardeo domains', () => {
     const configs: Config[] = [
-      {baseUrl: 'https://api.asgardeo.io/t/org', clientId: '', applicationId: ''},
-      {baseUrl: 'https://accounts.asgardeo.io/t/org', clientId: '', applicationId: ''},
-      {baseUrl: 'https://asgardeo.io/t/org', clientId: '', applicationId: ''},
+      {applicationId: '', baseUrl: 'https://api.asgardeo.io/t/org', clientId: ''},
+      {applicationId: '', baseUrl: 'https://accounts.asgardeo.io/t/org', clientId: ''},
+      {applicationId: '', baseUrl: 'https://asgardeo.io/t/org', clientId: ''},
     ];
 
-    configs.forEach(config => {
+    configs.forEach((config: Config) => {
       expect(identifyPlatform(config)).toBe(Platform.Asgardeo);
     });
   });
 
   it('should return Platform.IdentityServer for non-asgardeo recognized base Urls', () => {
     const configs: Config[] = [
-      {baseUrl: 'https://localhost:9443/t/carbon.super', clientId: '', applicationId: ''},
-      {baseUrl: 'https://is.dev.com/t/abc.com', clientId: '', applicationId: ''},
-      {baseUrl: 'https://192.168.1.1/t/mytenant', clientId: '', applicationId: ''},
+      {applicationId: '', baseUrl: 'https://localhost:9443/t/carbon.super', clientId: ''},
+      {applicationId: '', baseUrl: 'https://is.dev.com/t/abc.com', clientId: ''},
+      {applicationId: '', baseUrl: 'https://192.168.1.1/t/mytenant', clientId: ''},
     ];
 
-    configs.forEach(config => {
+    configs.forEach((config: Config) => {
       expect(identifyPlatform(config)).toBe(Platform.IdentityServer);
     });
   });
 
   it('should return Platform.IdentityServer if baseUrl is not recognized', () => {
-    const config: Config = {baseUrl: undefined, clientId: '', applicationId: ''};
+    const config: Config = {applicationId: '', baseUrl: undefined, clientId: ''};
 
     expect(identifyPlatform(config)).toBe(Platform.Unknown);
   });
 
   it('should return Platform.IdentityServer if baseUrl is malformed', () => {
-    const config: Config = {baseUrl: 'http://[::1', clientId: '', applicationId: ''};
+    const config: Config = {applicationId: '', baseUrl: 'http://[::1', clientId: ''};
 
     expect(identifyPlatform(config)).toBe(Platform.Unknown);
   });

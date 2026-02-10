@@ -17,25 +17,25 @@
  */
 
 import {describe, it, expect} from 'vitest';
+import type {Schema, SchemaAttribute} from '../../models/scim2-schema';
 import flattenUserSchema from '../flattenUserSchema';
-import type {Schema, SchemaAttribute, FlattenedSchema} from '../../models/scim2-schema';
 
 const baseAttr = (overrides: Partial<SchemaAttribute> = {}): SchemaAttribute => ({
-  name: 'attr',
-  type: 'string',
-  multiValued: false,
   caseExact: false,
+  multiValued: false,
   mutability: 'readWrite',
+  name: 'attr',
   returned: 'default',
+  type: 'string',
   uniqueness: 'none',
   ...overrides,
 });
 
 const baseSchema = (overrides: Partial<Schema> = {}): Schema => ({
+  attributes: [],
+  description: 'User schema',
   id: 'urn:ietf:params:scim:schemas:core:2.0:User',
   name: 'User',
-  description: 'User schema',
-  attributes: [],
   ...overrides,
 });
 
@@ -50,49 +50,49 @@ describe('flattenUserSchema', () => {
   });
 
   it('should flatten simple (non-complex) top-level attributes directly', () => {
-    const schema = baseSchema({
+    const schema: Schema = baseSchema({
       attributes: [baseAttr({name: 'userName'}), baseAttr({name: 'active', type: 'boolean'})],
     });
 
-    const out = flattenUserSchema([schema]);
+    const out: ReturnType<typeof flattenUserSchema> = flattenUserSchema([schema]);
 
     expect(out).toEqual([
       expect.objectContaining({name: 'userName', schemaId: schema.id}),
       expect.objectContaining({name: 'active', schemaId: schema.id}),
     ]);
     // Ensure other props are preserved
-    expect(out[0]).toMatchObject({type: 'string', multiValued: false});
-    expect(out[1]).toMatchObject({type: 'boolean', multiValued: false});
+    expect(out[0]).toMatchObject({multiValued: false, type: 'string'});
+    expect(out[1]).toMatchObject({multiValued: false, type: 'boolean'});
   });
 
   it('should flatten complex attributes into dot-notation (includes only sub-attributes, not the parent)', () => {
-    const schema = baseSchema({
+    const schema: Schema = baseSchema({
       attributes: [
         baseAttr({
           name: 'name',
-          type: 'complex',
           subAttributes: [baseAttr({name: 'givenName'}), baseAttr({name: 'familyName'})],
+          type: 'complex',
         }),
       ],
     });
 
-    const out = flattenUserSchema([schema]);
+    const out: ReturnType<typeof flattenUserSchema> = flattenUserSchema([schema]);
     expect(out).toEqual([
       expect.objectContaining({name: 'name.givenName', schemaId: schema.id}),
       expect.objectContaining({name: 'name.familyName', schemaId: schema.id}),
     ]);
 
-    const names = out.map(a => a.name);
+    const names: string[] = out.map((a: {name: string}) => a.name);
     expect(names).not.toContain('name');
   });
 
   it('should drop complex attributes with an empty subAttributes array (no parent emitted)', () => {
-    const schema = baseSchema({
+    const schema: Schema = baseSchema({
       attributes: [
         baseAttr({
           name: 'address',
-          type: 'complex',
           subAttributes: [], // empty — nothing should be emitted
+          type: 'complex',
         }),
       ],
     });
@@ -101,56 +101,56 @@ describe('flattenUserSchema', () => {
   });
 
   it('should handle deeper nesting by only including leaf sub-attributes (one level processed)', () => {
-    const schema = baseSchema({
+    const schema: Schema = baseSchema({
       attributes: [
         baseAttr({
           name: 'profile',
-          type: 'complex',
           subAttributes: [
             baseAttr({
               name: 'contact',
-              type: 'complex',
               subAttributes: [baseAttr({name: 'email'}), baseAttr({name: 'phone', type: 'string'})],
+              type: 'complex',
             }),
             baseAttr({name: 'nickname'}),
           ],
+          type: 'complex',
         }),
       ],
     });
 
-    const out = flattenUserSchema([schema]);
-    expect(out.map(a => a.name)).toEqual(['profile.contact', 'profile.nickname']);
-    out.forEach(a => expect(a.schemaId).toBe(schema.id));
+    const out: ReturnType<typeof flattenUserSchema> = flattenUserSchema([schema]);
+    expect(out.map((a: {name: string}) => a.name)).toEqual(['profile.contact', 'profile.nickname']);
+    out.forEach((a: {schemaId?: string}) => expect(a.schemaId).toBe(schema.id));
   });
 
   it('should support multiple schemas and tags each flattened attribute with the correct schemaId', () => {
-    const userSchema = baseSchema({
-      id: 'urn:user',
+    const userSchema: Schema = baseSchema({
       attributes: [
         baseAttr({name: 'userName'}),
         baseAttr({
           name: 'name',
-          type: 'complex',
           subAttributes: [baseAttr({name: 'givenName'})],
+          type: 'complex',
         }),
       ],
+      id: 'urn:user',
     });
 
-    const groupSchema = baseSchema({
-      id: 'urn:group',
-      name: 'Group',
-      description: 'Group schema',
+    const groupSchema: Schema = baseSchema({
       attributes: [
         baseAttr({name: 'displayName'}),
         baseAttr({
           name: 'owner',
-          type: 'complex',
           subAttributes: [baseAttr({name: 'value'})],
+          type: 'complex',
         }),
       ],
+      description: 'Group schema',
+      id: 'urn:group',
+      name: 'Group',
     });
 
-    const out = flattenUserSchema([userSchema, groupSchema]);
+    const out: ReturnType<typeof flattenUserSchema> = flattenUserSchema([userSchema, groupSchema]);
 
     expect(out).toEqual([
       expect.objectContaining({name: 'userName', schemaId: 'urn:user'}),

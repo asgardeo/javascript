@@ -43,6 +43,7 @@
  */
 export default class AsgardeoError extends Error {
   public readonly code: string;
+
   public readonly origin: string;
 
   private static resolveOrigin(origin: string): string {
@@ -54,12 +55,12 @@ export default class AsgardeoError extends Error {
   }
 
   constructor(message: string, code: string, origin: string) {
-    const _origin: string = AsgardeoError.resolveOrigin(origin);
+    const resolvedOrigin: string = AsgardeoError.resolveOrigin(origin);
     super(message);
 
     this.name = new.target.name;
     this.code = code;
-    this.origin = _origin;
+    this.origin = resolvedOrigin;
 
     if (Error.captureStackTrace) {
       Error.captureStackTrace(this, new.target);
@@ -68,6 +69,6 @@ export default class AsgardeoError extends Error {
 
   public override toString(): string {
     const prefix: string = `🛡️ Asgardeo - ${this.origin}:`;
-    return `[${this.name}]\n${prefix} ${this.message}\n(code=\"${this.code}\")`;
+    return `[${this.name}]\n${prefix} ${this.message}\n(code="${this.code}")`;
   }
 }

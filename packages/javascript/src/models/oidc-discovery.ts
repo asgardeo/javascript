@@ -47,45 +47,58 @@
  */
 export interface OIDCDiscoveryApiResponse extends OIDCDiscoveryEndpointsApiResponse {
   /**
-   * Supported OAuth 2.0 scope values.
-   * Lists the permission scopes this server can handle.
-   *
-   * @remarks
-   * Common values include:
-   * - 'openid' - Required for OIDC flows
-   * - 'profile' - Basic user information
-   * - 'email' - User's email address
-   * - 'address' - User's postal address
-   * - 'phone' - User's phone number
+   * Supported Authentication Context Class References.
+   * Indicates the OP's ability to satisfy specific authentication requirements.
    */
-  scopes_supported?: string[];
-
-  // ====================================
-  // Authentication & Response Options
-  // ====================================
+  acr_values_supported?: string[];
 
   /**
-   * Supported OAuth 2.0 response_type values.
-   *
-   * @remarks
-   * Common values include:
-   * - 'code' - Authorization Code flow
-   * - 'token' - Implicit flow
-   * - 'id_token' - OIDC implicit flow
-   * - 'code token' - Hybrid flow
+   * Boolean value specifying whether the OP can pass a sid (session ID) Claim in the Logout Token to
+   * identify the RP session with the OP.
    */
-  response_types_supported?: string[];
+  backchannel_logout_session_supported?: boolean;
 
   /**
-   * Supported OAuth 2.0 response_mode values.
-   *
-   * @remarks
-   * Determines how the authorization response is returned:
-   * - 'query' - Parameters in URL query string
-   * - 'fragment' - Parameters in URL fragment
-   * - 'form_post' - Parameters via POST
+   * Boolean value specifying whether the OP supports back-channel logout, with true indicating support.
+   * If omitted, the default value is false.
    */
-  response_modes_supported?: string[];
+  backchannel_logout_supported?: boolean;
+
+  /**
+   * JSON array containing a list of the Claim Types that the OpenID Provider supports.
+   */
+  claim_types_supported?: string[];
+
+  /**
+   * Languages and scripts supported for values in Claims being returned, represented as a JSON array
+   * of BCP47 [RFC5646] language tag values. Not all languages and scripts are necessarily
+   * supported for all Claim values.
+   */
+  claims_locales_supported?: string[];
+
+  /**
+   *  Boolean value specifying whether the OP supports use of the claims parameter,
+   * with true indicating support. If omitted, the default value is false.
+   */
+  claims_parameter_supported?: boolean;
+
+  /**
+   * JSON array containing a list of the Claim Names of the Claims that
+   * the OpenID Provider MAY be able to supply values for.
+   */
+  claims_supported?: string[];
+
+  /**
+   * JSON array containing a list of Proof Key for Code
+   * Exchange (PKCE) [RFC7636] code challenge methods supported by this
+   * authorization server.
+   */
+  code_challenge_methods_supported?: string[];
+
+  /**
+   * JSON array containing a list of the display parameter values that the OpenID Provider supports.
+   */
+  display_values_supported?: string[];
 
   /**
    * Supported OAuth 2.0 grant type values.
@@ -98,33 +111,6 @@ export interface OIDCDiscoveryApiResponse extends OIDCDiscoveryEndpointsApiRespo
    * - 'client_credentials' - Client credentials grant
    */
   grant_types_supported?: string[];
-
-  // ====================================
-  // Security Features
-  // ====================================
-
-  /**
-   * Supported Authentication Context Class References.
-   * Indicates the OP's ability to satisfy specific authentication requirements.
-   */
-  acr_values_supported?: string[];
-
-  /**
-   * Supported Subject Identifier types.
-   * Defines how the OP identifies users across sessions.
-   *
-   * @remarks
-   * Common values:
-   * - 'public' - Same sub value for all clients
-   * - 'pairwise' - Different sub values for different clients
-   */
-  subject_types_supported?: string[];
-
-  /**
-   * JSON array containing a list of the JWS signing algorithms (alg values)
-   * supported by the OP for the ID Token to encode the Claims in a JWT [JWT].
-   */
-  id_token_signing_alg_values_supported?: string[];
 
   /**
    * JSON array containing a list of the JWE encryption algorithms (alg values)
@@ -139,27 +125,37 @@ export interface OIDCDiscoveryApiResponse extends OIDCDiscoveryEndpointsApiRespo
   id_token_encryption_enc_values_supported?: string[];
 
   /**
-   * JSON array containing a list of the JWS [JWS] signing algorithms (alg values) [JWA]
-   * supported by the UserInfo Endpoint to encode the Claims in a JWT [JWT].
+   * JSON array containing a list of the JWS signing algorithms (alg values)
+   * supported by the OP for the ID Token to encode the Claims in a JWT [JWT].
    */
-  userinfo_signing_alg_values_supported?: string[];
+  id_token_signing_alg_values_supported?: string[];
 
   /**
-   * JSON array containing a list of the JWE [JWE] encryption algorithms (alg values)
-   * [JWA] supported by the UserInfo Endpoint to encode the Claims in a JWT [JWT].
+   * JSON array containing a list of client authentication
+   * methods supported by this introspection endpoint.
    */
-  userinfo_encryption_alg_values_supported?: string[];
+  introspection_endpoint_auth_methods_supported?: string[];
 
   /**
-   * JSON array containing a list of the JWE encryption algorithms (enc values) [JWA]
-   * supported by the UserInfo Endpoint to encode the Claims in a JWT [JWT]
+   * JSON array containing a list of the JWS signing
+   * algorithms ("alg" values) supported by the introspection endpoint
+   * for the signature on the JWT [JWT] used to authenticate the client
+   * at the introspection endpoint for the "private_key_jwt" and
+   * "client_secret_jwt" authentication methods.
    */
-  userinfo_encryption_enc_values_supported?: string[];
+  introspection_endpoint_auth_signing_alg_values_supported?: string[];
 
   /**
-   * JSON array containing a list of the JWS signing algorithms (alg values) supported by the OP for Request Objects
+   * URL that the OpenID Provider provides to the person registering the Client
+   * to read about the OP's requirements on how the Relying Party can use the data provided by the OP.
    */
-  request_object_signing_alg_values_supported?: string[];
+  op_policy_uri?: string;
+
+  /**
+   * URL that the OpenID Provider provides to the person registering the Client
+   * to read about OpenID Provider's terms of service.
+   */
+  op_tos_uri?: string;
 
   /**
    * JSON array containing a list of the JWE encryption algorithms (alg values)
@@ -174,57 +170,9 @@ export interface OIDCDiscoveryApiResponse extends OIDCDiscoveryEndpointsApiRespo
   request_object_encryption_enc_values_supported?: string[];
 
   /**
-   * JSON array containing a list of Client Authentication methods supported by this Token Endpoint.
+   * JSON array containing a list of the JWS signing algorithms (alg values) supported by the OP for Request Objects
    */
-  token_endpoint_auth_methods_supported?: string[];
-
-  /**
-   * JSON array containing a list of the JWS signing algorithms (alg values) supported by the Token Endpoint
-   * for the signature on the JWT [JWT] used to authenticate the Client at the Token Endpoint for the
-   * private_key_jwt and client_secret_jwt authentication methods.
-   */
-  token_endpoint_auth_signing_alg_values_supported?: string[];
-
-  /**
-   * JSON array containing a list of the display parameter values that the OpenID Provider supports.
-   */
-  display_values_supported?: string[];
-
-  /**
-   * JSON array containing a list of the Claim Types that the OpenID Provider supports.
-   */
-  claim_types_supported?: string[];
-
-  /**
-   * JSON array containing a list of the Claim Names of the Claims that
-   * the OpenID Provider MAY be able to supply values for.
-   */
-  claims_supported?: string[];
-
-  /**
-   * URL of a page containing human-readable information that developers
-   * might want or need to know when using the OpenID Provider.
-   */
-  service_documentation?: string;
-
-  /**
-   * Languages and scripts supported for values in Claims being returned, represented as a JSON array
-   * of BCP47 [RFC5646] language tag values. Not all languages and scripts are necessarily
-   * supported for all Claim values.
-   */
-  claims_locales_supported?: string[];
-
-  /**
-   * Languages and scripts supported for the user interface,
-   * represented as a JSON array of BCP47 [RFC5646] language tag values.
-   */
-  ui_locales_supported?: string[];
-
-  /**
-   *  Boolean value specifying whether the OP supports use of the claims parameter,
-   * with true indicating support. If omitted, the default value is false.
-   */
-  claims_parameter_supported?: boolean;
+  request_object_signing_alg_values_supported?: string[];
 
   /**
    * Boolean value specifying whether the OP supports use of the request parameter,
@@ -245,16 +193,27 @@ export interface OIDCDiscoveryApiResponse extends OIDCDiscoveryEndpointsApiRespo
   require_request_uri_registration?: boolean;
 
   /**
-   * URL that the OpenID Provider provides to the person registering the Client
-   * to read about the OP's requirements on how the Relying Party can use the data provided by the OP.
+   * Supported OAuth 2.0 response_mode values.
+   *
+   * @remarks
+   * Determines how the authorization response is returned:
+   * - 'query' - Parameters in URL query string
+   * - 'fragment' - Parameters in URL fragment
+   * - 'form_post' - Parameters via POST
    */
-  op_policy_uri?: string;
+  response_modes_supported?: string[];
 
   /**
-   * URL that the OpenID Provider provides to the person registering the Client
-   * to read about OpenID Provider's terms of service.
+   * Supported OAuth 2.0 response_type values.
+   *
+   * @remarks
+   * Common values include:
+   * - 'code' - Authorization Code flow
+   * - 'token' - Implicit flow
+   * - 'id_token' - OIDC implicit flow
+   * - 'code token' - Hybrid flow
    */
-  op_tos_uri?: string;
+  response_types_supported?: string[];
 
   /**
    * JSON array containing a list of client authentication
@@ -272,38 +231,71 @@ export interface OIDCDiscoveryApiResponse extends OIDCDiscoveryEndpointsApiRespo
   revocation_endpoint_auth_signing_alg_values_supported?: string[];
 
   /**
-   * JSON array containing a list of client authentication
-   * methods supported by this introspection endpoint.
+   * Supported OAuth 2.0 scope values.
+   * Lists the permission scopes this server can handle.
+   *
+   * @remarks
+   * Common values include:
+   * - 'openid' - Required for OIDC flows
+   * - 'profile' - Basic user information
+   * - 'email' - User's email address
+   * - 'address' - User's postal address
+   * - 'phone' - User's phone number
    */
-  introspection_endpoint_auth_methods_supported?: string[];
+  scopes_supported?: string[];
 
   /**
-   * JSON array containing a list of the JWS signing
-   * algorithms ("alg" values) supported by the introspection endpoint
-   * for the signature on the JWT [JWT] used to authenticate the client
-   * at the introspection endpoint for the "private_key_jwt" and
-   * "client_secret_jwt" authentication methods.
+   * URL of a page containing human-readable information that developers
+   * might want or need to know when using the OpenID Provider.
    */
-  introspection_endpoint_auth_signing_alg_values_supported?: string[];
+  service_documentation?: string;
 
   /**
-   * JSON array containing a list of Proof Key for Code
-   * Exchange (PKCE) [RFC7636] code challenge methods supported by this
-   * authorization server.
+   * Supported Subject Identifier types.
+   * Defines how the OP identifies users across sessions.
+   *
+   * @remarks
+   * Common values:
+   * - 'public' - Same sub value for all clients
+   * - 'pairwise' - Different sub values for different clients
    */
-  code_challenge_methods_supported?: string[];
+  subject_types_supported?: string[];
 
   /**
-   * Boolean value specifying whether the OP supports back-channel logout, with true indicating support.
-   * If omitted, the default value is false.
+   * JSON array containing a list of Client Authentication methods supported by this Token Endpoint.
    */
-  backchannel_logout_supported?: boolean;
+  token_endpoint_auth_methods_supported?: string[];
 
   /**
-   * Boolean value specifying whether the OP can pass a sid (session ID) Claim in the Logout Token to
-   * identify the RP session with the OP.
+   * JSON array containing a list of the JWS signing algorithms (alg values) supported by the Token Endpoint
+   * for the signature on the JWT [JWT] used to authenticate the Client at the Token Endpoint for the
+   * private_key_jwt and client_secret_jwt authentication methods.
    */
-  backchannel_logout_session_supported?: boolean;
+  token_endpoint_auth_signing_alg_values_supported?: string[];
+
+  /**
+   * Languages and scripts supported for the user interface,
+   * represented as a JSON array of BCP47 [RFC5646] language tag values.
+   */
+  ui_locales_supported?: string[];
+
+  /**
+   * JSON array containing a list of the JWE [JWE] encryption algorithms (alg values)
+   * [JWA] supported by the UserInfo Endpoint to encode the Claims in a JWT [JWT].
+   */
+  userinfo_encryption_alg_values_supported?: string[];
+
+  /**
+   * JSON array containing a list of the JWE encryption algorithms (enc values) [JWA]
+   * supported by the UserInfo Endpoint to encode the Claims in a JWT [JWT]
+   */
+  userinfo_encryption_enc_values_supported?: string[];
+
+  /**
+   * JSON array containing a list of the JWS [JWS] signing algorithms (alg values) [JWA]
+   * supported by the UserInfo Endpoint to encode the Claims in a JWT [JWT].
+   */
+  userinfo_signing_alg_values_supported?: string[];
 }
 
 /**
@@ -335,20 +327,6 @@ export interface OIDCDiscoveryApiResponse extends OIDCDiscoveryEndpointsApiRespo
  * ```
  */
 export interface OIDCDiscoveryEndpointsApiResponse {
-  // ====================================
-  // Core Endpoints
-  // ====================================
-
-  /**
-   * HTTPS URL that the OP asserts as its Issuer Identifier.
-   * Must not contain query or fragment components.
-   *
-   * @remarks
-   * This is a crucial identifier for the OpenID Provider and should
-   * match the iss claim in issued JWT tokens.
-   */
-  issuer?: string;
-
   /**
    * OAuth 2.0 Authorization Endpoint URL.
    * Used to initiate the authentication and authorization process.
@@ -360,28 +338,35 @@ export interface OIDCDiscoveryEndpointsApiResponse {
   authorization_endpoint?: string;
 
   /**
-   * OAuth 2.0 Token Endpoint URL.
-   * Used to obtain tokens using various grant types.
-   *
-   * @remarks
-   * Clients use this endpoint to exchange authorization codes for tokens
-   * and to refresh expired access tokens.
+   * URL of an OP iframe that supports cross-origin communications for session state information with the RP
+   * Client, using the HTML5 postMessage API.
    */
-  token_endpoint?: string;
-
-  // ====================================
-  // User Information & Key Management
-  // ====================================
+  check_session_iframe?: string;
 
   /**
-   * UserInfo Endpoint URL.
-   * Returns claims about the authenticated end-user.
+   * URL at the OP to which an RP can perform a redirect to request that the End-User be logged out at the
+   * OP.
+   */
+  end_session_endpoint?: string;
+
+  /**
+   * URL of the authorization server's OAuth 2.0
+   * introspection endpoint.
+   */
+  introspection_endpoint?: string;
+
+  // ====================================
+  // Core Endpoints
+  // ====================================
+  /**
+   * HTTPS URL that the OP asserts as its Issuer Identifier.
+   * Must not contain query or fragment components.
    *
    * @remarks
-   * Requires a valid access token with appropriate scope.
-   * May return claims in JWT format if signing/encryption is configured.
+   * This is a crucial identifier for the OpenID Provider and should
+   * match the iss claim in issued JWT tokens.
    */
-  userinfo_endpoint?: string;
+  issuer?: string;
 
   /**
    * JSON Web Key Set (JWKS) document URL.
@@ -398,7 +383,6 @@ export interface OIDCDiscoveryEndpointsApiResponse {
   // ====================================
   // Registration & Dynamic Configuration
   // ====================================
-
   /**
    * Dynamic Client Registration Endpoint URL.
    * Allows automated registration of OAuth 2.0 clients.
@@ -410,26 +394,31 @@ export interface OIDCDiscoveryEndpointsApiResponse {
   registration_endpoint?: string;
 
   /**
-   * URL at the OP to which an RP can perform a redirect to request that the End-User be logged out at the
-   * OP.
-   */
-  end_session_endpoint?: string;
-
-  /**
-   * URL of an OP iframe that supports cross-origin communications for session state information with the RP
-   * Client, using the HTML5 postMessage API.
-   */
-  check_session_iframe?: string;
-
-  /**
-   * URL of the authorization server's OAuth 2.0
-   * introspection endpoint.
-   */
-  introspection_endpoint?: string;
-
-  /**
    * URL of the authorization server's OAuth 2.0 revocation
    * endpoint.
    */
   revocation_endpoint?: string;
+
+  /**
+   * OAuth 2.0 Token Endpoint URL.
+   * Used to obtain tokens using various grant types.
+   *
+   * @remarks
+   * Clients use this endpoint to exchange authorization codes for tokens
+   * and to refresh expired access tokens.
+   */
+  token_endpoint?: string;
+
+  // ====================================
+  // User Information & Key Management
+  // ====================================
+  /**
+   * UserInfo Endpoint URL.
+   * Returns claims about the authenticated end-user.
+   *
+   * @remarks
+   * Requires a valid access token with appropriate scope.
+   * May return claims in JWT format if signing/encryption is configured.
+   */
+  userinfo_endpoint?: string;
 }

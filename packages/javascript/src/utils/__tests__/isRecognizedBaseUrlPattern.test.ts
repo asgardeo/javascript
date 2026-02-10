@@ -17,8 +17,8 @@
  */
 
 import {describe, it, expect, vi} from 'vitest';
-import isRecognizedBaseUrlPattern from '../isRecognizedBaseUrlPattern';
 import AsgardeoRuntimeError from '../../errors/AsgardeoRuntimeError';
+import isRecognizedBaseUrlPattern from '../isRecognizedBaseUrlPattern';
 
 vi.mock('../logger', () => ({default: {warn: vi.fn()}}));
 

@@ -18,10 +18,10 @@
 
 /**
  * Formats a date string to a human-readable format.
- * 
+ *
  * @param dateString - The date string to format (optional)
  * @returns A formatted date string in 'Month Day, Year' format, or '-' if no date is provided, or the original string if parsing fails
- * 
+ *
  * @example
  * ```typescript
  * formatDate('2025-07-09T10:30:00Z'); // Returns "July 9, 2025"
@@ -35,9 +35,9 @@ const formatDate = (dateString?: string): string => {
 
   try {
     return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
       day: 'numeric',
+      month: 'long',
+      year: 'numeric',
     });
   } catch {
     return dateString;

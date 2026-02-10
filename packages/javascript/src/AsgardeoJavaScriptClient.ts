@@ -16,14 +16,13 @@
  * under the License.
  */
 
-import {AllOrganizationsApiResponse} from './models/organization';
 import {AsgardeoClient} from './models/client';
 import {Config, SignInOptions, SignOutOptions, SignUpOptions} from './models/config';
-import {Storage} from './models/store';
 import {EmbeddedFlowExecuteRequestPayload, EmbeddedFlowExecuteResponse} from './models/embedded-flow';
 import {EmbeddedSignInFlowHandleRequestPayload} from './models/embedded-signin-flow';
+import {AllOrganizationsApiResponse, Organization} from './models/organization';
+import {Storage} from './models/store';
 import {TokenExchangeRequestConfig, TokenResponse} from './models/token';
-import {Organization} from './models/organization';
 import {User, UserProfile} from './models/user';
 
 /**
@@ -90,7 +89,7 @@ abstract class AsgardeoJavaScriptClient<T = Config> implements AsgardeoClient<T>
 
   abstract setSession(sessionData: Record<string, unknown>, sessionId?: string): Promise<void>;
 
-  abstract decodeJwtToken<T = Record<string, unknown>>(token: string): Promise<T>;
+  abstract decodeJwtToken<R = Record<string, unknown>>(token: string): Promise<R>;
 }
 
 export default AsgardeoJavaScriptClient;

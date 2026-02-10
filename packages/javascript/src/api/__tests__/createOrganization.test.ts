@@ -17,9 +17,9 @@
  */
 
 import {describe, it, expect, vi, beforeEach} from 'vitest';
-import createOrganization, {CreateOrganizationPayload} from '../createOrganization';
 import AsgardeoAPIError from '../../errors/AsgardeoAPIError';
 import {Organization} from '../../models/organization';
+import createOrganization, {CreateOrganizationPayload} from '../createOrganization';
 
 describe('createOrganization', (): void => {
   beforeEach((): void => {
@@ -34,8 +34,8 @@ describe('createOrganization', (): void => {
     };
 
     global.fetch = vi.fn().mockResolvedValue({
-      ok: true,
       json: () => Promise.resolve(mockOrg),
+      ok: true,
     });
 
     const payload: CreateOrganizationPayload = {
@@ -47,15 +47,15 @@ describe('createOrganization', (): void => {
     };
 
     const baseUrl: string = 'https://api.asgardeo.io/t/demo';
-    const result = await createOrganization({baseUrl, payload});
+    const result: Organization = await createOrganization({baseUrl, payload});
 
     expect(fetch).toHaveBeenCalledWith(`${baseUrl}/api/server/v1/organizations`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
-      },
       body: JSON.stringify(payload),
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      method: 'POST',
     });
     expect(result).toEqual(mockOrg);
   });
@@ -67,9 +67,9 @@ describe('createOrganization', (): void => {
       orgHandle: 'demo-org',
     };
 
-    const customFetcher = vi.fn().mockResolvedValue({
-      ok: true,
+    const customFetcher: typeof fetch = vi.fn().mockResolvedValue({
       json: () => Promise.resolve(mockOrg),
+      ok: true,
     });
 
     const payload: CreateOrganizationPayload = {
@@ -79,28 +79,28 @@ describe('createOrganization', (): void => {
       type: 'TENANT',
     };
 
-    const baseUrl = 'https://api.asgardeo.io/t/demo';
-    const result = await createOrganization({
+    const baseUrl: string = 'https://api.asgardeo.io/t/demo';
+    const result: Organization = await createOrganization({
       baseUrl,
-      payload,
       fetcher: customFetcher,
+      payload,
     });
 
     expect(result).toEqual(mockOrg);
     expect(customFetcher).toHaveBeenCalledWith(
       `${baseUrl}/api/server/v1/organizations`,
       expect.objectContaining({
-        method: 'POST',
         headers: expect.objectContaining({
-          'Content-Type': 'application/json',
           Accept: 'application/json',
+          'Content-Type': 'application/json',
         }),
+        method: 'POST',
       }),
     );
   });
 
   it('should handle errors thrown directly by custom fetcher', async (): Promise<void> => {
-    const customFetcher = vi.fn().mockImplementation(() => {
+    const customFetcher: typeof fetch = vi.fn().mockImplementation(() => {
       throw new Error('Custom fetcher failure');
     });
 
@@ -111,9 +111,9 @@ describe('createOrganization', (): void => {
       type: 'TENANT',
     };
 
-    const baseUrl = 'https://api.asgardeo.io/t/demo';
+    const baseUrl: string = 'https://api.asgardeo.io/t/demo';
 
-    await expect(createOrganization({baseUrl, payload, fetcher: customFetcher})).rejects.toThrow(
+    await expect(createOrganization({baseUrl, fetcher: customFetcher, payload})).rejects.toThrow(
       'Network or parsing error: Custom fetcher failure',
     );
   });
@@ -154,7 +154,7 @@ describe('createOrganization', (): void => {
   });
 
   it('should throw AsgardeoAPIError when payload is missing', async (): Promise<void> => {
-    const baseUrl = 'https://api.asgardeo.io/t/demo';
+    const baseUrl: string = 'https://api.asgardeo.io/t/demo';
 
     await expect(createOrganization({baseUrl} as any)).rejects.toThrow(AsgardeoAPIError);
     await expect(createOrganization({baseUrl} as any)).rejects.toThrow('Organization payload is required');
@@ -168,8 +168,8 @@ describe('createOrganization', (): void => {
     };
 
     global.fetch = vi.fn().mockResolvedValue({
-      ok: true,
       json: () => Promise.resolve(mockOrg),
+      ok: true,
     });
 
     const payload: CreateOrganizationPayload = {
@@ -179,19 +179,19 @@ describe('createOrganization', (): void => {
       type: 'GROUP', // Intentionally incorrect to test override
     };
 
-    const baseUrl = 'https://api.asgardeo.io/t/demo';
+    const baseUrl: string = 'https://api.asgardeo.io/t/demo';
     await createOrganization({baseUrl, payload});
 
     expect(fetch).toHaveBeenCalledWith(`${baseUrl}/api/server/v1/organizations`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
-      },
       body: JSON.stringify({
         ...payload,
         type: 'TENANT',
       }),
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      method: 'POST',
     });
   });
 
@@ -210,7 +210,7 @@ describe('createOrganization', (): void => {
       type: 'TENANT',
     };
 
-    const baseUrl = 'https://api.asgardeo.io/t/demo';
+    const baseUrl: string = 'https://api.asgardeo.io/t/demo';
 
     await expect(createOrganization({baseUrl, payload})).rejects.toThrow(AsgardeoAPIError);
     await expect(createOrganization({baseUrl, payload})).rejects.toThrow(
@@ -228,7 +228,7 @@ describe('createOrganization', (): void => {
       type: 'TENANT',
     };
 
-    const baseUrl = 'https://api.asgardeo.io/t/demo';
+    const baseUrl: string = 'https://api.asgardeo.io/t/demo';
 
     await expect(createOrganization({baseUrl, payload})).rejects.toThrow(AsgardeoAPIError);
     await expect(createOrganization({baseUrl, payload})).rejects.toThrow('Network or parsing error: Network error');
@@ -244,7 +244,7 @@ describe('createOrganization', (): void => {
       type: 'TENANT',
     };
 
-    const baseUrl = 'https://api.asgardeo.io/t/demo';
+    const baseUrl: string = 'https://api.asgardeo.io/t/demo';
 
     await expect(createOrganization({baseUrl, payload})).rejects.toThrow('Network or parsing error: Unknown error');
   });
@@ -257,8 +257,8 @@ describe('createOrganization', (): void => {
     };
 
     global.fetch = vi.fn().mockResolvedValue({
-      ok: true,
       json: () => Promise.resolve(mockOrg),
+      ok: true,
     });
 
     const payload: CreateOrganizationPayload = {
@@ -268,28 +268,28 @@ describe('createOrganization', (): void => {
       type: 'TENANT',
     };
 
-    const customHeaders = {
+    const customHeaders: Record<string, string> = {
       Authorization: 'Bearer token',
       'X-Custom-Header': 'custom-value',
     };
 
-    const baseUrl = 'https://api.asgardeo.io/t/demo';
+    const baseUrl: string = 'https://api.asgardeo.io/t/demo';
 
     await createOrganization({
       baseUrl,
-      payload,
       headers: customHeaders,
+      payload,
     });
 
     expect(fetch).toHaveBeenCalledWith(`${baseUrl}/api/server/v1/organizations`, {
-      method: 'POST',
+      body: JSON.stringify(payload),
       headers: {
-        'Content-Type': 'application/json',
         Accept: 'application/json',
         Authorization: 'Bearer token',
+        'Content-Type': 'application/json',
         'X-Custom-Header': 'custom-value',
       },
-      body: JSON.stringify(payload),
+      method: 'POST',
     });
   });
 });

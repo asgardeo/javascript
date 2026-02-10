@@ -18,8 +18,8 @@
 
 import {describe, it, expect, vi, afterEach} from 'vitest';
 import {Config} from '../../models/config';
-import isRecognizedBaseUrlPattern from '../isRecognizedBaseUrlPattern';
 import getRedirectBasedSignUpUrl from '../getRedirectBasedSignUpUrl';
+import isRecognizedBaseUrlPattern from '../isRecognizedBaseUrlPattern';
 
 vi.mock('../isRecognizedBaseUrlPattern', () => ({default: vi.fn()}));
 
@@ -35,8 +35,8 @@ describe('getRedirectBasedSignUpUrl', () => {
 
   it('should return the correct sign-up URL if baseUrl is recognized and both params are present', () => {
     (isRecognizedBaseUrlPattern as unknown as ReturnType<typeof vi.fn>).mockReturnValue(true);
-    const config: Config = {baseUrl, clientId, applicationId};
-    const url: URL = new URL(expectedBaseUrl + '/accountrecoveryendpoint/register.do');
+    const config: Config = {applicationId, baseUrl, clientId};
+    const url: URL = new URL(`${expectedBaseUrl}/accountrecoveryendpoint/register.do`);
     url.searchParams.set('client_id', clientId);
     url.searchParams.set('spId', applicationId);
     expect(getRedirectBasedSignUpUrl(config)).toBe(url.toString());
@@ -45,15 +45,15 @@ describe('getRedirectBasedSignUpUrl', () => {
   it('should return the correct sign-up URL if only clientId is present', () => {
     (isRecognizedBaseUrlPattern as unknown as ReturnType<typeof vi.fn>).mockReturnValue(true);
     const config: Config = {baseUrl, clientId};
-    const url: URL = new URL(expectedBaseUrl + '/accountrecoveryendpoint/register.do');
+    const url: URL = new URL(`${expectedBaseUrl}/accountrecoveryendpoint/register.do`);
     url.searchParams.set('client_id', clientId);
     expect(getRedirectBasedSignUpUrl(config)).toBe(url.toString());
   });
 
   it('should return the correct sign-up URL if only applicationId is present', () => {
     (isRecognizedBaseUrlPattern as unknown as ReturnType<typeof vi.fn>).mockReturnValue(true);
-    const config: Config = {baseUrl, applicationId, clientId: ''};
-    const url: URL = new URL(expectedBaseUrl + '/accountrecoveryendpoint/register.do');
+    const config: Config = {applicationId, baseUrl, clientId: ''};
+    const url: URL = new URL(`${expectedBaseUrl}/accountrecoveryendpoint/register.do`);
     url.searchParams.set('spId', applicationId);
     expect(getRedirectBasedSignUpUrl(config)).toBe(url.toString());
   });
@@ -61,13 +61,13 @@ describe('getRedirectBasedSignUpUrl', () => {
   it('should return the correct sign-up URL if neither param is present', () => {
     (isRecognizedBaseUrlPattern as unknown as ReturnType<typeof vi.fn>).mockReturnValue(true);
     const config: Config = {baseUrl, clientId: ''};
-    const url: URL = new URL(expectedBaseUrl + '/accountrecoveryendpoint/register.do');
+    const url: URL = new URL(`${expectedBaseUrl}/accountrecoveryendpoint/register.do`);
     expect(getRedirectBasedSignUpUrl(config)).toBe(url.toString());
   });
 
   it('should return empty string if baseUrl is not recognized', () => {
     (isRecognizedBaseUrlPattern as unknown as ReturnType<typeof vi.fn>).mockReturnValue(false);
-    const config: Config = {baseUrl, clientId, applicationId};
+    const config: Config = {applicationId, baseUrl, clientId};
     expect(getRedirectBasedSignUpUrl(config)).toBe('');
   });
 });

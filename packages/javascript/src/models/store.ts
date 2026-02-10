@@ -25,16 +25,6 @@ import {OIDCEndpoints} from './oidc-endpoints';
  */
 export interface Storage {
   /**
-   * Stores a value with the specified key.
-   *
-   * @param key - The unique identifier for the stored value
-   * @param value - The string value to store
-   * @returns A promise that resolves when the value is successfully stored
-   * @throws Error if storage operation fails
-   */
-  setData(key: string, value: string): Promise<void>;
-
-  /**
    * Retrieves a value by its key.
    *
    * @param key - The key of the value to retrieve
@@ -51,6 +41,16 @@ export interface Storage {
    * @throws Error if removal fails or the key doesn't exist
    */
   removeData(key: string): Promise<void>;
+
+  /**
+   * Stores a value with the specified key.
+   *
+   * @param key - The unique identifier for the stored value
+   * @param value - The string value to store
+   * @returns A promise that resolves when the value is successfully stored
+   * @throws Error if storage operation fails
+   */
+  setData(key: string, value: string): Promise<void>;
 }
 
 /**

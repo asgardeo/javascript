@@ -58,15 +58,6 @@ export enum EmbeddedSignUpFlowStatus {
   Complete = 'COMPLETE',
 
   /**
-   * Sign-up flow requires additional user input.
-   *
-   * More registration steps are needed. The response will contain
-   * components in data.meta.components that should be rendered to
-   * collect additional user information (e.g., profile data, verification).
-   */
-  Incomplete = 'INCOMPLETE',
-
-  /**
    * Sign-up flow encountered an error and cannot proceed.
    *
    * Registration failed due to validation errors, duplicate user,
@@ -77,6 +68,15 @@ export enum EmbeddedSignUpFlowStatus {
    * @see {@link EmbeddedSignUpFlowErrorResponse} for error response structure
    */
   Error = 'ERROR',
+
+  /**
+   * Sign-up flow requires additional user input.
+   *
+   * More registration steps are needed. The response will contain
+   * components in data.meta.components that should be rendered to
+   * collect additional user information (e.g., profile data, verification).
+   */
+  Incomplete = 'INCOMPLETE',
 }
 
 /**
@@ -142,15 +142,38 @@ export interface ExtendedEmbeddedSignUpFlowResponse {
  */
 export interface EmbeddedSignUpFlowResponse extends ExtendedEmbeddedSignUpFlowResponse {
   /**
-   * Unique identifier for this sign-up flow instance.
+   * Flow data containing form inputs and available actions.
+   * This is transformed to component-driven format by the React transformer.
    */
-  flowId: string;
+  data: {
+    /**
+     * Available actions the user can take (e.g., form submission, social sign-up).
+     */
+    actions?: {
+      id: string;
+      type: EmbeddedFlowResponseTypeV1;
+    }[];
+
+    /**
+     * Input fields required for the current step of the sign-up flow.
+     */
+    inputs?: {
+      name: string;
+      required: boolean;
+      type: string;
+    }[];
+  };
 
   /**
    * Optional reason for flow failure in case of an error.
    * Provides additional context when flowStatus is set to ERROR.
    */
   failureReason?: string;
+
+  /**
+   * Unique identifier for this sign-up flow instance.
+   */
+  flowId: string;
 
   /**
    * Current status of the sign-up flow.
@@ -162,29 +185,6 @@ export interface EmbeddedSignUpFlowResponse extends ExtendedEmbeddedSignUpFlowRe
    * Type of response, indicating the expected user interaction.
    */
   type: EmbeddedSignUpFlowType;
-
-  /**
-   * Flow data containing form inputs and available actions.
-   * This is transformed to component-driven format by the React transformer.
-   */
-  data: {
-    /**
-     * Available actions the user can take (e.g., form submission, social sign-up).
-     */
-    actions?: {
-      type: EmbeddedFlowResponseTypeV1;
-      id: string;
-    }[];
-
-    /**
-     * Input fields required for the current step of the sign-up flow.
-     */
-    inputs?: {
-      name: string;
-      type: string;
-      required: boolean;
-    }[];
-  };
 }
 
 /**
@@ -209,8 +209,8 @@ export type EmbeddedSignUpFlowInitiateRequest = {
  * @experimental
  */
 export interface EmbeddedSignUpFlowRequest extends Partial<EmbeddedSignUpFlowInitiateRequest> {
-  flowId?: string;
   action?: string;
+  flowId?: string;
   inputs?: Record<string, any>;
 }
 
@@ -252,20 +252,6 @@ export interface EmbeddedSignUpFlowRequest extends Partial<EmbeddedSignUpFlowIni
  */
 export interface EmbeddedSignUpFlowErrorResponse {
   /**
-   * Unique identifier for the sign-up flow instance.
-   * This ID is used to track the flow state and correlate error responses
-   * with the specific sign-up attempt that failed.
-   */
-  flowId: string;
-
-  /**
-   * Status of the sign-up flow, which will be `EmbeddedSignUpFlowStatus.Error`
-   * for error responses. This field is used by error detection logic to
-   * identify failed flow responses.
-   */
-  flowStatus: EmbeddedSignUpFlowStatus;
-
-  /**
    * Additional response data, typically empty for error responses.
    * Maintained for structural consistency with successful flow responses
    * which contain components, actions, and other flow data.
@@ -285,4 +271,18 @@ export interface EmbeddedSignUpFlowErrorResponse {
    * that helps users understand and resolve the issue.
    */
   failureReason: string;
+
+  /**
+   * Unique identifier for the sign-up flow instance.
+   * This ID is used to track the flow state and correlate error responses
+   * with the specific sign-up attempt that failed.
+   */
+  flowId: string;
+
+  /**
+   * Status of the sign-up flow, which will be `EmbeddedSignUpFlowStatus.Error`
+   * for error responses. This field is used by error detection logic to
+   * identify failed flow responses.
+   */
+  flowStatus: EmbeddedSignUpFlowStatus;
 }

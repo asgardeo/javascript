@@ -44,7 +44,7 @@
  * ```
  */
 const bem = (baseClass: string, element?: string | null, modifier?: string | null): string => {
-  let className = baseClass;
+  let className: string = baseClass;
 
   if (element) {
     className += `__${element}`;

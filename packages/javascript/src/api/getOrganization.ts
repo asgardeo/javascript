@@ -47,14 +47,14 @@ export interface GetOrganizationConfig extends Omit<RequestInit, 'method'> {
    */
   baseUrl: string;
   /**
-   * The ID of the organization to retrieve
-   */
-  organizationId: string;
-  /**
    * Optional custom fetcher function.
    * If not provided, native fetch will be used
    */
   fetcher?: (url: string, config: RequestInit) => Promise<Response>;
+  /**
+   * The ID of the organization to retrieve
+   */
+  organizationId: string;
 }
 
 /**
@@ -117,6 +117,7 @@ const getOrganization = async ({
   ...requestConfig
 }: GetOrganizationConfig): Promise<OrganizationDetails> => {
   try {
+    // eslint-disable-next-line no-new
     new URL(baseUrl);
   } catch (error) {
     throw new AsgardeoAPIError(
@@ -138,24 +139,24 @@ const getOrganization = async ({
     );
   }
 
-  const fetchFn = fetcher || fetch;
-  const resolvedUrl = `${baseUrl}/api/server/v1/organizations/${organizationId}`;
+  const fetchFn: typeof fetch = fetcher || fetch;
+  const resolvedUrl: string = `${baseUrl}/api/server/v1/organizations/${organizationId}`;
 
   const requestInit: RequestInit = {
     ...requestConfig,
-    method: 'GET',
     headers: {
-      'Content-Type': 'application/json',
       Accept: 'application/json',
+      'Content-Type': 'application/json',
       ...requestConfig.headers,
     },
+    method: 'GET',
   };
 
   try {
     const response: Response = await fetchFn(resolvedUrl, requestInit);
 
     if (!response?.ok) {
-      const errorText = await response.text();
+      const errorText: string = await response.text();
 
       throw new AsgardeoAPIError(
         `Failed to fetch organization details: ${errorText}`,

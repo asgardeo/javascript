@@ -16,8 +16,8 @@
  * under the License.
  */
 
-import {Organization} from '../models/organization';
 import AsgardeoAPIError from '../errors/AsgardeoAPIError';
+import {Organization} from '../models/organization';
 
 /**
  * Interface for organization creation payload.
@@ -28,13 +28,13 @@ export interface CreateOrganizationPayload {
    */
   description: string;
   /**
-   * Organization handle/slug.
-   */
-  orgHandle?: string;
-  /**
    * Organization name.
    */
   name: string;
+  /**
+   * Organization handle/slug.
+   */
+  orgHandle?: string;
   /**
    * Parent organization ID.
    */
@@ -54,14 +54,14 @@ export interface CreateOrganizationConfig extends Omit<RequestInit, 'method' | '
    */
   baseUrl: string;
   /**
-   * Organization creation payload
-   */
-  payload: CreateOrganizationPayload;
-  /**
    * Optional custom fetcher function.
    * If not provided, native fetch will be used
    */
   fetcher?: (url: string, config: RequestInit) => Promise<Response>;
+  /**
+   * Organization creation payload
+   */
+  payload: CreateOrganizationPayload;
 }
 
 /**
@@ -137,6 +137,7 @@ const createOrganization = async ({
   ...requestConfig
 }: CreateOrganizationConfig): Promise<Organization> => {
   try {
+    // eslint-disable-next-line no-new
     new URL(baseUrl);
   } catch (error) {
     throw new AsgardeoAPIError(
@@ -159,30 +160,30 @@ const createOrganization = async ({
   }
 
   // Always set type to TENANT for now
-  const organizationPayload = {
+  const organizationPayload: CreateOrganizationPayload = {
     ...payload,
     type: 'TENANT' as const,
   };
 
-  const fetchFn = fetcher || fetch;
-  const resolvedUrl = `${baseUrl}/api/server/v1/organizations`;
+  const fetchFn: typeof fetch = fetcher || fetch;
+  const resolvedUrl: string = `${baseUrl}/api/server/v1/organizations`;
 
   const requestInit: RequestInit = {
     ...requestConfig,
-    method: 'POST',
+    body: JSON.stringify(organizationPayload),
     headers: {
-      'Content-Type': 'application/json',
       Accept: 'application/json',
+      'Content-Type': 'application/json',
       ...requestConfig.headers,
     },
-    body: JSON.stringify(organizationPayload),
+    method: 'POST',
   };
 
   try {
     const response: Response = await fetchFn(resolvedUrl, requestInit);
 
     if (!response?.ok) {
-      const errorText = await response.text();
+      const errorText: string = await response.text();
 
       throw new AsgardeoAPIError(
         `Failed to create organization: ${errorText}`,

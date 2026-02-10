@@ -58,25 +58,23 @@ import {User} from '../models/user';
 const generateUserProfile = (meResponse: any, processedSchemas: any[]): User => {
   const profile: User = {};
 
-  processedSchemas.forEach(schema => {
+  processedSchemas.forEach((schema: any) => {
     const {name, type, multiValued} = schema;
 
     if (!name) return;
 
-    let value = get(meResponse, name);
+    let value: any = get(meResponse, name);
 
     if (value !== undefined) {
       if (multiValued && !Array.isArray(value)) {
         value = [value];
       }
+    } else if (multiValued) {
+      value = undefined;
+    } else if (type === 'STRING') {
+      value = '';
     } else {
-      if (multiValued) {
-        value = undefined;
-      } else if (type === 'STRING') {
-        value = '';
-      } else {
-        value = undefined;
-      }
+      value = undefined;
     }
 
     set(profile, name, value);

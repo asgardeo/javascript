@@ -16,30 +16,30 @@
  * under the License.
  */
 
-import {User} from '../models/user';
 import AsgardeoAPIError from '../errors/AsgardeoAPIError';
+import {User} from '../models/user';
 
 /**
  * Configuration for the updateMeProfile request
  */
 export interface UpdateMeProfileConfig extends Omit<RequestInit, 'method' | 'body'> {
   /**
-   * The absolute API endpoint.
-   */
-  url?: string;
-  /**
    * The base path of the API endpoint.
    */
   baseUrl?: string;
-  /**
-   * The value object to patch (SCIM2 PATCH value)
-   */
-  payload: any;
   /**
    * Optional custom fetcher function.
    * If not provided, native fetch will be used
    */
   fetcher?: (url: string, config: RequestInit) => Promise<Response>;
+  /**
+   * The value object to patch (SCIM2 PATCH value)
+   */
+  payload: any;
+  /**
+   * The absolute API endpoint.
+   */
+  url?: string;
 }
 
 /**
@@ -90,6 +90,7 @@ const updateMeProfile = async ({
   ...requestConfig
 }: UpdateMeProfileConfig): Promise<User> => {
   try {
+    // eslint-disable-next-line no-new
     new URL(url ?? baseUrl);
   } catch (error) {
     throw new AsgardeoAPIError(
@@ -101,7 +102,7 @@ const updateMeProfile = async ({
     );
   }
 
-  const data = {
+  const data: Record<string, unknown> = {
     Operations: [
       {
         op: 'replace',
@@ -111,25 +112,25 @@ const updateMeProfile = async ({
     schemas: ['urn:ietf:params:scim:api:messages:2.0:PatchOp'],
   };
 
-  const fetchFn = fetcher || fetch;
+  const fetchFn: typeof fetch = fetcher || fetch;
   const resolvedUrl: string = url ?? `${baseUrl}/scim2/Me`;
 
   const requestInit: RequestInit = {
     method: 'PATCH',
     ...requestConfig,
+    body: JSON.stringify(data),
     headers: {
       ...requestConfig.headers,
-      'Content-Type': 'application/scim+json',
       Accept: 'application/json',
+      'Content-Type': 'application/scim+json',
     },
-    body: JSON.stringify(data),
   };
 
   try {
     const response: Response = await fetchFn(resolvedUrl, requestInit);
 
     if (!response?.ok) {
-      const errorText = await response.text();
+      const errorText: string = await response.text();
 
       throw new AsgardeoAPIError(
         `Failed to update user profile: ${errorText}`,
@@ -147,8 +148,7 @@ const updateMeProfile = async ({
     }
 
     throw new AsgardeoAPIError(
-      error?.response?.data?.detail ||
-        'An error occurred while updating the user profile. Please try again.',
+      error?.response?.data?.detail || 'An error occurred while updating the user profile. Please try again.',
       'updateMeProfile-NetworkError-001',
       'javascript',
       error?.data?.status,

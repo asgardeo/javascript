@@ -17,9 +17,9 @@
  */
 
 import {I18nBundle} from '@asgardeo/i18n';
+import {Platform} from './platforms';
 import {RecursivePartial} from './utility-types';
 import {ThemeConfig, ThemeMode} from '../theme/types';
-import {Platform} from './platforms';
 
 /**
  * Interface representing the additional parameters to be sent in the sign-in request.
@@ -97,14 +97,6 @@ export interface BaseConfig<T = unknown> extends WithPreferences {
   allowedExternalUrls?: string[];
 
   /**
-   * Optional organization handle for the Organization in Asgardeo.
-   * This is used to identify the organization in the Asgardeo identity server in cases like Branding, etc.
-   * If not provided, the framework layer will try to use the `baseUrl` to determine the organization handle.
-   * @remarks This is mandatory if a custom domain is configured for the Asgardeo organization.
-   */
-  organizationHandle?: string | undefined;
-
-  /**
    * Optional UUID of the Asgardeo application.
    * This is used to identify the application in the Asgardeo identity server for Application Branding,
    * obtaining the access URL in the sign-up flow, etc.
@@ -132,6 +124,20 @@ export interface BaseConfig<T = unknown> extends WithPreferences {
   clientSecret?: string | undefined;
 
   /**
+   * Optional instance ID for multi-auth context support.
+   * Use this when you need multiple authentication contexts in the same application.
+   */
+  instanceId?: number;
+
+  /**
+   * Optional organization handle for the Organization in Asgardeo.
+   * This is used to identify the organization in the Asgardeo identity server in cases like Branding, etc.
+   * If not provided, the framework layer will try to use the `baseUrl` to determine the organization handle.
+   * @remarks This is mandatory if a custom domain is configured for the Asgardeo organization.
+   */
+  organizationHandle?: string | undefined;
+
+  /**
    * Optional platform where the application is running.
    * This helps the SDK to optimize its behavior based on the platform.
    * If not provided, the SDK will attempt to auto-detect the platform.
@@ -153,52 +159,17 @@ export interface BaseConfig<T = unknown> extends WithPreferences {
   scopes?: string | string[] | undefined;
 
   /**
+   * Optional additional parameters to be sent in the authorize request.
+   * @see {@link SignInOptions} for more details.
+   */
+  signInOptions?: SignInOptions;
+
+  /**
    * Optional URL to redirect the user to sign-in.
    * By default, this will be the sign-in page of Asgardeo.
    * If you want to use a custom sign-in page, you can provide the URL here and use the `SignIn` component to render it.
    */
   signInUrl?: string | undefined;
-
-  /**
-   * Optional URL to redirect the user to sign-up.
-   * By default, this will be the sign-up page of Asgardeo.
-   * If you want to use a custom sign-up page, you can provide the URL here
-   * and use the `SignUp` component to render it.
-   */
-  signUpUrl?: string | undefined;
-
-  /**
-   * Token validation configuration.
-   * This allows you to configure how the SDK validates tokens received from the authorization server.
-   * It includes options for ID token validation, such as whether to validate the token,
-   * whether to validate the issuer, and the allowed clock tolerance for token validation.
-   * If not provided, the SDK will use default validation settings.
-   */
-  tokenValidation?: {
-    /**
-     * ID token validation config.
-     */
-    idToken?: {
-      /**
-       * Whether to validate ID tokens.
-       */
-      validate?: boolean;
-      /**
-       * Whether to validate the issuer of ID tokens.
-       */
-      validateIssuer?: boolean;
-      /**
-       * Allowed leeway for ID tokens (in seconds).
-       */
-      clockTolerance?: number;
-    };
-  };
-
-  /**
-   * Optional additional parameters to be sent in the authorize request.
-   * @see {@link SignInOptions} for more details.
-   */
-  signInOptions?: SignInOptions;
 
   /**
    * Optional additional parameters to be sent in the sign-out request.
@@ -213,6 +184,20 @@ export interface BaseConfig<T = unknown> extends WithPreferences {
   signUpOptions?: SignUpOptions;
 
   /**
+   * Optional URL to redirect the user to sign-up.
+   * By default, this will be the sign-up page of Asgardeo.
+   * If you want to use a custom sign-up page, you can provide the URL here
+   * and use the `SignUp` component to render it.
+   */
+  signUpUrl?: string | undefined;
+
+  /**
+   * Storage mechanism to use for storing tokens and session data.
+   * The values should be defined at the framework layer.
+   */
+  storage?: T;
+
+  /**
    * Flag to indicate whether the Application session should be synchronized with the IdP session.
    * @remarks This uses the OIDC iframe base session management feature to keep the application session in sync with the IdP session.
    * WARNING: This may not work in all browsers due to 3rd party cookie restrictions.
@@ -223,17 +208,32 @@ export interface BaseConfig<T = unknown> extends WithPreferences {
    * @see {@link https://openid.net/specs/openid-connect-session-management-1_0.html#IframeBasedSessionManagement}
    */
   syncSession?: boolean;
-
   /**
-   * Storage mechanism to use for storing tokens and session data.
-   * The values should be defined at the framework layer.
+   * Token validation configuration.
+   * This allows you to configure how the SDK validates tokens received from the authorization server.
+   * It includes options for ID token validation, such as whether to validate the token,
+   * whether to validate the issuer, and the allowed clock tolerance for token validation.
+   * If not provided, the SDK will use default validation settings.
    */
-  storage?: T;
-  /**
-   * Optional instance ID for multi-auth context support.
-   * Use this when you need multiple authentication contexts in the same application.
-   */
-  instanceId?: number;
+  tokenValidation?: {
+    /**
+     * ID token validation config.
+     */
+    idToken?: {
+      /**
+       * Allowed leeway for ID tokens (in seconds).
+       */
+      clockTolerance?: number;
+      /**
+       * Whether to validate ID tokens.
+       */
+      validate?: boolean;
+      /**
+       * Whether to validate the issuer of ID tokens.
+       */
+      validateIssuer?: boolean;
+    };
+  };
 }
 
 export interface WithPreferences {

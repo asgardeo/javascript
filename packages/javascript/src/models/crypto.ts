@@ -20,12 +20,12 @@
  * JWK Model
  */
 export interface JWKInterface {
-  kty: string;
-  e: string;
-  use: string;
-  kid: string;
   alg: string;
+  e: string;
+  kid: string;
+  kty: string;
   n: string;
+  use: string;
 }
 
 /**
@@ -52,15 +52,6 @@ export interface JWKInterface {
  */
 export interface Crypto<T = any> {
   /**
-   * Encode the provided data in base64url format.
-   *
-   * @param value - Data to be encoded.
-   *
-   * @returns Encoded data.
-   */
-  base64URLEncode(value: T): string;
-
-  /**
    * Decode the provided data encoded in base64url format.
    *
    * @param value - Data to be decoded.
@@ -68,6 +59,15 @@ export interface Crypto<T = any> {
    * @returns Decoded data.
    */
   base64URLDecode(value: string): string;
+
+  /**
+   * Encode the provided data in base64url format.
+   *
+   * @param value - Data to be encoded.
+   *
+   * @returns Encoded data.
+   */
+  base64URLEncode(value: T): string;
 
   /**
    * Generate random bytes.

@@ -17,85 +17,85 @@
  */
 
 import {describe, it, expect, vi} from 'vitest';
-import getScim2Me from '../getScim2Me';
 import AsgardeoAPIError from '../../errors/AsgardeoAPIError';
+import getScim2Me from '../getScim2Me';
 
 // Mock user data
-const mockUser = {
+const mockUser: Record<string, unknown> = {
+  email: 'test@example.com',
+  familyName: 'User',
+  givenName: 'Test',
   id: '123',
   username: 'testuser',
-  email: 'test@example.com',
-  givenName: 'Test',
-  familyName: 'User',
 };
 
 describe('getScim2Me', () => {
   it('should fetch user profile successfully with default fetch', async () => {
     // Mock fetch
-    const mockFetch = vi.fn().mockResolvedValue({
+    const mockFetch: typeof fetch = vi.fn().mockResolvedValue({
+      json: () => Promise.resolve(mockUser),
       ok: true,
       status: 200,
       statusText: 'OK',
-      json: () => Promise.resolve(mockUser),
       text: () => Promise.resolve(JSON.stringify(mockUser)),
     });
 
     // Replace global fetch
     global.fetch = mockFetch;
 
-    const result = await getScim2Me({
+    const result: Record<string, unknown> = await getScim2Me({
       url: 'https://api.asgardeo.io/t/test/scim2/Me',
     });
 
     expect(result).toEqual(mockUser);
     expect(mockFetch).toHaveBeenCalledWith('https://api.asgardeo.io/t/test/scim2/Me', {
-      method: 'GET',
       headers: {
-        'Content-Type': 'application/scim+json',
         Accept: 'application/json',
+        'Content-Type': 'application/scim+json',
       },
+      method: 'GET',
     });
   });
 
   it('should use custom fetcher when provided', async () => {
-    const customFetcher = vi.fn().mockResolvedValue({
+    const customFetcher: typeof fetch = vi.fn().mockResolvedValue({
+      json: () => Promise.resolve(mockUser),
       ok: true,
       status: 200,
       statusText: 'OK',
-      json: () => Promise.resolve(mockUser),
       text: () => Promise.resolve(JSON.stringify(mockUser)),
     });
 
-    const result = await getScim2Me({
-      url: 'https://api.asgardeo.io/t/test/scim2/Me',
+    const result: Record<string, unknown> = await getScim2Me({
       fetcher: customFetcher,
+      url: 'https://api.asgardeo.io/t/test/scim2/Me',
     });
 
     expect(result).toEqual(mockUser);
     expect(customFetcher).toHaveBeenCalledWith('https://api.asgardeo.io/t/test/scim2/Me', {
-      method: 'GET',
       headers: {
-        'Content-Type': 'application/scim+json',
         Accept: 'application/json',
+        'Content-Type': 'application/scim+json',
       },
+      method: 'GET',
     });
   });
 
   it('should handle errors thrown directly by custom fetcher', async (): Promise<void> => {
-    const customFetcher = vi.fn().mockImplementation(() => {
+    const customFetcher: typeof fetch = vi.fn().mockImplementation(() => {
       throw new Error('Custom fetcher failure');
     });
 
     await expect(
       getScim2Me({
-        url: 'https://api.asgardeo.io/t/test/scim2/Me',
         fetcher: customFetcher,
+        url: 'https://api.asgardeo.io/t/test/scim2/Me',
       }),
     ).rejects.toThrow(AsgardeoAPIError);
     await expect(
       getScim2Me({
-        url: 'https://api.asgardeo.io/t/test/scim2/Me',
         fetcher: customFetcher,
+        url: 'https://api.asgardeo.io/t/test/scim2/Me',
       }),
     ).rejects.toThrow('Network or parsing error: Custom fetcher failure');
   });
@@ -118,9 +118,9 @@ describe('getScim2Me', () => {
     await expect(getScim2Me({})).rejects.toThrow(AsgardeoAPIError);
 
     const error: AsgardeoAPIError = await getScim2Me({
-      url: undefined,
       baseUrl: undefined,
-    }).catch(e => e);
+      url: undefined,
+    }).catch((e: AsgardeoAPIError) => e);
 
     expect(error.name).toBe('AsgardeoAPIError');
     expect(error.code).toBe('getScim2Me-ValidationError-001');
@@ -135,14 +135,14 @@ describe('getScim2Me', () => {
 
     const error: AsgardeoAPIError = await getScim2Me({
       url: '',
-    }).catch(e => e);
+    }).catch((e: AsgardeoAPIError) => e);
 
     expect(error.name).toBe('AsgardeoAPIError');
     expect(error.code).toBe('getScim2Me-ValidationError-001');
   });
 
   it('should throw AsgardeoAPIError for failed response', async () => {
-    const mockFetch = vi.fn().mockResolvedValue({
+    const mockFetch: typeof fetch = vi.fn().mockResolvedValue({
       ok: false,
       status: 404,
       statusText: 'Not Found',
@@ -159,7 +159,7 @@ describe('getScim2Me', () => {
   });
 
   it('should handle network errors', async () => {
-    const mockFetch = vi.fn().mockRejectedValue(new Error('Network error'));
+    const mockFetch: typeof fetch = vi.fn().mockRejectedValue(new Error('Network error'));
 
     global.fetch = mockFetch;
 
@@ -180,55 +180,55 @@ describe('getScim2Me', () => {
   });
 
   it('should pass through custom headers', async () => {
-    const mockFetch = vi.fn().mockResolvedValue({
+    const mockFetch: typeof fetch = vi.fn().mockResolvedValue({
+      json: () => Promise.resolve(mockUser),
       ok: true,
       status: 200,
       statusText: 'OK',
-      json: () => Promise.resolve(mockUser),
       text: () => Promise.resolve(JSON.stringify(mockUser)),
     });
 
     global.fetch = mockFetch;
-    const customHeaders = {
+    const customHeaders: Record<string, string> = {
       Authorization: 'Bearer token',
       'X-Custom-Header': 'custom-value',
     };
 
     await getScim2Me({
-      url: 'https://api.asgardeo.io/t/test/scim2/Me',
       headers: customHeaders,
+      url: 'https://api.asgardeo.io/t/test/scim2/Me',
     });
 
     expect(mockFetch).toHaveBeenCalledWith('https://api.asgardeo.io/t/test/scim2/Me', {
-      method: 'GET',
       headers: {
-        'Content-Type': 'application/scim+json',
         Accept: 'application/json',
+        'Content-Type': 'application/scim+json',
         ...customHeaders,
       },
+      method: 'GET',
     });
   });
 
   it('should default to baseUrl if url is not provided', async () => {
-    const mockFetch = vi.fn().mockResolvedValue({
+    const mockFetch: typeof fetch = vi.fn().mockResolvedValue({
+      json: () => Promise.resolve(mockUser),
       ok: true,
       status: 200,
       statusText: 'OK',
-      json: () => Promise.resolve(mockUser),
       text: () => Promise.resolve(JSON.stringify(mockUser)),
     });
     global.fetch = mockFetch;
 
-    const baseUrl = 'https://api.asgardeo.io/t/test';
+    const baseUrl: string = 'https://api.asgardeo.io/t/test';
     await getScim2Me({
       baseUrl,
     });
     expect(mockFetch).toHaveBeenCalledWith(`${baseUrl}/scim2/Me`, {
-      method: 'GET',
       headers: {
-        'Content-Type': 'application/scim+json',
         Accept: 'application/json',
+        'Content-Type': 'application/scim+json',
       },
+      method: 'GET',
     });
   });
 });

@@ -23,7 +23,7 @@ describe('AsgardeoError', (): void => {
     const message: string = 'Test error message';
     const code: string = 'TEST_ERROR';
     const origin: string = 'javascript';
-    const error = new AsgardeoError(message, code, origin);
+    const error: AsgardeoError = new AsgardeoError(message, code, origin);
 
     expect(error.message).toBe(message);
     expect(error.code).toBe(code);
@@ -36,7 +36,7 @@ describe('AsgardeoError', (): void => {
     const message: string = 'Test error message';
     const code: string = 'TEST_ERROR';
     const origin: string = 'react';
-    const error = new AsgardeoError(message, code, origin);
+    const error: AsgardeoError = new AsgardeoError(message, code, origin);
 
     expect(error.message).toBe(message);
     expect(error.code).toBe(code);
@@ -55,8 +55,8 @@ describe('AsgardeoError', (): void => {
       'Asgardeo - @asgardeo/javascript',
     ];
 
-    origins.forEach((origin, index) => {
-      const error = new AsgardeoError(message, code, origin);
+    origins.forEach((origin: string, index: number) => {
+      const error: AsgardeoError = new AsgardeoError(message, code, origin);
 
       expect(error.toString()).toContain(`🛡️ ${expectedNames[index]}:`);
     });
@@ -66,7 +66,7 @@ describe('AsgardeoError', (): void => {
     const message: string = '🛡️ Asgardeo - @asgardeo/react: Already prefixed message';
     const code: string = 'TEST_ERROR';
     const origin: string = 'react';
-    const error = new AsgardeoError(message, code, origin);
+    const error: AsgardeoError = new AsgardeoError(message, code, origin);
 
     expect(error.message).toBe(message);
     expect(error.code).toBe(code);
@@ -76,7 +76,7 @@ describe('AsgardeoError', (): void => {
     const message: string = 'Test message';
     const code: string = 'TEST_ERROR';
     const origin: string = 'javascript';
-    const error = new AsgardeoError(message, code, origin);
+    const error: AsgardeoError = new AsgardeoError(message, code, origin);
 
     expect(error.name).toBe('AsgardeoError');
     expect(error).toBeInstanceOf(Error);
@@ -87,7 +87,7 @@ describe('AsgardeoError', (): void => {
     const message: string = 'Test message';
     const code: string = 'TEST_ERROR';
     const origin: string = 'javascript';
-    const error = new AsgardeoError(message, code, origin);
+    const error: AsgardeoError = new AsgardeoError(message, code, origin);
 
     expect(error.stack).toBeDefined();
     expect(String(error.stack)).toContain('Test message');

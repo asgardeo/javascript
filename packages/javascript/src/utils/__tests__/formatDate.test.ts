@@ -25,10 +25,10 @@ describe('formatDate', () => {
   });
 
   it('returns a formatted date for a valid date string', () => {
-    const date_1 = '2025-07-09T12:00:00Z';
-    const date_2 = 'Wed, 09 Jul 2025 12:00:00 GMT';
-    expect(formatDate(date_1)).toBe('July 9, 2025');
-    expect(formatDate(date_2)).toBe('July 9, 2025');
+    const dateIso: string = '2025-07-09T12:00:00Z';
+    const dateRfc: string = 'Wed, 09 Jul 2025 12:00:00 GMT';
+    expect(formatDate(dateIso)).toBe('July 9, 2025');
+    expect(formatDate(dateRfc)).toBe('July 9, 2025');
   });
 
   it('returns "-" when given undefined or empty', () => {
@@ -37,16 +37,16 @@ describe('formatDate', () => {
   });
 
   it('returns the "Invalid Date" when the date is invalid', () => {
-    const invalid = 'invalid-date';
+    const invalid: string = 'invalid-date';
     expect(formatDate(invalid)).toBe('Invalid Date');
   });
 
   it('returns the original string when parsing/formatting throws', () => {
-    const spy = vi.spyOn(Date.prototype, 'toLocaleDateString').mockImplementation(() => {
+    const spy: ReturnType<typeof vi.spyOn> = vi.spyOn(Date.prototype, 'toLocaleDateString').mockImplementation(() => {
       throw new RangeError('Forced failure');
     });
 
-    const input = '2025-07-09T12:00:00Z';
+    const input: string = '2025-07-09T12:00:00Z';
     expect(formatDate(input)).toBe(input);
 
     spy.mockRestore();

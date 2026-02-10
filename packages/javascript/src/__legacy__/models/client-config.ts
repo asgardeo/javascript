@@ -29,11 +29,22 @@ export interface DefaultAuthClientConfig {
   prompt?: string;
   responseMode?: OAuthResponseMode;
   scopes?: string | string[] | undefined;
+  /**
+   * Specifies if cookies should be sent with access-token requests, refresh-token requests,
+   * custom-grant requests, etc.
+   *
+   */
+  sendCookiesInRequests?: boolean;
+  sendIdTokenInLogoutRequest?: boolean;
   tokenValidation?: {
     /**
      * ID token validation config.
      */
     idToken?: {
+      /**
+       * Allowed leeway for ID tokens (in seconds).
+       */
+      clockTolerance?: number;
       /**
        * Whether to validate ID tokens.
        */
@@ -42,25 +53,14 @@ export interface DefaultAuthClientConfig {
        * Whether to validate the issuer of ID tokens.
        */
       validateIssuer?: boolean;
-      /**
-       * Allowed leeway for ID tokens (in seconds).
-       */
-      clockTolerance?: number;
     };
   };
-  /**
-   * Specifies if cookies should be sent with access-token requests, refresh-token requests,
-   * custom-grant requests, etc.
-   *
-   */
-  sendCookiesInRequests?: boolean;
-  sendIdTokenInLogoutRequest?: boolean;
 }
 
 export interface WellKnownAuthClientConfig extends DefaultAuthClientConfig {
-  wellKnownEndpoint: string;
-  endpoints?: Partial<OIDCEndpoints>;
   baseUrl?: string;
+  endpoints?: Partial<OIDCEndpoints>;
+  wellKnownEndpoint: string;
 }
 
 export interface BaseURLAuthClientConfig extends DefaultAuthClientConfig {
@@ -70,8 +70,8 @@ export interface BaseURLAuthClientConfig extends DefaultAuthClientConfig {
 }
 
 export interface ExplicitAuthClientConfig extends DefaultAuthClientConfig {
-  endpoints: OIDCEndpoints;
   baseUrl?: string;
+  endpoints: OIDCEndpoints;
   wellKnownEndpoint?: string;
 }
 

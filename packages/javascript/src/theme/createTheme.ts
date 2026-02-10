@@ -16,219 +16,219 @@
  * under the License.
  */
 
-import {Theme, ThemeConfig, ThemeMode, ThemeVars} from './types';
-import {RecursivePartial} from '../models/utility-types';
+import {Theme, ThemeConfig, ThemeImage, ThemeMode, ThemeVars} from './types';
 import VendorConstants from '../constants/VendorConstants';
+import {RecursivePartial} from '../models/utility-types';
 
 const lightTheme: ThemeConfig = {
+  borderRadius: {
+    large: '16px',
+    medium: '8px',
+    small: '4px',
+  },
   colors: {
     action: {
+      activatedOpacity: 0.12,
       active: 'rgba(0, 0, 0, 0.54)',
-      hover: 'rgba(0, 0, 0, 0.04)',
-      hoverOpacity: 0.04,
-      selected: 'rgba(0, 0, 0, 0.08)',
-      selectedOpacity: 0.08,
       disabled: 'rgba(0, 0, 0, 0.26)',
       disabledBackground: 'rgba(0, 0, 0, 0.12)',
       disabledOpacity: 0.38,
       focus: 'rgba(0, 0, 0, 0.12)',
       focusOpacity: 0.12,
-      activatedOpacity: 0.12,
-    },
-    primary: {
-      main: '#1a73e8',
-      contrastText: '#ffffff',
-      dark: '#174ea6',
-    },
-    secondary: {
-      main: '#424242',
-      contrastText: '#ffffff',
-      dark: '#212121',
+      hover: 'rgba(0, 0, 0, 0.04)',
+      hoverOpacity: 0.04,
+      selected: 'rgba(0, 0, 0, 0.08)',
+      selectedOpacity: 0.08,
     },
     background: {
-      surface: '#ffffff',
-      disabled: '#f0f0f0',
-      dark: '#212121',
       body: {
-        main: '#1a1a1a',
         dark: '#212121',
+        main: '#1a1a1a',
       },
-    },
-    error: {
-      main: '#d32f2f',
-      contrastText: '#d52828',
-      dark: '#b71c1c',
-    },
-    info: {
-      main: '#bbebff',
-      contrastText: '#43aeda',
-      dark: '#01579b',
-    },
-    success: {
-      main: '#4caf50',
-      contrastText: '#00a807',
-      dark: '#388e3c',
-    },
-    warning: {
-      main: '#ff9800',
-      contrastText: '#be7100',
-      dark: '#f57c00',
-    },
-    text: {
-      primary: '#1a1a1a',
-      secondary: '#666666',
       dark: '#212121',
+      disabled: '#f0f0f0',
+      surface: '#ffffff',
     },
     border: '#e0e0e0',
-  },
-  spacing: {
-    unit: 8,
-  },
-  borderRadius: {
-    small: '4px',
-    medium: '8px',
-    large: '16px',
-  },
-  shadows: {
-    small: '0 2px 8px rgba(0, 0, 0, 0.1)',
-    medium: '0 4px 16px rgba(0, 0, 0, 0.15)',
-    large: '0 8px 32px rgba(0, 0, 0, 0.2)',
-  },
-  typography: {
-    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
-    fontSizes: {
-      xs: '0.75rem', // 12px
-      sm: '0.875rem', // 14px
-      md: '1rem', // 16px
-      lg: '1.125rem', // 18px
-      xl: '1.25rem', // 20px
-      '2xl': '1.5rem', // 24px
-      '3xl': '2.125rem', // 34px
+    error: {
+      contrastText: '#d52828',
+      dark: '#b71c1c',
+      main: '#d32f2f',
     },
-    fontWeights: {
-      normal: 400,
-      medium: 500,
-      semibold: 600,
-      bold: 700,
+    info: {
+      contrastText: '#43aeda',
+      dark: '#01579b',
+      main: '#bbebff',
     },
-    lineHeights: {
-      tight: 1.2,
-      normal: 1.4,
-      relaxed: 1.6,
+    primary: {
+      contrastText: '#ffffff',
+      dark: '#174ea6',
+      main: '#1a73e8',
+    },
+    secondary: {
+      contrastText: '#ffffff',
+      dark: '#212121',
+      main: '#424242',
+    },
+    success: {
+      contrastText: '#00a807',
+      dark: '#388e3c',
+      main: '#4caf50',
+    },
+    text: {
+      dark: '#212121',
+      primary: '#1a1a1a',
+      secondary: '#666666',
+    },
+    warning: {
+      contrastText: '#be7100',
+      dark: '#f57c00',
+      main: '#ff9800',
     },
   },
   images: {
     favicon: {},
     logo: {},
   },
+  shadows: {
+    large: '0 8px 32px rgba(0, 0, 0, 0.2)',
+    medium: '0 4px 16px rgba(0, 0, 0, 0.15)',
+    small: '0 2px 8px rgba(0, 0, 0, 0.1)',
+  },
+  spacing: {
+    unit: 8,
+  },
+  typography: {
+    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+    fontSizes: {
+      '2xl': '1.5rem', // 24px
+      '3xl': '2.125rem', // 34px
+      lg: '1.125rem', // 18px
+      md: '1rem', // 16px
+      sm: '0.875rem', // 14px
+      xl: '1.25rem', // 20px
+      xs: '0.75rem', // 12px
+    },
+    fontWeights: {
+      bold: 700,
+      medium: 500,
+      normal: 400,
+      semibold: 600,
+    },
+    lineHeights: {
+      normal: 1.4,
+      relaxed: 1.6,
+      tight: 1.2,
+    },
+  },
 };
 
 const darkTheme: ThemeConfig = {
+  borderRadius: {
+    large: '16px',
+    medium: '8px',
+    small: '4px',
+  },
   colors: {
     action: {
+      activatedOpacity: 0.12,
       active: '#1c1c1c',
-      hover: '#1c1c1c',
-      hoverOpacity: 0.04,
-      selected: '#1c1c1c',
-      selectedOpacity: 0.08,
       disabled: 'rgba(255, 255, 255, 0.26)',
       disabledBackground: 'rgba(255, 255, 255, 0.12)',
       disabledOpacity: 0.38,
       focus: '#1c1c1c',
       focusOpacity: 0.12,
-      activatedOpacity: 0.12,
-    },
-    primary: {
-      main: '#1a73e8',
-      contrastText: '#ffffff',
-      dark: '#174ea6',
-    },
-    secondary: {
-      main: '#8b8b8b',
-      contrastText: '#ffffff',
-      dark: '#212121',
+      hover: '#1c1c1c',
+      hoverOpacity: 0.04,
+      selected: '#1c1c1c',
+      selectedOpacity: 0.08,
     },
     background: {
-      surface: '#121212',
-      disabled: '#1f1f1f',
-      dark: '#212121',
       body: {
-        main: '#ffffff',
         dark: '#212121',
+        main: '#ffffff',
       },
-    },
-    error: {
-      main: '#d32f2f',
-      contrastText: '#d52828',
-      dark: '#b71c1c',
-    },
-    info: {
-      main: '#bbebff',
-      contrastText: '#43aeda',
-      dark: '#01579b',
-    },
-    success: {
-      main: '#4caf50',
-      contrastText: '#00a807',
-      dark: '#388e3c',
-    },
-    warning: {
-      main: '#ff9800',
-      contrastText: '#be7100',
-      dark: '#f57c00',
-    },
-    text: {
-      primary: '#ffffff',
-      secondary: '#b3b3b3',
       dark: '#212121',
+      disabled: '#1f1f1f',
+      surface: '#121212',
     },
     border: '#404040',
-  },
-  spacing: {
-    unit: 8,
-  },
-  borderRadius: {
-    small: '4px',
-    medium: '8px',
-    large: '16px',
-  },
-  shadows: {
-    small: '0 2px 8px rgba(0, 0, 0, 0.3)',
-    medium: '0 4px 16px rgba(0, 0, 0, 0.4)',
-    large: '0 8px 32px rgba(0, 0, 0, 0.5)',
-  },
-  typography: {
-    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
-    fontSizes: {
-      xs: '0.75rem', // 12px
-      sm: '0.875rem', // 14px
-      md: '1rem', // 16px
-      lg: '1.125rem', // 18px
-      xl: '1.25rem', // 20px
-      '2xl': '1.5rem', // 24px
-      '3xl': '2.125rem', // 34px
+    error: {
+      contrastText: '#d52828',
+      dark: '#b71c1c',
+      main: '#d32f2f',
     },
-    fontWeights: {
-      normal: 400,
-      medium: 500,
-      semibold: 600,
-      bold: 700,
+    info: {
+      contrastText: '#43aeda',
+      dark: '#01579b',
+      main: '#bbebff',
     },
-    lineHeights: {
-      tight: 1.2,
-      normal: 1.4,
-      relaxed: 1.6,
+    primary: {
+      contrastText: '#ffffff',
+      dark: '#174ea6',
+      main: '#1a73e8',
+    },
+    secondary: {
+      contrastText: '#ffffff',
+      dark: '#212121',
+      main: '#8b8b8b',
+    },
+    success: {
+      contrastText: '#00a807',
+      dark: '#388e3c',
+      main: '#4caf50',
+    },
+    text: {
+      dark: '#212121',
+      primary: '#ffffff',
+      secondary: '#b3b3b3',
+    },
+    warning: {
+      contrastText: '#be7100',
+      dark: '#f57c00',
+      main: '#ff9800',
     },
   },
   images: {
     favicon: {},
     logo: {},
   },
+  shadows: {
+    large: '0 8px 32px rgba(0, 0, 0, 0.5)',
+    medium: '0 4px 16px rgba(0, 0, 0, 0.4)',
+    small: '0 2px 8px rgba(0, 0, 0, 0.3)',
+  },
+  spacing: {
+    unit: 8,
+  },
+  typography: {
+    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+    fontSizes: {
+      '2xl': '1.5rem', // 24px
+      '3xl': '2.125rem', // 34px
+      lg: '1.125rem', // 18px
+      md: '1rem', // 16px
+      sm: '0.875rem', // 14px
+      xl: '1.25rem', // 20px
+      xs: '0.75rem', // 12px
+    },
+    fontWeights: {
+      bold: 700,
+      medium: 500,
+      normal: 400,
+      semibold: 600,
+    },
+    lineHeights: {
+      normal: 1.4,
+      relaxed: 1.6,
+      tight: 1.2,
+    },
+  },
 };
 
 const toCssVariables = (theme: ThemeConfig): Record<string, string> => {
   const cssVars: Record<string, string> = {};
-  const prefix = theme.cssVarPrefix || VendorConstants.VENDOR_PREFIX;
+  const prefix: string = theme.cssVarPrefix || VendorConstants.VENDOR_PREFIX;
 
   // Colors - Action
   if (theme.colors?.action?.active) {
@@ -419,8 +419,8 @@ const toCssVariables = (theme: ThemeConfig): Record<string, string> => {
 
   // Images
   if (theme.images) {
-    Object.keys(theme.images).forEach(imageKey => {
-      const imageConfig = theme.images![imageKey];
+    Object.keys(theme.images).forEach((imageKey: string) => {
+      const imageConfig: ThemeImage | undefined = theme.images![imageKey];
       if (imageConfig?.url) {
         cssVars[`--${prefix}-image-${imageKey}-url`] = imageConfig.url;
       }
@@ -452,7 +452,7 @@ const toCssVariables = (theme: ThemeConfig): Record<string, string> => {
 };
 
 const toThemeVars = (theme: ThemeConfig): ThemeVars => {
-  const prefix = theme.cssVarPrefix || VendorConstants.VENDOR_PREFIX;
+  const prefix: string = theme.cssVarPrefix || VendorConstants.VENDOR_PREFIX;
 
   const componentVars: ThemeVars['components'] = {};
   if (theme.components?.Button?.styleOverrides?.root?.borderRadius) {
@@ -471,91 +471,91 @@ const toThemeVars = (theme: ThemeConfig): ThemeVars => {
   }
 
   const themeVars: ThemeVars = {
+    borderRadius: {
+      large: `var(--${prefix}-border-radius-large)`,
+      medium: `var(--${prefix}-border-radius-medium)`,
+      small: `var(--${prefix}-border-radius-small)`,
+    },
     colors: {
       action: {
+        activatedOpacity: `var(--${prefix}-color-action-activatedOpacity)`,
         active: `var(--${prefix}-color-action-active)`,
-        hover: `var(--${prefix}-color-action-hover)`,
-        hoverOpacity: `var(--${prefix}-color-action-hoverOpacity)`,
-        selected: `var(--${prefix}-color-action-selected)`,
-        selectedOpacity: `var(--${prefix}-color-action-selectedOpacity)`,
         disabled: `var(--${prefix}-color-action-disabled)`,
         disabledBackground: `var(--${prefix}-color-action-disabledBackground)`,
         disabledOpacity: `var(--${prefix}-color-action-disabledOpacity)`,
         focus: `var(--${prefix}-color-action-focus)`,
         focusOpacity: `var(--${prefix}-color-action-focusOpacity)`,
-        activatedOpacity: `var(--${prefix}-color-action-activatedOpacity)`,
-      },
-      primary: {
-        main: `var(--${prefix}-color-primary-main)`,
-        contrastText: `var(--${prefix}-color-primary-contrastText)`,
-      },
-      secondary: {
-        main: `var(--${prefix}-color-secondary-main)`,
-        contrastText: `var(--${prefix}-color-secondary-contrastText)`,
+        hover: `var(--${prefix}-color-action-hover)`,
+        hoverOpacity: `var(--${prefix}-color-action-hoverOpacity)`,
+        selected: `var(--${prefix}-color-action-selected)`,
+        selectedOpacity: `var(--${prefix}-color-action-selectedOpacity)`,
       },
       background: {
-        surface: `var(--${prefix}-color-background-surface)`,
-        disabled: `var(--${prefix}-color-background-disabled)`,
         body: {
           main: `var(--${prefix}-color-background-body-main)`,
         },
+        disabled: `var(--${prefix}-color-background-disabled)`,
+        surface: `var(--${prefix}-color-background-surface)`,
       },
+      border: `var(--${prefix}-color-border)`,
       error: {
-        main: `var(--${prefix}-color-error-main)`,
         contrastText: `var(--${prefix}-color-error-contrastText)`,
+        main: `var(--${prefix}-color-error-main)`,
       },
       info: {
         contrastText: `var(--${prefix}-color-info-contrastText)`,
         main: `var(--${prefix}-color-info-main)`,
       },
-      success: {
-        main: `var(--${prefix}-color-success-main)`,
-        contrastText: `var(--${prefix}-color-success-contrastText)`,
+      primary: {
+        contrastText: `var(--${prefix}-color-primary-contrastText)`,
+        main: `var(--${prefix}-color-primary-main)`,
       },
-      warning: {
-        main: `var(--${prefix}-color-warning-main)`,
-        contrastText: `var(--${prefix}-color-warning-contrastText)`,
+      secondary: {
+        contrastText: `var(--${prefix}-color-secondary-contrastText)`,
+        main: `var(--${prefix}-color-secondary-main)`,
+      },
+      success: {
+        contrastText: `var(--${prefix}-color-success-contrastText)`,
+        main: `var(--${prefix}-color-success-main)`,
       },
       text: {
         primary: `var(--${prefix}-color-text-primary)`,
         secondary: `var(--${prefix}-color-text-secondary)`,
       },
-      border: `var(--${prefix}-color-border)`,
+      warning: {
+        contrastText: `var(--${prefix}-color-warning-contrastText)`,
+        main: `var(--${prefix}-color-warning-main)`,
+      },
+    },
+    shadows: {
+      large: `var(--${prefix}-shadow-large)`,
+      medium: `var(--${prefix}-shadow-medium)`,
+      small: `var(--${prefix}-shadow-small)`,
     },
     spacing: {
       unit: `var(--${prefix}-spacing-unit)`,
     },
-    borderRadius: {
-      small: `var(--${prefix}-border-radius-small)`,
-      medium: `var(--${prefix}-border-radius-medium)`,
-      large: `var(--${prefix}-border-radius-large)`,
-    },
-    shadows: {
-      small: `var(--${prefix}-shadow-small)`,
-      medium: `var(--${prefix}-shadow-medium)`,
-      large: `var(--${prefix}-shadow-large)`,
-    },
     typography: {
       fontFamily: `var(--${prefix}-typography-fontFamily)`,
       fontSizes: {
-        xs: `var(--${prefix}-typography-fontSize-xs)`,
-        sm: `var(--${prefix}-typography-fontSize-sm)`,
-        md: `var(--${prefix}-typography-fontSize-md)`,
-        lg: `var(--${prefix}-typography-fontSize-lg)`,
-        xl: `var(--${prefix}-typography-fontSize-xl)`,
         '2xl': `var(--${prefix}-typography-fontSize-2xl)`,
         '3xl': `var(--${prefix}-typography-fontSize-3xl)`,
+        lg: `var(--${prefix}-typography-fontSize-lg)`,
+        md: `var(--${prefix}-typography-fontSize-md)`,
+        sm: `var(--${prefix}-typography-fontSize-sm)`,
+        xl: `var(--${prefix}-typography-fontSize-xl)`,
+        xs: `var(--${prefix}-typography-fontSize-xs)`,
       },
       fontWeights: {
-        normal: `var(--${prefix}-typography-fontWeight-normal)`,
-        medium: `var(--${prefix}-typography-fontWeight-medium)`,
-        semibold: `var(--${prefix}-typography-fontWeight-semibold)`,
         bold: `var(--${prefix}-typography-fontWeight-bold)`,
+        medium: `var(--${prefix}-typography-fontWeight-medium)`,
+        normal: `var(--${prefix}-typography-fontWeight-normal)`,
+        semibold: `var(--${prefix}-typography-fontWeight-semibold)`,
       },
       lineHeights: {
-        tight: `var(--${prefix}-typography-lineHeight-tight)`,
         normal: `var(--${prefix}-typography-lineHeight-normal)`,
         relaxed: `var(--${prefix}-typography-lineHeight-relaxed)`,
+        tight: `var(--${prefix}-typography-lineHeight-tight)`,
       },
     },
   };
@@ -563,12 +563,12 @@ const toThemeVars = (theme: ThemeConfig): ThemeVars => {
   // Add images if they exist
   if (theme.images) {
     themeVars.images = {};
-    Object.keys(theme.images).forEach(imageKey => {
-      const imageConfig = theme.images![imageKey];
+    Object.keys(theme.images).forEach((imageKey: string) => {
+      const imageConfig: ThemeImage | undefined = theme.images![imageKey];
       themeVars.images![imageKey] = {
-        url: imageConfig?.url ? `var(--${prefix}-image-${imageKey}-url)` : undefined,
-        title: imageConfig?.title ? `var(--${prefix}-image-${imageKey}-title)` : undefined,
         alt: imageConfig?.alt ? `var(--${prefix}-image-${imageKey}-alt)` : undefined,
+        title: imageConfig?.title ? `var(--${prefix}-image-${imageKey}-title)` : undefined,
+        url: imageConfig?.url ? `var(--${prefix}-image-${imageKey}-url)` : undefined,
       };
     });
   }
@@ -580,12 +580,16 @@ const toThemeVars = (theme: ThemeConfig): ThemeVars => {
   return themeVars;
 };
 
-const createTheme = (config: RecursivePartial<ThemeConfig> = {}, isDark = false): Theme => {
-  const baseTheme = isDark ? darkTheme : lightTheme;
+const createTheme = (config: RecursivePartial<ThemeConfig> = {}, isDark: boolean = false): Theme => {
+  const baseTheme: ThemeConfig = isDark ? darkTheme : lightTheme;
 
-  const mergedConfig = {
+  const mergedConfig: ThemeConfig = {
     ...baseTheme,
     ...config,
+    borderRadius: {
+      ...baseTheme.borderRadius,
+      ...config.borderRadius,
+    },
     colors: {
       ...baseTheme.colors,
       ...config.colors,
@@ -598,17 +602,17 @@ const createTheme = (config: RecursivePartial<ThemeConfig> = {}, isDark = false)
         ...(config.colors?.secondary || {}),
       },
     },
-    spacing: {
-      ...baseTheme.spacing,
-      ...config.spacing,
-    },
-    borderRadius: {
-      ...baseTheme.borderRadius,
-      ...config.borderRadius,
+    images: {
+      ...baseTheme.images,
+      ...config.images,
     },
     shadows: {
       ...baseTheme.shadows,
       ...config.shadows,
+    },
+    spacing: {
+      ...baseTheme.spacing,
+      ...config.spacing,
     },
     typography: {
       ...baseTheme.typography,
@@ -625,10 +629,6 @@ const createTheme = (config: RecursivePartial<ThemeConfig> = {}, isDark = false)
         ...baseTheme.typography.lineHeights,
         ...(config.typography?.lineHeights || {}),
       },
-    },
-    images: {
-      ...baseTheme.images,
-      ...config.images,
     },
   } as ThemeConfig;
 

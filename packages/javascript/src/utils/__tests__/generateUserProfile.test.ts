@@ -21,66 +21,66 @@ import generateUserProfile from '../generateUserProfile';
 
 describe('generateUserProfile', () => {
   it('should extract simple fields present in the ME response', () => {
-    const me = {userName: 'john.doe', country: 'US'};
-    const schemas = [
-      {name: 'userName', type: 'STRING', multiValued: false},
-      {name: 'country', type: 'STRING', multiValued: false},
+    const me: Record<string, unknown> = {country: 'US', userName: 'john.doe'};
+    const schemas: Record<string, unknown>[] = [
+      {multiValued: false, name: 'userName', type: 'STRING'},
+      {multiValued: false, name: 'country', type: 'STRING'},
     ];
 
-    const out = generateUserProfile(me, schemas);
+    const out: Record<string, unknown> = generateUserProfile(me, schemas);
 
     expect(out['userName']).toBe('john.doe');
     expect(out['country']).toBe('US');
   });
 
   it('should support dotted paths using get() and sets nested keys using set()', () => {
-    const me = {name: {givenName: 'John', familyName: 'Doe'}};
-    const schemas = [
-      {name: 'name.givenName', type: 'STRING', multiValued: false},
-      {name: 'name.familyName', type: 'STRING', multiValued: false},
+    const me: Record<string, unknown> = {name: {familyName: 'Doe', givenName: 'John'}};
+    const schemas: Record<string, unknown>[] = [
+      {multiValued: false, name: 'name.givenName', type: 'STRING'},
+      {multiValued: false, name: 'name.familyName', type: 'STRING'},
     ];
 
-    const out = generateUserProfile(me, schemas);
+    const out: Record<string, unknown> = generateUserProfile(me, schemas);
 
     expect(out['name'].givenName).toBe('John');
     expect(out['name'].familyName).toBe('Doe');
   });
 
   it('should wrap a single value into an array for multiValued attributes', () => {
-    const me = {emails: 'john@example.com'};
-    const schemas = [{name: 'emails', type: 'STRING', multiValued: true}];
+    const me: Record<string, unknown> = {emails: 'john@example.com'};
+    const schemas: Record<string, unknown>[] = [{multiValued: true, name: 'emails', type: 'STRING'}];
 
-    const out = generateUserProfile(me, schemas);
+    const out: Record<string, unknown> = generateUserProfile(me, schemas);
 
     expect(out['emails']).toEqual(['john@example.com']);
   });
 
   it('should preserve arrays for multiValued attributes', () => {
-    const me = {emails: ['a@x.com', 'b@x.com']};
-    const schemas = [{name: 'emails', type: 'STRING', multiValued: true}];
+    const me: Record<string, unknown> = {emails: ['a@x.com', 'b@x.com']};
+    const schemas: Record<string, unknown>[] = [{multiValued: true, name: 'emails', type: 'STRING'}];
 
-    const out = generateUserProfile(me, schemas);
+    const out: Record<string, unknown> = generateUserProfile(me, schemas);
 
     expect(out['emails']).toEqual(['a@x.com', 'b@x.com']);
   });
 
   it('should default missing STRING (non-multiValued) to empty string', () => {
-    const me = {};
-    const schemas = [{name: 'displayName', type: 'STRING', multiValued: false}];
+    const me: Record<string, unknown> = {};
+    const schemas: Record<string, unknown>[] = [{multiValued: false, name: 'displayName', type: 'STRING'}];
 
-    const out = generateUserProfile(me, schemas);
+    const out: Record<string, unknown> = generateUserProfile(me, schemas);
 
     expect(out['displayName']).toBe('');
   });
 
   it('should leave missing non-STRING (non-multiValued) as undefined', () => {
-    const me = {};
-    const schemas = [
-      {name: 'age', type: 'NUMBER', multiValued: false},
-      {name: 'isActive', type: 'BOOLEAN', multiValued: false},
+    const me: Record<string, unknown> = {};
+    const schemas: Record<string, unknown>[] = [
+      {multiValued: false, name: 'age', type: 'NUMBER'},
+      {multiValued: false, name: 'isActive', type: 'BOOLEAN'},
     ];
 
-    const out = generateUserProfile(me, schemas);
+    const out: Record<string, unknown> = generateUserProfile(me, schemas);
 
     expect(out).toHaveProperty('age');
     expect(out['age']).toBeUndefined();
@@ -89,67 +89,68 @@ describe('generateUserProfile', () => {
   });
 
   it('should leave missing multiValued attributes as undefined', () => {
-    const me = {};
-    const schemas = [{name: 'groups', type: 'STRING', multiValued: true}];
+    const me: Record<string, unknown> = {};
+    const schemas: Record<string, unknown>[] = [{multiValued: true, name: 'groups', type: 'STRING'}];
 
-    const out = generateUserProfile(me, schemas);
+    const out: Record<string, unknown> = generateUserProfile(me, schemas);
 
     expect(out).toHaveProperty('groups');
     expect(out['groups']).toBeUndefined();
   });
 
   it('should ignore schema entries without a name', () => {
-    const me = {userName: 'john'};
-    const schemas = [
-      {name: 'userName', type: 'STRING', multiValued: false},
-      {type: 'STRING', multiValued: false},
+    const me: Record<string, unknown> = {userName: 'john'};
+    const schemas: Record<string, unknown>[] = [
+      {multiValued: false, name: 'userName', type: 'STRING'},
+      {multiValued: false, type: 'STRING'},
     ];
 
-    const out = generateUserProfile(me, schemas);
+    const out: Record<string, unknown> = generateUserProfile(me, schemas);
 
     expect(out['userName']).toBe('john');
     expect(Object.keys(out).sort()).toEqual(['userName']);
   });
 
   it('should not mutate the source ME response', () => {
-    const me = {userName: 'john', emails: 'a@x.com'};
-    const snapshot = JSON.parse(JSON.stringify(me));
-    const schemas = [
-      {name: 'userName', type: 'STRING', multiValued: false},
-      {name: 'emails', type: 'STRING', multiValued: true},
-      {name: 'missingStr', type: 'STRING', multiValued: false},
+    const me: Record<string, unknown> = {emails: 'a@x.com', userName: 'john'};
+    const snapshot: Record<string, unknown> = JSON.parse(JSON.stringify(me));
+    const schemas: Record<string, unknown>[] = [
+      {multiValued: false, name: 'userName', type: 'STRING'},
+      {multiValued: true, name: 'emails', type: 'STRING'},
+      {multiValued: false, name: 'missingStr', type: 'STRING'},
     ];
 
-    const _out = generateUserProfile(me, schemas);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const out: Record<string, unknown> = generateUserProfile(me, schemas);
 
     expect(me).toEqual(snapshot);
   });
 
   it('should preserve explicit null values (only undefined triggers defaults)', () => {
-    const me = {nickname: null};
-    const schemas = [{name: 'nickname', type: 'STRING', multiValued: false}];
+    const me: Record<string, unknown> = {nickname: null};
+    const schemas: Record<string, unknown>[] = [{multiValued: false, name: 'nickname', type: 'STRING'}];
 
-    const out = generateUserProfile(me, schemas);
+    const out: Record<string, unknown> = generateUserProfile(me, schemas);
 
     expect(out['nickname']).toBeNull();
   });
 
   it('should handle mixed present/missing values in one pass', () => {
-    const me = {
-      userName: 'john',
+    const me: Record<string, unknown> = {
       emails: ['a@x.com'],
       name: {givenName: 'John'},
+      userName: 'john',
     };
-    const schemas = [
-      {name: 'userName', type: 'STRING', multiValued: false},
-      {name: 'emails', type: 'STRING', multiValued: true},
-      {name: 'name.givenName', type: 'STRING', multiValued: false},
-      {name: 'name.middleName', type: 'STRING', multiValued: false},
-      {name: 'age', type: 'NUMBER', multiValued: false},
-      {name: 'groups', type: 'STRING', multiValued: true},
+    const schemas: Record<string, unknown>[] = [
+      {multiValued: false, name: 'userName', type: 'STRING'},
+      {multiValued: true, name: 'emails', type: 'STRING'},
+      {multiValued: false, name: 'name.givenName', type: 'STRING'},
+      {multiValued: false, name: 'name.middleName', type: 'STRING'},
+      {multiValued: false, name: 'age', type: 'NUMBER'},
+      {multiValued: true, name: 'groups', type: 'STRING'},
     ];
 
-    const out = generateUserProfile(me, schemas);
+    const out: Record<string, unknown> = generateUserProfile(me, schemas);
 
     expect(out['userName']).toBe('john');
     expect(out['emails']).toEqual(['a@x.com']);

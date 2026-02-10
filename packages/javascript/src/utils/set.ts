@@ -30,18 +30,18 @@
 const set = (object: any, path: string | string[], value: any): any => {
   if (!object || !path) return object;
 
-  const pathArray = Array.isArray(path) ? path : path.split('.');
-  const lastIndex = pathArray.length - 1;
+  const pathArray: string[] = Array.isArray(path) ? path : path.split('.');
+  const lastIndex: number = pathArray.length - 1;
 
-  pathArray.reduce((current, key, index) => {
+  pathArray.reduce((current: any, key: string, index: number) => {
     if (index === lastIndex) {
+      // eslint-disable-next-line no-param-reassign
       current[key] = value;
-    } else {
-      if (!(key in current) || typeof current[key] !== 'object' || current[key] === null) {
-        // Create array if next key is numeric, otherwise create object
-        const nextKey = pathArray[index + 1];
-        current[key] = /^\d+$/.test(nextKey) ? [] : {};
-      }
+    } else if (!(key in current) || typeof current[key] !== 'object' || current[key] === null) {
+      // Create array if next key is numeric, otherwise create object
+      const nextKey: string = pathArray[index + 1];
+      // eslint-disable-next-line no-param-reassign
+      current[key] = /^\d+$/.test(nextKey) ? [] : {};
     }
     return current[key];
   }, object);

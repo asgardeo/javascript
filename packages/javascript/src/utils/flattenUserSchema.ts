@@ -65,12 +65,12 @@ import {Schema, FlattenedSchema} from '../models/scim2-schema';
 const flattenUserSchema = (schemas: Schema[]): FlattenedSchema[] => {
   const flattenedAttributes: FlattenedSchema[] = [];
 
-  schemas.forEach(schema => {
+  schemas.forEach((schema: Schema) => {
     if (schema.attributes && Array.isArray(schema.attributes)) {
-      schema.attributes.forEach(attribute => {
+      schema.attributes.forEach((attribute: any) => {
         // If the attribute has sub-attributes, only add the flattened sub-attributes
         if (attribute.subAttributes && Array.isArray(attribute.subAttributes)) {
-          attribute.subAttributes.forEach(subAttribute => {
+          attribute.subAttributes.forEach((subAttribute: any) => {
             flattenedAttributes.push({
               ...subAttribute,
               name: `${attribute.name}.${subAttribute.name}`,

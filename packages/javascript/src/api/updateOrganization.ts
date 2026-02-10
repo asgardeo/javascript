@@ -16,9 +16,9 @@
  * under the License.
  */
 
+import {OrganizationDetails} from './getOrganization';
 import AsgardeoAPIError from '../errors/AsgardeoAPIError';
 import isEmpty from '../utils/isEmpty';
-import {OrganizationDetails} from './getOrganization';
 
 /**
  * Configuration for the updateOrganization request
@@ -29,9 +29,10 @@ export interface UpdateOrganizationConfig extends Omit<RequestInit, 'method' | '
    */
   baseUrl: string;
   /**
-   * The ID of the organization to update
+   * Optional custom fetcher function.
+   * If not provided, native fetch will be used
    */
-  organizationId: string;
+  fetcher?: (url: string, config: RequestInit) => Promise<Response>;
   /**
    * Array of patch operations to apply
    */
@@ -41,10 +42,9 @@ export interface UpdateOrganizationConfig extends Omit<RequestInit, 'method' | '
     value?: any;
   }>;
   /**
-   * Optional custom fetcher function.
-   * If not provided, native fetch will be used
+   * The ID of the organization to update
    */
-  fetcher?: (url: string, config: RequestInit) => Promise<Response>;
+  organizationId: string;
 }
 
 /**
@@ -115,6 +115,7 @@ const updateOrganization = async ({
   ...requestConfig
 }: UpdateOrganizationConfig): Promise<OrganizationDetails> => {
   try {
+    // eslint-disable-next-line no-new
     new URL(baseUrl);
   } catch (error) {
     throw new AsgardeoAPIError(
@@ -146,25 +147,25 @@ const updateOrganization = async ({
     );
   }
 
-  const fetchFn = fetcher || fetch;
-  const resolvedUrl = `${baseUrl}/api/server/v1/organizations/${organizationId}`;
+  const fetchFn: typeof fetch = fetcher || fetch;
+  const resolvedUrl: string = `${baseUrl}/api/server/v1/organizations/${organizationId}`;
 
   const requestInit: RequestInit = {
     ...requestConfig,
-    method: 'PATCH',
+    body: JSON.stringify(operations),
     headers: {
-      'Content-Type': 'application/json',
       Accept: 'application/json',
+      'Content-Type': 'application/json',
       ...requestConfig.headers,
     },
-    body: JSON.stringify(operations),
+    method: 'PATCH',
   };
 
   try {
     const response: Response = await fetchFn(resolvedUrl, requestInit);
 
     if (!response?.ok) {
-      const errorText = await response.text();
+      const errorText: string = await response.text();
 
       throw new AsgardeoAPIError(
         `Failed to update organization: ${errorText}`,
@@ -204,8 +205,8 @@ export const createPatchOperations = (
   operation: 'REPLACE' | 'REMOVE';
   path: string;
   value?: any;
-}> => {
-  return Object.entries(payload).map(([key, value]) => {
+}> =>
+  Object.entries(payload).map(([key, value]: [string, any]) => {
     if (isEmpty(value)) {
       return {
         operation: 'REMOVE' as const,
@@ -219,6 +220,5 @@ export const createPatchOperations = (
       value,
     };
   });
-};
 
 export default updateOrganization;

@@ -17,8 +17,8 @@
  */
 
 import {describe, expect, it} from 'vitest';
-import generateStateParamForRequestCorrelation from '../generateStateParamForRequestCorrelation';
 import PKCEConstants from '../../constants/PKCEConstants';
+import generateStateParamForRequestCorrelation from '../generateStateParamForRequestCorrelation';
 
 describe('generateStateParamForRequestCorrelation', (): void => {
   it('should generate state parameter with custom state', (): void => {
@@ -48,19 +48,19 @@ describe('generateStateParamForRequestCorrelation', (): void => {
   });
 
   it('should use the last separator segment as index if prefix contains the separator', () => {
-    const sep = PKCEConstants.Storage.StorageKeys.SEPARATOR;
-    const base = `${PKCEConstants.Storage.StorageKeys.CODE_VERIFIER}`;
-    const pkceKey = `${base}${sep}12`;
+    const sep: string = PKCEConstants.Storage.StorageKeys.SEPARATOR;
+    const base: string = `${PKCEConstants.Storage.StorageKeys.CODE_VERIFIER}`;
+    const pkceKey: string = `${base}${sep}12`;
     expect(generateStateParamForRequestCorrelation(pkceKey)).toBe('request_12');
   });
 
   it('should handle non-numeric indices', () => {
-    const pkceKey = `${PKCEConstants.Storage.StorageKeys.CODE_VERIFIER}`;
+    const pkceKey: string = `${PKCEConstants.Storage.StorageKeys.CODE_VERIFIER}`;
     expect(generateStateParamForRequestCorrelation(pkceKey)).toBe('request_NaN');
   });
 
   it('should handle zero-padded indices consistently', () => {
-    const pkceKey = `${PKCEConstants.Storage.StorageKeys.CODE_VERIFIER}${PKCEConstants.Storage.StorageKeys.SEPARATOR}007`;
+    const pkceKey: string = `${PKCEConstants.Storage.StorageKeys.CODE_VERIFIER}${PKCEConstants.Storage.StorageKeys.SEPARATOR}007`;
     expect(generateStateParamForRequestCorrelation(pkceKey)).toBe('request_7');
   });
 });

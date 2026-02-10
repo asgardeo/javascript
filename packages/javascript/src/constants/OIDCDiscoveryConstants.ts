@@ -35,7 +35,33 @@
  * const tokenKey = OIDCDiscoveryConstants.Storage.StorageKeys.Endpoints.TOKEN;
  * ```
  */
-const OIDCDiscoveryConstants = {
+const OIDCDiscoveryConstants: {
+  readonly Endpoints: {
+    readonly AUTHORIZATION: string;
+    readonly END_SESSION: string;
+    readonly ISSUER: string;
+    readonly JWKS: string;
+    readonly REVOCATION: string;
+    readonly SESSION_IFRAME: string;
+    readonly TOKEN: string;
+    readonly USERINFO: string;
+  };
+  readonly Storage: {
+    readonly StorageKeys: {
+      readonly Endpoints: {
+        readonly AUTHORIZATION: string;
+        readonly END_SESSION: string;
+        readonly ISSUER: string;
+        readonly JWKS: string;
+        readonly REVOCATION: string;
+        readonly SESSION_IFRAME: string;
+        readonly TOKEN: string;
+        readonly USERINFO: string;
+      };
+      readonly OPENID_PROVIDER_CONFIG_INITIATED: string;
+    };
+  };
+} = {
   /**
    * Collection of standard OIDC endpoint paths used for authentication flows.
    * These endpoints are relative paths that should be appended to the base URL
@@ -48,12 +74,6 @@ const OIDCDiscoveryConstants = {
      * This endpoint is used to request authorization and receive an authorization code.
      */
     AUTHORIZATION: '/oauth2/authorize',
-
-    /**
-     * Session check iframe endpoint for session management.
-     * Used to monitor the user's session state through a hidden iframe.
-     */
-    SESSION_IFRAME: '/oidc/checksession',
 
     /**
      * End session endpoint for logout functionality.
@@ -78,6 +98,12 @@ const OIDCDiscoveryConstants = {
      * Used to invalidate access or refresh tokens before they expire.
      */
     REVOCATION: '/oauth2/revoke',
+
+    /**
+     * Session check iframe endpoint for session management.
+     * Used to monitor the user's session state through a hidden iframe.
+     */
+    SESSION_IFRAME: '/oidc/checksession',
 
     /**
      * Token endpoint for obtaining access tokens.
@@ -120,22 +146,16 @@ const OIDCDiscoveryConstants = {
         AUTHORIZATION: 'authorization_endpoint',
 
         /**
-         * Storage key for the token endpoint URL.
-         * Used to store the URL where token requests should be sent.
-         */
-        TOKEN: 'token_endpoint',
-
-        /**
-         * Storage key for the revocation endpoint URL.
-         * Used to store the URL where token revocation requests should be sent.
-         */
-        REVOCATION: 'revocation_endpoint',
-
-        /**
          * Storage key for the end session endpoint URL.
          * Used to store the URL where logout requests should be sent.
          */
         END_SESSION: 'end_session_endpoint',
+
+        /**
+         * Storage key for the issuer identifier URL.
+         * Used to store the URL that identifies the OpenID Provider.
+         */
+        ISSUER: 'issuer',
 
         /**
          * Storage key for the JWKS URI endpoint URL.
@@ -144,16 +164,22 @@ const OIDCDiscoveryConstants = {
         JWKS: 'jwks_uri',
 
         /**
+         * Storage key for the revocation endpoint URL.
+         * Used to store the URL where token revocation requests should be sent.
+         */
+        REVOCATION: 'revocation_endpoint',
+
+        /**
          * Storage key for the session check iframe URL.
          * Used to store the URL of the iframe used for session state monitoring.
          */
         SESSION_IFRAME: 'check_session_iframe',
 
         /**
-         * Storage key for the issuer identifier URL.
-         * Used to store the URL that identifies the OpenID Provider.
+         * Storage key for the token endpoint URL.
+         * Used to store the URL where token requests should be sent.
          */
-        ISSUER: 'issuer',
+        TOKEN: 'token_endpoint',
 
         /**
          * Storage key for the userinfo endpoint URL.

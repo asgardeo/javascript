@@ -25,73 +25,73 @@ describe('generateFlattenedUserProfile', () => {
   });
 
   it('should extract simple schema-defined fields from top-level response', () => {
-    const me = {
-      userName: 'john',
+    const me: Record<string, unknown> = {
       country: 'US',
+      userName: 'john',
     };
 
-    const schemas = [{name: 'userName', type: 'STRING', multiValued: false}];
+    const schemas: Record<string, unknown>[] = [{multiValued: false, name: 'userName', type: 'STRING'}];
 
-    const out = generateFlattenedUserProfile(me, schemas);
+    const out: Record<string, unknown> = generateFlattenedUserProfile(me, schemas);
 
     expect(out['userName']).toBe('john');
     expect(out['country']).toBe('US');
   });
 
   it('should wrap value into array for multiValued schema fields (string -> [string])', () => {
-    const me = {emails: 'john@example.com'};
-    const schemas = [{name: 'emails', type: 'STRING', multiValued: true}];
+    const me: Record<string, unknown> = {emails: 'john@example.com'};
+    const schemas: Record<string, unknown>[] = [{multiValued: true, name: 'emails', type: 'STRING'}];
 
-    const out = generateFlattenedUserProfile(me, schemas);
+    const out: Record<string, unknown> = generateFlattenedUserProfile(me, schemas);
 
     expect(out['emails']).toEqual(['john@example.com']);
   });
 
   it('should keep array as-is for multiValued schema fields (array stays array)', () => {
-    const me = {emails: ['a@x.com', 'b@x.com']};
-    const schemas = [{name: 'emails', type: 'STRING', multiValued: true}];
+    const me: Record<string, unknown> = {emails: ['a@x.com', 'b@x.com']};
+    const schemas: Record<string, unknown>[] = [{multiValued: true, name: 'emails', type: 'STRING'}];
 
-    const out = generateFlattenedUserProfile(me, schemas);
+    const out: Record<string, unknown> = generateFlattenedUserProfile(me, schemas);
 
     expect(out['emails']).toEqual(['a@x.com', 'b@x.com']);
   });
 
   it('should apply default "" for missing non-multiValued STRING fields', () => {
-    const me = {};
-    const schemas = [{name: 'givenName', type: 'STRING', multiValued: false}];
+    const me: Record<string, unknown> = {};
+    const schemas: Record<string, unknown>[] = [{multiValued: false, name: 'givenName', type: 'STRING'}];
 
-    const out = generateFlattenedUserProfile(me, schemas);
+    const out: Record<string, unknown> = generateFlattenedUserProfile(me, schemas);
 
     expect(out.givenName).toBe('');
   });
 
   it('should set undefined for missing non-STRING fields', () => {
-    const me = {};
-    const schemas = [{name: 'age', type: 'NUMBER', multiValued: false}];
+    const me: Record<string, unknown> = {};
+    const schemas: Record<string, unknown>[] = [{multiValued: false, name: 'age', type: 'NUMBER'}];
 
-    const out = generateFlattenedUserProfile(me, schemas);
+    const out: Record<string, unknown> = generateFlattenedUserProfile(me, schemas);
 
     expect(out).toHaveProperty('age', undefined);
   });
 
   it('should set undefined for missing multiValued fields', () => {
-    const me = {};
-    const schemas = [{name: 'groups', type: 'STRING', multiValued: true}];
+    const me: Record<string, unknown> = {};
+    const schemas: Record<string, unknown>[] = [{multiValued: true, name: 'groups', type: 'STRING'}];
 
-    const out = generateFlattenedUserProfile(me, schemas);
+    const out: Record<string, unknown> = generateFlattenedUserProfile(me, schemas);
 
     expect(out).toHaveProperty('groups', undefined);
   });
 
   it('should skip parent schema when child schema entries exist (e.g., "name" skipped if "name.givenName" is present)', () => {
-    const me = {name: {givenName: 'John', familyName: 'Doe'}};
-    const schemas = [
-      {name: 'name', type: 'OBJECT', multiValued: false},
-      {name: 'name.givenName', type: 'STRING', multiValued: false},
-      {name: 'name.familyName', type: 'STRING', multiValued: false},
+    const me: Record<string, unknown> = {name: {familyName: 'Doe', givenName: 'John'}};
+    const schemas: Record<string, unknown>[] = [
+      {multiValued: false, name: 'name', type: 'OBJECT'},
+      {multiValued: false, name: 'name.givenName', type: 'STRING'},
+      {multiValued: false, name: 'name.familyName', type: 'STRING'},
     ];
 
-    const out = generateFlattenedUserProfile(me, schemas);
+    const out: Record<string, unknown> = generateFlattenedUserProfile(me, schemas);
 
     expect(out).not.toHaveProperty('name');
     expect(out['name.givenName']).toBe('John');
@@ -99,44 +99,44 @@ describe('generateFlattenedUserProfile', () => {
   });
 
   it('should find values inside known SCIM namespaces (direct field)', () => {
-    const me = {
+    const me: Record<string, unknown> = {
       'urn:scim:wso2:schema': {
         country: 'LK',
       },
     };
-    const schemas = [{name: 'country', type: 'STRING', multiValued: false}];
+    const schemas: Record<string, unknown>[] = [{multiValued: false, name: 'country', type: 'STRING'}];
 
-    const out = generateFlattenedUserProfile(me, schemas);
+    const out: Record<string, unknown> = generateFlattenedUserProfile(me, schemas);
 
     expect(out['country']).toBe('LK');
   });
 
   it('should find values inside known SCIM namespaces (nested path)', () => {
-    const me = {
+    const me: Record<string, unknown> = {
       'urn:ietf:params:scim:schemas:core:2.0:User': {
         name: {givenName: 'Ada'},
       },
     };
-    const schemas = [{name: 'name.givenName', type: 'STRING', multiValued: false}];
+    const schemas: Record<string, unknown>[] = [{multiValued: false, name: 'name.givenName', type: 'STRING'}];
 
-    const out = generateFlattenedUserProfile(me, schemas);
+    const out: Record<string, unknown> = generateFlattenedUserProfile(me, schemas);
 
     expect(out['name.givenName']).toBe('Ada');
   });
 
   it('should include additional fields not in schema and flattens nested objects (unless schema children exist)', () => {
-    const me = {
-      userName: 'john',
+    const me: Record<string, unknown> = {
       address: {city: 'Colombo', line1: '1st Street'},
       meta: {created: '2025-01-01'},
+      userName: 'john',
     };
-    const schemas = [
-      {name: 'userName', type: 'STRING', multiValued: false},
-      {name: 'address.city', type: 'STRING', multiValued: false},
-      {name: 'meta.created', type: 'STRING', multiValued: false},
+    const schemas: Record<string, unknown>[] = [
+      {multiValued: false, name: 'userName', type: 'STRING'},
+      {multiValued: false, name: 'address.city', type: 'STRING'},
+      {multiValued: false, name: 'meta.created', type: 'STRING'},
     ];
 
-    const out = generateFlattenedUserProfile(me, schemas);
+    const out: Record<string, unknown> = generateFlattenedUserProfile(me, schemas);
     expect(out['userName']).toBe('john');
     expect(out['address.city']).toBe('Colombo');
     expect(out['address.line1']).toBe('1st Street');
@@ -144,12 +144,12 @@ describe('generateFlattenedUserProfile', () => {
   });
 
   it('should not emit parent extra fields when schema has children for that parent; it flattens instead', () => {
-    const me = {
-      name: {givenName: 'Grace', familyName: 'Hopper', honorific: 'Rear Admiral'},
+    const me: Record<string, unknown> = {
+      name: {familyName: 'Hopper', givenName: 'Grace', honorific: 'Rear Admiral'},
     };
-    const schemas = [{name: 'name.givenName', type: 'STRING', multiValued: false}];
+    const schemas: Record<string, unknown>[] = [{multiValued: false, name: 'name.givenName', type: 'STRING'}];
 
-    const out = generateFlattenedUserProfile(me, schemas);
+    const out: Record<string, unknown> = generateFlattenedUserProfile(me, schemas);
 
     expect(out['name.givenName']).toBe('Grace');
     expect(out['name.familyName']).toBe('Hopper');
@@ -158,13 +158,13 @@ describe('generateFlattenedUserProfile', () => {
   });
 
   it('should not overwrite schema-derived values and should keep unknown nested objects as-is', () => {
-    const me = {
-      userName: 'john',
+    const me: Record<string, unknown> = {
       nested: {userName: 'should-not-overwrite'},
+      userName: 'john',
     };
-    const schemas = [{name: 'userName', type: 'STRING', multiValued: false}];
+    const schemas: Record<string, unknown>[] = [{multiValued: false, name: 'userName', type: 'STRING'}];
 
-    const out = generateFlattenedUserProfile(me, schemas);
+    const out: Record<string, unknown> = generateFlattenedUserProfile(me, schemas);
 
     expect(out['userName']).toBe('john');
     expect(out['nested']).toEqual({userName: 'should-not-overwrite'});
@@ -172,23 +172,23 @@ describe('generateFlattenedUserProfile', () => {
   });
 
   it('should handle multiValued schema with primitive extras correctly (keeps extras unchanged if not the same key)', () => {
-    const me = {
-      tags: 'alpha',
+    const me: Record<string, unknown> = {
       flags: ['x', 'y'],
+      tags: 'alpha',
     };
-    const schemas = [{name: 'tags', type: 'STRING', multiValued: true}];
+    const schemas: Record<string, unknown>[] = [{multiValued: true, name: 'tags', type: 'STRING'}];
 
-    const out = generateFlattenedUserProfile(me, schemas);
+    const out: Record<string, unknown> = generateFlattenedUserProfile(me, schemas);
 
     expect(out['tags']).toEqual(['alpha']);
     expect(out['flags']).toEqual(['x', 'y']);
   });
 
   it('should leave non-schema arrays under extras intact and flattens their parent key directly', () => {
-    const me = {groups: [{id: 'g1'}, {id: 'g2'}]};
+    const me: Record<string, unknown> = {groups: [{id: 'g1'}, {id: 'g2'}]};
     const schemas: any[] = [];
 
-    const out = generateFlattenedUserProfile(me, schemas);
+    const out: Record<string, unknown> = generateFlattenedUserProfile(me, schemas);
 
     expect(out['groups']).toEqual([{id: 'g1'}, {id: 'g2'}]);
   });

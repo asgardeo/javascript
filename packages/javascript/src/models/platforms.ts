@@ -29,10 +29,10 @@
 export enum Platform {
   /** Asgardeo cloud identity platform (asgardeo.io domains) */
   Asgardeo = 'ASGARDEO',
-  /** WSO2 Identity Server (on-prem or custom domains) */
-  IdentityServer = 'IDENTITY_SERVER',
   /** @experimental WSO2 Asgardeo V2 */
   AsgardeoV2 = 'AsgardeoV2',
+  /** WSO2 Identity Server (on-prem or custom domains) */
+  IdentityServer = 'IDENTITY_SERVER',
   /** Unknown or unsupported platform */
   Unknown = 'UNKNOWN',
 }

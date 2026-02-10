@@ -80,7 +80,7 @@ describe('isEmpty', () => {
 
   it('should return false for functions', () => {
     expect(isEmpty(() => {})).toBe(false);
-    expect(isEmpty(function () {})).toBe(false);
+    expect(isEmpty(() => {})).toBe(false);
   });
 
   it('should return false for dates', () => {

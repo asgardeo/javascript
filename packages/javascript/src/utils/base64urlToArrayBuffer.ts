@@ -59,7 +59,7 @@ const base64urlToArrayBuffer = (base64url: string): ArrayBuffer => {
   const binaryString: string = atob(base64);
   const bytes: Uint8Array<ArrayBuffer> = new Uint8Array(binaryString.length);
 
-  for (let i = 0; i < binaryString.length; i++) {
+  for (let i: number = 0; i < binaryString.length; i += 1) {
     bytes[i] = binaryString.charCodeAt(i);
   }
 

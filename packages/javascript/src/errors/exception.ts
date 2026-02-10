@@ -20,18 +20,16 @@
  * @deprecated Use `AsgardeoRuntimeError` for runtime errors and `AsgardeoAPIError` for API errors.
  */
 export class AsgardeoAuthException {
-    public name: string;
-    public code: string | undefined;
-    public message: string;
+  public name: string;
 
-    public constructor(
-        code: string,
-        name: string,
-        message: string
-    ) {
-        this.message = message;
-        this.name = name;
-        this.code = code;
-        Object.setPrototypeOf(this, new.target.prototype);
-    }
+  public code: string | undefined;
+
+  public message: string;
+
+  public constructor(code: string, name: string, message: string) {
+    this.message = message;
+    this.name = name;
+    this.code = code;
+    Object.setPrototypeOf(this, new.target.prototype);
+  }
 }

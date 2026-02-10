@@ -21,30 +21,30 @@ import deepMerge from '../deepMerge';
 
 describe('deepMerge', (): void => {
   it('should merge simple objects', (): void => {
-    const target = {a: 1, b: 2};
-    const source = {b: 3, c: 4};
-    const result = deepMerge(target, source as any);
+    const target: Record<string, unknown> = {a: 1, b: 2};
+    const source: Record<string, unknown> = {b: 3, c: 4};
+    const result: Record<string, unknown> = deepMerge(target, source as any);
 
     expect(result).toEqual({a: 1, b: 3, c: 4});
     expect(result).not.toBe(target); // Should create a new object
   });
 
   it('should merge nested objects recursively', (): void => {
-    const target = {
+    const target: Record<string, unknown> = {
       a: 1,
       b: {
         x: 1,
         y: 2,
       },
     };
-    const source = {
+    const source: Record<string, unknown> = {
       b: {
         y: 3,
         z: 4,
       },
       c: 3,
     };
-    const result = deepMerge(target, source as any);
+    const result: Record<string, unknown> = deepMerge(target, source as any);
 
     expect(result).toEqual({
       a: 1,
@@ -54,7 +54,7 @@ describe('deepMerge', (): void => {
   });
 
   it('should handle deeply nested objects', (): void => {
-    const target = {
+    const target: Record<string, unknown> = {
       theme: {
         colors: {
           primary: 'blue',
@@ -65,25 +65,25 @@ describe('deepMerge', (): void => {
         },
       },
     };
-    const source = {
+    const source: Record<string, unknown> = {
       theme: {
         colors: {
-          secondary: 'red',
           accent: 'yellow',
+          secondary: 'red',
         },
         typography: {
           fontSize: 16,
         },
       },
     };
-    const result = deepMerge(target, source as any);
+    const result: Record<string, unknown> = deepMerge(target, source as any);
 
     expect(result).toEqual({
       theme: {
         colors: {
+          accent: 'yellow',
           primary: 'blue',
           secondary: 'red',
-          accent: 'yellow',
         },
         spacing: {
           small: 8,
@@ -96,18 +96,18 @@ describe('deepMerge', (): void => {
   });
 
   it('should replace arrays entirely instead of merging', (): void => {
-    const target = {arr: [1, 2, 3]};
-    const source = {arr: [4, 5]};
-    const result = deepMerge(target, source);
+    const target: Record<string, unknown> = {arr: [1, 2, 3]};
+    const source: Record<string, unknown> = {arr: [4, 5]};
+    const result: Record<string, unknown> = deepMerge(target, source);
 
     expect(result).toEqual({arr: [4, 5]});
   });
 
   it('should handle multiple sources', (): void => {
-    const target = {a: 1, b: {x: 1}};
-    const source1 = {b: {y: 2}, c: 3};
-    const source2 = {b: {z: 3}, d: 4};
-    const result = deepMerge(target, source1 as any, source2 as any);
+    const target: Record<string, unknown> = {a: 1, b: {x: 1}};
+    const source1: Record<string, unknown> = {b: {y: 2}, c: 3};
+    const source2: Record<string, unknown> = {b: {z: 3}, d: 4};
+    const result: Record<string, unknown> = deepMerge(target, source1 as any, source2 as any);
 
     expect(result).toEqual({
       a: 1,
@@ -118,25 +118,25 @@ describe('deepMerge', (): void => {
   });
 
   it('should handle undefined and null sources', (): void => {
-    const target = {a: 1, b: 2};
-    const result = deepMerge(target, undefined, null as any, {c: 3} as any);
+    const target: Record<string, unknown> = {a: 1, b: 2};
+    const result: Record<string, unknown> = deepMerge(target, undefined, null as any, {c: 3} as any);
 
     expect(result).toEqual({a: 1, b: 2, c: 3});
   });
 
   it('should handle empty objects', (): void => {
-    const target = {};
-    const source = {a: 1, b: {x: 2}};
-    const result = deepMerge(target, source);
+    const target: Record<string, unknown> = {};
+    const source: Record<string, unknown> = {a: 1, b: {x: 2}};
+    const result: Record<string, unknown> = deepMerge(target, source);
 
     expect(result).toEqual({a: 1, b: {x: 2}});
   });
 
   it('should not modify the original objects', (): void => {
-    const target = {a: 1, b: {x: 1}};
-    const source = {b: {y: 2}, c: 3};
-    const originalTarget = JSON.parse(JSON.stringify(target));
-    const originalSource = JSON.parse(JSON.stringify(source));
+    const target: Record<string, unknown> = {a: 1, b: {x: 1}};
+    const source: Record<string, unknown> = {b: {y: 2}, c: 3};
+    const originalTarget: Record<string, unknown> = JSON.parse(JSON.stringify(target));
+    const originalSource: Record<string, unknown> = JSON.parse(JSON.stringify(source));
 
     deepMerge(target, source as any);
 
@@ -145,15 +145,15 @@ describe('deepMerge', (): void => {
   });
 
   it('should handle special object types correctly', (): void => {
-    const date = new Date('2023-01-01');
-    const regex = /test/g;
-    const target = {a: 1};
-    const source = {
-      date: date,
-      regex: regex,
+    const date: Date = new Date('2023-01-01');
+    const regex: RegExp = /test/g;
+    const target: Record<string, unknown> = {a: 1};
+    const source: Record<string, unknown> = {
+      date,
       func: () => 'test',
+      regex,
     };
-    const result = deepMerge(target, source as any);
+    const result: Record<string, unknown> = deepMerge(target, source as any);
 
     expect((result as any).date).toBe(date);
     expect((result as any).regex).toBe(regex);
@@ -161,18 +161,18 @@ describe('deepMerge', (): void => {
   });
 
   it('should handle nested special objects', (): void => {
-    const target = {
+    const target: Record<string, unknown> = {
       config: {
         timeout: 1000,
       },
     };
-    const source = {
+    const source: Record<string, unknown> = {
       config: {
         date: new Date('2023-01-01'),
         patterns: [/test/g, /example/i],
       },
     };
-    const result = deepMerge(target, source as any);
+    const result: Record<string, unknown> = deepMerge(target, source as any);
 
     expect((result as any).config.timeout).toBe(1000);
     expect((result as any).config.date).toBeInstanceOf(Date);
@@ -180,21 +180,21 @@ describe('deepMerge', (): void => {
   });
 
   it('should handle boolean and number values', (): void => {
-    const target = {enabled: true, count: 5};
-    const source = {enabled: false, count: 10, active: true};
-    const result = deepMerge(target, source);
+    const target: Record<string, unknown> = {count: 5, enabled: true};
+    const source: Record<string, unknown> = {active: true, count: 10, enabled: false};
+    const result: Record<string, unknown> = deepMerge(target, source);
 
-    expect(result).toEqual({enabled: false, count: 10, active: true});
+    expect(result).toEqual({active: true, count: 10, enabled: false});
   });
 
   it('should handle string values', (): void => {
-    const target = {name: 'John', nested: {title: 'Mr.'}};
-    const source = {name: 'Jane', nested: {title: 'Ms.', surname: 'Doe'}};
-    const result = deepMerge(target, source);
+    const target: Record<string, unknown> = {name: 'John', nested: {title: 'Mr.'}};
+    const source: Record<string, unknown> = {name: 'Jane', nested: {surname: 'Doe', title: 'Ms.'}};
+    const result: Record<string, unknown> = deepMerge(target, source);
 
     expect(result).toEqual({
       name: 'Jane',
-      nested: {title: 'Ms.', surname: 'Doe'},
+      nested: {surname: 'Doe', title: 'Ms.'},
     });
   });
 
@@ -206,44 +206,53 @@ describe('deepMerge', (): void => {
   });
 
   it('should handle complex real-world scenario', (): void => {
-    const defaultConfig = {
+    const defaultConfig: Record<string, unknown> = {
       api: {
         baseUrl: 'https://api.example.com',
-        timeout: 5000,
         retries: 3,
+        timeout: 5000,
+      },
+      features: {
+        analytics: true,
+        debug: false,
       },
       ui: {
+        components: {
+          button: {
+            borderRadius: 4,
+          },
+        },
         theme: {
           colors: {
             primary: '#007bff',
             secondary: '#6c757d',
           },
           spacing: {
-            xs: 4,
-            sm: 8,
             md: 16,
+            sm: 8,
+            xs: 4,
           },
         },
-        components: {
-          button: {
-            borderRadius: 4,
-          },
-        },
-      },
-      features: {
-        analytics: true,
-        debug: false,
       },
     };
 
-    const userConfig = {
+    const userConfig: Record<string, unknown> = {
       api: {
         baseUrl: 'https://custom-api.example.com',
         headers: {
           'X-Custom': 'value',
         },
       },
+      features: {
+        debug: true,
+        experimental: true,
+      },
       ui: {
+        components: {
+          input: {
+            borderWidth: 2,
+          },
+        },
         theme: {
           colors: {
             primary: '#ff0000',
@@ -252,96 +261,87 @@ describe('deepMerge', (): void => {
             lg: 32,
           },
         },
-        components: {
-          input: {
-            borderWidth: 2,
-          },
-        },
-      },
-      features: {
-        debug: true,
-        experimental: true,
       },
     };
 
-    const result = deepMerge(defaultConfig, userConfig as any);
+    const result: Record<string, unknown> = deepMerge(defaultConfig, userConfig as any);
 
     expect(result).toEqual({
       api: {
         baseUrl: 'https://custom-api.example.com',
-        timeout: 5000,
-        retries: 3,
         headers: {
           'X-Custom': 'value',
         },
+        retries: 3,
+        timeout: 5000,
+      },
+      features: {
+        analytics: true,
+        debug: true,
+        experimental: true,
       },
       ui: {
+        components: {
+          button: {
+            borderRadius: 4,
+          },
+          input: {
+            borderWidth: 2,
+          },
+        },
         theme: {
           colors: {
             primary: '#ff0000',
             secondary: '#6c757d',
           },
           spacing: {
-            xs: 4,
-            sm: 8,
-            md: 16,
             lg: 32,
+            md: 16,
+            sm: 8,
+            xs: 4,
           },
         },
-        components: {
-          button: {
-            borderRadius: 4,
-          },
-          input: {
-            borderWidth: 2,
-          },
-        },
-      },
-      features: {
-        analytics: true,
-        debug: true,
-        experimental: true,
       },
     });
   });
 
   it('should not overwrite with undefined from source', () => {
-    const target = {a: 1, b: 2};
-    const source = {a: undefined, b: undefined};
-    const result = deepMerge(target, source);
+    const target: Record<string, unknown> = {a: 1, b: 2};
+    const source: Record<string, unknown> = {a: undefined, b: undefined};
+    const result: Record<string, unknown> = deepMerge(target, source);
     expect(result).toEqual({a: 1, b: 2});
   });
 
   it('should overwrite with null from source', () => {
-    const target = {a: 1, b: {x: 1}};
-    const source = {a: null, b: null};
-    const result = deepMerge(target, source);
+    const target: Record<string, unknown> = {a: 1, b: {x: 1}};
+    const source: Record<string, unknown> = {a: null, b: null};
+    const result: Record<string, unknown> = deepMerge(target, source);
     expect(result).toEqual({a: null, b: null});
   });
 
   it('should not mutate original nested objects', () => {
-    const target = {a: {x: 1}, b: {y: 2}};
-    const source = {a: {z: 3}};
-    const result = deepMerge(target, source);
+    const target: Record<string, unknown> = {a: {x: 1}, b: {y: 2}};
+    const source: Record<string, unknown> = {a: {z: 3}};
+    const result: Record<string, unknown> = deepMerge(target, source);
     // mutate originals
-    target.a.x = 999;
+    (target.a as any).x = 999;
     (source.a as any).z = 777;
     expect(result).toEqual({a: {x: 1, z: 3}, b: {y: 2}});
   });
 
   it('should handle multiple sources with nested merges', () => {
-    const target = {cfg: {mode: 'a', depth: 1}, k: 1};
-    const s1 = {cfg: {mode: 'b'}, k: 2};
-    const s2 = {cfg: {mode: 'c', extra: true}, k: 3};
-    const result = deepMerge(target, s1, s2);
-    expect(result).toEqual({cfg: {mode: 'c', depth: 1, extra: true}, k: 3});
+    const target: Record<string, unknown> = {cfg: {depth: 1, mode: 'a'}, k: 1};
+    const s1: Record<string, unknown> = {cfg: {mode: 'b'}, k: 2};
+    const s2: Record<string, unknown> = {cfg: {extra: true, mode: 'c'}, k: 3};
+    const result: Record<string, unknown> = deepMerge(target, s1, s2);
+    expect(result).toEqual({cfg: {depth: 1, extra: true, mode: 'c'}, k: 3});
   });
 
   it('should replace non-plain with plain (and vice versa) instead of merging', () => {
-    const d = new Date('2024-01-01');
-    const target = {a: d, b: {x: 1}, c: /re/g, f: () => 1};
-    const source = {a: {y: 2}, b: new Date('2024-02-02'), c: {z: 3}, f: {k: 1}};
-    const result = deepMerge(target, source as any);
+    const d: Date = new Date('2024-01-01');
+    const target: Record<string, unknown> = {a: d, b: {x: 1}, c: /re/g, f: () => 1};
+    const source: Record<string, unknown> = {a: {y: 2}, b: new Date('2024-02-02'), c: {z: 3}, f: {k: 1}};
+    const result: Record<string, unknown> = deepMerge(target, source as any);
     // a: Date -> plain object (replace)
     expect(result.a).toEqual({y: 2});
     // b: plain -> Date (replace)
@@ -353,16 +353,16 @@ describe('deepMerge', (): void => {
   });
 
   it('should replace nested arrays instead of merging them', () => {
-    const target = {cfg: {list: [1, 2, 3], other: 1}};
-    const source = {cfg: {list: ['a']}};
-    const result = deepMerge(target, source);
+    const target: Record<string, unknown> = {cfg: {list: [1, 2, 3], other: 1}};
+    const source: Record<string, unknown> = {cfg: {list: ['a']}};
+    const result: Record<string, unknown> = deepMerge(target, source);
     expect(result).toEqual({cfg: {list: ['a'], other: 1}});
   });
 
   it('should not add keys for undefined-only sources', () => {
-    const target = {a: 1};
-    const source = {b: undefined};
-    const result = deepMerge(target, source);
+    const target: Record<string, unknown> = {a: 1};
+    const source: Record<string, unknown> = {b: undefined};
+    const result: Record<string, unknown> = deepMerge(target, source);
     expect(result).toEqual({a: 1});
     expect('b' in result).toBe(false);
   });

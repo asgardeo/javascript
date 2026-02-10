@@ -28,7 +28,8 @@ const resolveFieldType = (field: any): FieldType => {
     // Check if there's a `param` property and if it matches a known type.
     if (field.param === EmbeddedSignInFlowAuthenticatorExtendedParamType.Otp) {
       return FieldType.Otp;
-    } else if (field?.confidential) {
+    }
+    if (field?.confidential) {
       return FieldType.Password;
     }
 
@@ -36,7 +37,7 @@ const resolveFieldType = (field: any): FieldType => {
   }
 
   throw new AsgardeoRuntimeError(
-    'Field type is not supported: ' + field.type,
+    `Field type is not supported: ${field.type}`,
     'resolveFieldType-Invalid-001',
     'javascript',
     'The provided field type is not supported. Please check the field configuration.',

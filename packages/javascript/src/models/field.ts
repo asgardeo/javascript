@@ -17,15 +17,15 @@
  */
 
 export enum FieldType {
-  Text = 'TEXT',
-  Password = 'PASSWORD',
+  Checkbox = 'CHECKBOX',
+  Date = 'DATE',
   Email = 'EMAIL',
   Number = 'NUMBER',
-  Select = 'SELECT',
-  Checkbox = 'CHECKBOX',
-  Radio = 'RADIO',
   Otp = 'OTP',
-  Date = 'DATE',
-  Time = 'TIME',
+  Password = 'PASSWORD',
+  Radio = 'RADIO',
+  Select = 'SELECT',
+  Text = 'TEXT',
   Textarea = 'TEXTAREA',
+  Time = 'TIME',
 }

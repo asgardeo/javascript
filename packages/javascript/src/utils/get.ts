@@ -29,11 +29,9 @@
 const get = (object: any, path: string | string[], defaultValue?: any): any => {
   if (!object || !path) return defaultValue;
 
-  const pathArray = Array.isArray(path) ? path : path.split('.');
+  const pathArray: string[] = Array.isArray(path) ? path : path.split('.');
 
-  const result = pathArray.reduce((current, key) => {
-    return current?.[key];
-  }, object);
+  const result: any = pathArray.reduce((current: any, key: string) => current?.[key], object);
 
   return result !== undefined ? result : defaultValue;
 };

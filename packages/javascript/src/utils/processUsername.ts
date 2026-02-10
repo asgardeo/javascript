@@ -21,7 +21,7 @@
  * Matches patterns like "DEFAULT/", "ASGARDEO_USER/", "PRIMARY/", etc.
  * The pattern matches any uppercase letters, numbers, and underscores followed by a forward slash.
  */
-const USERSTORE_PREFIX_REGEX = /^[A-Z_][A-Z0-9_]*\//;
+const USERSTORE_PREFIX_REGEX: RegExp = /^[A-Z_][A-Z0-9_]*\//;
 
 /**
  * Removes userstore prefixes from a username if they exist.
@@ -80,12 +80,12 @@ export const removeUserstorePrefix = (username?: string): string => {
  * console.log(processedSnakeCaseUser.user_name); // "admin"
  * ```
  */
-const processUsername = <T extends {username?: string; userName?: string; user_name?: string}>(user: T): T => {
+const processUsername = <T extends {userName?: string; user_name?: string; username?: string}>(user: T): T => {
   if (!user) {
     return user;
   }
 
-  const processedUser = {...user};
+  const processedUser: T = {...user};
 
   // Process username field
   if (processedUser.username) {

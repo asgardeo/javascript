@@ -16,17 +16,17 @@
  * under the License.
  */
 
-import {BrandingPreference, ThemeVariant} from '../models/branding-preference';
-import {Theme, ThemeConfig} from '../theme/types';
+import {BrandingPreference, BrandingTheme, ThemeVariant} from '../models/branding-preference';
 import createTheme from '../theme/createTheme';
+import {Theme, ThemeConfig} from '../theme/types';
 
 /**
  * Safely extracts a color value from the branding preference structure
  */
-type ColorVariant = {main?: string; dark?: string; contrastText?: string};
-type TextColors = {primary?: string; secondary?: string; dark?: string};
+type ColorVariant = {contrastText?: string; dark?: string; main?: string};
+type TextColors = {dark?: string; primary?: string; secondary?: string};
 
-const extractColorValue = (colorVariant?: ColorVariant, preferDark = false): string | undefined => {
+const extractColorValue = (colorVariant?: ColorVariant, preferDark: boolean = false): string | undefined => {
   if (preferDark && colorVariant?.dark && colorVariant.dark.trim()) {
     return colorVariant.dark;
   }
@@ -36,94 +36,93 @@ const extractColorValue = (colorVariant?: ColorVariant, preferDark = false): str
 /**
  * Safely extracts contrast text color from the branding preference structure
  */
-const extractContrastText = (colorVariant?: {main?: string; contrastText?: string}) => {
-  return colorVariant?.contrastText;
-};
+const extractContrastText = (colorVariant?: {contrastText?: string; main?: string}): string | undefined =>
+  colorVariant?.contrastText;
 
 /**
  * Transforms a ThemeVariant from branding preference to ThemeConfig
  */
-const transformThemeVariant = (themeVariant: ThemeVariant, isDark = false): Partial<ThemeConfig> => {
-  const colors = themeVariant.colors;
-  const buttons = themeVariant.buttons;
-  const inputs = themeVariant.inputs;
-  const images = themeVariant.images;
+const transformThemeVariant = (themeVariant: ThemeVariant, isDark: boolean = false): Partial<ThemeConfig> => {
+  const {buttons} = themeVariant;
+  const {colors} = themeVariant;
+  const {images} = themeVariant;
+  const {inputs} = themeVariant;
 
   const config: Partial<ThemeConfig> = {
     colors: {
       action: {
+        activatedOpacity: 0.12,
         active: isDark ? 'rgba(255, 255, 255, 0.70)' : 'rgba(0, 0, 0, 0.54)',
-        hover: isDark ? 'rgba(255, 255, 255, 0.04)' : 'rgba(0, 0, 0, 0.04)',
-        hoverOpacity: 0.04,
-        selected: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.08)',
-        selectedOpacity: 0.08,
         disabled: isDark ? 'rgba(255, 255, 255, 0.26)' : 'rgba(0, 0, 0, 0.26)',
         disabledBackground: isDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.12)',
         disabledOpacity: 0.38,
         focus: isDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.12)',
         focusOpacity: 0.12,
-        activatedOpacity: 0.12,
-      },
-      primary: {
-        main: extractColorValue(colors?.primary as ColorVariant, isDark),
-        contrastText: extractContrastText(colors?.primary),
-        dark: colors?.primary?.dark || (colors?.primary as ColorVariant)?.main,
-      },
-      secondary: {
-        main: extractColorValue(colors?.secondary as ColorVariant, isDark),
-        contrastText: extractContrastText(colors?.secondary),
-        dark: colors?.secondary?.dark || (colors?.secondary as ColorVariant)?.main,
+        hover: isDark ? 'rgba(255, 255, 255, 0.04)' : 'rgba(0, 0, 0, 0.04)',
+        hoverOpacity: 0.04,
+        selected: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.08)',
+        selectedOpacity: 0.08,
       },
       background: {
-        surface: extractColorValue(colors?.background?.surface as ColorVariant, isDark),
-        disabled: extractColorValue(colors?.background?.surface as ColorVariant, isDark),
+        body: {
+          dark: (colors?.background?.body as ColorVariant)?.dark || (colors?.background?.body as ColorVariant)?.main,
+          main: extractColorValue(colors?.background?.body as ColorVariant, isDark),
+        },
         dark:
           (colors?.background?.surface as ColorVariant)?.dark || (colors?.background?.surface as ColorVariant)?.main,
-        body: {
-          main: extractColorValue(colors?.background?.body as ColorVariant, isDark),
-          dark: (colors?.background?.body as ColorVariant)?.dark || (colors?.background?.body as ColorVariant)?.main,
-        },
-      },
-      text: {
-        primary: (colors?.text as TextColors)?.primary,
-        secondary: (colors?.text as TextColors)?.secondary,
-        dark: (colors?.text as TextColors)?.dark || (colors?.text as TextColors)?.primary,
+        disabled: extractColorValue(colors?.background?.surface as ColorVariant, isDark),
+        surface: extractColorValue(colors?.background?.surface as ColorVariant, isDark),
       },
       border: colors?.outlined?.default,
       error: {
-        main: extractColorValue(colors?.alerts?.error as ColorVariant, isDark),
         contrastText: extractContrastText(colors?.alerts?.error),
         dark: (colors?.alerts?.error as ColorVariant)?.dark || (colors?.alerts?.error as ColorVariant)?.main,
+        main: extractColorValue(colors?.alerts?.error as ColorVariant, isDark),
       },
       info: {
-        main: extractColorValue(colors?.alerts?.info as ColorVariant, isDark),
         contrastText: extractContrastText(colors?.alerts?.info),
         dark: (colors?.alerts?.info as ColorVariant)?.dark || (colors?.alerts?.info as ColorVariant)?.main,
+        main: extractColorValue(colors?.alerts?.info as ColorVariant, isDark),
+      },
+      primary: {
+        contrastText: extractContrastText(colors?.primary),
+        dark: colors?.primary?.dark || (colors?.primary as ColorVariant)?.main,
+        main: extractColorValue(colors?.primary as ColorVariant, isDark),
+      },
+      secondary: {
+        contrastText: extractContrastText(colors?.secondary),
+        dark: colors?.secondary?.dark || (colors?.secondary as ColorVariant)?.main,
+        main: extractColorValue(colors?.secondary as ColorVariant, isDark),
       },
       success: {
-        main: extractColorValue(colors?.alerts?.neutral as ColorVariant, isDark),
         contrastText: extractContrastText(colors?.alerts?.neutral),
         dark: (colors?.alerts?.neutral as ColorVariant)?.dark || (colors?.alerts?.neutral as ColorVariant)?.main,
+        main: extractColorValue(colors?.alerts?.neutral as ColorVariant, isDark),
+      },
+      text: {
+        dark: (colors?.text as TextColors)?.dark || (colors?.text as TextColors)?.primary,
+        primary: (colors?.text as TextColors)?.primary,
+        secondary: (colors?.text as TextColors)?.secondary,
       },
       warning: {
-        main: extractColorValue(colors?.alerts?.warning as ColorVariant, isDark),
         contrastText: extractContrastText(colors?.alerts?.warning),
         dark: (colors?.alerts?.warning as ColorVariant)?.dark || (colors?.alerts?.warning as ColorVariant)?.main,
+        main: extractColorValue(colors?.alerts?.warning as ColorVariant, isDark),
       },
     },
     images: {
       favicon: images?.favicon
         ? {
-            url: images.favicon.imgURL,
-            title: images.favicon.title,
             alt: images.favicon.altText,
+            title: images.favicon.title,
+            url: images.favicon.imgURL,
           }
         : undefined,
       logo: images?.logo
         ? {
-            url: images.logo.imgURL,
-            title: images.logo.title,
             alt: images.logo.altText,
+            title: images.logo.title,
+            url: images.logo.imgURL,
           }
         : undefined,
     },
@@ -133,8 +132,8 @@ const transformThemeVariant = (themeVariant: ThemeVariant, isDark = false): Part
   /* |                       Components                              | */
   /* |---------------------------------------------------------------| */
 
-  const buttonBorderRadius = buttons?.primary?.base?.border?.borderRadius;
-  const fieldBorderRadius = inputs?.base?.border?.borderRadius;
+  const buttonBorderRadius: string | undefined = buttons?.primary?.base?.border?.borderRadius;
+  const fieldBorderRadius: string | undefined = inputs?.base?.border?.borderRadius;
 
   if (buttonBorderRadius || fieldBorderRadius) {
     config.components = {
@@ -194,7 +193,7 @@ export const transformBrandingPreferenceToTheme = (
   forceTheme?: 'light' | 'dark',
 ): Theme => {
   // Extract theme configuration
-  const themeConfig = brandingPreference?.preference?.theme;
+  const themeConfig: BrandingTheme | undefined = brandingPreference?.preference?.theme;
 
   if (!themeConfig) {
     // If no theme config is provided, return default light theme
@@ -210,13 +209,15 @@ export const transformBrandingPreferenceToTheme = (
   }
 
   // Get the theme variant (LIGHT or DARK)
-  const themeVariant = themeConfig[activeThemeKey as keyof typeof themeConfig] as ThemeVariant;
+  const themeVariant: ThemeVariant | undefined = themeConfig[
+    activeThemeKey as keyof typeof themeConfig
+  ] as ThemeVariant;
 
   if (!themeVariant) {
     // If the specified theme variant doesn't exist, fallback to light theme
-    const fallbackVariant = themeConfig.LIGHT || themeConfig.DARK;
+    const fallbackVariant: ThemeVariant | undefined = themeConfig.LIGHT || themeConfig.DARK;
     if (fallbackVariant) {
-      const transformedConfig = transformThemeVariant(fallbackVariant, activeThemeKey === 'DARK');
+      const transformedConfig: Partial<ThemeConfig> = transformThemeVariant(fallbackVariant, activeThemeKey === 'DARK');
       return createTheme(transformedConfig, activeThemeKey === 'DARK');
     }
     // If no theme variants exist, return default theme
@@ -224,7 +225,7 @@ export const transformBrandingPreferenceToTheme = (
   }
 
   // Transform the theme variant to ThemeConfig
-  const transformedConfig = transformThemeVariant(themeVariant, activeThemeKey === 'DARK');
+  const transformedConfig: Partial<ThemeConfig> = transformThemeVariant(themeVariant, activeThemeKey === 'DARK');
 
   // Create the theme using the transformed config
   return createTheme(transformedConfig, activeThemeKey === 'DARK');

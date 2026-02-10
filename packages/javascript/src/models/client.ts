@@ -16,18 +16,17 @@
  * under the License.
  */
 
-import {AllOrganizationsApiResponse} from '../models/organization';
+import {SignInOptions, SignOutOptions, SignUpOptions} from './config';
 import {
   EmbeddedFlowExecuteRequestConfig,
   EmbeddedFlowExecuteRequestPayload,
   EmbeddedFlowExecuteResponse,
 } from './embedded-flow';
 import {EmbeddedSignInFlowHandleRequestPayload} from './embedded-signin-flow';
-import {Organization} from './organization';
-import {User, UserProfile} from './user';
-import {TokenExchangeRequestConfig, TokenResponse} from './token';
+import {Organization, AllOrganizationsApiResponse} from './organization';
 import {Storage} from './store';
-import {SignInOptions, SignOutOptions, SignUpOptions} from './config';
+import {TokenExchangeRequestConfig, TokenResponse} from './token';
+import {User, UserProfile} from './user';
 
 /**
  * Interface defining the core functionality for Asgardeo authentication clients.
@@ -41,38 +40,17 @@ import {SignInOptions, SignOutOptions, SignUpOptions} from './config';
  */
 export interface AsgardeoClient<T> {
   /**
-   * Gets the current signed-in user's associated organizations.
-   *
-   * @returns Associated organizations.
+   * Clears the session for the specified session ID.
+   * @param sessionId - Optional session ID to clear the session for.
    */
-  getMyOrganizations(options?: any, sessionId?: string): Promise<Organization[]>;
+  clearSession(sessionId?: string): void;
 
   /**
-   * Gets all organizations available to the user.
-   * @param options - Optional parameters for the request.
-   * @param sessionId - Optional session ID to be used for the request.
+   * Decodes a JWT token and returns its payload.
+   * @param token - The JWT token to be decoded.
+   * @returns A promise that resolves to the decoded token payload.
    */
-  getAllOrganizations(options?: any, sessionId?: string): Promise<AllOrganizationsApiResponse>;
-
-  /**
-   * Gets the current organization of the user.
-   *
-   * @returns The current organization if available, otherwise null.
-   */
-  getCurrentOrganization(sessionId?: string): Promise<Organization | null>;
-
-  /**
-   * Switches the current organization to the specified one.
-   * @param organization - The organization to switch to.
-   * @returns A promise that resolves when the switch is complete.
-   */
-  switchOrganization(organization: Organization, sessionId?: string): Promise<TokenResponse | Response>;
-
-  /**
-   * Gets the client configuration.
-   * @returns The client configuration.
-   */
-  getConfiguration(): T;
+  decodeJwtToken<R = Record<string, unknown>>(token: string): Promise<R>;
 
   /**
    * Swaps the current access token with a new one based on the provided configuration (with a grant type).
@@ -82,11 +60,38 @@ export interface AsgardeoClient<T> {
   exchangeToken(config: TokenExchangeRequestConfig, sessionId?: string): Promise<TokenResponse | Response>;
 
   /**
-   * Updates the user profile with the provided payload.
-   * @param payload - The new user profile data.
-   * @param userId - Optional user ID to specify which user's profile to update.
+   * Retrieves the access token for the current session.
+   * @param sessionId - Optional session ID to retrieve the access token for a specific session.
+   * @returns A promise that resolves to the access token string.
    */
-  updateUserProfile(payload: any, userId?: string): Promise<User>;
+  getAccessToken(sessionId?: string): Promise<string>;
+
+  /**
+   * Gets all organizations available to the user.
+   * @param options - Optional parameters for the request.
+   * @param sessionId - Optional session ID to be used for the request.
+   */
+  getAllOrganizations(options?: any, sessionId?: string): Promise<AllOrganizationsApiResponse>;
+
+  /**
+   * Gets the client configuration.
+   * @returns The client configuration.
+   */
+  getConfiguration(): T;
+
+  /**
+   * Gets the current organization of the user.
+   *
+   * @returns The current organization if available, otherwise null.
+   */
+  getCurrentOrganization(sessionId?: string): Promise<Organization | null>;
+
+  /**
+   * Gets the current signed-in user's associated organizations.
+   *
+   * @returns Associated organizations.
+   */
+  getMyOrganizations(options?: any, sessionId?: string): Promise<Organization[]>;
 
   /**
    * Gets user information from the session.
@@ -112,17 +117,6 @@ export interface AsgardeoClient<T> {
   initialize(config: T, storage?: Storage): Promise<boolean>;
 
   /**
-   * Re-initializes the client with a new configuration.
-   *
-   * @remarks
-   * This can be partial configuration to update only specific fields.
-   *
-   * @param config - New configuration to re-initialize the client with.
-   * @returns Promise resolving to boolean indicating success.
-   */
-  reInitialize(config: Partial<T>): Promise<boolean>;
-
-  /**
    * Checks if the client is currently loading.
    * This can be used to determine if the client is in the process of initializing or fetching user data.
    *
@@ -137,6 +131,24 @@ export interface AsgardeoClient<T> {
    * @returns Boolean indicating sign-in status.
    */
   isSignedIn(): Promise<boolean>;
+
+  /**
+   * Re-initializes the client with a new configuration.
+   *
+   * @remarks
+   * This can be partial configuration to update only specific fields.
+   *
+   * @param config - New configuration to re-initialize the client with.
+   * @returns Promise resolving to boolean indicating success.
+   */
+  reInitialize(config: Partial<T>): Promise<boolean>;
+
+  /**
+   * Sets the session data for the specified session ID.
+   * @param sessionData - The session data to be set.
+   * @param sessionId - Optional session ID to set the session data for.
+   */
+  setSession(sessionData: Record<string, unknown>, sessionId?: string): Promise<void>;
 
   /**
    * Initiates the sign-in process for the user.
@@ -220,29 +232,16 @@ export interface AsgardeoClient<T> {
   signUp(payload: EmbeddedFlowExecuteRequestPayload): Promise<EmbeddedFlowExecuteResponse>;
 
   /**
-   * Retrieves the access token for the current session.
-   * @param sessionId - Optional session ID to retrieve the access token for a specific session.
-   * @returns A promise that resolves to the access token string.
+   * Switches the current organization to the specified one.
+   * @param organization - The organization to switch to.
+   * @returns A promise that resolves when the switch is complete.
    */
-  getAccessToken(sessionId?: string): Promise<string>;
+  switchOrganization(organization: Organization, sessionId?: string): Promise<TokenResponse | Response>;
 
   /**
-   * Sets the session data for the specified session ID.
-   * @param sessionData - The session data to be set.
-   * @param sessionId - Optional session ID to set the session data for.
+   * Updates the user profile with the provided payload.
+   * @param payload - The new user profile data.
+   * @param userId - Optional user ID to specify which user's profile to update.
    */
-  setSession(sessionData: Record<string, unknown>, sessionId?: string): Promise<void>;
-
-  /**
-   * Clears the session for the specified session ID.
-   * @param sessionId - Optional session ID to clear the session for.
-   */
-  clearSession(sessionId?: string): void;
-
-  /**
-   * Decodes a JWT token and returns its payload.
-   * @param token - The JWT token to be decoded.
-   * @returns A promise that resolves to the decoded token payload.
-   */
-  decodeJwtToken<T = Record<string, unknown>>(token: string): Promise<T>;
+  updateUserProfile(payload: any, userId?: string): Promise<User>;
 }

@@ -16,18 +16,14 @@
  * under the License.
  */
 
-import {User} from '../models/user';
 import AsgardeoAPIError from '../errors/AsgardeoAPIError';
+import {User} from '../models/user';
 import processUserUsername from '../utils/processUsername';
 
 /**
  * Configuration for the getScim2Me request
  */
 export interface GetScim2MeConfig extends Omit<RequestInit, 'method'> {
-  /**
-   * The absolute API endpoint.
-   */
-  url?: string;
   /**
    * The base path of the API endpoint.
    */
@@ -37,6 +33,10 @@ export interface GetScim2MeConfig extends Omit<RequestInit, 'method'> {
    * If not provided, native fetch will be used
    */
   fetcher?: (url: string, config: RequestInit) => Promise<Response>;
+  /**
+   * The absolute API endpoint.
+   */
+  url?: string;
 }
 
 /**
@@ -92,6 +92,7 @@ export interface GetScim2MeConfig extends Omit<RequestInit, 'method'> {
  */
 const getScim2Me = async ({url, baseUrl, fetcher, ...requestConfig}: GetScim2MeConfig): Promise<User> => {
   try {
+    // eslint-disable-next-line no-new
     new URL(url ?? baseUrl);
   } catch (error) {
     throw new AsgardeoAPIError(
@@ -103,24 +104,24 @@ const getScim2Me = async ({url, baseUrl, fetcher, ...requestConfig}: GetScim2MeC
     );
   }
 
-  const fetchFn = fetcher || fetch;
+  const fetchFn: typeof fetch = fetcher || fetch;
   const resolvedUrl: string = url ?? `${baseUrl}/scim2/Me`;
 
   const requestInit: RequestInit = {
     ...requestConfig,
-    method: 'GET',
     headers: {
-      'Content-Type': 'application/scim+json',
       Accept: 'application/json',
+      'Content-Type': 'application/scim+json',
       ...requestConfig.headers,
     },
+    method: 'GET',
   };
 
   try {
     const response: Response = await fetchFn(resolvedUrl, requestInit);
 
     if (!response?.ok) {
-      const errorText = await response.text();
+      const errorText: string = await response.text();
 
       throw new AsgardeoAPIError(
         `Failed to fetch user profile: ${errorText}`,
@@ -131,7 +132,7 @@ const getScim2Me = async ({url, baseUrl, fetcher, ...requestConfig}: GetScim2MeC
       );
     }
 
-    const user = (await response.json()) as User;
+    const user: User = (await response.json()) as User;
 
     return processUserUsername(user);
   } catch (error) {

@@ -22,14 +22,14 @@
  */
 export interface LegacyOIDCEndpoints {
   authorizationEndpoint: string;
-  tokenEndpoint: string;
-  userinfoEndpoint: string;
+  checkSessionIframe: string;
+  endSessionEndpoint: string;
+  introspectionEndpoint?: string;
   jwksUri: string;
   registrationEndpoint?: string;
   revocationEndpoint: string;
-  introspectionEndpoint?: string;
-  checkSessionIframe: string;
-  endSessionEndpoint: string;
+  tokenEndpoint: string;
+  userinfoEndpoint: string;
 }
 
 /**
@@ -38,9 +38,9 @@ export interface LegacyOIDCEndpoints {
  */
 export interface OIDCEndpoints extends Partial<LegacyOIDCEndpoints> {
   /**
-   * The issuer identifier URL for the OpenID Provider
+   * The authorization endpoint URL where the authentication request is sent
    */
-  issuer: string;
+  authorization: string;
 
   /**
    * The OpenID Provider's discovery endpoint URL
@@ -48,19 +48,19 @@ export interface OIDCEndpoints extends Partial<LegacyOIDCEndpoints> {
   discovery: string;
 
   /**
-   * The authorization endpoint URL where the authentication request is sent
+   * The end session endpoint URL used to terminate the user's session
    */
-  authorization: string;
-
-  /**
-   * The userinfo endpoint URL that returns claims about the authenticated user
-   */
-  userinfo: string;
+  endSession: string;
 
   /**
    * The introspection endpoint URL used to validate tokens
    */
   introspection: string;
+
+  /**
+   * The issuer identifier URL for the OpenID Provider
+   */
+  issuer: string;
 
   /**
    * The JSON Web Key Set endpoint URL that provides the public keys to verify tokens
@@ -73,7 +73,7 @@ export interface OIDCEndpoints extends Partial<LegacyOIDCEndpoints> {
   revocation: string;
 
   /**
-   * The end session endpoint URL used to terminate the user's session
+   * The userinfo endpoint URL that returns claims about the authenticated user
    */
-  endSession: string;
+  userinfo: string;
 }

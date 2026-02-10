@@ -16,48 +16,48 @@
  * under the License.
  */
 
-import { EmbeddedFlowExecuteRequestConfig as EmbeddedFlowExecuteRequestConfigV2 } from '../../models/v2/embedded-flow-v2';
-import { EmbeddedFlowType } from '../../models/embedded-flow';
 import AsgardeoAPIError from '../../errors/AsgardeoAPIError';
+import {EmbeddedFlowType} from '../../models/embedded-flow';
+import {EmbeddedFlowExecuteRequestConfig as EmbeddedFlowExecuteRequestConfigV2} from '../../models/v2/embedded-flow-v2';
 
 /**
  * Response from the user onboarding flow execution.
  */
 export interface EmbeddedUserOnboardingFlowResponse {
+  /**
+   * Data for the current step including components and additional data.
+   */
+  data?: {
     /**
-     * Unique identifier for the flow execution.
+     * Additional data from the flow step (e.g., inviteLink).
      */
-    flowId: string;
+    additionalData?: Record<string, string>;
 
     /**
-     * Current status of the flow.
+     * UI components to render for the current step.
      */
-    flowStatus: 'INCOMPLETE' | 'COMPLETE' | 'ERROR';
+    components?: any[];
+  };
 
-    /**
-     * Type of the current step in the flow.
-     */
-    type?: 'VIEW' | 'REDIRECTION';
+  /**
+   * Reason for failure if flowStatus is ERROR.
+   */
+  failureReason?: string;
 
-    /**
-     * Data for the current step including components and additional data.
-     */
-    data?: {
-        /**
-         * UI components to render for the current step.
-         */
-        components?: any[];
+  /**
+   * Unique identifier for the flow execution.
+   */
+  flowId: string;
 
-        /**
-         * Additional data from the flow step (e.g., inviteLink).
-         */
-        additionalData?: Record<string, string>;
-    };
+  /**
+   * Current status of the flow.
+   */
+  flowStatus: 'INCOMPLETE' | 'COMPLETE' | 'ERROR';
 
-    /**
-     * Reason for failure if flowStatus is ERROR.
-     */
-    failureReason?: string;
+  /**
+   * Type of the current step in the flow.
+   */
+  type?: 'VIEW' | 'REDIRECTION';
 }
 
 /**
@@ -95,82 +95,79 @@ export interface EmbeddedUserOnboardingFlowResponse {
  * ```
  */
 const executeEmbeddedUserOnboardingFlowV2 = async ({
-    url,
-    baseUrl,
-    payload,
-    ...requestConfig
+  url,
+  baseUrl,
+  payload,
+  ...requestConfig
 }: EmbeddedFlowExecuteRequestConfigV2): Promise<EmbeddedUserOnboardingFlowResponse> => {
-    if (!payload) {
-        throw new AsgardeoAPIError(
-            'User onboarding payload is required',
-            'executeEmbeddedUserOnboardingFlow-ValidationError-002',
-            'javascript',
-            400,
-            'If a user onboarding payload is not provided, the request cannot be constructed correctly.',
-        );
-    }
+  if (!payload) {
+    throw new AsgardeoAPIError(
+      'User onboarding payload is required',
+      'executeEmbeddedUserOnboardingFlow-ValidationError-002',
+      'javascript',
+      400,
+      'If a user onboarding payload is not provided, the request cannot be constructed correctly.',
+    );
+  }
 
-    const endpoint: string = url ?? `${baseUrl}/flow/execute`;
+  const endpoint: string = url ?? `${baseUrl}/flow/execute`;
 
-    // Strip any user-provided 'verbose' parameter as it should only be used internally
-    const cleanPayload: typeof payload =
-        typeof payload === 'object' && payload !== null
-            ? Object.fromEntries(Object.entries(payload).filter(([key]) => key !== 'verbose'))
-            : payload;
+  // Strip any user-provided 'verbose' parameter as it should only be used internally
+  const cleanPayload: typeof payload =
+    typeof payload === 'object' && payload !== null
+      ? Object.fromEntries(Object.entries(payload).filter(([key]: [string, unknown]) => key !== 'verbose'))
+      : payload;
 
-    // `verbose: true` is required to get the `meta` field in the response that includes component details.
-    // Add verbose:true for initial requests or flow continuation without inputs
-    const hasOnlyFlowType: boolean =
-        typeof cleanPayload === 'object' &&
-        cleanPayload !== null &&
-        'flowType' in cleanPayload &&
-        Object.keys(cleanPayload).length === 1;
-    const hasOnlyFlowId: boolean =
-        typeof cleanPayload === 'object' &&
-        cleanPayload !== null &&
-        'flowId' in cleanPayload &&
-        Object.keys(cleanPayload).length === 1;
-    const hasFlowIdWithInputs: boolean =
-        typeof cleanPayload === 'object' &&
-        cleanPayload !== null &&
-        'flowId' in cleanPayload &&
-        'inputs' in cleanPayload;
+  // `verbose: true` is required to get the `meta` field in the response that includes component details.
+  // Add verbose:true for initial requests or flow continuation without inputs
+  const hasOnlyFlowType: boolean =
+    typeof cleanPayload === 'object' &&
+    cleanPayload !== null &&
+    'flowType' in cleanPayload &&
+    Object.keys(cleanPayload).length === 1;
+  const hasOnlyFlowId: boolean =
+    typeof cleanPayload === 'object' &&
+    cleanPayload !== null &&
+    'flowId' in cleanPayload &&
+    Object.keys(cleanPayload).length === 1;
+  const hasFlowIdWithInputs: boolean =
+    typeof cleanPayload === 'object' && cleanPayload !== null && 'flowId' in cleanPayload && 'inputs' in cleanPayload;
 
-    // Add verbose for initial requests and when continuing with inputs
-    const requestPayload: Record<string, unknown> =
-        hasOnlyFlowType || hasOnlyFlowId || hasFlowIdWithInputs ? { ...cleanPayload, verbose: true } : cleanPayload;
+  // Add verbose for initial requests and when continuing with inputs
+  const requestPayload: Record<string, unknown> =
+    hasOnlyFlowType || hasOnlyFlowId || hasFlowIdWithInputs ? {...cleanPayload, verbose: true} : cleanPayload;
 
-    // Ensure flowType is USER_ONBOARDING for initial requests
-    if ('flowType' in requestPayload && requestPayload['flowType'] !== EmbeddedFlowType.UserOnboarding) {
-        requestPayload['flowType'] = EmbeddedFlowType.UserOnboarding;
-    }
+  // Ensure flowType is USER_ONBOARDING for initial requests
+  if ('flowType' in requestPayload && requestPayload['flowType'] !== EmbeddedFlowType.UserOnboarding) {
+    requestPayload['flowType'] = EmbeddedFlowType.UserOnboarding;
+  }
 
-    const response: Response = await fetch(endpoint, {
-        ...requestConfig,
-        method: requestConfig.method || 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            Accept: 'application/json',
-            ...requestConfig.headers,
-        },
-        body: JSON.stringify(requestPayload),
-    });
+  const response: Response = await fetch(endpoint, {
+    ...requestConfig,
+    body: JSON.stringify(requestPayload),
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+      ...requestConfig.headers,
+    },
+    method: requestConfig.method || 'POST',
+  });
 
-    if (!response.ok) {
-        const errorText = await response.text();
+  if (!response.ok) {
+    const errorText: string = await response.text();
 
-        throw new AsgardeoAPIError(
-            `User onboarding request failed: ${errorText}`,
-            'executeEmbeddedUserOnboardingFlow-ResponseError-001',
-            'javascript',
-            response.status,
-            response.statusText,
-        );
-    }
+    throw new AsgardeoAPIError(
+      `User onboarding request failed: ${errorText}`,
+      'executeEmbeddedUserOnboardingFlow-ResponseError-001',
+      'javascript',
+      response.status,
+      response.statusText,
+    );
+  }
 
-    const flowResponse: EmbeddedUserOnboardingFlowResponse = await response.json();
+  const flowResponse: EmbeddedUserOnboardingFlowResponse = await response.json();
 
-    return flowResponse;
+  return flowResponse;
 };
 
 export default executeEmbeddedUserOnboardingFlowV2;

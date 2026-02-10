@@ -19,127 +19,127 @@
 export interface ThemeTypography {
   fontFamily: string;
   fontSizes: {
-    xs: string;
-    sm: string;
-    md: string;
-    lg: string;
-    xl: string;
     '2xl': string;
     '3xl': string;
+    lg: string;
+    md: string;
+    sm: string;
+    xl: string;
+    xs: string;
   };
   fontWeights: {
-    normal: number;
-    medium: number;
-    semibold: number;
     bold: number;
+    medium: number;
+    normal: number;
+    semibold: number;
   };
   lineHeights: {
-    tight: number;
     normal: number;
     relaxed: number;
+    tight: number;
   };
 }
 
 export interface ThemeColors {
   action: {
+    activatedOpacity: number;
     active: string;
-    hover: string;
-    hoverOpacity: number;
-    selected: string;
-    selectedOpacity: number;
     disabled: string;
     disabledBackground: string;
     disabledOpacity: number;
     focus: string;
     focusOpacity: number;
-    activatedOpacity: number;
+    hover: string;
+    hoverOpacity: number;
+    selected: string;
+    selectedOpacity: number;
   };
   background: {
     body: {
-      main: string;
       dark?: string;
+      main: string;
     };
+    dark?: string;
     disabled: string;
     surface: string;
-    dark?: string;
   };
   border: string;
   error: {
     contrastText: string;
-    main: string;
     dark?: string;
+    main: string;
   };
   info: {
     contrastText: string;
-    main: string;
     dark?: string;
+    main: string;
   };
   primary: {
     contrastText: string;
-    main: string;
     dark?: string;
+    main: string;
   };
   secondary: {
     contrastText: string;
-    main: string;
     dark?: string;
+    main: string;
   };
   success: {
     contrastText: string;
-    main: string;
     dark?: string;
+    main: string;
   };
   text: {
+    dark?: string;
     primary: string;
     secondary: string;
-    dark?: string;
   };
   warning: {
     contrastText: string;
-    main: string;
     dark?: string;
+    main: string;
   };
 }
 
 export interface ThemeComponentStyleOverrides {
+  [slot: string]: Record<string, any> | undefined;
   /**
    * Style overrides for the root element or slots.
    * Example: { root: { borderRadius: '8px' } }
    */
   root?: Record<string, any>;
-  [slot: string]: Record<string, any> | undefined;
 }
 
 export interface ThemeComponents {
-  Button?: {
-    styleOverrides?: {
-      root?: {
-        borderRadius?: string;
-        [key: string]: any;
-      };
-      [slot: string]: Record<string, any> | undefined;
-    };
-    defaultProps?: Record<string, any>;
-    variants?: Array<Record<string, any>>;
-  };
-  Field?: {
-    styleOverrides?: {
-      root?: {
-        borderRadius?: string;
-        [key: string]: any;
-      };
-      [slot: string]: Record<string, any> | undefined;
-    };
-    defaultProps?: Record<string, any>;
-    variants?: Array<Record<string, any>>;
-  };
   [componentName: string]:
     | {
-        styleOverrides?: ThemeComponentStyleOverrides;
         defaultProps?: Record<string, any>;
+        styleOverrides?: ThemeComponentStyleOverrides;
         variants?: Array<Record<string, any>>;
       }
     | undefined;
+  Button?: {
+    defaultProps?: Record<string, any>;
+    styleOverrides?: {
+      [slot: string]: Record<string, any> | undefined;
+      root?: {
+        [key: string]: any;
+        borderRadius?: string;
+      };
+    };
+    variants?: Array<Record<string, any>>;
+  };
+  Field?: {
+    defaultProps?: Record<string, any>;
+    styleOverrides?: {
+      [slot: string]: Record<string, any> | undefined;
+      root?: {
+        [key: string]: any;
+        borderRadius?: string;
+      };
+    };
+    variants?: Array<Record<string, any>>;
+  };
 }
 
 export interface ThemeConfig {
@@ -150,10 +150,23 @@ export interface ThemeConfig {
   };
   colors: ThemeColors;
   /**
+   * Component style overrides
+   */
+  components?: ThemeComponents;
+  /**
+   * The prefix used for CSS variables.
+   * @default 'asgardeo' (from VendorConstants.VENDOR_PREFIX)
+   */
+  cssVarPrefix?: string;
+  /**
    * The text direction for the UI.
    * @default 'ltr'
    */
   direction?: 'ltr' | 'rtl';
+  /**
+   * Image assets configuration
+   */
+  images?: ThemeImages;
   shadows: {
     large: string;
     medium: string;
@@ -165,183 +178,170 @@ export interface ThemeConfig {
   typography: {
     fontFamily: string;
     fontSizes: {
-      xs: string;
-      sm: string;
-      md: string;
-      lg: string;
-      xl: string;
       '2xl': string;
       '3xl': string;
+      lg: string;
+      md: string;
+      sm: string;
+      xl: string;
+      xs: string;
     };
     fontWeights: {
-      normal: number;
-      medium: number;
-      semibold: number;
       bold: number;
+      medium: number;
+      normal: number;
+      semibold: number;
     };
     lineHeights: {
-      tight: number;
       normal: number;
       relaxed: number;
+      tight: number;
     };
   };
-  /**
-   * Image assets configuration
-   */
-  images?: ThemeImages;
-  /**
-   * The prefix used for CSS variables.
-   * @default 'asgardeo' (from VendorConstants.VENDOR_PREFIX)
-   */
-  cssVarPrefix?: string;
-  /**
-   * Component style overrides
-   */
-  components?: ThemeComponents;
 }
 
 export interface ThemeComponentVars {
-  Button?: {
-    root?: {
-      borderRadius?: string;
-      [key: string]: any;
-    };
-    [slot: string]: Record<string, any> | undefined;
-  };
-  Field?: {
-    root?: {
-      borderRadius?: string;
-      [key: string]: any;
-    };
-    [slot: string]: Record<string, any> | undefined;
-  };
   [componentName: string]:
     | {
         [slot: string]: Record<string, any> | undefined;
       }
     | undefined;
+  Button?: {
+    [slot: string]: Record<string, any> | undefined;
+    root?: {
+      [key: string]: any;
+      borderRadius?: string;
+    };
+  };
+  Field?: {
+    [slot: string]: Record<string, any> | undefined;
+    root?: {
+      [key: string]: any;
+      borderRadius?: string;
+    };
+  };
 }
 
 export interface ThemeVars {
+  borderRadius: {
+    large: string;
+    medium: string;
+    small: string;
+  };
   colors: {
     action: {
+      activatedOpacity: string;
       active: string;
-      hover: string;
-      hoverOpacity: string;
-      selected: string;
-      selectedOpacity: string;
       disabled: string;
       disabledBackground: string;
       disabledOpacity: string;
       focus: string;
       focusOpacity: string;
-      activatedOpacity: string;
-    };
-    primary: {
-      main: string;
-      contrastText: string;
-      dark?: string;
-    };
-    secondary: {
-      main: string;
-      contrastText: string;
-      dark?: string;
+      hover: string;
+      hoverOpacity: string;
+      selected: string;
+      selectedOpacity: string;
     };
     background: {
-      surface: string;
-      disabled: string;
-      dark?: string;
       body: {
-        main: string;
         dark?: string;
+        main: string;
       };
+      dark?: string;
+      disabled: string;
+      surface: string;
     };
+    border: string;
     error: {
-      main: string;
       contrastText: string;
       dark?: string;
+      main: string;
     };
     info: {
       contrastText: string;
-      main: string;
       dark?: string;
+      main: string;
+    };
+    primary: {
+      contrastText: string;
+      dark?: string;
+      main: string;
+    };
+    secondary: {
+      contrastText: string;
+      dark?: string;
+      main: string;
     };
     success: {
-      main: string;
       contrastText: string;
       dark?: string;
-    };
-    warning: {
       main: string;
-      contrastText: string;
-      dark?: string;
     };
     text: {
+      dark?: string;
       primary: string;
       secondary: string;
+    };
+    warning: {
+      contrastText: string;
       dark?: string;
+      main: string;
     };
-    border: string;
-  };
-  spacing: {
-    unit: string;
-  };
-  borderRadius: {
-    small: string;
-    medium: string;
-    large: string;
-  };
-  shadows: {
-    small: string;
-    medium: string;
-    large: string;
-  };
-  typography: {
-    fontFamily: string;
-    fontSizes: {
-      xs: string;
-      sm: string;
-      md: string;
-      lg: string;
-      xl: string;
-      '2xl': string;
-      '3xl': string;
-    };
-    fontWeights: {
-      normal: string;
-      medium: string;
-      semibold: string;
-      bold: string;
-    };
-    lineHeights: {
-      tight: string;
-      normal: string;
-      relaxed: string;
-    };
-  };
-  images?: {
-    favicon?: {
-      url?: string;
-      title?: string;
-      alt?: string;
-    };
-    logo?: {
-      url?: string;
-      title?: string;
-      alt?: string;
-    };
-    [key: string]:
-      | {
-          url?: string;
-          title?: string;
-          alt?: string;
-        }
-      | undefined;
   };
   /**
    * Component CSS variable references (e.g., for overrides)
    */
   components?: ThemeComponentVars;
+  images?: {
+    [key: string]:
+      | {
+          alt?: string;
+          title?: string;
+          url?: string;
+        }
+      | undefined;
+    favicon?: {
+      alt?: string;
+      title?: string;
+      url?: string;
+    };
+    logo?: {
+      alt?: string;
+      title?: string;
+      url?: string;
+    };
+  };
+  shadows: {
+    large: string;
+    medium: string;
+    small: string;
+  };
+  spacing: {
+    unit: string;
+  };
+  typography: {
+    fontFamily: string;
+    fontSizes: {
+      '2xl': string;
+      '3xl': string;
+      lg: string;
+      md: string;
+      sm: string;
+      xl: string;
+      xs: string;
+    };
+    fontWeights: {
+      bold: string;
+      medium: string;
+      normal: string;
+      semibold: string;
+    };
+    lineHeights: {
+      normal: string;
+      relaxed: string;
+      tight: string;
+    };
+  };
 }
 
 export interface Theme extends ThemeConfig {
@@ -366,20 +366,24 @@ export interface ThemeDetection {
 
 export interface ThemeImage {
   /**
-   * The URL of the image
+   * Alternative text for accessibility
    */
-  url?: string;
+  alt?: string;
   /**
    * The title/alt text for the image
    */
   title?: string;
   /**
-   * Alternative text for accessibility
+   * The URL of the image
    */
-  alt?: string;
+  url?: string;
 }
 
 export interface ThemeImages {
+  /**
+   * Allow for additional custom images
+   */
+  [key: string]: ThemeImage | undefined;
   /**
    * Favicon configuration
    */
@@ -388,8 +392,4 @@ export interface ThemeImages {
    * Logo configuration
    */
   logo?: ThemeImage;
-  /**
-   * Allow for additional custom images
-   */
-  [key: string]: ThemeImage | undefined;
 }

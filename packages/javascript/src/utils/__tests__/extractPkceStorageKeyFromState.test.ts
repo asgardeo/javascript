@@ -17,8 +17,8 @@
  */
 
 import {describe, expect, it} from 'vitest';
-import extractPkceStorageKeyFromState from '../extractPkceStorageKeyFromState';
 import PKCEConstants from '../../constants/PKCEConstants';
+import extractPkceStorageKeyFromState from '../extractPkceStorageKeyFromState';
 
 describe('extractPkceStorageKeyFromState', (): void => {
   it('should extract PKCE key from state parameter', (): void => {
@@ -43,29 +43,29 @@ describe('extractPkceStorageKeyFromState', (): void => {
   });
 
   it('should return ...NaN when "request_" is missing', () => {
-    const key = extractPkceStorageKeyFromState('state_without_marker');
+    const key: string = extractPkceStorageKeyFromState('state_without_marker');
     expect(key).toBe(
       `${PKCEConstants.Storage.StorageKeys.CODE_VERIFIER}${PKCEConstants.Storage.StorageKeys.SEPARATOR}NaN`,
     );
   });
 
   it('should return ...NaN for empty state', () => {
-    const key = extractPkceStorageKeyFromState('');
+    const key: string = extractPkceStorageKeyFromState('');
     expect(key.endsWith('NaN')).toBe(true);
   });
 
   it('should parse until non-digit characters after "request_"', () => {
-    const key = extractPkceStorageKeyFromState('request_abc');
+    const key: string = extractPkceStorageKeyFromState('request_abc');
     expect(key.endsWith('NaN')).toBe(true);
   });
 
   it('should handle extra suffix after the number', () => {
-    const key = extractPkceStorageKeyFromState('request_42_extra');
+    const key: string = extractPkceStorageKeyFromState('request_42_extra');
     expect(key.endsWith('42')).toBe(true);
   });
 
   it('should use the first "request_" occurrence if multiple exist', () => {
-    const key = extractPkceStorageKeyFromState('foo_request_7_bar_request_9');
+    const key: string = extractPkceStorageKeyFromState('foo_request_7_bar_request_9');
     expect(key.endsWith('7')).toBe(true);
   });
 });

@@ -17,8 +17,6 @@
  */
 
 import AsgardeoRuntimeError from '../errors/AsgardeoRuntimeError';
-import {EmbeddedSignInFlowAuthenticatorExtendedParamType} from '../models/embedded-signin-flow';
-import {FieldType} from '../models/field';
 
 const resolveFieldName = (field: any): string => {
   if (field.param) {

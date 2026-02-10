@@ -43,7 +43,7 @@ const generatePkceStorageKey = (tempStore: TemporaryStore): string => {
   });
 
   const lastKey: string | undefined = keys.sort().pop();
-  const index: number = parseInt(lastKey?.split(PKCEConstants.Storage.StorageKeys.SEPARATOR)[1] ?? '-1');
+  const index: number = parseInt(lastKey?.split(PKCEConstants.Storage.StorageKeys.SEPARATOR)[1] ?? '-1', 10);
 
   return `${PKCEConstants.Storage.StorageKeys.CODE_VERIFIER}${PKCEConstants.Storage.StorageKeys.SEPARATOR}${index + 1}`;
 };
