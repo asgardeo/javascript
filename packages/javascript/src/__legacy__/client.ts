@@ -250,8 +250,6 @@ export class AsgardeoAuthClient<T> {
         authRequestConfig['client_secret'] = configData.clientSecret;
       }
 
-      authRequestConfig['state'] = 'instance_' + this.getInstanceId() + '-' + configData.clientId; 
-
       const authorizeRequestParams: Map<string, string> = getAuthorizeRequestUrlParams(
         {
           clientId: configData.clientId,
@@ -261,6 +259,7 @@ export class AsgardeoAuthClient<T> {
           redirectUri: configData.afterSignInUrl,
           responseMode: configData.responseMode,
           scopes: processOpenIDScopes(configData.scopes),
+          instanceId: this.getInstanceId().toString(),
         },
         {key: pkceKey},
         authRequestConfig,

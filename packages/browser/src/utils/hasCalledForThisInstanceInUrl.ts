@@ -24,7 +24,7 @@
  * @return `true` if the URL contains a matching `state` search param, otherwise `false`.
  */
 const hasCalledForThisInstanceInUrl = (instanceId: number, params: string = window.location.search): boolean => {
-  const MATCHER: RegExp = new RegExp(`[?&]state=instance_${instanceId}-[^&]+`);
+  const MATCHER: RegExp = new RegExp(`[?&]state=instance_${instanceId}_[^&]+`);
 
   return MATCHER.test(params);
 };
