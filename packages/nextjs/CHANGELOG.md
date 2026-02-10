@@ -1,5 +1,16 @@
 # @asgardeo/nextjs
 
+## 0.1.76
+
+### Patch Changes
+
+- [#358](https://github.com/asgardeo/javascript/pull/358)
+  [`0c264d8`](https://github.com/asgardeo/javascript/commit/0c264d89645300ae066600f8067403630c9320a0) Thanks
+  [@DonOmalVindula](https://github.com/DonOmalVindula)! - Update libraries (axios, nextjs) across multiple packages
+
+- Updated dependencies []:
+  - @asgardeo/react@0.11.2
+
 ## 0.1.75
 
 ### Patch Changes
