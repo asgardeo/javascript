@@ -47,7 +47,7 @@ import {IdToken} from '../models/token';
 const extractUserClaimsFromIdToken = (payload: IdToken): Record<string, unknown> => {
   const filteredPayload: Partial<IdToken> = {...payload};
 
-  const protocolClaims = [
+  const protocolClaims: string[] = [
     'iss',
     'aud',
     'exp',
@@ -66,7 +66,7 @@ const extractUserClaimsFromIdToken = (payload: IdToken): Record<string, unknown>
     'sub',
   ];
 
-  protocolClaims.forEach(claim => {
+  protocolClaims.forEach((claim: string) => {
     delete filteredPayload[claim as keyof IdToken];
   });
 

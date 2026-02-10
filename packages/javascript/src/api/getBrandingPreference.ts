@@ -16,8 +16,8 @@
  * under the License.
  */
 
-import {BrandingPreference} from '../models/branding-preference';
 import AsgardeoAPIError from '../errors/AsgardeoAPIError';
+import {BrandingPreference} from '../models/branding-preference';
 
 /**
  * Configuration for the getBrandingPreference request
@@ -27,6 +27,11 @@ export interface GetBrandingPreferenceConfig extends Omit<RequestInit, 'method'>
    * The base URL for the API endpoint.
    */
   baseUrl: string;
+  /**
+   * Optional custom fetcher function.
+   * If not provided, native fetch will be used
+   */
+  fetcher?: (url: string, config: RequestInit) => Promise<Response>;
   /**
    * Locale for the branding preference
    */
@@ -39,11 +44,6 @@ export interface GetBrandingPreferenceConfig extends Omit<RequestInit, 'method'>
    * Type of the branding preference
    */
   type?: string;
-  /**
-   * Optional custom fetcher function.
-   * If not provided, native fetch will be used
-   */
-  fetcher?: (url: string, config: RequestInit) => Promise<Response>;
 }
 
 /**
@@ -112,6 +112,7 @@ const getBrandingPreference = async ({
   ...requestConfig
 }: GetBrandingPreferenceConfig): Promise<BrandingPreference> => {
   try {
+    // eslint-disable-next-line no-new
     new URL(baseUrl);
   } catch (error) {
     throw new AsgardeoAPIError(
@@ -133,26 +134,26 @@ const getBrandingPreference = async ({
     ),
   );
 
-  const fetchFn = fetcher || fetch;
-  const resolvedUrl = `${baseUrl}/api/server/v1/branding-preference/resolve${
+  const fetchFn: typeof fetch = fetcher || fetch;
+  const resolvedUrl: string = `${baseUrl}/api/server/v1/branding-preference/resolve${
     queryParams.toString() ? `?${queryParams.toString()}` : ''
   }`;
 
   const requestInit: RequestInit = {
     ...requestConfig,
-    method: 'GET',
     headers: {
-      'Content-Type': 'application/json',
       Accept: 'application/json',
+      'Content-Type': 'application/json',
       ...requestConfig.headers,
     },
+    method: 'GET',
   };
 
   try {
     const response: Response = await fetchFn(resolvedUrl, requestInit);
 
     if (!response?.ok) {
-      const errorText = await response.text();
+      const errorText: string = await response.text();
 
       throw new AsgardeoAPIError(
         `Failed to get branding preference: ${errorText}`,
@@ -163,7 +164,7 @@ const getBrandingPreference = async ({
       );
     }
 
-    const data = (await response.json()) as BrandingPreference;
+    const data: BrandingPreference = (await response.json()) as BrandingPreference;
     return data;
   } catch (error) {
     if (error instanceof AsgardeoAPIError) {

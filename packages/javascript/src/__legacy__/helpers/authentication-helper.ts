@@ -33,35 +33,40 @@ import processOpenIDScopes from '../../utils/processOpenIDScopes';
 import {AuthClientConfig, StrictAuthClientConfig} from '../models';
 
 export class AuthenticationHelper<T> {
-  private _storageManager: StorageManager<T>;
-  private _config: () => Promise<AuthClientConfig>;
-  private _oidcProviderMetaData: () => Promise<OIDCDiscoveryApiResponse>;
-  private _cryptoHelper: IsomorphicCrypto;
+  private storageManager: StorageManager<T>;
 
-  public constructor(storageManager: StorageManager<T>, cryptoHelper: IsomorphicCrypto) {
-    this._storageManager = storageManager;
-    this._config = async () => this._storageManager.getConfigData();
-    this._oidcProviderMetaData = async () => this._storageManager.loadOpenIDProviderConfiguration();
-    this._cryptoHelper = cryptoHelper;
+  private config: () => Promise<AuthClientConfig>;
+
+  private oidcProviderMetaData: () => Promise<OIDCDiscoveryApiResponse>;
+
+  private cryptoHelper: IsomorphicCrypto;
+
+  public constructor(storageManagerInstance: StorageManager<T>, cryptoHelperInstance: IsomorphicCrypto) {
+    this.storageManager = storageManagerInstance;
+    this.config = async (): Promise<AuthClientConfig> => this.storageManager.getConfigData();
+    this.oidcProviderMetaData = async (): Promise<OIDCDiscoveryApiResponse> =>
+      this.storageManager.loadOpenIDProviderConfiguration();
+    this.cryptoHelper = cryptoHelperInstance;
   }
 
   public async resolveEndpoints(response: OIDCDiscoveryApiResponse): Promise<OIDCDiscoveryApiResponse> {
     const oidcProviderMetaData: OIDCDiscoveryApiResponse = {};
-    const configData: StrictAuthClientConfig = await this._config();
+    const configData: StrictAuthClientConfig = await this.config();
 
-    configData.endpoints &&
+    if (configData.endpoints) {
       Object.keys(configData.endpoints).forEach((endpointName: string) => {
         const snakeCasedName: string = endpointName.replace(/[A-Z]/g, (letter: string) => `_${letter.toLowerCase()}`);
 
         oidcProviderMetaData[snakeCasedName] = configData?.endpoints ? configData.endpoints[endpointName] : '';
       });
+    }
 
     return {...response, ...oidcProviderMetaData};
   }
 
   public async resolveEndpointsExplicitly(): Promise<OIDCDiscoveryEndpointsApiResponse> {
     const oidcProviderMetaData: OIDCDiscoveryApiResponse = {};
-    const configData: StrictAuthClientConfig = await this._config();
+    const configData: StrictAuthClientConfig = await this.config();
 
     const requiredEndpoints: string[] = [
       OIDCDiscoveryConstants.Storage.StorageKeys.Endpoints.AUTHORIZATION,
@@ -98,19 +103,20 @@ export class AuthenticationHelper<T> {
       );
     }
 
-    configData.endpoints &&
+    if (configData.endpoints) {
       Object.keys(configData.endpoints).forEach((endpointName: string) => {
         const snakeCasedName: string = endpointName.replace(/[A-Z]/g, (letter: string) => `_${letter.toLowerCase()}`);
 
         oidcProviderMetaData[snakeCasedName] = configData?.endpoints ? configData.endpoints[endpointName] : '';
       });
+    }
 
     return {...oidcProviderMetaData};
   }
 
   public async resolveEndpointsByBaseURL(): Promise<OIDCDiscoveryEndpointsApiResponse> {
     const oidcProviderMetaData: OIDCDiscoveryEndpointsApiResponse = {};
-    const configData: StrictAuthClientConfig = await this._config();
+    const configData: StrictAuthClientConfig = await this.config();
 
     const {baseUrl} = configData as any;
 
@@ -122,29 +128,27 @@ export class AuthenticationHelper<T> {
       );
     }
 
-    configData.endpoints &&
+    if (configData.endpoints) {
       Object.keys(configData.endpoints).forEach((endpointName: string) => {
         const snakeCasedName: string = endpointName.replace(/[A-Z]/g, (letter: string) => `_${letter.toLowerCase()}`);
 
         oidcProviderMetaData[snakeCasedName] = configData?.endpoints ? configData.endpoints[endpointName] : '';
       });
+    }
+
+    const endpointKeys: typeof OIDCDiscoveryConstants.Storage.StorageKeys.Endpoints =
+      OIDCDiscoveryConstants.Storage.StorageKeys.Endpoints;
+    const endpointPaths: typeof OIDCDiscoveryConstants.Endpoints = OIDCDiscoveryConstants.Endpoints;
 
     const defaultEndpoints: OIDCDiscoveryApiResponse = {
-      [OIDCDiscoveryConstants.Storage.StorageKeys.Endpoints
-        .AUTHORIZATION]: `${baseUrl}${OIDCDiscoveryConstants.Endpoints.AUTHORIZATION}`,
-      [OIDCDiscoveryConstants.Storage.StorageKeys.Endpoints
-        .END_SESSION]: `${baseUrl}${OIDCDiscoveryConstants.Endpoints.END_SESSION}`,
-      [OIDCDiscoveryConstants.Storage.StorageKeys.Endpoints
-        .ISSUER]: `${baseUrl}${OIDCDiscoveryConstants.Endpoints.ISSUER}`,
-      [OIDCDiscoveryConstants.Storage.StorageKeys.Endpoints.JWKS]: `${baseUrl}${OIDCDiscoveryConstants.Endpoints.JWKS}`,
-      [OIDCDiscoveryConstants.Storage.StorageKeys.Endpoints
-        .SESSION_IFRAME]: `${baseUrl}${OIDCDiscoveryConstants.Endpoints.SESSION_IFRAME}`,
-      [OIDCDiscoveryConstants.Storage.StorageKeys.Endpoints
-        .REVOCATION]: `${baseUrl}${OIDCDiscoveryConstants.Endpoints.REVOCATION}`,
-      [OIDCDiscoveryConstants.Storage.StorageKeys.Endpoints
-        .TOKEN]: `${baseUrl}${OIDCDiscoveryConstants.Endpoints.TOKEN}`,
-      [OIDCDiscoveryConstants.Storage.StorageKeys.Endpoints
-        .USERINFO]: `${baseUrl}${OIDCDiscoveryConstants.Endpoints.USERINFO}`,
+      [endpointKeys.AUTHORIZATION]: `${baseUrl}${endpointPaths.AUTHORIZATION}`,
+      [endpointKeys.END_SESSION]: `${baseUrl}${endpointPaths.END_SESSION}`,
+      [endpointKeys.ISSUER]: `${baseUrl}${endpointPaths.ISSUER}`,
+      [endpointKeys.JWKS]: `${baseUrl}${endpointPaths.JWKS}`,
+      [endpointKeys.SESSION_IFRAME]: `${baseUrl}${endpointPaths.SESSION_IFRAME}`,
+      [endpointKeys.REVOCATION]: `${baseUrl}${endpointPaths.REVOCATION}`,
+      [endpointKeys.TOKEN]: `${baseUrl}${endpointPaths.TOKEN}`,
+      [endpointKeys.USERINFO]: `${baseUrl}${endpointPaths.USERINFO}`,
     };
 
     // For AsgardeoV2 (Thunder), the issuer must be the base URL (e.g., https://localhost:8090)
@@ -164,8 +168,8 @@ export class AuthenticationHelper<T> {
   }
 
   public async validateIdToken(idToken: string): Promise<boolean> {
-    const jwksEndpoint: string | undefined = (await this._storageManager.loadOpenIDProviderConfiguration()).jwks_uri;
-    const configData: StrictAuthClientConfig = await this._config();
+    const jwksEndpoint: string | undefined = (await this.storageManager.loadOpenIDProviderConfiguration()).jwks_uri;
+    const configData: StrictAuthClientConfig = await this.config();
 
     if (!jwksEndpoint || jwksEndpoint.trim().length === 0) {
       throw new AsgardeoAuthException(
@@ -198,27 +202,27 @@ export class AuthenticationHelper<T> {
       );
     }
 
-    const {issuer} = await this._oidcProviderMetaData();
+    const {issuer} = await this.oidcProviderMetaData();
 
     const {keys}: {keys: JWKInterface[]} = (await response.json()) as {
       keys: JWKInterface[];
     };
 
-    const jwk: any = await this._cryptoHelper.getJWKForTheIdToken(idToken.split('.')[0], keys);
+    const jwk: any = await this.cryptoHelper.getJWKForTheIdToken(idToken.split('.')[0], keys);
 
-    return this._cryptoHelper.isValidIdToken(
+    return this.cryptoHelper.isValidIdToken(
       idToken,
       jwk,
-      (await this._config()).clientId,
+      (await this.config()).clientId,
       issuer ?? '',
-      this._cryptoHelper.decodeJwtToken<IdToken>(idToken).sub,
-      (await this._config()).tokenValidation?.idToken?.clockTolerance,
-      (await this._config()).tokenValidation?.idToken?.validateIssuer ?? true,
+      this.cryptoHelper.decodeJwtToken<IdToken>(idToken).sub,
+      (await this.config()).tokenValidation?.idToken?.clockTolerance,
+      (await this.config()).tokenValidation?.idToken?.validateIssuer ?? true,
     );
   }
 
   public getAuthenticatedUserInfo(idToken: string): User {
-    const payload: IdToken = this._cryptoHelper.decodeJwtToken<IdToken>(idToken);
+    const payload: IdToken = this.cryptoHelper.decodeJwtToken<IdToken>(idToken);
     const username: string = payload?.['username'] ?? '';
     const givenName: string = payload?.['given_name'] ?? '';
     const familyName: string = payload?.['family_name'] ?? '';
@@ -233,8 +237,8 @@ export class AuthenticationHelper<T> {
   }
 
   public async replaceCustomGrantTemplateTags(text: string, userId?: string): Promise<string> {
-    const configData: StrictAuthClientConfig = await this._config();
-    const sessionData: SessionData = await this._storageManager.getSessionData(userId);
+    const configData: StrictAuthClientConfig = await this.config();
+    const sessionData: SessionData = await this.storageManager.getSessionData(userId);
 
     const scope: string = processOpenIDScopes(configData.scopes);
 
@@ -254,8 +258,8 @@ export class AuthenticationHelper<T> {
   }
 
   public async clearSession(userId?: string): Promise<void> {
-    await this._storageManager.removeTemporaryData(userId);
-    await this._storageManager.removeSessionData(userId);
+    await this.storageManager.removeTemporaryData(userId);
+    await this.storageManager.removeSessionData(userId);
   }
 
   public async handleTokenResponse(response: Response, userId?: string): Promise<TokenResponse> {
@@ -272,11 +276,11 @@ export class AuthenticationHelper<T> {
 
     parsedResponse.created_at = new Date().getTime();
 
-    const shouldValidateIdToken: boolean | undefined = (await this._config()).tokenValidation?.idToken?.validate;
+    const shouldValidateIdToken: boolean | undefined = (await this.config()).tokenValidation?.idToken?.validate;
 
     if (shouldValidateIdToken) {
       return this.validateIdToken(parsedResponse.id_token).then(async () => {
-        await this._storageManager.setSessionData(parsedResponse, userId);
+        await this.storageManager.setSessionData(parsedResponse, userId);
 
         const tokenResponse: TokenResponse = {
           accessToken: parsedResponse.access_token,
@@ -301,7 +305,7 @@ export class AuthenticationHelper<T> {
       tokenType: parsedResponse.token_type,
     };
 
-    await this._storageManager.setSessionData(parsedResponse, userId);
+    await this.storageManager.setSessionData(parsedResponse, userId);
 
     return Promise.resolve(tokenResponse);
   }

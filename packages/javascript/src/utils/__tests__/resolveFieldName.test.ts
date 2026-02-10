@@ -17,34 +17,34 @@
  */
 
 import {describe, it, expect} from 'vitest';
-import resolveFieldName from '../resolveFieldName';
 import AsgardeoRuntimeError from '../../errors/AsgardeoRuntimeError';
+import resolveFieldName from '../resolveFieldName';
 
 describe('resolveFieldName', () => {
   it('should return the field.param when provided', () => {
-    const field = {param: 'username'};
+    const field: {param: string} = {param: 'username'};
     expect(resolveFieldName(field)).toBe('username');
   });
 
   it('should return the field.param as-is (without trimming)', () => {
-    const field = {param: '  custom_param  '};
+    const field: {param: string} = {param: '  custom_param  '};
     expect(resolveFieldName(field)).toBe('  custom_param  ');
   });
 
   it('should throw AsgardeoRuntimeError when field.param is an empty string', () => {
-    const field = {param: ''};
+    const field: {param: string} = {param: ''};
     expect(() => resolveFieldName(field)).toThrow(AsgardeoRuntimeError);
     expect(() => resolveFieldName(field)).toThrow('Field name is not supported');
   });
 
   it('should throw AsgardeoRuntimeError when field.param is missing', () => {
-    const field = {somethingElse: 'value'} as any;
+    const field: {somethingElse: string} = {somethingElse: 'value'} as any;
     expect(() => resolveFieldName(field)).toThrow(AsgardeoRuntimeError);
     expect(() => resolveFieldName(field)).toThrow('Field name is not supported');
   });
 
   it('should throw AsgardeoRuntimeError when field.param is null', () => {
-    const field = {param: null} as any;
+    const field: {param: null} = {param: null} as any;
     expect(() => resolveFieldName(field)).toThrow(AsgardeoRuntimeError);
   });
 

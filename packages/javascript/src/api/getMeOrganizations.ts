@@ -16,17 +16,13 @@
  * under the License.
  */
 
-import {Organization} from '../models/organization';
 import AsgardeoAPIError from '../errors/AsgardeoAPIError';
+import {Organization} from '../models/organization';
 
 /**
  * Configuration for the getMeOrganizations request
  */
 export interface GetMeOrganizationsConfig extends Omit<RequestInit, 'method'> {
-  /**
-   * The base URL for the API endpoint.
-   */
-  baseUrl: string;
   /**
    * Base64 encoded cursor value for forward pagination
    */
@@ -36,9 +32,18 @@ export interface GetMeOrganizationsConfig extends Omit<RequestInit, 'method'> {
    */
   authorizedAppName?: string;
   /**
+   * The base URL for the API endpoint.
+   */
+  baseUrl: string;
+  /**
    * Base64 encoded cursor value for backward pagination
    */
   before?: string;
+  /**
+   * Optional custom fetcher function.
+   * If not provided, native fetch will be used
+   */
+  fetcher?: (url: string, config: RequestInit) => Promise<Response>;
   /**
    * Filter expression for organizations
    */
@@ -51,11 +56,6 @@ export interface GetMeOrganizationsConfig extends Omit<RequestInit, 'method'> {
    * Whether to include child organizations recursively
    */
   recursive?: boolean;
-  /**
-   * Optional custom fetcher function.
-   * If not provided, native fetch will be used
-   */
-  fetcher?: (url: string, config: RequestInit) => Promise<Response>;
 }
 
 /**
@@ -131,6 +131,7 @@ const getMeOrganizations = async ({
   ...requestConfig
 }: GetMeOrganizationsConfig): Promise<Organization[]> => {
   try {
+    // eslint-disable-next-line no-new
     new URL(baseUrl);
   } catch (error) {
     throw new AsgardeoAPIError(
@@ -142,7 +143,7 @@ const getMeOrganizations = async ({
     );
   }
 
-  const queryParams = new URLSearchParams(
+  const queryParams: URLSearchParams = new URLSearchParams(
     Object.fromEntries(
       Object.entries({
         after,
@@ -151,28 +152,28 @@ const getMeOrganizations = async ({
         filter,
         limit: limit.toString(),
         recursive: recursive.toString(),
-      }).filter(([, value]) => Boolean(value)),
+      }).filter(([, value]: [string, string]) => Boolean(value)),
     ),
   );
 
-  const fetchFn = fetcher || fetch;
-  const resolvedUrl = `${baseUrl}/api/users/v1/me/organizations?${queryParams.toString()}`;
+  const fetchFn: typeof fetch = fetcher || fetch;
+  const resolvedUrl: string = `${baseUrl}/api/users/v1/me/organizations?${queryParams.toString()}`;
 
   const requestInit: RequestInit = {
     ...requestConfig,
-    method: 'GET',
     headers: {
-      'Content-Type': 'application/json',
       Accept: 'application/json',
+      'Content-Type': 'application/json',
       ...requestConfig.headers,
     },
+    method: 'GET',
   };
 
   try {
     const response: Response = await fetchFn(resolvedUrl, requestInit);
 
     if (!response?.ok) {
-      const errorText = await response.text();
+      const errorText: string = await response.text();
 
       throw new AsgardeoAPIError(
         `Failed to fetch associated organizations of the user: ${errorText}`,
@@ -183,8 +184,8 @@ const getMeOrganizations = async ({
       );
     }
 
-    const data = (await response.json()) as any;
-    return data.organizations || [];
+    const data: Record<string, unknown> = (await response.json()) as any;
+    return (data['organizations'] as Organization[]) || [];
   } catch (error) {
     if (error instanceof AsgardeoAPIError) {
       throw error;

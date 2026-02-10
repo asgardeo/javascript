@@ -16,11 +16,10 @@
  * under the License.
  */
 
-import ScopeConstants from '../constants/ScopeConstants';
-import OIDCRequestConstants from '../constants/OIDCRequestConstants';
 import generateStateParamForRequestCorrelation from './generateStateParamForRequestCorrelation';
-import {ExtendedAuthorizeRequestUrlParams} from '../models/oauth-request';
+import OIDCRequestConstants from '../constants/OIDCRequestConstants';
 import AsgardeoRuntimeError from '../errors/AsgardeoRuntimeError';
+import {ExtendedAuthorizeRequestUrlParams} from '../models/oauth-request';
 
 /**
  * Generates a map of authorization request URL parameters for OIDC authorization requests.
@@ -53,19 +52,18 @@ import AsgardeoRuntimeError from '../errors/AsgardeoRuntimeError';
  */
 const getAuthorizeRequestUrlParams = (
   options: {
-    redirectUri: string;
     clientId: string;
-    scopes?: string;
-    responseMode?: string;
     codeChallenge?: string;
     codeChallengeMethod?: string;
     prompt?: string;
+    redirectUri: string;
+    responseMode?: string;
+    scopes?: string;
   } & ExtendedAuthorizeRequestUrlParams,
   pkceOptions: {key: string},
   customParams: Record<string, string | number | boolean>,
 ): Map<string, string> => {
-  const {redirectUri, clientId, clientSecret, scopes, responseMode, codeChallenge, codeChallengeMethod, prompt} =
-    options;
+  const {redirectUri, clientId, scopes, responseMode, codeChallenge, codeChallengeMethod, prompt} = options;
   const authorizeRequestParams: Map<string, string> = new Map<string, string>();
 
   authorizeRequestParams.set('response_type', 'code');
@@ -100,11 +98,11 @@ const getAuthorizeRequestUrlParams = (
   }
 
   if (customParams) {
-    for (const [key, value] of Object.entries(customParams)) {
+    Object.entries(customParams).forEach(([key, value]: [string, string | number | boolean]) => {
       if (key !== '' && value !== '' && key !== OIDCRequestConstants.Params.STATE) {
         authorizeRequestParams.set(key, value.toString());
       }
-    }
+    });
   }
 
   authorizeRequestParams.set(

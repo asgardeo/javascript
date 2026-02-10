@@ -17,35 +17,35 @@
  */
 
 export interface SchemaAttribute {
-  name: string;
-  type: string;
-  multiValued: boolean;
-  description?: string;
-  required?: boolean;
   caseExact: boolean;
-  mutability: string;
-  returned: string;
-  uniqueness: string;
+  description?: string;
   displayName?: string;
   displayOrder?: string;
+  multiValued: boolean;
+  mutability: string;
+  name: string;
   regEx?: string;
-  supportedByDefault?: string;
+  required?: boolean;
+  returned: string;
   sharedProfileValueResolvingMethod?: string;
   subAttributes?: SchemaAttribute[];
+  supportedByDefault?: string;
+  type: string;
+  uniqueness: string;
 }
 
 /**
  * Represents a SCIM2 schema definition
  */
 export interface Schema {
+  /** Schema attributes */
+  attributes: SchemaAttribute[];
+  /** Schema description */
+  description: string;
   /** Schema identifier */
   id: string;
   /** Schema name */
   name: string;
-  /** Schema description */
-  description: string;
-  /** Schema attributes */
-  attributes: SchemaAttribute[];
 }
 
 export interface FlattenedSchema extends Schema {
@@ -58,12 +58,12 @@ export interface FlattenedSchema extends Schema {
 export enum WellKnownSchemaIds {
   /** Core Schema */
   Core = 'urn:ietf:params:scim:schemas:core:2.0',
-  /** User Schema */
-  User = 'urn:ietf:params:scim:schemas:core:2.0:User',
+  /** Custom User Schema */
+  CustomUser = 'urn:scim:schemas:extension:custom:User',
   /** Enterprise User Schema */
   EnterpriseUser = 'urn:ietf:params:scim:schemas:extension:enterprise:2.0:User',
   /** System User Schema */
   SystemUser = 'urn:scim:wso2:schema',
-  /** Custom User Schema */
-  CustomUser = 'urn:scim:schemas:extension:custom:User',
+  /** User Schema */
+  User = 'urn:ietf:params:scim:schemas:core:2.0:User',
 }

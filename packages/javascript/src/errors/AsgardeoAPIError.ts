@@ -53,8 +53,8 @@ export default class AsgardeoAPIError extends AsgardeoError {
     super(message, code, origin);
 
     Object.defineProperty(this, 'name', {
-      value: 'AsgardeoAPIError',
       configurable: true,
+      value: 'AsgardeoAPIError',
       writable: true,
     });
   }
@@ -64,7 +64,7 @@ export default class AsgardeoAPIError extends AsgardeoError {
    * @returns Formatted error string with name, code, status, and message
    */
   public override toString(): string {
-    const status = this.statusCode ? ` (HTTP ${this.statusCode} - ${this.statusText})` : '';
+    const status: string = this.statusCode ? ` (HTTP ${this.statusCode} - ${this.statusText})` : '';
     return `[${this.name}] (code="${this.code}")${status}\nMessage: ${this.message}`;
   }
 }

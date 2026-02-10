@@ -35,7 +35,16 @@
  * const timerKey = TokenConstants.Storage.StorageKeys.REFRESH_TOKEN_TIMER;
  * ```
  */
-const TokenConstants = {
+const TokenConstants: {
+  readonly SignatureValidation: {
+    readonly SUPPORTED_ALGORITHMS: readonly string[];
+  };
+  readonly Storage: {
+    readonly StorageKeys: {
+      readonly REFRESH_TOKEN_TIMER: string;
+    };
+  };
+} = {
   /**
    * Token signature validation constants.
    * Contains configurations related to token signature verification.

@@ -18,10 +18,11 @@
 
 import {describe, it, expect} from 'vitest';
 import createTheme from './createTheme';
+import {Theme} from './types';
 
 describe('createTheme', () => {
   it('should include vars property with CSS variable references', () => {
-    const theme = createTheme();
+    const theme: Theme = createTheme();
 
     expect(theme.vars).toBeDefined();
     expect(theme.vars.colors.primary.main).toBe('var(--asgardeo-color-primary-main)');
@@ -32,7 +33,7 @@ describe('createTheme', () => {
   });
 
   it('should have matching structure between cssVariables and vars', () => {
-    const theme = createTheme();
+    const theme: Theme = createTheme();
 
     // Check that cssVariables has corresponding entries for vars
     expect(theme.cssVariables['--asgardeo-color-primary-main']).toBeDefined();
@@ -42,7 +43,7 @@ describe('createTheme', () => {
   });
 
   it('should work with custom theme configurations', () => {
-    const customTheme = createTheme({
+    const customTheme: Theme = createTheme({
       colors: {
         primary: {
           main: '#custom-color',
@@ -57,7 +58,7 @@ describe('createTheme', () => {
   });
 
   it('should work with dark theme', () => {
-    const darkTheme = createTheme({}, true);
+    const darkTheme: Theme = createTheme({}, true);
 
     expect(darkTheme.vars.colors.primary.main).toBe('var(--asgardeo-color-primary-main)');
     expect(darkTheme.vars.colors.background.surface).toBe('var(--asgardeo-color-background-surface)');
@@ -67,13 +68,13 @@ describe('createTheme', () => {
   });
 
   it('should use custom CSS variable prefix when provided', () => {
-    const customTheme = createTheme({
-      cssVarPrefix: 'custom-app',
+    const customTheme: Theme = createTheme({
       colors: {
         primary: {
           main: '#custom-color',
         },
       },
+      cssVarPrefix: 'custom-app',
     });
 
     // Should use custom prefix in CSS variables
@@ -89,7 +90,7 @@ describe('createTheme', () => {
   });
 
   it('should use VendorConstants.VENDOR_PREFIX as default prefix', () => {
-    const theme = createTheme();
+    const theme: Theme = createTheme();
 
     // Should use default prefix from VendorConstants
     expect(theme.cssVariables['--asgardeo-color-primary-main']).toBeDefined();

@@ -46,8 +46,8 @@ export default class AsgardeoRuntimeError extends AsgardeoError {
     super(message, code, origin);
 
     Object.defineProperty(this, 'name', {
-      value: 'AsgardeoRuntimeError',
       configurable: true,
+      value: 'AsgardeoRuntimeError',
       writable: true,
     });
   }
@@ -56,8 +56,8 @@ export default class AsgardeoRuntimeError extends AsgardeoError {
    * Returns a string representation of the runtime error
    * @returns Formatted error string with name, code, details, and message
    */
-  public  override toString(): string {
-    const details = this.details ? `\nDetails: ${JSON.stringify(this.details, null, 2)}` : '';
+  public override toString(): string {
+    const details: string = this.details ? `\nDetails: ${JSON.stringify(this.details, null, 2)}` : '';
     return `[${this.name}] (code="${this.code}")${details}\nMessage: ${this.message}`;
   }
 }

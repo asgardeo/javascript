@@ -18,13 +18,13 @@
 
 import {describe, it, expect, vi, beforeEach} from 'vitest';
 
-const loadWithPrefix = async (prefix: string) => {
+const loadWithPrefix = async (prefix: string): Promise<typeof import('../withVendorCSSClassPrefix')['default']> => {
   vi.resetModules();
   vi.doMock('../../constants/VendorConstants', () => ({
     default: {VENDOR_PREFIX: prefix},
   }));
-  const mod = await import('../withVendorCSSClassPrefix');
-  return mod.default as (className: string) => string;
+  const mod: typeof import('../withVendorCSSClassPrefix') = await import('../withVendorCSSClassPrefix');
+  return mod.default;
 };
 
 describe('withVendorCSSClassPrefix', () => {
@@ -34,29 +34,29 @@ describe('withVendorCSSClassPrefix', () => {
   });
 
   it('should prefix a simple class name with the vendor prefix', async () => {
-    const withVendorCSSClassPrefix = await loadWithPrefix('wso2');
+    const withVendorCSSClassPrefix: (className: string) => string = await loadWithPrefix('wso2');
     expect(withVendorCSSClassPrefix('sign-in-button')).toBe('wso2-sign-in-button');
   });
 
   it('should work with BEM-style class names unchanged after the hyphen', async () => {
-    const withVendorCSSClassPrefix = await loadWithPrefix('wso2');
+    const withVendorCSSClassPrefix: (className: string) => string = await loadWithPrefix('wso2');
     expect(withVendorCSSClassPrefix('card__title--large')).toBe('wso2-card__title--large');
   });
 
   it('should respect different vendor prefixes', async () => {
-    const withVendorCSSClassPrefix = await loadWithPrefix('acme');
+    const withVendorCSSClassPrefix: (className: string) => string = await loadWithPrefix('acme');
     expect(withVendorCSSClassPrefix('foo')).toBe('acme-foo');
   });
 
   it('should handle an empty class name by returning just the prefix and hyphen', async () => {
-    const withVendorCSSClassPrefix = await loadWithPrefix('wso2');
+    const withVendorCSSClassPrefix: (className: string) => string = await loadWithPrefix('wso2');
     expect(withVendorCSSClassPrefix('')).toBe('wso2-');
   });
 
   it('should not mutate or trim the provided class name (preserve spaces/characters as-is)', async () => {
-    const withVendorCSSClassPrefix = await loadWithPrefix('wso2');
-    const original = '  spaced name  ';
-    const result = withVendorCSSClassPrefix(original);
+    const withVendorCSSClassPrefix: (className: string) => string = await loadWithPrefix('wso2');
+    const original: string = '  spaced name  ';
+    const result: string = withVendorCSSClassPrefix(original);
     expect(result).toBe('wso2-  spaced name  ');
     expect(original).toBe('  spaced name  ');
   });

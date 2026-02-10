@@ -228,17 +228,17 @@ export interface BrandingOrganizationDetails {
 export interface UrlsConfig {
   cookiePolicyURL?: string;
   privacyPolicyURL?: string;
-  termsOfUseURL?: string;
   selfSignUpURL?: string;
+  termsOfUseURL?: string;
 }
 
 /**
  * Interface for branding preference theme configuration.
  */
 export interface BrandingTheme {
-  activeTheme?: string;
-  LIGHT?: ThemeVariant;
   DARK?: ThemeVariant;
+  LIGHT?: ThemeVariant;
+  activeTheme?: string;
 }
 
 /**
@@ -260,8 +260,8 @@ export interface BrandingPreferenceConfig {
  * Interface for branding preference configuration.
  */
 export interface BrandingPreference {
-  type?: string;
-  name?: string;
   locale?: string;
+  name?: string;
   preference?: BrandingPreferenceConfig;
+  type?: string;
 }

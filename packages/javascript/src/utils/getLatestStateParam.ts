@@ -16,9 +16,9 @@
  * under the License.
  */
 
+import generateStateParamForRequestCorrelation from './generateStateParamForRequestCorrelation';
 import PKCEConstants from '../constants/PKCEConstants';
 import {TemporaryStore} from '../models/store';
-import generateStateParamForRequestCorrelation from './generateStateParamForRequestCorrelation';
 
 /**
  * Gets the latest PKCE storage key from the temporary store.
@@ -61,7 +61,7 @@ const getLatestPkceStorageKey = (tempStore: TemporaryStore): string | null => {
  * // Returns: null (if no PKCE keys exist)
  */
 const getLatestStateParam = (tempStore: TemporaryStore, state?: string): string | null => {
-  const latestPkceKey = getLatestPkceStorageKey(tempStore);
+  const latestPkceKey: string | null = getLatestPkceStorageKey(tempStore);
 
   if (!latestPkceKey) {
     return null;

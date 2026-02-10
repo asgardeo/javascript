@@ -17,9 +17,9 @@
  */
 
 import {describe, it, expect, vi, beforeEach, Mock} from 'vitest';
-import initializeEmbeddedSignInFlow from '../initializeEmbeddedSignInFlow';
 import AsgardeoAPIError from '../../errors/AsgardeoAPIError';
 import type {EmbeddedSignInFlowInitiateResponse} from '../../models/embedded-signin-flow';
+import initializeEmbeddedSignInFlow from '../initializeEmbeddedSignInFlow';
 
 describe('initializeEmbeddedSignInFlow', (): void => {
   beforeEach((): void => {
@@ -33,30 +33,30 @@ describe('initializeEmbeddedSignInFlow', (): void => {
     } as any;
 
     global.fetch = vi.fn().mockResolvedValue({
-      ok: true,
       json: () => Promise.resolve(mockResp),
+      ok: true,
     });
 
-    const url = 'https://api.asgardeo.io/t/demo/oauth2/authorize';
-    const payload = {
-      response_type: 'code',
+    const url: string = 'https://api.asgardeo.io/t/demo/oauth2/authorize';
+    const payload: Record<string, string> = {
       client_id: 'cid',
-      redirect_uri: 'https://app/cb',
-      scope: 'openid profile',
-      state: 'xyz',
       code_challenge: 'abc',
       code_challenge_method: 'S256',
+      redirect_uri: 'https://app/cb',
+      response_type: 'code',
+      scope: 'openid profile',
+      state: 'xyz',
     };
 
-    const result = await initializeEmbeddedSignInFlow({url, payload});
+    const result: EmbeddedSignInFlowInitiateResponse = await initializeEmbeddedSignInFlow({payload, url});
 
     expect(fetch).toHaveBeenCalledWith(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        Accept: 'application/json',
-      },
       body: new URLSearchParams(payload as Record<string, string>).toString(),
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      method: 'POST',
     });
     expect(result).toEqual(mockResp);
   });
@@ -68,22 +68,22 @@ describe('initializeEmbeddedSignInFlow', (): void => {
     } as any;
 
     global.fetch = vi.fn().mockResolvedValue({
-      ok: true,
       json: () => Promise.resolve(mockResp),
+      ok: true,
     });
 
-    const baseUrl = 'https://api.asgardeo.io/t/demo';
-    const payload = {response_type: 'code', client_id: 'cid'};
+    const baseUrl: string = 'https://api.asgardeo.io/t/demo';
+    const payload: Record<string, string> = {client_id: 'cid', response_type: 'code'};
 
-    const result = await initializeEmbeddedSignInFlow({baseUrl, payload});
+    const result: EmbeddedSignInFlowInitiateResponse = await initializeEmbeddedSignInFlow({baseUrl, payload});
 
     expect(fetch).toHaveBeenCalledWith(`${baseUrl}/oauth2/authorize`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        Accept: 'application/json',
-      },
       body: new URLSearchParams(payload as Record<string, string>).toString(),
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      method: 'POST',
     });
     expect(result).toEqual(mockResp);
   });
@@ -95,14 +95,14 @@ describe('initializeEmbeddedSignInFlow', (): void => {
     } as any;
 
     global.fetch = vi.fn().mockResolvedValue({
-      ok: true,
       json: () => Promise.resolve(mockResp),
+      ok: true,
     });
 
-    const baseUrl = 'https://api.asgardeo.io/t/demo';
-    const payload = {response_type: 'code', client_id: 'cid'};
+    const baseUrl: string = 'https://api.asgardeo.io/t/demo';
+    const payload: Record<string, string> = {client_id: 'cid', response_type: 'code'};
 
-    await initializeEmbeddedSignInFlow({baseUrl, payload, method: 'PUT' as any});
+    await initializeEmbeddedSignInFlow({baseUrl, method: 'PUT' as any, payload});
 
     expect(fetch).toHaveBeenCalledWith(`${baseUrl}/oauth2/authorize`, expect.objectContaining({method: 'PUT'}));
   });
@@ -114,28 +114,28 @@ describe('initializeEmbeddedSignInFlow', (): void => {
     } as any;
 
     global.fetch = vi.fn().mockResolvedValue({
-      ok: true,
       json: () => Promise.resolve(mockResp),
+      ok: true,
     });
 
-    const url = 'https://api.asgardeo.io/t/demo/oauth2/authorize';
-    const baseUrl = 'https://api.asgardeo.io/t/ignored';
-    await initializeEmbeddedSignInFlow({url, baseUrl, payload: {response_type: 'code'}});
+    const url: string = 'https://api.asgardeo.io/t/demo/oauth2/authorize';
+    const baseUrl: string = 'https://api.asgardeo.io/t/ignored';
+    await initializeEmbeddedSignInFlow({baseUrl, payload: {response_type: 'code'}, url});
 
     expect(fetch).toHaveBeenCalledWith(url, expect.any(Object));
   });
 
   it('should throw AsgardeoAPIError for invalid URL/baseUrl', async (): Promise<void> => {
-    await expect(initializeEmbeddedSignInFlow({url: 'invalid-url' as any, payload: {a: 1} as any})).rejects.toThrow(
+    await expect(initializeEmbeddedSignInFlow({payload: {a: 1} as any, url: 'invalid-url' as any})).rejects.toThrow(
       AsgardeoAPIError,
     );
-    await expect(initializeEmbeddedSignInFlow({url: 'invalid-url' as any, payload: {a: 1} as any})).rejects.toThrow(
+    await expect(initializeEmbeddedSignInFlow({payload: {a: 1} as any, url: 'invalid-url' as any})).rejects.toThrow(
       'Invalid URL provided.',
     );
   });
 
   it('should throw AsgardeoAPIError when payload is missing', async (): Promise<void> => {
-    const baseUrl = 'https://api.asgardeo.io/t/demo';
+    const baseUrl: string = 'https://api.asgardeo.io/t/demo';
     await expect(initializeEmbeddedSignInFlow({baseUrl} as any)).rejects.toThrow(AsgardeoAPIError);
     await expect(initializeEmbeddedSignInFlow({baseUrl} as any)).rejects.toThrow('Authorization payload is required');
   });
@@ -148,8 +148,8 @@ describe('initializeEmbeddedSignInFlow', (): void => {
       text: () => Promise.resolve('invalid request'),
     });
 
-    const baseUrl = 'https://api.asgardeo.io/t/demo';
-    const payload = {response_type: 'code', client_id: 'cid'};
+    const baseUrl: string = 'https://api.asgardeo.io/t/demo';
+    const payload: Record<string, string> = {client_id: 'cid', response_type: 'code'};
 
     await expect(initializeEmbeddedSignInFlow({baseUrl, payload})).rejects.toThrow(AsgardeoAPIError);
     await expect(initializeEmbeddedSignInFlow({baseUrl, payload})).rejects.toThrow(
@@ -160,8 +160,8 @@ describe('initializeEmbeddedSignInFlow', (): void => {
   it('should handle network or parsing errors', async (): Promise<void> => {
     global.fetch = vi.fn().mockRejectedValue(new Error('Network down'));
 
-    const baseUrl = 'https://api.asgardeo.io/t/demo';
-    const payload = {response_type: 'code', client_id: 'cid'};
+    const baseUrl: string = 'https://api.asgardeo.io/t/demo';
+    const payload: Record<string, string> = {client_id: 'cid', response_type: 'code'};
 
     await expect(initializeEmbeddedSignInFlow({baseUrl, payload})).rejects.toThrow(AsgardeoAPIError);
     await expect(initializeEmbeddedSignInFlow({baseUrl, payload})).rejects.toThrow(
@@ -172,8 +172,8 @@ describe('initializeEmbeddedSignInFlow', (): void => {
   it('should handle non-Error rejections', async (): Promise<void> => {
     global.fetch = vi.fn().mockRejectedValue('weird failure');
 
-    const baseUrl = 'https://api.asgardeo.io/t/demo';
-    const payload = {response_type: 'code', client_id: 'cid'};
+    const baseUrl: string = 'https://api.asgardeo.io/t/demo';
+    const payload: Record<string, string> = {client_id: 'cid', response_type: 'code'};
 
     await expect(initializeEmbeddedSignInFlow({baseUrl, payload})).rejects.toThrow(
       'Network or parsing error: Unknown error',
@@ -187,34 +187,34 @@ describe('initializeEmbeddedSignInFlow', (): void => {
     } as any;
 
     global.fetch = vi.fn().mockResolvedValue({
-      ok: true,
       json: () => Promise.resolve(mockResp),
+      ok: true,
     });
 
-    const baseUrl = 'https://api.asgardeo.io/t/demo';
-    const payload = {response_type: 'code', client_id: 'cid'};
-    const customHeaders = {
-      Authorization: 'Bearer token',
-      'X-Custom-Header': 'custom-value',
-      'Content-Type': 'text/plain',
+    const baseUrl: string = 'https://api.asgardeo.io/t/demo';
+    const payload: Record<string, string> = {client_id: 'cid', response_type: 'code'};
+    const customHeaders: Record<string, string> = {
       Accept: 'text/plain',
+      Authorization: 'Bearer token',
+      'Content-Type': 'text/plain',
+      'X-Custom-Header': 'custom-value',
     };
 
     await initializeEmbeddedSignInFlow({
       baseUrl,
-      payload,
       headers: customHeaders,
+      payload,
     });
 
     expect(fetch).toHaveBeenCalledWith(`${baseUrl}/oauth2/authorize`, {
-      method: 'POST',
-      headers: {
-        Authorization: 'Bearer token',
-        'X-Custom-Header': 'custom-value',
-        'Content-Type': 'application/x-www-form-urlencoded',
-        Accept: 'application/json',
-      },
       body: new URLSearchParams(payload as Record<string, string>).toString(),
+      headers: {
+        Accept: 'application/json',
+        Authorization: 'Bearer token',
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'X-Custom-Header': 'custom-value',
+      },
+      method: 'POST',
     });
   });
 
@@ -225,16 +225,16 @@ describe('initializeEmbeddedSignInFlow', (): void => {
     } as any;
 
     global.fetch = vi.fn().mockResolvedValue({
-      ok: true,
       json: () => Promise.resolve(mockResp),
+      ok: true,
     });
 
-    const baseUrl = 'https://api.asgardeo.io/t/demo';
-    const payload = {
-      response_type: 'code',
+    const baseUrl: string = 'https://api.asgardeo.io/t/demo';
+    const payload: Record<string, string> = {
       client_id: 'cid',
-      scope: 'openid profile email',
       redirect_uri: 'https://app.example.com/cb?x=1&y=2',
+      response_type: 'code',
+      scope: 'openid profile email',
       state: 'chars !@#$&=+,:;/?',
     };
 

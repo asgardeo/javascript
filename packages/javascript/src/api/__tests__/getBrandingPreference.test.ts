@@ -17,9 +17,9 @@
  */
 
 import {describe, it, expect, vi, beforeEach} from 'vitest';
-import getBrandingPreference from '../getBrandingPreference';
-import {BrandingPreference} from '../../models/branding-preference';
 import AsgardeoAPIError from '../../errors/AsgardeoAPIError';
+import {BrandingPreference} from '../../models/branding-preference';
+import getBrandingPreference from '../getBrandingPreference';
 
 describe('getBrandingPreference', (): void => {
   beforeEach((): void => {
@@ -28,9 +28,8 @@ describe('getBrandingPreference', (): void => {
 
   it('should fetch branding preference successfully', async (): Promise<void> => {
     const mockBrandingPreference: BrandingPreference = {
-      type: 'ORG',
-      name: 'dxlab',
       locale: 'en-US',
+      name: 'dxlab',
       preference: {
         configs: {
           isBrandingEnabled: true,
@@ -44,29 +43,6 @@ describe('getBrandingPreference', (): void => {
           supportEmail: '',
         },
         theme: {
-          activeTheme: 'DARK',
-          LIGHT: {
-            buttons: {
-              primary: {
-                base: {
-                  border: {
-                    borderRadius: '22px',
-                  },
-                  font: {
-                    color: '#ffffffe6',
-                  },
-                },
-              },
-            },
-            colors: {
-              primary: {
-                main: '#FF7300',
-              },
-              secondary: {
-                main: '#E0E1E2',
-              },
-            },
-          },
           DARK: {
             buttons: {
               primary: {
@@ -89,41 +65,65 @@ describe('getBrandingPreference', (): void => {
               },
             },
           },
+          LIGHT: {
+            buttons: {
+              primary: {
+                base: {
+                  border: {
+                    borderRadius: '22px',
+                  },
+                  font: {
+                    color: '#ffffffe6',
+                  },
+                },
+              },
+            },
+            colors: {
+              primary: {
+                main: '#FF7300',
+              },
+              secondary: {
+                main: '#E0E1E2',
+              },
+            },
+          },
+          activeTheme: 'DARK',
         },
         urls: {
           selfSignUpURL: 'https://localhost:5173/signup',
         },
       },
+      type: 'ORG',
     };
 
     global.fetch = vi.fn().mockResolvedValue({
-      ok: true,
       json: () => Promise.resolve(mockBrandingPreference),
+      ok: true,
     });
 
     const baseUrl: string = 'https://api.asgardeo.io/t/dxlab';
     const result: BrandingPreference = await getBrandingPreference({baseUrl});
 
     expect(fetch).toHaveBeenCalledWith(`${baseUrl}/api/server/v1/branding-preference/resolve`, {
-      method: 'GET',
       headers: {
-        'Content-Type': 'application/json',
         Accept: 'application/json',
+        'Content-Type': 'application/json',
       },
+      method: 'GET',
     });
     expect(result).toEqual(mockBrandingPreference);
   });
 
   it('should fetch branding preference with query parameters', async (): Promise<void> => {
     const mockBrandingPreference: BrandingPreference = {
-      type: 'ORG',
-      name: 'custom',
       locale: 'en-US',
+      name: 'custom',
+      type: 'ORG',
     };
 
     global.fetch = vi.fn().mockResolvedValue({
-      ok: true,
       json: () => Promise.resolve(mockBrandingPreference),
+      ok: true,
     });
 
     const baseUrl: string = 'https://api.asgardeo.io/t/dxlab';
@@ -137,40 +137,40 @@ describe('getBrandingPreference', (): void => {
     expect(fetch).toHaveBeenCalledWith(
       `${baseUrl}/api/server/v1/branding-preference/resolve?locale=en-US&name=custom&type=org`,
       {
-        method: 'GET',
         headers: {
-          'Content-Type': 'application/json',
           Accept: 'application/json',
+          'Content-Type': 'application/json',
         },
+        method: 'GET',
       },
     );
   });
 
   it('should handle custom fetcher', async (): Promise<void> => {
     const mockBrandingPreference: BrandingPreference = {
-      type: 'ORG',
       name: 'default',
+      type: 'ORG',
     };
 
-    const customFetcher = vi.fn().mockResolvedValue({
-      ok: true,
+    const customFetcher: typeof fetch = vi.fn().mockResolvedValue({
       json: () => Promise.resolve(mockBrandingPreference),
+      ok: true,
     });
 
     const baseUrl: string = 'https://api.asgardeo.io/t/dxlab';
     await getBrandingPreference({baseUrl, fetcher: customFetcher});
 
     expect(customFetcher).toHaveBeenCalledWith(`${baseUrl}/api/server/v1/branding-preference/resolve`, {
-      method: 'GET',
       headers: {
-        'Content-Type': 'application/json',
         Accept: 'application/json',
+        'Content-Type': 'application/json',
       },
+      method: 'GET',
     });
   });
 
   it('should handle errors thrown directly by custom fetcher', async (): Promise<void> => {
-    const customFetcher = vi.fn().mockImplementation(() => {
+    const customFetcher: typeof fetch = vi.fn().mockImplementation(() => {
       throw new Error('Custom fetcher failure');
     });
 
@@ -235,17 +235,17 @@ describe('getBrandingPreference', (): void => {
 
   it('should pass through custom headers', async (): Promise<void> => {
     const mockBrandingPreference: BrandingPreference = {
-      type: 'ORG',
       name: 'default',
+      type: 'ORG',
     };
 
     global.fetch = vi.fn().mockResolvedValue({
-      ok: true,
       json: () => Promise.resolve(mockBrandingPreference),
+      ok: true,
     });
 
     const baseUrl: string = 'https://api.asgardeo.io/t/dxlab';
-    const customHeaders = {
+    const customHeaders: Record<string, string> = {
       Authorization: 'Bearer token',
       'X-Custom-Header': 'custom-value',
     };
@@ -256,13 +256,13 @@ describe('getBrandingPreference', (): void => {
     });
 
     expect(fetch).toHaveBeenCalledWith(`${baseUrl}/api/server/v1/branding-preference/resolve`, {
-      method: 'GET',
       headers: {
-        'Content-Type': 'application/json',
         Accept: 'application/json',
         Authorization: 'Bearer token',
+        'Content-Type': 'application/json',
         'X-Custom-Header': 'custom-value',
       },
+      method: 'GET',
     });
   });
 });

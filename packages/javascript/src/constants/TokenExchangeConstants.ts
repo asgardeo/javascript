@@ -32,7 +32,15 @@
  * const template = `grant_type=urn:ietf:params:oauth:grant-type:token-exchange&subject_token=${TokenExchangeConstants.Placeholders.TOKEN}`;
  * ```
  */
-const TokenExchangeConstants = {
+const TokenExchangeConstants: {
+  readonly Placeholders: {
+    readonly ACCESS_TOKEN: string;
+    readonly CLIENT_ID: string;
+    readonly CLIENT_SECRET: string;
+    readonly SCOPES: string;
+    readonly USERNAME: string;
+  };
+} = {
   /**
    * Collection of placeholder strings used in token exchange operations.
    * These placeholders are replaced with actual values when processing
@@ -46,18 +54,6 @@ const TokenExchangeConstants = {
     ACCESS_TOKEN: '{{accessToken}}',
 
     /**
-     * Placeholder for the username in token exchange operations.
-     * Used when user identity needs to be included in the exchange.
-     */
-    USERNAME: '{{username}}',
-
-    /**
-     * Placeholder for OAuth scopes in token exchange requests.
-     * Replaced with space-separated scope strings.
-     */
-    SCOPES: '{{scopes}}',
-
-    /**
      * Placeholder for client ID in token exchange operations.
      * Required for client authentication.
      */
@@ -68,6 +64,18 @@ const TokenExchangeConstants = {
      * Used for client authentication in confidential client flows.
      */
     CLIENT_SECRET: '{{clientSecret}}',
+
+    /**
+     * Placeholder for OAuth scopes in token exchange requests.
+     * Replaced with space-separated scope strings.
+     */
+    SCOPES: '{{scopes}}',
+
+    /**
+     * Placeholder for the username in token exchange operations.
+     * Used when user identity needs to be included in the exchange.
+     */
+    USERNAME: '{{username}}',
   },
 } as const;
 

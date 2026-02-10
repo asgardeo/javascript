@@ -17,55 +17,55 @@
  */
 
 import {describe, expect, it} from 'vitest';
+import {IdToken} from '../../models/token';
 import extractUserClaimsFromIdToken from '../extractUserClaimsFromIdToken';
-import {IdToken} from '../../models/id-token';
 
 describe('extractUserClaimsFromIdToken', (): void => {
   it('should remove protocol claims and keep user claims with original attribute names', (): void => {
     const payload: IdToken = {
-      iss: 'https://example.com',
       aud: 'client_id',
-      exp: 1712345678,
-      iat: 1712345670,
       email: 'user@example.com',
-      given_name: 'John',
+      exp: 1712345678,
       family_name: 'Doe',
+      given_name: 'John',
+      iat: 1712345670,
+      iss: 'https://example.com',
     };
 
     const expected: {
       email: string;
-      given_name: string;
       family_name: string;
+      given_name: string;
     } = {
       email: 'user@example.com',
-      given_name: 'John',
       family_name: 'Doe',
+      given_name: 'John',
     };
 
     expect(extractUserClaimsFromIdToken(payload)).toEqual(expected);
   });
 
   it('should handle empty payload', (): void => {
-    const payload = {} as IdToken;
+    const payload: IdToken = {} as IdToken;
 
     expect(extractUserClaimsFromIdToken(payload)).toEqual({});
   });
 
   it('should preserve original attribute names without transformation', (): void => {
     const payload: IdToken = {
-      phone_number: '+1234567890',
       custom_claim_value: 'test',
       normalClaim: 'value',
+      phone_number: '+1234567890',
     } as IdToken;
 
     const expected: {
-      phone_number: string;
       custom_claim_value: string;
       normalClaim: string;
+      phone_number: string;
     } = {
-      phone_number: '+1234567890',
       custom_claim_value: 'test',
       normalClaim: 'value',
+      phone_number: '+1234567890',
     };
 
     expect(extractUserClaimsFromIdToken(payload)).toEqual(expected);
@@ -73,21 +73,21 @@ describe('extractUserClaimsFromIdToken', (): void => {
 
   it('should remove all protocol claims', (): void => {
     const payload: IdToken = {
-      iss: 'https://example.com',
-      aud: 'client_id',
-      exp: 1712345678,
-      iat: 1712345670,
       acr: '1',
       amr: ['pwd'],
-      azp: 'client_1',
-      auth_time: 1712345670,
-      nonce: 'abc123',
-      c_hash: 'hash1',
       at_hash: 'hash2',
-      nbf: 1712345670,
-      isk: 'key1',
-      sid: 'session1',
+      aud: 'client_id',
+      auth_time: 1712345670,
+      azp: 'client_1',
+      c_hash: 'hash1',
       custom_claim: 'value',
+      exp: 1712345678,
+      iat: 1712345670,
+      isk: 'key1',
+      iss: 'https://example.com',
+      nbf: 1712345670,
+      nonce: 'abc123',
+      sid: 'session1',
     } as IdToken;
 
     expect(extractUserClaimsFromIdToken(payload)).toEqual({
@@ -96,19 +96,19 @@ describe('extractUserClaimsFromIdToken', (): void => {
   });
 
   it('should preserve non-string claim values such as objects and arrays', () => {
-    const payload = {
-      roles: ['admin', 'editor'],
+    const payload: IdToken = {
       metadata_info: {active: true, level: 2},
+      roles: ['admin', 'editor'],
     } as IdToken;
 
     expect(extractUserClaimsFromIdToken(payload)).toEqual({
-      roles: ['admin', 'editor'],
       metadata_info: {active: true, level: 2},
+      roles: ['admin', 'editor'],
     });
   });
 
   it('should retain null and undefined claim values', () => {
-    const payload = {
+    const payload: IdToken = {
       nickname: null,
       preferred_username: undefined,
     } as IdToken;

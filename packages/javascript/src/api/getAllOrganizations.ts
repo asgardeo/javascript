@@ -16,8 +16,8 @@
  * under the License.
  */
 
-import {AllOrganizationsApiResponse} from '../models/organization';
 import AsgardeoAPIError from '../errors/AsgardeoAPIError';
+import {AllOrganizationsApiResponse} from '../models/organization';
 
 /**
  * Configuration for the getAllOrganizations request
@@ -27,6 +27,11 @@ export interface GetAllOrganizationsConfig extends Omit<RequestInit, 'method'> {
    * The base URL for the API endpoint.
    */
   baseUrl: string;
+  /**
+   * Optional custom fetcher function.
+   * If not provided, native fetch will be used
+   */
+  fetcher?: (url: string, config: RequestInit) => Promise<Response>;
   /**
    * Filter expression for organizations
    */
@@ -39,11 +44,6 @@ export interface GetAllOrganizationsConfig extends Omit<RequestInit, 'method'> {
    * Whether to include child organizations recursively
    */
   recursive?: boolean;
-  /**
-   * Optional custom fetcher function.
-   * If not provided, native fetch will be used
-   */
-  fetcher?: (url: string, config: RequestInit) => Promise<Response>;
 }
 
 /**
@@ -112,6 +112,7 @@ const getAllOrganizations = async ({
   ...requestConfig
 }: GetAllOrganizationsConfig): Promise<AllOrganizationsApiResponse> => {
   try {
+    // eslint-disable-next-line no-new
     new URL(baseUrl);
   } catch (error) {
     throw new AsgardeoAPIError(
@@ -133,24 +134,24 @@ const getAllOrganizations = async ({
     ),
   );
 
-  const fetchFn = fetcher || fetch;
-  const resolvedUrl = `${baseUrl}/api/server/v1/organizations?${queryParams.toString()}`;
+  const fetchFn: typeof fetch = fetcher || fetch;
+  const resolvedUrl: string = `${baseUrl}/api/server/v1/organizations?${queryParams.toString()}`;
 
   const requestInit: RequestInit = {
     ...requestConfig,
-    method: 'GET',
     headers: {
       ...requestConfig.headers,
-      'Content-Type': 'application/json',
       Accept: 'application/json',
+      'Content-Type': 'application/json',
     },
+    method: 'GET',
   };
 
   try {
     const response: Response = await fetchFn(resolvedUrl, requestInit);
 
     if (!response?.ok) {
-      const errorText = await response.text();
+      const errorText: string = await response.text();
 
       throw new AsgardeoAPIError(
         `Failed to get organizations: ${errorText}`,
@@ -161,7 +162,7 @@ const getAllOrganizations = async ({
       );
     }
 
-    const data = (await response.json()) as any;
+    const data: AllOrganizationsApiResponse = (await response.json()) as any;
 
     return {
       hasMore: data.hasMore,

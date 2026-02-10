@@ -26,7 +26,7 @@ describe('AsgardeoAPIError', (): void => {
     const origin: string = 'react';
     const statusCode: number = 404;
     const statusText: string = 'Not Found';
-    const error = new AsgardeoAPIError(message, code, origin, statusCode, statusText);
+    const error: AsgardeoAPIError = new AsgardeoAPIError(message, code, origin, statusCode, statusText);
 
     expect(error.message).toBe(message);
     expect(error.code).toBe(code);
@@ -41,7 +41,7 @@ describe('AsgardeoAPIError', (): void => {
     const message: string = 'Unknown API Error';
     const code: string = 'API_ERROR';
     const origin: string = 'javascript';
-    const error = new AsgardeoAPIError(message, code, origin);
+    const error: AsgardeoAPIError = new AsgardeoAPIError(message, code, origin);
 
     expect(error.message).toBe(message);
     expect(error.statusCode).toBeUndefined();
@@ -53,7 +53,7 @@ describe('AsgardeoAPIError', (): void => {
     const message: string = 'Test Error';
     const code: string = 'TEST_ERROR';
     const origin: string = 'react';
-    const error = new AsgardeoAPIError(message, code, origin);
+    const error: AsgardeoAPIError = new AsgardeoAPIError(message, code, origin);
 
     expect(error.name).toBe('AsgardeoAPIError');
     expect(error).toBeInstanceOf(Error);
@@ -67,7 +67,7 @@ describe('AsgardeoAPIError', (): void => {
     const origin: string = 'react';
     const statusCode: number = 400;
     const statusText: string = 'Bad Request';
-    const error = new AsgardeoAPIError(message, code, origin, statusCode, statusText);
+    const error: AsgardeoAPIError = new AsgardeoAPIError(message, code, origin, statusCode, statusText);
 
     const expected: string =
       '[AsgardeoAPIError] (code="API_BAD_REQUEST") (HTTP 400 - Bad Request)\nMessage: Bad Request';
@@ -79,7 +79,7 @@ describe('AsgardeoAPIError', (): void => {
     const message: string = 'Test Error';
     const code: string = 'TEST_ERROR';
     const origin: string = 'react';
-    const error = new AsgardeoAPIError(message, code, origin);
+    const error: AsgardeoAPIError = new AsgardeoAPIError(message, code, origin);
 
     const expected: string = '[AsgardeoAPIError] (code="TEST_ERROR")\nMessage: Test Error';
 
@@ -95,13 +95,13 @@ describe('AsgardeoAPIError', (): void => {
   });
 
   it('should have a stack trace that includes the error message', () => {
-    const err = new AsgardeoAPIError('Trace me', 'TRACE', 'js');
+    const err: AsgardeoAPIError = new AsgardeoAPIError('Trace me', 'TRACE', 'js');
     expect(err.stack).toBeDefined();
     expect(String(err.stack)).toContain('Trace me');
   });
 
   it('toString includes status when statusCode is present but statusText is missing', () => {
-    const err = new AsgardeoAPIError('Oops', 'CODE', 'js', 500);
+    const err: AsgardeoAPIError = new AsgardeoAPIError('Oops', 'CODE', 'js', 500);
     expect(err.toString()).toBe('[AsgardeoAPIError] (code="CODE") (HTTP 500 - undefined)\nMessage: Oops');
   });
 });

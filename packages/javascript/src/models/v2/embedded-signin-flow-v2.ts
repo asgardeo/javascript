@@ -16,11 +16,11 @@
  * under the License.
  */
 
+import {EmbeddedFlowResponseData as EmbeddedFlowResponseDataV2} from './embedded-flow-v2';
 import {
   EmbeddedFlowResponseType as EmbeddedFlowResponseTypeV1,
   EmbeddedFlowType as EmbeddedFlowTypeV1,
 } from '../embedded-flow';
-import {EmbeddedFlowResponseData as EmbeddedFlowResponseDataV2} from './embedded-flow-v2';
 
 /**
  * Status enumeration for Asgardeo embedded sign-in flow operations.
@@ -57,15 +57,6 @@ export enum EmbeddedSignInFlowStatus {
   Complete = 'COMPLETE',
 
   /**
-   * Sign-in flow requires additional user input.
-   *
-   * More authentication steps are needed. The response will contain
-   * components in data.meta.components that should be rendered to
-   * collect additional user input (e.g., MFA, password, etc.).
-   */
-  Incomplete = 'INCOMPLETE',
-
-  /**
    * Sign-in flow encountered an error.
    *
    * Authentication failed due to invalid credentials, system error,
@@ -73,6 +64,15 @@ export enum EmbeddedSignInFlowStatus {
    * appropriately (retry, show error message, etc.).
    */
   Error = 'ERROR',
+
+  /**
+   * Sign-in flow requires additional user input.
+   *
+   * More authentication steps are needed. The response will contain
+   * components in data.meta.components that should be rendered to
+   * collect additional user input (e.g., MFA, password, etc.).
+   */
+  Incomplete = 'INCOMPLETE',
 }
 
 /**
@@ -167,16 +167,46 @@ export interface ExtendedEmbeddedSignInFlowResponse {
  */
 export interface EmbeddedSignInFlowResponse extends ExtendedEmbeddedSignInFlowResponse {
   /**
-   * Unique identifier for this specific flow instance.
-   * Used to maintain state across multiple API calls during the authentication process.
+   * Core response data containing UI components and flow metadata.
+   * Includes both modern meta.components structure and legacy fields for compatibility.
    */
-  flowId: string;
+  data: EmbeddedFlowResponseDataV2 & {
+    /**
+     * Legacy action definitions for backward compatibility.
+     * @deprecated Use data.meta.components for new implementations
+     */
+    actions?: {
+      /** Unique action identifier */
+      id: string;
+      /** Action type identifier */
+      type: EmbeddedFlowResponseTypeV1;
+    }[];
+
+    /**
+     * Legacy input field definitions for backward compatibility.
+     * @deprecated Use data.meta.components for new implementations
+     */
+    inputs?: {
+      /** Field name identifier */
+      name: string;
+      /** Whether the field is required */
+      required: boolean;
+      /** Input field type */
+      type: string;
+    }[];
+  };
 
   /**
    * Optional reason for flow failure in case of an error.
    * Provides additional context when flowStatus is set to ERROR.
    */
   failureReason?: string;
+
+  /**
+   * Unique identifier for this specific flow instance.
+   * Used to maintain state across multiple API calls during the authentication process.
+   */
+  flowId: string;
 
   /**
    * Current status of the sign-in flow.
@@ -189,36 +219,6 @@ export interface EmbeddedSignInFlowResponse extends ExtendedEmbeddedSignInFlowRe
    * Affects both UI rendering and navigation logic.
    */
   type: EmbeddedSignInFlowType;
-
-  /**
-   * Core response data containing UI components and flow metadata.
-   * Includes both modern meta.components structure and legacy fields for compatibility.
-   */
-  data: EmbeddedFlowResponseDataV2 & {
-    /**
-     * Legacy action definitions for backward compatibility.
-     * @deprecated Use data.meta.components for new implementations
-     */
-    actions?: {
-      /** Action type identifier */
-      type: EmbeddedFlowResponseTypeV1;
-      /** Unique action identifier */
-      id: string;
-    }[];
-
-    /**
-     * Legacy input field definitions for backward compatibility.
-     * @deprecated Use data.meta.components for new implementations
-     */
-    inputs?: {
-      /** Field name identifier */
-      name: string;
-      /** Input field type */
-      type: string;
-      /** Whether the field is required */
-      required: boolean;
-    }[];
-  };
 }
 
 /**
@@ -318,16 +318,16 @@ export type EmbeddedSignInFlowInitiateRequest = {
  */
 export interface EmbeddedSignInFlowRequest extends Partial<EmbeddedSignInFlowInitiateRequest> {
   /**
-   * Identifier of the flow instance to continue.
-   * Required when submitting data for an existing flow.
-   */
-  flowId?: string;
-
-  /**
    * Identifier of the specific action being triggered.
    * Corresponds to action components in the UI (e.g., submit button, social login).
    */
   action?: string;
+
+  /**
+   * Identifier of the flow instance to continue.
+   * Required when submitting data for an existing flow.
+   */
+  flowId?: string;
 
   /**
    * User input data collected from the form components.

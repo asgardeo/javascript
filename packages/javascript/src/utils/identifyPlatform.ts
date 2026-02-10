@@ -16,10 +16,10 @@
  * under the License.
  */
 
-import {Config} from '../models/config';
-import {Platform} from '../models/platforms';
 import isRecognizedBaseUrlPattern from './isRecognizedBaseUrlPattern';
 import logger from './logger';
+import {Config} from '../models/config';
+import {Platform} from '../models/platforms';
 
 /**
  * Identifies the platform based on the given base URL.
@@ -36,7 +36,7 @@ const identifyPlatform = (config: Config): Platform => {
   try {
     if (isRecognizedBaseUrlPattern(baseUrl)) {
       try {
-        const url = new URL(baseUrl!);
+        const url: URL = new URL(baseUrl!);
         // Check for asgardeo domain (e.g., api.asgardeo.io, etc.)
         if (/\.asgardeo\.io$/i.test(url.hostname) || /asgardeo\.io$/i.test(url.hostname)) {
           return Platform.Asgardeo;

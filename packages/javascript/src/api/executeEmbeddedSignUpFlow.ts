@@ -60,6 +60,7 @@ const executeEmbeddedSignUpFlow = async ({
   }
 
   try {
+    // eslint-disable-next-line no-new
     new URL(url ?? baseUrl);
   } catch (error) {
     throw new AsgardeoAPIError(
@@ -74,20 +75,20 @@ const executeEmbeddedSignUpFlow = async ({
   try {
     const response: Response = await fetch(url ?? `${baseUrl}/api/server/v1/flow/execute`, {
       ...requestConfig,
-      method: requestConfig.method || 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
-        ...requestConfig.headers,
-      },
       body: JSON.stringify({
         ...(payload ?? {}),
         flowType: EmbeddedFlowType.Registration,
       }),
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        ...requestConfig.headers,
+      },
+      method: requestConfig.method || 'POST',
     });
 
     if (!response.ok) {
-      const errorText = await response.text();
+      const errorText: string = await response.text();
 
       throw new AsgardeoAPIError(
         `Embedded SignUp flow execution failed: ${errorText}`,

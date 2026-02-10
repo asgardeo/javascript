@@ -16,6 +16,7 @@
  * under the License.
  */
 
+import logger from './logger';
 import AsgardeoRuntimeError from '../errors/AsgardeoRuntimeError';
 
 /**
@@ -70,10 +71,10 @@ const deriveOrganizationHandleFromBaseUrl = (baseUrl?: string): string => {
   }
 
   // Extract the organization handle from the path pattern: /t/{orgHandle}
-  const pathSegments = parsedUrl.pathname?.split('/')?.filter(segment => segment?.length > 0);
+  const pathSegments: string[] = parsedUrl.pathname?.split('/')?.filter((segment: string) => segment?.length > 0);
 
   if (pathSegments.length < 2 || pathSegments[0] !== 't') {
-    console.warn(
+    logger.warn(
       new AsgardeoRuntimeError(
         'Organization handle is required since a custom domain is configured.',
         'javascript-deriveOrganizationHandleFromBaseUrl-CustomDomainError-002',
@@ -85,10 +86,10 @@ const deriveOrganizationHandleFromBaseUrl = (baseUrl?: string): string => {
     return '';
   }
 
-  const organizationHandle = pathSegments[1];
+  const organizationHandle: string = pathSegments[1];
 
   if (!organizationHandle || organizationHandle.trim().length === 0) {
-    console.warn(
+    logger.warn(
       new AsgardeoRuntimeError(
         'Organization handle is required since a custom domain is configured.',
         'javascript-deriveOrganizationHandleFromBaseUrl-CustomDomainError-003',

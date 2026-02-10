@@ -16,11 +16,11 @@
  * under the License.
  */
 
-import {Config} from '../models/config';
-import isRecognizedBaseUrlPattern from './isRecognizedBaseUrlPattern';
 import identifyPlatform from './identifyPlatform';
-import {Platform} from '../models/platforms';
+import isRecognizedBaseUrlPattern from './isRecognizedBaseUrlPattern';
 import logger from './logger';
+import {Config} from '../models/config';
+import {Platform} from '../models/platforms';
 
 /**
  * Utility to generate the redirect-based sign-up URL for Asgardeo.
@@ -54,7 +54,7 @@ const getRedirectBasedSignUpUrl = (config: Config): string => {
     }
   }
 
-  const url: URL = new URL(signUpBaseUrl + '/accountrecoveryendpoint/register.do');
+  const url: URL = new URL(`${signUpBaseUrl}/accountrecoveryendpoint/register.do`);
 
   if (config.clientId) {
     url.searchParams.set('client_id', config.clientId);

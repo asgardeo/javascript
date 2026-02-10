@@ -17,13 +17,19 @@
  */
 
 import {describe, it, expect, vi, beforeEach} from 'vitest';
-import updateOrganization, {createPatchOperations} from '../updateOrganization';
 import AsgardeoAPIError from '../../errors/AsgardeoAPIError';
 import type {OrganizationDetails} from '../getOrganization';
+import updateOrganization, {createPatchOperations} from '../updateOrganization';
+
+type PatchOp = {
+  operation: 'REPLACE' | 'ADD' | 'REMOVE';
+  path: string;
+  value?: unknown;
+};
 
 describe('updateOrganization', (): void => {
-  const baseUrl = 'https://api.asgardeo.io/t/demo';
-  const organizationId = '0d5e071b-d3d3-475d-b3c6-1a20ee2fa9b1';
+  const baseUrl: string = 'https://api.asgardeo.io/t/demo';
+  const organizationId: string = '0d5e071b-d3d3-475d-b3c6-1a20ee2fa9b1';
 
   beforeEach((): void => {
     vi.resetAllMocks();
@@ -31,31 +37,35 @@ describe('updateOrganization', (): void => {
 
   it('should update organization successfully with default fetch', async (): Promise<void> => {
     const mockOrg: OrganizationDetails = {
+      description: 'Updated',
       id: organizationId,
       name: 'Updated Name',
       orgHandle: 'demo',
-      description: 'Updated',
     };
 
     global.fetch = vi.fn().mockResolvedValue({
-      ok: true,
       json: () => Promise.resolve(mockOrg),
+      ok: true,
     });
 
-    const operations = [
+    const operations: PatchOp[] = [
       {operation: 'REPLACE' as const, path: '/name', value: 'Updated Name'},
       {operation: 'REPLACE' as const, path: '/description', value: 'Updated'},
     ];
 
-    const result = await updateOrganization({baseUrl, organizationId, operations});
+    const result: OrganizationDetails = await updateOrganization({
+      baseUrl,
+      operations,
+      organizationId,
+    });
 
     expect(fetch).toHaveBeenCalledWith(`${baseUrl}/api/server/v1/organizations/${organizationId}`, {
-      method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
-      },
       body: JSON.stringify(operations),
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      method: 'PATCH',
     });
     expect(result).toEqual(mockOrg);
   });
@@ -67,99 +77,99 @@ describe('updateOrganization', (): void => {
       orgHandle: 'custom',
     };
 
-    const customFetcher = vi.fn().mockResolvedValue({
-      ok: true,
+    const customFetcher: ReturnType<typeof vi.fn> = vi.fn().mockResolvedValue({
       json: () => Promise.resolve(mockOrg),
+      ok: true,
     });
 
-    const operations = [{operation: 'REPLACE' as const, path: '/name', value: 'Custom'}];
+    const operations: PatchOp[] = [{operation: 'REPLACE' as const, path: '/name', value: 'Custom'}];
 
-    const result = await updateOrganization({
+    const result: OrganizationDetails = await updateOrganization({
       baseUrl,
-      organizationId,
-      operations,
       fetcher: customFetcher,
+      operations,
+      organizationId,
     });
 
     expect(result).toEqual(mockOrg);
     expect(customFetcher).toHaveBeenCalledWith(
       `${baseUrl}/api/server/v1/organizations/${organizationId}`,
       expect.objectContaining({
-        method: 'PATCH',
-        headers: expect.objectContaining({
-          'Content-Type': 'application/json',
-          Accept: 'application/json',
-        }),
         body: JSON.stringify(operations),
+        headers: expect.objectContaining({
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        }),
+        method: 'PATCH',
       }),
     );
   });
 
   it('should handle errors thrown directly by custom fetcher', async (): Promise<void> => {
-    const customFetcher = vi.fn().mockImplementation(() => {
+    const customFetcher: ReturnType<typeof vi.fn> = vi.fn().mockImplementation(() => {
       throw new Error('Custom fetcher failure');
     });
 
-    const operations = [{operation: 'REPLACE' as const, path: '/name', value: 'X'}];
+    const operations: PatchOp[] = [{operation: 'REPLACE' as const, path: '/name', value: 'X'}];
 
-    await expect(updateOrganization({baseUrl, organizationId, operations, fetcher: customFetcher})).rejects.toThrow(
+    await expect(updateOrganization({baseUrl, fetcher: customFetcher, operations, organizationId})).rejects.toThrow(
       'Network or parsing error: Custom fetcher failure',
     );
   });
 
   it('should throw AsgardeoAPIError for invalid base URL', async (): Promise<void> => {
-    const operations = [{operation: 'REPLACE' as const, path: '/name', value: 'X'}];
+    const operations: PatchOp[] = [{operation: 'REPLACE' as const, path: '/name', value: 'X'}];
 
-    await expect(updateOrganization({baseUrl: 'invalid-url' as any, organizationId, operations})).rejects.toThrow(
+    await expect(updateOrganization({baseUrl: 'invalid-url' as any, operations, organizationId})).rejects.toThrow(
       AsgardeoAPIError,
     );
 
-    await expect(updateOrganization({baseUrl: 'invalid-url' as any, organizationId, operations})).rejects.toThrow(
+    await expect(updateOrganization({baseUrl: 'invalid-url' as any, operations, organizationId})).rejects.toThrow(
       'Invalid base URL provided.',
     );
   });
 
   it('should throw AsgardeoAPIError for undefined baseUrl', async (): Promise<void> => {
-    const operations = [{operation: 'REPLACE' as const, path: '/name', value: 'X'}];
+    const operations: PatchOp[] = [{operation: 'REPLACE' as const, path: '/name', value: 'X'}];
 
-    await expect(updateOrganization({baseUrl: undefined as any, organizationId, operations})).rejects.toThrow(
+    await expect(updateOrganization({baseUrl: undefined as any, operations, organizationId})).rejects.toThrow(
       AsgardeoAPIError,
     );
-    await expect(updateOrganization({baseUrl: undefined as any, organizationId, operations})).rejects.toThrow(
+    await expect(updateOrganization({baseUrl: undefined as any, operations, organizationId})).rejects.toThrow(
       'Invalid base URL provided.',
     );
   });
 
   it('should throw AsgardeoAPIError for empty string baseUrl', async (): Promise<void> => {
-    const operations = [{operation: 'REPLACE' as const, path: '/name', value: 'X'}];
+    const operations: PatchOp[] = [{operation: 'REPLACE' as const, path: '/name', value: 'X'}];
 
-    await expect(updateOrganization({baseUrl: '', organizationId, operations})).rejects.toThrow(AsgardeoAPIError);
-    await expect(updateOrganization({baseUrl: '', organizationId, operations})).rejects.toThrow(
+    await expect(updateOrganization({baseUrl: '', operations, organizationId})).rejects.toThrow(AsgardeoAPIError);
+    await expect(updateOrganization({baseUrl: '', operations, organizationId})).rejects.toThrow(
       'Invalid base URL provided.',
     );
   });
 
   it('should throw AsgardeoAPIError when organizationId is missing', async (): Promise<void> => {
-    const operations = [{operation: 'REPLACE' as const, path: '/name', value: 'X'}];
+    const operations: PatchOp[] = [{operation: 'REPLACE' as const, path: '/name', value: 'X'}];
 
-    await expect(updateOrganization({baseUrl, organizationId: '' as any, operations})).rejects.toThrow(
+    await expect(updateOrganization({baseUrl, operations, organizationId: '' as any})).rejects.toThrow(
       AsgardeoAPIError,
     );
-    await expect(updateOrganization({baseUrl, organizationId: '' as any, operations})).rejects.toThrow(
+    await expect(updateOrganization({baseUrl, operations, organizationId: '' as any})).rejects.toThrow(
       'Organization ID is required',
     );
   });
 
   it('should throw AsgardeoAPIError when operations is missing/empty', async (): Promise<void> => {
-    await expect(updateOrganization({baseUrl, organizationId, operations: undefined as any})).rejects.toThrow(
+    await expect(updateOrganization({baseUrl, operations: undefined as any, organizationId})).rejects.toThrow(
       'Operations array is required and cannot be empty',
     );
 
-    await expect(updateOrganization({baseUrl, organizationId, operations: []})).rejects.toThrow(
+    await expect(updateOrganization({baseUrl, operations: [], organizationId})).rejects.toThrow(
       'Operations array is required and cannot be empty',
     );
 
-    await expect(updateOrganization({baseUrl, organizationId, operations: 'not-array' as any})).rejects.toThrow(
+    await expect(updateOrganization({baseUrl, operations: 'not-array' as any, organizationId})).rejects.toThrow(
       'Operations array is required and cannot be empty',
     );
   });
@@ -172,10 +182,10 @@ describe('updateOrganization', (): void => {
       text: () => Promise.resolve('Invalid operations'),
     });
 
-    const operations = [{operation: 'REPLACE' as const, path: '/name', value: 'X'}];
+    const operations: PatchOp[] = [{operation: 'REPLACE' as const, path: '/name', value: 'X'}];
 
-    await expect(updateOrganization({baseUrl, organizationId, operations})).rejects.toThrow(AsgardeoAPIError);
-    await expect(updateOrganization({baseUrl, organizationId, operations})).rejects.toThrow(
+    await expect(updateOrganization({baseUrl, operations, organizationId})).rejects.toThrow(AsgardeoAPIError);
+    await expect(updateOrganization({baseUrl, operations, organizationId})).rejects.toThrow(
       'Failed to update organization: Invalid operations',
     );
   });
@@ -183,10 +193,10 @@ describe('updateOrganization', (): void => {
   it('should handle network or parsing errors', async (): Promise<void> => {
     global.fetch = vi.fn().mockRejectedValue(new Error('Network error'));
 
-    const operations = [{operation: 'REPLACE' as const, path: '/name', value: 'X'}];
+    const operations: PatchOp[] = [{operation: 'REPLACE' as const, path: '/name', value: 'X'}];
 
-    await expect(updateOrganization({baseUrl, organizationId, operations})).rejects.toThrow(AsgardeoAPIError);
-    await expect(updateOrganization({baseUrl, organizationId, operations})).rejects.toThrow(
+    await expect(updateOrganization({baseUrl, operations, organizationId})).rejects.toThrow(AsgardeoAPIError);
+    await expect(updateOrganization({baseUrl, operations, organizationId})).rejects.toThrow(
       'Network or parsing error: Network error',
     );
   });
@@ -194,9 +204,9 @@ describe('updateOrganization', (): void => {
   it('should handle non-Error rejections', async (): Promise<void> => {
     global.fetch = vi.fn().mockRejectedValue('unexpected failure');
 
-    const operations = [{operation: 'REPLACE' as const, path: '/name', value: 'X'}];
+    const operations: PatchOp[] = [{operation: 'REPLACE' as const, path: '/name', value: 'X'}];
 
-    await expect(updateOrganization({baseUrl, organizationId, operations})).rejects.toThrow(
+    await expect(updateOrganization({baseUrl, operations, organizationId})).rejects.toThrow(
       'Network or parsing error: Unknown error',
     );
   });
@@ -209,51 +219,55 @@ describe('updateOrganization', (): void => {
     };
 
     global.fetch = vi.fn().mockResolvedValue({
-      ok: true,
       json: () => Promise.resolve(mockOrg),
+      ok: true,
     });
 
-    const operations = [{operation: 'REPLACE' as const, path: '/name', value: 'Header Org'}];
+    const operations: PatchOp[] = [{operation: 'REPLACE' as const, path: '/name', value: 'Header Org'}];
 
-    const customHeaders = {
+    const customHeaders: Record<string, string> = {
       Authorization: 'Bearer token',
       'X-Custom-Header': 'custom-value',
     };
 
     await updateOrganization({
       baseUrl,
-      organizationId,
-      operations,
       headers: customHeaders,
+      operations,
+      organizationId,
     });
 
     expect(fetch).toHaveBeenCalledWith(`${baseUrl}/api/server/v1/organizations/${organizationId}`, {
-      method: 'PATCH',
+      body: JSON.stringify(operations),
       headers: {
-        'Content-Type': 'application/json',
         Accept: 'application/json',
         Authorization: 'Bearer token',
+        'Content-Type': 'application/json',
         'X-Custom-Header': 'custom-value',
       },
-      body: JSON.stringify(operations),
+      method: 'PATCH',
     });
   });
 
   it('should always use HTTP PATCH even if a different method is passed in requestConfig', async (): Promise<void> => {
-    const mockOrg: OrganizationDetails = {id: organizationId, name: 'A', orgHandle: 'a'};
+    const mockOrg: OrganizationDetails = {
+      id: organizationId,
+      name: 'A',
+      orgHandle: 'a',
+    };
 
     global.fetch = vi.fn().mockResolvedValue({
-      ok: true,
       json: () => Promise.resolve(mockOrg),
+      ok: true,
     });
 
-    const operations = [{operation: 'REPLACE' as const, path: '/name', value: 'A'}];
+    const operations: PatchOp[] = [{operation: 'REPLACE' as const, path: '/name', value: 'A'}];
 
     await updateOrganization({
       baseUrl,
-      organizationId,
-      operations,
       method: 'PUT',
+      operations,
+      organizationId,
     });
 
     expect(fetch).toHaveBeenCalledWith(
@@ -263,19 +277,23 @@ describe('updateOrganization', (): void => {
   });
 
   it('should send the exact operations array as body (no mutation)', async (): Promise<void> => {
-    const mockOrg: OrganizationDetails = {id: organizationId, name: 'B', orgHandle: 'b'};
+    const mockOrg: OrganizationDetails = {
+      id: organizationId,
+      name: 'B',
+      orgHandle: 'b',
+    };
 
     global.fetch = vi.fn().mockResolvedValue({
-      ok: true,
       json: () => Promise.resolve(mockOrg),
+      ok: true,
     });
 
-    const operations = [
+    const operations: PatchOp[] = [
       {operation: 'REPLACE' as const, path: 'name', value: 'B'},
       {operation: 'REMOVE' as const, path: 'description'},
     ];
 
-    await updateOrganization({baseUrl, organizationId, operations});
+    await updateOrganization({baseUrl, operations, organizationId});
 
     const [, init] = (fetch as any).mock.calls[0];
     expect(JSON.parse(init.body)).toEqual(operations);
@@ -284,14 +302,14 @@ describe('updateOrganization', (): void => {
 
 describe('createPatchOperations', (): void => {
   it('should generate REPLACE for non-empty values and REMOVE for empty', (): void => {
-    const payload = {
-      name: 'Updated Organization',
+    const payload: Record<string, unknown> = {
       description: '',
-      note: null,
       extra: 'value',
+      name: 'Updated Organization',
+      note: null,
     };
 
-    const ops = createPatchOperations(payload);
+    const ops: PatchOp[] = createPatchOperations(payload);
 
     expect(ops).toEqual(
       expect.arrayContaining([
@@ -304,14 +322,19 @@ describe('createPatchOperations', (): void => {
   });
 
   it('should prefix all paths with a slash', (): void => {
-    const ops = createPatchOperations({title: 'A', summary: ''});
+    const ops: PatchOp[] = createPatchOperations({
+      summary: '',
+      title: 'A',
+    });
 
-    expect(ops.find(o => o.path === '/title')).toBeDefined();
-    expect(ops.find(o => o.path === '/summary')).toBeDefined();
+    expect(ops.find((o: PatchOp) => o.path === '/title')).toBeDefined();
+    expect(ops.find((o: PatchOp) => o.path === '/summary')).toBeDefined();
   });
 
   it('should handle undefined payload values as REMOVE', (): void => {
-    const ops = createPatchOperations({something: undefined});
+    const ops: PatchOp[] = createPatchOperations({
+      something: undefined,
+    });
 
     expect(ops).toEqual([{operation: 'REMOVE', path: '/something'}]);
   });

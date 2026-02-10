@@ -16,8 +16,8 @@
  * under the License.
  */
 
-import {User} from '../models/user';
 import AsgardeoAPIError from '../errors/AsgardeoAPIError';
+import {User} from '../models/user';
 
 /**
  * Retrieves the user information from the specified OIDC userinfo endpoint.
@@ -38,6 +38,7 @@ import AsgardeoAPIError from '../errors/AsgardeoAPIError';
  */
 const getUserInfo = async ({url, ...requestConfig}: Partial<Request>): Promise<User> => {
   try {
+    // eslint-disable-next-line no-new
     new URL(url);
   } catch (error) {
     throw new AsgardeoAPIError(
@@ -52,16 +53,16 @@ const getUserInfo = async ({url, ...requestConfig}: Partial<Request>): Promise<U
   try {
     const response: Response = await fetch(url, {
       ...requestConfig,
-      method: 'GET',
       headers: {
-        'Content-Type': 'application/json',
         Accept: 'application/json',
+        'Content-Type': 'application/json',
         ...requestConfig.headers,
       },
+      method: 'GET',
     });
 
     if (!response.ok) {
-      const errorText = await response.text();
+      const errorText: string = await response.text();
 
       throw new AsgardeoAPIError(
         `Failed to fetch user info: ${errorText}`,

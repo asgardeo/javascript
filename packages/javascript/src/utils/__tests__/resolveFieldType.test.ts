@@ -17,49 +17,55 @@
  */
 
 import {describe, it, expect} from 'vitest';
-import resolveFieldType from '../resolveFieldType';
 import AsgardeoRuntimeError from '../../errors/AsgardeoRuntimeError';
 import {
   EmbeddedSignInFlowAuthenticatorParamType,
   EmbeddedSignInFlowAuthenticatorExtendedParamType,
 } from '../../models/embedded-signin-flow';
 import {FieldType} from '../../models/field';
+import resolveFieldType from '../resolveFieldType';
 
 describe('resolveFieldType', () => {
   it('should return FieldType.Text for STRING fields without param/confidential', () => {
-    const field = {type: EmbeddedSignInFlowAuthenticatorParamType.String};
+    const field: {type: EmbeddedSignInFlowAuthenticatorParamType} = {
+      type: EmbeddedSignInFlowAuthenticatorParamType.String,
+    };
     expect(resolveFieldType(field)).toBe(FieldType.Text);
   });
 
   it('should return FieldType.Otp when STRING field has param = OTP (wins over confidential)', () => {
-    const field = {
-      type: EmbeddedSignInFlowAuthenticatorParamType.String,
-      param: EmbeddedSignInFlowAuthenticatorExtendedParamType.Otp,
+    const field: {
+      confidential: boolean;
+      param: EmbeddedSignInFlowAuthenticatorExtendedParamType;
+      type: EmbeddedSignInFlowAuthenticatorParamType;
+    } = {
       confidential: true,
+      param: EmbeddedSignInFlowAuthenticatorExtendedParamType.Otp,
+      type: EmbeddedSignInFlowAuthenticatorParamType.String,
     };
     expect(resolveFieldType(field)).toBe(FieldType.Otp);
   });
 
   it('should return FieldType.Password for STRING fields with confidential=true (and non-OTP param)', () => {
-    const field = {
-      type: EmbeddedSignInFlowAuthenticatorParamType.String,
-      param: 'username',
+    const field: {confidential: boolean; param: string; type: EmbeddedSignInFlowAuthenticatorParamType} = {
       confidential: true,
+      param: 'username',
+      type: EmbeddedSignInFlowAuthenticatorParamType.String,
     };
     expect(resolveFieldType(field)).toBe(FieldType.Password);
   });
 
   it('should return FieldType.Text for STRING fields with non-OTP param and confidential=false', () => {
-    const field = {
-      type: EmbeddedSignInFlowAuthenticatorParamType.String,
-      param: 'username',
+    const field: {confidential: boolean; param: string; type: EmbeddedSignInFlowAuthenticatorParamType} = {
       confidential: false,
+      param: 'username',
+      type: EmbeddedSignInFlowAuthenticatorParamType.String,
     };
     expect(resolveFieldType(field)).toBe(FieldType.Text);
   });
 
   it('should throw AsgardeoRuntimeError for non-STRING types', () => {
-    const field = {type: 'number'};
+    const field: {type: string} = {type: 'number'};
     expect(() => resolveFieldType(field as any)).toThrow(AsgardeoRuntimeError);
     expect(() => resolveFieldType(field as any)).toThrow('Field type is not supported');
   });

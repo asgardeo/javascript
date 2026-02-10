@@ -22,7 +22,26 @@ import ScopeConstants from './ScopeConstants';
  * Constants representing standard OpenID Connect (OIDC) request and response parameters.
  * These parameters are commonly used during authorization, token exchange, and logout flows.
  */
-const OIDCRequestConstants = {
+const OIDCRequestConstants: {
+  readonly Params: {
+    readonly AUTHORIZATION_CODE: string;
+    readonly SESSION_STATE: string;
+    readonly SIGN_OUT_SUCCESS: string;
+    readonly STATE: string;
+  };
+  readonly SignIn: {
+    readonly Payload: {
+      readonly DEFAULT_SCOPES: readonly string[];
+    };
+  };
+  readonly SignOut: {
+    readonly Storage: {
+      readonly StorageKeys: {
+        readonly SIGN_OUT_URL: string;
+      };
+    };
+  };
+} = {
   Params: {
     /**
      * The authorization code returned from the authorization endpoint.
@@ -36,16 +55,16 @@ const OIDCRequestConstants = {
     SESSION_STATE: 'session_state',
 
     /**
-     * State parameter used to maintain state between the request and the callback.
-     * Helps in preventing CSRF attacks.
-     */
-    STATE: 'state',
-
-    /**
      * Indicates whether sign-out was successful during the end-session flow.
      * May be returned by the OP after a logout request.
      */
     SIGN_OUT_SUCCESS: 'sign_out_success',
+
+    /**
+     * State parameter used to maintain state between the request and the callback.
+     * Helps in preventing CSRF attacks.
+     */
+    STATE: 'state',
   },
 
   /**

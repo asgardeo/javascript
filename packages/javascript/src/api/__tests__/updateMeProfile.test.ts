@@ -16,10 +16,10 @@
  * under the License.
  */
 
-import {describe, it, expect, vi, beforeEach} from 'vitest';
-import updateMeProfile from '../updateMeProfile';
+import {Mock, beforeEach, describe, expect, it, vi} from 'vitest';
 import AsgardeoAPIError from '../../errors/AsgardeoAPIError';
 import type {User} from '../../models/user';
+import updateMeProfile from '../updateMeProfile';
 
 describe('updateMeProfile', (): void => {
   beforeEach((): void => {
@@ -28,30 +28,30 @@ describe('updateMeProfile', (): void => {
 
   it('should update profile successfully using default fetch', async (): Promise<void> => {
     const mockUser: User = {
+      email: 'alice@example.com',
       id: 'u1',
       name: 'Alice',
-      email: 'alice@example.com',
     };
 
     global.fetch = vi.fn().mockResolvedValue({
-      ok: true,
       json: () => Promise.resolve(mockUser),
+      ok: true,
     });
 
-    const url = 'https://api.asgardeo.io/t/demo/scim2/Me';
-    const payload = {'urn:scim:wso2:schema': {mobileNumbers: ['0777933830']}};
+    const url: string = 'https://api.asgardeo.io/t/demo/scim2/Me';
+    const payload: Record<string, unknown> = {'urn:scim:wso2:schema': {mobileNumbers: ['0777933830']}};
 
-    const result = await updateMeProfile({url, payload});
+    const result: User = await updateMeProfile({payload, url});
 
     expect(fetch).toHaveBeenCalledTimes(1);
-    const [calledUrl, init] = (fetch as any).mock.calls[0];
+    const [calledUrl, init]: [string, RequestInit] = (fetch as unknown as Mock).mock.calls[0];
 
     expect(calledUrl).toBe(url);
     expect(init.method).toBe('PATCH');
-    expect(init.headers['Content-Type']).toBe('application/scim+json');
-    expect(init.headers['Accept']).toBe('application/json');
+    expect((init.headers as Record<string, string>)['Content-Type']).toBe('application/scim+json');
+    expect((init.headers as Record<string, string>)['Accept']).toBe('application/json');
 
-    const parsed = JSON.parse(init.body);
+    const parsed: Record<string, unknown> = JSON.parse(init.body as string);
     expect(parsed.schemas).toEqual(['urn:ietf:params:scim:api:messages:2.0:PatchOp']);
     expect(parsed.Operations).toEqual([{op: 'replace', value: payload}]);
 
@@ -60,81 +60,81 @@ describe('updateMeProfile', (): void => {
 
   it('should fall back to baseUrl when url is not provided', async (): Promise<void> => {
     const mockUser: User = {
+      email: 'bob@example.com',
       id: 'u2',
       name: 'Bob',
-      email: 'bob@example.com',
     };
 
     global.fetch = vi.fn().mockResolvedValue({
-      ok: true,
       json: () => Promise.resolve(mockUser),
+      ok: true,
     });
 
-    const baseUrl = 'https://api.asgardeo.io/t/demo';
-    const payload = {profile: {givenName: 'Bob'}};
+    const baseUrl: string = 'https://api.asgardeo.io/t/demo';
+    const payload: Record<string, unknown> = {profile: {givenName: 'Bob'}};
 
-    const result = await updateMeProfile({baseUrl, payload});
+    const result: User = await updateMeProfile({baseUrl, payload});
 
     expect(fetch).toHaveBeenCalledWith(`${baseUrl}/scim2/Me`, expect.any(Object));
     expect(result).toEqual(mockUser);
   });
 
   it('should use custom fetcher when provided', async (): Promise<void> => {
-    const mockUser: User = {id: 'u3', name: 'Carol', email: 'carol@example.com'};
+    const mockUser: User = {email: 'carol@example.com', id: 'u3', name: 'Carol'};
 
-    const customFetcher = vi.fn().mockResolvedValue({
-      ok: true,
+    const customFetcher: Mock = vi.fn().mockResolvedValue({
       json: () => Promise.resolve(mockUser),
+      ok: true,
     });
 
-    const baseUrl = 'https://api.asgardeo.io/t/demo';
-    const payload = {profile: {familyName: 'Doe'}};
+    const baseUrl: string = 'https://api.asgardeo.io/t/demo';
+    const payload: Record<string, unknown> = {profile: {familyName: 'Doe'}};
 
-    const result = await updateMeProfile({baseUrl, payload, fetcher: customFetcher});
+    const result: User = await updateMeProfile({baseUrl, fetcher: customFetcher, payload});
 
     expect(result).toEqual(mockUser);
     expect(customFetcher).toHaveBeenCalledWith(
       `${baseUrl}/scim2/Me`,
       expect.objectContaining({
-        method: 'PATCH',
         headers: expect.objectContaining({
-          'Content-Type': 'application/scim+json',
           Accept: 'application/json',
+          'Content-Type': 'application/scim+json',
         }),
+        method: 'PATCH',
       }),
     );
   });
 
   it('should prefer url over baseUrl when both are provided', async (): Promise<void> => {
-    const mockUser: User = {id: 'u4', name: 'Dan', email: 'dan@example.com'};
+    const mockUser: User = {email: 'dan@example.com', id: 'u4', name: 'Dan'};
     global.fetch = vi.fn().mockResolvedValue({
-      ok: true,
       json: () => Promise.resolve(mockUser),
+      ok: true,
     });
 
-    const url = 'https://api.asgardeo.io/t/demo/scim2/Me';
-    const baseUrl = 'https://api.asgardeo.io/t/ignored';
-    await updateMeProfile({url, baseUrl, payload: {x: 1}});
+    const url: string = 'https://api.asgardeo.io/t/demo/scim2/Me';
+    const baseUrl: string = 'https://api.asgardeo.io/t/ignored';
+    await updateMeProfile({baseUrl, payload: {x: 1}, url});
 
     expect(fetch).toHaveBeenCalledWith(url, expect.any(Object));
   });
 
   it('should throw AsgardeoAPIError for invalid URL or baseUrl', async (): Promise<void> => {
-    await expect(updateMeProfile({url: 'not-a-valid-url' as any, payload: {}})).rejects.toThrow(AsgardeoAPIError);
+    await expect(updateMeProfile({payload: {}, url: 'not-a-valid-url' as any})).rejects.toThrow(AsgardeoAPIError);
 
-    await expect(updateMeProfile({url: 'not-a-valid-url' as any, payload: {}})).rejects.toThrow(
+    await expect(updateMeProfile({payload: {}, url: 'not-a-valid-url' as any})).rejects.toThrow(
       'Invalid URL provided.',
     );
   });
 
   it('should throw AsgardeoAPIError when both url and baseUrl are missing', async (): Promise<void> => {
-    await expect(updateMeProfile({url: undefined as any, baseUrl: undefined as any, payload: {}})).rejects.toThrow(
+    await expect(updateMeProfile({baseUrl: undefined as any, payload: {}, url: undefined as any})).rejects.toThrow(
       AsgardeoAPIError,
     );
   });
 
   it('should throw AsgardeoAPIError when both url and baseUrl are empty strings', async (): Promise<void> => {
-    await expect(updateMeProfile({url: '', baseUrl: '', payload: {}})).rejects.toThrow(AsgardeoAPIError);
+    await expect(updateMeProfile({baseUrl: '', payload: {}, url: ''})).rejects.toThrow(AsgardeoAPIError);
   });
 
   it('should handle HTTP error responses', async (): Promise<void> => {
@@ -145,7 +145,7 @@ describe('updateMeProfile', (): void => {
       text: () => Promise.resolve('SCIM validation failed'),
     });
 
-    const baseUrl = 'https://api.asgardeo.io/t/demo';
+    const baseUrl: string = 'https://api.asgardeo.io/t/demo';
     await expect(updateMeProfile({baseUrl, payload: {bad: 'data'}})).rejects.toThrow(AsgardeoAPIError);
 
     await expect(updateMeProfile({baseUrl, payload: {bad: 'data'}})).rejects.toThrow(
@@ -156,77 +156,77 @@ describe('updateMeProfile', (): void => {
   it('should handle network or unknown errors with the generic message', async (): Promise<void> => {
     // Rejection with Error
     global.fetch = vi.fn().mockRejectedValue(new Error('Network error'));
-    await expect(updateMeProfile({url: 'https://api.asgardeo.io/t/demo/scim2/Me', payload: {a: 1}})).rejects.toThrow(
+    await expect(updateMeProfile({payload: {a: 1}, url: 'https://api.asgardeo.io/t/demo/scim2/Me'})).rejects.toThrow(
       AsgardeoAPIError,
     );
-    await expect(updateMeProfile({url: 'https://api.asgardeo.io/t/demo/scim2/Me', payload: {a: 1}})).rejects.toThrow(
+    await expect(updateMeProfile({payload: {a: 1}, url: 'https://api.asgardeo.io/t/demo/scim2/Me'})).rejects.toThrow(
       'An error occurred while updating the user profile. Please try again.',
     );
 
     // Rejection with non-Error
     global.fetch = vi.fn().mockRejectedValue('weird failure');
-    await expect(updateMeProfile({url: 'https://api.asgardeo.io/t/demo/scim2/Me', payload: {a: 1}})).rejects.toThrow(
+    await expect(updateMeProfile({payload: {a: 1}, url: 'https://api.asgardeo.io/t/demo/scim2/Me'})).rejects.toThrow(
       'An error occurred while updating the user profile. Please try again.',
     );
   });
 
   it('should pass through custom headers (and enforces content-type & accept)', async (): Promise<void> => {
-    const mockUser: User = {id: 'u5', name: 'Eve', email: 'eve@example.com'};
+    const mockUser: User = {email: 'eve@example.com', id: 'u5', name: 'Eve'};
 
     global.fetch = vi.fn().mockResolvedValue({
-      ok: true,
       json: () => Promise.resolve(mockUser),
+      ok: true,
     });
 
-    const baseUrl = 'https://api.asgardeo.io/t/demo';
-    const customHeaders = {
-      Authorization: 'Bearer token',
-      'X-Custom-Header': 'custom-value',
-      'Content-Type': 'text/plain',
+    const baseUrl: string = 'https://api.asgardeo.io/t/demo';
+    const customHeaders: Record<string, string> = {
       Accept: 'text/plain',
+      Authorization: 'Bearer token',
+      'Content-Type': 'text/plain',
+      'X-Custom-Header': 'custom-value',
     };
 
-    await updateMeProfile({baseUrl, payload: {y: 2}, headers: customHeaders});
+    await updateMeProfile({baseUrl, headers: customHeaders, payload: {y: 2}});
 
-    const [, init] = (fetch as any).mock.calls[0];
-    expect(init.headers).toMatchObject({
-      Authorization: 'Bearer token',
-      'X-Custom-Header': 'custom-value',
-      'Content-Type': 'application/scim+json',
+    const [, init]: [string, RequestInit] = (fetch as unknown as Mock).mock.calls[0];
+    expect((init as Record<string, unknown>).headers).toMatchObject({
       Accept: 'application/json',
+      Authorization: 'Bearer token',
+      'Content-Type': 'application/scim+json',
+      'X-Custom-Header': 'custom-value',
     });
   });
 
   it('should build the SCIM PatchOp body correctly', async (): Promise<void> => {
     global.fetch = vi.fn().mockResolvedValue({
-      ok: true,
       json: () => Promise.resolve({} as User),
+      ok: true,
     });
 
-    const baseUrl = 'https://api.asgardeo.io/t/demo';
-    const payload = {'urn:scim:wso2:schema': {mobileNumbers: ['123']}};
+    const baseUrl: string = 'https://api.asgardeo.io/t/demo';
+    const payload: Record<string, unknown> = {'urn:scim:wso2:schema': {mobileNumbers: ['123']}};
 
     await updateMeProfile({baseUrl, payload});
 
-    const [, init] = (fetch as any).mock.calls[0];
-    const body = JSON.parse(init.body);
+    const [, init]: [string, RequestInit] = (fetch as unknown as Mock).mock.calls[0];
+    const body: Record<string, unknown> = JSON.parse((init as Record<string, unknown>).body as string);
 
     expect(body.schemas).toEqual(['urn:ietf:params:scim:api:messages:2.0:PatchOp']);
     expect(body.Operations).toHaveLength(1);
-    expect(body.Operations[0]).toEqual({op: 'replace', value: payload});
+    expect((body.Operations as Record<string, unknown>[])[0]).toEqual({op: 'replace', value: payload});
   });
 
   it('should allow method override when provided in requestConfig', async (): Promise<void> => {
     // Note: due to `{ method: 'PATCH', ...requestConfig }` order, requestConfig.method overrides PATCH
     global.fetch = vi.fn().mockResolvedValue({
-      ok: true,
       json: () => Promise.resolve({} as User),
+      ok: true,
     });
 
-    const baseUrl = 'https://api.asgardeo.io/t/demo';
-    await updateMeProfile({baseUrl, payload: {z: 9}, method: 'PUT' as any});
+    const baseUrl: string = 'https://api.asgardeo.io/t/demo';
+    await updateMeProfile({baseUrl, method: 'PUT' as any, payload: {z: 9}});
 
-    const [, init] = (fetch as any).mock.calls[0];
+    const [, init]: [string, RequestInit] = (fetch as unknown as Mock).mock.calls[0];
     expect(init.method).toBe('PUT');
   });
 });

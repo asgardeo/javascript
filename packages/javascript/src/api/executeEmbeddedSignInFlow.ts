@@ -27,6 +27,7 @@ const executeEmbeddedSignInFlow = async ({
   ...requestConfig
 }: EmbeddedFlowExecuteRequestConfig): Promise<EmbeddedSignInFlowHandleResponse> => {
   try {
+    // eslint-disable-next-line no-new
     new URL(url ?? baseUrl);
   } catch (error) {
     throw new AsgardeoAPIError(
@@ -51,17 +52,17 @@ const executeEmbeddedSignInFlow = async ({
   try {
     const response: Response = await fetch(url ?? `${baseUrl}/oauth2/authn`, {
       ...requestConfig,
-      method: requestConfig.method || 'POST',
+      body: JSON.stringify(payload),
       headers: {
-        'Content-Type': 'application/json',
         Accept: 'application/json',
+        'Content-Type': 'application/json',
         ...requestConfig.headers,
       },
-      body: JSON.stringify(payload),
+      method: requestConfig.method || 'POST',
     });
 
     if (!response.ok) {
-      const errorText = await response.text();
+      const errorText: string = await response.text();
 
       throw new AsgardeoAPIError(
         `Authorization request failed: ${errorText}`,

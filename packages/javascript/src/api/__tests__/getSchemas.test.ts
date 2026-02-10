@@ -17,9 +17,9 @@
  */
 
 import {describe, it, expect, vi, beforeEach} from 'vitest';
-import getSchemas from '../getSchemas';
 import AsgardeoAPIError from '../../errors/AsgardeoAPIError';
 import type {Schema} from '../../models/scim2-schema';
+import getSchemas from '../getSchemas';
 
 describe('getSchemas', (): void => {
   beforeEach((): void => {
@@ -33,19 +33,19 @@ describe('getSchemas', (): void => {
     ];
 
     global.fetch = vi.fn().mockResolvedValue({
-      ok: true,
       json: () => Promise.resolve(mockSchemas),
+      ok: true,
     });
 
-    const url = 'https://api.asgardeo.io/t/demo/scim2/Schemas';
-    const result = await getSchemas({url});
+    const url: string = 'https://api.asgardeo.io/t/demo/scim2/Schemas';
+    const result: Schema[] = await getSchemas({url});
 
     expect(fetch).toHaveBeenCalledWith(url, {
-      method: 'GET',
       headers: {
-        'Content-Type': 'application/json',
         Accept: 'application/json',
+        'Content-Type': 'application/json',
       },
+      method: 'GET',
     });
     expect(result).toEqual(mockSchemas);
   });
@@ -54,19 +54,19 @@ describe('getSchemas', (): void => {
     const mockSchemas: Schema[] = [{id: 'core', name: 'Core'} as any];
 
     global.fetch = vi.fn().mockResolvedValue({
-      ok: true,
       json: () => Promise.resolve(mockSchemas),
+      ok: true,
     });
 
-    const baseUrl = 'https://api.asgardeo.io/t/demo';
-    const result = await getSchemas({baseUrl});
+    const baseUrl: string = 'https://api.asgardeo.io/t/demo';
+    const result: Schema[] = await getSchemas({baseUrl});
 
     expect(fetch).toHaveBeenCalledWith(`${baseUrl}/scim2/Schemas`, {
-      method: 'GET',
       headers: {
-        'Content-Type': 'application/json',
         Accept: 'application/json',
+        'Content-Type': 'application/json',
       },
+      method: 'GET',
     });
     expect(result).toEqual(mockSchemas);
   });
@@ -74,33 +74,33 @@ describe('getSchemas', (): void => {
   it('should use custom fetcher when provided', async (): Promise<void> => {
     const mockSchemas: Schema[] = [{id: 'ext', name: 'Extension'} as any];
 
-    const customFetcher = vi.fn().mockResolvedValue({
-      ok: true,
+    const customFetcher: typeof fetch = vi.fn().mockResolvedValue({
       json: () => Promise.resolve(mockSchemas),
+      ok: true,
     });
 
-    const baseUrl = 'https://api.asgardeo.io/t/demo';
-    const result = await getSchemas({baseUrl, fetcher: customFetcher});
+    const baseUrl: string = 'https://api.asgardeo.io/t/demo';
+    const result: Schema[] = await getSchemas({baseUrl, fetcher: customFetcher});
 
     expect(result).toEqual(mockSchemas);
     expect(customFetcher).toHaveBeenCalledWith(
       `${baseUrl}/scim2/Schemas`,
       expect.objectContaining({
-        method: 'GET',
         headers: expect.objectContaining({
-          'Content-Type': 'application/json',
           Accept: 'application/json',
+          'Content-Type': 'application/json',
         }),
+        method: 'GET',
       }),
     );
   });
 
   it('should handle errors thrown directly by custom fetcher', async (): Promise<void> => {
-    const customFetcher = vi.fn().mockImplementation(() => {
+    const customFetcher: typeof fetch = vi.fn().mockImplementation(() => {
       throw new Error('Custom fetcher failure');
     });
 
-    const baseUrl = 'https://api.asgardeo.io/t/demo';
+    const baseUrl: string = 'https://api.asgardeo.io/t/demo';
 
     await expect(getSchemas({baseUrl, fetcher: customFetcher})).rejects.toThrow(
       'Network or parsing error: Custom fetcher failure',
@@ -113,15 +113,15 @@ describe('getSchemas', (): void => {
   });
 
   it('should throw AsgardeoAPIError when both url and baseUrl are undefined', async (): Promise<void> => {
-    await expect(getSchemas({url: undefined as any, baseUrl: undefined as any})).rejects.toThrow(AsgardeoAPIError);
-    await expect(getSchemas({url: undefined as any, baseUrl: undefined as any})).rejects.toThrow(
+    await expect(getSchemas({baseUrl: undefined as any, url: undefined as any})).rejects.toThrow(AsgardeoAPIError);
+    await expect(getSchemas({baseUrl: undefined as any, url: undefined as any})).rejects.toThrow(
       'Invalid URL provided.',
     );
   });
 
   it('should throw AsgardeoAPIError when both url and baseUrl are empty strings', async (): Promise<void> => {
-    await expect(getSchemas({url: '', baseUrl: ''})).rejects.toThrow(AsgardeoAPIError);
-    await expect(getSchemas({url: '', baseUrl: ''})).rejects.toThrow('Invalid URL provided.');
+    await expect(getSchemas({baseUrl: '', url: ''})).rejects.toThrow(AsgardeoAPIError);
+    await expect(getSchemas({baseUrl: '', url: ''})).rejects.toThrow('Invalid URL provided.');
   });
 
   it('should handle HTTP error responses', async (): Promise<void> => {
@@ -132,7 +132,7 @@ describe('getSchemas', (): void => {
       text: () => Promise.resolve('Server exploded'),
     });
 
-    const baseUrl = 'https://api.asgardeo.io/t/demo';
+    const baseUrl: string = 'https://api.asgardeo.io/t/demo';
 
     await expect(getSchemas({baseUrl})).rejects.toThrow(AsgardeoAPIError);
     await expect(getSchemas({baseUrl})).rejects.toThrow('Failed to fetch SCIM2 schemas: Server exploded');
@@ -141,7 +141,7 @@ describe('getSchemas', (): void => {
   it('should handle network or parsing errors', async (): Promise<void> => {
     global.fetch = vi.fn().mockRejectedValue(new Error('Network error'));
 
-    const baseUrl = 'https://api.asgardeo.io/t/demo';
+    const baseUrl: string = 'https://api.asgardeo.io/t/demo';
 
     await expect(getSchemas({baseUrl})).rejects.toThrow(AsgardeoAPIError);
     await expect(getSchemas({baseUrl})).rejects.toThrow('Network or parsing error: Network error');
@@ -150,7 +150,7 @@ describe('getSchemas', (): void => {
   it('should handle non-Error rejections gracefully', async (): Promise<void> => {
     global.fetch = vi.fn().mockRejectedValue('unexpected failure');
 
-    const baseUrl = 'https://api.asgardeo.io/t/demo';
+    const baseUrl: string = 'https://api.asgardeo.io/t/demo';
 
     await expect(getSchemas({baseUrl})).rejects.toThrow('Network or parsing error: Unknown error');
   });
@@ -159,13 +159,13 @@ describe('getSchemas', (): void => {
     const mockSchemas: Schema[] = [{id: 'x', name: 'X'} as any];
 
     global.fetch = vi.fn().mockResolvedValue({
-      ok: true,
       json: () => Promise.resolve(mockSchemas),
+      ok: true,
     });
 
-    const url = 'https://api.asgardeo.io/t/demo/scim2/Schemas';
-    const baseUrl = 'https://api.asgardeo.io/t/ignored';
-    await getSchemas({url, baseUrl});
+    const url: string = 'https://api.asgardeo.io/t/demo/scim2/Schemas';
+    const baseUrl: string = 'https://api.asgardeo.io/t/ignored';
+    await getSchemas({baseUrl, url});
 
     expect(fetch).toHaveBeenCalledWith(url, expect.any(Object));
   });
@@ -174,12 +174,12 @@ describe('getSchemas', (): void => {
     const mockSchemas: Schema[] = [{id: 'y', name: 'Y'} as any];
 
     global.fetch = vi.fn().mockResolvedValue({
-      ok: true,
       json: () => Promise.resolve(mockSchemas),
+      ok: true,
     });
 
-    const baseUrl = 'https://api.asgardeo.io/t/demo';
-    const customHeaders = {
+    const baseUrl: string = 'https://api.asgardeo.io/t/demo';
+    const customHeaders: Record<string, string> = {
       Authorization: 'Bearer token',
       'X-Custom-Header': 'custom-value',
     };
@@ -187,13 +187,13 @@ describe('getSchemas', (): void => {
     await getSchemas({baseUrl, headers: customHeaders});
 
     expect(fetch).toHaveBeenCalledWith(`${baseUrl}/scim2/Schemas`, {
-      method: 'GET',
       headers: {
-        'Content-Type': 'application/json',
         Accept: 'application/json',
         Authorization: 'Bearer token',
+        'Content-Type': 'application/json',
         'X-Custom-Header': 'custom-value',
       },
+      method: 'GET',
     });
   });
 });

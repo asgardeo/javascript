@@ -38,24 +38,6 @@ import {EmbeddedFlowExecuteRequestConfig as EmbeddedFlowExecuteRequestConfigV1} 
  * @experimental This API may change in future versions
  */
 export enum EmbeddedFlowComponentType {
-  /** Standard text input field for user data entry */
-  TextInput = 'TEXT_INPUT',
-
-  /** Password input field with masking for sensitive data */
-  PasswordInput = 'PASSWORD_INPUT',
-
-  /** Email input field with validation for email addresses. */
-  EmailInput = 'EMAIL_INPUT',
-
-  /** One-time password input field for multi-factor authentication */
-  OtpInput = 'OTP_INPUT',
-
-  /** Phone number input field with country code support */
-  PhoneInput = 'PHONE_INPUT',
-
-  /** Text display component for labels, headings, and messages */
-  Text = 'TEXT',
-
   /** Interactive action component (buttons, links) for user interactions */
   Action = 'ACTION',
 
@@ -65,8 +47,26 @@ export enum EmbeddedFlowComponentType {
   /** Divider component for visual separation of content */
   Divider = 'DIVIDER',
 
+  /** Email input field with validation for email addresses. */
+  EmailInput = 'EMAIL_INPUT',
+
+  /** One-time password input field for multi-factor authentication */
+  OtpInput = 'OTP_INPUT',
+
+  /** Password input field with masking for sensitive data */
+  PasswordInput = 'PASSWORD_INPUT',
+
+  /** Phone number input field with country code support */
+  PhoneInput = 'PHONE_INPUT',
+
   /** Select/dropdown input component for single choice selection */
   Select = 'SELECT',
+
+  /** Text display component for labels, headings, and messages */
+  Text = 'TEXT',
+
+  /** Standard text input field for user data entry */
+  TextInput = 'TEXT_INPUT',
 }
 
 /**
@@ -75,32 +75,32 @@ export enum EmbeddedFlowComponentType {
  * @experimental This API may change in future versions
  */
 export enum EmbeddedFlowActionVariant {
+  /** Danger action button for destructive operations */
+  Danger = 'DANGER',
+
+  /** Info action button for informational purposes */
+  Info = 'INFO',
+
+  /** Link-styled action button */
+  Link = 'LINK',
+
   /** Primary action button with highest visual emphasis */
   Primary = 'PRIMARY',
 
   /** Secondary action button with moderate visual emphasis */
   Secondary = 'SECONDARY',
 
-  /** Tertiary action button with minimal visual emphasis */
-  Tertiary = 'TERTIARY',
-
-  /** Danger action button for destructive operations */
-  Danger = 'DANGER',
+  /** Social media action button (e.g., Google, Facebook) */
+  Social = 'SOCIAL',
 
   /** Success action button for positive confirmations */
   Success = 'SUCCESS',
 
-  /** Info action button for informational purposes */
-  Info = 'INFO',
+  /** Tertiary action button with minimal visual emphasis */
+  Tertiary = 'TERTIARY',
 
   /** Warning action button for cautionary actions */
   Warning = 'WARNING',
-
-  /** Link-styled action button */
-  Link = 'LINK',
-
-  /** Social media action button (e.g., Google, Facebook) */
-  Social = 'SOCIAL',
 }
 
 /**
@@ -109,6 +109,18 @@ export enum EmbeddedFlowActionVariant {
  * @experimental This API may change in future versions
  */
 export enum EmbeddedFlowTextVariant {
+  /** Primary body text for main content */
+  Body1 = 'BODY_1',
+
+  /** Secondary body text for supplementary content */
+  Body2 = 'BODY_2',
+
+  /** Text styled for button labels */
+  ButtonText = 'BUTTON_TEXT',
+
+  /** Small caption text for annotations and descriptions */
+  Caption = 'CAPTION',
+
   /** Largest heading level for main titles */
   Heading1 = 'HEADING_1',
 
@@ -127,26 +139,14 @@ export enum EmbeddedFlowTextVariant {
   /** Smallest heading level for fine-grained sections */
   Heading6 = 'HEADING_6',
 
+  /** Overline text for labels and categories */
+  Overline = 'OVERLINE',
+
   /** Primary subtitle text with larger emphasis */
   Subtitle1 = 'SUBTITLE_1',
 
   /** Secondary subtitle text with moderate emphasis */
   Subtitle2 = 'SUBTITLE_2',
-
-  /** Primary body text for main content */
-  Body1 = 'BODY_1',
-
-  /** Secondary body text for supplementary content */
-  Body2 = 'BODY_2',
-
-  /** Small caption text for annotations and descriptions */
-  Caption = 'CAPTION',
-
-  /** Overline text for labels and categories */
-  Overline = 'OVERLINE',
-
-  /** Text styled for button labels */
-  ButtonText = 'BUTTON_TEXT',
 }
 
 /**
@@ -155,23 +155,23 @@ export enum EmbeddedFlowTextVariant {
  * @experimental This API may change in future versions
  */
 export enum EmbeddedFlowEventType {
-  /** Trigger an action or event */
-  Trigger = 'TRIGGER',
-
-  /** Submit form data to the server */
-  Submit = 'SUBMIT',
-
-  /** Navigate to a different flow step or page */
-  Navigate = 'NAVIGATE',
+  /** Navigate back to the previous step */
+  Back = 'BACK',
 
   /** Cancel the current operation */
   Cancel = 'CANCEL',
 
+  /** Navigate to a different flow step or page */
+  Navigate = 'NAVIGATE',
+
   /** Reset form fields to initial state */
   Reset = 'RESET',
 
-  /** Navigate back to the previous step */
-  Back = 'BACK',
+  /** Submit form data to the server */
+  Submit = 'SUBMIT',
+
+  /** Trigger an action or event */
+  Trigger = 'TRIGGER',
 }
 
 /**
@@ -199,43 +199,9 @@ export enum EmbeddedFlowEventType {
  */
 export interface EmbeddedFlowComponent {
   /**
-   * Unique identifier for the component
+   * Nested child components for container components like Block.
    */
-  id: string;
-
-  /**
-   * Reference identifier for the component (e.g., field name, action ref)
-   */
-  ref?: string;
-
-  /**
-   * Component type that determines rendering behavior
-   */
-  type: EmbeddedFlowComponentType | string;
-
-  /**
-   * Display label for the component (e.g., field label, button text).
-   * Supports internationalization and may contain template strings.
-   */
-  label?: string;
-
-  /**
-   * Placeholder text for input components.
-   * Provides helpful hints to users about expected input format.
-   */
-  placeholder?: string;
-
-  /**
-   * Indicates whether this component represents a required field.
-   * Used for form validation and UI indicators.
-   */
-  required?: boolean;
-
-  /**
-   * Component variant that affects visual styling and behavior.
-   * The value depends on the component type (e.g., button variants, text variants).
-   */
-  variant?: EmbeddedFlowActionVariant | EmbeddedFlowTextVariant | string;
+  components?: EmbeddedFlowComponent[];
 
   /**
    * Event type for action components that defines the interaction behavior.
@@ -244,15 +210,49 @@ export interface EmbeddedFlowComponent {
   eventType?: EmbeddedFlowEventType | string;
 
   /**
-   * Nested child components for container components like Block.
+   * Unique identifier for the component
    */
-  components?: EmbeddedFlowComponent[];
+  id: string;
+
+  /**
+   * Display label for the component (e.g., field label, button text).
+   * Supports internationalization and may contain template strings.
+   */
+  label?: string;
 
   /**
    * Options for SELECT components.
    * Each option can be a string value or an object with value and label.
    */
-  options?: Array<string | {value: string; label: string}>;
+  options?: Array<string | {label: string; value: string}>;
+
+  /**
+   * Placeholder text for input components.
+   * Provides helpful hints to users about expected input format.
+   */
+  placeholder?: string;
+
+  /**
+   * Reference identifier for the component (e.g., field name, action ref)
+   */
+  ref?: string;
+
+  /**
+   * Indicates whether this component represents a required field.
+   * Used for form validation and UI indicators.
+   */
+  required?: boolean;
+
+  /**
+   * Component type that determines rendering behavior
+   */
+  type: EmbeddedFlowComponentType | string;
+
+  /**
+   * Component variant that affects visual styling and behavior.
+   * The value depends on the component type (e.g., button variants, text variants).
+   */
+  variant?: EmbeddedFlowActionVariant | EmbeddedFlowTextVariant | string;
 }
 
 /**
@@ -314,31 +314,37 @@ export interface EmbeddedFlowComponent {
  */
 export interface EmbeddedFlowResponseData {
   /**
-   * Legacy input definitions for backward compatibility.
-   * @deprecated Use meta.components for new implementations
-   */
-  inputs?: {
-    /** Reference identifier for the input */
-    ref: string;
-    /** Field identifier used in form submission */
-    identifier: string;
-    /** Input type (TEXT_INPUT, PASSWORD_INPUT, etc.) */
-    type: string;
-    /** Whether this input is required for form submission */
-    required: boolean;
-  }[];
-
-  /**
    * Legacy action definitions for backward compatibility.
    * @deprecated Use meta.components for new implementations
    */
   actions?: {
-    /** Reference identifier for the action */
-    ref: string;
-    /** Next flow node to navigate to (optional) */
-    nextNode?: string;
     /** Event type for the action (SUBMIT, ACTIVATE, etc.) */
     eventType?: string;
+    /** Next flow node to navigate to (optional) */
+    nextNode?: string;
+    /** Reference identifier for the action */
+    ref: string;
+  }[];
+
+  /**
+   * Additional data dictionary for dynamic flow response properties.
+   * Can be used to pass custom data like passkey challenges, server alerts, etc.
+   */
+  additionalData?: Record<string, any>;
+
+  /**
+   * Legacy input definitions for backward compatibility.
+   * @deprecated Use meta.components for new implementations
+   */
+  inputs?: {
+    /** Field identifier used in form submission */
+    identifier: string;
+    /** Reference identifier for the input */
+    ref: string;
+    /** Whether this input is required for form submission */
+    required: boolean;
+    /** Input type (TEXT_INPUT, PASSWORD_INPUT, etc.) */
+    type: string;
   }[];
 
   /**
@@ -358,12 +364,6 @@ export interface EmbeddedFlowResponseData {
    * Optional redirect URL for flow completion or external authentication.
    */
   redirectURL?: string;
-
-  /**
-   * Additional data dictionary for dynamic flow response properties.
-   * Can be used to pass custom data like passkey challenges, server alerts, etc.
-   */
-  additionalData?: Record<string, any>;
 }
 
 /**

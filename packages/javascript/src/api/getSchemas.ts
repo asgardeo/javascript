@@ -16,17 +16,13 @@
  * under the License.
  */
 
-import {Schema} from '../models/scim2-schema';
 import AsgardeoAPIError from '../errors/AsgardeoAPIError';
+import {Schema} from '../models/scim2-schema';
 
 /**
  * Configuration for the getSchemas request
  */
 export interface GetSchemasConfig extends Omit<RequestInit, 'method'> {
-  /**
-   * The absolute API endpoint.
-   */
-  url?: string;
   /**
    * The base path of the API endpoint.
    */
@@ -36,6 +32,10 @@ export interface GetSchemasConfig extends Omit<RequestInit, 'method'> {
    * If not provided, native fetch will be used
    */
   fetcher?: (url: string, config: RequestInit) => Promise<Response>;
+  /**
+   * The absolute API endpoint.
+   */
+  url?: string;
 }
 
 /**
@@ -91,6 +91,7 @@ export interface GetSchemasConfig extends Omit<RequestInit, 'method'> {
  */
 const getSchemas = async ({url, baseUrl, fetcher, ...requestConfig}: GetSchemasConfig): Promise<Schema[]> => {
   try {
+    // eslint-disable-next-line no-new
     new URL(url ?? baseUrl);
   } catch (error) {
     throw new AsgardeoAPIError(
@@ -102,24 +103,24 @@ const getSchemas = async ({url, baseUrl, fetcher, ...requestConfig}: GetSchemasC
     );
   }
 
-  const fetchFn = fetcher || fetch;
+  const fetchFn: typeof fetch = fetcher || fetch;
   const resolvedUrl: string = url ?? `${baseUrl}/scim2/Schemas`;
 
   const requestInit: RequestInit = {
     ...requestConfig,
-    method: 'GET',
     headers: {
-      'Content-Type': 'application/json',
       Accept: 'application/json',
+      'Content-Type': 'application/json',
       ...requestConfig.headers,
     },
+    method: 'GET',
   };
 
   try {
     const response: Response = await fetchFn(resolvedUrl, requestInit);
 
     if (!response?.ok) {
-      const errorText = await response.text();
+      const errorText: string = await response.text();
 
       throw new AsgardeoAPIError(
         `Failed to fetch SCIM2 schemas: ${errorText}`,

@@ -46,9 +46,9 @@ export enum EmbeddedFlowResponseType {
 }
 
 export interface EmbeddedSignUpFlowData {
+  additionalData?: Record<string, any>;
   components?: EmbeddedFlowComponent[];
   redirectURL?: string;
-  additionalData?: Record<string, any>;
 }
 
 export interface EmbeddedFlowComponent {
@@ -149,16 +149,6 @@ export interface EmbeddedFlowExecuteErrorResponse {
   code: string;
 
   /**
-   * Brief error message describing what went wrong.
-   *
-   * This is typically a short, high-level description of the error.
-   * For more detailed information, refer to the `description` field.
-   *
-   * @example "Error while provisioning user."
-   */
-  message: string;
-
-  /**
    * Detailed error description with contextual information.
    *
    * This field usually contains more specific information about the error,
@@ -177,4 +167,14 @@ export interface EmbeddedFlowExecuteErrorResponse {
    * include other flow types (e.g., 'LOGIN', 'PASSWORD_RESET') in the future.
    */
   flowType: 'REGISTRATION';
+
+  /**
+   * Brief error message describing what went wrong.
+   *
+   * This is typically a short, high-level description of the error.
+   * For more detailed information, refer to the `description` field.
+   *
+   * @example "Error while provisioning user."
+   */
+  message: string;
 }

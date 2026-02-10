@@ -16,63 +16,64 @@
  * under the License.
  */
 
-import StorageManager from '../StorageManager';
+import {AuthenticationHelper} from './helpers';
 import {AuthClientConfig, StrictAuthClientConfig} from './models';
-import {ExtendedAuthorizeRequestUrlParams} from '../models/oauth-request';
-import {Crypto} from '../models/crypto';
-import {TokenResponse, IdToken, TokenExchangeRequestConfig} from '../models/token';
-import {OIDCEndpoints} from '../models/oidc-endpoints';
-import {Storage} from '../models/store';
-import ScopeConstants from '../constants/ScopeConstants';
 import OIDCDiscoveryConstants from '../constants/OIDCDiscoveryConstants';
 import OIDCRequestConstants from '../constants/OIDCRequestConstants';
-import {IsomorphicCrypto} from '../IsomorphicCrypto';
-import extractPkceStorageKeyFromState from '../utils/extractPkceStorageKeyFromState';
-import generateStateParamForRequestCorrelation from '../utils/generateStateParamForRequestCorrelation';
-import {AsgardeoAuthException} from '../errors/exception';
-import {AuthenticationHelper} from './helpers';
-import {SessionData, UserSession} from '../models/session';
-import {AuthorizeRequestUrlParams} from '../models/oauth-request';
-import {TemporaryStore} from '../models/store';
-import generatePkceStorageKey from '../utils/generatePkceStorageKey';
-import {OIDCDiscoveryApiResponse} from '../models/oidc-discovery';
-import getAuthorizeRequestUrlParams from '../utils/getAuthorizeRequestUrlParams';
 import PKCEConstants from '../constants/PKCEConstants';
+import {AsgardeoAuthException} from '../errors/exception';
+import {IsomorphicCrypto} from '../IsomorphicCrypto';
+import {Crypto} from '../models/crypto';
+import {ExtendedAuthorizeRequestUrlParams} from '../models/oauth-request';
+import {OIDCDiscoveryApiResponse} from '../models/oidc-discovery';
+import {OIDCEndpoints} from '../models/oidc-endpoints';
+import {SessionData, UserSession} from '../models/session';
+import {Storage, TemporaryStore} from '../models/store';
+import {TokenResponse, IdToken, TokenExchangeRequestConfig} from '../models/token';
 import {User} from '../models/user';
+import StorageManager from '../StorageManager';
+import extractPkceStorageKeyFromState from '../utils/extractPkceStorageKeyFromState';
+import generatePkceStorageKey from '../utils/generatePkceStorageKey';
+import getAuthorizeRequestUrlParams from '../utils/getAuthorizeRequestUrlParams';
 import processOpenIDScopes from '../utils/processOpenIDScopes';
 
 /**
  * Default configurations.
  */
 const DefaultConfig: Partial<AuthClientConfig<unknown>> = {
-  tokenValidation: {
-    idToken: {
-      validate: true,
-      validateIssuer: true,
-      clockTolerance: 300,
-    },
-  },
   enablePKCE: true,
   responseMode: 'query',
   sendCookiesInRequests: true,
+  tokenValidation: {
+    idToken: {
+      clockTolerance: 300,
+      validate: true,
+      validateIssuer: true,
+    },
+  },
 };
 
 /**
  * This class provides the necessary methods needed to implement authentication.
  */
 export class AsgardeoAuthClient<T> {
-  private _storageManager!: StorageManager<T>;
-  private _config: () => Promise<AuthClientConfig>;
-  private _oidcProviderMetaData: () => Promise<OIDCDiscoveryApiResponse>;
-  private _authenticationHelper: AuthenticationHelper<T>;
-  private _cryptoUtils: Crypto;
-  private _cryptoHelper: IsomorphicCrypto;
+  private storageManager!: StorageManager<T>;
 
-  private static _instanceID: number;
+  private configProvider: () => Promise<AuthClientConfig>;
+
+  private oidcProviderMetaDataProvider: () => Promise<OIDCDiscoveryApiResponse>;
+
+  private authHelper: AuthenticationHelper<T>;
+
+  private cryptoUtils: Crypto;
+
+  private cryptoHelper: IsomorphicCrypto;
+
+  private static instanceIdValue: number;
 
   // FIXME: Validate this.
   // Ref: https://github.com/asgardeo/asgardeo-auth-js-core/pull/205
-  static _authenticationHelper: any;
+  static authHelperInstance: any;
 
   /**
    * This is the constructor method that returns an instance of the .
@@ -89,7 +90,9 @@ export class AsgardeoAuthClient<T> {
    *
    * @preserve
    */
-  public constructor() {}
+  public constructor() {
+    // intentionally empty
+  }
 
   /**
    *
@@ -113,38 +116,39 @@ export class AsgardeoAuthClient<T> {
   public async initialize(
     config: AuthClientConfig<T>,
     store: Storage,
-    cryptoUtils: Crypto,
+    inputCryptoUtils: Crypto,
     instanceID?: number,
   ): Promise<void> {
-    const clientId: string = config.clientId;
+    const {clientId} = config;
 
-    if (!AsgardeoAuthClient._instanceID) {
-      AsgardeoAuthClient._instanceID = 0;
+    if (!AsgardeoAuthClient.instanceIdValue) {
+      AsgardeoAuthClient.instanceIdValue = 0;
     } else {
-      AsgardeoAuthClient._instanceID += 1;
+      AsgardeoAuthClient.instanceIdValue += 1;
     }
 
     if (instanceID) {
-      AsgardeoAuthClient._instanceID = instanceID;
+      AsgardeoAuthClient.instanceIdValue = instanceID;
     }
 
     if (!clientId) {
-      this._storageManager = new StorageManager<T>(`instance_${AsgardeoAuthClient._instanceID}`, store);
+      this.storageManager = new StorageManager<T>(`instance_${AsgardeoAuthClient.instanceIdValue}`, store);
     } else {
-      this._storageManager = new StorageManager<T>(`instance_${AsgardeoAuthClient._instanceID}-${clientId}`, store);
+      this.storageManager = new StorageManager<T>(`instance_${AsgardeoAuthClient.instanceIdValue}-${clientId}`, store);
     }
 
-    this._cryptoUtils = cryptoUtils;
-    this._cryptoHelper = new IsomorphicCrypto(cryptoUtils);
-    this._authenticationHelper = new AuthenticationHelper(this._storageManager, this._cryptoHelper);
-    this._config = async () => await this._storageManager.getConfigData();
-    this._oidcProviderMetaData = async () => await this._storageManager.loadOpenIDProviderConfiguration();
+    this.cryptoUtils = inputCryptoUtils;
+    this.cryptoHelper = new IsomorphicCrypto(inputCryptoUtils);
+    this.authHelper = new AuthenticationHelper(this.storageManager, this.cryptoHelper);
+    this.configProvider = async (): Promise<AuthClientConfig> => this.storageManager.getConfigData();
+    this.oidcProviderMetaDataProvider = async (): Promise<OIDCDiscoveryApiResponse> =>
+      this.storageManager.loadOpenIDProviderConfiguration();
 
     // FIXME: Validate this.
     // Ref: https://github.com/asgardeo/asgardeo-auth-js-core/pull/205
-    AsgardeoAuthClient._authenticationHelper = this._authenticationHelper;
+    AsgardeoAuthClient.authHelperInstance = this.authHelper;
 
-    await this._storageManager.setConfigData({
+    await this.storageManager.setConfigData({
       ...DefaultConfig,
       ...config,
       scope: processOpenIDScopes(config.scopes),
@@ -166,7 +170,7 @@ export class AsgardeoAuthClient<T> {
    * @preserve
    */
   public getStorageManager(): StorageManager<T> {
-    return this._storageManager;
+    return this.storageManager;
   }
 
   /**
@@ -181,8 +185,9 @@ export class AsgardeoAuthClient<T> {
    *
    * @preserve
    */
+  // eslint-disable-next-line class-methods-use-this
   public getInstanceId(): number {
-    return AsgardeoAuthClient._instanceID;
+    return AsgardeoAuthClient.instanceIdValue;
   }
 
   /**
@@ -213,8 +218,8 @@ export class AsgardeoAuthClient<T> {
 
     delete authRequestConfig?.forceInit;
 
-    const __TODO__ = async () => {
-      const authorizeEndpoint: string = (await this._storageManager.getOIDCProviderMetaDataParameter(
+    const buildSignInUrl = async (): Promise<string> => {
+      const authorizeEndpoint: string = (await this.storageManager.getOIDCProviderMetaDataParameter(
         OIDCDiscoveryConstants.Storage.StorageKeys.Endpoints.AUTHORIZATION as keyof OIDCDiscoveryApiResponse,
       )) as string;
 
@@ -228,17 +233,17 @@ export class AsgardeoAuthClient<T> {
       }
 
       const authorizeRequest: URL = new URL(authorizeEndpoint);
-      const configData: StrictAuthClientConfig = await this._config();
-      const tempStore: TemporaryStore = await this._storageManager.getTemporaryData(userId);
+      const configData: StrictAuthClientConfig = await this.configProvider();
+      const tempStore: TemporaryStore = await this.storageManager.getTemporaryData(userId);
       const pkceKey: string = await generatePkceStorageKey(tempStore);
 
       let codeVerifier: string | undefined;
       let codeChallenge: string | undefined;
 
       if (configData.enablePKCE) {
-        codeVerifier = this._cryptoHelper?.getCodeVerifier();
-        codeChallenge = this._cryptoHelper?.getCodeChallenge(codeVerifier);
-        await this._storageManager.setTemporaryDataParameter(pkceKey, codeVerifier, userId);
+        codeVerifier = this.cryptoHelper?.getCodeVerifier();
+        codeChallenge = this.cryptoHelper?.getCodeChallenge(codeVerifier);
+        await this.storageManager.setTemporaryDataParameter(pkceKey, codeVerifier, userId);
       }
 
       if (authRequestConfig['client_secret']) {
@@ -247,36 +252,34 @@ export class AsgardeoAuthClient<T> {
 
       const authorizeRequestParams: Map<string, string> = getAuthorizeRequestUrlParams(
         {
-          redirectUri: configData.afterSignInUrl,
           clientId: configData.clientId,
-          scopes: processOpenIDScopes(configData.scopes),
-          responseMode: configData.responseMode,
-          codeChallengeMethod: PKCEConstants.DEFAULT_CODE_CHALLENGE_METHOD,
           codeChallenge,
+          codeChallengeMethod: PKCEConstants.DEFAULT_CODE_CHALLENGE_METHOD,
           prompt: configData.prompt,
+          redirectUri: configData.afterSignInUrl,
+          responseMode: configData.responseMode,
+          scopes: processOpenIDScopes(configData.scopes),
         },
         {key: pkceKey},
         authRequestConfig,
       );
 
-      for (const [key, value] of authorizeRequestParams.entries()) {
-        authorizeRequest.searchParams.append(key, value);
-      }
+      Array.from(authorizeRequestParams.entries()).forEach(([paramKey, paramValue]: [string, string]) => {
+        authorizeRequest.searchParams.append(paramKey, paramValue);
+      });
 
       return authorizeRequest.toString();
     };
 
     if (
-      await this._storageManager.getTemporaryDataParameter(
+      await this.storageManager.getTemporaryDataParameter(
         OIDCDiscoveryConstants.Storage.StorageKeys.OPENID_PROVIDER_CONFIG_INITIATED,
       )
     ) {
-      return __TODO__();
+      return buildSignInUrl();
     }
 
-    return this.loadOpenIDProviderConfiguration(requestConfig?.forceInit as boolean).then(() => {
-      return __TODO__();
-    });
+    return this.loadOpenIDProviderConfiguration(requestConfig?.forceInit as boolean).then(() => buildSignInUrl());
   }
 
   /**
@@ -313,9 +316,9 @@ export class AsgardeoAuthClient<T> {
       params: Record<string, unknown>;
     },
   ): Promise<TokenResponse> {
-    const __TODO__ = async () => {
-      const tokenEndpoint: string | undefined = (await this._oidcProviderMetaData()).token_endpoint;
-      const configData: StrictAuthClientConfig = await this._config();
+    const performTokenRequest = async (): Promise<TokenResponse> => {
+      const tokenEndpoint: string | undefined = (await this.oidcProviderMetaDataProvider()).token_endpoint;
+      const configData: StrictAuthClientConfig = await this.configProvider();
 
       if (!tokenEndpoint || tokenEndpoint.trim().length === 0) {
         throw new AsgardeoAuthException(
@@ -326,12 +329,13 @@ export class AsgardeoAuthClient<T> {
         );
       }
 
-      sessionState &&
-        (await this._storageManager.setSessionDataParameter(
+      if (sessionState) {
+        await this.storageManager.setSessionDataParameter(
           OIDCRequestConstants.Params.SESSION_STATE as keyof SessionData,
           sessionState,
           userId,
-        ));
+        );
+      }
 
       const body: URLSearchParams = new URLSearchParams();
 
@@ -357,17 +361,17 @@ export class AsgardeoAuthClient<T> {
       if (configData.enablePKCE) {
         body.set(
           'code_verifier',
-          `${await this._storageManager.getTemporaryDataParameter(extractPkceStorageKeyFromState(state), userId)}`,
+          `${await this.storageManager.getTemporaryDataParameter(extractPkceStorageKeyFromState(state), userId)}`,
         );
 
-        await this._storageManager.removeTemporaryDataParameter(extractPkceStorageKeyFromState(state), userId);
+        await this.storageManager.removeTemporaryDataParameter(extractPkceStorageKeyFromState(state), userId);
       }
 
       let tokenResponse: Response;
 
       try {
         tokenResponse = await fetch(tokenEndpoint, {
-          body: body,
+          body,
           credentials: configData.sendCookiesInRequests ? 'include' : 'same-origin',
           headers: {
             Accept: 'application/json',
@@ -391,35 +395,33 @@ export class AsgardeoAuthClient<T> {
         );
       }
 
-      return await this._authenticationHelper.handleTokenResponse(tokenResponse, userId);
+      return this.authHelper.handleTokenResponse(tokenResponse, userId);
     };
 
     if (
-      await this._storageManager.getTemporaryDataParameter(
+      await this.storageManager.getTemporaryDataParameter(
         OIDCDiscoveryConstants.Storage.StorageKeys.OPENID_PROVIDER_CONFIG_INITIATED,
       )
     ) {
-      return __TODO__();
+      return performTokenRequest();
     }
 
-    return this.loadOpenIDProviderConfiguration(false).then(() => {
-      return __TODO__();
-    });
+    return this.loadOpenIDProviderConfiguration(false).then(() => performTokenRequest());
   }
 
   public async loadOpenIDProviderConfiguration(forceInit: boolean): Promise<void> {
-    const configData: StrictAuthClientConfig = await this._config();
+    const configData: StrictAuthClientConfig = await this.configProvider();
 
     if (
       !forceInit &&
-      (await this._storageManager.getTemporaryDataParameter(
+      (await this.storageManager.getTemporaryDataParameter(
         OIDCDiscoveryConstants.Storage.StorageKeys.OPENID_PROVIDER_CONFIG_INITIATED,
       ))
     ) {
       return Promise.resolve();
     }
 
-    const wellKnownEndpoint: string = (configData as any).wellKnownEndpoint;
+    const {wellKnownEndpoint} = configData as any;
 
     if (wellKnownEndpoint) {
       let response: Response;
@@ -437,20 +439,17 @@ export class AsgardeoAuthClient<T> {
         );
       }
 
-      await this._storageManager.setOIDCProviderMetaData(
-        await this._authenticationHelper.resolveEndpoints(await response.json()),
-      );
-      await this._storageManager.setTemporaryDataParameter(
+      await this.storageManager.setOIDCProviderMetaData(await this.authHelper.resolveEndpoints(await response.json()));
+      await this.storageManager.setTemporaryDataParameter(
         OIDCDiscoveryConstants.Storage.StorageKeys.OPENID_PROVIDER_CONFIG_INITIATED,
         true,
       );
 
       return Promise.resolve();
-    } else if ((configData as any).baseUrl) {
+    }
+    if ((configData as any).baseUrl) {
       try {
-        await this._storageManager.setOIDCProviderMetaData(
-          await this._authenticationHelper.resolveEndpointsByBaseURL(),
-        );
+        await this.storageManager.setOIDCProviderMetaData(await this.authHelper.resolveEndpointsByBaseURL());
       } catch (error: any) {
         throw new AsgardeoAuthException(
           'JS-AUTH_CORE-GOPMD-IV02',
@@ -458,22 +457,21 @@ export class AsgardeoAuthClient<T> {
           error ?? 'Resolving endpoints by base url failed.',
         );
       }
-      await this._storageManager.setTemporaryDataParameter(
-        OIDCDiscoveryConstants.Storage.StorageKeys.OPENID_PROVIDER_CONFIG_INITIATED,
-        true,
-      );
-
-      return Promise.resolve();
-    } else {
-      await this._storageManager.setOIDCProviderMetaData(await this._authenticationHelper.resolveEndpointsExplicitly());
-
-      await this._storageManager.setTemporaryDataParameter(
+      await this.storageManager.setTemporaryDataParameter(
         OIDCDiscoveryConstants.Storage.StorageKeys.OPENID_PROVIDER_CONFIG_INITIATED,
         true,
       );
 
       return Promise.resolve();
     }
+    await this.storageManager.setOIDCProviderMetaData(await this.authHelper.resolveEndpointsExplicitly());
+
+    await this.storageManager.setTemporaryDataParameter(
+      OIDCDiscoveryConstants.Storage.StorageKeys.OPENID_PROVIDER_CONFIG_INITIATED,
+      true,
+    );
+
+    return Promise.resolve();
   }
 
   /**
@@ -496,8 +494,8 @@ export class AsgardeoAuthClient<T> {
    * @preserve
    */
   public async getSignOutUrl(userId?: string): Promise<string> {
-    const logoutEndpoint: string | undefined = (await this._oidcProviderMetaData())?.end_session_endpoint;
-    const configData: StrictAuthClientConfig = await this._config();
+    const logoutEndpoint: string | undefined = (await this.oidcProviderMetaDataProvider())?.end_session_endpoint;
+    const configData: StrictAuthClientConfig = await this.configProvider();
 
     if (!logoutEndpoint || logoutEndpoint.trim().length === 0) {
       throw new AsgardeoAuthException(
@@ -523,7 +521,7 @@ export class AsgardeoAuthClient<T> {
     queryParams.set('post_logout_redirect_uri', callbackURL);
 
     if (configData.sendIdTokenInLogoutRequest) {
-      const idToken: string = (await this._storageManager.getSessionData(userId))?.id_token;
+      const idToken: string = (await this.storageManager.getSessionData(userId))?.id_token;
 
       if (!idToken || idToken.trim().length === 0) {
         throw new AsgardeoAuthException(
@@ -557,7 +555,7 @@ export class AsgardeoAuthClient<T> {
    * @preserve
    */
   public async getOpenIDProviderEndpoints(): Promise<Partial<OIDCEndpoints>> {
-    const oidcProviderMetaData: OIDCDiscoveryApiResponse = await this._oidcProviderMetaData();
+    const oidcProviderMetaData: OIDCDiscoveryApiResponse = await this.oidcProviderMetaDataProvider();
 
     return {
       authorizationEndpoint: oidcProviderMetaData.authorization_endpoint ?? '',
@@ -584,8 +582,8 @@ export class AsgardeoAuthClient<T> {
    * const decodedToken = await auth.decodeJwtToken(token);
    * ```
    */
-  public async decodeJwtToken<T = Record<string, unknown>>(token: string): Promise<T> {
-    return this._cryptoHelper.decodeJwtToken(token);
+  public async decodeJwtToken<U = Record<string, unknown>>(token: string): Promise<U> {
+    return this.cryptoHelper.decodeJwtToken(token);
   }
 
   /**
@@ -606,8 +604,8 @@ export class AsgardeoAuthClient<T> {
    * @preserve
    */
   public async getDecodedIdToken(userId?: string, idToken?: string): Promise<IdToken> {
-    const _idToken: string = (await this._storageManager.getSessionData(userId)).id_token;
-    const payload: IdToken = this._cryptoHelper.decodeJwtToken<IdToken>(_idToken ?? idToken);
+    const storedIdToken: string = (await this.storageManager.getSessionData(userId)).id_token;
+    const payload: IdToken = this.cryptoHelper.decodeJwtToken<IdToken>(storedIdToken ?? idToken);
 
     return payload;
   }
@@ -630,7 +628,7 @@ export class AsgardeoAuthClient<T> {
    * @preserve
    */
   public async getIdToken(userId?: string): Promise<string> {
-    return (await this._storageManager.getSessionData(userId)).id_token;
+    return (await this.storageManager.getSessionData(userId)).id_token;
   }
 
   /**
@@ -651,8 +649,8 @@ export class AsgardeoAuthClient<T> {
    * @preserve
    */
   public async getUser(userId?: string): Promise<User> {
-    const sessionData: SessionData = await this._storageManager.getSessionData(userId);
-    const authenticatedUser: User = this._authenticationHelper.getAuthenticatedUserInfo(sessionData?.id_token);
+    const sessionData: SessionData = await this.storageManager.getSessionData(userId);
+    const authenticatedUser: User = this.authHelper.getAuthenticatedUserInfo(sessionData?.id_token);
 
     Object.keys(authenticatedUser).forEach((key: string) => {
       if (authenticatedUser[key] === undefined || authenticatedUser[key] === '' || authenticatedUser[key] === null) {
@@ -664,7 +662,7 @@ export class AsgardeoAuthClient<T> {
   }
 
   public async getUserSession(userId?: string): Promise<UserSession> {
-    const sessionData: SessionData = await this._storageManager.getSessionData(userId);
+    const sessionData: SessionData = await this.storageManager.getSessionData(userId);
 
     return {
       scopes: sessionData?.scope?.split(' '),
@@ -687,7 +685,7 @@ export class AsgardeoAuthClient<T> {
    * @preserve
    */
   public async getCrypto(): Promise<IsomorphicCrypto> {
-    return this._cryptoHelper;
+    return this.cryptoHelper;
   }
 
   /**
@@ -714,8 +712,8 @@ export class AsgardeoAuthClient<T> {
    * @preserve
    */
   public async revokeAccessToken(userId?: string): Promise<Response> {
-    const revokeTokenEndpoint: string | undefined = (await this._oidcProviderMetaData()).revocation_endpoint;
-    const configData: StrictAuthClientConfig = await this._config();
+    const revokeTokenEndpoint: string | undefined = (await this.oidcProviderMetaDataProvider()).revocation_endpoint;
+    const configData: StrictAuthClientConfig = await this.configProvider();
 
     if (!revokeTokenEndpoint || revokeTokenEndpoint.trim().length === 0) {
       throw new AsgardeoAuthException(
@@ -729,7 +727,7 @@ export class AsgardeoAuthClient<T> {
     const body: string[] = [];
 
     body.push(`client_id=${configData.clientId}`);
-    body.push(`token=${(await this._storageManager.getSessionData(userId)).access_token}`);
+    body.push(`token=${(await this.storageManager.getSessionData(userId)).access_token}`);
     body.push('token_type_hint=access_token');
 
     if (configData.clientSecret && configData.clientSecret.trim().length > 0) {
@@ -764,7 +762,7 @@ export class AsgardeoAuthClient<T> {
       );
     }
 
-    this._authenticationHelper.clearSession(userId);
+    this.authHelper.clearSession(userId);
 
     return Promise.resolve(response);
   }
@@ -792,9 +790,9 @@ export class AsgardeoAuthClient<T> {
    * @preserve
    */
   public async refreshAccessToken(userId?: string): Promise<TokenResponse> {
-    const tokenEndpoint: string | undefined = (await this._oidcProviderMetaData()).token_endpoint;
-    const configData: StrictAuthClientConfig = await this._config();
-    const sessionData: SessionData = await this._storageManager.getSessionData(userId);
+    const tokenEndpoint: string | undefined = (await this.oidcProviderMetaDataProvider()).token_endpoint;
+    const configData: StrictAuthClientConfig = await this.configProvider();
+    const sessionData: SessionData = await this.storageManager.getSessionData(userId);
 
     if (!sessionData.refresh_token) {
       throw new AsgardeoAuthException(
@@ -852,7 +850,7 @@ export class AsgardeoAuthClient<T> {
       );
     }
 
-    return this._authenticationHelper.handleTokenResponse(tokenResponse, userId);
+    return this.authHelper.handleTokenResponse(tokenResponse, userId);
   }
 
   /**
@@ -873,7 +871,7 @@ export class AsgardeoAuthClient<T> {
    * @preserve
    */
   public async getAccessToken(userId?: string): Promise<string> {
-    return (await this._storageManager.getSessionData(userId))?.access_token;
+    return (await this.storageManager.getSessionData(userId))?.access_token;
   }
 
   /**
@@ -915,8 +913,8 @@ export class AsgardeoAuthClient<T> {
    * @preserve
    */
   public async exchangeToken(config: TokenExchangeRequestConfig, userId?: string): Promise<TokenResponse | Response> {
-    const oidcProviderMetadata: OIDCDiscoveryApiResponse = await this._oidcProviderMetaData();
-    const configData: StrictAuthClientConfig = await this._config();
+    const oidcProviderMetadata: OIDCDiscoveryApiResponse = await this.oidcProviderMetaDataProvider();
+    const configData: StrictAuthClientConfig = await this.configProvider();
 
     let tokenEndpoint: string | undefined;
 
@@ -937,10 +935,7 @@ export class AsgardeoAuthClient<T> {
 
     const data: string[] = await Promise.all(
       Object.entries(config.data).map(async ([key, value]: [key: string, value: any]) => {
-        const newValue: string = await this._authenticationHelper.replaceCustomGrantTemplateTags(
-          value as string,
-          userId,
-        );
+        const newValue: string = await this.authHelper.replaceCustomGrantTemplateTags(value as string, userId);
 
         return `${key}=${newValue}`;
       }),
@@ -954,7 +949,7 @@ export class AsgardeoAuthClient<T> {
     if (config.attachToken) {
       requestHeaders = {
         ...requestHeaders,
-        Authorization: `Bearer ${(await this._storageManager.getSessionData(userId)).access_token}`,
+        Authorization: `Bearer ${(await this.storageManager.getSessionData(userId)).access_token}`,
       };
     }
 
@@ -986,10 +981,9 @@ export class AsgardeoAuthClient<T> {
     }
 
     if (config.returnsSession) {
-      return this._authenticationHelper.handleTokenResponse(response, userId);
-    } else {
-      return Promise.resolve((await response.json()) as TokenResponse | Response);
+      return this.authHelper.handleTokenResponse(response, userId);
     }
+    return Promise.resolve((await response.json()) as TokenResponse | Response);
   }
 
   /**
@@ -1013,10 +1007,10 @@ export class AsgardeoAuthClient<T> {
     const isAccessTokenAvailable: boolean = Boolean(await this.getAccessToken(userId));
 
     // Check if the access token is expired.
-    const createdAt: number = (await this._storageManager.getSessionData(userId))?.created_at;
+    const createdAt: number = (await this.storageManager.getSessionData(userId))?.created_at;
 
     // Get the expires in value.
-    const expiresInString: string = (await this._storageManager.getSessionData(userId))?.expires_in;
+    const expiresInString: string = (await this.storageManager.getSessionData(userId))?.expires_in;
 
     // If the expires in value is not available, the token is invalid and the user is not authenticated.
     if (!expiresInString) {
@@ -1024,7 +1018,7 @@ export class AsgardeoAuthClient<T> {
     }
 
     // Convert to milliseconds.
-    const expiresIn: number = parseInt(expiresInString) * 1000;
+    const expiresIn: number = parseInt(expiresInString, 10) * 1000;
     const currentTime: number = new Date().getTime();
     const isAccessTokenValid: boolean = createdAt + expiresIn > currentTime;
 
@@ -1052,7 +1046,7 @@ export class AsgardeoAuthClient<T> {
    * @preserve
    */
   public async getPKCECode(state: string, userId?: string): Promise<string> {
-    return (await this._storageManager.getTemporaryDataParameter(
+    return (await this.storageManager.getTemporaryDataParameter(
       extractPkceStorageKeyFromState(state),
       userId,
     )) as string;
@@ -1076,7 +1070,7 @@ export class AsgardeoAuthClient<T> {
    * @preserve
    */
   public async setPKCECode(pkce: string, state: string, userId?: string): Promise<void> {
-    return await this._storageManager.setTemporaryDataParameter(extractPkceStorageKeyFromState(state), pkce, userId);
+    return this.storageManager.setTemporaryDataParameter(extractPkceStorageKeyFromState(state), pkce, userId);
   }
 
   /**
@@ -1143,11 +1137,11 @@ export class AsgardeoAuthClient<T> {
    * @preserve
    */
   public async reInitialize(config: Partial<AuthClientConfig<T>>): Promise<void> {
-    await this._storageManager.setConfigData(config);
+    await this.storageManager.setConfigData(config);
     await this.loadOpenIDProviderConfiguration(true);
   }
 
   public static async clearSession(userId?: string): Promise<void> {
-    await this._authenticationHelper.clearSession(userId);
+    await this.authHelperInstance.clearSession(userId);
   }
 }

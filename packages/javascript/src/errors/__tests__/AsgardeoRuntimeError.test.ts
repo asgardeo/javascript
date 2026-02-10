@@ -16,16 +16,16 @@
  * under the License.
  */
 
-import AsgardeoRuntimeError from '../AsgardeoRuntimeError';
 import AsgardeoError from '../AsgardeoError';
+import AsgardeoRuntimeError from '../AsgardeoRuntimeError';
 
 describe('AsgardeoRuntimeError', (): void => {
   it('should create a runtime error with details', (): void => {
     const message: string = 'Configuration Error';
     const code: string = 'CONFIG_ERROR';
     const origin: string = 'react';
-    const details = {invalidField: 'redirectUri', value: null};
-    const error = new AsgardeoRuntimeError(message, code, origin, details);
+    const details: {invalidField: string; value: null} = {invalidField: 'redirectUri', value: null};
+    const error: AsgardeoRuntimeError = new AsgardeoRuntimeError(message, code, origin, details);
 
     expect(error.message).toBe(message);
     expect(error.code).toBe(code);
@@ -39,7 +39,7 @@ describe('AsgardeoRuntimeError', (): void => {
     const message: string = 'Unknown Runtime Error';
     const code: string = 'RUNTIME_ERROR';
     const origin: string = 'javascript';
-    const error = new AsgardeoRuntimeError(message, code, origin);
+    const error: AsgardeoRuntimeError = new AsgardeoRuntimeError(message, code, origin);
 
     expect(error.message).toBe(message);
     expect(error.details).toBeUndefined();
@@ -50,7 +50,7 @@ describe('AsgardeoRuntimeError', (): void => {
     const message: string = 'Test Error';
     const code: string = 'TEST_ERROR';
     const origin: string = 'react';
-    const error = new AsgardeoRuntimeError(message, code, origin);
+    const error: AsgardeoRuntimeError = new AsgardeoRuntimeError(message, code, origin);
 
     expect(error.name).toBe('AsgardeoRuntimeError');
     expect(error).toBeInstanceOf(Error);
@@ -62,12 +62,12 @@ describe('AsgardeoRuntimeError', (): void => {
     const message: string = 'Validation Error';
     const code: string = 'VALIDATION_ERROR';
     const origin: string = 'react';
-    const details = {reason: 'invalid_input', field: 'email'};
-    const error = new AsgardeoRuntimeError(message, code, origin, details);
+    const details: {field: string; reason: string} = {field: 'email', reason: 'invalid_input'};
+    const error: AsgardeoRuntimeError = new AsgardeoRuntimeError(message, code, origin, details);
 
     const expected: string =
       '[AsgardeoRuntimeError] (code="VALIDATION_ERROR")\n' +
-      'Details: {\n  "reason": "invalid_input",\n  "field": "email"\n}\n' +
+      'Details: {\n  "field": "email",\n  "reason": "invalid_input"\n}\n' +
       'Message: Validation Error';
 
     expect(error.toString()).toBe(expected);
@@ -77,9 +77,9 @@ describe('AsgardeoRuntimeError', (): void => {
     const message: string = 'Test Error';
     const code: string = 'TEST_ERROR';
     const origin: string = 'react';
-    const error = new AsgardeoRuntimeError(message, code, origin);
+    const error: AsgardeoRuntimeError = new AsgardeoRuntimeError(message, code, origin);
 
-    const expected: string = '[AsgardeoRuntimeError] (code="TEST_ERROR")\n' + 'Message: Test Error';
+    const expected: string = '[AsgardeoRuntimeError] (code="TEST_ERROR")\nMessage: Test Error';
 
     expect(error.toString()).toBe(expected);
   });
@@ -96,7 +96,7 @@ describe('AsgardeoRuntimeError', (): void => {
     const message: string = 'Test message';
     const code: string = 'TEST_ERROR';
     const origin: string = 'javascript';
-    const error = new AsgardeoRuntimeError(message, code, origin);
+    const error: AsgardeoRuntimeError = new AsgardeoRuntimeError(message, code, origin);
 
     expect(error.stack).toBeDefined();
     expect(String(error.stack)).toContain('Test message');

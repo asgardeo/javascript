@@ -18,13 +18,13 @@
 
 export interface SessionData {
   access_token: string;
-  id_token: string;
-  expires_in: string;
-  scope: string;
-  refresh_token?: string;
-  token_type: string;
-  session_state: string;
   created_at: number;
+  expires_in: string;
+  id_token: string;
+  refresh_token?: string;
+  scope: string;
+  session_state: string;
+  token_type: string;
 }
 
 export interface UserSession {

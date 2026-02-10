@@ -16,12 +16,12 @@
  * under the License.
  */
 
+import AsgardeoAPIError from '../../errors/AsgardeoAPIError';
 import {EmbeddedFlowExecuteRequestConfig as EmbeddedFlowExecuteRequestConfigV2} from '../../models/v2/embedded-flow-v2';
 import {
   EmbeddedSignInFlowResponse as EmbeddedSignInFlowResponseV2,
   EmbeddedSignInFlowStatus as EmbeddedSignInFlowStatusV2,
 } from '../../models/v2/embedded-signin-flow-v2';
-import AsgardeoAPIError from '../../errors/AsgardeoAPIError';
 
 const executeEmbeddedSignInFlowV2 = async ({
   url,
@@ -40,12 +40,12 @@ const executeEmbeddedSignInFlowV2 = async ({
     );
   }
 
-  let endpoint: string = url ?? `${baseUrl}/flow/execute`;
+  const endpoint: string = url ?? `${baseUrl}/flow/execute`;
 
   // Strip any user-provided 'verbose' parameter as it should only be used internally
   const cleanPayload: typeof payload =
     typeof payload === 'object' && payload !== null
-      ? Object.fromEntries(Object.entries(payload).filter(([key]) => key !== 'verbose'))
+      ? Object.fromEntries(Object.entries(payload).filter(([key]: [string, unknown]) => key !== 'verbose'))
       : payload;
 
   // `verbose: true` is required to get the `meta` field in the response that includes component details.
@@ -69,17 +69,17 @@ const executeEmbeddedSignInFlowV2 = async ({
 
   const response: Response = await fetch(endpoint, {
     ...requestConfig,
-    method: requestConfig.method || 'POST',
+    body: JSON.stringify(requestPayload),
     headers: {
-      'Content-Type': 'application/json',
       Accept: 'application/json',
+      'Content-Type': 'application/json',
       ...requestConfig.headers,
     },
-    body: JSON.stringify(requestPayload),
+    method: requestConfig.method || 'POST',
   });
 
   if (!response.ok) {
-    const errorText = await response.text();
+    const errorText: string = await response.text();
 
     throw new AsgardeoAPIError(
       `Authorization request failed: ${errorText}`,
@@ -97,17 +97,17 @@ const executeEmbeddedSignInFlowV2 = async ({
   if (flowResponse.flowStatus === EmbeddedSignInFlowStatusV2.Complete && (flowResponse as any).assertion && authId) {
     try {
       const oauth2Response: Response = await fetch(`${baseUrl}/oauth2/auth/callback`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json',
-          ...requestConfig.headers,
-        },
         body: JSON.stringify({
           assertion: (flowResponse as any).assertion,
           authId,
         }),
         credentials: 'include',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+          ...requestConfig.headers,
+        },
+        method: 'POST',
       });
 
       if (!oauth2Response.ok) {
@@ -122,11 +122,11 @@ const executeEmbeddedSignInFlowV2 = async ({
         );
       }
 
-      const oauth2Result = await oauth2Response.json();
+      const oauth2Result: Record<string, unknown> = await oauth2Response.json();
 
       return {
         flowStatus: flowResponse.flowStatus,
-        redirectUrl: oauth2Result.redirect_uri,
+        redirectUrl: oauth2Result['redirect_uri'],
       } as any;
     } catch (authError) {
       throw new AsgardeoAPIError(

@@ -17,50 +17,51 @@
  */
 
 import {describe, it, expect, vi, beforeEach, afterEach} from 'vitest';
-import {transformBrandingPreferenceToTheme} from '../transformBrandingPreferenceToTheme';
 import type {BrandingPreference, ThemeVariant} from '../../models/branding-preference';
 
+import createTheme from '../../theme/createTheme';
+import {transformBrandingPreferenceToTheme} from '../transformBrandingPreferenceToTheme';
+
 vi.mock('../../theme/createTheme', () => ({
+  // eslint-disable-next-line no-underscore-dangle
   default: vi.fn((config: any, isDark: boolean) => ({__config: config, __isDark: isDark})),
 }));
 
-import createTheme from '../../theme/createTheme';
-
 const lightVariant = (overrides?: Partial<ThemeVariant>): ThemeVariant =>
   ({
+    buttons: undefined,
     colors: {
-      primary: {main: '#FF7300', contrastText: '#fff'},
-      secondary: {main: '#E0E1E2', contrastText: '#000'},
       background: {
-        surface: {main: '#ffffff'},
         body: {main: '#fbfbfb'},
+        surface: {main: '#ffffff'},
       },
+      primary: {contrastText: '#fff', main: '#FF7300'},
+      secondary: {contrastText: '#000', main: '#E0E1E2'},
       text: {primary: '#000000de', secondary: '#00000066'},
     },
-    buttons: undefined,
-    inputs: undefined,
     images: undefined,
+    inputs: undefined,
     ...(overrides || {}),
   } as any);
 
 const darkVariant = (overrides?: Partial<ThemeVariant>): ThemeVariant =>
   ({
     colors: {
-      primary: {main: '#111111', dark: '#222222', contrastText: '#fff'},
       background: {
-        surface: {main: '#242627'},
         body: {main: '#17191a'},
+        surface: {main: '#242627'},
       },
+      primary: {contrastText: '#fff', dark: '#222222', main: '#111111'},
       text: {primary: '#EBEBEF', secondary: '#B9B9C6'},
     },
     ...(overrides || {}),
   } as any);
 
 const basePref = (pref: Partial<BrandingPreference['preference']>): BrandingPreference => ({
-  type: 'ORG',
-  name: 'dxlab',
   locale: 'en-US',
+  name: 'dxlab',
   preference: pref as any,
+  type: 'ORG',
 });
 
 describe('transformBrandingPreferenceToTheme', () => {
@@ -73,28 +74,30 @@ describe('transformBrandingPreferenceToTheme', () => {
   });
 
   it('should return default light theme when theme config is missing', () => {
-    const bp = basePref({} as any);
+    const bp: BrandingPreference = basePref({} as any);
 
-    const out = transformBrandingPreferenceToTheme(bp);
+    const out: Record<string, unknown> = transformBrandingPreferenceToTheme(bp);
 
     expect(createTheme).toHaveBeenCalledWith({}, false);
+    // eslint-disable-next-line no-underscore-dangle
     expect(out).toEqual({__config: {}, __isDark: false});
   });
 
   it('should use activeTheme from branding preference when forceTheme is not provided', () => {
-    const bp = basePref({
+    const bp: BrandingPreference = basePref({
       theme: {
-        activeTheme: 'LIGHT',
-        LIGHT: lightVariant(),
         DARK: darkVariant(),
+        LIGHT: lightVariant(),
+        activeTheme: 'LIGHT',
       },
     });
 
-    const out = transformBrandingPreferenceToTheme(bp);
+    const out: Record<string, unknown> = transformBrandingPreferenceToTheme(bp);
 
     expect((createTheme as any).mock.calls[0][1]).toBe(false);
 
-    const cfg = (out as any).__config;
+    // eslint-disable-next-line no-underscore-dangle
+    const cfg: Record<string, any> = (out as any).__config;
     expect(cfg.colors.primary.main).toBe('#FF7300');
     expect(cfg.colors.secondary.main).toBe('#E0E1E2');
     expect(cfg.colors.background.surface).toBe('#ffffff');
@@ -102,93 +105,96 @@ describe('transformBrandingPreferenceToTheme', () => {
   });
 
   it('should respect forceTheme=dark and passes isDark=true', () => {
-    const bp = basePref({
+    const bp: BrandingPreference = basePref({
       theme: {
-        activeTheme: 'LIGHT',
-        LIGHT: lightVariant(),
         DARK: darkVariant(),
+        LIGHT: lightVariant(),
+        activeTheme: 'LIGHT',
       },
     });
 
-    const out = transformBrandingPreferenceToTheme(bp, 'dark');
+    const out: Record<string, unknown> = transformBrandingPreferenceToTheme(bp, 'dark');
 
     expect((createTheme as any).mock.calls[0][1]).toBe(true);
 
-    const cfg = (out as any).__config;
+    // eslint-disable-next-line no-underscore-dangle
+    const cfg: Record<string, any> = (out as any).__config;
 
     expect(cfg.colors.primary.main).toBe('#222222');
     expect(cfg.colors.background.surface).toBe('#242627');
   });
 
   it('should fall back to LIGHT config when requested variant missing, but preserves isDark from activeTheme', () => {
-    const bp = basePref({
+    const bp: BrandingPreference = basePref({
       theme: {
-        activeTheme: 'DARK',
         LIGHT: lightVariant(),
+        activeTheme: 'DARK',
       } as any,
     });
 
-    const out = transformBrandingPreferenceToTheme(bp);
+    const out: Record<string, unknown> = transformBrandingPreferenceToTheme(bp);
 
     expect((createTheme as any).mock.calls[0][1]).toBe(true);
 
-    const cfg = (out as any).__config;
+    // eslint-disable-next-line no-underscore-dangle
+    const cfg: Record<string, any> = (out as any).__config;
 
     expect(cfg.colors.primary.main).toBe('#FF7300');
   });
 
   it('should return default light theme when no variants exist', () => {
-    const bp = basePref({
+    const bp: BrandingPreference = basePref({
       theme: {} as any,
     });
 
-    const out = transformBrandingPreferenceToTheme(bp);
+    const out: Record<string, unknown> = transformBrandingPreferenceToTheme(bp);
 
     expect(createTheme).toHaveBeenCalledWith({}, false);
+    // eslint-disable-next-line no-underscore-dangle
     expect(out).toEqual({__config: {}, __isDark: false});
   });
 
   it('should map images (logo & favicon) into config correctly', () => {
-    const bp = basePref({
+    const bp: BrandingPreference = basePref({
       theme: {
-        activeTheme: 'LIGHT',
         LIGHT: lightVariant({
           images: {
             favicon: {
+              altText: 'App Icon',
               imgURL: 'https://example.com/favicon.ico',
               title: 'My App Favicon',
-              altText: 'App Icon',
             },
             logo: {
+              altText: 'Company Brand Logo',
               imgURL: 'https://example.com/logo.png',
               title: 'Company Logo',
-              altText: 'Company Brand Logo',
             },
           },
         }),
+        activeTheme: 'LIGHT',
       },
     });
 
-    const out = transformBrandingPreferenceToTheme(bp);
-    const cfg = (out as any).__config;
+    const out: Record<string, unknown> = transformBrandingPreferenceToTheme(bp);
+    // eslint-disable-next-line no-underscore-dangle
+    const cfg: Record<string, any> = (out as any).__config;
 
     expect(cfg.images.favicon).toEqual({
-      url: 'https://example.com/favicon.ico',
-      title: 'My App Favicon',
       alt: 'App Icon',
+      title: 'My App Favicon',
+      url: 'https://example.com/favicon.ico',
     });
 
     expect(cfg.images.logo).toEqual({
-      url: 'https://example.com/logo.png',
-      title: 'Company Logo',
       alt: 'Company Brand Logo',
+      title: 'Company Logo',
+      url: 'https://example.com/logo.png',
     });
   });
 
   it('should apply component borderRadius overrides for Button and Field when present', () => {
-    const bp = basePref({
+    const bp: BrandingPreference = basePref({
       theme: {
-        activeTheme: 'LIGHT',
         LIGHT: lightVariant({
           buttons: {
             primary: {
@@ -203,49 +209,53 @@ describe('transformBrandingPreferenceToTheme', () => {
             },
           } as any,
         }),
+        activeTheme: 'LIGHT',
       },
     });
 
-    const out = transformBrandingPreferenceToTheme(bp);
-    const cfg = (out as any).__config;
+    const out: Record<string, unknown> = transformBrandingPreferenceToTheme(bp);
+    // eslint-disable-next-line no-underscore-dangle
+    const cfg: Record<string, any> = (out as any).__config;
 
     expect(cfg.components.Button.styleOverrides.root.borderRadius).toBe(12);
     expect(cfg.components.Field.styleOverrides.root.borderRadius).toBe(6);
   });
 
   it('should omit components section when no button/field borderRadius provided', () => {
-    const bp = basePref({
+    const bp: BrandingPreference = basePref({
       theme: {
-        activeTheme: 'LIGHT',
         LIGHT: lightVariant(),
+        activeTheme: 'LIGHT',
       },
     });
 
-    const out = transformBrandingPreferenceToTheme(bp);
-    const cfg = (out as any).__config;
+    const out: Record<string, unknown> = transformBrandingPreferenceToTheme(bp);
+    // eslint-disable-next-line no-underscore-dangle
+    const cfg: Record<string, any> = (out as any).__config;
 
     expect(cfg.components).toBeUndefined();
   });
 
   it('should resolve dark color selection correctly for primary when both main and dark are provided', () => {
-    const bp = basePref({
+    const bp: BrandingPreference = basePref({
       theme: {
-        activeTheme: 'DARK',
         DARK: darkVariant({
           colors: {
-            primary: {main: '#999999', dark: '#010101', contrastText: '#fff'},
             background: {
-              surface: {main: '#222'},
               body: {main: '#111'},
+              surface: {main: '#222'},
             },
+            primary: {contrastText: '#fff', dark: '#010101', main: '#999999'},
             text: {primary: '#eee', secondary: '#aaa'},
           } as any,
         }),
+        activeTheme: 'DARK',
       },
     });
 
-    const out = transformBrandingPreferenceToTheme(bp);
-    const cfg = (out as any).__config;
+    const out: Record<string, unknown> = transformBrandingPreferenceToTheme(bp);
+    // eslint-disable-next-line no-underscore-dangle
+    const cfg: Record<string, any> = (out as any).__config;
 
     expect(cfg.colors.primary.main).toBe('#010101');
     expect(cfg.colors.primary.dark).toBe('#010101');
@@ -253,26 +263,27 @@ describe('transformBrandingPreferenceToTheme', () => {
   });
 
   it('should use contrastText if provided on color variants', () => {
-    const bp = basePref({
+    const bp: BrandingPreference = basePref({
       theme: {
-        activeTheme: 'LIGHT',
         LIGHT: lightVariant({
           colors: {
-            primary: {main: '#123456', contrastText: '#abcdef'},
-            secondary: {main: '#222222', contrastText: '#fefefe'},
             alerts: {
-              error: {main: '#ff0000', contrastText: '#fff'},
-              info: {main: '#0000ff', contrastText: '#111'},
-              neutral: {main: '#00ff00', contrastText: '#222'},
-              warning: {main: '#ffff00', contrastText: '#333'},
+              error: {contrastText: '#fff', main: '#ff0000'},
+              info: {contrastText: '#111', main: '#0000ff'},
+              neutral: {contrastText: '#222', main: '#00ff00'},
+              warning: {contrastText: '#333', main: '#ffff00'},
             } as any,
+            primary: {contrastText: '#abcdef', main: '#123456'},
+            secondary: {contrastText: '#fefefe', main: '#222222'},
           } as any,
         }),
+        activeTheme: 'LIGHT',
       },
     });
 
-    const out = transformBrandingPreferenceToTheme(bp);
-    const cfg = (out as any).__config;
+    const out: Record<string, unknown> = transformBrandingPreferenceToTheme(bp);
+    // eslint-disable-next-line no-underscore-dangle
+    const cfg: Record<string, any> = (out as any).__config;
 
     expect(cfg.colors.primary.contrastText).toBe('#abcdef');
     expect(cfg.colors.secondary.contrastText).toBe('#fefefe');
