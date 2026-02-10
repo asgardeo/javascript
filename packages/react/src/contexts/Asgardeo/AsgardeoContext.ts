@@ -111,7 +111,7 @@ export type AsgardeoContextProps = {
    *
    * @returns A promise that resolves to the decoded ID token payload.
    */
-  getDecodedIdToken: () => Promise<IdToken>;
+  getDecodedIdToken: () => Promise<IdToken | undefined>;
 
   /**
    * Function to retrieve the ID token.
@@ -119,15 +119,15 @@ export type AsgardeoContextProps = {
    * 
    * @returns A promise that resolves to the ID token.
    */
-  getIdToken: () => Promise<string>;
+  getIdToken: () => Promise<string | undefined>;
 
   /**
    * Retrieves the access token stored in the storage.
    * This function retrieves the access token and returns it.
    * @remarks This does not work in the `webWorker` or any other worker environment.
-   * @returns A promise that resolves to the access token.
+   * @returns A promise that resolves to the access token, or undefined if not available.
    */
-  getAccessToken: () => Promise<string>;
+  getAccessToken: () => Promise<string | undefined>;
 
   /**
    * Swaps the current access token with a new one based on the provided configuration (with a grant type).

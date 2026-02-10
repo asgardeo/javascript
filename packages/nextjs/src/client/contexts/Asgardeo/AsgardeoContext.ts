@@ -19,7 +19,7 @@
 'use client';
 
 import {AsgardeoContextProps as AsgardeoReactContextProps} from '@asgardeo/react';
-import {EmbeddedFlowExecuteRequestConfig, EmbeddedSignInFlowHandleRequestPayload, User} from '@asgardeo/node';
+import {EmbeddedFlowExecuteRequestConfig, EmbeddedSignInFlowHandleRequestPayload, User, TokenExchangeRequestConfig, TokenResponse, IdToken} from '@asgardeo/node';
 import {Context, createContext} from 'react';
 
 /**
@@ -44,6 +44,10 @@ const AsgardeoContext: Context<AsgardeoContextProps | null> = createContext<null
   signOut: () => Promise.resolve({} as any),
   signUp: () => Promise.resolve({} as any),
   user: null,
+  getDecodedIdToken: async (sessionId?:string) => Promise.resolve({} as IdToken),
+  getIdToken: async () => Promise.resolve(undefined),
+  getAccessToken: async (sessionId?:string) => Promise.resolve(undefined),
+  exchangeToken: async (config: TokenExchangeRequestConfig, sessionId?:string) => Promise.resolve({} as TokenResponse | Response),
 });
 
 AsgardeoContext.displayName = 'AsgardeoContext';
