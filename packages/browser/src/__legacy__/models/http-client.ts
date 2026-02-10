@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import {AxiosRequestConfig} from 'axios';
+import type {AxiosRequestConfig} from 'axios';
 import {HttpClientInstance, HttpError, HttpResponse} from '.';
 import {SPACustomGrantConfig} from '../..';
 
@@ -43,7 +43,7 @@ export interface HttpRequestConfig extends AxiosRequestConfig, Omit<Request, 'he
   startTimeInMs?: number;
 }
 
-export {
+export type {
   AxiosResponse as HttpResponse,
   Method as HttpMethod,
   AxiosRequestTransformer as HttpRequestTransformer,

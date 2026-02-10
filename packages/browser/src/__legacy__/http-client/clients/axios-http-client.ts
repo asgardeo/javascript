@@ -17,7 +17,7 @@
  *
  */
 
-import axios from 'axios';
+import axios, {InternalAxiosRequestConfig} from 'axios';
 import {HttpError, HttpRequestConfig, HttpResponse} from '../../..';
 import {staticDecorator} from '../helpers';
 import {HttpClientInstance, HttpClientInterface, HttpClientStatic} from '../models';
@@ -84,7 +84,7 @@ export class HttpClient implements HttpClientInterface<HttpRequestConfig, HttpRe
     }
 
     // Register request interceptor
-    this.axiosInstance.interceptors.request.use(async request => await this.clientInstance.requestHandler(request as HttpRequestConfig));
+    this.axiosInstance.interceptors.request.use(async (request: InternalAxiosRequestConfig) => await this.clientInstance.requestHandler(request as HttpRequestConfig) as InternalAxiosRequestConfig);
 
     // Register response interceptor
     this.axiosInstance.interceptors.response.use(
