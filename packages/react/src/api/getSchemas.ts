@@ -25,8 +25,6 @@ import {
   GetSchemasConfig as BaseGetSchemasConfig,
 } from '@asgardeo/browser';
 
-const httpClient: HttpInstance = AsgardeoSPAClient.getInstance().httpRequest.bind(AsgardeoSPAClient.getInstance());
-
 /**
  * Configuration for the getSchemas request (React-specific)
  */
@@ -36,6 +34,10 @@ export interface GetSchemasConfig extends Omit<BaseGetSchemasConfig, 'fetcher'> 
    * which is a wrapper around axios http.request
    */
   fetcher?: (url: string, config: RequestInit) => Promise<Response>;
+  /**
+   * Optional instance ID for multi-instance support. Defaults to 0.
+   */
+  instanceId?: number;
 }
 
 /**
@@ -75,8 +77,11 @@ export interface GetSchemasConfig extends Omit<BaseGetSchemasConfig, 'fetcher'> 
  * }
  * ```
  */
-const getSchemas = async ({fetcher, ...requestConfig}: GetSchemasConfig): Promise<Schema[]> => {
+const getSchemas = async ({fetcher, instanceId = 0, ...requestConfig}: GetSchemasConfig): Promise<Schema[]> => {
   const defaultFetcher = async (url: string, config: RequestInit): Promise<Response> => {
+    const httpClient: HttpInstance = AsgardeoSPAClient.getInstance(instanceId).httpRequest.bind(
+      AsgardeoSPAClient.getInstance(instanceId)
+    );
     const response = await httpClient({
       url,
       method: config.method || 'GET',

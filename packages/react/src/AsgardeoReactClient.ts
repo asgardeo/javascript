@@ -189,8 +189,8 @@ class AsgardeoReactClient<T extends AsgardeoReactConfig = AsgardeoReactConfig> e
           baseUrl = configData?.baseUrl;
         }
 
-        const profile = await getScim2Me({baseUrl});
-        const schemas = await getSchemas({baseUrl});
+        const profile = await getScim2Me({baseUrl, instanceId: this._instanceId});
+        const schemas = await getSchemas({baseUrl, instanceId: this._instanceId});
 
         const processedSchemas = flattenUserSchema(schemas);
 
@@ -220,7 +220,7 @@ class AsgardeoReactClient<T extends AsgardeoReactConfig = AsgardeoReactConfig> e
         baseUrl = configData?.baseUrl;
       }
 
-      return getMeOrganizations({baseUrl});
+      return getMeOrganizations({baseUrl, instanceId: this._instanceId});
     } catch (error) {
       throw new AsgardeoRuntimeError(
         `Failed to fetch the user's associated organizations: ${
@@ -242,7 +242,7 @@ class AsgardeoReactClient<T extends AsgardeoReactConfig = AsgardeoReactConfig> e
         baseUrl = configData?.baseUrl;
       }
 
-      return getAllOrganizations({baseUrl});
+      return getAllOrganizations({baseUrl, instanceId: this._instanceId});
     } catch (error) {
       throw new AsgardeoRuntimeError(
         `Failed to fetch all organizations: ${error instanceof Error ? error.message : String(error)}`,

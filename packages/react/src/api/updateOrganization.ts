@@ -26,8 +26,6 @@ import {
   createPatchOperations,
 } from '@asgardeo/browser';
 
-const httpClient: HttpInstance = AsgardeoSPAClient.getInstance().httpRequest.bind(AsgardeoSPAClient.getInstance());
-
 /**
  * Configuration for the updateOrganization request (React-specific)
  */
@@ -37,6 +35,10 @@ export interface UpdateOrganizationConfig extends Omit<BaseUpdateOrganizationCon
    * which is a wrapper around axios http.request
    */
   fetcher?: (url: string, config: RequestInit) => Promise<Response>;
+  /**
+   * Optional instance ID for multi-instance support. Defaults to 0.
+   */
+  instanceId?: number;
 }
 
 /**
@@ -86,9 +88,13 @@ export interface UpdateOrganizationConfig extends Omit<BaseUpdateOrganizationCon
  */
 const updateOrganization = async ({
   fetcher,
+  instanceId = 0,
   ...requestConfig
 }: UpdateOrganizationConfig): Promise<OrganizationDetails> => {
   const defaultFetcher = async (url: string, config: RequestInit): Promise<Response> => {
+    const httpClient: HttpInstance = AsgardeoSPAClient.getInstance(instanceId).httpRequest.bind(
+      AsgardeoSPAClient.getInstance(instanceId)
+    );
     const response = await httpClient({
       url,
       method: config.method || 'PATCH',
