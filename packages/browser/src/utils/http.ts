@@ -16,7 +16,8 @@
  * under the License.
  */
 
-import { AsgardeoSPAClient } from "../__legacy__/client";
+// eslint-disable-next-line import/no-cycle
+import {AsgardeoSPAClient} from '../__legacy__/client';
 
 /**
  * HTTP utility for making requests using the AsgardeoSPAClient instance.
@@ -24,6 +25,7 @@ import { AsgardeoSPAClient } from "../__legacy__/client";
  * @remarks
  * This utility provides methods to make single or multiple HTTP requests.
  */
+// eslint-disable-next-line @typescript-eslint/typedef
 const http = {
   /**
    * Makes a single HTTP request using the AsgardeoSPAClient instance.
@@ -39,7 +41,7 @@ const http = {
    * @param configs - An array of HTTP request configuration objects.
    * @returns A promise resolving to an array of HTTP responses.
    */
-  requestAll: AsgardeoSPAClient.getInstance().httpRequestAll.bind(AsgardeoSPAClient.getInstance())
+  requestAll: AsgardeoSPAClient.getInstance().httpRequestAll.bind(AsgardeoSPAClient.getInstance()),
 };
 
 export default http;

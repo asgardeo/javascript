@@ -85,7 +85,7 @@ export class AsgardeoSPAClient {
     this._instanceID = id;
   }
 
-  public instantiateAuthHelper(authHelper?: typeof AuthenticationHelper) {
+  public instantiateAuthHelper(authHelper?: typeof AuthenticationHelper): void {
     if (authHelper) {
       this._authHelper = authHelper;
     } else {
@@ -93,7 +93,7 @@ export class AsgardeoSPAClient {
     }
   }
 
-  public instantiateWorker(worker: new () => Worker) {
+  public instantiateWorker(worker: new () => Worker): void {
     if (worker) {
       this._worker = worker;
     } else {

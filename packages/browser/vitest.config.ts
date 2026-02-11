@@ -16,13 +16,14 @@
  * under the License.
  */
 
+// eslint-disable-next-line import/no-extraneous-dependencies
 import {defineConfig} from 'vitest/config';
 
 export default defineConfig({
   test: {
     environment: 'jsdom',
     globals: true,
-    testTimeout: 10000,
     hookTimeout: 10000,
+    testTimeout: 10000,
   },
 });
