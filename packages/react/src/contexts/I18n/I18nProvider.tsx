@@ -16,12 +16,17 @@
  * under the License.
  */
 
-import {FC, PropsWithChildren, ReactElement, useCallback, useEffect, useMemo, useState} from 'react';
+import {deepMerge, I18nPreferences, createPackageComponentLogger} from '@asgardeo/browser';
 import {I18nBundle, getDefaultI18nBundles} from '@asgardeo/i18n';
-import {deepMerge, I18nPreferences} from '@asgardeo/browser';
+import {FC, PropsWithChildren, ReactElement, useCallback, useEffect, useMemo, useState} from 'react';
 import I18nContext, {I18nContextValue} from './I18nContext';
 
-const I18N_LANGUAGE_STORAGE_KEY = 'asgardeo-i18n-language';
+const logger: ReturnType<typeof createPackageComponentLogger> = createPackageComponentLogger(
+  '@asgardeo/react',
+  'I18nProvider',
+);
+
+const I18N_LANGUAGE_STORAGE_KEY: string = 'asgardeo-i18n-language';
 
 export interface I18nProviderProps {
   /**
@@ -64,7 +69,7 @@ const storeLanguage = (language: string): void => {
       window.localStorage.setItem(I18N_LANGUAGE_STORAGE_KEY, language);
     } catch (error) {
       // localStorage might not be available or accessible
-      console.warn('Failed to store language preference:', error);
+      logger.warn('Failed to store language preference:');
     }
   }
 };
@@ -78,7 +83,7 @@ const I18nProvider: FC<PropsWithChildren<I18nProviderProps>> = ({
   preferences,
 }: PropsWithChildren<I18nProviderProps>): ReactElement => {
   // Get default bundles from the browser package
-  const defaultBundles = getDefaultI18nBundles();
+  const defaultBundles: Record<string, I18nBundle> = getDefaultI18nBundles();
 
   // Determine the initial language based on preference order:
   // 1. User preference from config
@@ -86,10 +91,10 @@ const I18nProvider: FC<PropsWithChildren<I18nProviderProps>> = ({
   // 3. Browser's default language
   // 4. Fallback language
   const determineInitialLanguage = (): string => {
-    const configLanguage = preferences?.language;
-    const storedLanguage = getStoredLanguage();
-    const browserLanguage = detectBrowserLanguage();
-    const fallbackLanguage = preferences?.fallbackLanguage || 'en-US';
+    const configLanguage: string | undefined = preferences?.language;
+    const storedLanguage: string | null = getStoredLanguage();
+    const browserLanguage: string = detectBrowserLanguage();
+    const fallbackLanguage: string = preferences?.fallbackLanguage || 'en-US';
 
     return configLanguage || storedLanguage || browserLanguage || fallbackLanguage;
   };
@@ -97,25 +102,25 @@ const I18nProvider: FC<PropsWithChildren<I18nProviderProps>> = ({
   const [currentLanguage, setCurrentLanguage] = useState<string>(determineInitialLanguage);
 
   // Merge default bundles with user-provided bundles
-  const mergedBundles = useMemo(() => {
+  const mergedBundles: Record<string, I18nBundle> = useMemo(() => {
     const merged: Record<string, I18nBundle> = {};
 
     // Add default bundles
-    Object.entries(defaultBundles).forEach(([key, bundle]) => {
+    Object.entries(defaultBundles).forEach(([key, bundle]: [string, I18nBundle]) => {
       // Convert key format (e.g., 'en_US' to 'en-US')
-      const languageKey = key.replace('_', '-');
+      const languageKey: string = key.replace('_', '-');
       merged[languageKey] = bundle;
     });
 
     // Add user-provided bundles using deepMerge for better merging
     if (preferences?.bundles) {
-      Object.entries(preferences.bundles).forEach(([key, userBundle]) => {
+      Object.entries(preferences.bundles).forEach(([key, userBundle]: [string, I18nBundle]) => {
         if (merged[key]) {
           // Deep merge user bundle with existing default bundle
           merged[key] = {
             ...merged[key],
-            translations: deepMerge(merged[key].translations, userBundle.translations),
             metadata: userBundle.metadata ? {...merged[key].metadata, ...userBundle.metadata} : merged[key].metadata,
+            translations: deepMerge(merged[key].translations, userBundle.translations),
           };
         } else {
           // No default bundle for this language, use user bundle as-is
@@ -127,7 +132,7 @@ const I18nProvider: FC<PropsWithChildren<I18nProviderProps>> = ({
     return merged;
   }, [defaultBundles, preferences?.bundles]);
 
-  const fallbackLanguage = preferences?.fallbackLanguage || 'en-US';
+  const fallbackLanguage: string = preferences?.fallbackLanguage || 'en-US';
 
   // Update stored language when current language changes
   useEffect(() => {
@@ -135,19 +140,19 @@ const I18nProvider: FC<PropsWithChildren<I18nProviderProps>> = ({
   }, [currentLanguage]);
 
   // Translation function
-  const t = useCallback(
+  const t: (key: string, params?: Record<string, string | number>) => string = useCallback(
     (key: string, params?: Record<string, string | number>): string => {
       let translation: string | undefined;
 
       // Try to get translation from current language bundle
-      const currentBundle = mergedBundles[currentLanguage];
+      const currentBundle: I18nBundle | undefined = mergedBundles[currentLanguage];
       if (currentBundle?.translations[key]) {
         translation = currentBundle.translations[key];
       }
 
       // Fallback to fallback language if translation not found
       if (!translation && currentLanguage !== fallbackLanguage) {
-        const fallbackBundle = mergedBundles[fallbackLanguage];
+        const fallbackBundle: I18nBundle | undefined = mergedBundles[fallbackLanguage];
         if (fallbackBundle?.translations[key]) {
           translation = fallbackBundle.translations[key];
         }
@@ -160,9 +165,11 @@ const I18nProvider: FC<PropsWithChildren<I18nProviderProps>> = ({
 
       // Replace parameters if provided
       if (params && Object.keys(params).length > 0) {
-        return Object.entries(params).reduce((acc, [paramKey, paramValue]) => {
-          return acc.replace(new RegExp(`\\{${paramKey}\\}`, 'g'), String(paramValue));
-        }, translation);
+        return Object.entries(params).reduce(
+          (acc: string, [paramKey, paramValue]: [string, string | number]) =>
+            acc.replace(new RegExp(`\\{${paramKey}\\}`, 'g'), String(paramValue)),
+          translation,
+        );
       }
 
       return translation;
@@ -171,12 +178,12 @@ const I18nProvider: FC<PropsWithChildren<I18nProviderProps>> = ({
   );
 
   // Language setter function
-  const setLanguage = useCallback(
+  const setLanguage: (language: string) => void = useCallback(
     (language: string) => {
       if (mergedBundles[language]) {
         setCurrentLanguage(language);
       } else {
-        console.warn(
+        logger.warn(
           `Language '${language}' is not available. Available languages: ${Object.keys(mergedBundles).join(', ')}`,
         );
       }
@@ -186,9 +193,9 @@ const I18nProvider: FC<PropsWithChildren<I18nProviderProps>> = ({
 
   const contextValue: I18nContextValue = useMemo(
     () => ({
+      bundles: mergedBundles,
       currentLanguage,
       fallbackLanguage,
-      bundles: mergedBundles,
       setLanguage,
       t,
     }),

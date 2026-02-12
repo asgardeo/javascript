@@ -16,14 +16,31 @@
  * under the License.
  */
 
-import {BrandingPreference, Theme} from '@asgardeo/browser';
+import {BrandingPreference, Theme, createPackageComponentLogger} from '@asgardeo/browser';
 import useBrandingContext from '../contexts/Branding/useBrandingContext';
+
+const logger: ReturnType<typeof createPackageComponentLogger> = createPackageComponentLogger(
+  '@asgardeo/react',
+  'useBranding',
+);
 
 /**
  * Configuration options for the useBranding hook
  * @deprecated Use BrandingProvider instead for better performance and consistency
  */
 export interface UseBrandingConfig {
+  /**
+   * @deprecated This configuration is now handled by BrandingProvider
+   */
+  autoFetch?: boolean;
+  /**
+   * @deprecated This configuration is now handled by BrandingProvider
+   */
+  fetcher?: (url: string, config: RequestInit) => Promise<Response>;
+  /**
+   * @deprecated This configuration is now handled by BrandingProvider
+   */
+  forceTheme?: 'light' | 'dark';
   /**
    * @deprecated This configuration is now handled by BrandingProvider
    */
@@ -36,18 +53,6 @@ export interface UseBrandingConfig {
    * @deprecated This configuration is now handled by BrandingProvider
    */
   type?: string;
-  /**
-   * @deprecated This configuration is now handled by BrandingProvider
-   */
-  forceTheme?: 'light' | 'dark';
-  /**
-   * @deprecated This configuration is now handled by BrandingProvider
-   */
-  autoFetch?: boolean;
-  /**
-   * @deprecated This configuration is now handled by BrandingProvider
-   */
-  fetcher?: (url: string, config: RequestInit) => Promise<Response>;
 }
 
 /**
@@ -55,21 +60,13 @@ export interface UseBrandingConfig {
  */
 export interface UseBrandingReturn {
   /**
-   * The raw branding preference data
-   */
-  brandingPreference: BrandingPreference | null;
-  /**
-   * The transformed theme object
-   */
-  theme: Theme | null;
-  /**
    * The active theme mode from branding preference ('light' | 'dark')
    */
   activeTheme: 'light' | 'dark' | null;
   /**
-   * Loading state
+   * The raw branding preference data
    */
-  isLoading: boolean;
+  brandingPreference: BrandingPreference | null;
   /**
    * Error state
    */
@@ -79,10 +76,18 @@ export interface UseBrandingReturn {
    */
   fetchBranding: () => Promise<void>;
   /**
+   * Loading state
+   */
+  isLoading: boolean;
+  /**
    * Function to refetch branding preference
    * This bypasses the single-call restriction and forces a new API call
    */
   refetch: () => Promise<void>;
+  /**
+   * The transformed theme object
+   */
+  theme: Theme | null;
 }
 
 /**
@@ -128,23 +133,23 @@ export interface UseBrandingReturn {
  * }
  * ```
  */
-export const useBranding = (config: UseBrandingConfig = {}): UseBrandingReturn => {
+export const useBranding = (): UseBrandingReturn => {
   try {
     return useBrandingContext();
   } catch (error) {
-    console.warn(
+    logger.warn(
       'useBranding: BrandingProvider not available. ' +
         'Make sure to wrap your app with BrandingProvider or AsgardeoProvider with branding preferences.',
     );
 
     return {
-      brandingPreference: null,
-      theme: null,
       activeTheme: null,
-      isLoading: false,
+      brandingPreference: null,
       error: new Error('BrandingProvider not available'),
-      fetchBranding: async () => {},
-      refetch: async () => {},
+      fetchBranding: async (): Promise<void> => {},
+      isLoading: false,
+      refetch: async (): Promise<void> => {},
+      theme: null,
     };
   }
 };

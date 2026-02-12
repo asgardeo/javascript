@@ -16,55 +16,55 @@
  * under the License.
  */
 
-import {FC, InputHTMLAttributes, ReactNode} from 'react';
-import useTheme from '../../../contexts/Theme/useTheme';
+import {withVendorCSSClassPrefix, bem} from '@asgardeo/browser';
 import {cx} from '@emotion/css';
+import {FC, InputHTMLAttributes, ReactNode} from 'react';
+import useStyles from './TextField.styles';
+import useTheme from '../../../contexts/Theme/useTheme';
 import FormControl from '../FormControl/FormControl';
 import InputLabel from '../InputLabel/InputLabel';
-import {withVendorCSSClassPrefix, bem} from '@asgardeo/browser';
-import useStyles from './TextField.styles';
 
 export interface TextFieldProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'className'> {
-  /**
-   * Label text to display above the input
-   */
-  label?: string;
-  /**
-   * Error message to display below the input
-   */
-  error?: string;
   /**
    * Additional CSS class names
    */
   className?: string;
   /**
-   * Whether the field is required
-   */
-  required?: boolean;
-  /**
    * Whether the field is disabled
    */
   disabled?: boolean;
-  /**
-   * Helper text to display below the input
-   */
-  helperText?: string;
-  /**
-   * Icon to display at the start (left) of the input
-   */
-  startIcon?: ReactNode;
   /**
    * Icon to display at the end (right) of the input
    */
   endIcon?: ReactNode;
   /**
-   * Click handler for the start icon
+   * Error message to display below the input
    */
-  onStartIconClick?: () => void;
+  error?: string;
+  /**
+   * Helper text to display below the input
+   */
+  helperText?: string;
+  /**
+   * Label text to display above the input
+   */
+  label?: string;
   /**
    * Click handler for the end icon
    */
   onEndIconClick?: () => void;
+  /**
+   * Click handler for the start icon
+   */
+  onStartIconClick?: () => void;
+  /**
+   * Whether the field is required
+   */
+  required?: boolean;
+  /**
+   * Icon to display at the start (left) of the input
+   */
+  startIcon?: ReactNode;
 }
 
 const TextField: FC<TextFieldProps> = ({
@@ -81,25 +81,28 @@ const TextField: FC<TextFieldProps> = ({
   type = 'text',
   style = {},
   ...rest
-}) => {
-  const {theme, colorScheme} = useTheme();
-  const hasError = !!error;
-  const hasStartIcon = !!startIcon;
-  const hasEndIcon = !!endIcon;
-  const styles = useStyles(theme, colorScheme, disabled, hasError, hasStartIcon, hasEndIcon);
+}: TextFieldProps) => {
+  const {theme, colorScheme}: ReturnType<typeof useTheme> = useTheme();
+  const hasError: boolean = !!error;
+  const hasStartIcon: boolean = !!startIcon;
+  const hasEndIcon: boolean = !!endIcon;
+  const styles: Record<string, string> = useStyles(theme, colorScheme, disabled, hasError, hasStartIcon, hasEndIcon);
 
-  const inputClassName = cx(
+  const inputClassName: string = cx(
     withVendorCSSClassPrefix(bem('text-field', 'input')),
-    styles.input,
-    hasError && styles.inputError,
-    disabled && styles.inputDisabled,
+    styles['input'],
+    hasError && styles['inputError'],
+    disabled && styles['inputDisabled'],
   );
 
-  const containerClassName = cx(withVendorCSSClassPrefix(bem('text-field', 'container')), styles.inputContainer);
+  const containerClassName: string = cx(
+    withVendorCSSClassPrefix(bem('text-field', 'container')),
+    styles['inputContainer'],
+  );
 
-  const startIconClassName = cx(withVendorCSSClassPrefix(bem('text-field', 'start-icon')), styles.startIcon);
+  const startIconClassName: string = cx(withVendorCSSClassPrefix(bem('text-field', 'start-icon')), styles['startIcon']);
 
-  const endIconClassName = cx(withVendorCSSClassPrefix(bem('text-field', 'end-icon')), styles.endIcon);
+  const endIconClassName: string = cx(withVendorCSSClassPrefix(bem('text-field', 'end-icon')), styles['endIcon']);
 
   return (
     <FormControl

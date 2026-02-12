@@ -16,8 +16,8 @@
  * under the License.
  */
 
+import {resolveTranslation} from './resolveTranslation';
 import {UseTranslation} from '../../hooks/useTranslation';
-import resolveTranslation from './resolveTranslation';
 
 /**
  * Resolves translation strings in an object's properties.
@@ -33,11 +33,11 @@ export const resolveTranslationsInObject = <T extends Record<string, any>>(
 ): T => {
   const resolved: T = {...obj};
 
-  for (const prop of properties) {
+  properties.forEach((prop: string) => {
     if (resolved[prop] && typeof resolved[prop] === 'string') {
       (resolved as any)[prop] = resolveTranslation(resolved[prop], t);
     }
-  }
+  });
 
   return resolved;
 };

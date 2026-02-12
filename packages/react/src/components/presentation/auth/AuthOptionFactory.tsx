@@ -16,29 +16,34 @@
  * under the License.
  */
 
-import React, {ReactElement} from 'react';
 import {
-  AsgardeoRuntimeError,
   FieldType,
   EmbeddedFlowComponentV2 as EmbeddedFlowComponent,
   EmbeddedFlowComponentTypeV2 as EmbeddedFlowComponentType,
   EmbeddedFlowTextVariantV2 as EmbeddedFlowTextVariant,
   EmbeddedFlowActionVariantV2 as EmbeddedFlowActionVariant,
   EmbeddedFlowEventTypeV2 as EmbeddedFlowEventType,
+  createPackageComponentLogger,
 } from '@asgardeo/browser';
+import {cloneElement, ReactElement} from 'react';
+import FacebookButton from '../../adapters/FacebookButton';
+import GitHubButton from '../../adapters/GitHubButton';
+import GoogleButton from '../../adapters/GoogleButton';
+import LinkedInButton from '../../adapters/LinkedInButton';
+import MicrosoftButton from '../../adapters/MicrosoftButton';
+import SignInWithEthereumButton from '../../adapters/SignInWithEthereumButton';
+import SmsOtpButton from '../../adapters/SmsOtpButton';
 import {createField} from '../../factories/FieldFactory';
 import Button from '../../primitives/Button/Button';
-import GoogleButton from '../../adapters/GoogleButton';
-import GitHubButton from '../../adapters/GitHubButton';
-import FacebookButton from '../../adapters/FacebookButton';
-import Typography from '../../primitives/Typography/Typography';
 import Divider from '../../primitives/Divider/Divider';
-import SmsOtpButton from '../../adapters/SmsOtpButton';
-import MicrosoftButton from '../../adapters/MicrosoftButton';
-import LinkedInButton from '../../adapters/LinkedInButton';
-import SignInWithEthereumButton from '../../adapters/SignInWithEthereumButton';
-import {TypographyVariant} from '../../primitives/Typography/Typography.styles';
 import Select from '../../primitives/Select/Select';
+import Typography from '../../primitives/Typography/Typography';
+import {TypographyVariant} from '../../primitives/Typography/Typography.styles';
+
+const logger: ReturnType<typeof createPackageComponentLogger> = createPackageComponentLogger(
+  '@asgardeo/react',
+  'AuthOptionFactory',
+);
 
 export type AuthType = 'signin' | 'signup';
 
@@ -60,21 +65,21 @@ const getFieldType = (variant: EmbeddedFlowComponentType): FieldType => {
 /**
  * Get typography variant from component variant.
  */
-const getTypographyVariant = (variant: string) => {
+const getTypographyVariant = (variant: string): any => {
   const variantMap: Record<EmbeddedFlowTextVariant, TypographyVariant> = {
+    BODY_1: 'body1',
+    BODY_2: 'body2',
+    BUTTON_TEXT: 'button',
+    CAPTION: 'caption',
     HEADING_1: 'h1',
     HEADING_2: 'h2',
     HEADING_3: 'h3',
     HEADING_4: 'h4',
     HEADING_5: 'h5',
     HEADING_6: 'h6',
+    OVERLINE: 'overline',
     SUBTITLE_1: 'subtitle1',
     SUBTITLE_2: 'subtitle2',
-    BODY_1: 'body1',
-    BODY_2: 'body2',
-    CAPTION: 'caption',
-    OVERLINE: 'overline',
-    BUTTON_TEXT: 'button',
   };
 
   return variantMap[variant] || 'h3';
@@ -91,8 +96,8 @@ const matchesSocialProvider = (
   authType: AuthType,
   componentVariant?: string,
 ): boolean => {
-  const providerId = `${provider}_auth`;
-  const providerMatches = actionId === providerId || eventType === providerId;
+  const providerId: any = `${provider}_auth`;
+  const providerMatches: any = actionId === providerId || eventType === providerId;
 
   // For social variant, also check button text for provider name
   if (componentVariant?.toUpperCase() === EmbeddedFlowActionVariant.Social) {
@@ -141,20 +146,20 @@ const createAuthComponentFromFlow = (
       const error: string = isTouched ? formErrors[identifier] : undefined;
       const fieldType: string = getFieldType(component.type);
 
-      const field = createField({
-        type: fieldType as FieldType,
-        name: identifier,
+      const field: any = createField({
+        className: options.inputClassName,
+        error,
         label: component.label || '',
+        name: identifier,
+        onBlur: () => options.onInputBlur?.(identifier),
+        onChange: (newValue: string) => onInputChange(identifier, newValue),
         placeholder: component.placeholder || '',
         required: component.required || false,
+        type: fieldType as FieldType,
         value,
-        error,
-        onChange: (newValue: string) => onInputChange(identifier, newValue),
-        onBlur: () => options.onInputBlur?.(identifier),
-        className: options.inputClassName,
       });
 
-      return React.cloneElement(field, {key});
+      return cloneElement(field, {key});
     }
 
     case EmbeddedFlowComponentType.Action: {
@@ -166,10 +171,10 @@ const createAuthComponentFromFlow = (
       // Only validate on submit type events.
       const shouldSkipValidation: boolean = eventType.toUpperCase() === EmbeddedFlowEventType.Trigger;
 
-      const handleClick = () => {
+      const handleClick = (): any => {
         if (options.onSubmit) {
           const formData: Record<string, any> = {};
-          Object.keys(formValues).forEach(field => {
+          Object.keys(formValues).forEach((field: any) => {
             // Include all values, even empty strings, to ensure proper submission
             formData[field] = formValues[field];
           });
@@ -219,7 +224,7 @@ const createAuthComponentFromFlow = (
     }
 
     case EmbeddedFlowComponentType.Text: {
-      const variant = getTypographyVariant(component.variant);
+      const variant: any = getTypographyVariant(component.variant);
       return (
         <Typography key={key} variant={variant}>
           {component.label || ''}
@@ -238,9 +243,9 @@ const createAuthComponentFromFlow = (
       const error: string = isTouched ? formErrors[identifier] : undefined;
 
       // Options are pre-sanitized by flowTransformer to {value: string, label: string} format
-      const selectOptions = (component.options || []).map((opt: any) => ({
-        value: typeof opt === 'string' ? opt : String(opt.value ?? ''),
+      const selectOptions: any = (component.options || []).map((opt: any) => ({
         label: typeof opt === 'string' ? opt : String(opt.label ?? opt.value ?? ''),
+        value: typeof opt === 'string' ? opt : String(opt.value ?? ''),
       }));
 
       return (
@@ -253,8 +258,8 @@ const createAuthComponentFromFlow = (
           options={selectOptions}
           value={value}
           error={error}
-          onChange={(e) => onInputChange(identifier, e.target.value)}
-          onBlur={() => options.onInputBlur?.(identifier)}
+          onChange={(e: any): void => onInputChange(identifier, e.target.value)}
+          onBlur={(): any => options.onInputBlur?.(identifier)}
           className={options.inputClassName}
         />
       );
@@ -262,8 +267,8 @@ const createAuthComponentFromFlow = (
 
     case EmbeddedFlowComponentType.Block: {
       if (component.components && component.components.length > 0) {
-        const blockComponents = component.components
-          .map((childComponent, index) =>
+        const blockComponents: any = component.components
+          .map((childComponent: any, index: any) =>
             createAuthComponentFromFlow(
               childComponent,
               formValues,
@@ -292,7 +297,7 @@ const createAuthComponentFromFlow = (
 
     default:
       // Gracefully handle unsupported component types by returning null
-      console.warn(`Unsupported component type: ${component.type}. Skipping render.`);
+      logger.warn(`Unsupported component type: ${component.type}. Skipping render.`);
       return null;
   }
 };
@@ -318,7 +323,7 @@ export const renderSignInComponents = (
   },
 ): ReactElement[] =>
   components
-    .map((component, index) =>
+    .map((component: any, index: any) =>
       createAuthComponentFromFlow(
         component,
         formValues,
@@ -357,7 +362,7 @@ export const renderSignUpComponents = (
   },
 ): ReactElement[] =>
   components
-    .map((component, index) =>
+    .map((component: any, index: any) =>
       createAuthComponentFromFlow(
         component,
         formValues,
@@ -397,7 +402,7 @@ export const renderInviteUserComponents = (
   },
 ): ReactElement[] =>
   components
-    .map((component, index) =>
+    .map((component: any, index: any) =>
       createAuthComponentFromFlow(
         component,
         formValues,

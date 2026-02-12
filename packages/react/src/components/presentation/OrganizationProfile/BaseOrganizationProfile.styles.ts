@@ -16,9 +16,9 @@
  * under the License.
  */
 
+import {Theme} from '@asgardeo/browser';
 import {css} from '@emotion/css';
 import {useMemo} from 'react';
-import {Theme} from '@asgardeo/browser';
 
 /**
  * Creates styles for the BaseOrganizationProfile component using BEM methodology
@@ -26,117 +26,9 @@ import {Theme} from '@asgardeo/browser';
  * @param colorScheme - The current color scheme (used for memoization)
  * @returns Object containing CSS class names for component styling
  */
-const useStyles = (theme: Theme, colorScheme: string) => {
-  return useMemo(() => {
-    return {
-      root: css`
-        padding: calc(${theme.vars.spacing.unit} * 4);
-        min-width: 600px;
-        margin: 0 auto;
-      `,
-      card: css`
-        background: ${theme.vars.colors.background.surface};
-        border-radius: ${theme.vars.borderRadius.large};
-      `,
-      header: css`
-        display: flex;
-        align-items: center;
-        gap: calc(${theme.vars.spacing.unit} * 2);
-        margin-bottom: calc(${theme.vars.spacing.unit} * 3);
-        padding-bottom: calc(${theme.vars.spacing.unit} * 2);
-      `,
-      orgInfo: css`
-        flex: 1;
-      `,
-      name: css`
-        font-size: 1.5rem;
-        font-weight: 600;
-        margin: 0 0 8px 0;
-        color: ${theme.vars.colors.text.primary};
-      `,
-      handle: css`
-        font-size: 1rem;
-        color: ${theme.vars.colors.text.secondary};
-        margin: 0;
-        font-family: monospace;
-      `,
-      infoContainer: css`
-        display: flex;
-        flex-direction: column;
-        gap: ${theme.vars.spacing.unit};
-      `,
-      field: css`
-        display: flex;
-        align-items: flex-start;
-        padding: calc(${theme.vars.spacing.unit} / 2) 0;
-        border-bottom: 1px solid ${theme.vars.colors.border};
-        min-height: 28px;
-        gap: ${theme.vars.spacing.unit};
-      `,
-      fieldLast: css`
-        border-bottom: none;
-      `,
-      fieldContent: css`
-        flex: 1;
-        display: flex;
-        align-items: center;
-        gap: ${theme.vars.spacing.unit};
-      `,
-      fieldActions: css`
-        display: flex;
-        align-items: center;
-        gap: calc(${theme.vars.spacing.unit} / 2);
-      `,
-      label: css`
-        font-size: 0.875rem;
-        font-weight: 500;
-        color: ${theme.vars.colors.text.secondary};
-        width: 120px;
-        flex-shrink: 0;
-        line-height: 28px;
-      `,
-      value: css`
-        color: ${theme.vars.colors.text.primary};
-        flex: 1;
-        display: flex;
-        align-items: center;
-        gap: ${theme.vars.spacing.unit};
-        overflow: hidden;
-        min-height: 28px;
-        line-height: 28px;
-        word-break: break-word;
-      `,
-      valueEmpty: css`
-        font-style: italic;
-        opacity: 0.7;
-      `,
-      statusBadge: css`
-        padding: calc(${theme.vars.spacing.unit} / 2) ${theme.vars.spacing.unit};
-        border-radius: ${theme.vars.borderRadius.small};
-        font-size: 0.75rem;
-        font-weight: 500;
-        color: white;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-      `,
-      permissionsList: css`
-        display: flex;
-        flex-wrap: wrap;
-        gap: calc(${theme.vars.spacing.unit} / 2);
-      `,
-      permissionBadge: css`
-        padding: calc(${theme.vars.spacing.unit} / 4) ${theme.vars.spacing.unit};
-        border-radius: ${theme.vars.borderRadius.small};
-        font-size: 0.75rem;
-        background-color: ${theme.vars.colors.primary.main};
-        color: ${theme.vars.colors.primary.contrastText};
-        border: 1px solid ${theme.vars.colors.border};
-      `,
-      attributesList: css`
-        display: flex;
-        flex-direction: column;
-        gap: calc(${theme.vars.spacing.unit} / 4);
-      `,
+const useStyles = (theme: Theme, colorScheme: string): Record<string, string> =>
+  useMemo(
+    () => ({
       attributeItem: css`
         display: flex;
         gap: ${theme.vars.spacing.unit};
@@ -156,13 +48,92 @@ const useStyles = (theme: Theme, colorScheme: string) => {
         word-break: break-word;
         flex: 1;
       `,
-      popup: css`
-        padding: calc(${theme.vars.spacing.unit} * 2);
+      attributesList: css`
+        display: flex;
+        flex-direction: column;
+        gap: calc(${theme.vars.spacing.unit} / 4);
+      `,
+      card: css`
+        background: ${theme.vars.colors.background.surface};
+        border-radius: ${theme.vars.borderRadius.large};
       `,
       editButton: css`
         min-width: auto;
         padding: calc(${theme.vars.spacing.unit} / 2);
         min-height: auto;
+      `,
+      field: css`
+        display: flex;
+        align-items: flex-start;
+        padding: calc(${theme.vars.spacing.unit} / 2) 0;
+        border-bottom: 1px solid ${theme.vars.colors.border};
+        min-height: 28px;
+        gap: ${theme.vars.spacing.unit};
+      `,
+      fieldActions: css`
+        display: flex;
+        align-items: center;
+        gap: calc(${theme.vars.spacing.unit} / 2);
+      `,
+      fieldContent: css`
+        flex: 1;
+        display: flex;
+        align-items: center;
+        gap: ${theme.vars.spacing.unit};
+      `,
+      fieldInput: css`
+        margin-bottom: 0;
+      `,
+      fieldLast: css`
+        border-bottom: none;
+      `,
+      handle: css`
+        font-size: 1rem;
+        color: ${theme.vars.colors.text.secondary};
+        margin: 0;
+        font-family: monospace;
+      `,
+      header: css`
+        display: flex;
+        align-items: center;
+        gap: calc(${theme.vars.spacing.unit} * 2);
+        margin-bottom: calc(${theme.vars.spacing.unit} * 3);
+        padding-bottom: calc(${theme.vars.spacing.unit} * 2);
+      `,
+      infoContainer: css`
+        display: flex;
+        flex-direction: column;
+        gap: ${theme.vars.spacing.unit};
+      `,
+      label: css`
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: ${theme.vars.colors.text.secondary};
+        width: 120px;
+        flex-shrink: 0;
+        line-height: 28px;
+      `,
+      name: css`
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin: 0 0 8px 0;
+        color: ${theme.vars.colors.text.primary};
+      `,
+      orgInfo: css`
+        flex: 1;
+      `,
+      permissionBadge: css`
+        padding: calc(${theme.vars.spacing.unit} / 4) ${theme.vars.spacing.unit};
+        border-radius: ${theme.vars.borderRadius.small};
+        font-size: 0.75rem;
+        background-color: ${theme.vars.colors.primary.main};
+        color: ${theme.vars.colors.primary.contrastText};
+        border: 1px solid ${theme.vars.colors.border};
+      `,
+      permissionsList: css`
+        display: flex;
+        flex-wrap: wrap;
+        gap: calc(${theme.vars.spacing.unit} / 2);
       `,
       placeholderButton: css`
         font-style: italic;
@@ -171,11 +142,40 @@ const useStyles = (theme: Theme, colorScheme: string) => {
         padding: 0;
         min-height: auto;
       `,
-      fieldInput: css`
-        margin-bottom: 0;
+      popup: css`
+        padding: calc(${theme.vars.spacing.unit} * 2);
       `,
-    };
-  }, [theme, colorScheme]);
-};
+      root: css`
+        padding: calc(${theme.vars.spacing.unit} * 4);
+        min-width: 600px;
+        margin: 0 auto;
+      `,
+      statusBadge: css`
+        padding: calc(${theme.vars.spacing.unit} / 2) ${theme.vars.spacing.unit};
+        border-radius: ${theme.vars.borderRadius.small};
+        font-size: 0.75rem;
+        font-weight: 500;
+        color: white;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      `,
+      value: css`
+        color: ${theme.vars.colors.text.primary};
+        flex: 1;
+        display: flex;
+        align-items: center;
+        gap: ${theme.vars.spacing.unit};
+        overflow: hidden;
+        min-height: 28px;
+        line-height: 28px;
+        word-break: break-word;
+      `,
+      valueEmpty: css`
+        font-style: italic;
+        opacity: 0.7;
+      `,
+    }),
+    [theme, colorScheme],
+  );
 
 export default useStyles;

@@ -16,9 +16,9 @@
  * under the License.
  */
 
-import {FC} from 'react';
-import TextField from '../primitives/TextField/TextField';
+import {ChangeEvent, FC} from 'react';
 import {AdapterProps} from '../../models/adapters';
+import TextField from '../primitives/TextField/TextField';
 
 /**
  * Telephone input component for sign-up forms.
@@ -30,7 +30,7 @@ const TelephoneInput: FC<AdapterProps> = ({
   formErrors,
   onInputChange,
   inputClassName,
-}) => {
+}: AdapterProps) => {
   const config: Record<string, unknown> = component.config || {};
   const fieldName: string = (config['identifier'] as string) || (config['name'] as string) || component.id;
   const value: string = formValues[fieldName] || '';
@@ -46,7 +46,7 @@ const TelephoneInput: FC<AdapterProps> = ({
       required={(config['required'] as boolean) || false}
       value={value}
       error={error}
-      onChange={e => onInputChange(fieldName, e.target.value)}
+      onChange={(e: ChangeEvent<HTMLInputElement>): void => onInputChange(fieldName, e.target.value)}
       className={inputClassName}
       helperText={(config['hint'] as string) || ''}
     />

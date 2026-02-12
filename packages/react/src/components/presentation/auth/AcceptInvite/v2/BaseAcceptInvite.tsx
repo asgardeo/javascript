@@ -16,206 +16,207 @@
  * under the License.
  */
 
-import { FC, ReactElement, ReactNode, useCallback, useEffect, useRef, useState } from 'react';
-import { cx } from '@emotion/css';
-import { renderInviteUserComponents } from '../../AuthOptionFactory';
-import { normalizeFlowResponse, extractErrorMessage } from '../../../../../utils/v2/flowTransformer';
-import useTranslation from '../../../../../hooks/useTranslation';
-import useTheme from '../../../../../contexts/Theme/useTheme';
+import {cx} from '@emotion/css';
+import {FC, ReactElement, ReactNode, useCallback, useEffect, useRef, useState} from 'react';
 import useStyles from './BaseAcceptInvite.styles';
-import Card, { CardProps } from '../../../../primitives/Card/Card';
-import Typography from '../../../../primitives/Typography/Typography';
-import Alert from '../../../../primitives/Alert/Alert';
-import Spinner from '../../../../primitives/Spinner/Spinner';
+import useTheme from '../../../../../contexts/Theme/useTheme';
+import useTranslation from '../../../../../hooks/useTranslation';
+import {normalizeFlowResponse, extractErrorMessage} from '../../../../../utils/v2/flowTransformer';
+import AlertPrimitive from '../../../../primitives/Alert/Alert';
 import Button from '../../../../primitives/Button/Button';
+// eslint-disable-next-line import/no-named-as-default
+import CardPrimitive, {CardProps} from '../../../../primitives/Card/Card';
+import Spinner from '../../../../primitives/Spinner/Spinner';
+import Typography from '../../../../primitives/Typography/Typography';
+import {renderInviteUserComponents} from '../../AuthOptionFactory';
 
 /**
  * Flow response structure from the backend.
  */
 export interface AcceptInviteFlowResponse {
-    flowId: string;
-    flowStatus: 'INCOMPLETE' | 'COMPLETE' | 'ERROR';
-    type?: 'VIEW' | 'REDIRECTION';
-    data?: {
-        components?: any[];
-        meta?: {
-            components?: any[];
-        };
-        additionalData?: Record<string, string>;
+  data?: {
+    additionalData?: Record<string, string>;
+    components?: any[];
+    meta?: {
+      components?: any[];
     };
-    failureReason?: string;
+  };
+  failureReason?: string;
+  flowId: string;
+  flowStatus: 'INCOMPLETE' | 'COMPLETE' | 'ERROR';
+  type?: 'VIEW' | 'REDIRECTION';
 }
 
 /**
  * Render props for custom UI rendering of AcceptInvite.
  */
 export interface BaseAcceptInviteRenderProps {
-    /**
-     * Form values for the current step.
-     */
-    values: Record<string, string>;
+  /**
+   * Title from the password screen (for use in completion screen).
+   */
+  completionTitle?: string;
 
-    /**
-     * Field validation errors.
-     */
-    fieldErrors: Record<string, string>;
+  /**
+   * Flow components from the current step.
+   */
+  components: any[];
 
-    /**
-     * API error (if any).
-     */
-    error?: Error | null;
+  /**
+   * API error (if any).
+   */
+  error?: Error | null;
 
-    /**
-     * Touched fields.
-     */
-    touched: Record<string, boolean>;
+  /**
+   * Field validation errors.
+   */
+  fieldErrors: Record<string, string>;
 
-    /**
-     * Loading state.
-     */
-    isLoading: boolean;
+  /**
+   * Current flow ID from URL.
+   */
+  flowId?: string;
 
-    /**
-     * Flow components from the current step.
-     */
-    components: any[];
+  /**
+   * Navigate to sign in page.
+   */
+  goToSignIn?: () => void;
 
-    /**
-     * Current flow ID from URL.
-     */
-    flowId?: string;
+  /**
+   * Function to handle input blur.
+   */
+  handleInputBlur: (name: string) => void;
 
-    /**
-     * Invite token from URL.
-     */
-    inviteToken?: string;
+  /**
+   * Function to handle input changes.
+   */
+  handleInputChange: (name: string, value: string) => void;
 
-    /**
-     * Function to handle input changes.
-     */
-    handleInputChange: (name: string, value: string) => void;
+  /**
+   * Function to handle form submission.
+   */
+  handleSubmit: (component: any, data?: Record<string, any>) => Promise<void>;
 
-    /**
-     * Function to handle input blur.
-     */
-    handleInputBlur: (name: string) => void;
+  /**
+   * Invite token from URL.
+   */
+  inviteToken?: string;
 
-    /**
-     * Function to handle form submission.
-     */
-    handleSubmit: (component: any, data?: Record<string, any>) => Promise<void>;
+  /**
+   * Whether the flow has completed successfully.
+   */
+  isComplete: boolean;
 
-    /**
-     * Whether the flow has completed successfully.
-     */
-    isComplete: boolean;
+  /**
+   * Loading state.
+   */
+  isLoading: boolean;
 
-    /**
-     * Whether the invite token is being validated.
-     */
-    isValidatingToken: boolean;
+  /**
+   * Whether the token validation failed.
+   */
+  isTokenInvalid: boolean;
 
-    /**
-     * Whether the token validation failed.
-     */
-    isTokenInvalid: boolean;
+  /**
+   * Whether the form is valid.
+   */
+  isValid: boolean;
 
-    /**
-     * Title for the current step.
-     */
-    title?: string;
+  /**
+   * Whether the invite token is being validated.
+   */
+  isValidatingToken: boolean;
 
-    /**
-     * Subtitle for the current step.
-     */
-    subtitle?: string;
+  /**
+   * Subtitle for the current step.
+   */
+  subtitle?: string;
 
-    /**
-     * Whether the form is valid.
-     */
-    isValid: boolean;
+  /**
+   * Title for the current step.
+   */
+  title?: string;
 
-    /**
-     * Navigate to sign in page.
-     */
-    goToSignIn?: () => void;
+  /**
+   * Touched fields.
+   */
+  touched: Record<string, boolean>;
 
-    /**
-     * Title from the password screen (for use in completion screen).
-     */
-    completionTitle?: string;
+  /**
+   * Form values for the current step.
+   */
+  values: Record<string, string>;
 }
 
 /**
  * Props for the BaseAcceptInvite component.
  */
 export interface BaseAcceptInviteProps {
-    /**
-     * Flow ID from the invite link URL.
-     */
-    flowId?: string;
+  /**
+   * Render props function for custom UI.
+   * If not provided, default UI will be rendered.
+   */
+  children?: (props: BaseAcceptInviteRenderProps) => ReactNode;
 
-    /**
-     * Invite token from the invite link URL.
-     */
-    inviteToken?: string;
+  /**
+   * Custom CSS class name.
+   */
+  className?: string;
 
-    /**
-     * Callback when the flow completes successfully.
-     */
-    onComplete?: () => void;
+  /**
+   * Flow ID from the invite link URL.
+   */
+  flowId?: string;
 
-    /**
-     * Callback when an error occurs.
-     */
-    onError?: (error: Error) => void;
+  /**
+   * Invite token from the invite link URL.
+   */
+  inviteToken?: string;
 
-    /**
-     * Callback when the flow state changes.
-     */
-    onFlowChange?: (response: AcceptInviteFlowResponse) => void;
+  /**
+   * Callback when the flow completes successfully.
+   */
+  onComplete?: () => void;
 
-    /**
-     * Function to submit flow step data.
-     * This makes a request to the flow/execute endpoint.
-     */
-    onSubmit: (payload: Record<string, any>) => Promise<AcceptInviteFlowResponse>;
+  /**
+   * Callback when an error occurs.
+   */
+  onError?: (error: Error) => void;
 
-    /**
-     * Callback to navigate to sign in page.
-     */
-    onGoToSignIn?: () => void;
+  /**
+   * Callback when the flow state changes.
+   */
+  onFlowChange?: (response: AcceptInviteFlowResponse) => void;
 
-    /**
-     * Custom CSS class name.
-     */
-    className?: string;
+  /**
+   * Callback to navigate to sign in page.
+   */
+  onGoToSignIn?: () => void;
 
-    /**
-     * Render props function for custom UI.
-     * If not provided, default UI will be rendered.
-     */
-    children?: (props: BaseAcceptInviteRenderProps) => ReactNode;
+  /**
+   * Function to submit flow step data.
+   * This makes a request to the flow/execute endpoint.
+   */
+  onSubmit: (payload: Record<string, any>) => Promise<AcceptInviteFlowResponse>;
 
-    /**
-     * Size variant for the component.
-     */
-    size?: 'small' | 'medium' | 'large';
+  /**
+   * Whether to show the subtitle.
+   */
+  showSubtitle?: boolean;
 
-    /**
-     * Theme variant for the component.
-     */
-    variant?: CardProps['variant'];
+  /**
+   * Whether to show the title.
+   */
+  showTitle?: boolean;
 
-    /**
-     * Whether to show the title.
-     */
-    showTitle?: boolean;
+  /**
+   * Size variant for the component.
+   */
+  size?: 'small' | 'medium' | 'large';
 
-    /**
-     * Whether to show the subtitle.
-     */
-    showSubtitle?: boolean;
+  /**
+   * Theme variant for the component.
+   */
+  variant?: CardProps['variant'];
 }
 
 /**
@@ -234,468 +235,507 @@ export interface BaseAcceptInviteProps {
  * 3. Flow completion
  */
 const BaseAcceptInvite: FC<BaseAcceptInviteProps> = ({
-    flowId,
-    inviteToken,
-    onSubmit,
-    onComplete,
-    onError,
-    onFlowChange,
-    onGoToSignIn,
-    className = '',
-    children,
-    size = 'medium',
-    variant = 'outlined',
-    showTitle = true,
-    showSubtitle = true,
-}) => {
-    const { t } = useTranslation();
-    const { theme } = useTheme();
-    const styles = useStyles(theme, theme.vars.colors.text.primary);
-    const [isLoading, setIsLoading] = useState(false);
-    const [isValidatingToken, setIsValidatingToken] = useState(true);
-    const [isTokenInvalid, setIsTokenInvalid] = useState(false);
-    const [isComplete, setIsComplete] = useState(false);
-    const [currentFlow, setCurrentFlow] = useState<AcceptInviteFlowResponse | null>(null);
-    const [apiError, setApiError] = useState<Error | null>(null);
-    const [formValues, setFormValues] = useState<Record<string, string>>({});
-    const [formErrors, setFormErrors] = useState<Record<string, string>>({});
-    const [touchedFields, setTouchedFields] = useState<Record<string, boolean>>({});
-    const [isFormValid, setIsFormValid] = useState(true);
-    const [completionTitle, setCompletionTitle] = useState<string | undefined>(undefined);
+  flowId,
+  inviteToken,
+  onSubmit,
+  onComplete,
+  onError,
+  onFlowChange,
+  onGoToSignIn,
+  className = '',
+  children,
+  size = 'medium',
+  variant = 'outlined',
+  showTitle = true,
+  showSubtitle = true,
+}: BaseAcceptInviteProps): ReactElement => {
+  const {t} = useTranslation();
+  const {theme} = useTheme();
+  const styles: any = useStyles(theme, theme.vars.colors.text.primary);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isValidatingToken, setIsValidatingToken] = useState(true);
+  const [isTokenInvalid, setIsTokenInvalid] = useState(false);
+  const [isComplete, setIsComplete] = useState(false);
+  const [currentFlow, setCurrentFlow] = useState<AcceptInviteFlowResponse | null>(null);
+  const [apiError, setApiError] = useState<Error | null>(null);
+  const [formValues, setFormValues] = useState<Record<string, string>>({});
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+  const [touchedFields, setTouchedFields] = useState<Record<string, boolean>>({});
+  const [isFormValid, setIsFormValid] = useState(true);
+  const [completionTitle, setCompletionTitle] = useState<string | undefined>(undefined);
 
-    const tokenValidationAttemptedRef = useRef(false);
+  const tokenValidationAttemptedRef: any = useRef(false);
 
-    /**
-     * Handle error responses and extract meaningful error messages.
-     * Uses the transformer's extractErrorMessage function for consistency.
-     */
-    const handleError = useCallback(
-        (error: any) => {
-            // Extract error message from response failureReason or use extractErrorMessage
-            const errorMessage: string = error?.failureReason || extractErrorMessage(error, t, 'components.acceptInvite.errors.generic');
+  /**
+   * Handle error responses and extract meaningful error messages.
+   * Uses the transformer's extractErrorMessage function for consistency.
+   */
+  const handleError: any = useCallback(
+    (error: any) => {
+      // Extract error message from response failureReason or use extractErrorMessage
+      const errorMessage: string =
+        error?.failureReason || extractErrorMessage(error, t, 'components.acceptInvite.errors.generic');
 
-            // Set the API error state
-            setApiError(error instanceof Error ? error : new Error(errorMessage));
+      // Set the API error state
+      setApiError(error instanceof Error ? error : new Error(errorMessage));
 
-            // Call the onError callback if provided
-            onError?.(error instanceof Error ? error : new Error(errorMessage));
-        },
-        [t, onError],
-    );
+      // Call the onError callback if provided
+      onError?.(error instanceof Error ? error : new Error(errorMessage));
+    },
+    [t, onError],
+  );
 
-    /**
-     * Normalize flow response to ensure component-driven format.
-     * Transforms data.meta.components to data.components.
-     */
-    const normalizeFlowResponseLocal = useCallback(
-        (response: AcceptInviteFlowResponse): AcceptInviteFlowResponse => {
-            if (!response?.data?.meta?.components) {
-                return response;
-            }
+  /**
+   * Normalize flow response to ensure component-driven format.
+   * Transforms data.meta.components to data.components.
+   */
+  const normalizeFlowResponseLocal: any = useCallback(
+    (response: AcceptInviteFlowResponse): AcceptInviteFlowResponse => {
+      if (!response?.data?.meta?.components) {
+        return response;
+      }
 
-            try {
-                const { components } = normalizeFlowResponse(response, t, {
-                    defaultErrorKey: 'components.acceptInvite.errors.generic',
-                    resolveTranslations: !children,
-                });
-
-                return {
-                    ...response,
-                    data: {
-                        ...response.data,
-                        components: components as any,
-                    },
-                };
-            } catch {
-                // If transformer throws (e.g., error response), return as-is
-                return response;
-            }
-        },
-        [t, children],
-    );
-
-    /**
-     * Handle input value changes.
-     */
-    const handleInputChange = useCallback((name: string, value: string) => {
-        setFormValues(prev => ({ ...prev, [name]: value }));
-        // Clear error when user starts typing
-        setFormErrors(prev => {
-            const newErrors = { ...prev };
-            delete newErrors[name];
-            return newErrors;
+      try {
+        const {components} = normalizeFlowResponse(response, t, {
+          defaultErrorKey: 'components.acceptInvite.errors.generic',
+          resolveTranslations: !children,
         });
-    }, []);
 
-    /**
-     * Handle input blur.
-     */
-    const handleInputBlur = useCallback((name: string) => {
-        setTouchedFields(prev => ({ ...prev, [name]: true }));
-    }, []);
+        return {
+          ...response,
+          data: {
+            ...response.data,
+            components: components as any,
+          },
+        };
+      } catch {
+        // If transformer throws (e.g., error response), return as-is
+        return response;
+      }
+    },
+    [t, children],
+  );
 
-    /**
-     * Validate required fields based on components.
-     */
-    const validateForm = useCallback(
-        (components: any[]): { isValid: boolean; errors: Record<string, string> } => {
-            const errors: Record<string, string> = {};
+  /**
+   * Handle input value changes.
+   */
+  const handleInputChange: any = useCallback((name: string, value: string) => {
+    setFormValues((prev: any) => ({...prev, [name]: value}));
+    // Clear error when user starts typing
+    setFormErrors((prev: any) => {
+      const newErrors: any = {...prev};
+      delete newErrors[name];
+      return newErrors;
+    });
+  }, []);
 
-            const validateComponents = (comps: any[]) => {
-                comps.forEach(comp => {
-                    if (
-                        (comp.type === 'PASSWORD_INPUT' || comp.type === 'TEXT_INPUT' || comp.type === 'EMAIL_INPUT') &&
-                        comp.required &&
-                        comp.ref
-                    ) {
-                        const value = formValues[comp.ref];
-                        if (!value || value.trim() === '') {
-                            errors[comp.ref] = `${comp.label || comp.ref} is required`;
-                        }
-                    }
-                    if (comp.components && Array.isArray(comp.components)) {
-                        validateComponents(comp.components);
-                    }
-                });
-            };
+  /**
+   * Handle input blur.
+   */
+  const handleInputBlur: any = useCallback((name: string) => {
+    setTouchedFields((prev: any) => ({...prev, [name]: true}));
+  }, []);
 
-            validateComponents(components);
+  /**
+   * Validate required fields based on components.
+   */
+  const validateForm: any = useCallback(
+    (components: any[]): {errors: Record<string, string>; isValid: boolean} => {
+      const errors: Record<string, string> = {};
 
-            return { isValid: Object.keys(errors).length === 0, errors };
-        },
-        [formValues],
-    );
-
-    /**
-     * Handle form submission.
-     */
-    const handleSubmit = useCallback(
-        async (component: any, data?: Record<string, any>) => {
-            if (!currentFlow) {
-                return;
+      const validateComponents = (comps: any[]): any => {
+        comps.forEach((comp: any) => {
+          if (
+            (comp.type === 'PASSWORD_INPUT' || comp.type === 'TEXT_INPUT' || comp.type === 'EMAIL_INPUT') &&
+            comp.required &&
+            comp.ref
+          ) {
+            const value: any = formValues[comp.ref];
+            if (!value || value.trim() === '') {
+              errors[comp.ref] = `${comp.label || comp.ref} is required`;
             }
+          }
+          if (comp.components && Array.isArray(comp.components)) {
+            validateComponents(comp.components);
+          }
+        });
+      };
 
-            // Validate form before submission
-            const components = currentFlow.data?.components || [];
-            const validation = validateForm(components);
+      validateComponents(components);
 
-            if (!validation.isValid) {
-                setFormErrors(validation.errors);
-                setIsFormValid(false);
-                // Mark all fields as touched
-                const touched: Record<string, boolean> = {};
-                Object.keys(validation.errors).forEach(key => {
-                    touched[key] = true;
-                });
-                setTouchedFields(prev => ({ ...prev, ...touched }));
-                return;
-            }
+      return {errors, isValid: Object.keys(errors).length === 0};
+    },
+    [formValues],
+  );
 
-            setIsLoading(true);
-            setApiError(null);
-            setIsFormValid(true);
+  /**
+   * Handle form submission.
+   */
+  const handleSubmit: any = useCallback(
+    async (component: any, data?: Record<string, any>) => {
+      if (!currentFlow) {
+        return;
+      }
 
-            try {
-                // Build payload with form values
-                const inputs = data || formValues;
+      // Validate form before submission
+      const components: any = currentFlow.data?.components || [];
+      const validation: any = validateForm(components);
 
-                const payload: Record<string, any> = {
-                    flowId: currentFlow.flowId,
-                    inputs,
-                    verbose: true,
-                };
+      if (!validation.isValid) {
+        setFormErrors(validation.errors);
+        setIsFormValid(false);
+        // Mark all fields as touched
+        const touched: Record<string, boolean> = {};
+        Object.keys(validation.errors).forEach((key: any) => {
+          touched[key] = true;
+        });
+        setTouchedFields((prev: any) => ({...prev, ...touched}));
+        return;
+      }
 
-                // Add action ID if component has one
-                if (component?.id) {
-                    payload['action'] = component.id;
-                }
+      setIsLoading(true);
+      setApiError(null);
+      setIsFormValid(true);
 
-                const rawResponse = await onSubmit(payload);
-                const response = normalizeFlowResponseLocal(rawResponse);
-                onFlowChange?.(response);
+      try {
+        // Build payload with form values
+        const inputs: any = data || formValues;
 
-                // Store the heading from current flow before completion
-                if (currentFlow?.data?.components || currentFlow?.data?.meta?.components) {
-                    const currentComponents = currentFlow.data.components || currentFlow.data.meta?.components || [];
-                    const heading = currentComponents.find(
-                        (comp: any) => comp.type === 'TEXT' && comp.variant === 'HEADING_1'
-                    );
-                    if (heading?.label) {
-                        setCompletionTitle(heading.label);
-                    }
-                }
+        const payload: Record<string, any> = {
+          flowId: currentFlow.flowId,
+          inputs,
+          verbose: true,
+        };
 
-                // Check for completion
-                if (response.flowStatus === 'COMPLETE') {
-                    setIsComplete(true);
-                    onComplete?.();
-                    return;
-                }
-
-                // Check for error status
-                if (response.flowStatus === 'ERROR') {
-                    handleError(response);
-                    return;
-                }
-
-                // Update current flow and reset form for next step
-                setCurrentFlow(response);
-                setFormValues({});
-                setFormErrors({});
-                setTouchedFields({});
-            } catch (err) {
-                handleError(err);
-            } finally {
-                setIsLoading(false);
-            }
-        },
-        [currentFlow, formValues, validateForm, onSubmit, onFlowChange, onComplete, handleError, normalizeFlowResponseLocal],
-    );
-
-    /**
-     * Validate invite token on component mount.
-     */
-    useEffect(() => {
-        if (!flowId || !inviteToken || tokenValidationAttemptedRef.current) {
-            if (!flowId || !inviteToken) {
-                setIsValidatingToken(false);
-                setIsTokenInvalid(true);
-                handleError(new Error('Invalid invite link. Missing flowId or inviteToken.'));
-            }
-            return;
+        // Add action ID if component has one
+        if (component?.id) {
+          payload['action'] = component.id;
         }
 
-        tokenValidationAttemptedRef.current = true;
+        const rawResponse: any = await onSubmit(payload);
+        const response: any = normalizeFlowResponseLocal(rawResponse);
+        onFlowChange?.(response);
 
-        (async () => {
-            setIsValidatingToken(true);
-            setApiError(null);
+        // Store the heading from current flow before completion
+        if (currentFlow?.data?.components || currentFlow?.data?.meta?.components) {
+          const currentComponents: any = currentFlow.data.components || currentFlow.data.meta?.components || [];
+          const heading: any = currentComponents.find(
+            (comp: any) => comp.type === 'TEXT' && comp.variant === 'HEADING_1',
+          );
+          if (heading?.label) {
+            setCompletionTitle(heading.label);
+          }
+        }
 
-            try {
-                // Send the invite token to validate and continue the flow
-                const payload = {
-                    flowId,
-                    inputs: {
-                        inviteToken,
-                    },
-                    verbose: true,
-                };
+        // Check for completion
+        if (response.flowStatus === 'COMPLETE') {
+          setIsComplete(true);
+          onComplete?.();
+          return;
+        }
 
-                const rawResponse = await onSubmit(payload);
-                const response = normalizeFlowResponseLocal(rawResponse);
-                onFlowChange?.(response);
+        // Check for error status
+        if (response.flowStatus === 'ERROR') {
+          handleError(response);
+          return;
+        }
 
-                // Check for error (invalid token)
-                if (response.flowStatus === 'ERROR') {
-                    setIsTokenInvalid(true);
-                    handleError(response);
-                    return;
-                }
+        // Update current flow and reset form for next step
+        setCurrentFlow(response);
+        setFormValues({});
+        setFormErrors({});
+        setTouchedFields({});
+      } catch (err) {
+        handleError(err);
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [
+      currentFlow,
+      formValues,
+      validateForm,
+      onSubmit,
+      onFlowChange,
+      onComplete,
+      handleError,
+      normalizeFlowResponseLocal,
+    ],
+  );
 
-                // Token is valid, show the password form
-                setCurrentFlow(response);
-            } catch (err) {
-                setIsTokenInvalid(true);
-                handleError(err);
-            } finally {
-                setIsValidatingToken(false);
-            }
-        })();
-    }, [flowId, inviteToken, onSubmit, onFlowChange, handleError, normalizeFlowResponseLocal]);
+  /**
+   * Validate invite token on component mount.
+   */
+  useEffect(() => {
+    if (!flowId || !inviteToken || tokenValidationAttemptedRef.current) {
+      if (!flowId || !inviteToken) {
+        setIsValidatingToken(false);
+        setIsTokenInvalid(true);
+        handleError(new Error('Invalid invite link. Missing flowId or inviteToken.'));
+      }
+      return;
+    }
 
-    /**
-     * Extract title and subtitle from components.
-     */
-    const extractHeadings = useCallback((components: any[]): { title?: string; subtitle?: string } => {
-        let title: string | undefined;
-        let subtitle: string | undefined;
+    tokenValidationAttemptedRef.current = true;
 
-        components.forEach(comp => {
-            if (comp.type === 'TEXT') {
-                if (comp.variant === 'HEADING_1' && !title) {
-                    title = comp.label;
-                } else if ((comp.variant === 'HEADING_2' || comp.variant === 'SUBTITLE_1') && !subtitle) {
-                    subtitle = comp.label;
-                }
-            }
-        });
+    (async (): Promise<void> => {
+      setIsValidatingToken(true);
+      setApiError(null);
 
-        return { title, subtitle };
-    }, []);
+      try {
+        // Send the invite token to validate and continue the flow
+        const payload: any = {
+          flowId,
+          inputs: {
+            inviteToken,
+          },
+          verbose: true,
+        };
 
-    /**
-     * Filter out heading components for default rendering.
-     */
-    const filterHeadings = useCallback((components: any[]): any[] => {
-        return components.filter(
-            comp => !(comp.type === 'TEXT' && (comp.variant === 'HEADING_1' || comp.variant === 'HEADING_2')),
-        );
-    }, []);
+        const rawResponse: any = await onSubmit(payload);
+        const response: any = normalizeFlowResponseLocal(rawResponse);
+        onFlowChange?.(response);
 
-    /**
-     * Render form components using the factory.
-     */
-    const renderComponents = useCallback(
-        (components: any[]): ReactElement[] =>
-            renderInviteUserComponents(components, formValues, touchedFields, formErrors, isLoading, isFormValid, handleInputChange, {
-                onInputBlur: handleInputBlur,
-                onSubmit: handleSubmit,
-                size,
-                variant,
-            }),
-        [formValues, touchedFields, formErrors, isLoading, isFormValid, handleInputChange, handleInputBlur, handleSubmit, size, variant],
-    );
+        // Check for error (invalid token)
+        if (response.flowStatus === 'ERROR') {
+          setIsTokenInvalid(true);
+          handleError(response);
+          return;
+        }
 
-    // Get components from normalized response, with fallback to meta.components
-    const components = currentFlow?.data?.components || currentFlow?.data?.meta?.components || [];
-    const { title, subtitle } = extractHeadings(components);
-    const componentsWithoutHeadings = filterHeadings(components);
+        // Token is valid, show the password form
+        setCurrentFlow(response);
+      } catch (err) {
+        setIsTokenInvalid(true);
+        handleError(err);
+      } finally {
+        setIsValidatingToken(false);
+      }
+    })();
+  }, [flowId, inviteToken, onSubmit, onFlowChange, handleError, normalizeFlowResponseLocal]);
 
-    // Render props
-    const renderProps: BaseAcceptInviteRenderProps = {
-        values: formValues,
-        fieldErrors: formErrors,
-        error: apiError,
-        touched: touchedFields,
-        isLoading,
+  /**
+   * Extract title and subtitle from components.
+   */
+  const extractHeadings: any = useCallback((components: any[]): {subtitle?: string; title?: string} => {
+    let title: string | undefined;
+    let subtitle: string | undefined;
+
+    components.forEach((comp: any) => {
+      if (comp.type === 'TEXT') {
+        if (comp.variant === 'HEADING_1' && !title) {
+          title = comp.label;
+        } else if ((comp.variant === 'HEADING_2' || comp.variant === 'SUBTITLE_1') && !subtitle) {
+          subtitle = comp.label;
+        }
+      }
+    });
+
+    return {subtitle, title};
+  }, []);
+
+  /**
+   * Filter out heading components for default rendering.
+   */
+  const filterHeadings: any = useCallback(
+    (components: any[]): any[] =>
+      components.filter(
+        (comp: any) => !(comp.type === 'TEXT' && (comp.variant === 'HEADING_1' || comp.variant === 'HEADING_2')),
+      ),
+    [],
+  );
+
+  /**
+   * Render form components using the factory.
+   */
+  const renderComponents: any = useCallback(
+    (components: any[]): ReactElement[] =>
+      renderInviteUserComponents(
         components,
-        flowId,
-        inviteToken,
+        formValues,
+        touchedFields,
+        formErrors,
+        isLoading,
+        isFormValid,
         handleInputChange,
-        handleInputBlur,
-        handleSubmit,
-        isComplete,
-        isValidatingToken,
-        isTokenInvalid,
-        title,
-        subtitle,
-        isValid: isFormValid,
-        goToSignIn: onGoToSignIn,
-        completionTitle,
-    };
+        {
+          onInputBlur: handleInputBlur,
+          onSubmit: handleSubmit,
+          size,
+          variant,
+        },
+      ),
+    [
+      formValues,
+      touchedFields,
+      formErrors,
+      isLoading,
+      isFormValid,
+      handleInputChange,
+      handleInputBlur,
+      handleSubmit,
+      size,
+      variant,
+    ],
+  );
 
-    // If children render prop is provided, use it for custom UI
-    if (children) {
-        return <div className={className}>{children(renderProps)}</div>;
-    }
+  // Get components from normalized response, with fallback to meta.components
+  const components: any = currentFlow?.data?.components || currentFlow?.data?.meta?.components || [];
+  const {title, subtitle} = extractHeadings(components);
+  const componentsWithoutHeadings: any = filterHeadings(components);
 
-    // Default rendering
+  // Render props
+  const renderProps: BaseAcceptInviteRenderProps = {
+    completionTitle,
+    components,
+    error: apiError,
+    fieldErrors: formErrors,
+    flowId,
+    goToSignIn: onGoToSignIn,
+    handleInputBlur,
+    handleInputChange,
+    handleSubmit,
+    inviteToken,
+    isComplete,
+    isLoading,
+    isTokenInvalid,
+    isValid: isFormValid,
+    isValidatingToken,
+    subtitle,
+    title,
+    touched: touchedFields,
+    values: formValues,
+  };
 
-    // Loading state during token validation
-    if (isValidatingToken) {
-        return (
-            <Card className={cx(className, styles.card)} variant={variant}>
-                <Card.Content>
-                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '2rem', gap: '1rem' }}>
-                        <Spinner size="medium" />
-                        <Typography variant="body1">Validating your invite link...</Typography>
-                    </div>
-                </Card.Content>
-            </Card>
-        );
-    }
+  // If children render prop is provided, use it for custom UI
+  if (children) {
+    return <div className={className}>{children(renderProps)}</div>;
+  }
 
-    // Invalid token state
-    if (isTokenInvalid) {
-        return (
-            <Card className={cx(className, styles.card)} variant={variant}>
-                <Card.Header className={styles.header}>
-                    <Card.Title level={2} className={styles.title}>Invalid Invite Link</Card.Title>
-                </Card.Header>
-                <Card.Content>
-                    <Alert variant="error">
-                        <Alert.Title>Unable to verify invite</Alert.Title>
-                        <Alert.Description>
-                            {apiError?.message || 'This invite link is invalid or has expired. Please contact your administrator for a new invite.'}
-                        </Alert.Description>
-                    </Alert>
-                    {onGoToSignIn && (
-                        <div style={{ marginTop: '1.5rem', display: 'flex', justifyContent: 'center' }}>
-                            <Button variant="outline" onClick={onGoToSignIn}>
-                                Go to Sign In
-                            </Button>
-                        </div>
-                    )}
-                </Card.Content>
-            </Card>
-        );
-    }
+  // Default rendering
 
-    // Completion state
-    if (isComplete) {
-        return (
-            <Card className={cx(className, styles.card)} variant={variant}>
-                <Card.Header className={styles.header}>
-                    <Card.Title level={2} className={styles.title}>Account Setup Complete!</Card.Title>
-                </Card.Header>
-                <Card.Content>
-                    <Alert variant="success">
-                        <Alert.Description>
-                            Your account has been successfully set up. You can now sign in with your credentials.
-                        </Alert.Description>
-                    </Alert>
-                    {onGoToSignIn && (
-                        <div style={{ marginTop: '1.5rem', display: 'flex', justifyContent: 'center' }}>
-                            <Button variant="solid" color="primary" onClick={onGoToSignIn}>
-                                Sign In
-                            </Button>
-                        </div>
-                    )}
-                </Card.Content>
-            </Card>
-        );
-    }
-
-    // Flow components (password form)
+  // Loading state during token validation
+  if (isValidatingToken) {
     return (
-        <Card className={cx(className, styles.card)} variant={variant}>
-            {(showTitle || showSubtitle) && (title || subtitle) && (
-                <Card.Header className={styles.header}>
-                    {showTitle && title && <Card.Title level={2} className={styles.title}>{title}</Card.Title>}
-                    {showSubtitle && subtitle && <Typography variant="body1" className={styles.subtitle}>{subtitle}</Typography>}
-                </Card.Header>
-            )}
-            <Card.Content>
-                {apiError && (
-                    <div style={{ marginBottom: '1rem' }}>
-                        <Alert variant="error">
-                            <Alert.Description>{apiError.message}</Alert.Description>
-                        </Alert>
-                    </div>
-                )}
-                <div>
-                    {componentsWithoutHeadings && componentsWithoutHeadings.length > 0 ? (
-                        renderComponents(componentsWithoutHeadings)
-                    ) : (
-                        !isLoading && (
-                            <Alert variant="warning">
-                                <Typography variant="body1">No form components available</Typography>
-                            </Alert>
-                        )
-                    )}
-                    {isLoading && (
-                        <div style={{ display: 'flex', justifyContent: 'center', padding: '1rem' }}>
-                            <Spinner size="small" />
-                        </div>
-                    )}
-                </div>
-                {onGoToSignIn && (
-                    <div style={{ marginTop: '1.5rem', textAlign: 'center' }}>
-                        <Typography variant="body2">
-                            Already have an account?{' '}
-                            <Button
-                                variant="text"
-                                onClick={onGoToSignIn}
-                                style={{ padding: 0, minWidth: 'auto' }}
-                            >
-                                Sign In
-                            </Button>
-                        </Typography>
-                    </div>
-                )}
-            </Card.Content>
-        </Card>
+      <CardPrimitive className={cx(className, styles.card)} variant={variant}>
+        <CardPrimitive.Content>
+          <div style={{alignItems: 'center', display: 'flex', flexDirection: 'column', gap: '1rem', padding: '2rem'}}>
+            <Spinner size="medium" />
+            <Typography variant="body1">Validating your invite link...</Typography>
+          </div>
+        </CardPrimitive.Content>
+      </CardPrimitive>
     );
+  }
+
+  // Invalid token state
+  if (isTokenInvalid) {
+    return (
+      <CardPrimitive className={cx(className, styles.card)} variant={variant}>
+        <CardPrimitive.Header className={styles.header}>
+          <CardPrimitive.Title level={2} className={styles.title}>
+            Invalid Invite Link
+          </CardPrimitive.Title>
+        </CardPrimitive.Header>
+        <CardPrimitive.Content>
+          <AlertPrimitive variant="error">
+            <AlertPrimitive.Title>Unable to verify invite</AlertPrimitive.Title>
+            <AlertPrimitive.Description>
+              {apiError?.message ||
+                'This invite link is invalid or has expired. Please contact your administrator for a new invite.'}
+            </AlertPrimitive.Description>
+          </AlertPrimitive>
+          {onGoToSignIn && (
+            <div style={{display: 'flex', justifyContent: 'center', marginTop: '1.5rem'}}>
+              <Button variant="outline" onClick={onGoToSignIn}>
+                Go to Sign In
+              </Button>
+            </div>
+          )}
+        </CardPrimitive.Content>
+      </CardPrimitive>
+    );
+  }
+
+  // Completion state
+  if (isComplete) {
+    return (
+      <CardPrimitive className={cx(className, styles.card)} variant={variant}>
+        <CardPrimitive.Header className={styles.header}>
+          <CardPrimitive.Title level={2} className={styles.title}>
+            Account Setup Complete!
+          </CardPrimitive.Title>
+        </CardPrimitive.Header>
+        <CardPrimitive.Content>
+          <AlertPrimitive variant="success">
+            <AlertPrimitive.Description>
+              Your account has been successfully set up. You can now sign in with your credentials.
+            </AlertPrimitive.Description>
+          </AlertPrimitive>
+          {onGoToSignIn && (
+            <div style={{display: 'flex', justifyContent: 'center', marginTop: '1.5rem'}}>
+              <Button variant="solid" color="primary" onClick={onGoToSignIn}>
+                Sign In
+              </Button>
+            </div>
+          )}
+        </CardPrimitive.Content>
+      </CardPrimitive>
+    );
+  }
+
+  // Flow components (password form)
+  return (
+    <CardPrimitive className={cx(className, styles.card)} variant={variant}>
+      {(showTitle || showSubtitle) && (title || subtitle) && (
+        <CardPrimitive.Header className={styles.header}>
+          {showTitle && title && (
+            <CardPrimitive.Title level={2} className={styles.title}>
+              {title}
+            </CardPrimitive.Title>
+          )}
+          {showSubtitle && subtitle && (
+            <Typography variant="body1" className={styles.subtitle}>
+              {subtitle}
+            </Typography>
+          )}
+        </CardPrimitive.Header>
+      )}
+      <CardPrimitive.Content>
+        {apiError && (
+          <div style={{marginBottom: '1rem'}}>
+            <AlertPrimitive variant="error">
+              <AlertPrimitive.Description>{apiError.message}</AlertPrimitive.Description>
+            </AlertPrimitive>
+          </div>
+        )}
+        <div>
+          {componentsWithoutHeadings && componentsWithoutHeadings.length > 0
+            ? renderComponents(componentsWithoutHeadings)
+            : !isLoading && (
+                <AlertPrimitive variant="warning">
+                  <Typography variant="body1">No form components available</Typography>
+                </AlertPrimitive>
+              )}
+          {isLoading && (
+            <div style={{display: 'flex', justifyContent: 'center', padding: '1rem'}}>
+              <Spinner size="small" />
+            </div>
+          )}
+        </div>
+        {onGoToSignIn && (
+          <div style={{marginTop: '1.5rem', textAlign: 'center'}}>
+            <Typography variant="body2">
+              Already have an account?{' '}
+              <Button variant="text" onClick={onGoToSignIn} style={{minWidth: 'auto', padding: 0}}>
+                Sign In
+              </Button>
+            </Typography>
+          </div>
+        )}
+      </CardPrimitive.Content>
+    </CardPrimitive>
+  );
 };
 
 export default BaseAcceptInvite;

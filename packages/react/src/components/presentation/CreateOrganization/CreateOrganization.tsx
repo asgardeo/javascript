@@ -16,9 +16,9 @@
  * under the License.
  */
 
+import {CreateOrganizationPayload} from '@asgardeo/browser';
 import {FC, ReactElement, useState} from 'react';
 import {BaseCreateOrganization, BaseCreateOrganizationProps} from './BaseCreateOrganization';
-import {CreateOrganizationPayload} from '@asgardeo/browser';
 import createOrganization from '../../../api/createOrganization';
 import useAsgardeo from '../../../contexts/Asgardeo/useAsgardeo';
 import useOrganization from '../../../contexts/Organization/useOrganization';

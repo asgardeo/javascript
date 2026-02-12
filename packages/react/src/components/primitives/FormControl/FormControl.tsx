@@ -16,12 +16,12 @@
  * under the License.
  */
 
-import {CSSProperties, FC, ReactNode} from 'react';
-import useTheme from '../../../contexts/Theme/useTheme';
-import {cx} from '@emotion/css';
 import {bem, withVendorCSSClassPrefix} from '@asgardeo/browser';
-import Typography from '../Typography/Typography';
+import {cx} from '@emotion/css';
+import {CSSProperties, FC, ReactNode} from 'react';
 import useStyles from './FormControl.styles';
+import useTheme from '../../../contexts/Theme/useTheme';
+import Typography from '../Typography/Typography';
 
 export type FormControlHelperTextAlign = 'left' | 'center';
 
@@ -31,6 +31,10 @@ export interface FormControlProps {
    */
   children: ReactNode;
   /**
+   * Additional CSS class names
+   */
+  className?: string;
+  /**
    * Error message to display below the content
    */
   error?: string;
@@ -38,10 +42,6 @@ export interface FormControlProps {
    * Helper text to display below the content
    */
   helperText?: string;
-  /**
-   * Additional CSS class names
-   */
-  className?: string;
   /**
    * Custom alignment for helper text (default: left, center for OTP)
    */
@@ -63,20 +63,20 @@ const FormControl: FC<FormControlProps> = ({
   className,
   helperTextAlign = 'left',
   helperTextMarginLeft,
-}) => {
-  const {theme, colorScheme} = useTheme();
-  const styles = useStyles(theme, colorScheme, helperTextAlign, helperTextMarginLeft, !!error);
+}: FormControlProps) => {
+  const {theme, colorScheme}: ReturnType<typeof useTheme> = useTheme();
+  const styles: Record<string, string> = useStyles(theme, colorScheme, helperTextAlign, helperTextMarginLeft, !!error);
 
   return (
-    <div className={cx(withVendorCSSClassPrefix(bem('form-control')), styles.formControl, className)}>
+    <div className={cx(withVendorCSSClassPrefix(bem('form-control')), styles['formControl'], className)}>
       {children}
       {(error || helperText) && (
         <Typography
           variant="caption"
           color={error ? 'error' : 'textSecondary'}
-          className={cx(withVendorCSSClassPrefix(bem('form-control', 'helper-text')), styles.helperText, {
+          className={cx(withVendorCSSClassPrefix(bem('form-control', 'helper-text')), styles['helperText'], {
             [withVendorCSSClassPrefix(bem('form-control', 'helper-text', 'error'))]: !!error,
-            [styles.helperTextError]: !!error,
+            [styles['helperTextError']]: !!error,
           })}
         >
           {error || helperText}

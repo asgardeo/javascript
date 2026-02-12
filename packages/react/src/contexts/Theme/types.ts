@@ -59,6 +59,11 @@ export interface ThemeConfig {
   };
   colors: ThemeColors;
   /**
+   * The prefix used for CSS variables.
+   * @default 'asgardeo' (from VendorConstants.VENDOR_PREFIX)
+   */
+  cssVarPrefix?: string;
+  /**
    * The text direction for the UI.
    * @default 'ltr'
    */
@@ -71,60 +76,55 @@ export interface ThemeConfig {
   spacing: {
     unit: number;
   };
-  /**
-   * The prefix used for CSS variables.
-   * @default 'asgardeo' (from VendorConstants.VENDOR_PREFIX)
-   */
-  cssVarPrefix?: string;
 }
 
 export interface ThemeVars {
+  borderRadius: {
+    large: string;
+    medium: string;
+    small: string;
+  };
   colors: {
-    primary: {
-      main: string;
-      contrastText: string;
-    };
-    secondary: {
-      main: string;
-      contrastText: string;
-    };
     background: {
-      surface: string;
-      disabled: string;
       body: {
         main: string;
       };
+      disabled: string;
+      surface: string;
     };
+    border: string;
     error: {
-      main: string;
       contrastText: string;
+      main: string;
+    };
+    primary: {
+      contrastText: string;
+      main: string;
+    };
+    secondary: {
+      contrastText: string;
+      main: string;
     };
     success: {
-      main: string;
       contrastText: string;
-    };
-    warning: {
       main: string;
-      contrastText: string;
     };
     text: {
       primary: string;
       secondary: string;
     };
-    border: string;
+    warning: {
+      contrastText: string;
+      main: string;
+    };
+  };
+  shadows: {
+    large: string;
+    medium: string;
+    small: string;
   };
   spacing: {
     unit: string;
-  };
-  borderRadius: {
-    small: string;
-    medium: string;
-    large: string;
-  };
-  shadows: {
-    small: string;
-    medium: string;
-    large: string;
   };
 }
 

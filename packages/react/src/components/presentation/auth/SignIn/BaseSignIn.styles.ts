@@ -16,9 +16,9 @@
  * under the License.
  */
 
+import {Theme} from '@asgardeo/browser';
 import {css} from '@emotion/css';
 import {useMemo} from 'react';
-import {Theme} from '@asgardeo/browser';
 
 /**
  * Creates styles for the BaseSignIn component
@@ -26,158 +26,158 @@ import {Theme} from '@asgardeo/browser';
  * @param colorScheme - The current color scheme (used for memoization)
  * @returns Object containing CSS class names for component styling
  */
-const useStyles = (theme: Theme, colorScheme: string) => {
-  return useMemo(() => {
-    const signIn = css`
+const useStyles = (theme: Theme, colorScheme: string): Record<string, string> =>
+  useMemo(() => {
+    const signIn: string = css`
       min-width: 420px;
       margin: 0 auto;
     `;
 
-    const card = css`
+    const card: string = css`
       background: ${theme.vars.colors.background.surface};
       border-radius: ${theme.vars.borderRadius.large};
       gap: calc(${theme.vars.spacing.unit} * 2);
       min-width: 420px;
     `;
 
-    const logoContainer = css`
+    const logoContainer: string = css`
       display: flex;
       flex-direction: column;
       align-items: center;
       margin-bottom: calc(${theme.vars.spacing.unit} * 2);
     `;
 
-    const header = css`
+    const header: string = css`
       gap: 0;
       align-items: center;
     `;
 
-    const title = css`
+    const title: string = css`
       margin: 0 0 calc(${theme.vars.spacing.unit} * 1) 0;
       color: ${theme.vars.colors.text.primary};
     `;
 
-    const subtitle = css`
+    const subtitle: string = css`
       margin-bottom: calc(${theme.vars.spacing.unit} * 1);
       color: ${theme.vars.colors.text.secondary};
     `;
 
-    const messagesContainer = css`
+    const messagesContainer: string = css`
       margin-top: calc(${theme.vars.spacing.unit} * 2);
     `;
 
-    const messageItem = css`
+    const messageItem: string = css`
       margin-bottom: calc(${theme.vars.spacing.unit} * 1);
     `;
 
-    const errorContainer = css`
+    const errorContainer: string = css`
       margin-bottom: calc(${theme.vars.spacing.unit} * 2);
     `;
 
-    const contentContainer = css`
+    const contentContainer: string = css`
       display: flex;
       flex-direction: column;
       gap: calc(${theme.vars.spacing.unit} * 2);
     `;
 
-    const loadingContainer = css`
+    const loadingContainer: string = css`
       display: flex;
       flex-direction: column;
       align-items: center;
       padding: calc(${theme.vars.spacing.unit} * 4);
     `;
 
-    const loadingText = css`
+    const loadingText: string = css`
       margin-top: calc(${theme.vars.spacing.unit} * 2);
       color: ${theme.vars.colors.text.secondary};
     `;
 
-    const divider = css`
+    const divider: string = css`
       margin: calc(${theme.vars.spacing.unit} * 1) 0;
     `;
 
-    const centeredContainer = css`
+    const centeredContainer: string = css`
       text-align: center;
       padding: calc(${theme.vars.spacing.unit} * 4);
     `;
 
-    const passkeyContainer = css`
+    const passkeyContainer: string = css`
       margin-bottom: calc(${theme.vars.spacing.unit} * 2);
     `;
 
-    const passkeyText = css`
+    const passkeyText: string = css`
       margin-top: calc(${theme.vars.spacing.unit} * 1);
       color: ${theme.vars.colors.text.secondary};
     `;
 
-    const form = css`
+    const form: string = css`
       display: flex;
       flex-direction: column;
       gap: calc(${theme.vars.spacing.unit} * 2);
     `;
 
-    const formDivider = css`
+    const formDivider: string = css`
       margin: calc(${theme.vars.spacing.unit} * 1) 0;
     `;
 
-    const authenticatorSection = css`
+    const authenticatorSection: string = css`
       display: flex;
       flex-direction: column;
       gap: calc(${theme.vars.spacing.unit} * 1);
     `;
 
-    const authenticatorItem = css`
+    const authenticatorItem: string = css`
       width: 100%;
     `;
 
-    const noAuthenticatorCard = css`
+    const noAuthenticatorCard: string = css`
       background: ${theme.vars.colors.background.surface};
       border-radius: ${theme.vars.borderRadius.large};
       padding: calc(${theme.vars.spacing.unit} * 2);
     `;
 
-    const errorAlert = css`
+    const errorAlert: string = css`
       margin-bottom: calc(${theme.vars.spacing.unit} * 2);
     `;
 
-    const messagesAlert = css`
+    const messagesAlert: string = css`
       margin-bottom: calc(${theme.vars.spacing.unit} * 1);
     `;
 
-    const flowMessagesContainer = css`
+    const flowMessagesContainer: string = css`
       margin-bottom: calc(${theme.vars.spacing.unit} * 2);
     `;
 
-    const flowMessageItem = css`
+    const flowMessageItem: string = css`
       margin-bottom: calc(${theme.vars.spacing.unit} * 1);
     `;
 
     return {
-      signIn,
+      authenticatorItem,
+      authenticatorSection,
       card,
-      logoContainer,
-      header,
-      title,
-      subtitle,
-      messagesContainer,
-      messageItem,
-      errorContainer,
-      contentContainer,
-      loadingContainer,
-      loadingText,
-      divider,
       centeredContainer,
-      passkeyContainer,
-      passkeyText,
+      contentContainer,
+      divider,
+      errorAlert,
+      errorContainer,
+      flowMessageItem,
+      flowMessagesContainer,
       form,
       formDivider,
-      authenticatorSection,
-      authenticatorItem,
-      noAuthenticatorCard,
-      errorAlert,
+      header,
+      loadingContainer,
+      loadingText,
+      logoContainer,
+      messageItem,
       messagesAlert,
-      flowMessagesContainer,
-      flowMessageItem,
+      messagesContainer,
+      noAuthenticatorCard,
+      passkeyContainer,
+      passkeyText,
+      signIn,
+      subtitle,
+      title,
     };
   }, [
     theme.vars.colors.background.surface,
@@ -187,6 +187,5 @@ const useStyles = (theme: Theme, colorScheme: string) => {
     theme.vars.spacing.unit,
     colorScheme,
   ]);
-};
 
 export default useStyles;

@@ -16,9 +16,9 @@
  * under the License.
  */
 
+import {Theme} from '@asgardeo/browser';
 import {css} from '@emotion/css';
 import {useMemo} from 'react';
-import {Theme} from '@asgardeo/browser';
 
 export type ButtonColor = 'primary' | 'secondary' | 'tertiary' | string;
 export type ButtonVariant = 'solid' | 'outline' | 'text' | 'icon';
@@ -46,9 +46,17 @@ const useStyles = (
   disabled: boolean,
   loading: boolean,
   shape: 'square' | 'round' = 'square',
-) => {
-  return useMemo(() => {
-    const baseButton = css`
+): Record<string, string | null> =>
+  useMemo(() => {
+    const iconSizeMap: Record<string, string> = {
+      large: `calc(${theme.vars.spacing.unit} * 5)`,
+      medium: `calc(${theme.vars.spacing.unit} * 4)`,
+      small: `calc(${theme.vars.spacing.unit} * 3)`,
+    };
+
+    const iconDimension: string = iconSizeMap[size] || iconSizeMap['medium'];
+
+    const baseButton: string = css`
       display: inline-flex;
       align-items: center;
       justify-content: center;
@@ -71,33 +79,21 @@ const useStyles = (
         padding: 0;
         min-width: unset;
         min-height: unset;
-        width: ${
-          size === 'small'
-            ? `calc(${theme.vars.spacing.unit} * 3)`
-            : size === 'medium'
-            ? `calc(${theme.vars.spacing.unit} * 4)`
-            : `calc(${theme.vars.spacing.unit} * 5)`
-        };
-        height: ${
-          size === 'small'
-            ? `calc(${theme.vars.spacing.unit} * 3)`
-            : size === 'medium'
-            ? `calc(${theme.vars.spacing.unit} * 4)`
-            : `calc(${theme.vars.spacing.unit} * 5)`
-        };
+        width: ${iconDimension};
+        height: ${iconDimension};
         justify-content: center;
         align-items: center;
       `
         : ''}
     `;
 
-    const sizeStyles = {
-      small: css`
+    const sizeStyles: Record<string, string> = {
+      large: css`
         ${variant === 'icon'
-          ? `font-size: ${theme.vars.typography.fontSizes.sm};`
-          : `padding: calc(${theme.vars.spacing.unit} * 0.5) calc(${theme.vars.spacing.unit} * 1);
-             font-size: ${theme.vars.typography.fontSizes.sm};
-             min-height: calc(${theme.vars.spacing.unit} * 3);`}
+          ? `font-size: ${theme.vars.typography.fontSizes.lg};`
+          : `padding: calc(${theme.vars.spacing.unit} * 1.5) calc(${theme.vars.spacing.unit} * 3);
+             font-size: ${theme.vars.typography.fontSizes.lg};
+             min-height: calc(${theme.vars.spacing.unit} * 5);`}
       `,
       medium: css`
         ${variant === 'icon'
@@ -106,70 +102,16 @@ const useStyles = (
              font-size: ${theme.vars.typography.fontSizes.md};
              min-height: calc(${theme.vars.spacing.unit} * 4);`}
       `,
-      large: css`
+      small: css`
         ${variant === 'icon'
-          ? `font-size: ${theme.vars.typography.fontSizes.lg};`
-          : `padding: calc(${theme.vars.spacing.unit} * 1.5) calc(${theme.vars.spacing.unit} * 3);
-             font-size: ${theme.vars.typography.fontSizes.lg};
-             min-height: calc(${theme.vars.spacing.unit} * 5);`}
+          ? `font-size: ${theme.vars.typography.fontSizes.sm};`
+          : `padding: calc(${theme.vars.spacing.unit} * 0.5) calc(${theme.vars.spacing.unit} * 1);
+             font-size: ${theme.vars.typography.fontSizes.sm};
+             min-height: calc(${theme.vars.spacing.unit} * 3);`}
       `,
     };
 
-    const variantStyles = {
-      'primary-solid': css`
-        background-color: ${theme.vars.colors.primary.main};
-        color: ${theme.vars.colors.primary.contrastText};
-        border-color: ${theme.vars.colors.primary.main};
-        &:hover:not(:disabled) {
-          background-color: ${theme.vars.colors.primary.main};
-          opacity: 0.9;
-        }
-        &:active:not(:disabled) {
-          background-color: ${theme.vars.colors.primary.main};
-          opacity: 0.8;
-        }
-        &:focus:not(:disabled) {
-          background-color: ${theme.vars.colors.primary.main};
-          opacity: 0.8;
-        }
-      `,
-      'primary-outline': css`
-        background-color: transparent;
-        color: ${theme.vars.colors.primary.main};
-        border-color: ${theme.vars.colors.primary.main};
-        &:hover:not(:disabled) {
-          background-color: ${theme.vars.colors.primary.main};
-          color: ${theme.vars.colors.primary.contrastText};
-        }
-        &:active:not(:disabled) {
-          background-color: ${theme.vars.colors.primary.main};
-          color: ${theme.vars.colors.primary.contrastText};
-          opacity: 0.9;
-        }
-        &:focus:not(:disabled) {
-          background-color: ${theme.vars.colors.primary.main};
-          color: ${theme.vars.colors.primary.contrastText};
-          opacity: 0.9;
-        }
-      `,
-      'primary-text': css`
-        background-color: transparent;
-        color: ${theme.vars.colors.primary.main};
-        border-color: transparent;
-        &:hover:not(:disabled) {
-          border-color: transparent;
-          background-color: ${theme.vars.colors.action.hover};
-        }
-        &:active:not(:disabled) {
-          border-color: transparent;
-          background-color: ${theme.vars.colors.action.selected};
-        }
-        &:focus:not(:disabled) {
-          border-color: transparent;
-          background-color: ${theme.vars.colors.action.focus};
-          outline: none;
-        }
-      `,
+    const variantStyles: Record<string, string> = {
       'primary-icon': css`
         background-color: transparent;
         color: ${theme.vars.colors.primary.main};
@@ -191,45 +133,45 @@ const useStyles = (
           outline: none;
         }
       `,
-      'secondary-solid': css`
-        background-color: ${theme.vars.colors.secondary.main};
-        color: ${theme.vars.colors.secondary.contrastText};
-        border-color: ${theme.vars.colors.secondary.main};
-        &:hover:not(:disabled) {
-          background-color: ${theme.vars.colors.secondary.main};
-          opacity: 0.9;
-        }
-        &:active:not(:disabled) {
-          background-color: ${theme.vars.colors.secondary.main};
-          opacity: 0.8;
-        }
-        &:focus:not(:disabled) {
-          background-color: ${theme.vars.colors.secondary.main};
-          opacity: 0.8;
-        }
-      `,
-      'secondary-outline': css`
+      'primary-outline': css`
         background-color: transparent;
-        color: ${theme.vars.colors.secondary.main};
-        border-color: ${theme.vars.colors.secondary.main};
+        color: ${theme.vars.colors.primary.main};
+        border-color: ${theme.vars.colors.primary.main};
         &:hover:not(:disabled) {
-          background-color: ${theme.vars.colors.secondary.main};
-          color: ${theme.vars.colors.secondary.contrastText};
+          background-color: ${theme.vars.colors.primary.main};
+          color: ${theme.vars.colors.primary.contrastText};
         }
         &:active:not(:disabled) {
-          background-color: ${theme.vars.colors.secondary.main};
-          color: ${theme.vars.colors.secondary.contrastText};
+          background-color: ${theme.vars.colors.primary.main};
+          color: ${theme.vars.colors.primary.contrastText};
           opacity: 0.9;
         }
         &:focus:not(:disabled) {
-          background-color: ${theme.vars.colors.secondary.main};
-          color: ${theme.vars.colors.secondary.contrastText};
+          background-color: ${theme.vars.colors.primary.main};
+          color: ${theme.vars.colors.primary.contrastText};
           opacity: 0.9;
         }
       `,
-      'secondary-text': css`
+      'primary-solid': css`
+        background-color: ${theme.vars.colors.primary.main};
+        color: ${theme.vars.colors.primary.contrastText};
+        border-color: ${theme.vars.colors.primary.main};
+        &:hover:not(:disabled) {
+          background-color: ${theme.vars.colors.primary.main};
+          opacity: 0.9;
+        }
+        &:active:not(:disabled) {
+          background-color: ${theme.vars.colors.primary.main};
+          opacity: 0.8;
+        }
+        &:focus:not(:disabled) {
+          background-color: ${theme.vars.colors.primary.main};
+          opacity: 0.8;
+        }
+      `,
+      'primary-text': css`
         background-color: transparent;
-        color: ${theme.vars.colors.secondary.main};
+        color: ${theme.vars.colors.primary.main};
         border-color: transparent;
         &:hover:not(:disabled) {
           border-color: transparent;
@@ -266,60 +208,57 @@ const useStyles = (
           outline: none;
         }
       `,
-      'tertiary-solid': css`
-        background-color: ${theme.vars.colors.text.secondary};
-        color: ${theme.vars.colors.background.surface};
-        border-color: ${theme.vars.colors.text.secondary};
+      'secondary-outline': css`
+        background-color: transparent;
+        color: ${theme.vars.colors.secondary.main};
+        border-color: ${theme.vars.colors.secondary.main};
         &:hover:not(:disabled) {
-          background-color: ${theme.vars.colors.text.primary};
-          color: ${theme.vars.colors.background.surface};
+          background-color: ${theme.vars.colors.secondary.main};
+          color: ${theme.vars.colors.secondary.contrastText};
         }
         &:active:not(:disabled) {
-          background-color: ${theme.vars.colors.text.primary};
-          color: ${theme.vars.colors.background.surface};
+          background-color: ${theme.vars.colors.secondary.main};
+          color: ${theme.vars.colors.secondary.contrastText};
           opacity: 0.9;
         }
         &:focus:not(:disabled) {
-          background-color: ${theme.vars.colors.text.primary};
-          color: ${theme.vars.colors.background.surface};
+          background-color: ${theme.vars.colors.secondary.main};
+          color: ${theme.vars.colors.secondary.contrastText};
           opacity: 0.9;
         }
       `,
-      'tertiary-outline': css`
-        background-color: transparent;
-        color: ${theme.vars.colors.text.secondary};
-        border-color: ${theme.vars.colors.border};
+      'secondary-solid': css`
+        background-color: ${theme.vars.colors.secondary.main};
+        color: ${theme.vars.colors.secondary.contrastText};
+        border-color: ${theme.vars.colors.secondary.main};
         &:hover:not(:disabled) {
-          background-color: ${theme.vars.colors.action.hover};
-          border-color: ${theme.vars.colors.text.secondary};
+          background-color: ${theme.vars.colors.secondary.main};
+          opacity: 0.9;
         }
         &:active:not(:disabled) {
-          background-color: ${theme.vars.colors.action.selected};
-          border-color: ${theme.vars.colors.text.primary};
+          background-color: ${theme.vars.colors.secondary.main};
+          opacity: 0.8;
         }
         &:focus:not(:disabled) {
-          background-color: ${theme.vars.colors.action.focus};
-          border-color: ${theme.vars.colors.text.primary};
+          background-color: ${theme.vars.colors.secondary.main};
+          opacity: 0.8;
         }
       `,
-      'tertiary-text': css`
+      'secondary-text': css`
         background-color: transparent;
-        color: ${theme.vars.colors.text.secondary};
+        color: ${theme.vars.colors.secondary.main};
         border-color: transparent;
         &:hover:not(:disabled) {
           border-color: transparent;
           background-color: ${theme.vars.colors.action.hover};
-          color: ${theme.vars.colors.text.primary};
         }
         &:active:not(:disabled) {
           border-color: transparent;
           background-color: ${theme.vars.colors.action.selected};
-          color: ${theme.vars.colors.text.primary};
         }
         &:focus:not(:disabled) {
           border-color: transparent;
           background-color: ${theme.vars.colors.action.focus};
-          color: ${theme.vars.colors.text.primary};
           outline: none;
         }
       `,
@@ -344,21 +283,78 @@ const useStyles = (
           outline: none;
         }
       `,
+      'tertiary-outline': css`
+        background-color: transparent;
+        color: ${theme.vars.colors.text.secondary};
+        border-color: ${theme.vars.colors.border};
+        &:hover:not(:disabled) {
+          background-color: ${theme.vars.colors.action.hover};
+          border-color: ${theme.vars.colors.text.secondary};
+        }
+        &:active:not(:disabled) {
+          background-color: ${theme.vars.colors.action.selected};
+          border-color: ${theme.vars.colors.text.primary};
+        }
+        &:focus:not(:disabled) {
+          background-color: ${theme.vars.colors.action.focus};
+          border-color: ${theme.vars.colors.text.primary};
+        }
+      `,
+      'tertiary-solid': css`
+        background-color: ${theme.vars.colors.text.secondary};
+        color: ${theme.vars.colors.background.surface};
+        border-color: ${theme.vars.colors.text.secondary};
+        &:hover:not(:disabled) {
+          background-color: ${theme.vars.colors.text.primary};
+          color: ${theme.vars.colors.background.surface};
+        }
+        &:active:not(:disabled) {
+          background-color: ${theme.vars.colors.text.primary};
+          color: ${theme.vars.colors.background.surface};
+          opacity: 0.9;
+        }
+        &:focus:not(:disabled) {
+          background-color: ${theme.vars.colors.text.primary};
+          color: ${theme.vars.colors.background.surface};
+          opacity: 0.9;
+        }
+      `,
+      'tertiary-text': css`
+        background-color: transparent;
+        color: ${theme.vars.colors.text.secondary};
+        border-color: transparent;
+        &:hover:not(:disabled) {
+          border-color: transparent;
+          background-color: ${theme.vars.colors.action.hover};
+          color: ${theme.vars.colors.text.primary};
+        }
+        &:active:not(:disabled) {
+          border-color: transparent;
+          background-color: ${theme.vars.colors.action.selected};
+          color: ${theme.vars.colors.text.primary};
+        }
+        &:focus:not(:disabled) {
+          border-color: transparent;
+          background-color: ${theme.vars.colors.action.focus};
+          color: ${theme.vars.colors.text.primary};
+          outline: none;
+        }
+      `,
     };
 
-    const spinnerStyles = css`
+    const spinnerStyles: string = css`
       display: flex;
       align-items: center;
       justify-content: center;
     `;
 
-    const iconStyles = css`
+    const iconStyles: string = css`
       display: flex;
       align-items: center;
       justify-content: center;
     `;
 
-    const contentStyles = css`
+    const contentStyles: string = css`
       display: flex;
       align-items: center;
       justify-content: center;
@@ -366,13 +362,14 @@ const useStyles = (
 
     return {
       button: baseButton,
-      size: sizeStyles[size],
-      variant: variantStyles[`${color}-${variant}` as keyof typeof variantStyles] || variantStyles['primary-solid'],
+      content: contentStyles,
+      endIcon: iconStyles,
       fullWidth: fullWidth
         ? css`
             width: 100%;
           `
         : null,
+      icon: iconStyles,
       loading: loading
         ? css`
             pointer-events: none;
@@ -384,13 +381,11 @@ const useStyles = (
               border-radius: 50%;
             `
           : null,
+      size: sizeStyles[size],
       spinner: spinnerStyles,
-      icon: iconStyles,
       startIcon: iconStyles,
-      endIcon: iconStyles,
-      content: contentStyles,
+      variant: variantStyles[`${color}-${variant}` as keyof typeof variantStyles] || variantStyles['primary-solid'],
     };
   }, [theme, colorScheme, color, variant, size, fullWidth, disabled, loading]);
-};
 
 export default useStyles;

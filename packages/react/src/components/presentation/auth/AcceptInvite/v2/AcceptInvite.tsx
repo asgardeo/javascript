@@ -16,11 +16,8 @@
  * under the License.
  */
 
-import { FC, ReactNode, useMemo } from 'react';
-import BaseAcceptInvite, {
-    BaseAcceptInviteRenderProps,
-    AcceptInviteFlowResponse,
-} from './BaseAcceptInvite';
+import {FC, ReactElement, ReactNode, useMemo} from 'react';
+import BaseAcceptInvite, {BaseAcceptInviteRenderProps, AcceptInviteFlowResponse} from './BaseAcceptInvite';
 
 /**
  * Render props for AcceptInvite (re-exported for convenience).
@@ -31,89 +28,89 @@ export type AcceptInviteRenderProps = BaseAcceptInviteRenderProps;
  * Props for the AcceptInvite component.
  */
 export interface AcceptInviteProps {
-    /**
-     * Base URL for the Thunder API server.
-     * If not provided, will try to read from window location.
-     */
-    baseUrl?: string;
+  /**
+   * Base URL for the Thunder API server.
+   * If not provided, will try to read from window location.
+   */
+  baseUrl?: string;
 
-    /**
-     * Flow ID from the invite link.
-     * If not provided, will be extracted from URL query parameters.
-     */
-    flowId?: string;
+  /**
+   * Render props function for custom UI.
+   * If not provided, default UI will be rendered by the SDK.
+   */
+  children?: (props: AcceptInviteRenderProps) => ReactNode;
 
-    /**
-     * Invite token from the invite link.
-     * If not provided, will be extracted from URL query parameters.
-     */
-    inviteToken?: string;
+  /**
+   * Custom CSS class name.
+   */
+  className?: string;
 
-    /**
-     * Callback when the flow completes successfully.
-     */
-    onComplete?: () => void;
+  /**
+   * Flow ID from the invite link.
+   * If not provided, will be extracted from URL query parameters.
+   */
+  flowId?: string;
 
-    /**
-     * Callback when an error occurs.
-     */
-    onError?: (error: Error) => void;
+  /**
+   * Invite token from the invite link.
+   * If not provided, will be extracted from URL query parameters.
+   */
+  inviteToken?: string;
 
-    /**
-     * Callback when the flow state changes.
-     */
-    onFlowChange?: (response: AcceptInviteFlowResponse) => void;
+  /**
+   * Callback when the flow completes successfully.
+   */
+  onComplete?: () => void;
 
-    /**
-     * Callback to navigate to sign in page.
-     */
-    onGoToSignIn?: () => void;
+  /**
+   * Callback when an error occurs.
+   */
+  onError?: (error: Error) => void;
 
-    /**
-     * Custom CSS class name.
-     */
-    className?: string;
+  /**
+   * Callback when the flow state changes.
+   */
+  onFlowChange?: (response: AcceptInviteFlowResponse) => void;
 
-    /**
-     * Render props function for custom UI.
-     * If not provided, default UI will be rendered by the SDK.
-     */
-    children?: (props: AcceptInviteRenderProps) => ReactNode;
+  /**
+   * Callback to navigate to sign in page.
+   */
+  onGoToSignIn?: () => void;
 
-    /**
-     * Size variant for the component.
-     */
-    size?: 'small' | 'medium' | 'large';
+  /**
+   * Whether to show the subtitle.
+   */
+  showSubtitle?: boolean;
 
-    /**
-     * Theme variant for the component card.
-     */
-    variant?: 'outlined' | 'elevated';
+  /**
+   * Whether to show the title.
+   */
+  showTitle?: boolean;
 
-    /**
-     * Whether to show the title.
-     */
-    showTitle?: boolean;
+  /**
+   * Size variant for the component.
+   */
+  size?: 'small' | 'medium' | 'large';
 
-    /**
-     * Whether to show the subtitle.
-     */
-    showSubtitle?: boolean;
+  /**
+   * Theme variant for the component card.
+   */
+  variant?: 'outlined' | 'elevated';
 }
 
 /**
  * Helper to extract query parameters from URL.
  */
-const getUrlParams = (): { flowId?: string; inviteToken?: string } => {
-    if (typeof window === 'undefined') {
-        return {};
-    }
+const getUrlParams = (): {flowId?: string; inviteToken?: string} => {
+  if (typeof window === 'undefined') {
+    return {};
+  }
 
-    const params = new URLSearchParams(window.location.search);
-    return {
-        flowId: params.get('flowId') || undefined,
-        inviteToken: params.get('inviteToken') || undefined,
-    };
+  const params: any = new URLSearchParams(window.location.search);
+  return {
+    flowId: params.get('flowId') || undefined,
+    inviteToken: params.get('inviteToken') || undefined,
+  };
 };
 
 /**
@@ -155,81 +152,81 @@ const getUrlParams = (): { flowId?: string; inviteToken?: string } => {
  * ```
  */
 const AcceptInvite: FC<AcceptInviteProps> = ({
-    baseUrl,
-    flowId: flowIdProp,
-    inviteToken: inviteTokenProp,
-    onComplete,
-    onError,
-    onFlowChange,
-    onGoToSignIn,
-    className,
-    children,
-    size = 'medium',
-    variant = 'outlined',
-    showTitle = true,
-    showSubtitle = true,
-}) => {
-    // Extract from URL if not provided as props
-    const { flowId: urlFlowId, inviteToken: urlInviteToken } = useMemo(() => getUrlParams(), []);
+  baseUrl,
+  flowId: flowIdProp,
+  inviteToken: inviteTokenProp,
+  onComplete,
+  onError,
+  onFlowChange,
+  onGoToSignIn,
+  className,
+  children,
+  size = 'medium',
+  variant = 'outlined',
+  showTitle = true,
+  showSubtitle = true,
+}: AcceptInviteProps): ReactElement => {
+  // Extract from URL if not provided as props
+  const {flowId: urlFlowId, inviteToken: urlInviteToken} = useMemo(() => getUrlParams(), []);
 
-    const flowId = flowIdProp || urlFlowId;
-    const inviteToken = inviteTokenProp || urlInviteToken;
+  const flowId: any = flowIdProp || urlFlowId;
+  const inviteToken: any = inviteTokenProp || urlInviteToken;
 
-    // Determine base URL
-    const apiBaseUrl = useMemo(() => {
-        if (baseUrl) {
-            return baseUrl;
-        }
-        // Try to construct from current location (assuming same origin)
-        if (typeof window !== 'undefined') {
-            return window.location.origin;
-        }
-        return '';
-    }, [baseUrl]);
+  // Determine base URL
+  const apiBaseUrl: any = useMemo(() => {
+    if (baseUrl) {
+      return baseUrl;
+    }
+    // Try to construct from current location (assuming same origin)
+    if (typeof window !== 'undefined') {
+      return window.location.origin;
+    }
+    return '';
+  }, [baseUrl]);
 
-    /**
-     * Submit flow step data.
-     * Makes an unauthenticated request to /flow/execute endpoint.
-     */
-    const handleSubmit = async (payload: Record<string, any>): Promise<AcceptInviteFlowResponse> => {
-        const response = await fetch(`${apiBaseUrl}/flow/execute`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                Accept: 'application/json',
-            },
-            body: JSON.stringify({
-                ...payload,
-                verbose: true,
-            }),
-        });
+  /**
+   * Submit flow step data.
+   * Makes an unauthenticated request to /flow/execute endpoint.
+   */
+  const handleSubmit = async (payload: Record<string, any>): Promise<AcceptInviteFlowResponse> => {
+    const response: any = await fetch(`${apiBaseUrl}/flow/execute`, {
+      body: JSON.stringify({
+        ...payload,
+        verbose: true,
+      }),
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      method: 'POST',
+    });
 
-        if (!response.ok) {
-            const errorText = await response.text();
-            throw new Error(`Request failed: ${errorText}`);
-        }
+    if (!response.ok) {
+      const errorText: any = await response.text();
+      throw new Error(`Request failed: ${errorText}`);
+    }
 
-        return response.json();
-    };
+    return response.json();
+  };
 
-    return (
-        <BaseAcceptInvite
-            flowId={flowId}
-            inviteToken={inviteToken}
-            onSubmit={handleSubmit}
-            onComplete={onComplete}
-            onError={onError}
-            onFlowChange={onFlowChange}
-            onGoToSignIn={onGoToSignIn}
-            className={className}
-            size={size}
-            variant={variant}
-            showTitle={showTitle}
-            showSubtitle={showSubtitle}
-        >
-            {children}
-        </BaseAcceptInvite>
-    );
+  return (
+    <BaseAcceptInvite
+      flowId={flowId}
+      inviteToken={inviteToken}
+      onSubmit={handleSubmit}
+      onComplete={onComplete}
+      onError={onError}
+      onFlowChange={onFlowChange}
+      onGoToSignIn={onGoToSignIn}
+      className={className}
+      size={size}
+      variant={variant}
+      showTitle={showTitle}
+      showSubtitle={showSubtitle}
+    >
+      {children}
+    </BaseAcceptInvite>
+  );
 };
 
 export default AcceptInvite;

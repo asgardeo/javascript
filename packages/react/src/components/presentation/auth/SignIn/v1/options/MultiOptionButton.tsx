@@ -16,11 +16,12 @@
  * under the License.
  */
 
-import {FC, JSX, ReactElement} from 'react';
-import Button from '../../../../../primitives/Button/Button';
-import {BaseSignInOptionProps} from './SignInOptionFactory';
 import {ApplicationNativeAuthenticationConstants, EmbeddedSignInFlowAuthenticatorKnownIdPType} from '@asgardeo/browser';
+import {FC, ReactElement} from 'react';
+// eslint-disable-next-line import/no-cycle
+import {BaseSignInOptionProps} from './SignInOptionFactory';
 import useTranslation from '../../../../../../hooks/useTranslation';
+import Button from '../../../../../primitives/Button/Button';
 
 /**
  * Multi Option Button Component.
@@ -33,14 +34,14 @@ const MultiOptionButton: FC<BaseSignInOptionProps> = ({
   onSubmit,
   buttonClassName = '',
   preferences,
-}) => {
+}: BaseSignInOptionProps): ReactElement => {
   const {t} = useTranslation(preferences?.i18n);
 
   /**
    * Get display name for the authenticator.
    */
   const getDisplayName = (): string => {
-    let authenticatorName = authenticator.authenticator;
+    let authenticatorName: any = authenticator.authenticator;
 
     if (authenticator.idp !== EmbeddedSignInFlowAuthenticatorKnownIdPType.Local) {
       authenticatorName = authenticator.idp;
@@ -56,7 +57,7 @@ const MultiOptionButton: FC<BaseSignInOptionProps> = ({
    * Get appropriate icon for the authenticator type.
    */
   const getIcon = (): ReactElement | null => {
-    const authenticatorId: string = authenticator.authenticatorId;
+    const {authenticatorId} = authenticator;
 
     switch (authenticatorId) {
       case ApplicationNativeAuthenticationConstants.SupportedAuthenticators.SmsOtp:
@@ -126,7 +127,7 @@ const MultiOptionButton: FC<BaseSignInOptionProps> = ({
   /**
    * Handle button click.
    */
-  const handleClick = () => {
+  const handleClick = (): any => {
     // For multi-option buttons, we call onSubmit without form data
     // This will trigger the authenticator selection and likely move to the next step
     onSubmit(authenticator);

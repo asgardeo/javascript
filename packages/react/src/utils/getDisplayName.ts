@@ -46,19 +46,25 @@ const getDisplayName = (
   mergedMappings: {[key: string]: string | string[] | undefined},
   user: User,
   displayAttributes?: string[],
-): string => {  
+): string => {
   if (displayAttributes && displayAttributes.length > 0) {
-    for (const attr of displayAttributes) {
-      const value = getMappedUserProfileValue(attr, mergedMappings, user);      
+    let foundValue: string | undefined;
+    displayAttributes.some((attr: string) => {
+      const value: any = getMappedUserProfileValue(attr, mergedMappings, user);
 
       if (value !== undefined && value !== null && value !== '') {
-        return String(value);
+        foundValue = String(value);
+        return true;
       }
+      return false;
+    });
+    if (foundValue !== undefined) {
+      return foundValue;
     }
   }
 
-  const firstName = getMappedUserProfileValue('firstName', mergedMappings, user);
-  const lastName = getMappedUserProfileValue('lastName', mergedMappings, user);
+  const firstName: any = getMappedUserProfileValue('firstName', mergedMappings, user);
+  const lastName: any = getMappedUserProfileValue('lastName', mergedMappings, user);
 
   if (firstName && lastName) {
     return `${firstName} ${lastName}`;

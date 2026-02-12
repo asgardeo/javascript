@@ -16,9 +16,9 @@
  * under the License.
  */
 
+import {Theme} from '@asgardeo/browser';
 import {css} from '@emotion/css';
 import {useMemo} from 'react';
-import {Theme} from '@asgardeo/browser';
 
 export type CardVariant = 'default' | 'outlined' | 'elevated';
 
@@ -30,9 +30,14 @@ export type CardVariant = 'default' | 'outlined' | 'elevated';
  * @param clickable - Whether the card is clickable
  * @returns Object containing CSS class names for component styling
  */
-const useStyles = (theme: Theme, colorScheme: string, variant: CardVariant, clickable: boolean) => {
-  return useMemo(() => {
-    const baseCard = css`
+const useStyles = (
+  theme: Theme,
+  colorScheme: string,
+  variant: CardVariant,
+  clickable: boolean,
+): Record<string, string> =>
+  useMemo(() => {
+    const baseCard: string = css`
       border-radius: ${theme.vars.borderRadius.medium};
       background-color: ${theme.vars.colors.background.surface};
       transition: all 0.2s ease-in-out;
@@ -43,20 +48,20 @@ const useStyles = (theme: Theme, colorScheme: string, variant: CardVariant, clic
       padding: calc(${theme.vars.spacing.unit} * 2);
     `;
 
-    const variantStyles = {
+    const variantStyles: Record<string, string> = {
       default: css`
         /* Base styles only */
-      `,
-      outlined: css`
-        border: 1px solid ${theme.vars.colors.border};
       `,
       elevated: css`
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         border: none;
       `,
+      outlined: css`
+        border: 1px solid ${theme.vars.colors.border};
+      `,
     };
 
-    const clickableStyles = css`
+    const clickableStyles: string = css`
       cursor: pointer;
 
       &:hover {
@@ -65,7 +70,7 @@ const useStyles = (theme: Theme, colorScheme: string, variant: CardVariant, clic
       }
     `;
 
-    const headerStyles = css`
+    const headerStyles: string = css`
       padding: 0 calc(${theme.vars.spacing.unit} * 2);
       margin-top: calc(${theme.vars.spacing.unit} * 2);
       display: flex;
@@ -73,29 +78,29 @@ const useStyles = (theme: Theme, colorScheme: string, variant: CardVariant, clic
       gap: ${theme.vars.spacing.unit};
     `;
 
-    const titleStyles = css`
+    const titleStyles: string = css`
       margin: 0;
       /* Typography component will handle color, fontSize, fontWeight, lineHeight */
     `;
 
-    const descriptionStyles = css`
+    const descriptionStyles: string = css`
       margin: 0;
       color: ${theme.vars.colors.text.secondary};
       font-size: ${theme.vars.typography.fontSizes.sm};
       line-height: 1.5;
     `;
 
-    const actionStyles = css`
+    const actionStyles: string = css`
       margin-top: ${theme.vars.spacing.unit};
     `;
 
-    const contentStyles = css`
+    const contentStyles: string = css`
       padding: 0 calc(${theme.vars.spacing.unit} * 2);
       margin-bottom: calc(${theme.vars.spacing.unit} * 2);
       flex: 1;
     `;
 
-    const footerStyles = css`
+    const footerStyles: string = css`
       padding: 0 calc(${theme.vars.spacing.unit} * 2) calc(${theme.vars.spacing.unit} * 2);
       display: flex;
       align-items: center;
@@ -103,17 +108,16 @@ const useStyles = (theme: Theme, colorScheme: string, variant: CardVariant, clic
     `;
 
     return {
+      action: actionStyles,
       card: baseCard,
-      variant: variantStyles[variant],
       clickable: clickable ? clickableStyles : '',
+      content: contentStyles,
+      description: descriptionStyles,
+      footer: footerStyles,
       header: headerStyles,
       title: titleStyles,
-      description: descriptionStyles,
-      action: actionStyles,
-      content: contentStyles,
-      footer: footerStyles,
+      variant: variantStyles[variant],
     };
   }, [theme, colorScheme, variant, clickable]);
-};
 
 export default useStyles;

@@ -16,49 +16,23 @@
  * under the License.
  */
 
-import {FC, ReactElement} from 'react';
-import TextField from '../primitives/TextField/TextField';
-import Select from '../primitives/Select/Select';
-import {SelectOption} from '../primitives/Select/Select';
+import {FieldType} from '@asgardeo/browser';
+import {ChangeEvent, FC, ReactElement} from 'react';
+import Checkbox from '../primitives/Checkbox/Checkbox';
+import DatePicker from '../primitives/DatePicker/DatePicker';
 import OtpField from '../primitives/OtpField/OtpField';
 import PasswordField from '../primitives/PasswordField/PasswordField';
-import DatePicker from '../primitives/DatePicker/DatePicker';
-import Checkbox from '../primitives/Checkbox/Checkbox';
-import {FieldType} from '@asgardeo/browser';
+import Select, {SelectOption} from '../primitives/Select/Select';
+import TextField from '../primitives/TextField/TextField';
 
 /**
  * Interface for field configuration.
  */
 export interface FieldConfig {
   /**
-   * The name of the field.
+   * Additional CSS class name.
    */
-  name: string;
-  /**
-   * The field type.
-   */
-  type: FieldType
-  ;
-  /**
-   * Display name for the field.
-   */
-  label: string;
-  /**
-   * Whether the field is required.
-   */
-  required: boolean;
-  /**
-   * Current value of the field.
-   */
-  value: string;
-  /**
-   * Callback function when the field value changes.
-   */
-  onChange: (value: string) => void;
-  /**
-   * Callback function when the field loses focus.
-   */
-  onBlur?: () => void;
+  className?: string;
   /**
    * Whether the field is disabled.
    */
@@ -68,21 +42,45 @@ export interface FieldConfig {
    */
   error?: string;
   /**
-   * Additional CSS class name.
+   * Display name for the field.
    */
-  className?: string;
+  label: string;
+  /**
+   * The name of the field.
+   */
+  name: string;
+  /**
+   * Callback function when the field loses focus.
+   */
+  onBlur?: () => void;
+  /**
+   * Callback function when the field value changes.
+   */
+  onChange: (value: string) => void;
   /**
    * Additional options for multi-valued fields.
    */
   options?: SelectOption[];
   /**
+   * Placeholder text for the field.
+   */
+  placeholder?: string;
+  /**
+   * Whether the field is required.
+   */
+  required: boolean;
+  /**
    * Whether the field has been touched/interacted with by the user.
    */
   touched?: boolean;
   /**
-   * Placeholder text for the field.
+   * The field type.
    */
-  placeholder?: string;
+  type: FieldType;
+  /**
+   * Current value of the field.
+   */
+  value: string;
 }
 
 /**
@@ -103,11 +101,14 @@ export const validateFieldValue = (
   }
 
   switch (type) {
-    case FieldType.Number:
-      const numValue = parseInt(value, 10);
-      if (isNaN(numValue)) {
+    case FieldType.Number: {
+      const numValue: number = parseInt(value, 10);
+      if (Number.isNaN(numValue)) {
         return 'Please enter a valid number';
       }
+      break;
+    }
+    default:
       break;
   }
 
@@ -150,53 +151,78 @@ export const createField = (config: FieldConfig): ReactElement => {
     placeholder,
   } = config;
 
-  const validationError = error || validateFieldValue(value, type, required, touched);
+  const validationError: string | null = error || validateFieldValue(value, type, required, touched);
 
-  const commonProps = {
-    name,
-    label,
-    required,
+  const commonProps: Record<string, any> = {
+    className,
+    'data-testid': `asgardeo-signin-${name}`,
     disabled,
     error: validationError,
-    className,
-    value,
-    placeholder,
+    label,
+    name,
     onBlur,
-    'data-testid': `asgardeo-signin-${name}`,
+    placeholder,
+    required,
+    value,
   };
 
   switch (type) {
     case FieldType.Password:
       return <PasswordField {...commonProps} onChange={onChange} />;
     case FieldType.Text:
-      return <TextField {...commonProps} type="text" onChange={e => onChange(e.target.value)} autoComplete="off" />;
+      return (
+        <TextField
+          {...commonProps}
+          type="text"
+          onChange={(e: ChangeEvent<HTMLInputElement>): void => onChange(e.target.value)}
+          autoComplete="off"
+        />
+      );
     case FieldType.Email:
-      return <TextField {...commonProps} type="email" onChange={e => onChange(e.target.value)} autoComplete="email" />;
+      return (
+        <TextField
+          {...commonProps}
+          type="email"
+          onChange={(e: ChangeEvent<HTMLInputElement>): void => onChange(e.target.value)}
+          autoComplete="email"
+        />
+      );
     case FieldType.Date:
-      return <DatePicker {...commonProps} onChange={e => onChange(e.target.value)} />;
-    case FieldType.Checkbox:
-      const isChecked = value === 'true' || (value as any) === true;
-      return <Checkbox {...commonProps} checked={isChecked} onChange={e => onChange(e.target.checked.toString())} />;
+      return (
+        <DatePicker {...commonProps} onChange={(e: ChangeEvent<HTMLInputElement>): void => onChange(e.target.value)} />
+      );
+    case FieldType.Checkbox: {
+      const isChecked: boolean = value === 'true' || (value as any) === true;
+      return (
+        <Checkbox
+          {...commonProps}
+          checked={isChecked}
+          onChange={(e: ChangeEvent<HTMLInputElement>): void => onChange(e.target.checked.toString())}
+        />
+      );
+    }
     case FieldType.Otp:
-      return <OtpField {...commonProps} onChange={e => onChange(e.target.value)} />;
+      return (
+        <OtpField {...commonProps} onChange={(e: ChangeEvent<HTMLInputElement>): void => onChange(e.target.value)} />
+      );
     case FieldType.Number:
       return (
         <TextField
           {...commonProps}
           type="number"
-          onChange={e => onChange(e.target.value)}
+          onChange={(e: ChangeEvent<HTMLInputElement>): void => onChange(e.target.value)}
           helperText="Enter a numeric value"
         />
       );
-    case FieldType.Select:
-      const fieldOptions = options.length > 0 ? options : [];
+    case FieldType.Select: {
+      const fieldOptions: SelectOption[] = options.length > 0 ? options : [];
 
       if (fieldOptions.length > 0) {
         return (
           <Select
             {...commonProps}
             options={fieldOptions}
-            onChange={e => onChange(e.target.value)}
+            onChange={(e: ChangeEvent<HTMLSelectElement>): void => onChange(e.target.value)}
             helperText="Select from available options"
           />
         );
@@ -206,18 +232,18 @@ export const createField = (config: FieldConfig): ReactElement => {
         <TextField
           {...commonProps}
           type="text"
-          onChange={e => onChange(e.target.value)}
+          onChange={(e: ChangeEvent<HTMLInputElement>): void => onChange(e.target.value)}
           helperText="Enter multiple values separated by commas (e.g., value1, value2, value3)"
           placeholder="value1, value2, value3"
         />
       );
-
+    }
     default:
       return (
         <TextField
           {...commonProps}
           type="text"
-          onChange={e => onChange(e.target.value)}
+          onChange={(e: ChangeEvent<HTMLInputElement>): void => onChange(e.target.value)}
           helperText="Unknown field type, treating as text"
         />
       );
@@ -227,8 +253,6 @@ export const createField = (config: FieldConfig): ReactElement => {
 /**
  * React component wrapper for the field factory.
  */
-export const FieldFactory: FC<FieldConfig> = (props: FieldConfig): ReactElement => {
-  return createField(props);
-};
+export const FieldFactory: FC<FieldConfig> = (props: FieldConfig): ReactElement => createField(props);
 
 export default FieldFactory;

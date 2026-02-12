@@ -16,8 +16,8 @@
  * under the License.
  */
 
-import {FC, PropsWithChildren, ReactElement, useCallback, useEffect, useState} from 'react';
 import {BrandingPreference, Theme, transformBrandingPreferenceToTheme} from '@asgardeo/browser';
+import {FC, PropsWithChildren, ReactElement, useCallback, useEffect, useState} from 'react';
 import BrandingContext from './BrandingContext';
 
 /**
@@ -29,23 +29,23 @@ export interface BrandingProviderProps {
    */
   brandingPreference?: BrandingPreference | null;
   /**
-   * Force a specific theme ('light' or 'dark')
-   * If not provided, will use the activeTheme from branding preference
-   */
-  forceTheme?: 'light' | 'dark';
-  /**
    * Whether the branding provider is enabled
    * @default true
    */
   enabled?: boolean;
   /**
-   * Loading state passed from parent
-   */
-  isLoading?: boolean;
-  /**
    * Error state passed from parent
    */
   error?: Error | null;
+  /**
+   * Force a specific theme ('light' or 'dark')
+   * If not provided, will use the activeTheme from branding preference
+   */
+  forceTheme?: 'light' | 'dark';
+  /**
+   * Loading state passed from parent
+   */
+  isLoading?: boolean;
   /**
    * Function to refetch branding preference passed from parent
    */
@@ -109,12 +109,12 @@ const BrandingProvider: FC<PropsWithChildren<BrandingProviderProps>> = ({
     }
 
     // Extract active theme from branding preference
-    const activeThemeFromBranding = externalBrandingPreference?.preference?.theme?.activeTheme;
+    const activeThemeFromBranding: string | undefined = externalBrandingPreference?.preference?.theme?.activeTheme;
     let extractedActiveTheme: 'light' | 'dark' | null = null;
 
     if (activeThemeFromBranding) {
       // Convert to lowercase and map to our expected values
-      const themeMode = activeThemeFromBranding.toLowerCase();
+      const themeMode: string = activeThemeFromBranding.toLowerCase();
       if (themeMode === 'light' || themeMode === 'dark') {
         extractedActiveTheme = themeMode;
       }
@@ -123,7 +123,7 @@ const BrandingProvider: FC<PropsWithChildren<BrandingProviderProps>> = ({
     setActiveTheme(extractedActiveTheme);
 
     // Transform branding preference to theme
-    const transformedTheme = transformBrandingPreferenceToTheme(externalBrandingPreference, forceTheme);
+    const transformedTheme: Theme | null = transformBrandingPreferenceToTheme(externalBrandingPreference, forceTheme);
     setTheme(transformedTheme);
   }, [externalBrandingPreference, forceTheme, enabled]);
 
@@ -136,20 +136,20 @@ const BrandingProvider: FC<PropsWithChildren<BrandingProviderProps>> = ({
   }, [enabled]);
 
   // Dummy fetchBranding for backward compatibility
-  const fetchBranding = useCallback(async (): Promise<void> => {
+  const fetchBranding: () => Promise<void> = useCallback(async (): Promise<void> => {
     if (externalRefetch) {
       await externalRefetch();
     }
   }, [externalRefetch]);
 
-  const value = {
-    brandingPreference: externalBrandingPreference || null,
-    theme,
+  const value: any = {
     activeTheme,
-    isLoading: externalIsLoading,
+    brandingPreference: externalBrandingPreference || null,
     error: externalError,
     fetchBranding,
+    isLoading: externalIsLoading,
     refetch: externalRefetch || fetchBranding,
+    theme,
   };
 
   return <BrandingContext.Provider value={value}>{children}</BrandingContext.Provider>;

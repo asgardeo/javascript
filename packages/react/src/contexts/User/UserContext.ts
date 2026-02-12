@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import {User, Schema, UpdateMeProfileConfig, OrganizationDetails} from '@asgardeo/browser';
+import {User, Schema, UpdateMeProfileConfig} from '@asgardeo/browser';
 import {Context, createContext} from 'react';
 
 /**
@@ -24,26 +24,26 @@ import {Context, createContext} from 'react';
  */
 export type UserContextProps = {
   flattenedProfile: User | null;
+  onUpdateProfile: (payload: User) => void;
   profile: User | null;
   revalidateProfile: () => Promise<void>;
   schemas: Schema[] | null;
   updateProfile: (
     requestConfig: UpdateMeProfileConfig,
     sessionId?: string,
-  ) => Promise<{success: boolean; data: {user: User}; error: string}>;
-  onUpdateProfile: (payload: User) => void;
+  ) => Promise<{data: {user: User}; error: string; success: boolean}>;
 };
 
 /**
  * Context object for managing user profile data and related operations.
  */
 const UserContext: Context<UserContextProps | null> = createContext<null | UserContextProps>({
-  profile: null,
-  schemas: null,
   flattenedProfile: null,
-  revalidateProfile: () => null,
-  updateProfile: () => null,
   onUpdateProfile: () => null,
+  profile: null,
+  revalidateProfile: () => null,
+  schemas: null,
+  updateProfile: () => null,
 });
 
 UserContext.displayName = 'UserContext';

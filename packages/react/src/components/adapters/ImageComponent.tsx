@@ -16,26 +16,26 @@
  * under the License.
  */
 
-import {FC} from 'react';
+import {CSSProperties, FC, SyntheticEvent} from 'react';
 import useTheme from '../../contexts/Theme/useTheme';
 import {AdapterProps} from '../../models/adapters';
 
 /**
  * Image component for sign-up forms.
  */
-const ImageComponent: FC<AdapterProps> = ({component}) => {
+const ImageComponent: FC<AdapterProps> = ({component}: AdapterProps) => {
   const {theme} = useTheme();
   const config: Record<string, unknown> = component.config || {};
-  const src = (config['src'] as string) || '';
-  const alt = (config['alt'] as string) || (config['label'] as string) || 'Image';
-  const variant = (component.variant?.toLowerCase() as string) || 'image_block';
+  const src: string = (config['src'] as string) || '';
+  const alt: string = (config['alt'] as string) || (config['label'] as string) || 'Image';
+  const variant: string = (component.variant?.toLowerCase() as string) || 'image_block';
 
-  const imageStyle: React.CSSProperties = {
-    maxWidth: '100%',
-    height: 'auto',
-    display: 'block',
-    margin: variant === 'image_block' ? '1rem auto' : '0',
+  const imageStyle: CSSProperties = {
     borderRadius: theme.vars.borderRadius.small,
+    display: 'block',
+    height: 'auto',
+    margin: variant === 'image_block' ? '1rem auto' : '0',
+    maxWidth: '100%',
   };
 
   if (!src) {
@@ -48,7 +48,7 @@ const ImageComponent: FC<AdapterProps> = ({component}) => {
         src={src}
         alt={alt}
         style={imageStyle}
-        onError={e => {
+        onError={(e: SyntheticEvent<HTMLImageElement>): void => {
           // Hide broken images
           e.currentTarget.style.display = 'none';
         }}

@@ -67,7 +67,11 @@ export interface BaseOrganizationProps {
  * }
  * ```
  */
-const BaseOrganization: FC<BaseOrganizationProps> = ({children, fallback = null, organization}): ReactElement => {
+const BaseOrganization: FC<BaseOrganizationProps> = ({
+  children,
+  fallback = null,
+  organization,
+}: BaseOrganizationProps): ReactElement => {
   if (!organization) {
     return <>{fallback}</>;
   }

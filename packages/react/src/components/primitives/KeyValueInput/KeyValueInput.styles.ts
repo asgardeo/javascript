@@ -16,9 +16,9 @@
  * under the License.
  */
 
+import {Theme} from '@asgardeo/browser';
 import {css} from '@emotion/css';
 import {useMemo} from 'react';
-import {Theme} from '@asgardeo/browser';
 
 /**
  * Creates styles for the KeyValueInput component using BEM methodology
@@ -29,32 +29,38 @@ import {Theme} from '@asgardeo/browser';
  * @param hasError - Whether the component has an error
  * @returns Object containing CSS class names for component styling
  */
-const useStyles = (theme: Theme, colorScheme: string, disabled: boolean, readOnly: boolean, hasError: boolean) => {
-  return useMemo(() => {
-    const container = css`
+const useStyles = (
+  theme: Theme,
+  colorScheme: string,
+  disabled: boolean,
+  readOnly: boolean,
+  hasError: boolean,
+): Record<string, string> =>
+  useMemo(() => {
+    const container: string = css`
       display: flex;
       flex-direction: column;
       gap: calc(${theme.vars.spacing.unit} / 2);
     `;
 
-    const label = css`
+    const label: string = css`
       font-size: 0.875rem;
       font-weight: 500;
       color: ${theme.vars.colors.text.primary};
       margin-bottom: calc(${theme.vars.spacing.unit} / 2);
     `;
 
-    const requiredIndicator = css`
+    const requiredIndicator: string = css`
       color: ${theme.vars.colors.error.main};
     `;
 
-    const pairsList = css`
+    const pairsList: string = css`
       display: flex;
       flex-direction: column;
       gap: calc(${theme.vars.spacing.unit} / 4);
     `;
 
-    const pairRow = css`
+    const pairRow: string = css`
       display: flex;
       align-items: center;
       gap: calc(${theme.vars.spacing.unit} / 2);
@@ -68,12 +74,12 @@ const useStyles = (theme: Theme, colorScheme: string, disabled: boolean, readOnl
       }
     `;
 
-    const pairInput = css`
+    const pairInput: string = css`
       flex: 1;
       min-width: 0;
     `;
 
-    const addRow = css`
+    const addRow: string = css`
       display: flex;
       align-items: center;
       gap: calc(${theme.vars.spacing.unit} / 2);
@@ -84,7 +90,7 @@ const useStyles = (theme: Theme, colorScheme: string, disabled: boolean, readOnl
       margin-top: calc(${theme.vars.spacing.unit} / 2);
     `;
 
-    const removeButton = css`
+    const removeButton: string = css`
       min-width: auto;
       width: 24px;
       height: 24px;
@@ -108,7 +114,7 @@ const useStyles = (theme: Theme, colorScheme: string, disabled: boolean, readOnl
       }
     `;
 
-    const addButton = css`
+    const addButton: string = css`
       min-width: auto;
       width: 24px;
       height: 24px;
@@ -132,13 +138,13 @@ const useStyles = (theme: Theme, colorScheme: string, disabled: boolean, readOnl
       }
     `;
 
-    const helperText = css`
+    const helperText: string = css`
       font-size: 0.75rem;
       color: ${hasError ? theme.vars.colors.error.main : theme.vars.colors.text.secondary};
       margin-top: calc(${theme.vars.spacing.unit} / 2);
     `;
 
-    const emptyState = css`
+    const emptyState: string = css`
       padding: ${theme.vars.spacing.unit};
       text-align: center;
       color: ${theme.vars.colors.text.secondary};
@@ -146,7 +152,7 @@ const useStyles = (theme: Theme, colorScheme: string, disabled: boolean, readOnl
       font-size: 0.75rem;
     `;
 
-    const readOnlyPair = css`
+    const readOnlyPair: string = css`
       display: flex;
       align-items: center;
       gap: calc(${theme.vars.spacing.unit} / 2);
@@ -154,7 +160,7 @@ const useStyles = (theme: Theme, colorScheme: string, disabled: boolean, readOnl
       min-height: 20px;
     `;
 
-    const readOnlyKey = css`
+    const readOnlyKey: string = css`
       font-size: 0.75rem;
       font-weight: 500;
       color: ${theme.vars.colors.text.secondary};
@@ -162,37 +168,36 @@ const useStyles = (theme: Theme, colorScheme: string, disabled: boolean, readOnl
       flex-shrink: 0;
     `;
 
-    const readOnlyValue = css`
+    const readOnlyValue: string = css`
       font-size: 0.75rem;
       color: ${theme.vars.colors.text.primary};
       word-break: break-word;
       flex: 1;
     `;
 
-    const counterText = css`
+    const counterText: string = css`
       font-size: 0.75rem;
       color: ${theme.vars.colors.text.secondary};
       margin-top: calc(${theme.vars.spacing.unit} / 2);
     `;
 
     return {
-      container,
-      label,
-      requiredIndicator,
-      pairsList,
-      pairRow,
-      pairInput,
-      addRow,
-      removeButton,
       addButton,
-      helperText,
-      emptyState,
-      readOnlyPair,
-      readOnlyKey,
-      readOnlyValue,
+      addRow,
+      container,
       counterText,
+      emptyState,
+      helperText,
+      label,
+      pairInput,
+      pairRow,
+      pairsList,
+      readOnlyKey,
+      readOnlyPair,
+      readOnlyValue,
+      removeButton,
+      requiredIndicator,
     };
   }, [theme, colorScheme, disabled, readOnly, hasError]);
-};
 
 export default useStyles;

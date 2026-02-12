@@ -1,7 +1,7 @@
 /**
- * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2025, WSO2 LLC. (https://www.wso2.com).
  *
- * WSO2 Inc. licenses this file to you under the Apache License,
+ * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License.
  * You may obtain a copy of the License at
@@ -33,18 +33,18 @@ import {
 } from '@asgardeo/browser';
 
 export interface ReactConfig {
+  disableAutoSignIn?: boolean;
+  /**
+   * The `AuthProvider`, by default, looks for an active session in the server and updates the session information
+   * with the latest session information from the server. This option could be used to disable that behaviour.
+   */
+  disableTrySignInSilently?: boolean;
   /**
    * The SDK's `AuthProvider` by default is listening to the URL changes to see
    * if `code` & `session_state` search params are available so that it could perform
    * token exchange. This option could be used to override that behaviour.
    */
   skipRedirectCallback?: boolean;
-  /**
-   * The `AuthProvider`, by default, looks for an active session in the server and updates the session information
-   * with the latest session information from the server. This option could be used to disable that behaviour.
-   */
-  disableTrySignInSilently?: boolean;
-  disableAutoSignIn?: boolean;
 }
 
 export type AuthReactConfig = AuthSPAClientConfig & ReactConfig;
@@ -63,13 +63,13 @@ export interface AuthStateInterface {
    */
   email?: string;
   /**
-   * Specifies if the user is authenticated or not.
-   */
-  isSignedIn: boolean;
-  /**
    * Are the Auth requests loading.
    */
   isLoading: boolean;
+  /**
+   * Specifies if the user is authenticated or not.
+   */
+  isSignedIn: boolean;
   /**
    * The username of the user.
    */
@@ -77,6 +77,26 @@ export interface AuthStateInterface {
 }
 
 export interface AuthContextInterface {
+  disableHttpHandler(): Promise<boolean>;
+  enableHttpHandler(): Promise<boolean>;
+  error: AsgardeoAuthException;
+  exchangeToken(config: TokenExchangeRequestConfig, callback?: (response: User | Response) => void): void;
+  getAccessToken(): Promise<string>;
+  getDecodedIDPIDToken(): Promise<IdToken>;
+  getDecodedIdToken(sessionId?: string): Promise<IdToken>;
+  getHttpClient(): Promise<HttpClientInstance>;
+  getIdToken(): Promise<string>;
+  getOpenIDProviderEndpoints(): Promise<OIDCEndpoints>;
+  getUser(): Promise<User>;
+  httpRequest(config: HttpRequestConfig): Promise<HttpResponse<any>>;
+  httpRequestAll(configs: HttpRequestConfig[]): Promise<HttpResponse<any>[]>;
+  isSignedIn(): Promise<boolean>;
+  on(hook: Exclude<Hooks, Hooks.CustomGrant>, callback: (response?: any) => void): void;
+  on(hook: Hooks.CustomGrant, callback: (response?: any) => void, id: string): void;
+  on(hook: Hooks, callback: (response?: any) => void, id?: string): void;
+  reInitialize(config: Partial<AuthClientConfig<Config>>): Promise<void>;
+  refreshAccessToken(): Promise<User>;
+  revokeAccessToken(): Promise<boolean>;
   signIn: (
     config?: SignInConfig,
     authorizationCode?: string,
@@ -87,32 +107,12 @@ export interface AuthContextInterface {
       params: Record<string, unknown>;
     },
   ) => Promise<User>;
-  signOut: (callback?: (response: boolean) => void) => Promise<boolean>;
-  getUser(): Promise<User>;
-  httpRequest(config: HttpRequestConfig): Promise<HttpResponse<any>>;
-  httpRequestAll(configs: HttpRequestConfig[]): Promise<HttpResponse<any>[]>;
-  exchangeToken(config: TokenExchangeRequestConfig, callback?: (response: User | Response) => void): void;
-  revokeAccessToken(): Promise<boolean>;
-  getOpenIDProviderEndpoints(): Promise<OIDCEndpoints>;
-  getHttpClient(): Promise<HttpClientInstance>;
-  getDecodedIDPIDToken(): Promise<IdToken>;
-  getDecodedIdToken(sessionId?: string): Promise<IdToken>;
-  getIdToken(): Promise<string>;
-  getAccessToken(): Promise<string>;
-  refreshAccessToken(): Promise<User>;
-  isSignedIn(): Promise<boolean>;
-  enableHttpHandler(): Promise<boolean>;
-  disableHttpHandler(): Promise<boolean>;
-  reInitialize(config: Partial<AuthClientConfig<Config>>): Promise<void>;
   signInSilently: (
     additionalParams?: Record<string, string | boolean>,
     tokenRequestConfig?: {params: Record<string, unknown>},
   ) => Promise<boolean | User>;
-  on(hook: Hooks.CustomGrant, callback: (response?: any) => void, id: string): void;
-  on(hook: Exclude<Hooks, Hooks.CustomGrant>, callback: (response?: any) => void): void;
-  on(hook: Hooks, callback: (response?: any) => void, id?: string): void;
+  signOut: (callback?: (response: boolean) => void) => Promise<boolean>;
   state: AuthStateInterface;
-  error: AsgardeoAuthException;
 }
 
 /**

@@ -30,10 +30,10 @@ export interface HeadingExtractionResult {
  * Complete result of authentication component heading extraction
  */
 export interface AuthComponentHeadingsResult {
-  title: string;
-  subtitle: string;
   componentsWithoutHeadings: EmbeddedFlowComponent[];
   headingComponents: HeadingExtractionResult;
+  subtitle: string;
+  title: string;
 }
 
 /**
@@ -83,6 +83,7 @@ const getAuthComponentHeadings = (
    * Recursively search for heading components
    */
   const findHeadings = (comps: EmbeddedFlowComponent[]): void => {
+    // eslint-disable-next-line no-restricted-syntax
     for (const component of comps) {
       if (component.type === 'TEXT' && component.variant && component.variant.startsWith('HEADING_')) {
         if (!heading) {
@@ -106,20 +107,20 @@ const getAuthComponentHeadings = (
     let foundHeadings: number = 0;
     const maxHeadings: number = 2;
 
-    const filter = (components: EmbeddedFlowComponent[]): EmbeddedFlowComponent[] => {
-      return components.reduce((acc: EmbeddedFlowComponent[], component) => {
+    const filter = (items: EmbeddedFlowComponent[]): EmbeddedFlowComponent[] =>
+      items.reduce((acc: EmbeddedFlowComponent[], component: EmbeddedFlowComponent) => {
         if (
           foundHeadings < maxHeadings &&
           component.type === 'TEXT' &&
           component.variant &&
           component.variant.startsWith('HEADING_')
         ) {
-          foundHeadings++;
+          foundHeadings += 1;
           return acc;
         }
 
         if (component.components && component.components.length > 0) {
-          const filteredNestedComponents = filter(component.components);
+          const filteredNestedComponents: EmbeddedFlowComponent[] = filter(component.components);
           if (filteredNestedComponents.length > 0) {
             acc.push({
               ...component,
@@ -132,7 +133,6 @@ const getAuthComponentHeadings = (
 
         return acc;
       }, []);
-    };
 
     return filter(comps);
   };
@@ -150,12 +150,14 @@ const getAuthComponentHeadings = (
   const headingText: string = getComponentText(heading);
   const subheadingText: string = getComponentText(subheading);
 
-  return {
-    title: flowTitle || headingText || defaultTitle || '',
-    subtitle: flowSubtitle || subheadingText || defaultSubtitle || '',
+  const result: AuthComponentHeadingsResult = {
     componentsWithoutHeadings: filterComponents(components),
-    headingComponents: { heading, subheading },
-  } satisfies AuthComponentHeadingsResult;
+    headingComponents: {heading, subheading},
+    subtitle: flowSubtitle || subheadingText || defaultSubtitle || '',
+    title: flowTitle || headingText || defaultTitle || '',
+  };
+
+  return result;
 };
 
 export default getAuthComponentHeadings;

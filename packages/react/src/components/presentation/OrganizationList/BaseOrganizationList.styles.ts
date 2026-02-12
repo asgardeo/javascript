@@ -16,9 +16,9 @@
  * under the License.
  */
 
+import {Theme} from '@asgardeo/browser';
 import {css} from '@emotion/css';
 import {useMemo} from 'react';
-import {Theme} from '@asgardeo/browser';
 
 /**
  * Creates styles for the BaseOrganizationList component using BEM methodology
@@ -26,9 +26,9 @@ import {Theme} from '@asgardeo/browser';
  * @param colorScheme - The current color scheme (used for memoization)
  * @returns Object containing CSS class names for component styling
  */
-const useStyles = (theme: Theme, colorScheme: string) => {
-  return useMemo(() => {
-    const root = css`
+const useStyles = (theme: Theme, colorScheme: string): Record<string, string> =>
+  useMemo(() => {
+    const root: string = css`
       padding: calc(${theme.vars.spacing.unit} * 4);
       min-width: 600px;
       margin: 0 auto;
@@ -36,7 +36,7 @@ const useStyles = (theme: Theme, colorScheme: string) => {
       border-radius: ${theme.vars.borderRadius.large};
     `;
 
-    const header = css`
+    const header: string = css`
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -45,24 +45,24 @@ const useStyles = (theme: Theme, colorScheme: string) => {
       border-bottom: 1px solid ${theme.vars.colors.border};
     `;
 
-    const headerInfo = css`
+    const headerInfo: string = css`
       flex: 1;
     `;
 
-    const title = css`
+    const title: string = css`
       font-size: 1.5rem;
       font-weight: 600;
       margin: 0 0 8px 0;
       color: ${theme.vars.colors.text.primary};
     `;
 
-    const subtitle = css`
+    const subtitle: string = css`
       color: ${theme.vars.colors.text.secondary};
       font-size: 0.875rem;
       margin: 0;
     `;
 
-    const refreshButton = css`
+    const refreshButton: string = css`
       background-color: ${theme.vars.colors.background.surface};
       border: 1px solid ${theme.vars.colors.border};
       border-radius: ${theme.vars.borderRadius.small};
@@ -77,13 +77,13 @@ const useStyles = (theme: Theme, colorScheme: string) => {
       }
     `;
 
-    const listContainer = css`
+    const listContainer: string = css`
       display: flex;
       flex-direction: column;
       gap: calc(${theme.vars.spacing.unit} * 1.5);
     `;
 
-    const organizationItem = css`
+    const organizationItem: string = css`
       border: 1px solid ${theme.vars.colors.border};
       border-radius: ${theme.vars.borderRadius.medium};
       display: flex;
@@ -97,55 +97,55 @@ const useStyles = (theme: Theme, colorScheme: string) => {
       }
     `;
 
-    const organizationContent = css`
+    const organizationContent: string = css`
       display: flex;
       align-items: center;
       gap: calc(${theme.vars.spacing.unit} * 2);
       flex: 1;
     `;
 
-    const organizationInfo = css`
+    const organizationInfo: string = css`
       flex: 1;
     `;
 
-    const organizationName = css`
+    const organizationName: string = css`
       font-size: 1.125rem;
       font-weight: 600;
       margin: 0 0 4px 0;
       color: ${theme.vars.colors.text.primary};
     `;
 
-    const organizationHandle = css`
+    const organizationHandle: string = css`
       color: ${theme.vars.colors.text.secondary};
       font-size: 0.875rem;
       margin: 0 0 4px 0;
       font-family: monospace;
     `;
 
-    const organizationStatus = css`
+    const organizationStatus: string = css`
       color: ${theme.vars.colors.text.secondary};
       font-size: 0.875rem;
       margin: 0;
     `;
 
-    const statusText = css`
+    const statusText: string = css`
       font-weight: 500;
     `;
 
-    const statusTextActive = css`
+    const statusTextActive: string = css`
       color: ${theme.vars.colors.success.main};
     `;
 
-    const statusTextInactive = css`
+    const statusTextInactive: string = css`
       color: ${theme.vars.colors.error.main};
     `;
 
-    const organizationActions = css`
+    const organizationActions: string = css`
       display: flex;
       align-items: center;
     `;
 
-    const badge = css`
+    const badge: string = css`
       border-radius: ${theme.vars.borderRadius.large};
       font-size: 0.75rem;
       font-weight: 500;
@@ -154,17 +154,17 @@ const useStyles = (theme: Theme, colorScheme: string) => {
       letter-spacing: 0.5px;
     `;
 
-    const badgeSuccess = css`
+    const badgeSuccess: string = css`
       background-color: color-mix(in srgb, ${theme.vars.colors.success.main} 20%, transparent);
       color: ${theme.vars.colors.success.main};
     `;
 
-    const badgeError = css`
+    const badgeError: string = css`
       background-color: color-mix(in srgb, ${theme.vars.colors.error.main} 20%, transparent);
       color: ${theme.vars.colors.error.main};
     `;
 
-    const loadingContainer = css`
+    const loadingContainer: string = css`
       padding: calc(${theme.vars.spacing.unit} * 4);
       text-align: center;
       display: flex;
@@ -173,11 +173,11 @@ const useStyles = (theme: Theme, colorScheme: string) => {
       gap: calc(${theme.vars.spacing.unit} * 2);
     `;
 
-    const loadingText = css`
+    const loadingText: string = css`
       margin-top: ${theme.vars.spacing.unit};
     `;
 
-    const errorContainer = css`
+    const errorContainer: string = css`
       background-color: color-mix(in srgb, ${theme.vars.colors.error.main} 20%, transparent);
       border: 1px solid ${theme.vars.colors.error.main};
       border-radius: ${theme.vars.borderRadius.medium};
@@ -185,17 +185,17 @@ const useStyles = (theme: Theme, colorScheme: string) => {
       padding: calc(${theme.vars.spacing.unit} * 2);
     `;
 
-    const emptyContainer = css`
+    const emptyContainer: string = css`
       padding: calc(${theme.vars.spacing.unit} * 4);
       text-align: center;
     `;
 
-    const emptyText = css`
+    const emptyText: string = css`
       color: ${theme.vars.colors.text.secondary};
       font-size: 1rem;
     `;
 
-    const loadMoreButton = css`
+    const loadMoreButton: string = css`
       background-color: ${theme.vars.colors.primary.main};
       border: none;
       border-radius: ${theme.vars.borderRadius.medium};
@@ -217,48 +217,48 @@ const useStyles = (theme: Theme, colorScheme: string) => {
       }
     `;
 
-    const errorMargin = css`
+    const errorMargin: string = css`
       margin-top: calc(${theme.vars.spacing.unit} * 2);
     `;
 
-    const loadMoreMargin = css`
+    const loadMoreMargin: string = css`
       margin-top: calc(${theme.vars.spacing.unit} * 3);
     `;
 
-    const popupContent = css`
+    const popupContent: string = css`
       padding: ${theme.vars.spacing.unit};
     `;
 
     return {
-      root,
+      badge,
+      badgeError,
+      badgeSuccess,
+      emptyContainer,
+      emptyText,
+      errorContainer,
+      errorMargin,
       header,
       headerInfo,
-      title,
-      subtitle,
-      refreshButton,
       listContainer,
-      organizationItem,
+      loadMoreButton,
+      loadMoreMargin,
+      loadingContainer,
+      loadingText,
+      organizationActions,
       organizationContent,
-      organizationInfo,
-      organizationName,
       organizationHandle,
+      organizationInfo,
+      organizationItem,
+      organizationName,
       organizationStatus,
+      popupContent,
+      refreshButton,
+      root,
       statusText,
       statusTextActive,
       statusTextInactive,
-      organizationActions,
-      badge,
-      badgeSuccess,
-      badgeError,
-      loadingContainer,
-      loadingText,
-      errorContainer,
-      emptyContainer,
-      emptyText,
-      loadMoreButton,
-      errorMargin,
-      loadMoreMargin,
-      popupContent,
+      subtitle,
+      title,
     };
   }, [
     theme.vars.spacing.unit,
@@ -275,6 +275,5 @@ const useStyles = (theme: Theme, colorScheme: string) => {
     theme.vars.colors.primary.contrastText,
     colorScheme,
   ]);
-};
 
 export default useStyles;

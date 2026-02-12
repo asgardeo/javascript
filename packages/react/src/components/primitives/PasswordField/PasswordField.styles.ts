@@ -16,9 +16,9 @@
  * under the License.
  */
 
+import {Theme} from '@asgardeo/browser';
 import {css} from '@emotion/css';
 import {useMemo} from 'react';
-import {Theme} from '@asgardeo/browser';
 
 /**
  * Creates styles for the PasswordField component using BEM methodology
@@ -29,9 +29,15 @@ import {Theme} from '@asgardeo/browser';
  * @param hasError - Whether the component has an error
  * @returns Object containing CSS class names for component styling
  */
-const useStyles = (theme: Theme, colorScheme: string, showPassword: boolean, disabled: boolean, hasError: boolean) => {
-  return useMemo(() => {
-    const toggleIcon = css`
+const useStyles = (
+  theme: Theme,
+  colorScheme: string,
+  showPassword: boolean,
+  disabled: boolean,
+  hasError: boolean,
+): Record<string, string> =>
+  useMemo(() => {
+    const toggleIcon: string = css`
       cursor: ${disabled ? 'not-allowed' : 'pointer'};
       color: ${theme.vars.colors.text.secondary};
       opacity: ${disabled ? 0.6 : 1};
@@ -42,20 +48,19 @@ const useStyles = (theme: Theme, colorScheme: string, showPassword: boolean, dis
       }
     `;
 
-    const visibleIcon = css`
+    const visibleIcon: string = css`
       color: ${theme.vars.colors.primary.main};
     `;
 
-    const hiddenIcon = css`
+    const hiddenIcon: string = css`
       color: ${theme.vars.colors.text.secondary};
     `;
 
     return {
+      hiddenIcon,
       toggleIcon,
       visibleIcon,
-      hiddenIcon,
     };
   }, [theme, colorScheme, showPassword, disabled, hasError]);
-};
 
 export default useStyles;

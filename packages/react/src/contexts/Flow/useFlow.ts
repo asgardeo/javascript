@@ -48,7 +48,7 @@ import FlowContext, {FlowContextValue} from './FlowContext';
  * @throws Error if used outside of FlowProvider
  */
 const useFlow = (): FlowContextValue => {
-  const context = useContext(FlowContext);
+  const context: FlowContextValue | undefined = useContext(FlowContext);
 
   if (!context) {
     throw new Error('useFlow must be used within a FlowProvider');

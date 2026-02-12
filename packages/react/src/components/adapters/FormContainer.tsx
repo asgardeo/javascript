@@ -16,24 +16,25 @@
  * under the License.
  */
 
-import {FC} from 'react';
-import {createSignUpComponent} from '../presentation/auth/SignUp/v1/SignUpOptionFactory';
+import {FC, FormEvent} from 'react';
 import {AdapterProps} from '../../models/adapters';
+// eslint-disable-next-line import/no-cycle
+import {createSignUpComponent} from '../presentation/auth/SignUp/v1/SignUpOptionFactory';
 
 /**
  * Form container component that renders child components.
  */
-const FormContainer: FC<AdapterProps> = props => {
+const FormContainer: FC<AdapterProps> = (props: AdapterProps) => {
   const {component} = props;
 
   // If the form has child components, render them wrapped in a form element
   if (component.components && component.components.length > 0) {
-    const handleFormSubmit = (e: React.FormEvent): void => {
+    const handleFormSubmit: (e: FormEvent) => void = (e: FormEvent): void => {
       e.preventDefault();
 
       // Find submit button in child components and trigger its submission
-      const submitButton = component.components?.find(
-        child =>
+      const submitButton: any = component.components?.find(
+        (child: any) =>
           child.type === 'BUTTON' &&
           (child.variant === 'PRIMARY' || child.variant === 'SECONDARY' || child.config?.['type'] === 'submit'),
       );
@@ -45,7 +46,7 @@ const FormContainer: FC<AdapterProps> = props => {
 
     return (
       <form key={component.id} onSubmit={handleFormSubmit} style={{display: 'flex', flexDirection: 'column'}}>
-        {component.components.map((childComponent, index) =>
+        {component.components.map((childComponent: any) =>
           createSignUpComponent({
             ...props,
             component: childComponent,

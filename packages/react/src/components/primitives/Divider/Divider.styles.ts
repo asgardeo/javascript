@@ -16,9 +16,9 @@
  * under the License.
  */
 
+import {Theme} from '@asgardeo/browser';
 import {css} from '@emotion/css';
 import {useMemo} from 'react';
-import {Theme} from '@asgardeo/browser';
 
 export type DividerOrientation = 'horizontal' | 'vertical';
 export type DividerVariant = 'solid' | 'dashed' | 'dotted';
@@ -40,16 +40,23 @@ const useStyles = (
   variant: DividerVariant,
   color?: string,
   hasChildren?: boolean,
-) => {
-  return useMemo(() => {
-    const baseColor = color || theme.colors.border;
-    const borderStyle = variant === 'solid' ? 'solid' : variant === 'dashed' ? 'dashed' : 'dotted';
+): Record<string, string> =>
+  useMemo(() => {
+    const baseColor: string = color || theme.colors.border;
+    let borderStyle: string;
+    if (variant === 'solid') {
+      borderStyle = 'solid';
+    } else if (variant === 'dashed') {
+      borderStyle = 'dashed';
+    } else {
+      borderStyle = 'dotted';
+    }
 
-    const baseDivider = css`
+    const baseDivider: string = css`
       margin: calc(${theme.vars.spacing.unit} * 2) 0;
     `;
 
-    const verticalDivider = css`
+    const verticalDivider: string = css`
       display: inline-block;
       height: 100%;
       min-height: calc(${theme.vars.spacing.unit} * 2);
@@ -59,7 +66,7 @@ const useStyles = (
       margin-inline: calc(${theme.vars.spacing.unit} * 1);
     `;
 
-    const horizontalDivider = css`
+    const horizontalDivider: string = css`
       display: flex;
       align-items: center;
       width: 100%;
@@ -70,13 +77,13 @@ const useStyles = (
       `}
     `;
 
-    const dividerLine = css`
+    const dividerLine: string = css`
       flex: 1;
       height: 1px;
       border-top: 1px ${borderStyle} ${baseColor};
     `;
 
-    const dividerText = css`
+    const dividerText: string = css`
       background-color: ${theme.vars.colors.background.surface};
       padding: 0 calc(${theme.vars.spacing.unit} * 1);
       white-space: nowrap;
@@ -84,12 +91,11 @@ const useStyles = (
 
     return {
       divider: baseDivider,
-      vertical: verticalDivider,
       horizontal: horizontalDivider,
       line: dividerLine,
       text: dividerText,
+      vertical: verticalDivider,
     };
   }, [theme, colorScheme, orientation, variant, color, hasChildren]);
-};
 
 export default useStyles;

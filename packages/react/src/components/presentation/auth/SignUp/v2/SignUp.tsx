@@ -22,7 +22,8 @@ import {
   EmbeddedFlowResponseType,
   EmbeddedFlowType,
 } from '@asgardeo/browser';
-import {FC, ReactNode} from 'react';
+import {FC, ReactElement, ReactNode} from 'react';
+// eslint-disable-next-line import/no-named-as-default
 import BaseSignUp, {BaseSignUpProps, BaseSignUpRenderProps} from './BaseSignUp';
 import useAsgardeo from '../../../../../contexts/Asgardeo/useAsgardeo';
 
@@ -54,7 +55,7 @@ const SignUp: FC<SignUpProps> = ({
   shouldRedirectAfterSignUp = true,
   children,
   ...rest
-}) => {
+}: SignUpProps): ReactElement => {
   const {signUp, isInitialized, applicationId} = useAsgardeo();
 
   /**
@@ -67,9 +68,9 @@ const SignUp: FC<SignUpProps> = ({
     const applicationIdFromUrl: string = urlParams.get('applicationId');
 
     // Priority order: applicationId from context > applicationId from URL
-    const effectiveApplicationId = applicationId || applicationIdFromUrl;
+    const effectiveApplicationId: any = applicationId || applicationIdFromUrl;
 
-    const initialPayload = payload || {
+    const initialPayload: any = payload || {
       flowType: EmbeddedFlowType.Registration,
       ...(effectiveApplicationId && {applicationId: effectiveApplicationId}),
     };
@@ -86,12 +87,12 @@ const SignUp: FC<SignUpProps> = ({
   /**
    * Handle successful sign-up and redirect.
    */
-  const handleComplete = (response: EmbeddedFlowExecuteResponse) => {
+  const handleComplete = (response: EmbeddedFlowExecuteResponse): any => {
     onComplete?.(response);
 
     // Check if OAuth flow completed and we have a redirect URL with authorization code
     // This happens when registration completes with assertion and OAuth authorize succeeds
-    const oauthRedirectUrl = (response as any)?.redirectUrl;
+    const oauthRedirectUrl: any = (response as any)?.redirectUrl;
     if (shouldRedirectAfterSignUp && oauthRedirectUrl) {
       window.location.href = oauthRedirectUrl;
       return;

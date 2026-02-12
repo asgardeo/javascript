@@ -25,8 +25,10 @@ import {AsgardeoSPAClient} from '../__legacy__/client';
  * @remarks
  * This utility provides methods to make single or multiple HTTP requests.
  */
-// eslint-disable-next-line @typescript-eslint/typedef
-const http = {
+const http: {
+  request: typeof AsgardeoSPAClient.prototype.httpRequest;
+  requestAll: typeof AsgardeoSPAClient.prototype.httpRequestAll;
+} = {
   /**
    * Makes a single HTTP request using the AsgardeoSPAClient instance.
    *

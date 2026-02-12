@@ -42,31 +42,23 @@
  * consistent response handling across all embedded flows.
  */
 
-import {
-  EmbeddedFlowComponentV2 as EmbeddedFlowComponent,
-  EmbeddedSignUpFlowErrorResponseV2 as EmbeddedSignUpFlowErrorResponse,
-} from '@asgardeo/browser';
-import {UseTranslation} from '../../hooks/useTranslation';
+import {EmbeddedFlowComponentV2 as EmbeddedFlowComponent} from '@asgardeo/browser';
 import resolveTranslationsInArray from './resolveTranslationsInArray';
+import {UseTranslation} from '../../hooks/useTranslation';
 
 /**
  * Generic flow error response interface that covers common error structure
  */
 export interface FlowErrorResponse {
+  failureReason?: string;
   flowId: string;
   flowStatus: 'ERROR';
-  failureReason?: string;
 }
 
 /**
  * Configuration options for flow transformation
  */
 export interface FlowTransformOptions {
-  /**
-   * Whether to throw errors or return them as normalized response
-   * @default true
-   */
-  throwOnError?: boolean;
   /**
    * Default error message key for translation fallback
    * @default 'errors.flow.generic'
@@ -77,6 +69,11 @@ export interface FlowTransformOptions {
    * @default true
    */
   resolveTranslations?: boolean;
+  /**
+   * Whether to throw errors or return them as normalized response
+   * @default true
+   */
+  throwOnError?: boolean;
 }
 
 /**
@@ -88,7 +85,7 @@ export interface FlowTransformOptions {
  * @returns Map of ref to identifier
  */
 const createInputRefMapping = (response: any): Map<string, string> => {
-  const mapping = new Map<string, string>();
+  const mapping: Map<string, string> = new Map<string, string>();
 
   if (response?.data?.inputs && Array.isArray(response.data.inputs)) {
     response.data.inputs.forEach((input: any) => {
@@ -110,7 +107,7 @@ const createInputRefMapping = (response: any): Map<string, string> => {
  * @returns Map of action ref to nextNode
  */
 const createActionRefMapping = (response: any): Map<string, string> => {
-  const mapping = new Map<string, string>();
+  const mapping: Map<string, string> = new Map<string, string>();
 
   if (response?.data?.actions && Array.isArray(response.data.actions)) {
     response.data.actions.forEach((action: any) => {
@@ -139,11 +136,11 @@ const applyInputRefMapping = (
   refMapping: Map<string, string>,
   actionMapping: Map<string, string>,
   inputsData: any[] = [],
-): EmbeddedFlowComponent[] => {
-  return components.map(component => {
-    const transformedComponent = {...component} as EmbeddedFlowComponent & {
+): EmbeddedFlowComponent[] =>
+  components.map((component: EmbeddedFlowComponent) => {
+    const transformedComponent: any = {...component} as EmbeddedFlowComponent & {
       actionRef?: string;
-      options?: Array<{value: string; label: string}>;
+      options?: Array<{label: string; value: string}>;
     };
 
     // If this component has a ref that maps to an identifier, update it
@@ -154,17 +151,17 @@ const applyInputRefMapping = (
     // For SELECT components, copy options from data.inputs
     // The component.id matches the input.ref in the data structure
     if (transformedComponent.type === 'SELECT' && component.id) {
-      const inputData = inputsData.find((input: any) => input.ref === component.id);
+      const inputData: any = inputsData.find((input: any) => input.ref === component.id);
       if (inputData?.options) {
         transformedComponent.options = inputData.options.map((opt: any) => {
           if (typeof opt === 'string') {
-            return { value: opt, label: opt };
+            return {label: opt, value: opt};
           }
           // Safely handle non-string values to prevent React key crashes
-          const value = typeof opt.value === 'object' ? JSON.stringify(opt.value) : String(opt.value || '');
-          const label = typeof opt.label === 'object' ? JSON.stringify(opt.label) : String(opt.label || value);
+          const value: string = typeof opt.value === 'object' ? JSON.stringify(opt.value) : String(opt.value || '');
+          const label: string = typeof opt.label === 'object' ? JSON.stringify(opt.label) : String(opt.label || value);
 
-          return {value, label};
+          return {label, value};
         });
       }
     }
@@ -191,7 +188,6 @@ const applyInputRefMapping = (
 
     return transformedComponent;
   });
-};
 
 /**
  * Transform and resolve translations in components from flow response.
@@ -213,16 +209,16 @@ export const transformComponents = (
     return [];
   }
 
-  let components: EmbeddedFlowComponent[] = response.data.meta.components;
+  let {components} = response.data.meta;
 
   // Create mapping from ref to identifier based on data.inputs
-  const refMapping = createInputRefMapping(response);
+  const refMapping: Map<string, string> = createInputRefMapping(response);
 
   // Create mapping from action ref to nextNode based on data.actions
-  const actionMapping = createActionRefMapping(response);
+  const actionMapping: Map<string, string> = createActionRefMapping(response);
 
   // Get inputs data for SELECT option resolution
-  const inputsData = response?.data?.inputs || [];
+  const inputsData: any[] = response?.data?.inputs || [];
 
   // Apply ref and action mapping if there are any mappings
   if (refMapping.size > 0 || actionMapping.size > 0 || inputsData.length > 0) {
@@ -297,8 +293,8 @@ export const normalizeFlowResponse = (
   t: UseTranslation['t'],
   options: FlowTransformOptions = {},
 ): {
-  flowId: string;
   components: EmbeddedFlowComponent[];
+  flowId: string;
 } => {
   const {throwOnError = true, defaultErrorKey = 'errors.flow.generic', resolveTranslations = true} = options;
 
@@ -311,7 +307,7 @@ export const normalizeFlowResponse = (
   }
 
   return {
-    flowId: response.flowId,
     components: transformComponents(response, t, resolveTranslations),
+    flowId: response.flowId,
   };
 };
