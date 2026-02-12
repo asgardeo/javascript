@@ -143,7 +143,7 @@ export const OrganizationSwitcher: FC<OrganizationSwitcherProps> = ({
     onClick: (): void => setIsCreateOrgOpen(true),
   });
 
-  const menuItems = props.menuItems ? [...defaultMenuItems, ...props.menuItems] : defaultMenuItems;
+  const menuItems = props['menuItems'] ? [...defaultMenuItems, ...props['menuItems']] : defaultMenuItems;
 
   return (
     <>

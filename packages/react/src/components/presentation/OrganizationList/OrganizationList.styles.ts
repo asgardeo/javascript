@@ -16,9 +16,9 @@
  * under the License.
  */
 
+import {Theme} from '@asgardeo/browser';
 import {css} from '@emotion/css';
 import {useMemo} from 'react';
-import {Theme} from '@asgardeo/browser';
 
 /**
  * Creates styles for the OrganizationList component using BEM methodology
@@ -26,9 +26,9 @@ import {Theme} from '@asgardeo/browser';
  * @param colorScheme - The current color scheme (used for memoization)
  * @returns Object containing CSS class names for component styling
  */
-const useStyles = (theme: Theme, colorScheme: string) => {
-  return useMemo(() => {
-    const cssOrganizationListWrapper = css`
+const useStyles = (theme: Theme, colorScheme: string): Record<string, string> =>
+  useMemo(() => {
+    const cssOrganizationListWrapper: string = css`
       /* Container wrapper styles for OrganizationList component */
       width: 100%;
 
@@ -59,7 +59,6 @@ const useStyles = (theme: Theme, colorScheme: string) => {
     `;
 
     return {
-      root: cssOrganizationListWrapper,
       container: css`
         position: relative;
         width: 100%;
@@ -82,8 +81,8 @@ const useStyles = (theme: Theme, colorScheme: string) => {
         border-radius: ${theme.vars.borderRadius.large};
         backdrop-filter: blur(2px);
       `,
+      root: cssOrganizationListWrapper,
     };
   }, [theme, colorScheme]);
-};
 
 export default useStyles;

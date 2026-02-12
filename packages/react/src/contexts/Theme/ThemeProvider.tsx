@@ -16,7 +16,6 @@
  * under the License.
  */
 
-import {FC, PropsWithChildren, ReactElement, useEffect, useMemo, useState, useCallback} from 'react';
 import {
   createTheme,
   Theme,
@@ -29,12 +28,27 @@ import {
   BrowserThemeDetection,
   ThemePreferences,
   DEFAULT_THEME,
+  createPackageComponentLogger,
 } from '@asgardeo/browser';
+import {FC, PropsWithChildren, ReactElement, useEffect, useMemo, useState, useCallback} from 'react';
 import ThemeContext from './ThemeContext';
+
 import useBrandingContext from '../Branding/useBrandingContext';
 
+const logger: ReturnType<typeof createPackageComponentLogger> = createPackageComponentLogger(
+  '@asgardeo/react',
+  'ThemeProvider',
+);
+
 export interface ThemeProviderProps {
-  theme?: RecursivePartial<ThemeConfig>;
+  /**
+   * Configuration for theme detection when using 'class' or 'system' mode
+   */
+  detection?: BrowserThemeDetection;
+  /**
+   * Configuration for branding integration
+   */
+  inheritFromBranding?: ThemePreferences['inheritFromBranding'];
   /**
    * The theme mode to use for automatic detection
    * - 'light': Always use light theme
@@ -44,18 +58,11 @@ export interface ThemeProviderProps {
    * - 'branding': Use active theme from branding preference (requires inheritFromBranding=true)
    */
   mode?: ThemeMode | 'branding';
-  /**
-   * Configuration for theme detection when using 'class' or 'system' mode
-   */
-  detection?: BrowserThemeDetection;
-  /**
-   * Configuration for branding integration
-   */
-  inheritFromBranding?: ThemePreferences['inheritFromBranding'];
+  theme?: RecursivePartial<ThemeConfig>;
 }
 
-const applyThemeToDOM = (theme: Theme) => {
-  Object.entries(theme.cssVariables).forEach(([key, value]) => {
+const applyThemeToDOM = (theme: Theme): void => {
+  Object.entries(theme.cssVariables).forEach(([key, value]: [string, string]) => {
     document.documentElement.style.setProperty(key, value);
   });
 };
@@ -128,13 +135,13 @@ const ThemeProvider: FC<PropsWithChildren<ThemeProviderProps>> = ({
 
   // Use branding theme if inheritFromBranding is enabled
   // Handle case where BrandingProvider might not be available
-  let brandingTheme = null;
-  let brandingActiveTheme = null;
-  let isBrandingLoading = false;
-  let brandingError = null;
+  let brandingTheme: Theme | null = null;
+  let brandingActiveTheme: 'light' | 'dark' | null = null;
+  let isBrandingLoading: boolean = false;
+  let brandingError: Error | null = null;
 
   try {
-    const brandingContext = useBrandingContext();
+    const brandingContext: any = useBrandingContext();
     brandingTheme = brandingContext.theme;
     brandingActiveTheme = brandingContext.activeTheme;
     isBrandingLoading = brandingContext.isLoading;
@@ -142,7 +149,7 @@ const ThemeProvider: FC<PropsWithChildren<ThemeProviderProps>> = ({
   } catch (error) {
     // BrandingProvider not available, fall back to no branding
     if (inheritFromBranding) {
-      console.warn(
+      logger.warn(
         'ThemeProvider: inheritFromBranding is enabled but BrandingProvider is not available. ' +
           'Make sure to wrap your app with BrandingProvider or AsgardeoProvider with branding preferences.',
       );
@@ -164,19 +171,19 @@ const ThemeProvider: FC<PropsWithChildren<ThemeProviderProps>> = ({
   }, [inheritFromBranding, brandingActiveTheme, mode, isBrandingLoading]);
 
   // Merge user-provided theme config with branding theme
-  const finalThemeConfig = useMemo(() => {
+  const finalThemeConfig: RecursivePartial<ThemeConfig> | undefined = useMemo(() => {
     if (!inheritFromBranding || !brandingTheme) {
       return themeConfig;
     }
 
     // Convert branding theme to our theme config format
     const brandingThemeConfig: RecursivePartial<ThemeConfig> = {
-      colors: brandingTheme.colors,
       borderRadius: brandingTheme.borderRadius,
+      colors: brandingTheme.colors,
+      components: brandingTheme.components,
+      images: brandingTheme.images,
       shadows: brandingTheme.shadows,
       spacing: brandingTheme.spacing,
-      images: brandingTheme.images,
-      components: brandingTheme.components,
     };
 
     // Merge branding theme with user-provided theme config
@@ -184,13 +191,21 @@ const ThemeProvider: FC<PropsWithChildren<ThemeProviderProps>> = ({
     return {
       ...brandingThemeConfig,
       ...themeConfig,
+      borderRadius: {
+        ...brandingThemeConfig.borderRadius,
+        ...themeConfig?.borderRadius,
+      },
       colors: {
         ...brandingThemeConfig.colors,
         ...themeConfig?.colors,
       },
-      borderRadius: {
-        ...brandingThemeConfig.borderRadius,
-        ...themeConfig?.borderRadius,
+      components: {
+        ...brandingThemeConfig.components,
+        ...themeConfig?.components,
+      },
+      images: {
+        ...brandingThemeConfig.images,
+        ...themeConfig?.images,
       },
       shadows: {
         ...brandingThemeConfig.shadows,
@@ -200,28 +215,23 @@ const ThemeProvider: FC<PropsWithChildren<ThemeProviderProps>> = ({
         ...brandingThemeConfig.spacing,
         ...themeConfig?.spacing,
       },
-      images: {
-        ...brandingThemeConfig.images,
-        ...themeConfig?.images,
-      },
-      components: {
-        ...brandingThemeConfig.components,
-        ...themeConfig?.components,
-      },
     };
   }, [inheritFromBranding, brandingTheme, themeConfig]);
 
-  const theme = useMemo(() => createTheme(finalThemeConfig, colorScheme === 'dark'), [finalThemeConfig, colorScheme]);
+  const theme: Theme = useMemo(
+    () => createTheme(finalThemeConfig, colorScheme === 'dark'),
+    [finalThemeConfig, colorScheme],
+  );
 
   // Get direction from theme config or default to 'ltr'
-  const direction = (finalThemeConfig as any)?.direction || 'ltr';
+  const direction: string = (finalThemeConfig as any)?.direction || 'ltr';
 
-  const handleThemeChange = useCallback((isDark: boolean) => {
+  const handleThemeChange: (isDark: boolean) => void = useCallback((isDark: boolean) => {
     setColorScheme(isDark ? 'dark' : 'light');
   }, []);
 
-  const toggleTheme = useCallback(() => {
-    setColorScheme(prev => (prev === 'light' ? 'dark' : 'light'));
+  const toggleTheme: () => void = useCallback(() => {
+    setColorScheme((prev: 'light' | 'dark') => (prev === 'light' ? 'dark' : 'light'));
   }, []);
 
   useEffect(() => {
@@ -234,7 +244,7 @@ const ThemeProvider: FC<PropsWithChildren<ThemeProviderProps>> = ({
     }
 
     if (mode === 'class') {
-      const targetElement = detection.targetElement || document.documentElement;
+      const targetElement: HTMLElement = detection.targetElement || document.documentElement;
       if (targetElement) {
         observer = createClassObserver(targetElement, handleThemeChange, detection);
       }
@@ -272,14 +282,14 @@ const ThemeProvider: FC<PropsWithChildren<ThemeProviderProps>> = ({
     }
   }, [direction]);
 
-  const value = {
-    theme,
+  const value: any = {
+    brandingError,
     colorScheme,
     direction,
-    toggleTheme,
-    isBrandingLoading,
-    brandingError,
     inheritFromBranding,
+    isBrandingLoading,
+    theme,
+    toggleTheme,
   };
 
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;

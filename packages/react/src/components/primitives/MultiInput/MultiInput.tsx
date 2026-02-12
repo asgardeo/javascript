@@ -16,85 +16,89 @@
  * under the License.
  */
 
-import {CSSProperties, FC, ReactNode, useCallback, useState} from 'react';
-import useTheme from '../../../contexts/Theme/useTheme';
+import {withVendorCSSClassPrefix, bem} from '@asgardeo/browser';
 import {cx} from '@emotion/css';
+import {CSSProperties, FC, KeyboardEvent, ReactElement, ReactNode, useCallback, useState} from 'react';
+import useStyles from './MultiInput.styles';
+import useTheme from '../../../contexts/Theme/useTheme';
+import Checkbox from '../Checkbox/Checkbox';
+import DatePicker from '../DatePicker/DatePicker';
 import FormControl from '../FormControl/FormControl';
 import InputLabel from '../InputLabel/InputLabel';
 import TextField from '../TextField/TextField';
-import DatePicker from '../DatePicker/DatePicker';
-import Checkbox from '../Checkbox/Checkbox';
-import {withVendorCSSClassPrefix, bem} from '@asgardeo/browser';
-import useStyles from './MultiInput.styles';
 
 export type MultiInputType = 'text' | 'email' | 'tel' | 'url' | 'password' | 'date' | 'boolean';
 export type MultiInputFieldType = 'STRING' | 'DATE_TIME' | 'BOOLEAN';
 
 export interface MultiInputProps {
   /**
-   * Label text to display above the inputs
-   */
-  label?: string;
-  /**
-   * Error message to display below the inputs
-   */
-  error?: string;
-  /**
    * Additional CSS class names
    */
   className?: string;
-  /**
-   * Whether the field is required
-   */
-  required?: boolean;
   /**
    * Whether the field is disabled
    */
   disabled?: boolean;
   /**
-   * Helper text to display below the inputs
+   * Icon to display at the end (right) of each input (in addition to add/remove buttons)
    */
-  helperText?: string;
+  endIcon?: ReactNode;
   /**
-   * Placeholder text for input fields
+   * Error message to display below the inputs
    */
-  placeholder?: string;
-  /**
-   * Array of values
-   */
-  values: string[];
-  /**
-   * Callback when values change
-   */
-  onChange: (values: string[]) => void;
-  /**
-   * Input type
-   */
-  type?: MultiInputType;
+  error?: string;
   /**
    * Field type for different input components
    */
   fieldType?: MultiInputFieldType;
   /**
-   * Icon to display at the start (left) of each input
+   * Helper text to display below the inputs
    */
-  startIcon?: ReactNode;
+  helperText?: string;
   /**
-   * Icon to display at the end (right) of each input (in addition to add/remove buttons)
+   * Label text to display above the inputs
    */
-  endIcon?: ReactNode;
-  /**
-   * Minimum number of fields to show (default: 1)
-   */
-  minFields?: number;
+  label?: string;
   /**
    * Maximum number of fields to allow (default: unlimited)
    */
   maxFields?: number;
   /**
+   * Minimum number of fields to show (default: 1)
+   */
+  minFields?: number;
+  /**
+   * Callback when values change
+   */
+  onChange: (values: string[]) => void;
+  /**
+   * Placeholder text for input fields
+   */
+  placeholder?: string;
+  /**
+   * Whether the field is required
+   */
+  required?: boolean;
+  /**
+   * Icon to display at the start (left) of each input
+   */
+  startIcon?: ReactNode;
+  /**
    * Custom style object
    */
   style?: CSSProperties;
+  /**
+   * Input type
+   */
+  type?: MultiInputType;
+  /**
+   * Array of values
+   */
+  values: string[];
+}
+
+interface IconProps {
+  iconClassName?: string;
 }
 
 const MultiInput: FC<MultiInputProps> = ({
@@ -114,25 +118,25 @@ const MultiInput: FC<MultiInputProps> = ({
   minFields = 1,
   maxFields,
   style = {},
-}) => {
-  const {theme, colorScheme} = useTheme();
-  const canAddMore = !maxFields || values.length < maxFields;
-  const canRemove = values.length > minFields;
-  const styles = useStyles(theme, colorScheme, !!disabled, !!error, canAddMore, canRemove);
+}: MultiInputProps) => {
+  const {theme, colorScheme}: ReturnType<typeof useTheme> = useTheme();
+  const canAddMore: boolean = !maxFields || values.length < maxFields;
+  const canRemove: boolean = values.length > minFields;
+  const styles: Record<string, string> = useStyles(theme, colorScheme, !!disabled, !!error, canAddMore, canRemove);
 
-  const PlusIcon = ({className}) => (
-    <svg width="16" height="16" viewBox="0 0 24 24" className={cx(styles.icon, className)}>
+  const PlusIcon: FC<IconProps> = ({iconClassName}: IconProps): ReactElement => (
+    <svg width="16" height="16" viewBox="0 0 24 24" className={cx(styles['icon'], iconClassName)}>
       <path d="M12 5v14M5 12h14" />
     </svg>
   );
 
-  const BinIcon = ({className}) => (
-    <svg width="16" height="16" viewBox="0 0 24 24" className={cx(styles.icon, className)}>
+  const BinIcon: FC<IconProps> = ({iconClassName}: IconProps): ReactElement => (
+    <svg width="16" height="16" viewBox="0 0 24 24" className={cx(styles['icon'], iconClassName)}>
       <path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6h14ZM10 11v6M14 11v6" />
     </svg>
   );
 
-  const handleAddValue = useCallback(
+  const handleAddValue: ReturnType<typeof useCallback> = useCallback(
     (newValue: string) => {
       if (newValue.trim() !== '' && (!maxFields || values.length < maxFields)) {
         onChange([...values, newValue.trim()]);
@@ -141,47 +145,47 @@ const MultiInput: FC<MultiInputProps> = ({
     [values, onChange, maxFields],
   );
 
-  const handleRemoveValue = useCallback(
+  const handleRemoveValue: ReturnType<typeof useCallback> = useCallback(
     (index: number) => {
       if (values.length > minFields) {
-        const updatedValues = values.filter((_, i) => i !== index);
+        const updatedValues: string[] = values.filter((_: string, i: number) => i !== index);
         onChange(updatedValues);
       }
     },
     [values, onChange, minFields],
   );
 
-  const renderInputField = useCallback(
+  const renderInputField: ReturnType<typeof useCallback> = useCallback(
     (
       value: string,
       onValueChange: (value: string) => void,
       attachedEndIcon?: ReactNode,
       onEndIconClick?: () => void,
-    ) => {
-      const handleInputChange = (e: any) => {
-        const newValue = e.target ? e.target.value : e;
+    ): ReactElement => {
+      const handleInputChange = (e: any): void => {
+        const newValue: string = e.target ? e.target.value : e;
         onValueChange(newValue);
       };
 
-      const handleKeyDown = (e: React.KeyboardEvent) => {
+      const handleKeyDown = (e: KeyboardEvent): void => {
         if (e.key === 'Enter' && onEndIconClick) {
           e.preventDefault();
           onEndIconClick();
         }
       };
 
-      const finalEndIcon = attachedEndIcon || endIcon;
+      const finalEndIcon: ReactNode = attachedEndIcon || endIcon;
 
-      const commonProps = {
-        value,
+      const commonProps: Record<string, unknown> = {
+        disabled,
+        endIcon: finalEndIcon,
+        error,
         onChange: handleInputChange,
+        onEndIconClick,
         onKeyDown: handleKeyDown,
         placeholder,
-        disabled,
         startIcon,
-        endIcon: finalEndIcon,
-        onEndIconClick,
-        error,
+        value,
       };
 
       switch (fieldType) {
@@ -192,7 +196,7 @@ const MultiInput: FC<MultiInputProps> = ({
             <Checkbox
               {...commonProps}
               checked={value === 'true' || Boolean(value)}
-              onChange={(e: any) => onValueChange(e.target.checked ? 'true' : 'false')}
+              onChange={(e: any): void => onValueChange(e.target.checked ? 'true' : 'false')}
             />
           );
         default:
@@ -205,7 +209,7 @@ const MultiInput: FC<MultiInputProps> = ({
   // State for the current input value
   const [currentInputValue, setCurrentInputValue] = useState('');
 
-  const handleInputSubmit = useCallback(() => {
+  const handleInputSubmit: ReturnType<typeof useCallback> = useCallback((): void => {
     if (currentInputValue.trim() !== '') {
       handleAddValue(currentInputValue);
       setCurrentInputValue('');
@@ -224,14 +228,14 @@ const MultiInput: FC<MultiInputProps> = ({
           {label}
         </InputLabel>
       )}
-      <div className={cx(withVendorCSSClassPrefix(bem('multi-input', 'container')), styles.container)}>
+      <div className={cx(withVendorCSSClassPrefix(bem('multi-input', 'container')), styles['container'])}>
         {/* Input field at the top */}
-        <div className={cx(withVendorCSSClassPrefix(bem('multi-input', 'input-row')), styles.inputRow)}>
-          <div className={cx(withVendorCSSClassPrefix(bem('multi-input', 'input-wrapper')), styles.inputWrapper)}>
+        <div className={cx(withVendorCSSClassPrefix(bem('multi-input', 'input-row')), styles['inputRow'])}>
+          <div className={cx(withVendorCSSClassPrefix(bem('multi-input', 'input-wrapper')), styles['inputWrapper'])}>
             {renderInputField(
               currentInputValue,
               setCurrentInputValue,
-              canAddMore ? <PlusIcon className={styles.plusIcon} /> : undefined,
+              canAddMore ? <PlusIcon iconClassName={styles['plusIcon']} /> : undefined,
               canAddMore ? handleInputSubmit : undefined,
             )}
           </div>
@@ -239,26 +243,29 @@ const MultiInput: FC<MultiInputProps> = ({
 
         {/* List of added items */}
         {values.length > 0 && (
-          <div className={cx(withVendorCSSClassPrefix(bem('multi-input', 'list-container')), styles.listContainer)}>
-            {values.map((value, index) => (
+          <div className={cx(withVendorCSSClassPrefix(bem('multi-input', 'list-container')), styles['listContainer'])}>
+            {values.map((value: string, index: number) => (
               <div
                 key={index}
-                className={cx(withVendorCSSClassPrefix(bem('multi-input', 'list-item')), styles.listItem)}
+                className={cx(withVendorCSSClassPrefix(bem('multi-input', 'list-item')), styles['listItem'])}
               >
                 <span
-                  className={cx(withVendorCSSClassPrefix(bem('multi-input', 'list-item-text')), styles.listItemText)}
+                  className={cx(withVendorCSSClassPrefix(bem('multi-input', 'list-item-text')), styles['listItemText'])}
                 >
                   {value}
                 </span>
                 {canRemove && (
                   <button
                     type="button"
-                    onClick={() => handleRemoveValue(index)}
+                    onClick={(): void => handleRemoveValue(index)}
                     disabled={disabled}
-                    className={cx(withVendorCSSClassPrefix(bem('multi-input', 'remove-button')), styles.removeButton)}
+                    className={cx(
+                      withVendorCSSClassPrefix(bem('multi-input', 'remove-button')),
+                      styles['removeButton'],
+                    )}
                     title="Remove value"
                   >
-                    <BinIcon className={styles.icon} />
+                    <BinIcon iconClassName={styles['icon']} />
                   </button>
                 )}
               </div>

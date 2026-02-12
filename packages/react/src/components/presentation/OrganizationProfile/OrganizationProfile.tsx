@@ -16,13 +16,18 @@
  * under the License.
  */
 
+import {OrganizationDetails, createPackageComponentLogger} from '@asgardeo/browser';
 import {FC, ReactElement, useEffect, useState} from 'react';
 import BaseOrganizationProfile, {BaseOrganizationProfileProps} from './BaseOrganizationProfile';
-import {OrganizationDetails} from '@asgardeo/browser';
 import getOrganization from '../../../api/getOrganization';
 import updateOrganization, {createPatchOperations} from '../../../api/updateOrganization';
 import useAsgardeo from '../../../contexts/Asgardeo/useAsgardeo';
 import useTranslation from '../../../hooks/useTranslation';
+
+const logger: ReturnType<typeof createPackageComponentLogger> = createPackageComponentLogger(
+  '@asgardeo/react',
+  'OrganizationProfile',
+);
 
 /**
  * Props for the OrganizationProfile component.
@@ -137,37 +142,28 @@ const OrganizationProfile: FC<OrganizationProfileProps> = ({
   onOpenChange,
   onUpdate,
   popupTitle,
-  loadingFallback = <div>Loading organization...</div>,
-  errorFallback = <div>Failed to load organization data</div>,
+  loadingFallback,
+  errorFallback,
   ...rest
 }: OrganizationProfileProps): ReactElement => {
   const {baseUrl} = useAsgardeo();
   const {t} = useTranslation();
   const [organization, setOrganization] = useState<OrganizationDetails | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<boolean>(false);
 
-  const fetchOrganization = async () => {
+  const fetchOrganization = async (): Promise<void> => {
     if (!baseUrl || !organizationId) {
-      setLoading(false);
-      setError(true);
       return;
     }
 
     try {
-      setLoading(true);
-      setError(false);
-      const orgData = await getOrganization({
+      const orgData: any = await getOrganization({
         baseUrl,
         organizationId,
       });
       setOrganization(orgData);
     } catch (err) {
-      console.error('Failed to fetch organization:', err);
-      setError(true);
+      logger.error('Failed to fetch organization:');
       setOrganization(null);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -180,12 +176,12 @@ const OrganizationProfile: FC<OrganizationProfileProps> = ({
 
     try {
       // Convert payload to patch operations format
-      const operations = createPatchOperations(payload);
+      const operations: any = createPatchOperations(payload);
 
       await updateOrganization({
         baseUrl,
-        organizationId,
         operations,
+        organizationId,
       });
       // Refetch organization data after update
       await fetchOrganization();
@@ -195,7 +191,7 @@ const OrganizationProfile: FC<OrganizationProfileProps> = ({
         await onUpdate(payload);
       }
     } catch (err) {
-      console.error('Failed to update organization:', err);
+      logger.error('Failed to update organization:');
       throw err;
     }
   };

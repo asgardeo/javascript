@@ -35,10 +35,10 @@ export const handlePasskeyRegistration = async (challengeData: string): Promise<
   }
 
   try {
-    const creationOptions = JSON.parse(challengeData);
+    const creationOptions: any = JSON.parse(challengeData);
 
     // Decode challenge and user ID from base64url to BufferSource
-    const publicKey = {
+    const publicKey: any = {
       ...creationOptions,
       challenge: base64urlToArrayBuffer(creationOptions.challenge),
       user: {
@@ -53,7 +53,7 @@ export const handlePasskeyRegistration = async (challengeData: string): Promise<
       }),
     };
 
-    const credential = (await navigator.credentials.create({
+    const credential: PublicKeyCredential = (await navigator.credentials.create({
       publicKey,
     })) as PublicKeyCredential;
 
@@ -66,13 +66,12 @@ export const handlePasskeyRegistration = async (challengeData: string): Promise<
       );
     }
 
-    const response = credential.response as AuthenticatorAttestationResponse;
+    const response: AuthenticatorAttestationResponse = credential.response as AuthenticatorAttestationResponse;
 
     // Encode response fields back to base64url
-    const registrationResponse = {
+    const registrationResponse: any = {
       id: credential.id,
       rawId: arrayBufferToBase64url(credential.rawId),
-      type: credential.type,
       response: {
         attestationObject: arrayBufferToBase64url(response.attestationObject),
         clientDataJSON: arrayBufferToBase64url(response.clientDataJSON),
@@ -80,6 +79,7 @@ export const handlePasskeyRegistration = async (challengeData: string): Promise<
           transports: response.getTransports(),
         }),
       },
+      type: credential.type,
       ...(credential.authenticatorAttachment && {
         authenticatorAttachment: credential.authenticatorAttachment,
       }),
@@ -127,10 +127,10 @@ export const handlePasskeyAuthentication = async (challengeData: string): Promis
   }
 
   try {
-    const requestOptions = JSON.parse(challengeData);
+    const requestOptions: any = JSON.parse(challengeData);
 
     // Decode challenge and allowed credentials from base64url to BufferSource
-    const publicKey = {
+    const publicKey: any = {
       ...requestOptions,
       challenge: base64urlToArrayBuffer(requestOptions.challenge),
       ...(requestOptions.allowCredentials && {
@@ -141,7 +141,7 @@ export const handlePasskeyAuthentication = async (challengeData: string): Promis
       }),
     };
 
-    const credential = (await navigator.credentials.get({
+    const credential: PublicKeyCredential = (await navigator.credentials.get({
       publicKey,
     })) as PublicKeyCredential;
 
@@ -154,13 +154,12 @@ export const handlePasskeyAuthentication = async (challengeData: string): Promis
       );
     }
 
-    const response = credential.response as AuthenticatorAssertionResponse;
+    const response: AuthenticatorAssertionResponse = credential.response as AuthenticatorAssertionResponse;
 
     // Encode response fields back to base64url
-    const authenticationResponse = {
+    const authenticationResponse: any = {
       id: credential.id,
       rawId: arrayBufferToBase64url(credential.rawId),
-      type: credential.type,
       response: {
         authenticatorData: arrayBufferToBase64url(response.authenticatorData),
         clientDataJSON: arrayBufferToBase64url(response.clientDataJSON),
@@ -169,6 +168,7 @@ export const handlePasskeyAuthentication = async (challengeData: string): Promis
           userHandle: arrayBufferToBase64url(response.userHandle),
         }),
       },
+      type: credential.type,
       ...(credential.authenticatorAttachment && {
         authenticatorAttachment: credential.authenticatorAttachment,
       }),

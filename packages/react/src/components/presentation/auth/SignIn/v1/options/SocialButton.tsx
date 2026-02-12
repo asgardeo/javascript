@@ -16,10 +16,11 @@
  * under the License.
  */
 
-import {FC, HTMLAttributes} from 'react';
-import Button from '../../../../../primitives/Button/Button';
+import {FC, HTMLAttributes, ReactElement} from 'react';
+// eslint-disable-next-line import/no-cycle
 import {BaseSignInOptionProps} from './SignInOptionFactory';
 import useTranslation from '../../../../../../hooks/useTranslation';
+import Button from '../../../../../primitives/Button/Button';
 
 /**
  * Social Login Sign-In Option Component.
@@ -30,7 +31,7 @@ const SocialLogin: FC<BaseSignInOptionProps & HTMLAttributes<HTMLButtonElement>>
   preferences,
   children,
   ...rest
-}) => {
+}: BaseSignInOptionProps & HTMLAttributes<HTMLButtonElement>): ReactElement => {
   const {t} = useTranslation(preferences?.i18n);
   return (
     <Button

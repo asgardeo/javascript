@@ -26,6 +26,7 @@ import {
   IdToken,
   OIDCEndpoints,
   User,
+  createPackageComponentLogger,
 } from '@asgardeo/javascript';
 import WorkerFile from '../web.worker';
 import {MainThreadClient, WebWorkerClient} from './clients';
@@ -46,6 +47,11 @@ import {
 } from './models';
 import {BrowserStorage} from './models/storage';
 import {SPAUtils} from './utils';
+
+const logger: ReturnType<typeof createPackageComponentLogger> = createPackageComponentLogger(
+  '@asgardeo/browser',
+  'AsgardeoSPAClient',
+);
 
 /**
  * Default configurations.
@@ -123,8 +129,7 @@ export class AsgardeoSPAClient {
 
     while (!this._initialized) {
       if (iterationToWait === 1e4) {
-        // eslint-disable-next-line no-console
-        console.warn('It is taking longer than usual for the object to be initialized');
+        logger.warn('It is taking longer than usual for the object to be initialized');
       }
       await sleep();
       iterationToWait++;

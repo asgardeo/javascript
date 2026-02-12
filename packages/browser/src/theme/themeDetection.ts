@@ -16,7 +16,12 @@
  * under the License.
  */
 
-import {ThemeDetection, ThemeMode} from '@asgardeo/javascript';
+import {ThemeDetection, ThemeMode, createPackageComponentLogger} from '@asgardeo/javascript';
+
+const logger: ReturnType<typeof createPackageComponentLogger> = createPackageComponentLogger(
+  '@asgardeo/browser',
+  'ThemeDetection',
+);
 
 /**
  * Extended theme detection config that includes DOM-specific options
@@ -51,8 +56,7 @@ export const detectThemeMode = (mode: ThemeMode, config: BrowserThemeDetection =
 
   if (mode === 'class') {
     if (!targetElement) {
-      // eslint-disable-next-line no-console
-      console.warn('ThemeDetection: targetElement is required for class-based detection, falling back to light mode');
+      logger.warn('ThemeDetection: targetElement is required for class-based detection, falling back to light mode');
       return 'light';
     }
 

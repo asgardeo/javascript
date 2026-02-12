@@ -16,9 +16,9 @@
  * under the License.
  */
 
+import {Theme} from '@asgardeo/browser';
 import {css} from '@emotion/css';
 import {useMemo} from 'react';
-import {Theme} from '@asgardeo/browser';
 
 export type FormControlHelperTextAlign = 'left' | 'center';
 
@@ -37,20 +37,20 @@ const useStyles = (
   helperTextAlign: FormControlHelperTextAlign,
   helperTextMarginLeft?: string,
   hasError?: boolean,
-) => {
-  return useMemo(() => {
-    const formControl = css`
+): Record<string, string> =>
+  useMemo(() => {
+    const formControl: string = css`
       text-align: start;
       margin-bottom: calc(${theme.vars.spacing.unit} * 2);
     `;
 
-    const helperText = css`
+    const helperText: string = css`
       margin-top: calc(${theme.vars.spacing.unit} / 2);
       text-align: ${helperTextAlign === 'left' ? 'start' : helperTextAlign};
       ${helperTextMarginLeft && `margin-inline-start: ${helperTextMarginLeft};`}
     `;
 
-    const helperTextError = css`
+    const helperTextError: string = css`
       color: ${theme.vars.colors.error.main};
     `;
 
@@ -60,6 +60,5 @@ const useStyles = (
       helperTextError,
     };
   }, [theme, colorScheme, helperTextAlign, helperTextMarginLeft, hasError]);
-};
 
 export default useStyles;

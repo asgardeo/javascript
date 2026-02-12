@@ -16,6 +16,8 @@
  * under the License.
  */
 
+/* eslint-disable sort-keys, @typescript-eslint/typedef, @typescript-eslint/explicit-function-return-type, testing-library/no-container, testing-library/no-node-access */
+
 import {cleanup, render, screen, waitFor} from '@testing-library/react';
 import {describe, it, expect, vi, beforeEach, afterEach} from 'vitest';
 import {BaseOrganizationSwitcher, Organization} from './BaseOrganizationSwitcher';
@@ -48,14 +50,30 @@ const mockColors = {
 
 const mockTypography = {
   fontFamily: 'Arial, sans-serif',
-  fontSizes: {xs: '0.75rem', sm: '0.875rem', md: '1rem', lg: '1.125rem', xl: '1.25rem', '2xl': '1.5rem', '3xl': '1.875rem'},
+  fontSizes: {
+    xs: '0.75rem',
+    sm: '0.875rem',
+    md: '1rem',
+    lg: '1.125rem',
+    xl: '1.25rem',
+    '2xl': '1.5rem',
+    '3xl': '1.875rem',
+  },
   fontWeights: {normal: 400, medium: 500, semibold: 600, bold: 700},
   lineHeights: {tight: 1.25, normal: 1.5, relaxed: 1.75},
 };
 
 const mockTypographyVars = {
   fontFamily: 'Arial, sans-serif',
-  fontSizes: {xs: '0.75rem', sm: '0.875rem', md: '1rem', lg: '1.125rem', xl: '1.25rem', '2xl': '1.5rem', '3xl': '1.875rem'},
+  fontSizes: {
+    xs: '0.75rem',
+    sm: '0.875rem',
+    md: '1rem',
+    lg: '1.125rem',
+    xl: '1.25rem',
+    '2xl': '1.5rem',
+    '3xl': '1.875rem',
+  },
   fontWeights: {normal: '400', medium: '500', semibold: '600', bold: '700'},
   lineHeights: {tight: '1.25', normal: '1.5', relaxed: '1.75'},
 };
@@ -86,14 +104,22 @@ vi.mock('../../../contexts/Theme/useTheme', () => ({
       typography: mockTypography,
       spacing: {unit: 8},
       borderRadius: {small: '2px', medium: '4px', large: '8px'},
-      shadows: {small: '0 1px 2px rgba(0,0,0,0.1)', medium: '0 2px 4px rgba(0,0,0,0.1)', large: '0 4px 8px rgba(0,0,0,0.1)'},
+      shadows: {
+        small: '0 1px 2px rgba(0,0,0,0.1)',
+        medium: '0 2px 4px rgba(0,0,0,0.1)',
+        large: '0 4px 8px rgba(0,0,0,0.1)',
+      },
       cssVariables: {},
       // ThemeVars (CSS variable references)
       vars: {
         colors: mockColorsVars,
         spacing: {unit: '8px'},
         borderRadius: {small: '2px', medium: '4px', large: '8px'},
-        shadows: {small: '0 1px 2px rgba(0,0,0,0.1)', medium: '0 2px 4px rgba(0,0,0,0.1)', large: '0 4px 8px rgba(0,0,0,0.1)'},
+        shadows: {
+          small: '0 1px 2px rgba(0,0,0,0.1)',
+          medium: '0 2px 4px rgba(0,0,0,0.1)',
+          large: '0 4px 8px rgba(0,0,0,0.1)',
+        },
         typography: mockTypographyVars,
       },
     },

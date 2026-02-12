@@ -16,27 +16,27 @@
  * under the License.
  */
 
-import {FC, CSSProperties} from 'react';
 import {withVendorCSSClassPrefix, bem} from '@asgardeo/browser';
 import {cx} from '@emotion/css';
-import useTheme from '../../../contexts/Theme/useTheme';
+import {FC, CSSProperties} from 'react';
 import useStyles from './Spinner.styles';
+import useTheme from '../../../contexts/Theme/useTheme';
 
 export type SpinnerSize = 'small' | 'medium' | 'large';
 
 export interface SpinnerProps {
   /**
-   * Size of the spinner
+   * Additional CSS class names
    */
-  size?: SpinnerSize;
+  className?: string;
   /**
    * Custom color for the spinner
    */
   color?: string;
   /**
-   * Additional CSS class names
+   * Size of the spinner
    */
-  className?: string;
+  size?: SpinnerSize;
   /**
    * Custom styles
    */
@@ -58,16 +58,16 @@ export interface SpinnerProps {
  * <Spinner size="small" />
  * ```
  */
-const Spinner: FC<SpinnerProps> = ({size = 'medium', color, className, style}) => {
-  const {theme, colorScheme} = useTheme();
-  const styles = useStyles(theme, colorScheme, size, color);
+const Spinner: FC<SpinnerProps> = ({size = 'medium', color, className, style}: SpinnerProps) => {
+  const {theme, colorScheme}: ReturnType<typeof useTheme> = useTheme();
+  const styles: Record<string, string> = useStyles(theme, colorScheme, size, color);
 
-  const spinnerClassName = cx(
+  const spinnerClassName: string = cx(
     withVendorCSSClassPrefix(bem('spinner')),
-    styles.spinner,
-    size === 'small' && styles.spinnerSmall,
-    size === 'medium' && styles.spinnerMedium,
-    size === 'large' && styles.spinnerLarge,
+    styles['spinner'],
+    size === 'small' && styles['spinnerSmall'],
+    size === 'medium' && styles['spinnerMedium'],
+    size === 'large' && styles['spinnerLarge'],
     className,
   );
 

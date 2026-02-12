@@ -16,9 +16,9 @@
  * under the License.
  */
 
+import {Theme} from '@asgardeo/browser';
 import {css} from '@emotion/css';
 import {useMemo} from 'react';
-import {Theme} from '@asgardeo/browser';
 
 /**
  * Creates styles for the BaseCreateOrganization component using BEM methodology
@@ -26,41 +26,41 @@ import {Theme} from '@asgardeo/browser';
  * @param colorScheme - The current color scheme (used for memoization)
  * @returns Object containing CSS class names for component styling
  */
-const useStyles = (theme: Theme, colorScheme: string) => {
-  return useMemo(() => {
-    const root = css`
+const useStyles = (theme: Theme, colorScheme: string): Record<string, string> =>
+  useMemo(() => {
+    const root: string = css`
       padding: calc(${theme.vars.spacing.unit} * 4);
       min-width: 600px;
       margin: 0 auto;
     `;
 
-    const card = css`
+    const card: string = css`
       background: ${theme.vars.colors.background.surface};
       border-radius: ${theme.vars.borderRadius.large};
       padding: calc(${theme.vars.spacing.unit} * 4);
     `;
 
-    const content = css`
+    const content: string = css`
       display: flex;
       flex-direction: column;
       gap: calc(${theme.vars.spacing.unit} * 2);
     `;
 
-    const form = css`
+    const form: string = css`
       display: flex;
       flex-direction: column;
       gap: calc(${theme.vars.spacing.unit} * 2);
       width: 100%;
     `;
 
-    const header = css`
+    const header: string = css`
       display: flex;
       align-items: center;
       gap: calc(${theme.vars.spacing.unit} * 1.5);
       margin-bottom: calc(${theme.vars.spacing.unit} * 1.5);
     `;
 
-    const field = css`
+    const field: string = css`
       display: flex;
       align-items: center;
       padding: ${theme.vars.spacing.unit} 0;
@@ -68,13 +68,13 @@ const useStyles = (theme: Theme, colorScheme: string) => {
       min-height: 32px;
     `;
 
-    const fieldGroup = css`
+    const fieldGroup: string = css`
       display: flex;
       flex-direction: column;
       gap: calc(${theme.vars.spacing.unit} * 0.5);
     `;
 
-    const textarea = css`
+    const textarea: string = css`
       width: 100%;
       padding: ${theme.vars.spacing.unit} calc(${theme.vars.spacing.unit} * 1.5);
       border: 1px solid ${theme.vars.colors.border};
@@ -97,33 +97,33 @@ const useStyles = (theme: Theme, colorScheme: string) => {
       }
     `;
 
-    const textareaError = css`
+    const textareaError: string = css`
       border-color: ${theme.vars.colors.error.main};
     `;
 
-    const input = css``;
+    const input: string = css``;
 
-    const avatarContainer = css`
+    const avatarContainer: string = css`
       align-items: flex-start;
       display: flex;
       gap: calc(${theme.vars.spacing.unit} * 2);
       margin-bottom: ${theme.vars.spacing.unit};
     `;
 
-    const actions = css`
+    const actions: string = css`
       display: flex;
       gap: ${theme.vars.spacing.unit};
       justify-content: flex-end;
       padding-top: calc(${theme.vars.spacing.unit} * 2);
     `;
 
-    const infoContainer = css`
+    const infoContainer: string = css`
       display: flex;
       flex-direction: column;
       gap: ${theme.vars.spacing.unit};
     `;
 
-    const value = css`
+    const value: string = css`
       color: ${theme.vars.colors.text.primary};
       flex: 1;
       display: flex;
@@ -134,31 +134,31 @@ const useStyles = (theme: Theme, colorScheme: string) => {
       line-height: 32px;
     `;
 
-    const popup = css`
+    const popup: string = css`
       padding: calc(${theme.vars.spacing.unit} * 2);
     `;
 
-    const errorAlert = css`
+    const errorAlert: string = css`
       margin-bottom: calc(${theme.vars.spacing.unit} * 2);
     `;
 
     return {
-      root,
+      actions,
+      avatarContainer,
       card,
       content,
-      form,
-      header,
+      errorAlert,
       field,
       fieldGroup,
+      form,
+      header,
+      infoContainer,
+      input,
+      popup,
+      root,
       textarea,
       textareaError,
-      input,
-      avatarContainer,
-      actions,
-      infoContainer,
       value,
-      popup,
-      errorAlert,
     };
   }, [
     theme.vars.spacing.unit,
@@ -174,6 +174,5 @@ const useStyles = (theme: Theme, colorScheme: string) => {
     theme.vars.colors.error.main,
     colorScheme,
   ]);
-};
 
 export default useStyles;

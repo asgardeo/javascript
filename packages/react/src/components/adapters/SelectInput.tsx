@@ -18,9 +18,9 @@
 
 import {FieldType} from '@asgardeo/browser';
 import {FC} from 'react';
+import {AdapterProps} from '../../models/adapters';
 import {createField} from '../factories/FieldFactory';
 import {SelectOption} from '../primitives/Select/Select';
-import {AdapterProps} from '../../models/adapters';
 
 /**
  * Select input component for sign-up forms.
@@ -32,7 +32,7 @@ const SelectInput: FC<AdapterProps> = ({
   formErrors,
   onInputChange,
   inputClassName,
-}) => {
+}: AdapterProps) => {
   const config: Record<string, unknown> = component.config || {};
   const fieldName: string = (config['identifier'] as string) || (config['name'] as string) || component.id;
   const value: string = formValues[fieldName] || '';
@@ -46,16 +46,16 @@ const SelectInput: FC<AdapterProps> = ({
   }));
 
   return createField({
-    type: FieldType.Select,
-    name: fieldName,
+    className: inputClassName,
+    error,
     label: (config['label'] as string) || '',
+    name: fieldName,
+    onChange: (newValue: string): void => onInputChange(fieldName, newValue),
+    options,
     placeholder: (config['placeholder'] as string) || '',
     required: (config['required'] as boolean) || false,
+    type: FieldType.Select,
     value,
-    error,
-    options,
-    onChange: (newValue: string): void => onInputChange(fieldName, newValue),
-    className: inputClassName,
   });
 };
 

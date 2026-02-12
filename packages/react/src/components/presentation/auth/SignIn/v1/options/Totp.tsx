@@ -16,15 +16,16 @@
  * under the License.
  */
 
-import {EmbeddedSignInFlowAuthenticator, EmbeddedSignInFlowAuthenticatorParamType, FieldType} from '@asgardeo/browser';
-import {FC, useEffect} from 'react';
+import {EmbeddedSignInFlowAuthenticatorParamType, FieldType} from '@asgardeo/browser';
+import {FC, ReactElement, useEffect} from 'react';
+// eslint-disable-next-line import/no-cycle
+import {BaseSignInOptionProps} from './SignInOptionFactory';
+import useFlow from '../../../../../../contexts/Flow/useFlow';
+import useTheme from '../../../../../../contexts/Theme/useTheme';
+import useTranslation from '../../../../../../hooks/useTranslation';
 import {createField} from '../../../../../factories/FieldFactory';
 import Button from '../../../../../primitives/Button/Button';
 import OtpField from '../../../../../primitives/OtpField/OtpField';
-import {BaseSignInOptionProps} from './SignInOptionFactory';
-import useTranslation from '../../../../../../hooks/useTranslation';
-import useFlow from '../../../../../../contexts/Flow/useFlow';
-import useTheme from '../../../../../../contexts/Theme/useTheme';
 
 /**
  * TOTP Sign-In Option Component.
@@ -36,30 +37,30 @@ const Totp: FC<BaseSignInOptionProps> = ({
   touchedFields,
   isLoading,
   onInputChange,
-  onSubmit,
   inputClassName = '',
   buttonClassName = '',
   preferences,
-}) => {
+}: BaseSignInOptionProps): ReactElement => {
   const {theme} = useTheme();
   const {t} = useTranslation(preferences?.i18n);
   const {setTitle, setSubtitle} = useFlow();
 
-  const formFields = authenticator.metadata?.params?.sort((a, b) => a.order - b.order) || [];
+  const formFields: any = authenticator.metadata?.params?.sort((a: any, b: any) => a.order - b.order) || [];
 
   useEffect(() => {
     setTitle(t('totp.heading'));
     setSubtitle(t('totp.subheading'));
   }, [setTitle, setSubtitle, t]);
 
-  const hasTotpField = formFields.some(
-    param => param.param.toLowerCase().includes('totp') || param.param.toLowerCase().includes('token'),
+  const hasTotpField: any = formFields.some(
+    (param: any) => param.param.toLowerCase().includes('totp') || param.param.toLowerCase().includes('token'),
   );
 
   return (
     <>
-      {formFields.map(param => {
-        const isTotpParam = param.param.toLowerCase().includes('totp') || param.param.toLowerCase().includes('token');
+      {formFields.map((param: any) => {
+        const isTotpParam: any =
+          param.param.toLowerCase().includes('totp') || param.param.toLowerCase().includes('token');
 
         return (
           <div key={param.param}>
@@ -67,26 +68,24 @@ const Totp: FC<BaseSignInOptionProps> = ({
               <OtpField
                 length={6}
                 value={formValues[param.param] || ''}
-                onChange={event => onInputChange(param.param, event.target.value)}
+                onChange={(event: any): void => onInputChange(param.param, event.target.value)}
                 disabled={isLoading}
                 className={inputClassName}
               />
             ) : (
               createField({
-                name: param.param,
-                type:
-                  param.type === EmbeddedSignInFlowAuthenticatorParamType.String
-                    ? param.confidential
-                      ? FieldType.Password
-                      : FieldType.Text
-                    : FieldType.Text,
-                label: param.displayName,
-                required: authenticator.requiredParams.includes(param.param),
-                value: formValues[param.param] || '',
-                onChange: value => onInputChange(param.param, value),
-                disabled: isLoading,
                 className: inputClassName,
+                disabled: isLoading,
+                label: param.displayName,
+                name: param.param,
+                onChange: (value: any) => onInputChange(param.param, value),
+                required: authenticator.requiredParams.includes(param.param),
                 touched: touchedFields[param.param] || false,
+                type:
+                  param.type === EmbeddedSignInFlowAuthenticatorParamType.String && param.confidential
+                    ? FieldType.Password
+                    : FieldType.Text,
+                value: formValues[param.param] || '',
               })
             )}
           </div>

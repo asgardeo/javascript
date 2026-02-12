@@ -67,7 +67,7 @@ export interface OrganizationProps extends Omit<BaseOrganizationProps, 'organiza
  * }
  * ```
  */
-const Organization: FC<OrganizationProps> = ({children, fallback = null}): ReactElement => {
+const Organization: FC<OrganizationProps> = ({children, fallback = null}: OrganizationProps): ReactElement => {
   const {currentOrganization} = useOrganization();
 
   return (

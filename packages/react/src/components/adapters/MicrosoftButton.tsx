@@ -16,10 +16,10 @@
  * under the License.
  */
 
-import {FC, HTMLAttributes} from 'react';
-import Button from '../primitives/Button/Button';
 import {WithPreferences} from '@asgardeo/browser';
+import {FC, HTMLAttributes} from 'react';
 import useTranslation from '../../hooks/useTranslation';
+import Button from '../primitives/Button/Button';
 
 export interface MicrosoftButtonProps extends WithPreferences {
   /**
@@ -37,7 +37,7 @@ const MicrosoftButton: FC<MicrosoftButtonProps & HTMLAttributes<HTMLButtonElemen
   preferences,
   children,
   ...rest
-}) => {
+}: MicrosoftButtonProps & HTMLAttributes<HTMLButtonElement>) => {
   const {t} = useTranslation(preferences?.i18n);
 
   return (

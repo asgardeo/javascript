@@ -17,6 +17,7 @@
  */
 
 import {withVendorCSSClassPrefix, bem} from '@asgardeo/browser';
+import {cx} from '@emotion/css';
 import {
   useFloating,
   useClick,
@@ -31,12 +32,32 @@ import {
   UseFloatingReturn,
   UseInteractionsReturn,
 } from '@floating-ui/react';
-import {cx} from '@emotion/css';
-import React from 'react';
+import {
+  type ButtonHTMLAttributes,
+  type Context,
+  type Dispatch,
+  type FC,
+  type ForwardRefExoticComponent,
+  type HTMLProps,
+  type JSX,
+  type MouseEvent,
+  type ReactNode,
+  type Ref,
+  type RefAttributes,
+  type SetStateAction,
+  cloneElement,
+  createContext,
+  forwardRef,
+  isValidElement,
+  useContext,
+  useLayoutEffect,
+  useMemo,
+  useState,
+} from 'react';
+import useStyles from './Dialog.styles';
 import useTheme from '../../../contexts/Theme/useTheme';
 import Button from '../Button/Button';
 import {X} from '../Icons';
-import useStyles from './Dialog.styles';
 
 interface DialogOptions {
   initialOpen?: boolean;
@@ -48,8 +69,8 @@ interface DialogHookReturn extends UseFloatingReturn, UseInteractionsReturn {
   descriptionId: string | undefined;
   labelId: string | undefined;
   open: boolean;
-  setDescriptionId: React.Dispatch<React.SetStateAction<string | undefined>>;
-  setLabelId: React.Dispatch<React.SetStateAction<string | undefined>>;
+  setDescriptionId: Dispatch<SetStateAction<string | undefined>>;
+  setLabelId: Dispatch<SetStateAction<string | undefined>>;
   setOpen: (open: boolean) => void;
 }
 
@@ -58,38 +79,38 @@ export function useDialog({
   open: controlledOpen,
   onOpenChange: setControlledOpen,
 }: DialogOptions = {}): DialogHookReturn {
-  const [uncontrolledOpen, setUncontrolledOpen] = React.useState(initialOpen);
-  const [labelId, setLabelId] = React.useState<string | undefined>();
-  const [descriptionId, setDescriptionId] = React.useState<string | undefined>();
+  const [uncontrolledOpen, setUncontrolledOpen] = useState(initialOpen);
+  const [labelId, setLabelId] = useState<string | undefined>();
+  const [descriptionId, setDescriptionId] = useState<string | undefined>();
 
-  const open = controlledOpen ?? uncontrolledOpen;
-  const setOpen = setControlledOpen ?? setUncontrolledOpen;
+  const open: boolean = controlledOpen ?? uncontrolledOpen;
+  const setOpen: (openVal: boolean) => void = setControlledOpen ?? setUncontrolledOpen;
 
-  const data = useFloating({
-    open,
+  const data: UseFloatingReturn = useFloating({
     onOpenChange: setOpen,
+    open,
   });
 
   const {context} = data;
 
-  const click = useClick(context, {
+  const click: ReturnType<typeof useClick> = useClick(context, {
     enabled: controlledOpen == null,
   });
-  const dismiss = useDismiss(context, {outsidePressEvent: 'mousedown'});
-  const role = useRole(context);
+  const dismiss: ReturnType<typeof useDismiss> = useDismiss(context, {outsidePressEvent: 'mousedown'});
+  const role: ReturnType<typeof useRole> = useRole(context);
 
-  const interactions = useInteractions([click, dismiss, role]);
+  const interactions: UseInteractionsReturn = useInteractions([click, dismiss, role]);
 
-  return React.useMemo(
+  return useMemo(
     () => ({
       open,
       setOpen,
       ...interactions,
       ...data,
-      labelId,
       descriptionId,
-      setLabelId,
+      labelId,
       setDescriptionId,
+      setLabelId,
     }),
     [open, setOpen, interactions, data, labelId, descriptionId],
   );
@@ -97,15 +118,15 @@ export function useDialog({
 
 type DialogContextType =
   | (DialogHookReturn & {
-      setDescriptionId: React.Dispatch<React.SetStateAction<string | undefined>>;
-      setLabelId: React.Dispatch<React.SetStateAction<string | undefined>>;
+      setDescriptionId: Dispatch<SetStateAction<string | undefined>>;
+      setLabelId: Dispatch<SetStateAction<string | undefined>>;
     })
   | null;
 
-const DialogContext = React.createContext<DialogContextType>(null);
+const DialogContext: Context<DialogContextType> = createContext<DialogContextType>(null);
 
 export const useDialogContext = (): DialogHookReturn => {
-  const context = React.useContext(DialogContext);
+  const context: DialogContextType = useContext(DialogContext);
   if (context == null) {
     throw new Error('Dialog components must be wrapped in <Dialog />');
   }
@@ -113,24 +134,26 @@ export const useDialogContext = (): DialogHookReturn => {
 };
 
 // Dialog Components (Modal)
-export function Dialog({children, ...options}: {children: React.ReactNode} & DialogOptions) {
-  const dialog = useDialog(options);
+export function Dialog({children, ...options}: {children: ReactNode} & DialogOptions): JSX.Element {
+  const dialog: DialogHookReturn = useDialog(options);
   return <DialogContext.Provider value={dialog}>{children}</DialogContext.Provider>;
 }
 
 interface DialogTriggerProps {
   asChild?: boolean;
-  children: React.ReactNode;
+  children: ReactNode;
 }
 
-export const DialogTrigger = React.forwardRef<HTMLElement, React.HTMLProps<HTMLElement> & DialogTriggerProps>(
-  ({children, asChild = false, ...props}, propRef) => {
-    const context = useDialogContext();
-    const childrenRef = (children as any).ref;
-    const ref = useMergeRefs([context.refs.setReference, propRef, childrenRef]);
+export const DialogTrigger: ForwardRefExoticComponent<
+  HTMLProps<HTMLElement> & DialogTriggerProps & RefAttributes<HTMLElement>
+> = forwardRef<HTMLElement, HTMLProps<HTMLElement> & DialogTriggerProps>(
+  ({children, asChild = false, ...props}: HTMLProps<HTMLElement> & DialogTriggerProps, propRef: Ref<HTMLElement>) => {
+    const context: DialogHookReturn = useDialogContext();
+    const childrenRef: Ref<HTMLElement> = (children as any).ref;
+    const ref: ReturnType<typeof useMergeRefs> = useMergeRefs([context.refs.setReference, propRef, childrenRef]);
 
-    if (asChild && React.isValidElement(children)) {
-      return React.cloneElement(
+    if (asChild && isValidElement(children)) {
+      return cloneElement(
         children,
         context.getReferenceProps({
           ref,
@@ -149,52 +172,62 @@ export const DialogTrigger = React.forwardRef<HTMLElement, React.HTMLProps<HTMLE
   },
 );
 
-export const DialogContent = React.forwardRef<HTMLDivElement, React.HTMLProps<HTMLDivElement>>((props, propRef) => {
-  const {context: floatingContext, ...context} = useDialogContext();
-  const {theme, colorScheme} = useTheme();
-  const styles = useStyles(theme, colorScheme);
-  const ref = useMergeRefs([context.refs.setFloating, propRef]);
+export const DialogContent: ForwardRefExoticComponent<HTMLProps<HTMLDivElement> & RefAttributes<HTMLDivElement>> =
+  forwardRef<HTMLDivElement, HTMLProps<HTMLDivElement>>(
+    (props: HTMLProps<HTMLDivElement>, propRef: Ref<HTMLDivElement>) => {
+      const {context: floatingContext, ...context} = useDialogContext();
+      const {theme, colorScheme}: ReturnType<typeof useTheme> = useTheme();
+      const styles: Record<string, string> = useStyles(theme, colorScheme);
+      const ref: ReturnType<typeof useMergeRefs> = useMergeRefs([context.refs.setFloating, propRef]);
 
-  if (!floatingContext.open) return null;
+      if (!floatingContext.open) return null;
 
-  return (
-    <FloatingPortal>
-      <FloatingOverlay className={cx(withVendorCSSClassPrefix(bem('dialog', 'overlay')), styles.overlay)} lockScroll>
-        <FloatingFocusManager context={floatingContext} initialFocus={-1}>
-          <div
-            ref={ref}
-            className={cx(withVendorCSSClassPrefix(bem('dialog', 'content')), styles.content, props.className)}
-            aria-labelledby={context.labelId}
-            aria-describedby={context.descriptionId}
-            {...context.getFloatingProps(props)}
+      return (
+        <FloatingPortal>
+          <FloatingOverlay
+            className={cx(withVendorCSSClassPrefix(bem('dialog', 'overlay')), styles['overlay'])}
+            lockScroll
           >
-            {props.children}
-          </div>
-        </FloatingFocusManager>
-      </FloatingOverlay>
-    </FloatingPortal>
+            <FloatingFocusManager context={floatingContext} initialFocus={-1}>
+              <div
+                ref={ref}
+                className={cx(withVendorCSSClassPrefix(bem('dialog', 'content')), styles['content'], props.className)}
+                aria-labelledby={context.labelId}
+                aria-describedby={context.descriptionId}
+                {...context.getFloatingProps(props)}
+              >
+                {props.children}
+              </div>
+            </FloatingFocusManager>
+          </FloatingOverlay>
+        </FloatingPortal>
+      );
+    },
   );
-});
 
-export const DialogHeading = React.forwardRef<HTMLHeadingElement, React.HTMLProps<HTMLHeadingElement>>(
-  ({children, ...props}, ref) => {
-    const context = useDialogContext();
-    const {theme, colorScheme} = useTheme();
-    const styles = useStyles(theme, colorScheme);
-    const id = useId();
+export const DialogHeading: ForwardRefExoticComponent<
+  HTMLProps<HTMLHeadingElement> & RefAttributes<HTMLHeadingElement>
+> = forwardRef<HTMLHeadingElement, HTMLProps<HTMLHeadingElement>>(
+  ({children, ...props}: HTMLProps<HTMLHeadingElement>, ref: Ref<HTMLHeadingElement>) => {
+    const context: DialogHookReturn = useDialogContext();
+    const {theme, colorScheme}: ReturnType<typeof useTheme> = useTheme();
+    const styles: Record<string, string> = useStyles(theme, colorScheme);
+    const id: string = useId();
 
-    React.useLayoutEffect(() => {
+    useLayoutEffect((): (() => void) => {
       context.setLabelId(id);
-      return () => context.setLabelId(undefined);
+      return (): void => {
+        context.setLabelId(undefined);
+      };
     }, [id, context.setLabelId]);
 
     return (
-      <div className={cx(withVendorCSSClassPrefix(bem('dialog', 'header')), styles.header)}>
+      <div className={cx(withVendorCSSClassPrefix(bem('dialog', 'header')), styles['header'])}>
         <h2
           {...props}
           ref={ref}
           id={id}
-          className={cx(withVendorCSSClassPrefix(bem('dialog', 'title')), styles.headerTitle)}
+          className={cx(withVendorCSSClassPrefix(bem('dialog', 'title')), styles['headerTitle'])}
         >
           {children}
         </h2>
@@ -203,7 +236,9 @@ export const DialogHeading = React.forwardRef<HTMLHeadingElement, React.HTMLProp
           variant="icon"
           size="small"
           shape="round"
-          onClick={() => context.setOpen(false)}
+          onClick={(): void => {
+            context.setOpen(false);
+          }}
           aria-label="Close"
         >
           <X width={16} height={16} />
@@ -213,16 +248,20 @@ export const DialogHeading = React.forwardRef<HTMLHeadingElement, React.HTMLProp
   },
 );
 
-export const DialogDescription = React.forwardRef<HTMLParagraphElement, React.HTMLProps<HTMLParagraphElement>>(
-  ({children, ...props}, ref) => {
-    const context = useDialogContext();
-    const {theme, colorScheme} = useTheme();
-    const styles = useStyles(theme, colorScheme);
-    const id = useId();
+export const DialogDescription: ForwardRefExoticComponent<
+  HTMLProps<HTMLParagraphElement> & RefAttributes<HTMLParagraphElement>
+> = forwardRef<HTMLParagraphElement, HTMLProps<HTMLParagraphElement>>(
+  ({children, ...props}: HTMLProps<HTMLParagraphElement>, ref: Ref<HTMLParagraphElement>) => {
+    const context: DialogHookReturn = useDialogContext();
+    const {theme, colorScheme}: ReturnType<typeof useTheme> = useTheme();
+    const styles: Record<string, string> = useStyles(theme, colorScheme);
+    const id: string = useId();
 
-    React.useLayoutEffect(() => {
+    useLayoutEffect((): (() => void) => {
       context.setDescriptionId(id);
-      return () => context.setDescriptionId(undefined);
+      return (): void => {
+        context.setDescriptionId(undefined);
+      };
     }, [id, context.setDescriptionId]);
 
     return (
@@ -230,7 +269,7 @@ export const DialogDescription = React.forwardRef<HTMLParagraphElement, React.HT
         {...props}
         ref={ref}
         id={id}
-        className={cx(withVendorCSSClassPrefix(bem('dialog', 'description')), styles.description, props.className)}
+        className={cx(withVendorCSSClassPrefix(bem('dialog', 'description')), styles['description'], props.className)}
       >
         {children}
       </p>
@@ -240,45 +279,47 @@ export const DialogDescription = React.forwardRef<HTMLParagraphElement, React.HT
 
 interface DialogCloseProps {
   asChild?: boolean;
-  children?: React.ReactNode;
+  children?: ReactNode;
 }
 
-export const DialogClose = React.forwardRef<
-  HTMLButtonElement,
-  React.ButtonHTMLAttributes<HTMLButtonElement> & DialogCloseProps
->(({children, asChild = false, ...props}, propRef) => {
-  const context = useDialogContext();
-  const {theme, colorScheme} = useTheme();
-  const styles = useStyles(theme, colorScheme);
-  const childrenRef = (children as any)?.ref;
-  const ref = useMergeRefs([propRef, childrenRef]);
+export const DialogClose: ForwardRefExoticComponent<
+  ButtonHTMLAttributes<HTMLButtonElement> & DialogCloseProps & RefAttributes<HTMLButtonElement>
+> = forwardRef<HTMLButtonElement, ButtonHTMLAttributes<HTMLButtonElement> & DialogCloseProps>(
+  (
+    {children, asChild = false, ...props}: ButtonHTMLAttributes<HTMLButtonElement> & DialogCloseProps,
+    propRef: Ref<HTMLButtonElement>,
+  ) => {
+    const context: DialogHookReturn = useDialogContext();
+    const childrenRef: Ref<HTMLButtonElement> = (children as any)?.ref;
+    const ref: ReturnType<typeof useMergeRefs> = useMergeRefs([propRef, childrenRef]);
 
-  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-    context.setOpen(false);
-    props.onClick?.(event);
-  };
+    const handleClick = (event: MouseEvent<HTMLButtonElement>): void => {
+      context.setOpen(false);
+      props.onClick?.(event);
+    };
 
-  if (asChild && React.isValidElement(children)) {
-    return React.cloneElement(children, {
-      ref,
-      ...props,
-      ...(children.props as any),
-      onClick: handleClick,
-    });
-  }
+    if (asChild && isValidElement(children)) {
+      return cloneElement(children, {
+        ref,
+        ...props,
+        ...(children.props as any),
+        onClick: handleClick,
+      });
+    }
 
-  return (
-    <Button
-      {...props}
-      ref={ref}
-      onClick={handleClick}
-      className={cx(withVendorCSSClassPrefix(bem('dialog', 'close')), props.className)}
-      variant="text"
-    >
-      {children}
-    </Button>
-  );
-});
+    return (
+      <Button
+        {...props}
+        ref={ref}
+        onClick={handleClick}
+        className={cx(withVendorCSSClassPrefix(bem('dialog', 'close')), props.className)}
+        variant="text"
+      >
+        {children}
+      </Button>
+    );
+  },
+);
 
 DialogTrigger.displayName = 'DialogTrigger';
 DialogContent.displayName = 'DialogContent';
@@ -293,12 +334,12 @@ DialogClose.displayName = 'DialogClose';
 (Dialog as any).Description = DialogDescription;
 (Dialog as any).Close = DialogClose;
 
-export interface DialogComponent extends React.FC<{children: React.ReactNode} & DialogOptions> {
-  Trigger: typeof DialogTrigger;
-  Content: typeof DialogContent;
-  Heading: typeof DialogHeading;
-  Description: typeof DialogDescription;
+export interface DialogComponent extends FC<{children: ReactNode} & DialogOptions> {
   Close: typeof DialogClose;
+  Content: typeof DialogContent;
+  Description: typeof DialogDescription;
+  Heading: typeof DialogHeading;
+  Trigger: typeof DialogTrigger;
 }
 
 export default Dialog as DialogComponent;

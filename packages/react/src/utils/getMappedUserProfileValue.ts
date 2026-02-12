@@ -54,7 +54,7 @@ const getMappedUserProfileValue = (key: string, mappings: Record<string, string 
     return undefined;
   }
 
-  const mapping = mappings[key];
+  const mapping: string | string[] = mappings[key];
 
   if (!mapping) {
     // If no mapping defined, try to get the value directly from the user object
@@ -63,13 +63,18 @@ const getMappedUserProfileValue = (key: string, mappings: Record<string, string 
 
   // If mapping is an array, try each path until we find a value
   if (Array.isArray(mapping)) {
-    for (const path of mapping) {
-      const value = get(user, path);
+    let foundValue: any;
+    let found: boolean = false;
+    mapping.some((path: string) => {
+      const value: any = get(user, path);
       if (value !== undefined && value !== null && value !== '') {
-        return value;
+        foundValue = value;
+        found = true;
+        return true;
       }
-    }
-    return undefined;
+      return false;
+    });
+    return found ? foundValue : undefined;
   }
 
   // For single string mapping, get the value directly

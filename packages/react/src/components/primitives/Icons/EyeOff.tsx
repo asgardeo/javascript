@@ -21,7 +21,7 @@ import {FC, SVGProps} from 'react';
 /**
  * EyeOff icon component.
  */
-const EyeOff: FC<SVGProps<SVGSVGElement>> = props => (
+const EyeOff: FC<SVGProps<SVGSVGElement>> = (props: SVGProps<SVGSVGElement>) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     width="24"

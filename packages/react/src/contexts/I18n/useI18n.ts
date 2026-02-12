@@ -27,7 +27,7 @@ import I18nContext, {I18nContextValue} from './I18nContext';
  * @throws Error if used outside of I18nProvider context
  */
 const useI18n = (): I18nContextValue => {
-  const context = useContext(I18nContext);
+  const context: I18nContextValue | null = useContext(I18nContext);
 
   if (!context) {
     throw new Error(

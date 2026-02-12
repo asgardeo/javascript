@@ -19,6 +19,7 @@
 import {
   User,
   HttpInstance,
+  HttpResponse,
   AsgardeoSPAClient,
   HttpRequestConfig,
   updateMeProfile as baseUpdateMeProfile,
@@ -65,18 +66,18 @@ export interface UpdateMeProfileConfig extends Omit<BaseUpdateMeProfileConfig, '
  */
 const updateMeProfile = async ({fetcher, ...requestConfig}: UpdateMeProfileConfig): Promise<User> => {
   const defaultFetcher = async (url: string, config: RequestInit): Promise<Response> => {
-    const response = await httpClient({
-      url,
-      method: config.method || 'PATCH',
-      headers: config.headers as Record<string, string>,
+    const response: HttpResponse<any> = await httpClient({
       data: config.body ? JSON.parse(config.body as string) : undefined,
+      headers: config.headers as Record<string, string>,
+      method: config.method || 'PATCH',
+      url,
     } as HttpRequestConfig);
 
     return {
+      json: () => Promise.resolve(response.data),
       ok: response.status >= 200 && response.status < 300,
       status: response.status,
       statusText: response.statusText || '',
-      json: () => Promise.resolve(response.data),
       text: () => Promise.resolve(typeof response.data === 'string' ? response.data : JSON.stringify(response.data)),
     } as Response;
   };

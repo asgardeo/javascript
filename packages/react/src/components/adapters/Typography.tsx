@@ -17,14 +17,14 @@
  */
 
 import {FC} from 'react';
-import Typography from '../primitives/Typography/Typography';
 import useTheme from '../../contexts/Theme/useTheme';
 import {AdapterProps} from '../../models/adapters';
+import Typography from '../primitives/Typography/Typography';
 
 /**
  * Typography component for sign-up forms (titles, descriptions, etc.).
  */
-const TypographyComponent: FC<AdapterProps> = ({component}) => {
+const TypographyComponent: FC<AdapterProps> = ({component}: AdapterProps) => {
   const {theme} = useTheme();
   const config: Record<string, unknown> = component.config || {};
   const text: string = (config['text'] as string) || (config['content'] as string) || '';

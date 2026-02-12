@@ -16,9 +16,9 @@
  * under the License.
  */
 
+import {Theme} from '@asgardeo/browser';
 import {css} from '@emotion/css';
 import {useMemo} from 'react';
-import {Theme} from '@asgardeo/browser';
 
 export type AvatarVariant = 'circular' | 'square';
 
@@ -37,9 +37,9 @@ const useStyles = (
   size: number,
   variant: AvatarVariant,
   backgroundColor?: string,
-) => {
-  return useMemo(() => {
-    const baseAvatar = css`
+): Record<string, string> =>
+  useMemo(() => {
+    const baseAvatar: string = css`
       align-items: center;
       background: ${backgroundColor || theme.vars.colors.background.surface};
       border: ${backgroundColor ? 'none' : `1px solid ${theme.vars.colors.border}`};
@@ -55,7 +55,7 @@ const useStyles = (
       width: ${size}px;
     `;
 
-    const variantStyles = {
+    const variantStyles: Record<string, string> = {
       circular: css`
         border-radius: 50%;
       `,
@@ -64,13 +64,13 @@ const useStyles = (
       `,
     };
 
-    const imageStyles = css`
+    const imageStyles: string = css`
       height: 100%;
       object-fit: cover;
       width: 100%;
     `;
 
-    const skeletonStyles = css`
+    const skeletonStyles: string = css`
       width: 100%;
       height: 100%;
       background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
@@ -88,7 +88,7 @@ const useStyles = (
       }
     `;
 
-    const iconStyles = css`
+    const iconStyles: string = css`
       width: 60%;
       height: 60%;
       fill: ${backgroundColor ? '#ffffff' : theme.vars.colors.text.secondary};
@@ -97,12 +97,11 @@ const useStyles = (
 
     return {
       avatar: baseAvatar,
-      variant: variantStyles[variant],
+      icon: iconStyles,
       image: imageStyles,
       skeleton: skeletonStyles,
-      icon: iconStyles,
+      variant: variantStyles[variant],
     };
   }, [theme, colorScheme, size, variant, backgroundColor]);
-};
 
 export default useStyles;

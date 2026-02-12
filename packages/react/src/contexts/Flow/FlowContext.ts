@@ -16,74 +16,76 @@
  * under the License.
  */
 
-import {createContext} from 'react';
+import {Context, createContext} from 'react';
 
 /**
  * Types of authentication flows/steps that can be displayed.
  */
 export type FlowStep = {
-  id: string;
-  type: 'signin' | 'signup' | 'organization-signin' | 'forgot-password' | 'reset-password' | 'verify-email' | 'mfa';
-  title: string;
-  subtitle?: string;
   canGoBack?: boolean;
+  id: string;
   metadata?: Record<string, any>;
+  subtitle?: string;
+  title: string;
+  type: 'signin' | 'signup' | 'organization-signin' | 'forgot-password' | 'reset-password' | 'verify-email' | 'mfa';
 } | null;
 
 /**
  * Message types for displaying in authentication flows.
  */
 export interface FlowMessage {
-  id?: string;
-  type: 'success' | 'error' | 'warning' | 'info';
-  message: string;
   dismissible?: boolean;
+  id?: string;
+  message: string;
+  type: 'success' | 'error' | 'warning' | 'info';
 }
 
 /**
  * Context value for managing authentication flow UI state.
  */
 export interface FlowContextValue {
-  // Current step/flow
-  currentStep: FlowStep;
-  setCurrentStep: (step: FlowStep) => void;
-
-  // Title and subtitle
-  title: string;
-  setTitle: (title: string) => void;
-  subtitle?: string;
-  setSubtitle: (subtitle?: string) => void;
-
-  // Messages
-  messages: FlowMessage[];
   addMessage: (message: FlowMessage) => void;
-  removeMessage: (messageId: string) => void;
   clearMessages: () => void;
 
+  // Current step/flow
+  currentStep: FlowStep;
   // Error state
   error: string | null;
-  setError: (error: string | null) => void;
-
   // Loading state
   isLoading: boolean;
-  setIsLoading: (loading: boolean) => void;
+  // Messages
+  messages: FlowMessage[];
 
-  // Navigation
-  showBackButton: boolean;
-  setShowBackButton: (show: boolean) => void;
-  onGoBack?: () => void;
-  setOnGoBack: (callback?: () => void) => void;
-
-  // Utilities
-  reset: () => void;
   navigateToFlow: (
     flowType: NonNullable<FlowStep>['type'],
     options?: {
-      title?: string;
-      subtitle?: string;
       metadata?: Record<string, any>;
+      subtitle?: string;
+      title?: string;
     },
   ) => void;
+  onGoBack?: () => void;
+  removeMessage: (messageId: string) => void;
+  // Utilities
+  reset: () => void;
+
+  setCurrentStep: (step: FlowStep) => void;
+  setError: (error: string | null) => void;
+
+  setIsLoading: (loading: boolean) => void;
+  setOnGoBack: (callback?: () => void) => void;
+
+  setShowBackButton: (show: boolean) => void;
+  setSubtitle: (subtitle?: string) => void;
+  setTitle: (title: string) => void;
+
+  // Navigation
+  showBackButton: boolean;
+
+  subtitle?: string;
+
+  // Title and subtitle
+  title: string;
 }
 
 /**
@@ -91,7 +93,7 @@ export interface FlowContextValue {
  * This context handles titles, messages, navigation, and loading states
  * for authentication flows like SignIn, SignUp, organization signin, etc.
  */
-const FlowContext = createContext<FlowContextValue | undefined>(undefined);
+const FlowContext: Context<FlowContextValue | undefined> = createContext<FlowContextValue | undefined>(undefined);
 
 FlowContext.displayName = 'FlowContext';
 

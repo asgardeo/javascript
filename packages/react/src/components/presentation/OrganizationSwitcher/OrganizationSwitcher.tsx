@@ -18,14 +18,18 @@
 
 import {FC, ReactElement, useState} from 'react';
 
-import BaseOrganizationSwitcher, {BaseOrganizationSwitcherProps, Organization} from './BaseOrganizationSwitcher';
+import {
+  BaseOrganizationSwitcher as BaseOrganizationSwitcherComponent,
+  BaseOrganizationSwitcherProps,
+  Organization,
+} from './BaseOrganizationSwitcher';
 import useAsgardeo from '../../../contexts/Asgardeo/useAsgardeo';
 import useOrganization from '../../../contexts/Organization/useOrganization';
 import useTranslation from '../../../hooks/useTranslation';
-import {CreateOrganization} from '../CreateOrganization/CreateOrganization';
-import OrganizationProfile from '../OrganizationProfile/OrganizationProfile';
-import OrganizationList from '../OrganizationList/OrganizationList';
 import BuildingAlt from '../../primitives/Icons/BuildingAlt';
+import {CreateOrganization} from '../CreateOrganization/CreateOrganization';
+import OrganizationListComponent from '../OrganizationList/OrganizationList';
+import OrganizationProfile from '../OrganizationProfile/OrganizationProfile';
 
 /**
  * Props interface for the OrganizationSwitcher component.
@@ -139,11 +143,11 @@ export const OrganizationSwitcher: FC<OrganizationSwitcherProps> = ({
     onClick: (): void => setIsCreateOrgOpen(true),
   });
 
-  const menuItems = props.menuItems ? [...defaultMenuItems, ...props.menuItems] : defaultMenuItems;
+  const menuItems: any[] = props.menuItems ? [...defaultMenuItems, ...props.menuItems] : defaultMenuItems;
 
   return (
     <>
-      <BaseOrganizationSwitcher
+      <BaseOrganizationSwitcherComponent
         organizations={organizations}
         currentOrganization={currentOrganization}
         onOrganizationSwitch={onOrganizationSwitch}
@@ -157,7 +161,7 @@ export const OrganizationSwitcher: FC<OrganizationSwitcherProps> = ({
         mode="popup"
         open={isCreateOrgOpen}
         onOpenChange={setIsCreateOrgOpen}
-        onSuccess={(org: Organization) => {
+        onSuccess={(org: Organization): void => {
           if (org && onOrganizationSwitch) {
             onOrganizationSwitch(org);
           }
@@ -175,12 +179,12 @@ export const OrganizationSwitcher: FC<OrganizationSwitcherProps> = ({
           errorFallback={<div>{t('organization.profile.error')}</div>}
         />
       )}
-      <OrganizationList
+      <OrganizationListComponent
         mode="popup"
         open={isOrganizationListOpen}
         onOpenChange={setIsOrganizationListOpen}
         title={t('organization.switcher.manage.organizations')}
-        onOrganizationSelect={(organization: Organization) => {
+        onOrganizationSelect={(organization: Organization): void => {
           if (onOrganizationSwitch) {
             onOrganizationSwitch(organization);
           }

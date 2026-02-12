@@ -16,11 +16,11 @@
  * under the License.
  */
 
-import {FC} from 'react';
-import {cx} from '@emotion/css';
 import {withVendorCSSClassPrefix, bem} from '@asgardeo/browser';
-import useTheme from '../../../contexts/Theme/useTheme';
+import {cx} from '@emotion/css';
+import {FC} from 'react';
 import useStyles from './Logo.styles';
+import useTheme from '../../../contexts/Theme/useTheme';
 
 export type LogoSize = 'small' | 'medium' | 'large';
 
@@ -29,25 +29,25 @@ export type LogoSize = 'small' | 'medium' | 'large';
  */
 export interface LogoProps {
   /**
+   * Custom alt text for the logo.
+   */
+  alt?: string;
+  /**
    * Custom CSS class name for the logo.
    */
   className?: string;
+  /**
+   * Size of the logo.
+   */
+  size?: LogoSize;
   /**
    * Custom logo URL to override theme logo.
    */
   src?: string;
   /**
-   * Custom alt text for the logo.
-   */
-  alt?: string;
-  /**
    * Custom title for the logo.
    */
   title?: string;
-  /**
-   * Size of the logo.
-   */
-  size?: LogoSize;
 }
 
 /**
@@ -56,17 +56,17 @@ export interface LogoProps {
  * @param props - The props for the Logo component.
  * @returns The rendered Logo component.
  */
-const Logo: FC<LogoProps> = ({className, src, alt, title, size = 'medium'}) => {
-  const {theme, colorScheme} = useTheme();
-  const styles = useStyles(theme, colorScheme, size);
+const Logo: FC<LogoProps> = ({className, src, alt, title, size = 'medium'}: LogoProps) => {
+  const {theme, colorScheme}: ReturnType<typeof useTheme> = useTheme();
+  const styles: Record<string, string> = useStyles(theme, colorScheme, size);
 
-  const logoConfig = theme.images?.logo;
+  const logoConfig: Record<string, string> | undefined = theme.images?.logo as Record<string, string> | undefined;
 
-  const logoSrc = src || logoConfig?.url;
+  const logoSrc: string | undefined = src || logoConfig?.['url'];
 
-  const logoAlt = alt || logoConfig?.alt || 'Logo';
+  const logoAlt: string = alt || logoConfig?.['alt'] || 'Logo';
 
-  const logoTitle = title || logoConfig?.title;
+  const logoTitle: string | undefined = title || logoConfig?.['title'];
 
   if (!logoSrc) {
     return null;
@@ -80,8 +80,8 @@ const Logo: FC<LogoProps> = ({className, src, alt, title, size = 'medium'}) => {
       className={cx(
         withVendorCSSClassPrefix(bem('logo')),
         withVendorCSSClassPrefix(bem('logo', size)),
-        styles.logo,
-        styles.size,
+        styles['logo'],
+        styles['size'],
         className,
       )}
     />

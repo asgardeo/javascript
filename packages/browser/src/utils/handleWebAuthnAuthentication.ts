@@ -16,7 +16,17 @@
  * under the License.
  */
 
-import {arrayBufferToBase64url, base64urlToArrayBuffer, AsgardeoRuntimeError} from '@asgardeo/javascript';
+import {
+  arrayBufferToBase64url,
+  base64urlToArrayBuffer,
+  AsgardeoRuntimeError,
+  createPackageComponentLogger,
+} from '@asgardeo/javascript';
+
+const logger: ReturnType<typeof createPackageComponentLogger> = createPackageComponentLogger(
+  '@asgardeo/browser',
+  'WebAuthn',
+);
 
 /**
  * Handles WebAuthn/Passkey authentication flow for browser environments.
@@ -125,8 +135,7 @@ const handleWebAuthnAuthentication = async (challengeData: string): Promise<stri
     let rpIdToUse: string = challengeRpId;
 
     if (challengeRpId && !currentDomain.endsWith(challengeRpId) && challengeRpId !== currentDomain) {
-      // eslint-disable-next-line no-console
-      console.warn(`RP ID mismatch detected. Challenge RP ID: ${challengeRpId}, Current domain: ${currentDomain}`);
+      logger.warn(`RP ID mismatch detected. Challenge RP ID: ${challengeRpId}, Current domain: ${currentDomain}`);
       rpIdToUse = currentDomain;
     }
 
@@ -179,8 +188,7 @@ const handleWebAuthnAuthentication = async (challengeData: string): Promise<stri
 
     return JSON.stringify(tokenResponse);
   } catch (error) {
-    // eslint-disable-next-line no-console
-    console.error('WebAuthn authentication failed:', error);
+    logger.error('WebAuthn authentication failed:');
 
     if (error instanceof AsgardeoRuntimeError) {
       throw error;

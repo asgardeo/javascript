@@ -35,15 +35,17 @@ import {AuthStateInterface} from './models';
 class AuthAPI {
   static DEFAULT_STATE: AuthStateInterface;
 
-  private _authState = AuthAPI.DEFAULT_STATE;
-  private _client: AsgardeoSPAClient;
-  private _instanceId: number;
+  private authState: AuthStateInterface = AuthAPI.DEFAULT_STATE;
 
-  private _isLoading: boolean;
+  private client: AsgardeoSPAClient;
+
+  private apiInstanceId: number;
+
+  private loadingState: boolean;
 
   constructor(spaClient?: AsgardeoSPAClient, instanceId: number = 0) {
-    this._instanceId = instanceId;
-    this._client = spaClient ?? AsgardeoSPAClient.getInstance(instanceId);
+    this.apiInstanceId = instanceId;
+    this.client = spaClient ?? AsgardeoSPAClient.getInstance(instanceId);
 
     this.getState = this.getState.bind(this);
     this.init = this.init.bind(this);
@@ -57,19 +59,19 @@ class AuthAPI {
    * @returns The instance ID used for multi-auth context support.
    */
   public getInstanceId(): number {
-    return this._instanceId;
+    return this.apiInstanceId;
   }
 
-  public _setIsLoading(isLoading: boolean): void {
-    this._isLoading = isLoading;
+  public setLoadingState(isLoading: boolean): void {
+    this.loadingState = isLoading;
   }
 
-  public _getIsLoading(): boolean {
-    return this._isLoading;
+  public getLoadingState(): boolean {
+    return this.loadingState;
   }
 
   public isLoading(): boolean {
-    return this._getIsLoading();
+    return this.getLoadingState();
   }
 
   /**
@@ -78,7 +80,7 @@ class AuthAPI {
    * @return {AuthStateInterface} Authentication State.
    */
   public getState(): AuthStateInterface {
-    return this._authState;
+    return this.authState;
   }
 
   /**
@@ -87,7 +89,7 @@ class AuthAPI {
    * @param {Config} config - `dispatch` function from React Auth Context.
    */
   public async init(config: AuthClientConfig<Config>): Promise<boolean> {
-    return this._client.initialize(config);
+    return this.client.initialize(config);
   }
 
   /**
@@ -96,11 +98,11 @@ class AuthAPI {
    * @returns {Promise<AuthClientConfig<Config>>} - A promise that resolves with the configuration data.
    */
   public async getConfigData(): Promise<AuthClientConfig<Config>> {
-    return this._client.getConfigData();
+    return this.client.getConfigData();
   }
 
   public async getStorageManager(): Promise<any> {
-    return this._client.getStorageManager();
+    return this.client.getStorageManager();
   }
 
   /**
@@ -110,7 +112,7 @@ class AuthAPI {
    */
   public async isInitialized(): Promise<boolean> {
     // Wait for initialization to complete
-    return this._client.isInitialized();
+    return this.client.isInitialized();
   }
 
   /**
@@ -132,27 +134,26 @@ class AuthAPI {
       params: Record<string, unknown>;
     },
   ): Promise<any> {
-    return this._client
+    return this.client
       .signIn(config, authorizationCode, sessionState, authState, tokenRequestConfig)
       .then(async (response: User) => {
         if (!response) {
           return null; // FIXME: Validate this. Temp fix for: error TS7030: Not all code paths return a value.
         }
 
-        if (await this._client.isSignedIn()) {
-          const stateToUpdate = {
+        if (await this.client.isSignedIn()) {
+          const stateToUpdate: AuthStateInterface = {
             displayName: response.displayName,
             email: response.email,
-            isSignedIn: true,
             isLoading: false,
-            isSigningOut: false,
+            isSignedIn: true,
             username: response.username,
           };
 
           this.updateState(stateToUpdate);
 
           // dispatch({...state, ...stateToUpdate});
-          this._setIsLoading(false);
+          this.setLoadingState(false);
 
           if (callback) {
             callback(response);
@@ -161,7 +162,7 @@ class AuthAPI {
 
         return response;
       })
-      .catch(error => Promise.reject(error));
+      .catch((error: Error) => Promise.reject(error));
   }
 
   /**
@@ -172,16 +173,16 @@ class AuthAPI {
    * @param {any} callback - Action to trigger on successful sign out.
    */
   public signOut(callback?: (response?: boolean) => void): Promise<boolean> {
-    return this._client
+    return this.client
       .signOut()
-      .then(response => {
+      .then((response: boolean) => {
         if (callback) {
           callback(response);
         }
 
         return response;
       })
-      .catch(error => Promise.reject(error));
+      .catch((error: Error) => Promise.reject(error));
   }
 
   /**
@@ -190,7 +191,7 @@ class AuthAPI {
    * @param {AuthStateInterface} state - State values to update in authentication state.
    */
   public updateState(state: AuthStateInterface): void {
-    this._authState = {...this._authState, ...state};
+    this.authState = {...this.authState, ...state};
   }
 
   /**
@@ -199,7 +200,7 @@ class AuthAPI {
    * @return {Promise<User>} - A promise that resolves with the user information.
    */
   public async getUser(): Promise<User> {
-    return this._client.getUser();
+    return this.client.getUser();
   }
 
   /**
@@ -213,7 +214,7 @@ class AuthAPI {
    * @return {Promise<Response>} - Returns a Promise that resolves with the response to the request.
    */
   public async httpRequest(config: HttpRequestConfig): Promise<HttpResponse<any>> {
-    return this._client.httpRequest(config);
+    return this.client.httpRequest(config);
   }
 
   /**
@@ -227,7 +228,7 @@ class AuthAPI {
    * @return {Promise<Response>} - Returns a Promise that resolves with the responses to the requests.
    */
   public async httpRequestAll(configs: HttpRequestConfig[]): Promise<HttpResponse<any>[]> {
-    return this._client.httpRequestAll(configs);
+    return this.client.httpRequestAll(configs);
   }
 
   /**
@@ -242,7 +243,7 @@ class AuthAPI {
     config: SPACustomGrantConfig,
     callback: (response: User | Response) => void,
   ): Promise<User | Response> {
-    return this._client
+    return this.client
       .exchangeToken(config)
       .then((response: User | Response) => {
         if (!response) {
@@ -253,16 +254,18 @@ class AuthAPI {
           this.updateState({
             ...this.getState(),
             ...(response as User),
-            isSignedIn: true,
             isLoading: false,
+            isSignedIn: true,
           });
         }
 
-        callback && callback(response);
+        if (callback) {
+          callback(response);
+        }
 
         return response;
       })
-      .catch(error => Promise.reject(error));
+      .catch((error: Error) => Promise.reject(error));
   }
 
   /**
@@ -271,14 +274,14 @@ class AuthAPI {
    * @return {Promise<boolean>} - A promise that resolves with `true` if the process is successful.
    */
   public async revokeAccessToken(dispatch: (state: AuthStateInterface) => void): Promise<boolean> {
-    return this._client
+    return this.client
       .revokeAccessToken()
       .then(() => {
         this.updateState({...AuthAPI.DEFAULT_STATE, isLoading: false});
         dispatch(AuthAPI.DEFAULT_STATE);
         return true;
       })
-      .catch(error => Promise.reject(error));
+      .catch((error: Error) => Promise.reject(error));
   }
 
   /**
@@ -287,7 +290,7 @@ class AuthAPI {
    * @return {Promise<ServiceResourcesType} - A Promise that resolves with an object containing the service endpoints.
    */
   public async getOpenIDProviderEndpoints(): Promise<OIDCEndpoints> {
-    return this._client.getOpenIDProviderEndpoints();
+    return this.client.getOpenIDProviderEndpoints();
   }
 
   /**
@@ -296,7 +299,7 @@ class AuthAPI {
    * @return {HttpClientInstance} - The Axios HTTP client.
    */
   public async getHttpClient(): Promise<HttpClientInstance> {
-    return this._client.getHttpClient();
+    return this.client.getHttpClient();
   }
 
   /**
@@ -306,7 +309,7 @@ class AuthAPI {
    * @returns The decoded token payload.
    */
   public async decodeJwtToken<T = Record<string, unknown>>(token: string): Promise<T> {
-    return this._client.decodeJwtToken<T>(token);
+    return this.client.decodeJwtToken<T>(token);
   }
 
   /**
@@ -316,7 +319,7 @@ class AuthAPI {
    * the decoded payload of the id token.
    */
   public async getDecodedIdToken(sessionId?: string): Promise<IdToken> {
-    return this._client.getDecodedIdToken(sessionId);
+    return this.client.getDecodedIdToken(sessionId);
   }
 
   /**
@@ -326,7 +329,7 @@ class AuthAPI {
    * the decoded payload of the idp id token.
    */
   public async getDecodedIDPIDToken(): Promise<IdToken> {
-    return this._client.getDecodedIdToken();
+    return this.client.getDecodedIdToken();
   }
 
   /**
@@ -335,7 +338,7 @@ class AuthAPI {
    * @return {Promise<string>} - A Promise that resolves with the id token.
    */
   public async getIdToken(): Promise<string> {
-    return this._client.getIdToken();
+    return this.client.getIdToken();
   }
 
   /**
@@ -346,7 +349,7 @@ class AuthAPI {
    * @return {Promise<string>} - A Promise that resolves with the access token.
    */
   public async getAccessToken(sessionId?: string): Promise<string> {
-    return this._client.getAccessToken(sessionId);
+    return this.client.getAccessToken(sessionId);
   }
 
   /**
@@ -358,7 +361,7 @@ class AuthAPI {
    * @return {Promise<string>} - A Promise that resolves with the idp access token.
    */
   public async getIDPAccessToken(): Promise<string> {
-    return this._client.getIDPAccessToken();
+    return this.client.getIDPAccessToken();
   }
 
   /**
@@ -368,7 +371,7 @@ class AuthAPI {
    * information about the refreshed access token.
    */
   public async refreshAccessToken(): Promise<User> {
-    return this._client.refreshAccessToken();
+    return this.client.refreshAccessToken();
   }
 
   /**
@@ -377,7 +380,7 @@ class AuthAPI {
    * @return {Promise<boolean>} - A Promise that resolves with `true` if teh user is authenticated.
    */
   public async isSignedIn(): Promise<boolean> {
-    return this._client.isSignedIn();
+    return this.client.isSignedIn();
   }
 
   /**
@@ -386,7 +389,7 @@ class AuthAPI {
    * @return {Promise<boolean>} - A Promise that resolves with `true` if there is an active session.
    */
   public async isSessionActive(): Promise<boolean> {
-    return this._client.isSessionActive();
+    return this.client.isSessionActive();
   }
 
   /**
@@ -396,7 +399,7 @@ class AuthAPI {
    *
    */
   public async enableHttpHandler(): Promise<boolean> {
-    return this._client.enableHttpHandler();
+    return this.client.enableHttpHandler();
   }
 
   /**
@@ -405,7 +408,7 @@ class AuthAPI {
    * @return {Promise<boolean>} - A promise that resolves with True.
    */
   public async disableHttpHandler(): Promise<boolean> {
-    return this._client.disableHttpHandler();
+    return this.client.disableHttpHandler();
   }
 
   /**
@@ -414,7 +417,7 @@ class AuthAPI {
    * @param {Partial<AuthClientConfig<T>>} config - A config object to update the SDK configurations with.
    */
   public async reInitialize(config: Partial<AuthClientConfig<Config>>): Promise<void> {
-    return this._client.reInitialize(config);
+    return this.client.reInitialize(config);
   }
 
   /**
@@ -429,10 +432,10 @@ class AuthAPI {
   public on(hook: Exclude<Hooks, Hooks.CustomGrant>, callback: (response?: any) => void): Promise<void>;
   public on(hook: Hooks, callback: (response?: any) => void, id?: string): Promise<void> {
     if (hook === Hooks.CustomGrant) {
-      return this._client.on(hook, callback, id);
+      return this.client.on(hook, callback, id);
     }
 
-    return this._client.on(hook, callback);
+    return this.client.on(hook, callback);
   }
 
   /**
@@ -452,7 +455,7 @@ class AuthAPI {
     additionalParams?: Record<string, string | boolean>,
     tokenRequestConfig?: {params: Record<string, unknown>},
   ): Promise<User | boolean | undefined> {
-    return this._client
+    return this.client
       .signInSilently(additionalParams, tokenRequestConfig)
       .then(async (response: User | boolean) => {
         if (!response) {
@@ -461,7 +464,7 @@ class AuthAPI {
 
         return response;
       })
-      .catch(error => Promise.reject(error));
+      .catch((error: Error) => Promise.reject(error));
   }
 
   /**
@@ -472,15 +475,15 @@ class AuthAPI {
    * @return void
    */
   public clearSession(sessionId?: string): void {
-    this._client.clearSession(sessionId);
+    this.client.clearSession(sessionId);
   }
 }
 
 AuthAPI.DEFAULT_STATE = {
   displayName: '',
   email: '',
-  isSignedIn: false,
   isLoading: true,
+  isSignedIn: false,
   username: '',
 };
 

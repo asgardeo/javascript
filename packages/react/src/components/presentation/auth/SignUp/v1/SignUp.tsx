@@ -22,7 +22,8 @@ import {
   EmbeddedFlowResponseType,
   EmbeddedFlowType,
 } from '@asgardeo/browser';
-import {FC, ReactNode} from 'react';
+import {FC, ReactElement, ReactNode} from 'react';
+// eslint-disable-next-line import/no-named-as-default
 import BaseSignUp, {BaseSignUpProps, BaseSignUpRenderProps} from './BaseSignUp';
 import useAsgardeo from '../../../../../contexts/Asgardeo/useAsgardeo';
 
@@ -54,7 +55,7 @@ const SignUp: FC<SignUpProps> = ({
   shouldRedirectAfterSignUp = true,
   children,
   ...rest
-}) => {
+}: SignUpProps): ReactElement => {
   const {signUp, isInitialized} = useAsgardeo();
 
   /**
@@ -64,7 +65,7 @@ const SignUp: FC<SignUpProps> = ({
     payload?: EmbeddedFlowExecuteRequestPayload,
   ): Promise<EmbeddedFlowExecuteResponse> => {
     // Uses simple initialization without applicationId
-    const initialPayload = payload || {
+    const initialPayload: any = payload || {
       flowType: EmbeddedFlowType.Registration,
     };
 
@@ -80,7 +81,7 @@ const SignUp: FC<SignUpProps> = ({
   /**
    * Handle successful sign-up and redirect.
    */
-  const handleComplete = (response: EmbeddedFlowExecuteResponse) => {
+  const handleComplete = (response: EmbeddedFlowExecuteResponse): any => {
     onComplete?.(response);
 
     // For non-redirection responses (regular sign-up completion), handle redirect if configured

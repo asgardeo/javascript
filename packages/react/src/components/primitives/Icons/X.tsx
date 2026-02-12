@@ -21,7 +21,7 @@ import {FC, SVGProps} from 'react';
 /**
  * X (close) icon component.
  */
-const X: FC<SVGProps<SVGSVGElement>> = props => (
+const X: FC<SVGProps<SVGSVGElement>> = (props: SVGProps<SVGSVGElement>) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     width="24"

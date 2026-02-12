@@ -16,14 +16,17 @@
  * under the License.
  */
 
-import {AllOrganizationsApiResponse, Organization} from '@asgardeo/browser';
+import {AllOrganizationsApiResponse} from '@asgardeo/browser';
 import {cx} from '@emotion/css';
 import {FC, ReactElement, useEffect, useState} from 'react';
-import {BaseOrganizationListProps, OrganizationWithSwitchAccess} from './BaseOrganizationList';
-import BaseOrganizationList from './BaseOrganizationList';
+import {
+  BaseOrganizationList as BaseOrganizationListComponent,
+  BaseOrganizationListProps,
+  OrganizationWithSwitchAccess,
+} from './BaseOrganizationList';
+import useStyles from './OrganizationList.styles';
 import useOrganization from '../../../contexts/Organization/useOrganization';
 import useTheme from '../../../contexts/Theme/useTheme';
-import useStyles from './OrganizationList.styles';
 
 /**
  * Configuration options for the OrganizationList component.
@@ -110,18 +113,12 @@ export interface OrganizationListProps
  * />
  * ```
  */
-export const OrganizationList: FC<OrganizationListProps> = ({
-  autoFetch = true,
-  filter = '',
-  limit = 10,
-  onOrganizationSelect,
-  recursive = false,
-  className = '',
-  style,
-  ...baseProps
-}: OrganizationListProps): ReactElement => {
+export const OrganizationList: FC<OrganizationListProps> = (props: OrganizationListProps): ReactElement => {
+  const {onOrganizationSelect, className = '', style, ...baseProps} = props;
+  const {autoFetch, filter, limit, recursive, ...filteredBaseProps} = baseProps;
+
   const {theme, colorScheme} = useTheme();
-  const styles = useStyles(theme, colorScheme);
+  const styles: ReturnType<typeof useStyles> = useStyles(theme, colorScheme);
   const {getAllOrganizations, error, isLoading, myOrganizations} = useOrganization();
 
   const [allOrganizations, setAllOrganizations] = useState<AllOrganizationsApiResponse>({
@@ -129,21 +126,21 @@ export const OrganizationList: FC<OrganizationListProps> = ({
   });
 
   useEffect(() => {
-    (async () => {
+    (async (): Promise<void> => {
       setAllOrganizations(await getAllOrganizations());
     })();
   }, []);
 
   return (
-    <div className={cx(styles.root, className)} style={style}>
-      <div className={cx(styles.container)}>
-        <BaseOrganizationList
+    <div className={cx(styles['root'], className)} style={style}>
+      <div className={cx(styles['container'])}>
+        <BaseOrganizationListComponent
           allOrganizations={allOrganizations}
           myOrganizations={myOrganizations}
           error={error}
           isLoading={isLoading}
           onOrganizationSelect={onOrganizationSelect}
-          {...baseProps}
+          {...filteredBaseProps}
         />
       </div>
     </div>

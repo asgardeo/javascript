@@ -16,18 +16,23 @@
  * under the License.
  */
 
-import {CreateOrganizationPayload} from '@asgardeo/browser';
+import {CreateOrganizationPayload, createPackageComponentLogger} from '@asgardeo/browser';
 import {cx} from '@emotion/css';
-import {ChangeEvent, CSSProperties, FC, ReactElement, ReactNode, useState} from 'react';
+import {ChangeEvent, CSSProperties, FC, FormEvent, ReactElement, ReactNode, useState} from 'react';
+import useStyles from './BaseCreateOrganization.styles';
 import useTheme from '../../../contexts/Theme/useTheme';
 import useTranslation from '../../../hooks/useTranslation';
-import Alert from '../../primitives/Alert/Alert';
+import AlertPrimitive from '../../primitives/Alert/Alert';
 import Button from '../../primitives/Button/Button';
-import Dialog from '../../primitives/Dialog/Dialog';
+import DialogPrimitive from '../../primitives/Dialog/Dialog';
 import FormControl from '../../primitives/FormControl/FormControl';
 import InputLabel from '../../primitives/InputLabel/InputLabel';
 import TextField from '../../primitives/TextField/TextField';
-import useStyles from './BaseCreateOrganization.styles';
+
+const logger: ReturnType<typeof createPackageComponentLogger> = createPackageComponentLogger(
+  '@asgardeo/react',
+  'BaseCreateOrganization',
+);
 
 /**
  * Interface for organization form data.
@@ -60,6 +65,20 @@ export interface BaseCreateOrganizationProps {
 }
 
 /**
+ * Removes special characters except space and hyphen from the organization name
+ * and generates a valid handle.
+ * @param name
+ * @returns
+ */
+const generateHandleFromName = (name: string): string =>
+  name
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '');
+
+/**
  * BaseCreateOrganization component provides the core functionality for creating organizations.
  * This component serves as the base for framework-specific implementations.
  */
@@ -79,9 +98,9 @@ export const BaseCreateOrganization: FC<BaseCreateOrganizationProps> = ({
   renderAdditionalFields,
   style,
   title = 'Create Organization',
-}): ReactElement => {
+}: BaseCreateOrganizationProps): ReactElement => {
   const {theme, colorScheme} = useTheme();
-  const styles = useStyles(theme, colorScheme);
+  const styles: ReturnType<typeof useStyles> = useStyles(theme, colorScheme);
   const {t} = useTranslation();
   const [formData, setFormData] = useState<OrganizationFormData>({
     description: '',
@@ -113,13 +132,13 @@ export const BaseCreateOrganization: FC<BaseCreateOrganizationProps> = ({
   };
 
   const handleInputChange = (field: keyof OrganizationFormData, value: string): void => {
-    setFormData(prev => ({
+    setFormData((prev: OrganizationFormData) => ({
       ...prev,
       [field]: value,
     }));
 
     if (formErrors[field]) {
-      setFormErrors(prev => ({
+      setFormErrors((prev: Partial<OrganizationFormData> & {avatar?: string}) => ({
         ...prev,
         [field]: undefined,
       }));
@@ -136,27 +155,12 @@ export const BaseCreateOrganization: FC<BaseCreateOrganizationProps> = ({
     handleInputChange('name', value);
 
     if (!formData.handle || formData.handle === generateHandleFromName(formData.name)) {
-      const newHandle = generateHandleFromName(value);
+      const newHandle: string = generateHandleFromName(value);
       handleInputChange('handle', newHandle);
     }
   };
 
-  /**
-   * Removes special characters except space and hyphen from the organization name
-   * and generates a valid handle.
-   * @param name
-   * @returns
-   */
-  const generateHandleFromName = (name: string): string => {
-    return name
-      .toLowerCase()
-      .replace(/[^a-z0-9\s-]/g, '')
-      .replace(/\s+/g, '-')
-      .replace(/-+/g, '-')
-      .replace(/^-|-$/g, '');
-  };
-
-  const handleSubmit = async (e: React.FormEvent): Promise<void> => {
+  const handleSubmit = async (e: FormEvent): Promise<void> => {
     e.preventDefault();
 
     if (!validateForm() || loading) {
@@ -165,8 +169,8 @@ export const BaseCreateOrganization: FC<BaseCreateOrganizationProps> = ({
 
     const payload: CreateOrganizationPayload = {
       description: formData.description.trim(),
-      orgHandle: formData.handle.trim(),
       name: formData.name.trim(),
+      orgHandle: formData.handle.trim(),
       parentId: defaultParentId,
       type: 'TENANT',
     };
@@ -178,53 +182,55 @@ export const BaseCreateOrganization: FC<BaseCreateOrganizationProps> = ({
       }
     } catch (submitError) {
       // Error handling is done by parent component
-      console.error('Form submission error:', submitError);
+      logger.error('Form submission error:');
     }
   };
 
-  const createOrganizationContent = (
-    <div className={cx(styles.root, cardLayout && styles.card, className)} style={style}>
-      <div className={cx(styles.content)}>
-        <form id="create-organization-form" className={cx(styles.form)} onSubmit={handleSubmit}>
+  const createOrganizationContent: ReactElement = (
+    <div className={cx(styles['root'], cardLayout && styles['card'], className)} style={style}>
+      <div className={cx(styles['content'])}>
+        <form id="create-organization-form" className={cx(styles['form'])} onSubmit={handleSubmit}>
           {error && (
-            <Alert variant="error" className={styles.errorAlert}>
-              <Alert.Title>Error</Alert.Title>
-              <Alert.Description>{error}</Alert.Description>
-            </Alert>
+            <AlertPrimitive variant="error" className={styles['errorAlert']}>
+              <AlertPrimitive.Title>Error</AlertPrimitive.Title>
+              <AlertPrimitive.Description>{error}</AlertPrimitive.Description>
+            </AlertPrimitive>
           )}
-          <div className={cx(styles.fieldGroup)}>
+          <div className={cx(styles['fieldGroup'])}>
             <TextField
               label={`${t('elements.fields.organization.name.label')}`}
               placeholder={t('elements.fields.organization.name.placeholder')}
               value={formData.name}
-              onChange={(e: ChangeEvent<HTMLInputElement>) => handleNameChange(e.target.value)}
+              onChange={(e: ChangeEvent<HTMLInputElement>): void => handleNameChange(e.target.value)}
               disabled={loading}
               required
               error={formErrors.name}
-              className={cx(styles.input)}
+              className={cx(styles['input'])}
             />
           </div>
-          <div className={cx(styles.fieldGroup)}>
+          <div className={cx(styles['fieldGroup'])}>
             <TextField
               label={`${t('elements.fields.organization.handle.label') || 'Organization Handle'}`}
               placeholder={t('elements.fields.organization.handle.placeholder') || 'my-organization'}
               value={formData.handle}
-              onChange={(e: ChangeEvent<HTMLInputElement>) => handleInputChange('handle', e.target.value)}
+              onChange={(e: ChangeEvent<HTMLInputElement>): void => handleInputChange('handle', e.target.value)}
               disabled={loading}
               required
               error={formErrors.handle}
               helperText="This will be your organization's unique identifier. Only lowercase letters, numbers, and hyphens are allowed."
-              className={cx(styles.input)}
+              className={cx(styles['input'])}
             />
           </div>
-          <div className={cx(styles.fieldGroup)}>
+          <div className={cx(styles['fieldGroup'])}>
             <FormControl error={formErrors.description}>
               <InputLabel required>{t('elements.fields.organization.description.label')}</InputLabel>
               <textarea
-                className={cx(styles.textarea, formErrors.description && styles.textareaError)}
+                className={cx(styles['textarea'], formErrors.description && styles['textareaError'])}
                 placeholder={t('organization.create.description.placeholder')}
                 value={formData.description}
-                onChange={(e: ChangeEvent<HTMLTextAreaElement>) => handleInputChange('description', e.target.value)}
+                onChange={(e: ChangeEvent<HTMLTextAreaElement>): void =>
+                  handleInputChange('description', e.target.value)
+                }
                 disabled={loading}
                 required
               />
@@ -232,7 +238,7 @@ export const BaseCreateOrganization: FC<BaseCreateOrganizationProps> = ({
           </div>
           {renderAdditionalFields && renderAdditionalFields()}
         </form>
-        <div className={cx(styles.actions)}>
+        <div className={cx(styles['actions'])}>
           {onCancel && (
             <Button type="button" variant="outline" onClick={onCancel} disabled={loading}>
               {t('organization.create.buttons.cancel.text')}
@@ -250,12 +256,12 @@ export const BaseCreateOrganization: FC<BaseCreateOrganizationProps> = ({
 
   if (mode === 'popup') {
     return (
-      <Dialog open={open} onOpenChange={onOpenChange}>
-        <Dialog.Content>
-          <Dialog.Heading>{title}</Dialog.Heading>
-          <div className={styles.popup}>{createOrganizationContent}</div>
-        </Dialog.Content>
-      </Dialog>
+      <DialogPrimitive open={open} onOpenChange={onOpenChange}>
+        <DialogPrimitive.Content>
+          <DialogPrimitive.Heading>{title}</DialogPrimitive.Heading>
+          <div className={styles['popup']}>{createOrganizationContent}</div>
+        </DialogPrimitive.Content>
+      </DialogPrimitive>
     );
   }
 
