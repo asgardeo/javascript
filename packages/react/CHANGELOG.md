@@ -1,5 +1,16 @@
 # @asgardeo/react
 
+## 0.11.3
+
+### Patch Changes
+
+- [#362](https://github.com/asgardeo/javascript/pull/362)
+  [`333721a`](https://github.com/asgardeo/javascript/commit/333721a5a0ad00505d08ac4a9ffe1fb8165a83f2) Thanks
+  [@DonOmalVindula](https://github.com/DonOmalVindula)! - Add E2E tests for @asgardeo/react SDK
+
+- Updated dependencies []:
+  - @asgardeo/browser@0.2.9
+
 ## 0.11.2
 
 ### Patch Changes
