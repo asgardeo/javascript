@@ -209,6 +209,7 @@ const createAuthComponentFromFlow = (
           onClick={handleClick}
           disabled={isLoading || !isFormValid}
           className={options.buttonClassName}
+          data-testid="asgardeo-signin-submit"
           variant={component.variant?.toLowerCase() === 'primary' ? 'solid' : 'outline'}
           color={component.variant?.toLowerCase() === 'primary' ? 'primary' : 'secondary'}
         >

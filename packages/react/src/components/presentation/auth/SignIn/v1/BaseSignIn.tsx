@@ -979,7 +979,7 @@ const BaseSignInContent: FC<BaseSignInProps> = ({
 
   if (!isInitialized && isLoading) {
     return (
-      <Card className={cx(containerClasses, styles.card)} variant={variant}>
+      <Card className={cx(containerClasses, styles.card)} variant={variant} data-testid="asgardeo-signin">
         <Card.Content>
           <div className={styles.loadingContainer}>
             <Spinner size="medium" />
@@ -1007,7 +1007,7 @@ const BaseSignInContent: FC<BaseSignInProps> = ({
       .filter(authenticator => !HIDDEN_AUTHENTICATORS.includes(authenticator.authenticatorId));
 
     return (
-      <Card className={cx(containerClasses, styles.card)} variant={variant}>
+      <Card className={cx(containerClasses, styles.card)} variant={variant} data-testid="asgardeo-signin">
         {(showTitle || showSubtitle) && (
           <Card.Header className={styles.header}>
             {showTitle && (
@@ -1127,7 +1127,7 @@ const BaseSignInContent: FC<BaseSignInProps> = ({
 
   if (!currentAuthenticator) {
     return (
-      <Card className={cx(containerClasses, styles.noAuthenticatorCard)} variant={variant}>
+      <Card className={cx(containerClasses, styles.noAuthenticatorCard)} variant={variant} data-testid="asgardeo-signin">
         <Card.Content>
           {error && (
             <Alert variant="error" className={styles.errorAlert}>
@@ -1149,7 +1149,7 @@ const BaseSignInContent: FC<BaseSignInProps> = ({
 
     // Show loading state while passkey authentication is in progress
     return (
-      <Card className={cx(containerClasses, styles.card)} variant={variant}>
+      <Card className={cx(containerClasses, styles.card)} variant={variant} data-testid="asgardeo-signin">
         <Card.Content>
           <div className={styles.centeredContainer}>
             <div className={styles.passkeyContainer}>
@@ -1166,7 +1166,7 @@ const BaseSignInContent: FC<BaseSignInProps> = ({
   }
 
   return (
-    <Card className={cx(containerClasses, styles.card)} variant={variant}>
+    <Card className={cx(containerClasses, styles.card)} variant={variant} data-testid="asgardeo-signin">
       <Card.Header className={styles.header}>
         <Card.Title level={2} className={styles.title}>
           {flowTitle || t('signin.heading')}

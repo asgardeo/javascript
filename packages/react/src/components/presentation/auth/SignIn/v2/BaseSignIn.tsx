@@ -551,13 +551,13 @@ const BaseSignInContent: FC<BaseSignInProps> = ({
       messages: flowMessages || [],
     };
 
-    return <div className={containerClasses}>{children(renderProps)}</div>;
+    return <div className={containerClasses} data-testid="asgardeo-signin">{children(renderProps)}</div>;
   }
 
   // Default UI rendering
   if (isLoading) {
     return (
-      <Card className={cx(containerClasses, styles.card)} variant={variant}>
+      <Card className={cx(containerClasses, styles.card)} variant={variant} data-testid="asgardeo-signin">
         <Card.Content>
           <div style={{display: 'flex', justifyContent: 'center', padding: '2rem'}}>
             <Spinner />
@@ -569,7 +569,7 @@ const BaseSignInContent: FC<BaseSignInProps> = ({
 
   if (!components || components.length === 0) {
     return (
-      <Card className={cx(containerClasses, styles.card)} variant={variant}>
+      <Card className={cx(containerClasses, styles.card)} variant={variant} data-testid="asgardeo-signin">
         <Card.Content>
           <Alert variant="warning">
             <Typography variant="body1">{t('errors.signin.components.not.available')}</Typography>
@@ -589,7 +589,7 @@ const BaseSignInContent: FC<BaseSignInProps> = ({
   );
 
   return (
-    <Card className={cx(containerClasses, styles.card)} variant={variant}>
+    <Card className={cx(containerClasses, styles.card)} variant={variant} data-testid="asgardeo-signin">
       {(showTitle || showSubtitle) && (
         <Card.Header className={styles.header}>
           {showTitle && (

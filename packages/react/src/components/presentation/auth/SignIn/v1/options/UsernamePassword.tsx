@@ -86,6 +86,7 @@ const UsernamePassword: FC<BaseSignInOptionProps> = ({
         disabled={isLoading}
         loading={isLoading}
         className={buttonClassName}
+        data-testid="asgardeo-signin-submit"
         style={{marginBottom: `calc(${theme.vars.spacing.unit} * 2)`}}
       >
         {t('username.password.buttons.submit.text')}

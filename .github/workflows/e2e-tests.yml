@@ -1,0 +1,183 @@
+# E2E tests for the React SDK using the teamspace-react sample app.
+
+name: 🧪 E2E Tests
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'packages/**'
+      - 'samples/teamspace-react/**'
+      - 'e2e/**'
+  workflow_dispatch:
+    inputs:
+      idp_target:
+        description: 'IDP target (is, thunder, both)'
+        required: false
+        default: 'both'
+
+env:
+  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+jobs:
+  e2e-is:
+    name: 🧪 E2E (WSO2 IS)
+    if: >-
+      github.event_name == 'pull_request' ||
+      github.event.inputs.idp_target == 'is' ||
+      github.event.inputs.idp_target == 'both'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      matrix:
+        node-version: [lts/*]
+        pnpm-version: [latest]
+    steps:
+      - name: ⬇️ Checkout
+        uses: actions/checkout@v4
+
+      - name: 🟢 Setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: 🥡 Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ matrix.pnpm-version }}
+          run_install: false
+
+      - name: 🎈 Get pnpm store directory
+        id: get-pnpm-cache-dir
+        run: echo "pnpm_cache_dir=$(pnpm store path)" >> $GITHUB_OUTPUT
+
+      - name: 🔆 Cache pnpm modules
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.get-pnpm-cache-dir.outputs.pnpm_cache_dir }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      - name: 🧩 Install Dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: 🏗️ Build SDK packages
+        run: pnpm build
+
+      - name: 🎭 Install Playwright browsers
+        run: pnpm e2e:install
+
+      - name: 🐳 Start WSO2 IS
+        run: pnpm e2e:docker:up:is
+
+      - name: 🧪 Run E2E redirect tests against IS
+        run: pnpm e2e -- --idp is --mode redirect
+        env:
+          CI: true
+
+      - name: 🧪 Run E2E embedded tests against IS
+        run: pnpm e2e -- --idp is --mode embedded
+        env:
+          CI: true
+
+      - name: 📊 Upload redirect test report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: e2e-is-redirect-report
+          path: e2e/playwright-report/
+          retention-days: 14
+
+      - name: 📊 Upload embedded test report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: e2e-is-embedded-report
+          path: e2e/playwright-report-embedded/
+          retention-days: 14
+
+      - name: 🐳 Stop Docker containers
+        if: always()
+        run: pnpm e2e:docker:down
+
+  e2e-thunder:
+    name: 🧪 E2E (Thunder)
+    if: >-
+      github.event_name == 'pull_request' ||
+      github.event.inputs.idp_target == 'thunder' ||
+      github.event.inputs.idp_target == 'both'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      matrix:
+        node-version: [lts/*]
+        pnpm-version: [latest]
+    steps:
+      - name: ⬇️ Checkout
+        uses: actions/checkout@v4
+
+      - name: 🟢 Setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: 🥡 Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ matrix.pnpm-version }}
+          run_install: false
+
+      - name: 🎈 Get pnpm store directory
+        id: get-pnpm-cache-dir
+        run: echo "pnpm_cache_dir=$(pnpm store path)" >> $GITHUB_OUTPUT
+
+      - name: 🔆 Cache pnpm modules
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.get-pnpm-cache-dir.outputs.pnpm_cache_dir }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      - name: 🧩 Install Dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: 🏗️ Build SDK packages
+        run: pnpm build
+
+      - name: 🎭 Install Playwright browsers
+        run: pnpm e2e:install
+
+      - name: 🐳 Start Thunder
+        run: pnpm e2e:docker:up:thunder
+
+      - name: 🧪 Run E2E redirect tests against Thunder
+        run: pnpm e2e -- --idp thunder --mode redirect
+        env:
+          CI: true
+
+      - name: 🧪 Run E2E embedded tests against Thunder
+        run: pnpm e2e -- --idp thunder --mode embedded
+        env:
+          CI: true
+
+      - name: 📊 Upload redirect test report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: e2e-thunder-redirect-report
+          path: e2e/playwright-report/
+          retention-days: 14
+
+      - name: 📊 Upload embedded test report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: e2e-thunder-embedded-report
+          path: e2e/playwright-report-embedded/
+          retention-days: 14
+
+      - name: 🐳 Stop Docker containers
+        if: always()
+        run: pnpm e2e:docker:down
