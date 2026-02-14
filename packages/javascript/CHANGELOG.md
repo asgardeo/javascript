@@ -1,5 +1,13 @@
 # @asgardeo/javascript
 
+## 0.7.2
+
+### Patch Changes
+
+- [#357](https://github.com/asgardeo/javascript/pull/357)
+  [`242a01d`](https://github.com/asgardeo/javascript/commit/242a01d51266eb5ff3fd3ba6ccdd41857beab55c) Thanks
+  [@DonOmalVindula](https://github.com/DonOmalVindula)! - Fix CI issues in javascript package
+
 ## 0.7.1
 
 ### Patch Changes
