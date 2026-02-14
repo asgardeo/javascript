@@ -26,17 +26,26 @@
     "test": "nx run-many --target=test --all --parallel",
     "typecheck": "nx run-many --target=typecheck --all --parallel",
     "version:packages": "changeset version && pnpm install --lockfile-only",
-    "aggregate-changelogs": "node scripts/aggregate-changelogs.js"
+    "aggregate-changelogs": "node scripts/aggregate-changelogs.js",
+    "e2e": "bash e2e/scripts/run-e2e.sh",
+    "e2e:docker:up": "docker compose -f e2e/docker-compose.yml up -d",
+    "e2e:docker:down": "docker compose -f e2e/docker-compose.yml down -v",
+    "e2e:docker:up:is": "docker compose -f e2e/docker-compose.yml up -d wso2is",
+    "e2e:docker:up:thunder": "docker compose -f e2e/docker-compose.yml up -d thunder",
+    "e2e:install": "playwright install chromium"
   },
   "devDependencies": {
     "@changesets/changelog-github": "0.5.1",
     "@changesets/cli": "2.29.8",
+    "@playwright/test": "^1.58.2",
     "@wso2/eslint-plugin": "catalog:",
     "@wso2/prettier-config": "catalog:",
     "eslint": "8.57.0",
     "nx": "20.8.1",
     "prettier": "2.6.2",
-    "typescript": "5.7.2"
+    "tsx": "^4.21.0",
+    "typescript": "5.7.2",
+    "undici": "^7.21.0"
   },
   "pnpm": {
     "overrides": {

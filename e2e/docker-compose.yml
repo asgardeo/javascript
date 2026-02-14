@@ -1,0 +1,82 @@
+services:
+  # ============================================================================
+  # WSO2 Identity Server
+  # ============================================================================
+  wso2is:
+    image: wso2/wso2is:latest
+    container_name: asgardeo-e2e-wso2is
+    ports:
+      - "9443:9443"
+      - "9763:9763"
+    environment:
+      - JAVA_OPTS=-Xms512m -Xmx1024m
+    healthcheck:
+      test: ["CMD", "curl", "-k", "-f", "https://localhost:9443/carbon/admin/login.jsp"]
+      interval: 15s
+      timeout: 10s
+      retries: 20
+      start_period: 90s
+    networks:
+      - e2e-network
+
+  # ============================================================================
+  # Asgardeo Thunder (3-stage setup: db-init -> setup -> server)
+  # ============================================================================
+
+  # Stage 1: Initialize the database from the image
+  thunder-db-init:
+    image: ghcr.io/asgardeo/thunder:latest
+    container_name: asgardeo-e2e-thunder-db-init
+    command: sh -c "cp -r /opt/thunder/repository/database/* /data/"
+    volumes:
+      - thunder-db:/data
+    restart: "no"
+    networks:
+      - e2e-network
+
+  # Stage 2: Run setup (creates admin user, default app, flows, etc.)
+  # Mounts custom 02-sample-resources.sh to register the app with
+  # redirect_uris pointing to https://localhost:5173 (Vite dev server).
+  thunder-setup:
+    image: ghcr.io/asgardeo/thunder:latest
+    container_name: asgardeo-e2e-thunder-setup
+    command: ./setup.sh
+    volumes:
+      - thunder-db:/opt/thunder/repository/database
+      - ./thunder-bootstrap/02-sample-resources.sh:/opt/thunder/bootstrap/02-sample-resources.sh:ro
+      - ./thunder-config/deployment.yaml:/opt/thunder/repository/conf/deployment.yaml:ro
+    depends_on:
+      thunder-db-init:
+        condition: service_completed_successfully
+    restart: "no"
+    networks:
+      - e2e-network
+
+  # Stage 3: Run the Thunder server
+  thunder:
+    image: ghcr.io/asgardeo/thunder:latest
+    container_name: asgardeo-e2e-thunder
+    depends_on:
+      thunder-setup:
+        condition: service_completed_successfully
+    ports:
+      - "8090:8090"
+    volumes:
+      - thunder-db:/opt/thunder/repository/database
+      - ./thunder-config/deployment.yaml:/opt/thunder/repository/conf/deployment.yaml:ro
+    healthcheck:
+      test: ["CMD", "curl", "-k", "-f", "https://localhost:8090/health/readiness"]
+      interval: 10s
+      timeout: 5s
+      retries: 15
+      start_period: 30s
+    networks:
+      - e2e-network
+
+volumes:
+  thunder-db:
+    driver: local
+
+networks:
+  e2e-network:
+    driver: bridge

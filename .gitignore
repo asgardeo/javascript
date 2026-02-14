@@ -47,6 +47,12 @@ Thumbs.db
 .cursor/rules/nx-rules.mdc
 .github/instructions/nx.instructions.md
 
+# E2E Test artifacts
+e2e/.auth/
+e2e/test-results/
+e2e/playwright-report/
+test-results/
+
 # Experimental Samples
 # NOTE to Developers: Please use this samples folder for experimental code only and do not commit.
 samples/__experimental__/

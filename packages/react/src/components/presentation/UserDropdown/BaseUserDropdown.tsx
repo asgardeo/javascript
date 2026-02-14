@@ -204,6 +204,7 @@ export const BaseUserDropdown: FC<BaseUserDropdownProps> = ({
         color="tertiary"
         variant="text"
         size="medium"
+        data-testid="asgardeo-user-dropdown-trigger"
         {...getReferenceProps()}
       >
         <Avatar
@@ -294,6 +295,7 @@ export const BaseUserDropdown: FC<BaseUserDropdownProps> = ({
                         variant="text"
                         size="small"
                         startIcon={item.icon}
+                        data-testid={`asgardeo-user-dropdown-item-${index}`}
                         onMouseEnter={() => setHoveredItemIndex(index)}
                         onMouseLeave={() => setHoveredItemIndex(null)}
                       >

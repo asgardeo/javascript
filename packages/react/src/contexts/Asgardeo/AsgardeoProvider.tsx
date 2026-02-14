@@ -255,6 +255,13 @@ const AsgardeoProvider: FC<PropsWithChildren<AsgardeoProviderProps>> = ({
         return;
       }
 
+      // Don't set loading=false while auth params are in the URL and user isn't signed in yet.
+      // This prevents ProtectedRoute from redirecting before the sign-in effect processes the auth code.
+      const currentUrl = new URL(window.location.href);
+      if (!isSignedInSync && hasAuthParams(currentUrl, afterSignInUrl)) {
+        return;
+      }
+
       setIsLoadingSync(asgardeo.isLoading());
     };
 

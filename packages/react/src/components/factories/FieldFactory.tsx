@@ -162,6 +162,7 @@ export const createField = (config: FieldConfig): ReactElement => {
     value,
     placeholder,
     onBlur,
+    'data-testid': `asgardeo-signin-${name}`,
   };
 
   switch (type) {

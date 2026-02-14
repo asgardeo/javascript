@@ -11,8 +11,10 @@ createRoot(document.getElementById('root')!).render(
       afterSignInUrl={import.meta.env.VITE_ASGARDEO_AFTER_SIGN_IN_URL}
       afterSignOutUrl={import.meta.env.VITE_ASGARDEO_AFTER_SIGN_OUT_URL}
       clientId={import.meta.env.VITE_ASGARDEO_CLIENT_ID}
+      applicationId={import.meta.env.VITE_ASGARDEO_APPLICATION_ID || undefined}
       signInUrl={import.meta.env.VITE_ASGARDEO_SIGN_IN_URL}
       signUpUrl={import.meta.env.VITE_ASGARDEO_SIGN_UP_URL}
+      platform={import.meta.env.VITE_ASGARDEO_PLATFORM || undefined}
       scopes="openid address email profile user:email read:user internal_organization_create internal_organization_view internal_organization_update internal_organization_delete internal_org_organization_update internal_org_organization_create internal_org_organization_view internal_org_organization_delete"
       preferences={{
         theme: {
