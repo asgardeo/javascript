@@ -16,198 +16,199 @@
  * under the License.
  */
 
-import { FC, ReactElement, ReactNode, useCallback, useEffect, useRef, useState } from 'react';
-import { EmbeddedFlowType } from '@asgardeo/browser';
-import { cx } from '@emotion/css';
-import { renderInviteUserComponents } from '../../AuthOptionFactory';
-import { normalizeFlowResponse, extractErrorMessage } from '../../../../../utils/v2/flowTransformer';
-import useTranslation from '../../../../../hooks/useTranslation';
-import useTheme from '../../../../../contexts/Theme/useTheme';
+import {EmbeddedFlowType} from '@asgardeo/browser';
+import {cx} from '@emotion/css';
+import {FC, ReactElement, ReactNode, useCallback, useEffect, useRef, useState} from 'react';
 import useStyles from './BaseInviteUser.styles';
-import Card, { CardProps } from '../../../../primitives/Card/Card';
-import Typography from '../../../../primitives/Typography/Typography';
-import Alert from '../../../../primitives/Alert/Alert';
-import Spinner from '../../../../primitives/Spinner/Spinner';
+import useTheme from '../../../../../contexts/Theme/useTheme';
+import useTranslation from '../../../../../hooks/useTranslation';
+import {normalizeFlowResponse, extractErrorMessage} from '../../../../../utils/v2/flowTransformer';
+import AlertPrimitive from '../../../../primitives/Alert/Alert';
 import Button from '../../../../primitives/Button/Button';
+// eslint-disable-next-line import/no-named-as-default
+import CardPrimitive, {CardProps} from '../../../../primitives/Card/Card';
+import Spinner from '../../../../primitives/Spinner/Spinner';
+import Typography from '../../../../primitives/Typography/Typography';
+import {renderInviteUserComponents} from '../../AuthOptionFactory';
 
 /**
  * Flow response structure from the backend.
  */
 export interface InviteUserFlowResponse {
-    flowId: string;
-    flowStatus: 'INCOMPLETE' | 'COMPLETE' | 'ERROR';
-    type?: 'VIEW' | 'REDIRECTION';
-    data?: {
-        components?: any[];
-        meta?: {
-            components?: any[];
-        };
-        additionalData?: Record<string, string>;
+  data?: {
+    additionalData?: Record<string, string>;
+    components?: any[];
+    meta?: {
+      components?: any[];
     };
-    failureReason?: string;
+  };
+  failureReason?: string;
+  flowId: string;
+  flowStatus: 'INCOMPLETE' | 'COMPLETE' | 'ERROR';
+  type?: 'VIEW' | 'REDIRECTION';
 }
 
 /**
  * Render props for custom UI rendering of InviteUser.
  */
 export interface BaseInviteUserRenderProps {
-    /**
-     * Form values for the current step.
-     */
-    values: Record<string, string>;
+  /**
+   * Flow components from the current step.
+   */
+  components: any[];
 
-    /**
-     * Field validation errors.
-     */
-    fieldErrors: Record<string, string>;
+  /**
+   * Copy invite link to clipboard.
+   */
+  copyInviteLink: () => Promise<void>;
 
-    /**
-     * API error (if any).
-     */
-    error?: Error | null;
+  /**
+   * API error (if any).
+   */
+  error?: Error | null;
 
-    /**
-     * Touched fields.
-     */
-    touched: Record<string, boolean>;
+  /**
+   * Field validation errors.
+   */
+  fieldErrors: Record<string, string>;
 
-    /**
-     * Loading state.
-     */
-    isLoading: boolean;
+  /**
+   * Current flow ID.
+   */
+  flowId?: string;
 
-    /**
-     * Flow components from the current step.
-     */
-    components: any[];
+  /**
+   * Function to handle input blur.
+   */
+  handleInputBlur: (name: string) => void;
 
-    /**
-     * Generated invite link (available after user provisioning).
-     */
-    inviteLink?: string;
+  /**
+   * Function to handle input changes.
+   */
+  handleInputChange: (name: string, value: string) => void;
 
-    /**
-     * Current flow ID.
-     */
-    flowId?: string;
+  /**
+   * Function to handle form submission.
+   */
+  handleSubmit: (component: any, data?: Record<string, any>) => Promise<void>;
 
-    /**
-     * Function to handle input changes.
-     */
-    handleInputChange: (name: string, value: string) => void;
+  /**
+   * Generated invite link (available after user provisioning).
+   */
+  inviteLink?: string;
 
-    /**
-     * Function to handle input blur.
-     */
-    handleInputBlur: (name: string) => void;
+  /**
+   * Whether the invite link was copied.
+   */
+  inviteLinkCopied: boolean;
 
-    /**
-     * Function to handle form submission.
-     */
-    handleSubmit: (component: any, data?: Record<string, any>) => Promise<void>;
+  /**
+   * Whether the invite link has been generated (admin flow complete).
+   */
+  isInviteGenerated: boolean;
 
-    /**
-     * Whether the invite link has been generated (admin flow complete).
-     */
-    isInviteGenerated: boolean;
+  /**
+   * Loading state.
+   */
+  isLoading: boolean;
 
-    /**
-     * Title for the current step.
-     */
-    title?: string;
+  /**
+   * Whether the form is valid.
+   */
+  isValid: boolean;
 
-    /**
-     * Subtitle for the current step.
-     */
-    subtitle?: string;
+  /**
+   * Reset the flow to invite another user.
+   */
+  resetFlow: () => void;
 
-    /**
-     * Whether the form is valid.
-     */
-    isValid: boolean;
+  /**
+   * Subtitle for the current step.
+   */
+  subtitle?: string;
 
-    /**
-     * Copy invite link to clipboard.
-     */
-    copyInviteLink: () => Promise<void>;
+  /**
+   * Title for the current step.
+   */
+  title?: string;
 
-    /**
-     * Whether the invite link was copied.
-     */
-    inviteLinkCopied: boolean;
+  /**
+   * Touched fields.
+   */
+  touched: Record<string, boolean>;
 
-    /**
-     * Reset the flow to invite another user.
-     */
-    resetFlow: () => void;
+  /**
+   * Form values for the current step.
+   */
+  values: Record<string, string>;
 }
 
 /**
  * Props for the BaseInviteUser component.
  */
 export interface BaseInviteUserProps {
-    /**
-     * Callback when the invite link is generated successfully.
-     */
-    onInviteLinkGenerated?: (inviteLink: string, flowId: string) => void;
+  /**
+   * Render props function for custom UI.
+   * If not provided, default UI will be rendered.
+   */
+  children?: (props: BaseInviteUserRenderProps) => ReactNode;
 
-    /**
-     * Callback when an error occurs.
-     */
-    onError?: (error: Error) => void;
+  /**
+   * Custom CSS class name.
+   */
+  className?: string;
 
-    /**
-     * Callback when the flow state changes.
-     */
-    onFlowChange?: (response: InviteUserFlowResponse) => void;
+  /**
+   * Whether the SDK is initialized.
+   */
+  isInitialized?: boolean;
 
-    /**
-     * Function to initialize the invite user flow.
-     * This should make an authenticated request to the flow/execute endpoint.
-     */
-    onInitialize: (payload: Record<string, any>) => Promise<InviteUserFlowResponse>;
+  /**
+   * Callback when an error occurs.
+   */
+  onError?: (error: Error) => void;
 
-    /**
-     * Function to submit flow step data.
-     * This should make an authenticated request to the flow/execute endpoint.
-     */
-    onSubmit: (payload: Record<string, any>) => Promise<InviteUserFlowResponse>;
+  /**
+   * Callback when the flow state changes.
+   */
+  onFlowChange?: (response: InviteUserFlowResponse) => void;
 
-    /**
-     * Custom CSS class name.
-     */
-    className?: string;
+  /**
+   * Function to initialize the invite user flow.
+   * This should make an authenticated request to the flow/execute endpoint.
+   */
+  onInitialize: (payload: Record<string, any>) => Promise<InviteUserFlowResponse>;
 
-    /**
-     * Render props function for custom UI.
-     * If not provided, default UI will be rendered.
-     */
-    children?: (props: BaseInviteUserRenderProps) => ReactNode;
+  /**
+   * Callback when the invite link is generated successfully.
+   */
+  onInviteLinkGenerated?: (inviteLink: string, flowId: string) => void;
 
-    /**
-     * Whether the SDK is initialized.
-     */
-    isInitialized?: boolean;
+  /**
+   * Function to submit flow step data.
+   * This should make an authenticated request to the flow/execute endpoint.
+   */
+  onSubmit: (payload: Record<string, any>) => Promise<InviteUserFlowResponse>;
 
-    /**
-     * Size variant for the component.
-     */
-    size?: 'small' | 'medium' | 'large';
+  /**
+   * Whether to show the subtitle.
+   */
+  showSubtitle?: boolean;
 
-    /**
-     * Theme variant for the component.
-     */
-    variant?: CardProps['variant'];
+  /**
+   * Whether to show the title.
+   */
+  showTitle?: boolean;
 
-    /**
-     * Whether to show the title.
-     */
-    showTitle?: boolean;
+  /**
+   * Size variant for the component.
+   */
+  size?: 'small' | 'medium' | 'large';
 
-    /**
-     * Whether to show the subtitle.
-     */
-    showSubtitle?: boolean;
+  /**
+   * Theme variant for the component.
+   */
+  variant?: CardProps['variant'];
 }
 
 /**
@@ -226,501 +227,543 @@ export interface BaseInviteUserProps {
  * 3. Invite link generation
  */
 const BaseInviteUser: FC<BaseInviteUserProps> = ({
-    onInitialize,
-    onSubmit,
-    onError,
-    onFlowChange,
-    onInviteLinkGenerated,
-    className = '',
-    children,
-    isInitialized = true,
-    size = 'medium',
-    variant = 'outlined',
-    showTitle = true,
-    showSubtitle = true,
-}) => {
-    const { t } = useTranslation();
-    const { theme } = useTheme();
-    const styles = useStyles(theme, theme.vars.colors.text.primary);
-    const [isLoading, setIsLoading] = useState(false);
-    const [isFlowInitialized, setIsFlowInitialized] = useState(false);
-    const [currentFlow, setCurrentFlow] = useState<InviteUserFlowResponse | null>(null);
-    const [apiError, setApiError] = useState<Error | null>(null);
-    const [formValues, setFormValues] = useState<Record<string, string>>({});
-    const [formErrors, setFormErrors] = useState<Record<string, string>>({});
-    const [touchedFields, setTouchedFields] = useState<Record<string, boolean>>({});
-    const [inviteLink, setInviteLink] = useState<string | undefined>();
-    const [inviteLinkCopied, setInviteLinkCopied] = useState(false);
-    const [isFormValid, setIsFormValid] = useState(true);
+  onInitialize,
+  onSubmit,
+  onError,
+  onFlowChange,
+  onInviteLinkGenerated,
+  className = '',
+  children,
+  isInitialized = true,
+  size = 'medium',
+  variant = 'outlined',
+  showTitle = true,
+  showSubtitle = true,
+}: BaseInviteUserProps): ReactElement => {
+  const {t} = useTranslation();
+  const {theme} = useTheme();
+  const styles: any = useStyles(theme, theme.vars.colors.text.primary);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isFlowInitialized, setIsFlowInitialized] = useState(false);
+  const [currentFlow, setCurrentFlow] = useState<InviteUserFlowResponse | null>(null);
+  const [apiError, setApiError] = useState<Error | null>(null);
+  const [formValues, setFormValues] = useState<Record<string, string>>({});
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+  const [touchedFields, setTouchedFields] = useState<Record<string, boolean>>({});
+  const [inviteLink, setInviteLink] = useState<string | undefined>();
+  const [inviteLinkCopied, setInviteLinkCopied] = useState(false);
+  const [isFormValid, setIsFormValid] = useState(true);
 
-    const initializationAttemptedRef = useRef(false);
+  const initializationAttemptedRef: any = useRef(false);
 
-    /**
-     * Handle error responses and extract meaningful error messages.
-     * Uses the transformer's extractErrorMessage function for consistency.
-     */
-    const handleError = useCallback(
-        (error: any) => {
-            // Extract error message from response failureReason or use extractErrorMessage
-            const errorMessage: string = error?.failureReason || extractErrorMessage(error, t, 'components.inviteUser.errors.generic');
+  /**
+   * Handle error responses and extract meaningful error messages.
+   * Uses the transformer's extractErrorMessage function for consistency.
+   */
+  const handleError: any = useCallback(
+    (error: any) => {
+      // Extract error message from response failureReason or use extractErrorMessage
+      const errorMessage: string =
+        error?.failureReason || extractErrorMessage(error, t, 'components.inviteUser.errors.generic');
 
-            // Set the API error state
-            setApiError(error instanceof Error ? error : new Error(errorMessage));
+      // Set the API error state
+      setApiError(error instanceof Error ? error : new Error(errorMessage));
 
-            // Call the onError callback if provided
-            onError?.(error instanceof Error ? error : new Error(errorMessage));
-        },
-        [t, onError],
-    );
+      // Call the onError callback if provided
+      onError?.(error instanceof Error ? error : new Error(errorMessage));
+    },
+    [t, onError],
+  );
 
-    /**
-     * Normalize flow response to ensure component-driven format.
-     * Transforms data.meta.components to data.components.
-     */
-    const normalizeFlowResponseLocal = useCallback(
-        (response: InviteUserFlowResponse): InviteUserFlowResponse => {
-            if (!response?.data?.meta?.components) {
-                return response;
-            }
+  /**
+   * Normalize flow response to ensure component-driven format.
+   * Transforms data.meta.components to data.components.
+   */
+  const normalizeFlowResponseLocal: any = useCallback(
+    (response: InviteUserFlowResponse): InviteUserFlowResponse => {
+      if (!response?.data?.meta?.components) {
+        return response;
+      }
 
-            try {
-                const { components } = normalizeFlowResponse(response, t, {
-                    defaultErrorKey: 'components.inviteUser.errors.generic',
-                    resolveTranslations: !children,
-                });
-
-                return {
-                    ...response,
-                    data: {
-                        ...response.data,
-                        components: components as any,
-                    },
-                };
-            } catch {
-                // If transformer throws (e.g., error response), return as-is
-                return response;
-            }
-        },
-        [t, children],
-    );
-
-    /**
-     * Handle input value changes.
-     */
-    const handleInputChange = useCallback((name: string, value: string) => {
-        setFormValues(prev => ({ ...prev, [name]: value }));
-        // Clear error when user starts typing
-        setFormErrors(prev => {
-            const newErrors = { ...prev };
-            delete newErrors[name];
-            return newErrors;
+      try {
+        const {components} = normalizeFlowResponse(response, t, {
+          defaultErrorKey: 'components.inviteUser.errors.generic',
+          resolveTranslations: !children,
         });
-    }, []);
 
-    /**
-     * Handle input blur.
-     */
-    const handleInputBlur = useCallback((name: string) => {
-        setTouchedFields(prev => ({ ...prev, [name]: true }));
-    }, []);
+        return {
+          ...response,
+          data: {
+            ...response.data,
+            components: components as any,
+          },
+        };
+      } catch {
+        // If transformer throws (e.g., error response), return as-is
+        return response;
+      }
+    },
+    [t, children],
+  );
 
-    /**
-     * Validate required fields based on components.
-     */
-    const validateForm = useCallback(
-        (components: any[]): { isValid: boolean; errors: Record<string, string> } => {
-            const errors: Record<string, string> = {};
+  /**
+   * Handle input value changes.
+   */
+  const handleInputChange: any = useCallback((name: string, value: string) => {
+    setFormValues((prev: any) => ({...prev, [name]: value}));
+    // Clear error when user starts typing
+    setFormErrors((prev: any) => {
+      const newErrors: any = {...prev};
+      delete newErrors[name];
+      return newErrors;
+    });
+  }, []);
 
-            const validateComponents = (comps: any[]) => {
-                comps.forEach(comp => {
-                    if (
-                        (comp.type === 'TEXT_INPUT' || comp.type === 'EMAIL_INPUT' || comp.type === 'SELECT') &&
-                        comp.required &&
-                        comp.ref
-                    ) {
-                        const value = formValues[comp.ref];
-                        if (!value || value.trim() === '') {
-                            errors[comp.ref] = `${comp.label || comp.ref} is required`;
-                        }
-                        // Email validation
-                        if (comp.type === 'EMAIL_INPUT' && value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
-                            errors[comp.ref] = 'Please enter a valid email address';
-                        }
-                    }
-                    if (comp.components && Array.isArray(comp.components)) {
-                        validateComponents(comp.components);
-                    }
-                });
-            };
+  /**
+   * Handle input blur.
+   */
+  const handleInputBlur: any = useCallback((name: string) => {
+    setTouchedFields((prev: any) => ({...prev, [name]: true}));
+  }, []);
 
-            validateComponents(components);
+  /**
+   * Validate required fields based on components.
+   */
+  const validateForm: any = useCallback(
+    (components: any[]): {errors: Record<string, string>; isValid: boolean} => {
+      const errors: Record<string, string> = {};
 
-            return { isValid: Object.keys(errors).length === 0, errors };
-        },
-        [formValues],
-    );
-
-    /**
-     * Handle form submission.
-     */
-    const handleSubmit = useCallback(
-        async (component: any, data?: Record<string, any>) => {
-            if (!currentFlow) {
-                return;
+      const validateComponents = (comps: any[]): any => {
+        comps.forEach((comp: any) => {
+          if (
+            (comp.type === 'TEXT_INPUT' || comp.type === 'EMAIL_INPUT' || comp.type === 'SELECT') &&
+            comp.required &&
+            comp.ref
+          ) {
+            const value: any = formValues[comp.ref];
+            if (!value || value.trim() === '') {
+              errors[comp.ref] = `${comp.label || comp.ref} is required`;
             }
-
-            // Validate form before submission
-            const components = currentFlow.data?.components || [];
-            const validation = validateForm(components);
-
-            if (!validation.isValid) {
-                setFormErrors(validation.errors);
-                setIsFormValid(false);
-                // Mark all fields as touched
-                const touched: Record<string, boolean> = {};
-                Object.keys(validation.errors).forEach(key => {
-                    touched[key] = true;
-                });
-                setTouchedFields(prev => ({ ...prev, ...touched }));
-                return;
+            // Email validation
+            if (comp.type === 'EMAIL_INPUT' && value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+              errors[comp.ref] = 'Please enter a valid email address';
             }
+          }
+          if (comp.components && Array.isArray(comp.components)) {
+            validateComponents(comp.components);
+          }
+        });
+      };
 
-            setIsLoading(true);
-            setApiError(null);
-            setIsFormValid(true);
+      validateComponents(components);
 
-            try {
-                // Build payload with form values
-                const inputs = data || formValues;
+      return {errors, isValid: Object.keys(errors).length === 0};
+    },
+    [formValues],
+  );
 
-                const payload: Record<string, any> = {
-                    flowId: currentFlow.flowId,
-                    inputs,
-                    verbose: true,
-                };
+  /**
+   * Handle form submission.
+   */
+  const handleSubmit: any = useCallback(
+    async (component: any, data?: Record<string, any>) => {
+      if (!currentFlow) {
+        return;
+      }
 
-                // Add action ID if component has one
-                if (component?.id) {
-                    payload['action'] = component.id;
-                }
+      // Validate form before submission
+      const components: any = currentFlow.data?.components || [];
+      const validation: any = validateForm(components);
 
-                const rawResponse = await onSubmit(payload);
-                const response = normalizeFlowResponseLocal(rawResponse);
-                onFlowChange?.(response);
+      if (!validation.isValid) {
+        setFormErrors(validation.errors);
+        setIsFormValid(false);
+        // Mark all fields as touched
+        const touched: Record<string, boolean> = {};
+        Object.keys(validation.errors).forEach((key: any) => {
+          touched[key] = true;
+        });
+        setTouchedFields((prev: any) => ({...prev, ...touched}));
+        return;
+      }
 
-                // Check if invite link is in the response
-                if (response.data?.additionalData?.['inviteLink']) {
-                    const inviteLinkValue = response.data.additionalData['inviteLink'];
-                    setInviteLink(inviteLinkValue);
-                    onInviteLinkGenerated?.(inviteLinkValue, response.flowId);
-                }
+      setIsLoading(true);
+      setApiError(null);
+      setIsFormValid(true);
 
-                // Check for error status
-                if (response.flowStatus === 'ERROR') {
-                    handleError(response);
-                    return;
-                }
+      try {
+        // Build payload with form values
+        const inputs: any = data || formValues;
 
-                // Update current flow and reset form for next step
-                setCurrentFlow(response);
-                setFormValues({});
-                setFormErrors({});
-                setTouchedFields({});
-            } catch (err) {
-                handleError(err);
-            } finally {
-                setIsLoading(false);
-            }
-        },
-        [currentFlow, formValues, validateForm, onSubmit, onFlowChange, onInviteLinkGenerated, handleError, normalizeFlowResponseLocal],
-    );
+        const payload: Record<string, any> = {
+          flowId: currentFlow.flowId,
+          inputs,
+          verbose: true,
+        };
 
-    /**
-     * Copy invite link to clipboard.
-     */
-    const copyInviteLink = useCallback(async () => {
-        if (!inviteLink) return;
-
-        try {
-            await navigator.clipboard.writeText(inviteLink);
-            setInviteLinkCopied(true);
-            setTimeout(() => setInviteLinkCopied(false), 3000);
-        } catch {
-            // Fallback for browsers that don't support clipboard API
-            const textArea = document.createElement('textarea');
-            textArea.value = inviteLink;
-            document.body.appendChild(textArea);
-            textArea.select();
-            document.execCommand('copy');
-            document.body.removeChild(textArea);
-            setInviteLinkCopied(true);
-            setTimeout(() => setInviteLinkCopied(false), 3000);
+        // Add action ID if component has one
+        if (component?.id) {
+          payload['action'] = component.id;
         }
-    }, [inviteLink]);
 
-    /**
-     * Reset the flow to invite another user.
-     */
-    const resetFlow = useCallback(() => {
-        setIsFlowInitialized(false);
-        setCurrentFlow(null);
-        setApiError(null);
+        const rawResponse: any = await onSubmit(payload);
+        const response: any = normalizeFlowResponseLocal(rawResponse);
+        onFlowChange?.(response);
+
+        // Check if invite link is in the response
+        if (response.data?.additionalData?.['inviteLink']) {
+          const inviteLinkValue: any = response.data.additionalData['inviteLink'];
+          setInviteLink(inviteLinkValue);
+          onInviteLinkGenerated?.(inviteLinkValue, response.flowId);
+        }
+
+        // Check for error status
+        if (response.flowStatus === 'ERROR') {
+          handleError(response);
+          return;
+        }
+
+        // Update current flow and reset form for next step
+        setCurrentFlow(response);
         setFormValues({});
         setFormErrors({});
         setTouchedFields({});
-        setInviteLink(undefined);
-        setInviteLinkCopied(false);
-        initializationAttemptedRef.current = false;
-    }, []);
+      } catch (err) {
+        handleError(err);
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [
+      currentFlow,
+      formValues,
+      validateForm,
+      onSubmit,
+      onFlowChange,
+      onInviteLinkGenerated,
+      handleError,
+      normalizeFlowResponseLocal,
+    ],
+  );
 
-    /**
-     * Initialize the flow on component mount.
-     */
-    useEffect(() => {
-        if (isInitialized && !isFlowInitialized && !initializationAttemptedRef.current) {
-            initializationAttemptedRef.current = true;
+  /**
+   * Copy invite link to clipboard.
+   */
+  const copyInviteLink: any = useCallback(async () => {
+    if (!inviteLink) return;
 
-            (async () => {
-                setIsLoading(true);
-                setApiError(null);
+    try {
+      await navigator.clipboard.writeText(inviteLink);
+      setInviteLinkCopied(true);
+      setTimeout(() => setInviteLinkCopied(false), 3000);
+    } catch {
+      // Fallback for browsers that don't support clipboard API
+      const textArea: any = document.createElement('textarea');
+      textArea.value = inviteLink;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+      setInviteLinkCopied(true);
+      setTimeout(() => setInviteLinkCopied(false), 3000);
+    }
+  }, [inviteLink]);
 
-                try {
-                    const payload = {
-                        flowType: EmbeddedFlowType.UserOnboarding,
-                        verbose: true,
-                    };
+  /**
+   * Reset the flow to invite another user.
+   */
+  const resetFlow: any = useCallback(() => {
+    setIsFlowInitialized(false);
+    setCurrentFlow(null);
+    setApiError(null);
+    setFormValues({});
+    setFormErrors({});
+    setTouchedFields({});
+    setInviteLink(undefined);
+    setInviteLinkCopied(false);
+    initializationAttemptedRef.current = false;
+  }, []);
 
-                    const rawResponse = await onInitialize(payload);
-                    const response = normalizeFlowResponseLocal(rawResponse);
-                    setCurrentFlow(response);
-                    setIsFlowInitialized(true);
-                    onFlowChange?.(response);
+  /**
+   * Initialize the flow on component mount.
+   */
+  useEffect(() => {
+    if (isInitialized && !isFlowInitialized && !initializationAttemptedRef.current) {
+      initializationAttemptedRef.current = true;
 
-                    // Check for immediate error
-                    if (response.flowStatus === 'ERROR') {
-                        handleError(response);
-                    }
-                } catch (err) {
-                    handleError(err);
-                } finally {
-                    setIsLoading(false);
-                }
-            })();
+      (async (): Promise<void> => {
+        setIsLoading(true);
+        setApiError(null);
+
+        try {
+          const payload: any = {
+            flowType: EmbeddedFlowType.UserOnboarding,
+            verbose: true,
+          };
+
+          const rawResponse: any = await onInitialize(payload);
+          const response: any = normalizeFlowResponseLocal(rawResponse);
+          setCurrentFlow(response);
+          setIsFlowInitialized(true);
+          onFlowChange?.(response);
+
+          // Check for immediate error
+          if (response.flowStatus === 'ERROR') {
+            handleError(response);
+          }
+        } catch (err) {
+          handleError(err);
+        } finally {
+          setIsLoading(false);
         }
-    }, [isInitialized, isFlowInitialized, onInitialize, onFlowChange, handleError, normalizeFlowResponseLocal]);
+      })();
+    }
+  }, [isInitialized, isFlowInitialized, onInitialize, onFlowChange, handleError, normalizeFlowResponseLocal]);
 
-    /**
-     * Recalculate form validity whenever form values or components change.
-     * This ensures the submit button is enabled/disabled correctly as the user types.
-     */
-    useEffect(() => {
-        if (currentFlow && isFlowInitialized) {
-            const components = currentFlow.data?.components || [];
-            if (components.length > 0) {
-                const validation = validateForm(components);
-                setIsFormValid(validation.isValid);
-            }
+  /**
+   * Recalculate form validity whenever form values or components change.
+   * This ensures the submit button is enabled/disabled correctly as the user types.
+   */
+  useEffect(() => {
+    if (currentFlow && isFlowInitialized) {
+      const components: any = currentFlow.data?.components || [];
+      if (components.length > 0) {
+        const validation: any = validateForm(components);
+        setIsFormValid(validation.isValid);
+      }
+    }
+  }, [formValues, currentFlow, isFlowInitialized, validateForm]);
+
+  /**
+   * Extract title and subtitle from components.
+   */
+  const extractHeadings: any = useCallback((components: any[]): {subtitle?: string; title?: string} => {
+    let title: string | undefined;
+    let subtitle: string | undefined;
+
+    components.forEach((comp: any) => {
+      if (comp.type === 'TEXT') {
+        if (comp.variant === 'HEADING_1' && !title) {
+          title = comp.label;
+        } else if ((comp.variant === 'HEADING_2' || comp.variant === 'SUBTITLE_1') && !subtitle) {
+          subtitle = comp.label;
         }
-    }, [formValues, currentFlow, isFlowInitialized, validateForm]);
+      }
+    });
 
-    /**
-     * Extract title and subtitle from components.
-     */
-    const extractHeadings = useCallback((components: any[]): { title?: string; subtitle?: string } => {
-        let title: string | undefined;
-        let subtitle: string | undefined;
+    return {subtitle, title};
+  }, []);
 
-        components.forEach(comp => {
-            if (comp.type === 'TEXT') {
-                if (comp.variant === 'HEADING_1' && !title) {
-                    title = comp.label;
-                } else if ((comp.variant === 'HEADING_2' || comp.variant === 'SUBTITLE_1') && !subtitle) {
-                    subtitle = comp.label;
-                }
-            }
-        });
+  /**
+   * Filter out heading components for default rendering.
+   */
+  const filterHeadings: any = useCallback(
+    (components: any[]): any[] =>
+      components.filter(
+        (comp: any) => !(comp.type === 'TEXT' && (comp.variant === 'HEADING_1' || comp.variant === 'HEADING_2')),
+      ),
+    [],
+  );
 
-        return { title, subtitle };
-    }, []);
-
-    /**
-     * Filter out heading components for default rendering.
-     */
-    const filterHeadings = useCallback((components: any[]): any[] => {
-        return components.filter(
-            comp => !(comp.type === 'TEXT' && (comp.variant === 'HEADING_1' || comp.variant === 'HEADING_2')),
-        );
-    }, []);
-
-    /**
-     * Render form components using the factory.
-     */
-    const renderComponents = useCallback(
-        (components: any[]): ReactElement[] =>
-            renderInviteUserComponents(components, formValues, touchedFields, formErrors, isLoading, isFormValid, handleInputChange, {
-                onInputBlur: handleInputBlur,
-                onSubmit: handleSubmit,
-                size,
-                variant,
-            }),
-        [formValues, touchedFields, formErrors, isLoading, isFormValid, handleInputChange, handleInputBlur, handleSubmit, size, variant],
-    );
-
-    // Get components from normalized response, with fallback to meta.components
-    const components = currentFlow?.data?.components || currentFlow?.data?.meta?.components || [];
-    const { title, subtitle } = extractHeadings(components);
-    const componentsWithoutHeadings = filterHeadings(components);
-    const isInviteGenerated = !!inviteLink;
-
-    // Render props
-    const renderProps: BaseInviteUserRenderProps = {
-        values: formValues,
-        fieldErrors: formErrors,
-        error: apiError,
-        touched: touchedFields,
-        isLoading,
+  /**
+   * Render form components using the factory.
+   */
+  const renderComponents: any = useCallback(
+    (components: any[]): ReactElement[] =>
+      renderInviteUserComponents(
         components,
-        inviteLink,
-        flowId: currentFlow?.flowId,
+        formValues,
+        touchedFields,
+        formErrors,
+        isLoading,
+        isFormValid,
         handleInputChange,
-        handleInputBlur,
-        handleSubmit,
-        isInviteGenerated,
-        title,
-        subtitle,
-        isValid: isFormValid,
-        copyInviteLink,
-        inviteLinkCopied,
-        resetFlow,
-    };
+        {
+          onInputBlur: handleInputBlur,
+          onSubmit: handleSubmit,
+          size,
+          variant,
+        },
+      ),
+    [
+      formValues,
+      touchedFields,
+      formErrors,
+      isLoading,
+      isFormValid,
+      handleInputChange,
+      handleInputBlur,
+      handleSubmit,
+      size,
+      variant,
+    ],
+  );
 
-    // If children render prop is provided, use it for custom UI
-    if (children) {
-        return <div className={className}>{children(renderProps)}</div>;
-    }
+  // Get components from normalized response, with fallback to meta.components
+  const components: any = currentFlow?.data?.components || currentFlow?.data?.meta?.components || [];
+  const {title, subtitle} = extractHeadings(components);
+  const componentsWithoutHeadings: any = filterHeadings(components);
+  const isInviteGenerated: any = !!inviteLink;
 
-    // Default rendering
+  // Render props
+  const renderProps: BaseInviteUserRenderProps = {
+    components,
+    copyInviteLink,
+    error: apiError,
+    fieldErrors: formErrors,
+    flowId: currentFlow?.flowId,
+    handleInputBlur,
+    handleInputChange,
+    handleSubmit,
+    inviteLink,
+    inviteLinkCopied,
+    isInviteGenerated,
+    isLoading,
+    isValid: isFormValid,
+    resetFlow,
+    subtitle,
+    title,
+    touched: touchedFields,
+    values: formValues,
+  };
 
-    // Waiting for SDK initialization
-    if (!isInitialized) {
-        return (
-            <Card className={cx(className, styles.card)} variant={variant}>
-                <Card.Content>
-                    <div style={{ display: 'flex', justifyContent: 'center', padding: '2rem' }}>
-                        <Spinner size="medium" />
-                    </div>
-                </Card.Content>
-            </Card>
-        );
-    }
+  // If children render prop is provided, use it for custom UI
+  if (children) {
+    return <div className={className}>{children(renderProps)}</div>;
+  }
 
-    // Loading state during initialization
-    if (!isFlowInitialized && isLoading) {
-        return (
-            <Card className={cx(className, styles.card)} variant={variant}>
-                <Card.Content>
-                    <div style={{ display: 'flex', justifyContent: 'center', padding: '2rem' }}>
-                        <Spinner size="medium" />
-                    </div>
-                </Card.Content>
-            </Card>
-        );
-    }
+  // Default rendering
 
-    // Error state during initialization
-    if (!currentFlow && apiError) {
-        return (
-            <Card className={cx(className, styles.card)} variant={variant}>
-                <Card.Content>
-                    <Alert variant="error">
-                        <Alert.Title>Error</Alert.Title>
-                        <Alert.Description>{apiError.message}</Alert.Description>
-                    </Alert>
-                </Card.Content>
-            </Card>
-        );
-    }
-
-    // Invite link generated - success state
-    if (isInviteGenerated && inviteLink) {
-        return (
-            <Card className={cx(className, styles.card)} variant={variant}>
-                <Card.Header className={styles.header}>
-                    <Card.Title level={2} className={styles.title}>Invite Link Generated!</Card.Title>
-                </Card.Header>
-                <Card.Content>
-                    <Alert variant="success">
-                        <Alert.Description>Share this link with the user to complete their registration.</Alert.Description>
-                    </Alert>
-                    <div style={{ marginTop: '1rem' }}>
-                        <Typography variant="body2" style={{ marginBottom: '0.5rem' }}>
-                            Invite Link
-                        </Typography>
-                        <div
-                            style={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '0.5rem',
-                                padding: '0.75rem',
-                                backgroundColor: 'var(--asgardeo-color-background-secondary, #f5f5f5)',
-                                borderRadius: '4px',
-                                wordBreak: 'break-all',
-                            }}
-                        >
-                            <Typography variant="body2" style={{ flex: 1 }}>
-                                {inviteLink}
-                            </Typography>
-                            <Button variant="outline" size="small" onClick={copyInviteLink}>
-                                {inviteLinkCopied ? 'Copied!' : 'Copy'}
-                            </Button>
-                        </div>
-                    </div>
-                    <div style={{ marginTop: '1.5rem', display: 'flex', gap: '0.5rem' }}>
-                        <Button variant="outline" onClick={resetFlow}>
-                            Invite Another User
-                        </Button>
-                    </div>
-                </Card.Content>
-            </Card>
-        );
-    }
-
-    // Flow components
+  // Waiting for SDK initialization
+  if (!isInitialized) {
     return (
-        <Card className={cx(className, styles.card)} variant={variant}>
-            {(showTitle || showSubtitle) && (title || subtitle) && (
-                <Card.Header className={styles.header}>
-                    {showTitle && title && <Card.Title level={2} className={styles.title}>{title}</Card.Title>}
-                    {showSubtitle && subtitle && <Typography variant="body1" className={styles.subtitle}>{subtitle}</Typography>}
-                </Card.Header>
-            )}
-            <Card.Content>
-                {apiError && (
-                    <div style={{ marginBottom: '1rem' }}>
-                        <Alert variant="error">
-                            <Alert.Description>{apiError.message}</Alert.Description>
-                        </Alert>
-                    </div>
-                )}
-                <div>
-                    {componentsWithoutHeadings && componentsWithoutHeadings.length > 0 ? (
-                        renderComponents(componentsWithoutHeadings)
-                    ) : (
-                        !isLoading && (
-                            <Alert variant="warning">
-                                <Typography variant="body1">No form components available</Typography>
-                            </Alert>
-                        )
-                    )}
-                    {isLoading && (
-                        <div style={{ display: 'flex', justifyContent: 'center', padding: '1rem' }}>
-                            <Spinner size="small" />
-                        </div>
-                    )}
-                </div>
-            </Card.Content>
-        </Card>
+      <CardPrimitive className={cx(className, styles.card)} variant={variant}>
+        <CardPrimitive.Content>
+          <div style={{display: 'flex', justifyContent: 'center', padding: '2rem'}}>
+            <Spinner size="medium" />
+          </div>
+        </CardPrimitive.Content>
+      </CardPrimitive>
     );
+  }
+
+  // Loading state during initialization
+  if (!isFlowInitialized && isLoading) {
+    return (
+      <CardPrimitive className={cx(className, styles.card)} variant={variant}>
+        <CardPrimitive.Content>
+          <div style={{display: 'flex', justifyContent: 'center', padding: '2rem'}}>
+            <Spinner size="medium" />
+          </div>
+        </CardPrimitive.Content>
+      </CardPrimitive>
+    );
+  }
+
+  // Error state during initialization
+  if (!currentFlow && apiError) {
+    return (
+      <CardPrimitive className={cx(className, styles.card)} variant={variant}>
+        <CardPrimitive.Content>
+          <AlertPrimitive variant="error">
+            <AlertPrimitive.Title>Error</AlertPrimitive.Title>
+            <AlertPrimitive.Description>{apiError.message}</AlertPrimitive.Description>
+          </AlertPrimitive>
+        </CardPrimitive.Content>
+      </CardPrimitive>
+    );
+  }
+
+  // Invite link generated - success state
+  if (isInviteGenerated && inviteLink) {
+    return (
+      <CardPrimitive className={cx(className, styles.card)} variant={variant}>
+        <CardPrimitive.Header className={styles.header}>
+          <CardPrimitive.Title level={2} className={styles.title}>
+            Invite Link Generated!
+          </CardPrimitive.Title>
+        </CardPrimitive.Header>
+        <CardPrimitive.Content>
+          <AlertPrimitive variant="success">
+            <AlertPrimitive.Description>
+              Share this link with the user to complete their registration.
+            </AlertPrimitive.Description>
+          </AlertPrimitive>
+          <div style={{marginTop: '1rem'}}>
+            <Typography variant="body2" style={{marginBottom: '0.5rem'}}>
+              Invite Link
+            </Typography>
+            <div
+              style={{
+                alignItems: 'center',
+                backgroundColor: 'var(--asgardeo-color-background-secondary, #f5f5f5)',
+                borderRadius: '4px',
+                display: 'flex',
+                gap: '0.5rem',
+                padding: '0.75rem',
+                wordBreak: 'break-all',
+              }}
+            >
+              <Typography variant="body2" style={{flex: 1}}>
+                {inviteLink}
+              </Typography>
+              <Button variant="outline" size="small" onClick={copyInviteLink}>
+                {inviteLinkCopied ? 'Copied!' : 'Copy'}
+              </Button>
+            </div>
+          </div>
+          <div style={{display: 'flex', gap: '0.5rem', marginTop: '1.5rem'}}>
+            <Button variant="outline" onClick={resetFlow}>
+              Invite Another User
+            </Button>
+          </div>
+        </CardPrimitive.Content>
+      </CardPrimitive>
+    );
+  }
+
+  // Flow components
+  return (
+    <CardPrimitive className={cx(className, styles.card)} variant={variant}>
+      {(showTitle || showSubtitle) && (title || subtitle) && (
+        <CardPrimitive.Header className={styles.header}>
+          {showTitle && title && (
+            <CardPrimitive.Title level={2} className={styles.title}>
+              {title}
+            </CardPrimitive.Title>
+          )}
+          {showSubtitle && subtitle && (
+            <Typography variant="body1" className={styles.subtitle}>
+              {subtitle}
+            </Typography>
+          )}
+        </CardPrimitive.Header>
+      )}
+      <CardPrimitive.Content>
+        {apiError && (
+          <div style={{marginBottom: '1rem'}}>
+            <AlertPrimitive variant="error">
+              <AlertPrimitive.Description>{apiError.message}</AlertPrimitive.Description>
+            </AlertPrimitive>
+          </div>
+        )}
+        <div>
+          {componentsWithoutHeadings && componentsWithoutHeadings.length > 0
+            ? renderComponents(componentsWithoutHeadings)
+            : !isLoading && (
+                <AlertPrimitive variant="warning">
+                  <Typography variant="body1">No form components available</Typography>
+                </AlertPrimitive>
+              )}
+          {isLoading && (
+            <div style={{display: 'flex', justifyContent: 'center', padding: '1rem'}}>
+              <Spinner size="small" />
+            </div>
+          )}
+        </div>
+      </CardPrimitive.Content>
+    </CardPrimitive>
+  );
 };
 
 export default BaseInviteUser;

@@ -16,9 +16,9 @@
  * under the License.
  */
 
+import {Theme} from '@asgardeo/browser';
 import {css} from '@emotion/css';
 import {useMemo} from 'react';
-import {Theme, bem} from '@asgardeo/browser';
 
 /**
  * Creates styles for the Dialog component using BEM methodology
@@ -26,9 +26,9 @@ import {Theme, bem} from '@asgardeo/browser';
  * @param colorScheme - The current color scheme (used for memoization)
  * @returns Object containing CSS class names for component styling
  */
-const useStyles = (theme: Theme, colorScheme: string) => {
-  return useMemo(() => {
-    const overlay = css`
+const useStyles = (theme: Theme, colorScheme: string): Record<string, string> =>
+  useMemo(() => {
+    const overlay: string = css`
       background-color: rgba(0, 0, 0, 0.5);
       display: flex;
       align-items: center;
@@ -36,7 +36,7 @@ const useStyles = (theme: Theme, colorScheme: string) => {
       z-index: 9999;
     `;
 
-    const content = css`
+    const content: string = css`
       background: ${theme.vars.colors.background.surface};
       border-radius: ${theme.vars.borderRadius.large};
       box-shadow: 0 2px 8px ${colorScheme === 'dark' ? 'rgba(0, 0, 0, 0.3)' : 'rgba(0, 0, 0, 0.15)'};
@@ -45,7 +45,7 @@ const useStyles = (theme: Theme, colorScheme: string) => {
       z-index: 10000;
     `;
 
-    const dropdownContent = css`
+    const dropdownContent: string = css`
       background: ${theme.vars.colors.background.surface};
       border-radius: ${theme.vars.borderRadius.large};
       box-shadow: 0 2px 8px ${colorScheme === 'dark' ? 'rgba(0, 0, 0, 0.3)' : 'rgba(0, 0, 0, 0.15)'};
@@ -56,7 +56,7 @@ const useStyles = (theme: Theme, colorScheme: string) => {
       z-index: 10000;
     `;
 
-    const header = css`
+    const header: string = css`
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -64,18 +64,18 @@ const useStyles = (theme: Theme, colorScheme: string) => {
       border-bottom: 1px solid ${theme.vars.colors.border};
     `;
 
-    const headerTitle = css`
+    const headerTitle: string = css`
       margin: 0;
       font-size: 1.2rem;
       font-weight: 600;
       color: ${theme.vars.colors.text.primary};
     `;
 
-    const contentBody = css`
+    const contentBody: string = css`
       padding: calc(${theme.vars.spacing.unit} * 2);
     `;
 
-    const description = css`
+    const description: string = css`
       margin: 0;
       color: ${theme.vars.colors.text.secondary};
       font-size: ${theme.vars.typography.fontSizes.sm};
@@ -83,15 +83,14 @@ const useStyles = (theme: Theme, colorScheme: string) => {
     `;
 
     return {
-      overlay,
       content,
+      contentBody,
+      description,
       dropdownContent,
       header,
       headerTitle,
-      contentBody,
-      description,
+      overlay,
     };
   }, [theme, colorScheme]);
-};
 
 export default useStyles;

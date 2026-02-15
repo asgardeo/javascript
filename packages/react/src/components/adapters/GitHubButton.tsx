@@ -16,10 +16,10 @@
  * under the License.
  */
 
-import {FC, HTMLAttributes} from 'react';
 import {WithPreferences} from '@asgardeo/browser';
-import Button from '../primitives/Button/Button';
+import {FC, HTMLAttributes} from 'react';
 import useTranslation from '../../hooks/useTranslation';
+import Button from '../primitives/Button/Button';
 
 export interface GithubButtonProps extends WithPreferences {
   /**
@@ -37,7 +37,7 @@ const GitHubButton: FC<GithubButtonProps & HTMLAttributes<HTMLButtonElement>> = 
   preferences,
   children,
   ...rest
-}) => {
+}: GithubButtonProps & HTMLAttributes<HTMLButtonElement>) => {
   const {t} = useTranslation(preferences?.i18n);
 
   return (

@@ -16,8 +16,8 @@
  * under the License.
  */
 
+import {resolveTranslationsInObject} from './resolveTranslationsInObject';
 import {UseTranslation} from '../../hooks/useTranslation';
-import resolveTranslationsInObject from './resolveTranslationsInObject';
 
 /**
  * Recursively resolves translation strings in an array of objects.
@@ -30,8 +30,8 @@ const resolveTranslationsInArray = <T extends Record<string, any>>(
   items: T[],
   t: UseTranslation['t'],
   properties?: string[],
-): T[] => {
-  return items.map(item => {
+): T[] =>
+  items.map((item: T) => {
     const resolved: T = resolveTranslationsInObject(item, t, properties);
 
     // If the item has nested components (like BLOCK type), resolve those too
@@ -41,6 +41,5 @@ const resolveTranslationsInArray = <T extends Record<string, any>>(
 
     return resolved;
   });
-};
 
 export default resolveTranslationsInArray;

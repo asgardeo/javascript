@@ -16,12 +16,13 @@
  * under the License.
  */
 
+import {AsgardeoError, User} from '@asgardeo/browser';
 import {FC, ReactElement, useState} from 'react';
+// eslint-disable-next-line import/no-named-as-default
 import BaseUserProfile, {BaseUserProfileProps} from './BaseUserProfile';
 import updateMeProfile from '../../../api/updateMeProfile';
 import useAsgardeo from '../../../contexts/Asgardeo/useAsgardeo';
 import useUser from '../../../contexts/User/useUser';
-import {AsgardeoError, User} from '@asgardeo/browser';
 import useTranslation from '../../../hooks/useTranslation';
 
 /**
@@ -64,7 +65,7 @@ export type UserProfileProps = Omit<BaseUserProfileProps, 'user' | 'profile' | '
  * ```
  */
 const UserProfile: FC<UserProfileProps> = ({...rest}: UserProfileProps): ReactElement => {
-  const {baseUrl, isLoading} = useAsgardeo();
+  const {baseUrl} = useAsgardeo();
   const {profile, flattenedProfile, schemas, onUpdateProfile} = useUser();
   const {t} = useTranslation();
 
@@ -76,11 +77,11 @@ const UserProfile: FC<UserProfileProps> = ({...rest}: UserProfileProps): ReactEl
     try {
       const response: User = await updateMeProfile({baseUrl, payload});
       onUpdateProfile(response);
-    } catch (error: unknown) {
+    } catch (caughtError: unknown) {
       let message: string = t('user.profile.update.generic.error');
 
-      if (error instanceof AsgardeoError) {
-        message = error?.message;
+      if (caughtError instanceof AsgardeoError) {
+        message = caughtError?.message;
       }
 
       setError(message);

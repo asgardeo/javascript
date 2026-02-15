@@ -16,9 +16,9 @@
  * under the License.
  */
 
+import {Theme} from '@asgardeo/browser';
 import {css} from '@emotion/css';
 import {useMemo} from 'react';
-import {Theme, bem} from '@asgardeo/browser';
 
 export type AlertVariant = 'success' | 'error' | 'warning' | 'info';
 
@@ -29,9 +29,9 @@ export type AlertVariant = 'success' | 'error' | 'warning' | 'info';
  * @param variant - The alert variant
  * @returns Object containing CSS class names for component styling
  */
-const useStyles = (theme: Theme, colorScheme: string, variant: AlertVariant) => {
-  return useMemo(() => {
-    const baseAlert = css`
+const useStyles = (theme: Theme, colorScheme: string, variant: AlertVariant): Record<string, string> =>
+  useMemo(() => {
+    const baseAlert: string = css`
       padding: calc(${theme.vars.spacing.unit} * 2);
       border-radius: ${theme.vars.borderRadius.medium};
       border: 1px solid;
@@ -40,30 +40,30 @@ const useStyles = (theme: Theme, colorScheme: string, variant: AlertVariant) => 
       align-items: flex-start;
     `;
 
-    const variantStyles = {
-      success: css`
-        background-color: color-mix(in srgb, ${theme.vars.colors.success.main} 20%, white);
-        border-color: ${theme.vars.colors.success.main};
-        color: ${theme.vars.colors.success.main};
-      `,
+    const variantStyles: Record<string, string> = {
       error: css`
         background-color: color-mix(in srgb, ${theme.vars.colors.error.main} 20%, white);
         border-color: ${theme.vars.colors.error.main};
         color: ${theme.vars.colors.error.main};
-      `,
-      warning: css`
-        background-color: color-mix(in srgb, ${theme.vars.colors.warning.main} 20%, white);
-        border-color: ${theme.vars.colors.warning.main};
-        color: ${theme.vars.colors.warning.main};
       `,
       info: css`
         background-color: color-mix(in srgb, ${theme.vars.colors.info.main} 20%, white);
         border-color: ${theme.vars.colors.info.main};
         color: ${theme.vars.colors.info.main};
       `,
+      success: css`
+        background-color: color-mix(in srgb, ${theme.vars.colors.success.main} 20%, white);
+        border-color: ${theme.vars.colors.success.main};
+        color: ${theme.vars.colors.success.main};
+      `,
+      warning: css`
+        background-color: color-mix(in srgb, ${theme.vars.colors.warning.main} 20%, white);
+        border-color: ${theme.vars.colors.warning.main};
+        color: ${theme.vars.colors.warning.main};
+      `,
     };
 
-    const iconStyles = css`
+    const iconStyles: string = css`
       flex-shrink: 0;
       margin-top: calc(${theme.vars.spacing.unit} * 0.25);
       width: calc(${theme.vars.spacing.unit} * 2.5);
@@ -71,14 +71,14 @@ const useStyles = (theme: Theme, colorScheme: string, variant: AlertVariant) => 
       color: ${theme.vars.colors[variant]?.contrastText};
     `;
 
-    const contentStyles = css`
+    const contentStyles: string = css`
       flex: 1;
       display: flex;
       flex-direction: column;
       gap: ${theme.vars.spacing.unit};
     `;
 
-    const titleStyles = css`
+    const titleStyles: string = css`
       margin: 0;
       font-size: ${theme.vars.typography.fontSizes.sm};
       font-weight: 600;
@@ -86,7 +86,7 @@ const useStyles = (theme: Theme, colorScheme: string, variant: AlertVariant) => 
       color: ${theme.vars.colors[variant]?.contrastText};
     `;
 
-    const descriptionStyles = css`
+    const descriptionStyles: string = css`
       margin: 0;
       font-size: ${theme.vars.typography.fontSizes.sm};
       line-height: 1.4;
@@ -95,13 +95,12 @@ const useStyles = (theme: Theme, colorScheme: string, variant: AlertVariant) => 
 
     return {
       alert: baseAlert,
-      variant: variantStyles[variant],
-      icon: iconStyles,
       content: contentStyles,
-      title: titleStyles,
       description: descriptionStyles,
+      icon: iconStyles,
+      title: titleStyles,
+      variant: variantStyles[variant],
     };
   }, [theme, colorScheme, variant]);
-};
 
 export default useStyles;

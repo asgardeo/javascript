@@ -19,10 +19,13 @@
 /**
  * Entry point for all public APIs of this SDK.
  */
+// eslint-disable-next-line import/no-cycle
 export * from './__legacy__/client';
+// eslint-disable-next-line import/no-cycle
 export * from './__legacy__/models';
 
 // Utils
+// eslint-disable-next-line import/no-cycle
 export * from './__legacy__/utils/spa-utils';
 
 // Constants

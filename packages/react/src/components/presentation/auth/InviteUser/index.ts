@@ -17,11 +17,7 @@
  */
 
 // v2 exports (current)
-export { default as InviteUser } from './v2/InviteUser';
-export type { InviteUserProps, InviteUserRenderProps } from './v2/InviteUser';
-export { default as BaseInviteUser } from './v2/BaseInviteUser';
-export type {
-  BaseInviteUserProps,
-  BaseInviteUserRenderProps,
-  InviteUserFlowResponse,
-} from './v2/BaseInviteUser';
+export {default as InviteUser} from './v2/InviteUser';
+export type {InviteUserProps, InviteUserRenderProps} from './v2/InviteUser';
+export {default as BaseInviteUser} from './v2/BaseInviteUser';
+export type {BaseInviteUserProps, BaseInviteUserRenderProps, InviteUserFlowResponse} from './v2/BaseInviteUser';

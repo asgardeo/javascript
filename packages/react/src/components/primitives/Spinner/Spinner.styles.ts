@@ -16,9 +16,9 @@
  * under the License.
  */
 
+import {Theme} from '@asgardeo/browser';
 import {css, keyframes} from '@emotion/css';
 import {useMemo} from 'react';
-import {Theme} from '@asgardeo/browser';
 
 export type SpinnerSize = 'small' | 'medium' | 'large';
 
@@ -30,19 +30,19 @@ export type SpinnerSize = 'small' | 'medium' | 'large';
  * @param color - The color of the spinner
  * @returns Object containing CSS class names for component styling
  */
-const useStyles = (theme: Theme, colorScheme: string, size: SpinnerSize, color?: string) => {
-  return useMemo(() => {
-    const spinnerColor = color || theme.vars.colors.primary.main;
+const useStyles = (theme: Theme, colorScheme: string, size: SpinnerSize, color?: string): Record<string, string> =>
+  useMemo(() => {
+    const spinnerColor: string = color || theme.vars.colors.primary.main;
 
-    const spinnerSizes = {
-      small: '16px',
-      medium: '20px',
+    const spinnerSizes: Record<string, string> = {
       large: '32px',
+      medium: '20px',
+      small: '16px',
     };
 
-    const spinnerSize = spinnerSizes[size];
+    const spinnerSize: string = spinnerSizes[size];
 
-    const spinAnimation = keyframes`
+    const spinAnimation: string = keyframes`
       0% {
         transform: rotate(0deg);
       }
@@ -51,7 +51,7 @@ const useStyles = (theme: Theme, colorScheme: string, size: SpinnerSize, color?:
       }
     `;
 
-    const spinner = css`
+    const spinner: string = css`
       width: ${spinnerSize};
       height: ${spinnerSize};
       border: 2px solid transparent;
@@ -61,28 +61,27 @@ const useStyles = (theme: Theme, colorScheme: string, size: SpinnerSize, color?:
       display: inline-block;
     `;
 
-    const spinnerSmall = css`
-      width: ${spinnerSizes.small};
-      height: ${spinnerSizes.small};
+    const spinnerSmall: string = css`
+      width: ${spinnerSizes['small']};
+      height: ${spinnerSizes['small']};
     `;
 
-    const spinnerMedium = css`
-      width: ${spinnerSizes.medium};
-      height: ${spinnerSizes.medium};
+    const spinnerMedium: string = css`
+      width: ${spinnerSizes['medium']};
+      height: ${spinnerSizes['medium']};
     `;
 
-    const spinnerLarge = css`
-      width: ${spinnerSizes.large};
-      height: ${spinnerSizes.large};
+    const spinnerLarge: string = css`
+      width: ${spinnerSizes['large']};
+      height: ${spinnerSizes['large']};
     `;
 
     return {
       spinner,
-      spinnerSmall,
-      spinnerMedium,
       spinnerLarge,
+      spinnerMedium,
+      spinnerSmall,
     };
   }, [theme, colorScheme, size, color]);
-};
 
 export default useStyles;

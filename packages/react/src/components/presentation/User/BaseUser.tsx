@@ -24,11 +24,6 @@ import {FC, ReactElement, ReactNode} from 'react';
  */
 export interface BaseUserProps {
   /**
-   * The user object to display. If not provided, the component will render the fallback.
-   */
-  user: IUser | null;
-
-  /**
    * Render prop that takes the user object and returns a ReactNode.
    * @param user - The authenticated user object from Asgardeo.
    * @returns A ReactNode to render.
@@ -39,6 +34,11 @@ export interface BaseUserProps {
    * Optional element to render when no user is provided.
    */
   fallback?: ReactNode;
+
+  /**
+   * The user object to display. If not provided, the component will render the fallback.
+   */
+  user: IUser | null;
 }
 
 /**
@@ -67,7 +67,7 @@ export interface BaseUserProps {
  * }
  * ```
  */
-const BaseUser: FC<BaseUserProps> = ({user, children, fallback = null}): ReactElement => {
+const BaseUser: FC<BaseUserProps> = ({user, children, fallback = null}: BaseUserProps): ReactElement => {
   if (!user) {
     return <>{fallback}</>;
   }

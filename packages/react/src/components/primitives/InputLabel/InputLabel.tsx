@@ -16,11 +16,11 @@
  * under the License.
  */
 
-import {CSSProperties, FC, LabelHTMLAttributes, ReactNode} from 'react';
-import useTheme from '../../../contexts/Theme/useTheme';
-import {cx} from '@emotion/css';
 import {bem, withVendorCSSClassPrefix} from '@asgardeo/browser';
+import {cx} from '@emotion/css';
+import {CSSProperties, FC, LabelHTMLAttributes, ReactNode} from 'react';
 import useStyles from './InputLabel.styles';
+import useTheme from '../../../contexts/Theme/useTheme';
 
 export type InputLabelVariant = 'block' | 'inline';
 
@@ -30,13 +30,21 @@ export interface InputLabelProps extends Omit<LabelHTMLAttributes<HTMLLabelEleme
    */
   children: ReactNode;
   /**
-   * Whether the field is required
+   * Additional CSS class names
    */
-  required?: boolean;
+  className?: string;
   /**
    * Whether there's an error state
    */
   error?: boolean;
+  /**
+   * Custom margin bottom (useful for different form layouts)
+   */
+  marginBottom?: string;
+  /**
+   * Whether the field is required
+   */
+  required?: boolean;
   /**
    * Custom style overrides
    */
@@ -45,14 +53,6 @@ export interface InputLabelProps extends Omit<LabelHTMLAttributes<HTMLLabelEleme
    * Display type for label positioning
    */
   variant?: InputLabelVariant;
-  /**
-   * Custom margin bottom (useful for different form layouts)
-   */
-  marginBottom?: string;
-  /**
-   * Additional CSS class names
-   */
-  className?: string;
 }
 
 const InputLabel: FC<InputLabelProps> = ({
@@ -64,20 +64,20 @@ const InputLabel: FC<InputLabelProps> = ({
   className,
   style = {},
   ...rest
-}) => {
-  const {theme, colorScheme} = useTheme();
-  const styles = useStyles(theme, colorScheme, variant, error, marginBottom);
+}: InputLabelProps) => {
+  const {theme, colorScheme}: ReturnType<typeof useTheme> = useTheme();
+  const styles: Record<string, string> = useStyles(theme, colorScheme, variant, error, marginBottom);
 
   return (
     <label
       className={cx(
         withVendorCSSClassPrefix(bem('input-label')),
         withVendorCSSClassPrefix(bem('input-label', variant)),
-        styles.label,
-        variant === 'block' ? styles.block : styles.inline,
+        styles['label'],
+        variant === 'block' ? styles['block'] : styles['inline'],
         {
           [withVendorCSSClassPrefix(bem('input-label', 'error'))]: error,
-          [styles.error]: error,
+          [styles['error']]: error,
         },
         className,
       )}
@@ -86,7 +86,7 @@ const InputLabel: FC<InputLabelProps> = ({
     >
       {children}
       {required && (
-        <span className={cx(withVendorCSSClassPrefix(bem('input-label', 'required')), styles.requiredIndicator)}>
+        <span className={cx(withVendorCSSClassPrefix(bem('input-label', 'required')), styles['requiredIndicator'])}>
           {' *'}
         </span>
       )}

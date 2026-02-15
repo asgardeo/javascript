@@ -16,10 +16,7 @@
  * under the License.
  */
 
-import {Context, createContext} from 'react';
 import {
-  EmbeddedFlowExecuteResponse,
-  EmbeddedSignInFlowResponseV2,
   HttpRequestConfig,
   HttpResponse,
   IdToken,
@@ -27,8 +24,8 @@ import {
   SignInOptions,
   TokenExchangeRequestConfig,
   TokenResponse,
-  User,
 } from '@asgardeo/browser';
+import {Context, createContext} from 'react';
 import AsgardeoReactClient from '../../AsgardeoReactClient';
 import {AsgardeoReactConfig} from '../../models/config';
 
@@ -36,45 +33,37 @@ import {AsgardeoReactConfig} from '../../models/config';
  * Props interface of {@link AsgardeoContext}
  */
 export type AsgardeoContextProps = {
-  organizationHandle: string | undefined;
-  applicationId: string | undefined;
-  signInUrl: string | undefined;
-  signUpUrl: string | undefined;
   afterSignInUrl: string | undefined;
+  applicationId: string | undefined;
   baseUrl: string | undefined;
-  isInitialized: boolean;
   /**
-   * Flag indicating whether the SDK is working in the background.
+   * Swaps the current access token with a new one based on the provided configuration (with a grant type).
+   * @param config - Configuration for the token exchange request.
+   * @returns A promise that resolves to the token response or the raw response.
    */
-  isLoading: boolean;
+  exchangeToken: (config: TokenExchangeRequestConfig) => Promise<TokenResponse | Response>;
   /**
-   * Flag indicating whether the user is signed in or not.
+   * Retrieves the access token stored in the storage.
+   * This function retrieves the access token and returns it.
+   * @remarks This does not work in the `webWorker` or any other worker environment.
+   * @returns A promise that resolves to the access token.
    */
-  isSignedIn: boolean;
+  getAccessToken: () => Promise<string>;
   /**
-   * Sign-in function to initiate the authentication process.
-   * @remark This is the programmatic version of the `SignInButton` component.
-   * TODO: Fix the types.
+   * Function to retrieve the decoded ID token.
+   * This function decodes the ID token and returns its payload.
+   * It can be used to access user claims and other information contained in the ID token.
+   *
+   * @returns A promise that resolves to the decoded ID token payload.
    */
-  signIn: (...args: any) => Promise<any>;
+  getDecodedIdToken: () => Promise<IdToken>;
   /**
-   * Silent sign-in function to re-authenticate the user without user interaction.
-   * @remark This is the programmatic version of the `SilentSignIn` component.
+   * Function to retrieve the ID token.
+   * This function retrieves the ID token and returns it.
+   *
+   * @returns A promise that resolves to the ID token.
    */
-  signInSilently: AsgardeoReactClient['signInSilently'];
-  /**
-   * Sign-out function to terminate the authentication session.
-   * @remark This is the programmatic version of the `SignOutButton` component.
-   * FIXME: Fix the types.
-   */
-  signOut: any;
-  /**
-   * Sign-up function to initiate the registration process.
-   * @remark This is the programmatic version of the `SignUpButton` component.
-   */
-  signUp: (...args: any[]) => Promise<any>;
-  user: any;
-  organization: Organization;
+  getIdToken: () => Promise<string>;
   /**
    * HTTP request function to make API calls.
    * @param requestConfig - Configuration for the HTTP request.
@@ -94,47 +83,18 @@ export type AsgardeoContextProps = {
      */
     requestAll: (requestConfigs?: HttpRequestConfig[]) => Promise<HttpResponse<any>[]>;
   };
+  isInitialized: boolean;
   /**
-   * Optional additional parameters to be sent in the sign-in request.
-   * This can include custom parameters that your authorization server supports.
-   * These parameters will be included in the authorization request sent to the server.
-   * If not provided, no additional parameters will be sent.
-   *
-   * @example
-   * signInOptions: { prompt: "login", fidp: "OrganizationSSO" }
+   * Flag indicating whether the SDK is working in the background.
    */
-  signInOptions: SignInOptions;
+  isLoading: boolean;
   /**
-   * Function to retrieve the decoded ID token.
-   * This function decodes the ID token and returns its payload.
-   * It can be used to access user claims and other information contained in the ID token.
-   *
-   * @returns A promise that resolves to the decoded ID token payload.
+   * Flag indicating whether the user is signed in or not.
    */
-  getDecodedIdToken: () => Promise<IdToken>;
+  isSignedIn: boolean;
+  organization: Organization;
 
-  /**
-   * Function to retrieve the ID token.
-   * This function retrieves the ID token and returns it.
-   * 
-   * @returns A promise that resolves to the ID token.
-   */
-  getIdToken: () => Promise<string>;
-
-  /**
-   * Retrieves the access token stored in the storage.
-   * This function retrieves the access token and returns it.
-   * @remarks This does not work in the `webWorker` or any other worker environment.
-   * @returns A promise that resolves to the access token.
-   */
-  getAccessToken: () => Promise<string>;
-
-  /**
-   * Swaps the current access token with a new one based on the provided configuration (with a grant type).
-   * @param config - Configuration for the token exchange request.
-   * @returns A promise that resolves to the token response or the raw response.
-   */
-  exchangeToken: (config: TokenExchangeRequestConfig) => Promise<TokenResponse | Response>;
+  organizationHandle: string | undefined;
 
   /**
    * Re-initializes the client with a new configuration.
@@ -146,6 +106,46 @@ export type AsgardeoContextProps = {
    * @returns Promise resolving to boolean indicating success.
    */
   reInitialize: (config: Partial<AsgardeoReactConfig>) => Promise<boolean>;
+  /**
+   * Sign-in function to initiate the authentication process.
+   * @remark This is the programmatic version of the `SignInButton` component.
+   * TODO: Fix the types.
+   */
+  signIn: (...args: any) => Promise<any>;
+
+  /**
+   * Optional additional parameters to be sent in the sign-in request.
+   * This can include custom parameters that your authorization server supports.
+   * These parameters will be included in the authorization request sent to the server.
+   * If not provided, no additional parameters will be sent.
+   *
+   * @example
+   * signInOptions: { prompt: "login", fidp: "OrganizationSSO" }
+   */
+  signInOptions: SignInOptions;
+
+  /**
+   * Silent sign-in function to re-authenticate the user without user interaction.
+   * @remark This is the programmatic version of the `SilentSignIn` component.
+   */
+  signInSilently: AsgardeoReactClient['signInSilently'];
+
+  signInUrl: string | undefined;
+  /**
+   * Sign-out function to terminate the authentication session.
+   * @remark This is the programmatic version of the `SignOutButton` component.
+   * FIXME: Fix the types.
+   */
+  signOut: any;
+  /**
+   * Sign-up function to initiate the registration process.
+   * @remark This is the programmatic version of the `SignUpButton` component.
+   */
+  signUp: (...args: any[]) => Promise<any>;
+
+  signUpUrl: string | undefined;
+
+  user: any;
 } & Pick<AsgardeoReactConfig, 'storage' | 'platform'> &
   Pick<AsgardeoReactClient, 'clearSession' | 'switchOrganization'>;
 
@@ -153,35 +153,35 @@ export type AsgardeoContextProps = {
  * Context object for managing the Authentication flow builder core context.
  */
 const AsgardeoContext: Context<AsgardeoContextProps | null> = createContext<null | AsgardeoContextProps>({
-  organizationHandle: undefined,
-  applicationId: undefined,
-  signInUrl: undefined,
-  signUpUrl: undefined,
   afterSignInUrl: undefined,
+  applicationId: undefined,
   baseUrl: undefined,
   clearSession: () => {},
-  isInitialized: false,
-  isLoading: true,
-  isSignedIn: false,
-  organization: null,
-  signIn: () => Promise.resolve({} as any),
-  signInSilently: () => Promise.resolve({} as any),
-  signOut: () => Promise.resolve({} as any),
-  signUp: () => Promise.resolve({} as any),
-  user: null,
+  exchangeToken: null,
+  getAccessToken: null,
+  getDecodedIdToken: null,
+  getIdToken: null,
   http: {
     request: () => null,
     requestAll: () => null,
   },
+  isInitialized: false,
+  isLoading: true,
+  isSignedIn: false,
+  organization: null,
+  organizationHandle: undefined,
+  platform: undefined,
+  reInitialize: null,
+  signIn: () => Promise.resolve({} as any),
   signInOptions: {},
-  getDecodedIdToken: null,
-  getIdToken: null,
-  getAccessToken: null,
-  exchangeToken: null,
+  signInSilently: () => Promise.resolve({} as any),
+  signInUrl: undefined,
+  signOut: () => Promise.resolve({} as any),
+  signUp: () => Promise.resolve({} as any),
+  signUpUrl: undefined,
   storage: 'sessionStorage',
   switchOrganization: null,
-  reInitialize: null,
-  platform: undefined,
+  user: null,
 });
 
 AsgardeoContext.displayName = 'AsgardeoContext';

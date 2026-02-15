@@ -16,9 +16,9 @@
  * under the License.
  */
 
+import {Theme} from '@asgardeo/browser';
 import {css} from '@emotion/css';
 import {useMemo} from 'react';
-import {Theme} from '@asgardeo/browser';
 
 export type OtpFieldType = 'text' | 'number' | 'password';
 
@@ -37,9 +37,9 @@ const useStyles = (
   disabled: boolean,
   hasError: boolean,
   length: number,
-) => {
-  return useMemo(() => {
-    const inputContainer = css`
+): Record<string, string> =>
+  useMemo(() => {
+    const inputContainer: string = css`
       display: flex;
       gap: ${theme.vars.spacing.unit};
       justify-content: space-between;
@@ -47,7 +47,7 @@ const useStyles = (
       flex-wrap: wrap;
     `;
 
-    const input = css`
+    const input: string = css`
       width: calc(${theme.vars.spacing.unit} * 6);
       height: calc(${theme.vars.spacing.unit} * 6);
       text-align: center;
@@ -62,7 +62,7 @@ const useStyles = (
 
       &:focus {
         border-color: ${hasError ? theme.vars.colors.error.main : theme.vars.colors.primary.main};
-        box-shadow: 0 0 0 2px ${hasError ? theme.vars.colors.error.main + '20' : theme.vars.colors.primary.main + '20'};
+        box-shadow: 0 0 0 2px ${hasError ? `${theme.vars.colors.error.main}20` : `${theme.vars.colors.primary.main}20`};
       }
 
       &:disabled {
@@ -76,28 +76,27 @@ const useStyles = (
       }
     `;
 
-    const inputError = css`
+    const inputError: string = css`
       border-color: ${theme.vars.colors.error.main};
-      
+
       &:focus {
         border-color: ${theme.vars.colors.error.main};
         box-shadow: 0 0 0 2px ${theme.vars.colors.error.main}20;
       }
     `;
 
-    const inputDisabled = css`
+    const inputDisabled: string = css`
       background-color: ${theme.vars.colors.background.disabled};
       cursor: not-allowed;
       opacity: 0.6;
     `;
 
     return {
-      inputContainer,
       input,
-      inputError,
+      inputContainer,
       inputDisabled,
+      inputError,
     };
   }, [theme, colorScheme, disabled, hasError, length]);
-};
 
 export default useStyles;

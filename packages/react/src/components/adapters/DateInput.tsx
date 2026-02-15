@@ -18,8 +18,8 @@
 
 import {FieldType} from '@asgardeo/browser';
 import {FC} from 'react';
-import {createField} from '../factories/FieldFactory';
 import {AdapterProps} from '../../models/adapters';
+import {createField} from '../factories/FieldFactory';
 
 /**
  * Date input component for sign-up forms.
@@ -31,22 +31,22 @@ const DateInput: FC<AdapterProps> = ({
   formErrors,
   onInputChange,
   inputClassName,
-}) => {
+}: AdapterProps) => {
   const config: Record<string, unknown> = component.config || {};
   const fieldName: string = (config['identifier'] as string) || (config['name'] as string) || component.id;
   const value: string = formValues[fieldName] || '';
   const error: string | undefined = touchedFields[fieldName] ? formErrors[fieldName] : undefined;
 
   return createField({
-    type: FieldType.Date,
-    name: fieldName,
+    className: inputClassName,
+    error,
     label: (config['label'] as string) || '',
+    name: fieldName,
+    onChange: (newValue: string) => onInputChange(fieldName, newValue),
     placeholder: (config['placeholder'] as string) || '',
     required: (config['required'] as boolean) || false,
+    type: FieldType.Date,
     value,
-    error,
-    onChange: (newValue: string) => onInputChange(fieldName, newValue),
-    className: inputClassName,
   });
 };
 

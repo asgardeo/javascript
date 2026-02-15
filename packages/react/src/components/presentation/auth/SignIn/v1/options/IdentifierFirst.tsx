@@ -16,14 +16,15 @@
  * under the License.
  */
 
-import {EmbeddedSignInFlowAuthenticator, EmbeddedSignInFlowAuthenticatorParamType, FieldType} from '@asgardeo/browser';
-import {FC, useEffect} from 'react';
-import {createField} from '../../../../../factories/FieldFactory';
-import Button from '../../../../../primitives/Button/Button';
+import {EmbeddedSignInFlowAuthenticatorParamType, FieldType} from '@asgardeo/browser';
+import {FC, ReactElement, useEffect} from 'react';
+// eslint-disable-next-line import/no-cycle
 import {BaseSignInOptionProps} from './SignInOptionFactory';
-import useTranslation from '../../../../../../hooks/useTranslation';
 import useFlow from '../../../../../../contexts/Flow/useFlow';
 import useTheme from '../../../../../../contexts/Theme/useTheme';
+import useTranslation from '../../../../../../hooks/useTranslation';
+import {createField} from '../../../../../factories/FieldFactory';
+import Button from '../../../../../primitives/Button/Button';
 
 /**
  * Identifier First Sign-In Option Component.
@@ -35,16 +36,15 @@ const IdentifierFirst: FC<BaseSignInOptionProps> = ({
   touchedFields,
   isLoading,
   onInputChange,
-  onSubmit,
   inputClassName = '',
   buttonClassName = '',
   preferences,
-}) => {
+}: BaseSignInOptionProps): ReactElement => {
   const {theme} = useTheme();
   const {t} = useTranslation(preferences?.i18n);
   const {setTitle, setSubtitle} = useFlow();
 
-  const formFields = authenticator.metadata?.params?.sort((a, b) => a.order - b.order) || [];
+  const formFields: any = authenticator.metadata?.params?.sort((a: any, b: any) => a.order - b.order) || [];
 
   useEffect(() => {
     setTitle(t('identifier.first.heading'));
@@ -53,26 +53,24 @@ const IdentifierFirst: FC<BaseSignInOptionProps> = ({
 
   return (
     <>
-      {formFields.map(param => (
+      {formFields.map((param: any) => (
         <div key={param.param}>
           {createField({
-            name: param.param,
-            type:
-              param.type === EmbeddedSignInFlowAuthenticatorParamType.String
-                ? param.confidential
-                  ? FieldType.Password
-                  : FieldType.Text
-                : FieldType.Text,
-            label: param.displayName,
-            required: authenticator.requiredParams.includes(param.param),
-            value: formValues[param.param] || '',
-            onChange: value => onInputChange(param.param, value),
-            disabled: isLoading,
             className: inputClassName,
-            touched: touchedFields[param.param] || false,
+            disabled: isLoading,
+            label: param.displayName,
+            name: param.param,
+            onChange: (value: any) => onInputChange(param.param, value),
             placeholder: t(`elements.fields.generic.placeholder`, {
               field: (param.displayName || param.param).toLowerCase(),
             }),
+            required: authenticator.requiredParams.includes(param.param),
+            touched: touchedFields[param.param] || false,
+            type:
+              param.type === EmbeddedSignInFlowAuthenticatorParamType.String && param.confidential
+                ? FieldType.Password
+                : FieldType.Text,
+            value: formValues[param.param] || '',
           })}
         </div>
       ))}

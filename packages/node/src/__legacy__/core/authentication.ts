@@ -175,22 +175,22 @@ export class AsgardeoNodeCore<T> {
   public async isSignedIn(userId: string): Promise<boolean> {
     try {
       if (!(await this.auth.isSignedIn(userId))) {
-        return Promise.resolve(false);
+        return await Promise.resolve(false);
       }
 
       if (await SessionUtils.validateSession(await this.storageManager.getSessionData(userId))) {
-        return Promise.resolve(true);
+        return await Promise.resolve(true);
       }
 
       const refreshedToken: TokenResponse = await this.refreshAccessToken(userId);
 
       if (refreshedToken) {
-        return Promise.resolve(true);
+        return await Promise.resolve(true);
       }
 
       this.storageManager.removeSessionData(userId);
       this.storageManager.getTemporaryData(userId);
-      return Promise.resolve(false);
+      return await Promise.resolve(false);
     } catch (error) {
       return Promise.reject(error);
     }

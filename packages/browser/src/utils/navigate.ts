@@ -41,7 +41,7 @@
  */
 const navigate = (url: string): void => {
   try {
-    const targetUrl = new URL(url, window.location.origin);
+    const targetUrl: URL = new URL(url, window.location.origin);
     if (targetUrl.origin === window.location.origin) {
       window.history.pushState(null, '', targetUrl.pathname + targetUrl.search + targetUrl.hash);
       window.dispatchEvent(new PopStateEvent('popstate', {state: null}));

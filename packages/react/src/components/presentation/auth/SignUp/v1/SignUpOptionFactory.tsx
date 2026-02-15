@@ -16,28 +16,29 @@
  * under the License.
  */
 
-import {EmbeddedFlowComponent, EmbeddedFlowComponentType, WithPreferences} from '@asgardeo/browser';
+import {EmbeddedFlowComponent, EmbeddedFlowComponentType} from '@asgardeo/browser';
+import {AdapterProps} from 'packages/react/src/models/adapters';
 import {ReactElement} from 'react';
 import CheckboxInput from '../../../../adapters/CheckboxInput';
 import DateInput from '../../../../adapters/DateInput';
 import DividerComponent from '../../../../adapters/DividerComponent';
 import EmailInput from '../../../../adapters/EmailInput';
+import FacebookButton from '../../../../adapters/FacebookButton';
+// eslint-disable-next-line import/no-cycle
 import FormContainer from '../../../../adapters/FormContainer';
+import GitHubButton from '../../../../adapters/GitHubButton';
+import GoogleButton from '../../../../adapters/GoogleButton';
 import ImageComponent from '../../../../adapters/ImageComponent';
+import LinkedInButton from '../../../../adapters/LinkedInButton';
+import MicrosoftButton from '../../../../adapters/MicrosoftButton';
 import NumberInput from '../../../../adapters/NumberInput';
 import PasswordInput from '../../../../adapters/PasswordInput';
+import SelectInput from '../../../../adapters/SelectInput';
+import SignInWithEthereumButton from '../../../../adapters/SignInWithEthereumButton';
 import ButtonComponent from '../../../../adapters/SubmitButton';
 import TelephoneInput from '../../../../adapters/TelephoneInput';
 import TextInput from '../../../../adapters/TextInput';
-import SelectInput from '../../../../adapters/SelectInput';
 import Typography from '../../../../adapters/Typography';
-import GoogleButton from '../../../../adapters/GoogleButton';
-import GitHubButton from '../../../../adapters/GitHubButton';
-import MicrosoftButton from '../../../../adapters/MicrosoftButton';
-import LinkedInButton from '../../../../adapters/LinkedInButton';
-import FacebookButton from '../../../../adapters/FacebookButton';
-import SignInWithEthereumButton from '../../../../adapters/SignInWithEthereumButton';
-import {AdapterProps} from 'packages/react/src/models/adapters';
 
 /**
  * Creates the appropriate sign-up component based on the component type.
@@ -47,7 +48,7 @@ export const createSignUpComponent = ({component, onSubmit, ...rest}: AdapterPro
     case EmbeddedFlowComponentType.Typography:
       return <Typography component={component} onSubmit={onSubmit} {...rest} />;
 
-    case EmbeddedFlowComponentType.Input:
+    case EmbeddedFlowComponentType.Input: {
       // Determine input type based on variant or config
       const inputVariant: string = component.variant?.toUpperCase();
       const inputType: string = (component.config['type'] as string)?.toLowerCase();
@@ -77,6 +78,7 @@ export const createSignUpComponent = ({component, onSubmit, ...rest}: AdapterPro
       }
 
       return <TextInput component={component} onSubmit={onSubmit} {...rest} />;
+    }
 
     case EmbeddedFlowComponentType.Button: {
       const buttonVariant: string | undefined = component.variant?.toUpperCase();
@@ -86,7 +88,7 @@ export const createSignUpComponent = ({component, onSubmit, ...rest}: AdapterPro
       if (buttonVariant === 'SOCIAL') {
         if (buttonText.toLowerCase().includes('google')) {
           return (
-            <GoogleButton onClick={() => onSubmit(component, {})} {...rest}>
+            <GoogleButton onClick={(): any => onSubmit(component, {})} {...rest}>
               {buttonText}
             </GoogleButton>
           );
@@ -94,7 +96,7 @@ export const createSignUpComponent = ({component, onSubmit, ...rest}: AdapterPro
 
         if (buttonText.toLowerCase().includes('github')) {
           return (
-            <GitHubButton onClick={() => onSubmit(component, {})} {...rest}>
+            <GitHubButton onClick={(): any => onSubmit(component, {})} {...rest}>
               {buttonText}
             </GitHubButton>
           );
@@ -102,7 +104,7 @@ export const createSignUpComponent = ({component, onSubmit, ...rest}: AdapterPro
 
         if (buttonText.toLowerCase().includes('microsoft')) {
           return (
-            <MicrosoftButton onClick={() => onSubmit(component, {})} {...rest}>
+            <MicrosoftButton onClick={(): any => onSubmit(component, {})} {...rest}>
               {buttonText}
             </MicrosoftButton>
           );
@@ -110,7 +112,7 @@ export const createSignUpComponent = ({component, onSubmit, ...rest}: AdapterPro
 
         if (buttonText.toLowerCase().includes('facebook')) {
           return (
-            <FacebookButton onClick={() => onSubmit(component, {})} {...rest}>
+            <FacebookButton onClick={(): any => onSubmit(component, {})} {...rest}>
               {buttonText}
             </FacebookButton>
           );
@@ -118,7 +120,7 @@ export const createSignUpComponent = ({component, onSubmit, ...rest}: AdapterPro
 
         if (buttonText.toLowerCase().includes('linkedin')) {
           return (
-            <LinkedInButton onClick={() => onSubmit(component, {})} {...rest}>
+            <LinkedInButton onClick={(): any => onSubmit(component, {})} {...rest}>
               {buttonText}
             </LinkedInButton>
           );
@@ -126,7 +128,7 @@ export const createSignUpComponent = ({component, onSubmit, ...rest}: AdapterPro
 
         if (buttonText.toLowerCase().includes('ethereum')) {
           return (
-            <SignInWithEthereumButton onClick={() => onSubmit(component, {})} {...rest}>
+            <SignInWithEthereumButton onClick={(): any => onSubmit(component, {})} {...rest}>
               {buttonText}
             </SignInWithEthereumButton>
           );
@@ -206,7 +208,7 @@ export const renderSignUpComponents = (
   },
 ): ReactElement[] =>
   components
-    .map((component, index) =>
+    .map((component: any, index: any) =>
       createSignUpOptionFromComponent(
         component,
         formValues,

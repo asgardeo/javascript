@@ -17,7 +17,7 @@
  */
 
 import {FC, ReactElement, ReactNode, useState} from 'react';
-import BaseUserDropdown, {BaseUserDropdownProps} from './BaseUserDropdown';
+import {BaseUserDropdown as BaseUserDropdownComponent, BaseUserDropdownProps} from './BaseUserDropdown';
 import useAsgardeo from '../../../contexts/Asgardeo/useAsgardeo';
 import UserProfile from '../UserProfile/UserProfile';
 
@@ -117,27 +117,29 @@ const UserDropdown: FC<UserDropdownProps> = ({
   const {user, isLoading, signOut} = useAsgardeo();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
 
-  const handleManageProfile = () => {
+  const handleManageProfile = (): void => {
     setIsProfileOpen(true);
   };
 
-  const handleSignOut = () => {
+  const handleSignOut = (): void => {
     signOut();
-    onSignOut && onSignOut();
+    if (onSignOut) {
+      onSignOut();
+    }
   };
 
-  const closeProfile = () => {
+  const closeProfile = (): void => {
     setIsProfileOpen(false);
   };
 
   // Prepare render props data
   const renderProps: UserDropdownRenderProps = {
-    user,
+    closeProfile,
     isLoading: isLoading as boolean,
+    isProfileOpen,
     openProfile: handleManageProfile,
     signOut: handleSignOut,
-    isProfileOpen,
-    closeProfile,
+    user,
   };
 
   // If children render prop is provided, use it for complete customization
@@ -159,7 +161,7 @@ const UserDropdown: FC<UserDropdownProps> = ({
         {renderTrigger ? (
           renderTrigger(renderProps)
         ) : (
-          <BaseUserDropdown
+          <BaseUserDropdownComponent
             user={user}
             isLoading={isLoading}
             onManageProfile={handleManageProfile}
@@ -176,7 +178,7 @@ const UserDropdown: FC<UserDropdownProps> = ({
   // Default behavior - use BaseUserDropdown as before
   return (
     <>
-      <BaseUserDropdown
+      <BaseUserDropdownComponent
         user={user}
         isLoading={isLoading}
         onManageProfile={handleManageProfile}

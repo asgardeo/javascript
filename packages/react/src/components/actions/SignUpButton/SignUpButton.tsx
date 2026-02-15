@@ -16,8 +16,7 @@
  * under the License.
  */
 
-import {AsgardeoRuntimeError} from '@asgardeo/browser';
-import {navigate} from '@asgardeo/browser';
+import {AsgardeoRuntimeError, navigate} from '@asgardeo/browser';
 import {forwardRef, ForwardRefExoticComponent, MouseEvent, ReactElement, Ref, RefAttributes, useState} from 'react';
 import BaseSignUpButton, {BaseSignUpButtonProps} from './BaseSignUpButton';
 import useAsgardeo from '../../../contexts/Asgardeo/useAsgardeo';

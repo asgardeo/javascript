@@ -22,11 +22,11 @@ import {EmbeddedSignInFlowAuthenticator, EmbeddedSignInFlowAuthenticatorParamTyp
  * Interface for form field state.
  */
 export interface FormField {
-  param: string;
-  type: EmbeddedSignInFlowAuthenticatorParamType;
-  displayName: string;
   confidential: boolean;
+  displayName: string;
+  param: string;
   required: boolean;
+  type: EmbeddedSignInFlowAuthenticatorParamType;
   value: string;
 }
 
@@ -40,19 +40,29 @@ export interface BaseAuthenticatorProps {
   authenticator: EmbeddedSignInFlowAuthenticator;
 
   /**
-   * Current form values.
+   * Custom CSS class name for the submit button.
    */
-  formValues: Record<string, string>;
-
-  /**
-   * Whether the component is in loading state.
-   */
-  isLoading: boolean;
+  buttonClassName?: string;
 
   /**
    * Error message to display.
    */
   error?: string | null;
+
+  /**
+   * Current form values.
+   */
+  formValues: Record<string, string>;
+
+  /**
+   * Custom CSS class name for form inputs.
+   */
+  inputClassName?: string;
+
+  /**
+   * Whether the component is in loading state.
+   */
+  isLoading: boolean;
 
   /**
    * Callback function called when input values change.
@@ -63,16 +73,6 @@ export interface BaseAuthenticatorProps {
    * Callback function called when the authenticator is submitted.
    */
   onSubmit: (authenticator: EmbeddedSignInFlowAuthenticator, formData?: Record<string, string>) => void;
-
-  /**
-   * Custom CSS class name for form inputs.
-   */
-  inputClassName?: string;
-
-  /**
-   * Custom CSS class name for the submit button.
-   */
-  buttonClassName?: string;
 
   /**
    * Text for the submit button.
@@ -89,43 +89,43 @@ export interface AuthenticatorSelectorProps {
    */
   authenticators: EmbeddedSignInFlowAuthenticator[];
 
-  /**
-   * Current form values.
-   */
-  formValues: Record<string, string>;
-
-  /**
-   * Whether the component is in loading state.
-   */
-  isLoading: boolean;
+  buttonClassName?: string;
 
   /**
    * Error message to display.
    */
   error?: string | null;
 
-  /**
-   * Messages to display to the user.
-   */
-  messages: Array<{type: string; message: string}>;
+  errorClassName?: string;
 
   /**
-   * Callback function called when input values change.
+   * Current form values.
    */
-  onInputChange: (param: string, value: string) => void;
-
-  /**
-   * Callback function called when an authenticator is selected.
-   */
-  onAuthenticatorSelection: (authenticator: EmbeddedSignInFlowAuthenticator, formData?: Record<string, string>) => void;
+  formValues: Record<string, string>;
 
   /**
    * Custom CSS class names.
    */
   inputClassName?: string;
-  buttonClassName?: string;
-  errorClassName?: string;
+
+  /**
+   * Whether the component is in loading state.
+   */
+  isLoading: boolean;
+
   messageClassName?: string;
+  /**
+   * Messages to display to the user.
+   */
+  messages: Array<{message: string; type: string}>;
+  /**
+   * Callback function called when an authenticator is selected.
+   */
+  onAuthenticatorSelection: (authenticator: EmbeddedSignInFlowAuthenticator, formData?: Record<string, string>) => void;
+  /**
+   * Callback function called when input values change.
+   */
+  onInputChange: (param: string, value: string) => void;
 
   /**
    * Text for the submit button.
@@ -137,6 +137,6 @@ export interface AuthenticatorSelectorProps {
  * Style configuration for authenticators.
  */
 export interface AuthenticatorStyle {
-  variant: 'solid' | 'outline';
   color: string;
+  variant: 'solid' | 'outline';
 }

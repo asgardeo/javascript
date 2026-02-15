@@ -16,9 +16,9 @@
  * under the License.
  */
 
+import {Theme} from '@asgardeo/browser';
 import {css} from '@emotion/css';
 import {useMemo} from 'react';
-import {Theme} from '@asgardeo/browser';
 
 export type TypographyVariant =
   | 'h1'
@@ -75,8 +75,8 @@ const useStyles = (
   fontWeight?: 'normal' | 'medium' | 'semibold' | 'bold' | number,
   fontSize?: string | number,
   lineHeight?: string | number,
-) => {
-  return useMemo(() => {
+): Record<string, string> =>
+  useMemo(() => {
     const getColorValue = (colorVariant: TypographyColor): string => {
       switch (colorVariant) {
         case 'primary':
@@ -96,99 +96,99 @@ const useStyles = (
       }
     };
 
-    const getVariantStyles = (variantName: TypographyVariant) => {
+    const getVariantStyles = (variantName: TypographyVariant): Record<string, string | number> => {
       switch (variantName) {
         case 'h1':
           return {
             fontSize: theme.vars.typography.fontSizes['3xl'],
             fontWeight: 600,
-            lineHeight: 1.235,
             letterSpacing: '-0.00735em',
+            lineHeight: 1.235,
           };
         case 'h2':
           return {
             fontSize: theme.vars.typography.fontSizes['2xl'],
             fontWeight: 600,
-            lineHeight: 1.334,
             letterSpacing: '0em',
+            lineHeight: 1.334,
           };
         case 'h3':
           return {
             fontSize: theme.vars.typography.fontSizes.xl,
             fontWeight: 600,
-            lineHeight: 1.6,
             letterSpacing: '0.0075em',
+            lineHeight: 1.6,
           };
         case 'h4':
           return {
             fontSize: theme.vars.typography.fontSizes.lg,
             fontWeight: 600,
-            lineHeight: 1.5,
             letterSpacing: '0.00938em',
+            lineHeight: 1.5,
           };
         case 'h5':
           return {
             fontSize: theme.vars.typography.fontSizes.md,
             fontWeight: 600,
-            lineHeight: 1.334,
             letterSpacing: '0em',
+            lineHeight: 1.334,
           };
         case 'h6':
           return {
             fontSize: theme.vars.typography.fontSizes.sm,
             fontWeight: 500,
-            lineHeight: 1.6,
             letterSpacing: '0.0075em',
+            lineHeight: 1.6,
           };
         case 'subtitle1':
           return {
             fontSize: theme.vars.typography.fontSizes.md,
             fontWeight: 400,
-            lineHeight: 1.75,
             letterSpacing: '0.00938em',
+            lineHeight: 1.75,
           };
         case 'subtitle2':
           return {
             fontSize: theme.vars.typography.fontSizes.sm,
             fontWeight: 500,
-            lineHeight: 1.57,
             letterSpacing: '0.00714em',
+            lineHeight: 1.57,
           };
         case 'body1':
           return {
             fontSize: theme.vars.typography.fontSizes.md,
             fontWeight: 400,
-            lineHeight: 1.5,
             letterSpacing: '0.00938em',
+            lineHeight: 1.5,
           };
         case 'body2':
           return {
             fontSize: theme.vars.typography.fontSizes.sm,
             fontWeight: 400,
-            lineHeight: 1.43,
             letterSpacing: '0.01071em',
+            lineHeight: 1.43,
           };
         case 'caption':
           return {
             fontSize: theme.vars.typography.fontSizes.xs,
             fontWeight: 400,
-            lineHeight: 1.66,
             letterSpacing: '0.03333em',
+            lineHeight: 1.66,
           };
         case 'overline':
           return {
             fontSize: theme.vars.typography.fontSizes.xs,
             fontWeight: 400,
-            lineHeight: 2.66,
             letterSpacing: '0.08333em',
+            lineHeight: 2.66,
             textTransform: 'uppercase' as const,
           };
         case 'button':
           return {
             fontSize: theme.vars.typography.fontSizes.sm,
             fontWeight: 500,
-            lineHeight: 1.75,
             letterSpacing: '0.02857em',
+            lineHeight: 1.75,
             textTransform: 'uppercase' as const,
           };
         default:
@@ -196,19 +196,19 @@ const useStyles = (
       }
     };
 
-    const variantStyles = getVariantStyles(variant);
-    const colorValue = getColorValue(color);
+    const variantStyles: Record<string, string | number> = getVariantStyles(variant);
+    const colorValue: string = getColorValue(color);
 
-    const typography = css`
+    const typography: string = css`
       margin: 0;
       color: ${colorValue};
       text-align: ${align};
       display: ${inline ? 'inline' : 'block'};
-      ${variantStyles.fontSize ? `font-size: ${variantStyles.fontSize};` : ''}
-      ${variantStyles.fontWeight ? `font-weight: ${variantStyles.fontWeight};` : ''}
-      ${variantStyles.lineHeight ? `line-height: ${variantStyles.lineHeight};` : ''}
-      ${variantStyles.letterSpacing ? `letter-spacing: ${variantStyles.letterSpacing};` : ''}
-      ${variantStyles.textTransform ? `text-transform: ${variantStyles.textTransform};` : ''}
+      ${variantStyles['fontSize'] ? `font-size: ${variantStyles['fontSize']};` : ''}
+      ${variantStyles['fontWeight'] ? `font-weight: ${variantStyles['fontWeight']};` : ''}
+      ${variantStyles['lineHeight'] ? `line-height: ${variantStyles['lineHeight']};` : ''}
+      ${variantStyles['letterSpacing'] ? `letter-spacing: ${variantStyles['letterSpacing']};` : ''}
+      ${variantStyles['textTransform'] ? `text-transform: ${variantStyles['textTransform']};` : ''}
 
       /* Custom overrides */
       ${fontWeight ? `font-weight: ${fontWeight} !important;` : ''}
@@ -231,98 +231,98 @@ const useStyles = (
         : ''}
     `;
 
-    const typographyNoWrap = css`
+    const typographyNoWrap: string = css`
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
     `;
 
-    const typographyInline = css`
+    const typographyInline: string = css`
       display: inline;
     `;
 
-    const typographyGutterBottom = css`
+    const typographyGutterBottom: string = css`
       margin-bottom: ${theme.spacing.unit}px;
     `;
 
-    const typographyH1 = css`
+    const typographyH1: string = css`
       font-size: ${theme.vars.typography.fontSizes['3xl']};
       font-weight: 600;
       line-height: 1.235;
       letter-spacing: -0.00735em;
     `;
 
-    const typographyH2 = css`
+    const typographyH2: string = css`
       font-size: ${theme.vars.typography.fontSizes['2xl']};
       font-weight: 600;
       line-height: 1.334;
       letter-spacing: 0em;
     `;
 
-    const typographyH3 = css`
+    const typographyH3: string = css`
       font-size: ${theme.vars.typography.fontSizes.xl};
       font-weight: 600;
       line-height: 1.6;
       letter-spacing: 0.0075em;
     `;
 
-    const typographyH4 = css`
+    const typographyH4: string = css`
       font-size: ${theme.vars.typography.fontSizes.lg};
       font-weight: 600;
       line-height: 1.5;
       letter-spacing: 0.00938em;
     `;
 
-    const typographyH5 = css`
+    const typographyH5: string = css`
       font-size: ${theme.vars.typography.fontSizes.md};
       font-weight: 600;
       line-height: 1.334;
       letter-spacing: 0em;
     `;
 
-    const typographyH6 = css`
+    const typographyH6: string = css`
       font-size: ${theme.vars.typography.fontSizes.sm};
       font-weight: 500;
       line-height: 1.6;
       letter-spacing: 0.0075em;
     `;
 
-    const typographySubtitle1 = css`
+    const typographySubtitle1: string = css`
       font-size: ${theme.vars.typography.fontSizes.md};
       font-weight: 400;
       line-height: 1.75;
       letter-spacing: 0.00938em;
     `;
 
-    const typographySubtitle2 = css`
+    const typographySubtitle2: string = css`
       font-size: ${theme.vars.typography.fontSizes.sm};
       font-weight: 500;
       line-height: 1.57;
       letter-spacing: 0.00714em;
     `;
 
-    const typographyBody1 = css`
+    const typographyBody1: string = css`
       font-size: ${theme.vars.typography.fontSizes.md};
       font-weight: 400;
       line-height: 1.5;
       letter-spacing: 0.00938em;
     `;
 
-    const typographyBody2 = css`
+    const typographyBody2: string = css`
       font-size: ${theme.vars.typography.fontSizes.sm};
       font-weight: 400;
       line-height: 1.43;
       letter-spacing: 0.01071em;
     `;
 
-    const typographyCaption = css`
+    const typographyCaption: string = css`
       font-size: ${theme.vars.typography.fontSizes.xs};
       font-weight: 400;
       line-height: 1.66;
       letter-spacing: 0.03333em;
     `;
 
-    const typographyOverline = css`
+    const typographyOverline: string = css`
       font-size: ${theme.vars.typography.fontSizes.xs};
       font-weight: 400;
       line-height: 2.66;
@@ -330,7 +330,7 @@ const useStyles = (
       text-transform: uppercase;
     `;
 
-    const typographyButton = css`
+    const typographyButton: string = css`
       font-size: ${theme.vars.typography.fontSizes.sm};
       font-weight: 500;
       line-height: 1.75;
@@ -340,8 +340,10 @@ const useStyles = (
 
     return {
       typography,
-      typographyNoWrap,
-      typographyInline,
+      typographyBody1,
+      typographyBody2,
+      typographyButton,
+      typographyCaption,
       typographyGutterBottom,
       typographyH1,
       typographyH2,
@@ -349,15 +351,12 @@ const useStyles = (
       typographyH4,
       typographyH5,
       typographyH6,
+      typographyInline,
+      typographyNoWrap,
+      typographyOverline,
       typographySubtitle1,
       typographySubtitle2,
-      typographyBody1,
-      typographyBody2,
-      typographyCaption,
-      typographyOverline,
-      typographyButton,
     };
   }, [theme, colorScheme, variant, align, color, noWrap, inline, gutterBottom, fontWeight, fontSize, lineHeight]);
-};
 
 export default useStyles;

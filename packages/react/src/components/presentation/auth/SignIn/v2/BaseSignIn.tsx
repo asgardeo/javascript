@@ -16,41 +16,37 @@
  * under the License.
  */
 
-import {FC, useState, useCallback, ReactElement, ReactNode} from 'react';
-import {cx} from '@emotion/css';
 import {
   withVendorCSSClassPrefix,
   EmbeddedSignInFlowRequestV2 as EmbeddedSignInFlowRequest,
   EmbeddedFlowComponentV2 as EmbeddedFlowComponent,
 } from '@asgardeo/browser';
-import useTranslation from '../../../../../hooks/useTranslation';
-import Card, {CardProps} from '../../../../primitives/Card/Card';
-import Spinner from '../../../../primitives/Spinner/Spinner';
-import Alert from '../../../../primitives/Alert/Alert';
-import Logo from '../../../../primitives/Logo/Logo';
-import Typography from '../../../../primitives/Typography/Typography';
-import useTheme from '../../../../../contexts/Theme/useTheme';
-import useStyles from '../BaseSignIn.styles';
-import useFlow from '../../../../../contexts/Flow/useFlow';
+import {cx} from '@emotion/css';
+import {FC, useState, useCallback, ReactElement, ReactNode} from 'react';
 import FlowProvider from '../../../../../contexts/Flow/FlowProvider';
+import useFlow from '../../../../../contexts/Flow/useFlow';
+import useTheme from '../../../../../contexts/Theme/useTheme';
 import {FormField, useForm} from '../../../../../hooks/useForm';
-import {renderSignInComponents} from '../../AuthOptionFactory';
+import useTranslation from '../../../../../hooks/useTranslation';
 import {extractErrorMessage} from '../../../../../utils/v2/flowTransformer';
 import getAuthComponentHeadings from '../../../../../utils/v2/getAuthComponentHeadings';
+import AlertPrimitive from '../../../../primitives/Alert/Alert';
+// eslint-disable-next-line import/no-named-as-default
+import CardPrimitive, {CardProps} from '../../../../primitives/Card/Card';
+import Logo from '../../../../primitives/Logo/Logo';
+import Spinner from '../../../../primitives/Spinner/Spinner';
+import Typography from '../../../../primitives/Typography/Typography';
+import {renderSignInComponents} from '../../AuthOptionFactory';
+import useStyles from '../BaseSignIn.styles';
 
 /**
  * Render props for custom UI rendering
  */
 export interface BaseSignInRenderProps {
   /**
-   * Form values
+   * Flow components
    */
-  values: Record<string, string>;
-
-  /**
-   * Field validation errors
-   */
-  fieldErrors: Record<string, string>;
+  components: EmbeddedFlowComponent[];
 
   /**
    * API error (if any)
@@ -58,24 +54,9 @@ export interface BaseSignInRenderProps {
   error?: Error | null;
 
   /**
-   * Touched fields
+   * Field validation errors
    */
-  touched: Record<string, boolean>;
-
-  /**
-   * Whether the form is valid
-   */
-  isValid: boolean;
-
-  /**
-   * Loading state
-   */
-  isLoading: boolean;
-
-  /**
-   * Flow components
-   */
-  components: EmbeddedFlowComponent[];
+  fieldErrors: Record<string, string>;
 
   /**
    * Function to handle input changes
@@ -88,14 +69,19 @@ export interface BaseSignInRenderProps {
   handleSubmit: (component: EmbeddedFlowComponent, data?: Record<string, any>) => Promise<void>;
 
   /**
-   * Function to validate the form
+   * Loading state
    */
-  validateForm: () => {isValid: boolean; fieldErrors: Record<string, string>};
+  isLoading: boolean;
 
   /**
-   * Flow title
+   * Whether the form is valid
    */
-  title: string;
+  isValid: boolean;
+
+  /**
+   * Flow messages
+   */
+  messages: Array<{message: string; type: string}>;
 
   /**
    * Flow subtitle
@@ -103,9 +89,24 @@ export interface BaseSignInRenderProps {
   subtitle: string;
 
   /**
-   * Flow messages
+   * Flow title
    */
-  messages: Array<{message: string; type: string}>;
+  title: string;
+
+  /**
+   * Touched fields
+   */
+  touched: Record<string, boolean>;
+
+  /**
+   * Function to validate the form
+   */
+  validateForm: () => {fieldErrors: Record<string, string>; isValid: boolean};
+
+  /**
+   * Form values
+   */
+  values: Record<string, string>;
 }
 
 /**
@@ -118,6 +119,11 @@ export interface BaseSignInProps {
   buttonClassName?: string;
 
   /**
+   * Render props function for custom UI
+   */
+  children?: (props: BaseSignInRenderProps) => ReactNode;
+
+  /**
    * Custom CSS class name for the form container.
    */
   className?: string;
@@ -128,24 +134,24 @@ export interface BaseSignInProps {
   components?: EmbeddedFlowComponent[];
 
   /**
-   * Custom CSS class name for error messages.
-   */
-  errorClassName?: string;
-
-  /**
    * Error object to display
    */
   error?: Error | null;
 
   /**
-   * Flag to determine if the component is ready to be rendered.
+   * Custom CSS class name for error messages.
    */
-  isLoading?: boolean;
+  errorClassName?: string;
 
   /**
    * Custom CSS class name for form inputs.
    */
   inputClassName?: string;
+
+  /**
+   * Flag to determine if the component is ready to be rendered.
+   */
+  isLoading?: boolean;
 
   /**
    * Custom CSS class name for info messages.
@@ -172,6 +178,21 @@ export interface BaseSignInProps {
   onSuccess?: (authData: Record<string, any>) => void;
 
   /**
+   * Whether to show the logo.
+   */
+  showLogo?: boolean;
+
+  /**
+   * Whether to show the subtitle.
+   */
+  showSubtitle?: boolean;
+
+  /**
+   * Whether to show the title.
+   */
+  showTitle?: boolean;
+
+  /**
    * Size variant for the component.
    */
   size?: 'small' | 'medium' | 'large';
@@ -180,94 +201,7 @@ export interface BaseSignInProps {
    * Theme variant for the component.
    */
   variant?: CardProps['variant'];
-
-  /**
-   * Render props function for custom UI
-   */
-  children?: (props: BaseSignInRenderProps) => ReactNode;
-
-  /**
-   * Whether to show the title.
-   */
-  showTitle?: boolean;
-
-  /**
-   * Whether to show the subtitle.
-   */
-  showSubtitle?: boolean;
-
-  /**
-   * Whether to show the logo.
-   */
-  showLogo?: boolean;
 }
-
-/**
- * Base SignIn component that provides generic authentication flow.
- * This component handles component-driven UI rendering and can transform input
- * structure to component-driven format automatically.
- *
- * @example
- * // Default UI
- * ```tsx
- * import { BaseSignIn } from '@asgardeo/react';
- *
- * const MySignIn = () => {
- *   return (
- *     <BaseSignIn
- *       components={components}
- *       onSubmit={async (payload) => {
- *         return await handleAuth(payload);
- *       }}
- *       onSuccess={(authData) => {
- *         console.log('Success:', authData);
- *       }}
- *       className="max-w-md mx-auto"
- *     />
- *   );
- * };
- * ```
- *
- * @example
- * // Custom UI with render props
- * ```tsx
- * <BaseSignIn components={components} onSubmit={handleSubmit}>
- *   {({values, errors, handleInputChange, handleSubmit, isLoading, components}) => (
- *     <div className="custom-form">
- *       <input
- *         name="username"
- *         value={values.username || ''}
- *         onChange={(e) => handleInputChange('username', e.target.value)}
- *       />
- *       {errors.username && <span>{errors.username}</span>}
- *       <button
- *         onClick={() => handleSubmit(components[0], values)}
- *         disabled={isLoading}
- *       >
- *         Sign In
- *       </button>
- *     </div>
- *   )}
- * </BaseSignIn>
- * ```
- */
-const BaseSignIn: FC<BaseSignInProps> = ({showLogo = true, ...rest}: BaseSignInProps): ReactElement => {
-  const {theme} = useTheme();
-  const styles = useStyles(theme, theme.vars.colors.text.primary);
-
-  return (
-    <div>
-      {showLogo && (
-        <div className={styles.logoContainer}>
-          <Logo size="large" />
-        </div>
-      )}
-      <FlowProvider>
-        <BaseSignInContent showLogo={showLogo} {...rest} />
-      </FlowProvider>
-    </div>
-  );
-};
 
 /**
  * Internal component that consumes FlowContext and renders the sign-in UI.
@@ -280,7 +214,6 @@ const BaseSignInContent: FC<BaseSignInProps> = ({
   className = '',
   inputClassName = '',
   buttonClassName = '',
-  errorClassName = '',
   messageClassName = '',
   size = 'medium',
   variant = 'outlined',
@@ -288,12 +221,11 @@ const BaseSignInContent: FC<BaseSignInProps> = ({
   children,
   showTitle = true,
   showSubtitle = true,
-  showLogo = true,
-}) => {
+}: BaseSignInProps): ReactElement => {
   const {theme} = useTheme();
   const {t} = useTranslation();
   const {subtitle: flowSubtitle, title: flowTitle, messages: flowMessages, addMessage, clearMessages} = useFlow();
-  const styles = useStyles(theme, theme.vars.colors.text.primary);
+  const styles: any = useStyles(theme, theme.vars.colors.text.primary);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [apiError, setApiError] = useState<Error | null>(null);
@@ -304,7 +236,7 @@ const BaseSignInContent: FC<BaseSignInProps> = ({
    * Handle error responses and extract meaningful error messages
    * Uses the transformer's extractErrorMessage function for consistency
    */
-  const handleError = useCallback(
+  const handleError: any = useCallback(
     (error: any) => {
       // Extract error message from response failureReason or use extractErrorMessage
       const errorMessage: string = error?.failureReason || extractErrorMessage(error, t);
@@ -315,8 +247,8 @@ const BaseSignInContent: FC<BaseSignInProps> = ({
       // Clear existing messages and add the error message
       clearMessages();
       addMessage({
-        type: 'error',
         message: errorMessage,
+        type: 'error',
       });
     },
     [t, addMessage, clearMessages],
@@ -326,11 +258,11 @@ const BaseSignInContent: FC<BaseSignInProps> = ({
    * Extract form fields from flow components
    */
   const extractFormFields: (components: EmbeddedFlowComponent[]) => FormField[] = useCallback(
-    (components: EmbeddedFlowComponent[]): FormField[] => {
+    (flowComponents: EmbeddedFlowComponent[]): FormField[] => {
       const fields: FormField[] = [];
 
-      const processComponents = (comps: EmbeddedFlowComponent[]) => {
-        comps.forEach(component => {
+      const processComponents = (comps: EmbeddedFlowComponent[]): any => {
+        comps.forEach((component: any) => {
           if (
             component.type === 'TEXT_INPUT' ||
             component.type === 'PASSWORD_INPUT' ||
@@ -338,9 +270,9 @@ const BaseSignInContent: FC<BaseSignInProps> = ({
           ) {
             const identifier: string = component.ref;
             fields.push({
+              initialValue: '',
               name: identifier,
               required: component.required || false,
-              initialValue: '',
               validator: (value: string) => {
                 if (component.required && (!value || value.trim() === '')) {
                   return t('validations.required.field.error');
@@ -364,7 +296,7 @@ const BaseSignInContent: FC<BaseSignInProps> = ({
         });
       };
 
-      processComponents(components);
+      processComponents(flowComponents);
       return fields;
     },
     [t],
@@ -373,11 +305,11 @@ const BaseSignInContent: FC<BaseSignInProps> = ({
   const formFields: FormField[] = components ? extractFormFields(components) : [];
 
   const form: ReturnType<typeof useForm> = useForm<Record<string, string>>({
-    initialValues: {},
     fields: formFields,
+    initialValues: {},
+    requiredMessage: t('validations.required.field.error'),
     validateOnBlur: true,
     validateOnChange: false,
-    requiredMessage: t('validations.required.field.error'),
   });
 
   const {
@@ -436,7 +368,7 @@ const BaseSignInContent: FC<BaseSignInProps> = ({
       // Filter out empty or undefined input values
       const filteredInputs: Record<string, any> = {};
       if (data) {
-        Object.keys(data).forEach(key => {
+        Object.keys(data).forEach((key: any) => {
           if (data[key] !== undefined && data[key] !== null && data[key] !== '') {
             filteredInputs[key] = data[key];
           }
@@ -462,7 +394,7 @@ const BaseSignInContent: FC<BaseSignInProps> = ({
   };
 
   // Generate CSS classes
-  const containerClasses = cx(
+  const containerClasses: any = cx(
     [
       withVendorCSSClassPrefix('signin'),
       withVendorCSSClassPrefix(`signin--${size}`),
@@ -471,7 +403,7 @@ const BaseSignInContent: FC<BaseSignInProps> = ({
     className,
   );
 
-  const inputClasses = cx(
+  const inputClasses: any = cx(
     [
       withVendorCSSClassPrefix('signin__input'),
       size === 'small' && withVendorCSSClassPrefix('signin__input--small'),
@@ -480,7 +412,7 @@ const BaseSignInContent: FC<BaseSignInProps> = ({
     inputClassName,
   );
 
-  const buttonClasses = cx(
+  const buttonClasses: any = cx(
     [
       withVendorCSSClassPrefix('signin__button'),
       size === 'small' && withVendorCSSClassPrefix('signin__button--small'),
@@ -489,17 +421,15 @@ const BaseSignInContent: FC<BaseSignInProps> = ({
     buttonClassName,
   );
 
-  const errorClasses = cx([withVendorCSSClassPrefix('signin__error')], errorClassName);
-
-  const messageClasses = cx([withVendorCSSClassPrefix('signin__messages')], messageClassName);
+  const messageClasses: any = cx([withVendorCSSClassPrefix('signin__messages')], messageClassName);
 
   /**
    * Render components based on flow data using the factory
    */
-  const renderComponents = useCallback(
-    (components: EmbeddedFlowComponent[]): ReactElement[] =>
+  const renderComponents: any = useCallback(
+    (flowComponents: EmbeddedFlowComponent[]): ReactElement[] =>
       renderSignInComponents(
-        components,
+        flowComponents,
         formValues,
         touchedFields,
         formErrors,
@@ -533,49 +463,53 @@ const BaseSignInContent: FC<BaseSignInProps> = ({
   // If render props are provided, use them
   if (children) {
     const renderProps: BaseSignInRenderProps = {
-      values: formValues,
-      fieldErrors: formErrors,
-      error: apiError,
-      touched: touchedFields,
-      isValid: isFormValid,
-      isLoading,
       components,
+      error: apiError,
+      fieldErrors: formErrors,
       handleInputChange,
       handleSubmit,
-      validateForm: () => {
-        const result = validateForm();
-        return {isValid: result.isValid, fieldErrors: result.errors};
-      },
-      title: flowTitle || t('signin.heading'),
-      subtitle: flowSubtitle || t('signin.subheading'),
+      isLoading,
+      isValid: isFormValid,
       messages: flowMessages || [],
+      subtitle: flowSubtitle || t('signin.subheading'),
+      title: flowTitle || t('signin.heading'),
+      touched: touchedFields,
+      validateForm: () => {
+        const result: any = validateForm();
+        return {fieldErrors: result.errors, isValid: result.isValid};
+      },
+      values: formValues,
     };
 
-    return <div className={containerClasses} data-testid="asgardeo-signin">{children(renderProps)}</div>;
+    return (
+      <div className={containerClasses} data-testid="asgardeo-signin">
+        {children(renderProps)}
+      </div>
+    );
   }
 
   // Default UI rendering
   if (isLoading) {
     return (
-      <Card className={cx(containerClasses, styles.card)} variant={variant} data-testid="asgardeo-signin">
-        <Card.Content>
+      <CardPrimitive className={cx(containerClasses, styles.card)} data-testid="asgardeo-signin" variant={variant}>
+        <CardPrimitive.Content>
           <div style={{display: 'flex', justifyContent: 'center', padding: '2rem'}}>
             <Spinner />
           </div>
-        </Card.Content>
-      </Card>
+        </CardPrimitive.Content>
+      </CardPrimitive>
     );
   }
 
   if (!components || components.length === 0) {
     return (
-      <Card className={cx(containerClasses, styles.card)} variant={variant} data-testid="asgardeo-signin">
-        <Card.Content>
-          <Alert variant="warning">
+      <CardPrimitive className={cx(containerClasses, styles.card)} data-testid="asgardeo-signin" variant={variant}>
+        <CardPrimitive.Content>
+          <AlertPrimitive variant="warning">
             <Typography variant="body1">{t('errors.signin.components.not.available')}</Typography>
-          </Alert>
-        </Card.Content>
-      </Card>
+          </AlertPrimitive>
+        </CardPrimitive.Content>
+      </CardPrimitive>
     );
   }
 
@@ -589,47 +523,114 @@ const BaseSignInContent: FC<BaseSignInProps> = ({
   );
 
   return (
-    <Card className={cx(containerClasses, styles.card)} variant={variant} data-testid="asgardeo-signin">
+    <CardPrimitive className={cx(containerClasses, styles.card)} data-testid="asgardeo-signin" variant={variant}>
       {(showTitle || showSubtitle) && (
-        <Card.Header className={styles.header}>
+        <CardPrimitive.Header className={styles.header}>
           {showTitle && (
-            <Card.Title level={2} className={styles.title}>
+            <CardPrimitive.Title level={2} className={styles.title}>
               {title}
-            </Card.Title>
+            </CardPrimitive.Title>
           )}
           {showSubtitle && (
             <Typography variant="body1" className={styles.subtitle}>
               {subtitle}
             </Typography>
           )}
-        </Card.Header>
+        </CardPrimitive.Header>
       )}
-      <Card.Content>
+      <CardPrimitive.Content>
         {externalError && (
           <div className={styles.flowMessagesContainer}>
-            <Alert variant="error" className={cx(styles.flowMessageItem, messageClasses)}>
-              <Alert.Description>{externalError.message}</Alert.Description>
-            </Alert>
+            <AlertPrimitive variant="error" className={cx(styles.flowMessageItem, messageClasses)}>
+              <AlertPrimitive.Description>{externalError.message}</AlertPrimitive.Description>
+            </AlertPrimitive>
           </div>
         )}
         {flowMessages && flowMessages.length > 0 && (
           <div className={styles.flowMessagesContainer}>
-            {flowMessages.map((message, index) => (
-              <Alert
+            {flowMessages.map((message: any, index: any) => (
+              <AlertPrimitive
                 key={index}
                 variant={message.type === 'error' ? 'error' : 'info'}
                 className={cx(styles.flowMessageItem, messageClasses)}
               >
-                <Alert.Description>{message.message}</Alert.Description>
-              </Alert>
+                <AlertPrimitive.Description>{message.message}</AlertPrimitive.Description>
+              </AlertPrimitive>
             ))}
           </div>
         )}
         <div className={styles.contentContainer}>
           {componentsWithoutHeadings && renderComponents(componentsWithoutHeadings)}
         </div>
-      </Card.Content>
-    </Card>
+      </CardPrimitive.Content>
+    </CardPrimitive>
+  );
+};
+
+/**
+ * Base SignIn component that provides generic authentication flow.
+ * This component handles component-driven UI rendering and can transform input
+ * structure to component-driven format automatically.
+ *
+ * @example
+ * // Default UI
+ * ```tsx
+ * import { BaseSignIn } from '@asgardeo/react';
+ *
+ * const MySignIn = () => {
+ *   return (
+ *     <BaseSignIn
+ *       components={components}
+ *       onSubmit={async (payload) => {
+ *         return await handleAuth(payload);
+ *       }}
+ *       onSuccess={(authData) => {
+ *         console.log('Success:', authData);
+ *       }}
+ *       className="max-w-md mx-auto"
+ *     />
+ *   );
+ * };
+ * ```
+ *
+ * @example
+ * // Custom UI with render props
+ * ```tsx
+ * <BaseSignIn components={components} onSubmit={handleSubmit}>
+ *   {({values, errors, handleInputChange, handleSubmit, isLoading, components}) => (
+ *     <div className="custom-form">
+ *       <input
+ *         name="username"
+ *         value={values.username || ''}
+ *         onChange={(e) => handleInputChange('username', e.target.value)}
+ *       />
+ *       {errors.username && <span>{errors.username}</span>}
+ *       <button
+ *         onClick={() => handleSubmit(components[0], values)}
+ *         disabled={isLoading}
+ *       >
+ *         Sign In
+ *       </button>
+ *     </div>
+ *   )}
+ * </BaseSignIn>
+ * ```
+ */
+const BaseSignIn: FC<BaseSignInProps> = ({showLogo = true, ...rest}: BaseSignInProps): ReactElement => {
+  const {theme} = useTheme();
+  const styles: any = useStyles(theme, theme.vars.colors.text.primary);
+
+  return (
+    <div>
+      {showLogo && (
+        <div className={styles.logoContainer}>
+          <Logo size="large" />
+        </div>
+      )}
+      <FlowProvider>
+        <BaseSignInContent showLogo={showLogo} {...rest} />
+      </FlowProvider>
+    </div>
   );
 };
 

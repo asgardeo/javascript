@@ -16,41 +16,49 @@
  * under the License.
  */
 
-import {FC, InputHTMLAttributes} from 'react';
-import useTheme from '../../../contexts/Theme/useTheme';
+import {withVendorCSSClassPrefix, bem} from '@asgardeo/browser';
 import {cx} from '@emotion/css';
+import {FC, InputHTMLAttributes} from 'react';
+import useStyles from './Checkbox.styles';
+import useTheme from '../../../contexts/Theme/useTheme';
 import FormControl from '../FormControl/FormControl';
 import InputLabel from '../InputLabel/InputLabel';
-import {withVendorCSSClassPrefix, bem} from '@asgardeo/browser';
-import useStyles from './Checkbox.styles';
 
 export interface CheckboxProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'className' | 'type'> {
-  /**
-   * Label text to display next to the checkbox
-   */
-  label?: string;
-  /**
-   * Error message to display below the checkbox
-   */
-  error?: string;
   /**
    * Additional CSS class names
    */
   className?: string;
   /**
-   * Whether the field is required
+   * Error message to display below the checkbox
    */
-  required?: boolean;
+  error?: string;
   /**
    * Helper text to display below the checkbox
    */
   helperText?: string;
+  /**
+   * Label text to display next to the checkbox
+   */
+  label?: string;
+  /**
+   * Whether the field is required
+   */
+  required?: boolean;
 }
 
-const Checkbox: FC<CheckboxProps> = ({label, error, className, required, helperText, style = {}, ...rest}) => {
-  const {theme, colorScheme} = useTheme();
-  const hasError = !!error;
-  const styles = useStyles(theme, colorScheme, hasError, !!required);
+const Checkbox: FC<CheckboxProps> = ({
+  label,
+  error,
+  className,
+  required,
+  helperText,
+  style = {},
+  ...rest
+}: CheckboxProps) => {
+  const {theme, colorScheme}: ReturnType<typeof useTheme> = useTheme();
+  const hasError: boolean = !!error;
+  const styles: Record<string, string> = useStyles(theme, colorScheme, hasError, !!required);
 
   return (
     <FormControl
@@ -59,10 +67,10 @@ const Checkbox: FC<CheckboxProps> = ({label, error, className, required, helperT
       className={cx(withVendorCSSClassPrefix(bem('checkbox')), className)}
       helperTextMarginLeft={`calc(${theme.vars.spacing.unit} * 3.5)`}
     >
-      <div style={style} className={cx(withVendorCSSClassPrefix(bem('checkbox', 'container')), styles.container)}>
+      <div style={style} className={cx(withVendorCSSClassPrefix(bem('checkbox', 'container')), styles['container'])}>
         <input
           type="checkbox"
-          className={cx(withVendorCSSClassPrefix(bem('checkbox', 'input')), styles.input, styles.errorInput, {
+          className={cx(withVendorCSSClassPrefix(bem('checkbox', 'input')), styles['input'], styles['errorInput'], {
             [withVendorCSSClassPrefix(bem('checkbox', 'input', 'error'))]: hasError,
           })}
           aria-invalid={hasError}
@@ -74,7 +82,7 @@ const Checkbox: FC<CheckboxProps> = ({label, error, className, required, helperT
             required={required}
             error={hasError}
             variant="inline"
-            className={cx(withVendorCSSClassPrefix(bem('checkbox', 'label')), styles.label, styles.errorLabel, {
+            className={cx(withVendorCSSClassPrefix(bem('checkbox', 'label')), styles['label'], styles['errorLabel'], {
               [withVendorCSSClassPrefix(bem('checkbox', 'label', 'error'))]: hasError,
             })}
           >

@@ -16,7 +16,12 @@
  * under the License.
  */
 
-import {ThemeDetection, ThemeMode} from '@asgardeo/javascript';
+import {ThemeDetection, ThemeMode, createPackageComponentLogger} from '@asgardeo/javascript';
+
+const logger: ReturnType<typeof createPackageComponentLogger> = createPackageComponentLogger(
+  '@asgardeo/browser',
+  'ThemeDetection',
+);
 
 /**
  * Extended theme detection config that includes DOM-specific options
@@ -51,11 +56,11 @@ export const detectThemeMode = (mode: ThemeMode, config: BrowserThemeDetection =
 
   if (mode === 'class') {
     if (!targetElement) {
-      console.warn('ThemeDetection: targetElement is required for class-based detection, falling back to light mode');
+      logger.warn('ThemeDetection: targetElement is required for class-based detection, falling back to light mode');
       return 'light';
     }
 
-    const classList = targetElement.classList;
+    const {classList} = targetElement;
 
     // Check for explicit dark class first
     if (classList.contains(darkClass)) {
@@ -84,10 +89,10 @@ export const createClassObserver = (
 ): MutationObserver => {
   const {darkClass = 'dark', lightClass = 'light'} = config;
 
-  const observer = new MutationObserver(mutations => {
-    mutations.forEach(mutation => {
+  const observer: MutationObserver = new MutationObserver((mutations: MutationRecord[]) => {
+    mutations.forEach((mutation: MutationRecord) => {
       if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
-        const classList = targetElement.classList;
+        const {classList} = targetElement;
 
         if (classList.contains(darkClass)) {
           callback(true);
@@ -101,8 +106,8 @@ export const createClassObserver = (
   });
 
   observer.observe(targetElement, {
-    attributes: true,
     attributeFilter: ['class'],
+    attributes: true,
   });
 
   return observer;
@@ -116,9 +121,9 @@ export const createMediaQueryListener = (callback: (isDark: boolean) => void): M
     return null;
   }
 
-  const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+  const mediaQuery: MediaQueryList = window.matchMedia('(prefers-color-scheme: dark)');
 
-  const handleChange = (e: MediaQueryListEvent) => {
+  const handleChange = (e: MediaQueryListEvent): void => {
     callback(e.matches);
   };
 

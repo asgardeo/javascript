@@ -16,43 +16,43 @@
  * under the License.
  */
 
-import {FC, InputHTMLAttributes} from 'react';
-import useTheme from '../../../contexts/Theme/useTheme';
+import {withVendorCSSClassPrefix, bem} from '@asgardeo/browser';
 import {cx} from '@emotion/css';
+import {FC, InputHTMLAttributes} from 'react';
+import useStyles from './DatePicker.styles';
+import useTheme from '../../../contexts/Theme/useTheme';
 import FormControl from '../FormControl/FormControl';
 import InputLabel from '../InputLabel/InputLabel';
-import {withVendorCSSClassPrefix, bem} from '@asgardeo/browser';
-import useStyles from './DatePicker.styles';
 
 export interface DatePickerProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'className' | 'type'> {
-  /**
-   * Label text to display above the input
-   */
-  label?: string;
-  /**
-   * Error message to display below the input
-   */
-  error?: string;
   /**
    * Additional CSS class names
    */
   className?: string;
   /**
-   * Whether the field is required
+   * Custom date format for the regex pattern
    */
-  required?: boolean;
+  dateFormat?: string;
   /**
    * Whether the field is disabled
    */
   disabled?: boolean;
   /**
+   * Error message to display below the input
+   */
+  error?: string;
+  /**
    * Helper text to display below the input
    */
   helperText?: string;
   /**
-   * Custom date format for the regex pattern
+   * Label text to display above the input
    */
-  dateFormat?: string;
+  label?: string;
+  /**
+   * Whether the field is required
+   */
+  required?: boolean;
 }
 
 const DatePicker: FC<DatePickerProps> = ({
@@ -65,10 +65,10 @@ const DatePicker: FC<DatePickerProps> = ({
   dateFormat = 'yyyy-MM-dd',
   style = {},
   ...rest
-}) => {
-  const {theme, colorScheme} = useTheme();
-  const hasError = !!error;
-  const styles = useStyles(theme, colorScheme, hasError, !!disabled);
+}: DatePickerProps) => {
+  const {theme, colorScheme}: ReturnType<typeof useTheme> = useTheme();
+  const hasError: boolean = !!error;
+  const styles: Record<string, string> = useStyles(theme, colorScheme, hasError, !!disabled);
 
   return (
     <FormControl
@@ -81,7 +81,7 @@ const DatePicker: FC<DatePickerProps> = ({
         <InputLabel
           required={required}
           error={hasError}
-          className={cx(withVendorCSSClassPrefix(bem('date-picker', 'label')), styles.label)}
+          className={cx(withVendorCSSClassPrefix(bem('date-picker', 'label')), styles['label'])}
         >
           {label}
         </InputLabel>
@@ -92,9 +92,9 @@ const DatePicker: FC<DatePickerProps> = ({
         placeholder={dateFormat}
         className={cx(
           withVendorCSSClassPrefix(bem('date-picker', 'input')),
-          styles.input,
-          styles.errorInput,
-          styles.disabledInput,
+          styles['input'],
+          styles['errorInput'],
+          styles['disabledInput'],
           {
             [withVendorCSSClassPrefix(bem('date-picker', 'input', 'error'))]: hasError,
             [withVendorCSSClassPrefix(bem('date-picker', 'input', 'disabled'))]: disabled,

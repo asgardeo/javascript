@@ -18,8 +18,8 @@
 
 import {User as IUser} from '@asgardeo/browser';
 import {FC, ReactElement, ReactNode} from 'react';
-import useAsgardeo from '../../../contexts/Asgardeo/useAsgardeo';
 import BaseUser, {BaseUserProps} from './BaseUser';
+import useAsgardeo from '../../../contexts/Asgardeo/useAsgardeo';
 
 /**
  * Props for the User component.
@@ -63,7 +63,7 @@ export interface UserProps extends Omit<BaseUserProps, 'user'> {
  * }
  * ```
  */
-const User: FC<UserProps> = ({children, fallback = null}): ReactElement => {
+const User: FC<UserProps> = ({children, fallback = null}: UserProps): ReactElement => {
   const {user} = useAsgardeo();
 
   return (

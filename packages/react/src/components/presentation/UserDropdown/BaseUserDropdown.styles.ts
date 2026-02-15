@@ -16,9 +16,9 @@
  * under the License.
  */
 
+import {Theme} from '@asgardeo/browser';
 import {css} from '@emotion/css';
 import {useMemo} from 'react';
-import {Theme} from '@asgardeo/browser';
 
 /**
  * Creates styles for the BaseUserDropdown component
@@ -26,9 +26,9 @@ import {Theme} from '@asgardeo/browser';
  * @param colorScheme - The current color scheme (used for memoization)
  * @returns Object containing CSS class names for component styling
  */
-const useStyles = (theme: Theme, colorScheme: string) => {
-  return useMemo(() => {
-    const trigger = css`
+const useStyles = (theme: Theme, colorScheme: string): Record<string, string> =>
+  useMemo(() => {
+    const trigger: string = css`
       display: inline-flex;
       align-items: center;
       gap: calc(${theme.vars.spacing.unit} * 0.75);
@@ -50,13 +50,16 @@ const useStyles = (theme: Theme, colorScheme: string) => {
         outline-offset: 2px;
       }
 
-      &:hover, &:focus, &:active, &:focus-visible {
+      &:hover,
+      &:focus,
+      &:active,
+      &:focus-visible {
         transition: none;
         box-shadow: none;
       }
     `;
 
-    const userName = css`
+    const userName: string = css`
       color: ${theme.vars.colors.text.primary};
       font-size: 0.875rem;
       font-weight: 500;
@@ -66,7 +69,7 @@ const useStyles = (theme: Theme, colorScheme: string) => {
       white-space: nowrap;
     `;
 
-    const dropdownContent = css`
+    const dropdownContent: string = css`
       background: ${theme.vars.colors.background.surface};
       border-radius: ${theme.vars.borderRadius.large};
       box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
@@ -77,13 +80,13 @@ const useStyles = (theme: Theme, colorScheme: string) => {
       overflow: hidden;
     `;
 
-    const dropdownMenu = css`
+    const dropdownMenu: string = css`
       display: flex;
       flex-direction: column;
       width: 100%;
     `;
 
-    const menuItem = css`
+    const menuItem: string = css`
       display: flex;
       align-items: center;
       justify-content: flex-start;
@@ -101,18 +104,20 @@ const useStyles = (theme: Theme, colorScheme: string) => {
       box-shadow: none;
       background: transparent;
 
-
       &:hover {
         background-color: ${theme.vars.colors.action?.hover || 'rgba(0, 0, 0, 0.05)'};
       }
 
-      &:hover, &:focus, &:active, &:focus-visible {
+      &:hover,
+      &:focus,
+      &:active,
+      &:focus-visible {
         transition: none;
         box-shadow: none;
       }
     `;
 
-    const menuItemAnchor = css`
+    const menuItemAnchor: string = css`
       display: flex;
       align-items: center;
       justify-content: flex-start;
@@ -134,12 +139,12 @@ const useStyles = (theme: Theme, colorScheme: string) => {
       }
     `;
 
-    const divider = css`
+    const divider: string = css`
       margin: calc(${theme.vars.spacing.unit} * 0.5) 0;
       border-bottom: 1px solid ${theme.vars.colors.border};
     `;
 
-    const dropdownHeader = css`
+    const dropdownHeader: string = css`
       display: flex;
       align-items: center;
       gap: ${theme.vars.spacing.unit};
@@ -147,7 +152,7 @@ const useStyles = (theme: Theme, colorScheme: string) => {
       border-bottom: 1px solid ${theme.vars.colors.border};
     `;
 
-    const headerInfo = css`
+    const headerInfo: string = css`
       display: flex;
       flex-direction: column;
       gap: calc(${theme.vars.spacing.unit} / 4);
@@ -158,7 +163,7 @@ const useStyles = (theme: Theme, colorScheme: string) => {
       white-space: nowrap;
     `;
 
-    const headerName = css`
+    const headerName: string = css`
       color: ${theme.vars.colors.text.primary};
       font-size: 1rem;
       font-weight: 500;
@@ -168,7 +173,7 @@ const useStyles = (theme: Theme, colorScheme: string) => {
       white-space: nowrap;
     `;
 
-    const headerEmail = css`
+    const headerEmail: string = css`
       color: ${theme.vars.colors.text.secondary};
       font-size: 0.875rem;
       margin: 0;
@@ -177,7 +182,7 @@ const useStyles = (theme: Theme, colorScheme: string) => {
       white-space: nowrap;
     `;
 
-    const loadingContainer = css`
+    const loadingContainer: string = css`
       display: flex;
       align-items: center;
       justify-content: center;
@@ -185,25 +190,25 @@ const useStyles = (theme: Theme, colorScheme: string) => {
       gap: ${theme.vars.spacing.unit};
     `;
 
-    const loadingText = css`
+    const loadingText: string = css`
       color: ${theme.vars.colors.text.secondary};
       font-size: 0.875rem;
     `;
 
     return {
-      trigger,
-      userName,
-      dropdownContent,
-      dropdownMenu,
-      menuItem,
-      menuItemAnchor,
       divider,
+      dropdownContent,
       dropdownHeader,
+      dropdownMenu,
+      headerEmail,
       headerInfo,
       headerName,
-      headerEmail,
       loadingContainer,
       loadingText,
+      menuItem,
+      menuItemAnchor,
+      trigger,
+      userName,
     };
   }, [
     theme.vars.colors.background.surface,
@@ -217,6 +222,5 @@ const useStyles = (theme: Theme, colorScheme: string) => {
     theme.vars.spacing.unit,
     colorScheme,
   ]);
-};
 
 export default useStyles;

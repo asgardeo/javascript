@@ -21,7 +21,7 @@ import {FC, SVGProps} from 'react';
 /**
  * User icon component.
  */
-const User: FC<SVGProps<SVGSVGElement>> = props => (
+const User: FC<SVGProps<SVGSVGElement>> = (props: SVGProps<SVGSVGElement>) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     width="24"

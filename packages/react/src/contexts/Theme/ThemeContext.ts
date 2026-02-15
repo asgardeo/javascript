@@ -16,32 +16,32 @@
  * under the License.
  */
 
-import {createContext} from 'react';
 import {Theme} from '@asgardeo/browser';
+import {Context, createContext} from 'react';
 
 export interface ThemeContextValue {
-  theme: Theme;
+  /**
+   * Error from branding theme fetch, if any
+   */
+  brandingError?: Error | null;
   colorScheme: 'light' | 'dark';
   /**
    * The text direction for the UI.
    */
   direction: 'ltr' | 'rtl';
-  toggleTheme: () => void;
-  /**
-   * Whether branding theme is currently loading
-   */
-  isBrandingLoading?: boolean;
-  /**
-   * Error from branding theme fetch, if any
-   */
-  brandingError?: Error | null;
   /**
    * Whether branding inheritance is enabled
    */
   inheritFromBranding?: boolean;
+  /**
+   * Whether branding theme is currently loading
+   */
+  isBrandingLoading?: boolean;
+  theme: Theme;
+  toggleTheme: () => void;
 }
 
-const ThemeContext = createContext<ThemeContextValue | null>(null);
+const ThemeContext: Context<ThemeContextValue | null> = createContext<ThemeContextValue | null>(null);
 
 ThemeContext.displayName = 'ThemeContext';
 

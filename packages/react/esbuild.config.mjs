@@ -31,8 +31,8 @@ const commonOptions = {
   plugins: [
     preserveDirectivesPlugin({
       directives: ['use client', 'use strict'],
-      include: /\.(js|ts|jsx|tsx)$/,
       exclude: /node_modules/,
+      include: /\.(js|ts|jsx|tsx)$/,
     }),
   ],
   target: ['es2020'],

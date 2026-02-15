@@ -21,7 +21,7 @@ import {FC, SVGProps} from 'react';
 /**
  * LogOut icon component.
  */
-const LogOut: FC<SVGProps<SVGSVGElement>> = props => (
+const LogOut: FC<SVGProps<SVGSVGElement>> = (props: SVGProps<SVGSVGElement>) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     width="24"

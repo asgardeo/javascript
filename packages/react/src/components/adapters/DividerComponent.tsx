@@ -17,18 +17,18 @@
  */
 
 import {FC} from 'react';
-import Divider from '../primitives/Divider/Divider';
 import useTheme from '../../contexts/Theme/useTheme';
 import {AdapterProps} from '../../models/adapters';
+import Divider from '../primitives/Divider/Divider';
 
 /**
  * Divider component for sign-up forms.
  */
-const DividerComponent: FC<AdapterProps> = ({component}) => {
+const DividerComponent: FC<AdapterProps> = ({component}: AdapterProps) => {
   const {theme} = useTheme();
   const config: Record<string, unknown> = component.config || {};
-  const text = (config['text'] as string) || '';
-  const variant = (component.variant?.toLowerCase() as string) || 'horizontal';
+  const text: string = (config['text'] as string) || '';
+  const variant: string = (component.variant?.toLowerCase() as string) || 'horizontal';
 
   return (
     <Divider

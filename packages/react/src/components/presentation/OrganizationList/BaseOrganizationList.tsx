@@ -18,15 +18,15 @@
 
 import {AllOrganizationsApiResponse, Organization} from '@asgardeo/browser';
 import {cx} from '@emotion/css';
-import {FC, ReactElement, ReactNode, useMemo, CSSProperties} from 'react';
+import {CSSProperties, FC, MouseEvent, ReactElement, ReactNode, useMemo} from 'react';
+import useStyles from './BaseOrganizationList.styles';
 import useTheme from '../../../contexts/Theme/useTheme';
 import useTranslation from '../../../hooks/useTranslation';
-import Dialog from '../../primitives/Dialog/Dialog';
-import Avatar from '../../primitives/Avatar/Avatar';
+import {Avatar as AvatarPrimitive} from '../../primitives/Avatar/Avatar';
 import Button from '../../primitives/Button/Button';
-import Typography from '../../primitives/Typography/Typography';
+import DialogPrimitive from '../../primitives/Dialog/Dialog';
 import Spinner from '../../primitives/Spinner/Spinner';
-import useStyles from './BaseOrganizationList.styles';
+import Typography from '../../primitives/Typography/Typography';
 
 export interface OrganizationWithSwitchAccess extends Organization {
   canSwitch: boolean;
@@ -37,17 +37,13 @@ export interface OrganizationWithSwitchAccess extends Organization {
  */
 export interface BaseOrganizationListProps {
   /**
-   * Additional CSS class names to apply to the container
-   */
-  className?: string;
-  /**
    * List of organizations discoverable to the signed-in user.
    */
   allOrganizations: AllOrganizationsApiResponse;
   /**
-   * List of organizations associated to the signed-in user.
+   * Additional CSS class names to apply to the container
    */
-  myOrganizations: Organization[];
+  className?: string;
   /**
    * Error message to display
    */
@@ -69,9 +65,29 @@ export interface BaseOrganizationListProps {
    */
   isLoadingMore?: boolean;
   /**
+   * Display mode: 'inline' for normal display, 'popup' for modal dialog
+   */
+  mode?: 'inline' | 'popup';
+  /**
+   * List of organizations associated to the signed-in user.
+   */
+  myOrganizations: Organization[];
+  /**
+   * Function called when popup open state changes (only used in popup mode)
+   */
+  onOpenChange?: (open: boolean) => void;
+  /**
+   * Function called when an organization is selected/clicked
+   */
+  onOrganizationSelect?: (organization: OrganizationWithSwitchAccess) => void;
+  /**
    * Function called when refresh is requested
    */
   onRefresh?: () => Promise<void>;
+  /**
+   * Whether the popup is open (only used in popup mode)
+   */
+  open?: boolean;
   /**
    * Custom renderer for when no organizations are found
    */
@@ -93,33 +109,17 @@ export interface BaseOrganizationListProps {
    */
   renderOrganization?: (organization: OrganizationWithSwitchAccess, index: number) => ReactNode;
   /**
-   * Function called when an organization is selected/clicked
+   * Whether to show the organization status in the list
    */
-  onOrganizationSelect?: (organization: OrganizationWithSwitchAccess) => void;
+  showStatus?: boolean;
   /**
    * Inline styles to apply to the container
    */
-  style?: React.CSSProperties;
-  /**
-   * Display mode: 'inline' for normal display, 'popup' for modal dialog
-   */
-  mode?: 'inline' | 'popup';
-  /**
-   * Function called when popup open state changes (only used in popup mode)
-   */
-  onOpenChange?: (open: boolean) => void;
-  /**
-   * Whether the popup is open (only used in popup mode)
-   */
-  open?: boolean;
+  style?: CSSProperties;
   /**
    * Title for the popup dialog (only used in popup mode)
    */
   title?: string;
-  /**
-   * Whether to show the organization status in the list
-   */
-  showStatus?: boolean;
 }
 
 /**
@@ -131,50 +131,48 @@ const defaultRenderOrganization = (
   t: (key: string, params?: Record<string, string | number>) => string,
   onOrganizationSelect?: (organization: OrganizationWithSwitchAccess) => void,
   showStatus?: boolean,
-): ReactNode => {
-  return (
-    <div key={organization.id} className={cx(styles.organizationItem)}>
-      <div className={cx(styles.organizationContent)}>
-        <Avatar variant="square" name={organization.name} size={48} alt={`${organization.name} logo`} />
-        <div className={cx(styles.organizationInfo)}>
-          <Typography variant="h6" className={cx(styles.organizationName)}>
-            {organization.name}
+): ReactNode => (
+  <div key={organization.id} className={cx(styles.organizationItem)}>
+    <div className={cx(styles.organizationContent)}>
+      <AvatarPrimitive variant="square" name={organization.name} size={48} alt={`${organization.name} logo`} />
+      <div className={cx(styles.organizationInfo)}>
+        <Typography variant="h6" className={cx(styles.organizationName)}>
+          {organization.name}
+        </Typography>
+        <Typography variant="body2" color="textSecondary" className={cx(styles.organizationHandle)}>
+          @{organization.orgHandle}
+        </Typography>
+        {showStatus && (
+          <Typography variant="body2" color="textSecondary" className={cx(styles.organizationStatus)}>
+            {t('organization.switcher.status.label')}{' '}
+            <span
+              className={cx(
+                styles.statusText,
+                organization.status === 'ACTIVE' ? styles.statusTextActive : styles.statusTextInactive,
+              )}
+            >
+              {organization.status}
+            </span>
           </Typography>
-          <Typography variant="body2" color="textSecondary" className={cx(styles.organizationHandle)}>
-            @{organization.orgHandle}
-          </Typography>
-          {showStatus && (
-            <Typography variant="body2" color="textSecondary" className={cx(styles.organizationStatus)}>
-              {t('organization.switcher.status.label')}{' '}
-              <span
-                className={cx(
-                  styles.statusText,
-                  organization.status === 'ACTIVE' ? styles.statusTextActive : styles.statusTextInactive,
-                )}
-              >
-                {organization.status}
-              </span>
-            </Typography>
-          )}
-        </div>
+        )}
       </div>
-      {organization.canSwitch && (
-        <div className={cx(styles.organizationActions)}>
-          <Button
-            onClick={e => {
-              e.stopPropagation();
-              onOrganizationSelect(organization);
-            }}
-            type="button"
-            size="small"
-          >
-            {t('organization.switcher.buttons.switch.text')}
-          </Button>
-        </div>
-      )}
     </div>
-  );
-};
+    {organization.canSwitch && (
+      <div className={cx(styles.organizationActions)}>
+        <Button
+          onClick={(e: MouseEvent<HTMLButtonElement>): void => {
+            e.stopPropagation();
+            onOrganizationSelect(organization);
+          }}
+          type="button"
+          size="small"
+        >
+          {t('organization.switcher.buttons.switch.text')}
+        </Button>
+      </div>
+    )}
+  </div>
+);
 
 /**
  * Default loading renderer
@@ -195,13 +193,13 @@ const defaultRenderLoading = (
  * Default error renderer
  */
 const defaultRenderError = (
-  error: string,
+  errorMessage: string,
   t: (key: string, params?: Record<string, string | number>) => string,
   styles: any,
 ): ReactNode => (
   <div className={cx(styles.errorContainer)}>
     <Typography variant="body1" color="error">
-      <strong>{t('organization.switcher.error.prefix')}</strong> {error}
+      <strong>{t('organization.switcher.error.prefix')}</strong> {errorMessage}
     </Typography>
   </div>
 );
@@ -211,12 +209,12 @@ const defaultRenderError = (
  */
 const defaultRenderLoadMore = (
   onLoadMore: () => Promise<void>,
-  isLoading: boolean,
+  isLoadingMore: boolean,
   t: (key: string, params?: Record<string, string | number>) => string,
   styles: any,
 ): ReactNode => (
-  <Button onClick={onLoadMore} disabled={isLoading} className={cx(styles.loadMoreButton)} type="button" fullWidth>
-    {isLoading ? t('organization.switcher.loading.more') : t('organization.switcher.buttons.load_more.text')}
+  <Button onClick={onLoadMore} disabled={isLoadingMore} className={cx(styles.loadMoreButton)} type="button" fullWidth>
+    {isLoadingMore ? t('organization.switcher.loading.more') : t('organization.switcher.buttons.load_more.text')}
   </Button>
 );
 
@@ -271,9 +269,9 @@ export const BaseOrganizationList: FC<BaseOrganizationListProps> = ({
   style,
   title = 'Organizations',
   showStatus,
-}): ReactElement => {
+}: BaseOrganizationListProps): ReactElement => {
   const {theme, colorScheme} = useTheme();
-  const styles = useStyles(theme, colorScheme);
+  const styles: ReturnType<typeof useStyles> = useStyles(theme, colorScheme);
   const {t} = useTranslation();
 
   const organizationsWithSwitchAccess: OrganizationWithSwitchAccess[] = useMemo(() => {
@@ -281,40 +279,42 @@ export const BaseOrganizationList: FC<BaseOrganizationListProps> = ({
       return [];
     }
 
-    const myOrgIds = new Set(myOrganizations?.map(org => org.id) || []);
+    const myOrgIds: Set<string> = new Set(myOrganizations?.map((org: Organization) => org.id) || []);
 
-    return allOrganizations.organizations.map(org => ({
+    return allOrganizations.organizations.map((org: Organization) => ({
       ...org,
       canSwitch: myOrgIds.has(org.id),
     }));
   }, [allOrganizations?.organizations, myOrganizations]);
 
-  const renderLoadingWithStyles = renderLoading || (() => defaultRenderLoading(t, styles));
-  const renderErrorWithStyles = renderError || ((error: string) => defaultRenderError(error, t, styles));
-  const renderEmptyWithStyles = renderEmpty || (() => defaultRenderEmpty(t, styles));
-  const renderLoadMoreWithStyles =
+  const renderLoadingWithStyles: () => ReactNode = renderLoading || ((): ReactNode => defaultRenderLoading(t, styles));
+  const renderErrorWithStyles: (errorMsg: string) => ReactNode =
+    renderError || ((errorMsg: string): ReactNode => defaultRenderError(errorMsg, t, styles));
+  const renderEmptyWithStyles: () => ReactNode = renderEmpty || ((): ReactNode => defaultRenderEmpty(t, styles));
+  const renderLoadMoreWithStyles: (onLoadMore: () => Promise<void>, loadingMore: boolean) => ReactNode =
     renderLoadMore ||
-    ((onLoadMore: () => Promise<void>, isLoading: boolean) => defaultRenderLoadMore(onLoadMore, isLoading, t, styles));
-  const renderOrganizationWithStyles =
+    ((onLoadMore: () => Promise<void>, loadingMore: boolean): ReactNode =>
+      defaultRenderLoadMore(onLoadMore, loadingMore, t, styles));
+  const renderOrganizationWithStyles: (org: OrganizationWithSwitchAccess, index: number) => ReactNode =
     renderOrganization ||
-    ((org: OrganizationWithSwitchAccess) =>
+    ((org: OrganizationWithSwitchAccess): ReactNode =>
       defaultRenderOrganization(org, styles, t, onOrganizationSelect, showStatus));
 
   if (isLoading && organizationsWithSwitchAccess?.length === 0) {
-    const loadingContent = (
-      <div className={cx(styles.root, className)} style={style}>
+    const loadingContent: ReactElement = (
+      <div className={cx(styles['root'], className)} style={style}>
         {renderLoadingWithStyles()}
       </div>
     );
 
     if (mode === 'popup') {
       return (
-        <Dialog open={open} onOpenChange={onOpenChange}>
-          <Dialog.Content>
-            <Dialog.Heading>{title}</Dialog.Heading>
-            <div className={cx(styles.popupContent)}>{loadingContent}</div>
-          </Dialog.Content>
-        </Dialog>
+        <DialogPrimitive open={open} onOpenChange={onOpenChange}>
+          <DialogPrimitive.Content>
+            <DialogPrimitive.Heading>{title}</DialogPrimitive.Heading>
+            <div className={cx(styles['popupContent'])}>{loadingContent}</div>
+          </DialogPrimitive.Content>
+        </DialogPrimitive>
       );
     }
 
@@ -322,20 +322,20 @@ export const BaseOrganizationList: FC<BaseOrganizationListProps> = ({
   }
 
   if (error && organizationsWithSwitchAccess?.length === 0) {
-    const errorContent = (
-      <div className={cx(styles.root, className)} style={style}>
+    const errorContent: ReactElement = (
+      <div className={cx(styles['root'], className)} style={style}>
         {renderErrorWithStyles(error)}
       </div>
     );
 
     if (mode === 'popup') {
       return (
-        <Dialog open={open} onOpenChange={onOpenChange}>
-          <Dialog.Content>
-            <Dialog.Heading>{title}</Dialog.Heading>
-            <div className={cx(styles.popupContent)}>{errorContent}</div>
-          </Dialog.Content>
-        </Dialog>
+        <DialogPrimitive open={open} onOpenChange={onOpenChange}>
+          <DialogPrimitive.Content>
+            <DialogPrimitive.Heading>{title}</DialogPrimitive.Heading>
+            <div className={cx(styles['popupContent'])}>{errorContent}</div>
+          </DialogPrimitive.Content>
+        </DialogPrimitive>
       );
     }
 
@@ -343,32 +343,32 @@ export const BaseOrganizationList: FC<BaseOrganizationListProps> = ({
   }
 
   if (!isLoading && organizationsWithSwitchAccess?.length === 0) {
-    const emptyContent = (
-      <div className={cx(styles.root, className)} style={style}>
+    const emptyContent: ReactElement = (
+      <div className={cx(styles['root'], className)} style={style}>
         {renderEmptyWithStyles()}
       </div>
     );
 
     if (mode === 'popup') {
       return (
-        <Dialog open={open} onOpenChange={onOpenChange}>
-          <Dialog.Content>
-            <Dialog.Heading>{title}</Dialog.Heading>
-            <div className={cx(styles.popupContent)}>{emptyContent}</div>
-          </Dialog.Content>
-        </Dialog>
+        <DialogPrimitive open={open} onOpenChange={onOpenChange}>
+          <DialogPrimitive.Content>
+            <DialogPrimitive.Heading>{title}</DialogPrimitive.Heading>
+            <div className={cx(styles['popupContent'])}>{emptyContent}</div>
+          </DialogPrimitive.Content>
+        </DialogPrimitive>
       );
     }
 
     return emptyContent;
   }
 
-  const organizationListContent = (
-    <div className={cx(styles.root, className)} style={style}>
+  const organizationListContent: ReactElement = (
+    <div className={cx(styles['root'], className)} style={style}>
       {/* Header with total count and refresh button */}
-      <div className={cx(styles.header)}>
-        <div className={cx(styles.headerInfo)}>
-          <Typography variant="body2" color="textSecondary" className={cx(styles.subtitle)}>
+      <div className={cx(styles['header'])}>
+        <div className={cx(styles['headerInfo'])}>
+          <Typography variant="body2" color="textSecondary" className={cx(styles['subtitle'])}>
             {t('organization.switcher.showing.count', {
               showing: organizationsWithSwitchAccess?.length,
               total: allOrganizations?.organizations?.length || 0,
@@ -376,14 +376,20 @@ export const BaseOrganizationList: FC<BaseOrganizationListProps> = ({
           </Typography>
         </div>
         {onRefresh && (
-          <Button onClick={onRefresh} className={cx(styles.refreshButton)} type="button" variant="outline" size="small">
+          <Button
+            onClick={onRefresh}
+            className={cx(styles['refreshButton'])}
+            type="button"
+            variant="outline"
+            size="small"
+          >
             {t('organization.switcher.buttons.refresh.text')}
           </Button>
         )}
       </div>
 
       {/* Organizations list */}
-      <div className={cx(styles.listContainer)}>
+      <div className={cx(styles['listContainer'])}>
         {organizationsWithSwitchAccess?.map((organization: OrganizationWithSwitchAccess, index: number) =>
           renderOrganizationWithStyles(organization, index),
         )}
@@ -391,24 +397,24 @@ export const BaseOrganizationList: FC<BaseOrganizationListProps> = ({
 
       {/* Error message for additional data */}
       {error && organizationsWithSwitchAccess?.length > 0 && (
-        <div className={cx(styles.errorMargin)}>{renderErrorWithStyles(error)}</div>
+        <div className={cx(styles['errorMargin'])}>{renderErrorWithStyles(error)}</div>
       )}
 
       {/* Load more button */}
       {hasMore && fetchMore && (
-        <div className={cx(styles.loadMoreMargin)}>{renderLoadMoreWithStyles(fetchMore, isLoadingMore)}</div>
+        <div className={cx(styles['loadMoreMargin'])}>{renderLoadMoreWithStyles(fetchMore, isLoadingMore)}</div>
       )}
     </div>
   );
 
   if (mode === 'popup') {
     return (
-      <Dialog open={open} onOpenChange={onOpenChange}>
-        <Dialog.Content>
-          <Dialog.Heading>{title}</Dialog.Heading>
-          <div className={cx(styles.popupContent)}>{organizationListContent}</div>
-        </Dialog.Content>
-      </Dialog>
+      <DialogPrimitive open={open} onOpenChange={onOpenChange}>
+        <DialogPrimitive.Content>
+          <DialogPrimitive.Heading>{title}</DialogPrimitive.Heading>
+          <div className={cx(styles['popupContent'])}>{organizationListContent}</div>
+        </DialogPrimitive.Content>
+      </DialogPrimitive>
     );
   }
 

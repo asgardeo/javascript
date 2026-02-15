@@ -16,9 +16,9 @@
  * under the License.
  */
 
+import {Theme} from '@asgardeo/browser';
 import {css} from '@emotion/css';
 import {useMemo} from 'react';
-import {Theme} from '@asgardeo/browser';
 
 export type LogoSize = 'small' | 'medium' | 'large';
 
@@ -29,43 +29,42 @@ export type LogoSize = 'small' | 'medium' | 'large';
  * @param size - The size of the logo
  * @returns Object containing CSS class names for component styling
  */
-const useStyles = (theme: Theme, colorScheme: string, size: LogoSize) => {
-  return useMemo(() => {
-    const baseLogo = css`
+const useStyles = (theme: Theme, colorScheme: string, size: LogoSize): Record<string, string> =>
+  useMemo(() => {
+    const baseLogo: string = css`
       width: auto;
       object-fit: contain;
       display: block;
     `;
 
-    const smallLogo = css`
+    const smallLogo: string = css`
       height: 32px;
       max-width: 120px;
     `;
 
-    const mediumLogo = css`
+    const mediumLogo: string = css`
       height: 48px;
       max-width: 180px;
     `;
 
-    const largeLogo = css`
+    const largeLogo: string = css`
       height: 64px;
       max-width: 240px;
     `;
 
-    const sizeStyles = {
-      small: smallLogo,
-      medium: mediumLogo,
+    const sizeStyles: Record<string, string> = {
       large: largeLogo,
+      medium: mediumLogo,
+      small: smallLogo,
     };
 
     return {
+      large: largeLogo,
       logo: baseLogo,
+      medium: mediumLogo,
       size: sizeStyles[size],
       small: smallLogo,
-      medium: mediumLogo,
-      large: largeLogo,
     };
   }, [theme, colorScheme, size]);
-};
 
 export default useStyles;

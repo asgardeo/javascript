@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import {useState, useCallback} from 'react';
+import {useState, useCallback, FormEvent} from 'react';
 
 /**
  * Generic form field configuration
@@ -93,7 +93,7 @@ export interface UseFormReturn<T extends Record<string, string>> {
   /**
    * Handle form submission
    */
-  handleSubmit: (onSubmit: (values: T) => void | Promise<void>) => (e?: React.FormEvent) => Promise<void>;
+  handleSubmit: (onSubmit: (values: T) => void | Promise<void>) => (e?: FormEvent) => Promise<void>;
   /**
    * Whether the form has been submitted
    */
@@ -135,6 +135,14 @@ export interface UseFormReturn<T extends Record<string, string>> {
    */
   touchAllFields: () => void;
   /**
+   * Fields that have been touched by the user
+   */
+  touched: Record<keyof T, boolean>;
+  /**
+   * Validate a single field
+   */
+  validateField: (name: keyof T) => string | null;
+  /**
    * Validate all fields
    */
   validateForm: () => ValidationResult;
@@ -142,14 +150,6 @@ export interface UseFormReturn<T extends Record<string, string>> {
    * Current form values
    */
   values: T;
-  /**
-   * Validate a single field
-   */
-  validateField: (name: keyof T) => string | null;
-  /**
-   * Fields that have been touched by the user
-   */
-  touched: Record<keyof T, boolean>;
 }
 
 /**
@@ -212,16 +212,16 @@ export const useForm = <T extends Record<string, string>>(config: UseFormConfig<
   const [isSubmitted, setIsSubmitted] = useState(false);
 
   // Get field configuration by name
-  const getFieldConfig = useCallback(
-    (name: keyof T): FormField | undefined => fields.find(field => field.name === name),
+  const getFieldConfig: (name: keyof T) => FormField | undefined = useCallback(
+    (name: keyof T): FormField | undefined => fields.find((field: FormField) => field.name === name),
     [fields],
   );
 
   // Validate a single field
-  const validateField = useCallback(
+  const validateField: (name: keyof T) => string | null = useCallback(
     (name: keyof T): string | null => {
-      const value = values[name] || '';
-      const fieldConfig = getFieldConfig(name);
+      const value: string = values[name] || '';
+      const fieldConfig: FormField | undefined = getFieldConfig(name);
 
       // Check required validation
       if (fieldConfig?.required && (!value || value.trim() === '')) {
@@ -230,7 +230,7 @@ export const useForm = <T extends Record<string, string>>(config: UseFormConfig<
 
       // Run custom field validator
       if (fieldConfig?.validator) {
-        const fieldError = fieldConfig.validator(value);
+        const fieldError: string | null = fieldConfig.validator(value);
         if (fieldError) return fieldError;
       }
 
@@ -240,12 +240,12 @@ export const useForm = <T extends Record<string, string>>(config: UseFormConfig<
   );
 
   // Validate the entire form
-  const validateForm = useCallback((): ValidationResult => {
+  const validateForm: () => ValidationResult = useCallback((): ValidationResult => {
     const newErrors: Record<keyof T, string> = {} as Record<keyof T, string>;
 
     // Validate individual fields
-    fields.forEach(field => {
-      const error = validateField(field.name as keyof T);
+    fields.forEach((field: FormField) => {
+      const error: string | null = validateField(field.name as keyof T);
       if (error) {
         newErrors[field.name as keyof T] = error;
       }
@@ -253,8 +253,8 @@ export const useForm = <T extends Record<string, string>>(config: UseFormConfig<
 
     // Run global validator if provided
     if (validator) {
-      const globalErrors = validator(values);
-      Object.keys(globalErrors).forEach(key => {
+      const globalErrors: Record<string, string> = validator(values);
+      Object.keys(globalErrors).forEach((key: string) => {
         if (globalErrors[key]) {
           newErrors[key as keyof T] = globalErrors[key];
         }
@@ -262,16 +262,16 @@ export const useForm = <T extends Record<string, string>>(config: UseFormConfig<
     }
 
     return {
-      isValid: Object.keys(newErrors).length === 0,
       errors: newErrors,
+      isValid: Object.keys(newErrors).length === 0,
     };
   }, [fields, validateField, validator, values]);
 
   // Check if form is currently valid
-  const isValid = Object.keys(errors).length === 0;
+  const isValid: boolean = Object.keys(errors).length === 0;
 
   // Set a single field value
-  const setValue = useCallback(
+  const setValue: (name: keyof T, value: string) => void = useCallback(
     (name: keyof T, value: string): void => {
       setFormValues((prev: T) => ({
         ...prev,
@@ -280,7 +280,7 @@ export const useForm = <T extends Record<string, string>>(config: UseFormConfig<
 
       // Validate on change if enabled
       if (validateOnChange) {
-        const error = validateField(name);
+        const error: string | null = validateField(name);
         setFormErrors((prev: Record<keyof T, string>) => {
           const newErrors: Record<keyof T, string> = {...prev};
           if (error) {
@@ -296,7 +296,7 @@ export const useForm = <T extends Record<string, string>>(config: UseFormConfig<
   );
 
   // Set multiple field values
-  const setValues = useCallback((newValues: Partial<T>): void => {
+  const setValues: (newValues: Partial<T>) => void = useCallback((newValues: Partial<T>): void => {
     setFormValues((prev: T) => ({
       ...prev,
       ...newValues,
@@ -304,7 +304,7 @@ export const useForm = <T extends Record<string, string>>(config: UseFormConfig<
   }, []);
 
   // Mark a field as touched
-  const setTouched = useCallback(
+  const setTouched: (name: keyof T, isTouched?: boolean) => void = useCallback(
     (name: keyof T, isTouched: boolean = true): void => {
       setFormTouched((prev: Record<keyof T, boolean>) => ({
         ...prev,
@@ -313,7 +313,7 @@ export const useForm = <T extends Record<string, string>>(config: UseFormConfig<
 
       // Validate on blur if enabled and field is touched
       if (validateOnBlur && isTouched) {
-        const error = validateField(name);
+        const error: string | null = validateField(name);
         setFormErrors((prev: Record<keyof T, string>) => {
           const newErrors: Record<keyof T, string> = {...prev};
           if (error) {
@@ -329,15 +329,18 @@ export const useForm = <T extends Record<string, string>>(config: UseFormConfig<
   );
 
   // Set multiple touched fields
-  const setTouchedFields = useCallback((touchedFields: Partial<Record<keyof T, boolean>>): void => {
-    setFormTouched((prev: Record<keyof T, boolean>) => ({
-      ...prev,
-      ...touchedFields,
-    }));
-  }, []);
+  const setTouchedFields: (touchedFields: Partial<Record<keyof T, boolean>>) => void = useCallback(
+    (touchedFields: Partial<Record<keyof T, boolean>>): void => {
+      setFormTouched((prev: Record<keyof T, boolean>) => ({
+        ...prev,
+        ...touchedFields,
+      }));
+    },
+    [],
+  );
 
   // Mark all fields as touched
-  const touchAllFields = useCallback((): void => {
+  const touchAllFields: () => void = useCallback((): void => {
     const allTouched: Record<keyof T, boolean> = fields.reduce((acc: Record<keyof T, boolean>, field: FormField) => {
       acc[field.name as keyof T] = true;
       return acc;
@@ -351,7 +354,7 @@ export const useForm = <T extends Record<string, string>>(config: UseFormConfig<
   }, [fields, validateForm]);
 
   // Set a field error
-  const setError = useCallback((name: keyof T, error: string): void => {
+  const setError: (name: keyof T, error: string) => void = useCallback((name: keyof T, error: string): void => {
     setFormErrors((prev: Record<keyof T, string>) => ({
       ...prev,
       [name]: error,
@@ -359,20 +362,23 @@ export const useForm = <T extends Record<string, string>>(config: UseFormConfig<
   }, []);
 
   // Set multiple field errors
-  const setErrors = useCallback((newErrors: Partial<Record<keyof T, string>>): void => {
-    setFormErrors((prev: Record<keyof T, string>) => ({
-      ...prev,
-      ...newErrors,
-    }));
-  }, []);
+  const setErrors: (newErrors: Partial<Record<keyof T, string>>) => void = useCallback(
+    (newErrors: Partial<Record<keyof T, string>>): void => {
+      setFormErrors((prev: Record<keyof T, string>) => ({
+        ...prev,
+        ...newErrors,
+      }));
+    },
+    [],
+  );
 
   // Clear all errors
-  const clearErrors = useCallback((): void => {
+  const clearErrors: () => void = useCallback((): void => {
     setFormErrors({} as Record<keyof T, string>);
   }, []);
 
   // Reset form to initial state
-  const reset = useCallback((): void => {
+  const reset: () => void = useCallback((): void => {
     setFormValues({...initialValues} as T);
     setFormTouched({} as Record<keyof T, boolean>);
     setFormErrors({} as Record<keyof T, string>);
@@ -380,28 +386,27 @@ export const useForm = <T extends Record<string, string>>(config: UseFormConfig<
   }, [initialValues]);
 
   // Handle form submission
-  const handleSubmit: (onSubmit: (values: T) => void | Promise<void>) => (e?: React.FormEvent) => Promise<void> =
-    useCallback(
-      (onSubmit: (values: T) => void | Promise<void>) =>
-        async (e?: React.FormEvent): Promise<void> => {
-          if (e) {
-            e.preventDefault();
-          }
+  const handleSubmit: (onSubmit: (values: T) => void | Promise<void>) => (e?: FormEvent) => Promise<void> = useCallback(
+    (onSubmit: (values: T) => void | Promise<void>) =>
+      async (e?: FormEvent): Promise<void> => {
+        if (e) {
+          e.preventDefault();
+        }
 
-          setIsSubmitted(true);
-          touchAllFields();
+        setIsSubmitted(true);
+        touchAllFields();
 
-          const validation: ValidationResult = validateForm();
+        const validation: ValidationResult = validateForm();
 
-          if (validation.isValid) {
-            await onSubmit(values);
-          }
-        },
-      [values, touchAllFields, validateForm],
-    );
+        if (validation.isValid) {
+          await onSubmit(values);
+        }
+      },
+    [values, touchAllFields, validateForm],
+  );
 
   // Get field props for easy integration
-  const getFieldProps = useCallback(
+  const getFieldProps: (name: keyof T) => any = useCallback(
     (name: keyof T) => {
       const fieldConfig: FormField | undefined = getFieldConfig(name);
 

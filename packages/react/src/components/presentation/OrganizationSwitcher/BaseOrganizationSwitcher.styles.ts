@@ -16,9 +16,9 @@
  * under the License.
  */
 
+import {Theme} from '@asgardeo/browser';
 import {css} from '@emotion/css';
 import {useMemo} from 'react';
-import {Theme} from '@asgardeo/browser';
 
 /**
  * Creates styles for the BaseOrganizationSwitcher component using BEM methodology
@@ -27,14 +27,14 @@ import {Theme} from '@asgardeo/browser';
  * @returns Object containing CSS class names for component styling
  */
 
-const useStyles = (theme: Theme, colorScheme: string) => {
-  return useMemo(() => {
-    const root = css`
+const useStyles = (theme: Theme, colorScheme: string): Record<string, string> =>
+  useMemo(() => {
+    const root: string = css`
       display: inline-block;
       position: relative;
     `;
 
-    const trigger = css`
+    const trigger: string = css`
       display: inline-flex;
       align-items: center;
       gap: ${theme.vars.spacing.unit};
@@ -55,7 +55,7 @@ const useStyles = (theme: Theme, colorScheme: string) => {
       }
     `;
 
-    const triggerLabel = css`
+    const triggerLabel: string = css`
       color: ${theme.vars.colors.text.primary};
       font-weight: 500;
       overflow: hidden;
@@ -64,7 +64,7 @@ const useStyles = (theme: Theme, colorScheme: string) => {
       flex: 1;
     `;
 
-    const content = css`
+    const content: string = css`
       min-width: 280px;
       max-width: 400px;
       background-color: ${theme.vars.colors.background.surface};
@@ -75,14 +75,14 @@ const useStyles = (theme: Theme, colorScheme: string) => {
       z-index: 1000;
     `;
 
-    const header = css`
+    const header: string = css`
       display: flex;
       align-items: center;
       gap: ${theme.vars.spacing.unit};
       padding: ${theme.vars.spacing.unit} calc(${theme.vars.spacing.unit} * 2);
     `;
 
-    const headerInfo = css`
+    const headerInfo: string = css`
       display: flex;
       flex-direction: column;
       gap: calc(${theme.vars.spacing.unit} / 4);
@@ -91,7 +91,7 @@ const useStyles = (theme: Theme, colorScheme: string) => {
       overflow: hidden;
     `;
 
-    const headerName = css`
+    const headerName: string = css`
       color: ${theme.vars.colors.text.primary};
       font-size: 0.875rem;
       font-weight: 500;
@@ -101,7 +101,7 @@ const useStyles = (theme: Theme, colorScheme: string) => {
       white-space: nowrap;
     `;
 
-    const headerMeta = css`
+    const headerMeta: string = css`
       color: ${theme.vars.colors.text.secondary};
       font-size: 0.75rem;
       margin: 0;
@@ -110,7 +110,7 @@ const useStyles = (theme: Theme, colorScheme: string) => {
       white-space: nowrap;
     `;
 
-    const headerRole = css`
+    const headerRole: string = css`
       color: ${theme.vars.colors.text.secondary};
       font-size: 0.75rem;
       margin: 0;
@@ -120,18 +120,18 @@ const useStyles = (theme: Theme, colorScheme: string) => {
       text-transform: capitalize;
     `;
 
-    const manageButton = css`
+    const manageButton: string = css`
       min-width: auto;
       margin-inline-start: auto;
     `;
 
-    const menu = css`
+    const menu: string = css`
       display: flex;
       flex-direction: column;
       width: 100%;
     `;
 
-    const menuItem = css`
+    const menuItem: string = css`
       display: flex;
       align-items: center;
       justify-content: flex-start;
@@ -157,12 +157,12 @@ const useStyles = (theme: Theme, colorScheme: string) => {
       }
     `;
 
-    const menuDivider = css`
+    const menuDivider: string = css`
       margin: calc(${theme.vars.spacing.unit} * 0.5) 0;
       border-bottom: 1px solid ${theme.vars.colors.border};
     `;
 
-    const organizationInfo = css`
+    const organizationInfo: string = css`
       display: flex;
       flex-direction: column;
       gap: calc(${theme.vars.spacing.unit} / 4);
@@ -171,7 +171,7 @@ const useStyles = (theme: Theme, colorScheme: string) => {
       overflow: hidden;
     `;
 
-    const organizationName = css`
+    const organizationName: string = css`
       color: ${theme.vars.colors.text.primary};
       font-size: 0.875rem;
       font-weight: 500;
@@ -181,7 +181,7 @@ const useStyles = (theme: Theme, colorScheme: string) => {
       white-space: nowrap;
     `;
 
-    const organizationMeta = css`
+    const organizationMeta: string = css`
       color: ${theme.vars.colors.text.secondary};
       font-size: 0.75rem;
       margin: 0;
@@ -190,7 +190,7 @@ const useStyles = (theme: Theme, colorScheme: string) => {
       white-space: nowrap;
     `;
 
-    const loadingContainer = css`
+    const loadingContainer: string = css`
       display: flex;
       align-items: center;
       justify-content: center;
@@ -198,12 +198,12 @@ const useStyles = (theme: Theme, colorScheme: string) => {
       gap: ${theme.vars.spacing.unit};
     `;
 
-    const loadingText = css`
+    const loadingText: string = css`
       color: ${theme.vars.colors.text.secondary};
       font-size: 0.875rem;
     `;
 
-    const errorContainer = css`
+    const errorContainer: string = css`
       display: flex;
       align-items: center;
       justify-content: center;
@@ -211,52 +211,52 @@ const useStyles = (theme: Theme, colorScheme: string) => {
       padding: calc(${theme.vars.spacing.unit} * 2);
     `;
 
-    const errorText = css`
+    const errorText: string = css`
       color: ${theme.vars.colors.text.secondary};
       font-size: 0.875rem;
       text-align: center;
     `;
 
-    const sectionHeader = css`
+    const sectionHeader: string = css`
       text-transform: uppercase;
       letter-spacing: 0.05em;
       color: ${theme.vars.colors.text.secondary};
     `;
 
-    const sectionHeaderContainer = css`
+    const sectionHeaderContainer: string = css`
       border-top: none;
       border-bottom: none;
       padding-bottom: calc(${theme.vars.spacing.unit} / 2);
     `;
 
-    const roleCapitalized = css`
+    const roleCapitalized: string = css`
       text-transform: capitalize;
     `;
 
     return {
-      root,
-      trigger,
-      triggerLabel,
       content,
-      header,
-      headerInfo,
-      headerName,
-      headerMeta,
-      headerRole,
-      manageButton,
-      menu,
-      menuItem,
-      menuDivider,
-      organizationInfo,
-      organizationName,
-      organizationMeta,
-      loadingContainer,
-      loadingText,
       errorContainer,
       errorText,
+      header,
+      headerInfo,
+      headerMeta,
+      headerName,
+      headerRole,
+      loadingContainer,
+      loadingText,
+      manageButton,
+      menu,
+      menuDivider,
+      menuItem,
+      organizationInfo,
+      organizationMeta,
+      organizationName,
+      roleCapitalized,
+      root,
       sectionHeader,
       sectionHeaderContainer,
-      roleCapitalized,
+      trigger,
+      triggerLabel,
     };
   }, [
     theme.vars.colors.background.surface,
@@ -269,6 +269,5 @@ const useStyles = (theme: Theme, colorScheme: string) => {
     theme.vars.colors.action?.hover,
     colorScheme,
   ]);
-};
 
 export default useStyles;

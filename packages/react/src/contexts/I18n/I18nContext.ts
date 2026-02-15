@@ -16,10 +16,15 @@
  * under the License.
  */
 
-import {createContext} from 'react';
 import {I18nBundle} from '@asgardeo/i18n';
+import {Context, createContext} from 'react';
 
 export interface I18nContextValue {
+  /**
+   * All available i18n bundles (default + user provided)
+   */
+  bundles: Record<string, I18nBundle>;
+
   /**
    * The current language code (e.g., 'en-US', 'fr-FR')
    */
@@ -29,11 +34,6 @@ export interface I18nContextValue {
    * The fallback language code
    */
   fallbackLanguage: string;
-
-  /**
-   * All available i18n bundles (default + user provided)
-   */
-  bundles: Record<string, I18nBundle>;
 
   /**
    * Function to change the current language
@@ -46,7 +46,7 @@ export interface I18nContextValue {
   t: (key: string, params?: Record<string, string | number>) => string;
 }
 
-const I18nContext = createContext<I18nContextValue | null>(null);
+const I18nContext: Context<I18nContextValue | null> = createContext<I18nContextValue | null>(null);
 
 I18nContext.displayName = 'I18nContext';
 
