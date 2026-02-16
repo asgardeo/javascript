@@ -107,9 +107,13 @@ const getAuthorizeRequestUrlParams = (
   }
 
   const AUTH_INSTANCE_PREFIX: string = 'instance_';
-  const customStateValue: string = options.instanceId
-    ? AUTH_INSTANCE_PREFIX + options.instanceId
-    : customParams ? customParams[OIDCRequestConstants.Params.STATE]?.toString() : '';
+  let customStateValue: string = '';
+
+  if (options.instanceId) {
+    customStateValue = AUTH_INSTANCE_PREFIX + options.instanceId;
+  } else if (customParams) {
+    customStateValue = customParams[OIDCRequestConstants.Params.STATE]?.toString() ?? '';
+  }
 
   authorizeRequestParams.set(
     OIDCRequestConstants.Params.STATE,
