@@ -95,11 +95,11 @@ export interface CreateOrganizationConfig extends Omit<BaseCreateOrganizationCon
 const createOrganization = async ({
   fetcher,
   instanceId = 0,
-  ...requestConfig,
+  ...requestConfig
 }: CreateOrganizationConfig): Promise<Organization> => {
   const defaultFetcher = async (url: string, config: RequestInit): Promise<Response> => {
     const httpClient: HttpInstance = AsgardeoSPAClient.getInstance(instanceId).httpRequest.bind(
-      AsgardeoSPAClient.getInstance(instanceId)
+      AsgardeoSPAClient.getInstance(instanceId),
     );
     const response: HttpResponse<any> = await httpClient({
       data: config.body ? JSON.parse(config.body as string) : undefined,

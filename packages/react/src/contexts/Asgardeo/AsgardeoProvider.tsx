@@ -570,6 +570,7 @@ const AsgardeoProvider: FC<PropsWithChildren<AsgardeoProviderProps>> = ({
         request,
         requestAll,
       },
+      instanceId,
       isInitialized: isInitializedSync,
       isLoading: isLoadingSync,
       isSignedIn: isSignedInSync,
@@ -586,7 +587,6 @@ const AsgardeoProvider: FC<PropsWithChildren<AsgardeoProviderProps>> = ({
       signUpUrl,
       switchOrganization,
       syncSession,
-      instanceId,
       user,
     }),
     [

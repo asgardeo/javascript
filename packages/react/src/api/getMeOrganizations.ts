@@ -91,11 +91,11 @@ export interface GetMeOrganizationsConfig extends Omit<BaseGetMeOrganizationsCon
 const getMeOrganizations = async ({
   fetcher,
   instanceId = 0,
-  ...requestConfig,
+  ...requestConfig
 }: GetMeOrganizationsConfig): Promise<Organization[]> => {
   const defaultFetcher = async (url: string, config: RequestInit): Promise<Response> => {
     const httpClient: HttpInstance = AsgardeoSPAClient.getInstance(instanceId).httpRequest.bind(
-      AsgardeoSPAClient.getInstance(instanceId)
+      AsgardeoSPAClient.getInstance(instanceId),
     );
     const response: HttpResponse<any> = await httpClient({
       headers: config.headers as Record<string, string>,
