@@ -62,8 +62,8 @@ const useBrowserUrl = (): UseBrowserUrl => {
     // authParams?.authorizationCode || // FIXME: These are sent externally. Need to see what we can do about this.
     url.searchParams.get('error') !== null;
 
-  const hasCalledForThisInstance = (url: URL, instanceId: number): boolean => 
-    (hasCalledForThisInstanceInUrl(instanceId, url.search));
+  const hasCalledForThisInstance = (url: URL, instanceId: number): boolean =>
+    hasCalledForThisInstanceInUrl(instanceId, url.search);
 
   return {hasAuthParams, hasCalledForThisInstance};
 };
