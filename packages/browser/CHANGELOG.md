@@ -1,5 +1,17 @@
 # @asgardeo/browser
 
+## 0.2.9
+
+### Patch Changes
+
+- [#361](https://github.com/asgardeo/javascript/pull/361)
+  [`acafcb2`](https://github.com/asgardeo/javascript/commit/acafcb29a97de39449b719634418928a5b14e741) Thanks
+  [@DonOmalVindula](https://github.com/DonOmalVindula)! - Fix lint issues in packages
+
+- Updated dependencies
+  [[`242a01d`](https://github.com/asgardeo/javascript/commit/242a01d51266eb5ff3fd3ba6ccdd41857beab55c)]:
+  - @asgardeo/javascript@0.7.2
+
 ## 0.2.8
 
 ### Patch Changes

@@ -1,5 +1,19 @@
 # @asgardeo/nextjs
 
+## 0.1.77
+
+### Patch Changes
+
+- [#361](https://github.com/asgardeo/javascript/pull/361)
+  [`acafcb2`](https://github.com/asgardeo/javascript/commit/acafcb29a97de39449b719634418928a5b14e741) Thanks
+  [@DonOmalVindula](https://github.com/DonOmalVindula)! - Fix lint issues in packages
+
+- Updated dependencies
+  [[`acafcb2`](https://github.com/asgardeo/javascript/commit/acafcb29a97de39449b719634418928a5b14e741),
+  [`333721a`](https://github.com/asgardeo/javascript/commit/333721a5a0ad00505d08ac4a9ffe1fb8165a83f2)]:
+  - @asgardeo/react@0.11.3
+  - @asgardeo/node@0.0.52
+
 ## 0.1.76
 
 ### Patch Changes
