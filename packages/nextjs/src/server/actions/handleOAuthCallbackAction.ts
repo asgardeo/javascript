@@ -18,10 +18,13 @@
 
 'use server';
 
+import {IdToken} from '@asgardeo/node';
+import {ReadonlyRequestCookies} from 'next/dist/server/web/spec-extension/adapters/request-cookies';
 import {cookies} from 'next/headers';
 import AsgardeoNextClient from '../../AsgardeoNextClient';
-import SessionManager from '../../utils/SessionManager';
+import {AsgardeoNextConfig} from '../../models/config';
 import logger from '../../utils/logger';
+import SessionManager from '../../utils/SessionManager';
 
 /**
  * Server action to handle OAuth callback with authorization code.
@@ -38,35 +41,35 @@ const handleOAuthCallbackAction = async (
   state: string,
   sessionState?: string,
 ): Promise<{
-  success: boolean;
   error?: string;
   redirectUrl?: string;
+  success: boolean;
 }> => {
   try {
     if (!code || !state) {
       return {
-        success: false,
         error: 'Missing required OAuth parameters: code and state are required',
+        success: false,
       };
     }
 
-    const asgardeoClient = AsgardeoNextClient.getInstance();
+    const asgardeoClient: AsgardeoNextClient = AsgardeoNextClient.getInstance();
 
     if (!asgardeoClient.isInitialized) {
       return {
-        success: false,
         error: 'Asgardeo client is not initialized',
+        success: false,
       };
     }
 
-    const cookieStore = await cookies();
+    const cookieStore: ReadonlyRequestCookies = await cookies();
     let sessionId: string | undefined;
 
-    const tempSessionToken = cookieStore.get(SessionManager.getTempSessionCookieName())?.value;
+    const tempSessionToken: string | undefined = cookieStore.get(SessionManager.getTempSessionCookieName())?.value;
 
     if (tempSessionToken) {
       try {
-        const tempSession = await SessionManager.verifyTempSession(tempSessionToken);
+        const tempSession: {sessionId: string} = await SessionManager.verifyTempSession(tempSessionToken);
         sessionId = tempSession.sessionId;
       } catch {
         logger.error(
@@ -79,13 +82,13 @@ const handleOAuthCallbackAction = async (
       logger.error('[handleOAuthCallbackAction] No session ID found in cookies or temporary session token.');
 
       return {
-        success: false,
         error: 'No session found. Please start the authentication flow again.',
+        success: false,
       };
     }
 
     // Exchange the authorization code for tokens
-    const signInResult = await asgardeoClient.signIn(
+    const signInResult: Record<string, unknown> = await asgardeoClient.signIn(
       {
         code,
         session_state: sessionState,
@@ -97,16 +100,18 @@ const handleOAuthCallbackAction = async (
 
     if (signInResult) {
       try {
-        const idToken = await asgardeoClient.getDecodedIdToken(
+        const idToken: IdToken = await asgardeoClient.getDecodedIdToken(
           sessionId,
-          signInResult['id_token'] || signInResult['idToken'],
+          (signInResult['id_token'] || signInResult['idToken']) as string,
         );
-        const accessToken: string = signInResult['accessToken'] || signInResult['access_token'];
-        const userIdFromToken = idToken.sub || signInResult['sub'] || sessionId;
-        const scopes = signInResult['scope'];
-        const organizationId = idToken['user_org'] || idToken['organization_id'];
+        const accessToken: string = (signInResult['accessToken'] || signInResult['access_token']) as string;
+        const userIdFromToken: string = (idToken.sub || signInResult['sub'] || sessionId) as string;
+        const scopes: string = signInResult['scope'] as string;
+        const organizationId: string | undefined = (idToken['user_org'] || idToken['organization_id']) as
+          | string
+          | undefined;
 
-        const sessionToken = await SessionManager.createSessionToken(
+        const sessionToken: string = await SessionManager.createSessionToken(
           accessToken,
           userIdFromToken,
           sessionId,
@@ -125,17 +130,17 @@ const handleOAuthCallbackAction = async (
       }
     }
 
-    const config = await asgardeoClient.getConfiguration();
-    const afterSignInUrl = config.afterSignInUrl || '/';
+    const config: AsgardeoNextConfig = await asgardeoClient.getConfiguration();
+    const afterSignInUrl: string = config.afterSignInUrl || '/';
 
     return {
-      success: true,
       redirectUrl: afterSignInUrl,
+      success: true,
     };
   } catch (error) {
     return {
-      success: false,
       error: error instanceof Error ? error.message : 'Authentication failed',
+      success: false,
     };
   }
 };

@@ -18,19 +18,22 @@
 
 'use server';
 
+import {User} from '@asgardeo/node';
 import AsgardeoNextClient from '../../AsgardeoNextClient';
 
 /**
  * Server action to get the current user.
  * Returns the user profile if signed in.
  */
-const getUserAction = async (sessionId: string) => {
+const getUserAction = async (
+  sessionId: string,
+): Promise<{data: {user: User | null}; error: string | null; success: boolean}> => {
   try {
-    const client = AsgardeoNextClient.getInstance();
-    const user = await client.getUser(sessionId);
-    return {success: true, data: {user}, error: null};
+    const client: AsgardeoNextClient = AsgardeoNextClient.getInstance();
+    const user: User = await client.getUser(sessionId);
+    return {data: {user}, error: null, success: true};
   } catch (error) {
-    return {success: false, data: {user: null}, error: 'Failed to get user'};
+    return {data: {user: null}, error: 'Failed to get user', success: false};
   }
 };
 

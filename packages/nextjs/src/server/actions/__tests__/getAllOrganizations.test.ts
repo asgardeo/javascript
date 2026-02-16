@@ -17,7 +17,13 @@
  */
 
 // src/server/actions/__tests__/getAllOrganizations.test.ts
-import { describe, it, expect, vi, beforeEach, afterEach, Mock } from 'vitest';
+import {AsgardeoAPIError, AllOrganizationsApiResponse} from '@asgardeo/node';
+import {describe, it, expect, vi, beforeEach, afterEach, Mock} from 'vitest';
+
+// --- Now import the SUT and mocked deps ---
+import AsgardeoNextClient from '../../../AsgardeoNextClient';
+import getAllOrganizations from '../getAllOrganizations';
+import getSessionId from '../getSessionId';
 
 // --- Mocks MUST be defined before importing the SUT ---
 vi.mock('../../../AsgardeoNextClient', () => ({
@@ -30,25 +36,23 @@ vi.mock('../getSessionId', () => ({
   default: vi.fn(),
 }));
 
-// --- Now import the SUT and mocked deps ---
-import getAllOrganizations from '../getAllOrganizations';
-import AsgardeoNextClient from '../../../AsgardeoNextClient';
-import getSessionId from '../getSessionId';
-import { AsgardeoAPIError, AllOrganizationsApiResponse } from '@asgardeo/node';
-
 describe('getAllOrganizations (Next.js server action)', () => {
-  const mockClient = {
+  const mockClient: {getAllOrganizations: ReturnType<typeof vi.fn>} = {
     getAllOrganizations: vi.fn(),
   };
 
-  const baseOptions = { limit: 50, cursor: 'cur-1', filter: 'type eq "TENANT"' };
+  const baseOptions: {cursor: string; filter: string; limit: number} = {
+    cursor: 'cur-1',
+    filter: 'type eq "TENANT"',
+    limit: 50,
+  };
 
   const mockResponse: AllOrganizationsApiResponse = {
     data: [
-      { id: 'org-001', name: 'Alpha', orgHandle: 'alpha' },
-      { id: 'org-002', name: 'Beta', orgHandle: 'beta' },
+      {id: 'org-001', name: 'Alpha', orgHandle: 'alpha'},
+      {id: 'org-002', name: 'Beta', orgHandle: 'beta'},
     ],
-    meta: { totalResults: 2, startIndex: 1, itemsPerPage: 2 },
+    meta: {itemsPerPage: 2, startIndex: 1, totalResults: 2},
   } as unknown as AllOrganizationsApiResponse;
 
   beforeEach(() => {
@@ -67,7 +71,7 @@ describe('getAllOrganizations (Next.js server action)', () => {
   it('returns organizations when a sessionId is provided (no getSessionId fallback)', async () => {
     mockClient.getAllOrganizations.mockResolvedValueOnce(mockResponse);
 
-    const result = await getAllOrganizations(baseOptions, 'sess-123');
+    const result: AllOrganizationsApiResponse = await getAllOrganizations(baseOptions, 'sess-123');
 
     expect(AsgardeoNextClient.getInstance).toHaveBeenCalledTimes(1);
     expect(getSessionId).not.toHaveBeenCalled();
@@ -78,7 +82,7 @@ describe('getAllOrganizations (Next.js server action)', () => {
   it('falls back to getSessionId when sessionId is undefined', async () => {
     mockClient.getAllOrganizations.mockResolvedValueOnce(mockResponse);
 
-    const result = await getAllOrganizations(baseOptions, undefined);
+    const result: AllOrganizationsApiResponse = await getAllOrganizations(baseOptions, undefined);
 
     expect(getSessionId).toHaveBeenCalledTimes(1);
     expect(mockClient.getAllOrganizations).toHaveBeenCalledWith(baseOptions, 'sess-abc');
@@ -88,7 +92,7 @@ describe('getAllOrganizations (Next.js server action)', () => {
   it('falls back to getSessionId when sessionId is null', async () => {
     mockClient.getAllOrganizations.mockResolvedValueOnce(mockResponse);
 
-    const result = await getAllOrganizations(baseOptions, null as unknown as string);
+    const result: AllOrganizationsApiResponse = await getAllOrganizations(baseOptions, null as unknown as string);
 
     expect(getSessionId).toHaveBeenCalledTimes(1);
     expect(mockClient.getAllOrganizations).toHaveBeenCalledWith(baseOptions, 'sess-abc');
@@ -98,7 +102,7 @@ describe('getAllOrganizations (Next.js server action)', () => {
   it('does not call getSessionId for an empty string sessionId (empty string is not nullish)', async () => {
     mockClient.getAllOrganizations.mockResolvedValueOnce(mockResponse);
 
-    const result = await getAllOrganizations(baseOptions, '');
+    const result: AllOrganizationsApiResponse = await getAllOrganizations(baseOptions, '');
 
     expect(getSessionId).not.toHaveBeenCalled();
     expect(mockClient.getAllOrganizations).toHaveBeenCalledWith(baseOptions, '');
@@ -106,20 +110,13 @@ describe('getAllOrganizations (Next.js server action)', () => {
   });
 
   it('wraps an AsgardeoAPIError thrown by client.getAllOrganizations, preserving statusCode', async () => {
-    const upstream = new AsgardeoAPIError(
-      'Upstream failed',
-      'ORG_LIST_500',
-      'server',
-      503,
-    );
+    const upstream: AsgardeoAPIError = new AsgardeoAPIError('Upstream failed', 'ORG_LIST_500', 'server', 503);
     mockClient.getAllOrganizations.mockRejectedValueOnce(upstream);
 
     await expect(getAllOrganizations(baseOptions, 'sess-x')).rejects.toMatchObject({
       constructor: AsgardeoAPIError,
-      statusCode: 503,
       message: expect.stringContaining('Failed to get all the organizations for the user: Upstream failed'),
+      statusCode: 503,
     });
   });
-
 });
-

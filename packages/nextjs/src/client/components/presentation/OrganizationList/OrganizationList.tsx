@@ -18,14 +18,14 @@
 
 'use client';
 
-import {AllOrganizationsApiResponse, withVendorCSSClassPrefix} from '@asgardeo/node';
-import {FC, ReactElement, useEffect, useMemo, CSSProperties, useState} from 'react';
+import {AllOrganizationsApiResponse} from '@asgardeo/node';
 import {
   BaseOrganizationListProps,
   BaseOrganizationList,
   useOrganization,
   OrganizationWithSwitchAccess,
 } from '@asgardeo/react';
+import {FC, ReactElement, useEffect, useState} from 'react';
 
 /**
  * Configuration options for the OrganizationList component.
@@ -106,11 +106,7 @@ export interface OrganizationListProps
  * ```
  */
 export const OrganizationList: FC<OrganizationListProps> = ({
-  autoFetch = true,
-  filter = '',
-  limit = 10,
   onOrganizationSelect,
-  recursive = false,
   ...baseProps
 }: OrganizationListProps): ReactElement => {
   const {getAllOrganizations, error, isLoading, myOrganizations} = useOrganization();
@@ -120,7 +116,7 @@ export const OrganizationList: FC<OrganizationListProps> = ({
   });
 
   useEffect(() => {
-    (async () => {
+    (async (): Promise<void> => {
       setAllOrganizations(await getAllOrganizations());
     })();
   }, []);

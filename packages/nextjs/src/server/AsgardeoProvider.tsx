@@ -18,7 +18,7 @@
 
 'use server';
 
-import {BrandingPreference, AsgardeoRuntimeError, Organization, User, UserProfile} from '@asgardeo/node';
+import {BrandingPreference, AsgardeoRuntimeError, IdToken, Organization, User, UserProfile} from '@asgardeo/node';
 import {AsgardeoProviderProps} from '@asgardeo/react';
 import {FC, PropsWithChildren, ReactElement} from 'react';
 import createOrganization from './actions/createOrganization';
@@ -38,9 +38,10 @@ import signUpAction from './actions/signUpAction';
 import switchOrganization from './actions/switchOrganization';
 import updateUserProfileAction from './actions/updateUserProfileAction';
 import AsgardeoNextClient from '../AsgardeoNextClient';
-import AsgardeoClientProvider from '../client/contexts/Asgardeo/AsgardeoProvider';
+import AsgardeoClientProvider from '../client/contexts/Asgardeo/AsgardeoProvider.js';
 import {AsgardeoNextConfig} from '../models/config';
 import logger from '../utils/logger';
+import {SessionTokenPayload} from '../utils/SessionManager';
 
 /**
  * Props interface of {@link AsgardeoServerProvider}
@@ -71,7 +72,7 @@ const AsgardeoServerProvider: FC<PropsWithChildren<AsgardeoServerProviderProps>>
   afterSignOutUrl,
   ..._config
 }: PropsWithChildren<AsgardeoServerProviderProps>): Promise<ReactElement> => {
-  const asgardeoClient = AsgardeoNextClient.getInstance();
+  const asgardeoClient: AsgardeoNextClient = AsgardeoNextClient.getInstance();
   let config: Partial<AsgardeoNextConfig> = {};
 
   try {
@@ -96,15 +97,15 @@ const AsgardeoServerProvider: FC<PropsWithChildren<AsgardeoServerProviderProps>>
   }
 
   // Try to get session information from JWT first, then fall back to legacy
-  const sessionPayload = await getSessionPayload();
+  const sessionPayload: SessionTokenPayload | undefined = await getSessionPayload();
   const sessionId: string = sessionPayload?.sessionId || (await getSessionId()) || '';
-  const _isSignedIn: boolean = sessionPayload ? true : await isSignedIn(sessionId);
+  const signedIn: boolean = sessionPayload ? true : await isSignedIn(sessionId);
 
   let user: User = {};
   let userProfile: UserProfile = {
-    schemas: [],
-    profile: {},
     flattenedProfile: {},
+    profile: {},
+    schemas: [],
   };
   let currentOrganization: Organization = {
     id: '',
@@ -114,15 +115,15 @@ const AsgardeoServerProvider: FC<PropsWithChildren<AsgardeoServerProviderProps>>
   let myOrganizations: Organization[] = [];
   let brandingPreference: BrandingPreference | null = null;
 
-  if (_isSignedIn) {
-    let updatedBaseUrl = config?.baseUrl;
+  if (signedIn) {
+    let updatedBaseUrl: string | undefined = config?.baseUrl;
 
     if (sessionPayload?.organizationId) {
       updatedBaseUrl = `${config?.baseUrl}/o`;
       config = {...config, baseUrl: updatedBaseUrl};
     } else if (sessionId) {
       try {
-        const idToken = await asgardeoClient.getDecodedIdToken(sessionId);
+        const idToken: IdToken = await asgardeoClient.getDecodedIdToken(sessionId);
         if (idToken?.['user_org']) {
           updatedBaseUrl = `${config?.baseUrl}/o`;
           config = {...config, baseUrl: updatedBaseUrl};
@@ -133,22 +134,35 @@ const AsgardeoServerProvider: FC<PropsWithChildren<AsgardeoServerProviderProps>>
     }
 
     try {
-      const userResponse = await getUserAction(sessionId);
-      const userProfileResponse = await getUserProfileAction(sessionId);
-      const currentOrganizationResponse = await getCurrentOrganizationAction(sessionId);
+      const userResponse: {
+        data: {user: User | null};
+        error: string | null;
+        success: boolean;
+      } = await getUserAction(sessionId);
+      const userProfileResponse: {
+        data: {userProfile: UserProfile};
+        error: string | null;
+        success: boolean;
+      } = await getUserProfileAction(sessionId);
+      const currentOrganizationResponse: {
+        data: {organization?: Organization; user?: Record<string, unknown>};
+        error: string | null;
+        success: boolean;
+      } = await getCurrentOrganizationAction(sessionId);
 
       if (sessionId) {
         myOrganizations = await getMyOrganizations({}, sessionId);
       } else {
+        // eslint-disable-next-line no-console
         console.warn('[AsgardeoServerProvider] No session ID available, skipping organization fetch');
       }
 
       user = userResponse.data?.user || {};
-      userProfile = userProfileResponse.data?.userProfile;
+      userProfile = userProfileResponse.data?.userProfile ?? userProfile;
       currentOrganization = currentOrganizationResponse?.data?.organization as Organization;
     } catch (error) {
       user = {};
-      userProfile = {schemas: [], profile: {}, flattenedProfile: {}};
+      userProfile = {flattenedProfile: {}, profile: {}, schemas: []};
       currentOrganization = {id: '', name: '', orgHandle: ''};
       myOrganizations = [];
     }
@@ -167,6 +181,7 @@ const AsgardeoServerProvider: FC<PropsWithChildren<AsgardeoServerProviderProps>>
         sessionId,
       );
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.warn('[AsgardeoServerProvider] Failed to fetch branding preference:', error);
     }
   }
@@ -188,7 +203,7 @@ const AsgardeoServerProvider: FC<PropsWithChildren<AsgardeoServerProviderProps>>
       currentOrganization={currentOrganization}
       userProfile={userProfile}
       updateProfile={updateUserProfileAction}
-      isSignedIn={_isSignedIn}
+      isSignedIn={signedIn}
       myOrganizations={myOrganizations}
       getAllOrganizations={getAllOrganizations}
       switchOrganization={switchOrganization}

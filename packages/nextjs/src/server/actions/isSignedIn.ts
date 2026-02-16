@@ -18,9 +18,10 @@
 
 'use server';
 
-import AsgardeoNextClient from '../../AsgardeoNextClient';
 import getSessionId from './getSessionId';
 import getSessionPayload from './getSessionPayload';
+import AsgardeoNextClient from '../../AsgardeoNextClient';
+import {SessionTokenPayload} from '../../utils/SessionManager';
 
 /**
  * Check if the user is currently signed in.
@@ -31,15 +32,15 @@ import getSessionPayload from './getSessionPayload';
  */
 const isSignedIn = async (sessionId?: string): Promise<boolean> => {
   try {
-    const sessionPayload = await getSessionPayload();
+    const sessionPayload: SessionTokenPayload | undefined = await getSessionPayload();
 
     if (sessionPayload) {
-      const resolvedSessionId = sessionPayload.sessionId;
+      const resolvedSessionId: string = sessionPayload.sessionId;
 
       if (resolvedSessionId) {
-        const client = AsgardeoNextClient.getInstance();
+        const client: AsgardeoNextClient = AsgardeoNextClient.getInstance();
         try {
-          const accessToken = await client.getAccessToken(resolvedSessionId);
+          const accessToken: string = await client.getAccessToken(resolvedSessionId);
           return !!accessToken;
         } catch (error) {
           return false;
@@ -47,16 +48,16 @@ const isSignedIn = async (sessionId?: string): Promise<boolean> => {
       }
     }
 
-    const resolvedSessionId = sessionId || (await getSessionId());
+    const resolvedSessionId: string | undefined = sessionId || (await getSessionId());
 
     if (!resolvedSessionId) {
       return false;
     }
 
-    const client = AsgardeoNextClient.getInstance();
+    const client: AsgardeoNextClient = AsgardeoNextClient.getInstance();
 
     try {
-      const accessToken = await client.getAccessToken(resolvedSessionId);
+      const accessToken: string = await client.getAccessToken(resolvedSessionId);
 
       return !!accessToken;
     } catch (error) {

@@ -18,17 +18,19 @@
 
 'use server';
 
-import {cookies} from 'next/headers';
 import {
   generateSessionId,
   EmbeddedSignInFlowStatus,
   EmbeddedSignInFlowHandleRequestPayload,
   EmbeddedFlowExecuteRequestConfig,
   EmbeddedSignInFlowInitiateResponse,
+  IdToken,
   isEmpty,
 } from '@asgardeo/node';
+import {ReadonlyRequestCookies} from 'next/dist/server/web/spec-extension/adapters/request-cookies';
+import {cookies} from 'next/headers';
 import AsgardeoNextClient from '../../AsgardeoNextClient';
-import SessionManager from '../../utils/SessionManager';
+import SessionManager, {SessionTokenPayload} from '../../utils/SessionManager';
 
 /**
  * Server action for signing in a user.
@@ -42,7 +44,6 @@ const signInAction = async (
   payload?: EmbeddedSignInFlowHandleRequestPayload,
   request?: EmbeddedFlowExecuteRequestConfig,
 ): Promise<{
-  success: boolean;
   data?:
     | {
         afterSignInUrl?: string;
@@ -50,32 +51,31 @@ const signInAction = async (
       }
     | EmbeddedSignInFlowInitiateResponse;
   error?: string;
+  success: boolean;
 }> => {
   try {
-    const client = AsgardeoNextClient.getInstance();
-    const cookieStore = await cookies();
+    const client: AsgardeoNextClient = AsgardeoNextClient.getInstance();
+    const cookieStore: ReadonlyRequestCookies = await cookies();
 
     let sessionId: string | undefined;
-    let userId: string | undefined;
 
-    const existingSessionToken = cookieStore.get(SessionManager.getSessionCookieName())?.value;
+    const existingSessionToken: string | undefined = cookieStore.get(SessionManager.getSessionCookieName())?.value;
 
     if (existingSessionToken) {
       try {
-        const sessionPayload = await SessionManager.verifySessionToken(existingSessionToken);
+        const sessionPayload: SessionTokenPayload = await SessionManager.verifySessionToken(existingSessionToken);
         sessionId = sessionPayload.sessionId;
-        userId = sessionPayload.sub;
       } catch {
         // Invalid session token, will create new temp session
       }
     }
 
     if (!sessionId) {
-      const tempSessionToken = cookieStore.get(SessionManager.getTempSessionCookieName())?.value;
+      const tempSessionToken: string | undefined = cookieStore.get(SessionManager.getTempSessionCookieName())?.value;
 
       if (tempSessionToken) {
         try {
-          const tempSession = await SessionManager.verifyTempSession(tempSessionToken);
+          const tempSession: {sessionId: string} = await SessionManager.verifyTempSession(tempSessionToken);
           sessionId = tempSession.sessionId;
         } catch {
           // Invalid temp session, will create new one
@@ -86,7 +86,7 @@ const signInAction = async (
     if (!sessionId) {
       sessionId = generateSessionId();
 
-      const tempSessionToken = await SessionManager.createTempSession(sessionId);
+      const tempSessionToken: string = await SessionManager.createTempSession(sessionId);
 
       cookieStore.set(
         SessionManager.getTempSessionCookieName(),
@@ -97,15 +97,15 @@ const signInAction = async (
 
     // If no payload provided, redirect to sign-in URL for redirect-based sign-in.
     if (!payload || isEmpty(payload)) {
-      const defaultSignInUrl = await client.getAuthorizeRequestUrl({}, sessionId);
-      return {success: true, data: {signInUrl: String(defaultSignInUrl)}};
+      const defaultSignInUrl: string = await client.getAuthorizeRequestUrl({}, sessionId);
+      return {data: {signInUrl: String(defaultSignInUrl)}, success: true};
     }
 
     // Handle embedded sign-in flow
     const response: any = await client.signIn(payload, request!, sessionId);
 
     if (response.flowStatus === EmbeddedSignInFlowStatus.SuccessCompleted) {
-      const signInResult = await client.signIn(
+      const signInResult: Record<string, unknown> = await client.signIn(
         {
           code: response?.authData?.code,
           session_state: response?.authData?.session_state,
@@ -116,13 +116,15 @@ const signInAction = async (
       );
 
       if (signInResult) {
-        const idToken = await client.getDecodedIdToken(sessionId);
-        const userIdFromToken = idToken['sub'] || signInResult['sub'] || sessionId;
-        const accessToken = signInResult['accessToken'];
-        const scopes = signInResult['scope'];
-        const organizationId = idToken['user_org'] || idToken['organization_id'];
+        const idToken: IdToken = await client.getDecodedIdToken(sessionId);
+        const userIdFromToken: string = (idToken['sub'] || signInResult['sub'] || sessionId) as string;
+        const {accessToken}: {accessToken: string} = signInResult as {accessToken: string};
+        const scopes: string = signInResult['scope'] as string;
+        const organizationId: string | undefined = (idToken['user_org'] || idToken['organization_id']) as
+          | string
+          | undefined;
 
-        const sessionToken = await SessionManager.createSessionToken(
+        const sessionToken: string = await SessionManager.createSessionToken(
           accessToken,
           userIdFromToken,
           sessionId as string,
@@ -135,14 +137,15 @@ const signInAction = async (
         cookieStore.delete(SessionManager.getTempSessionCookieName());
       }
 
-      const afterSignInUrl = await (await client.getStorageManager()).getConfigDataParameter('afterSignInUrl');
-      return {success: true, data: {afterSignInUrl: String(afterSignInUrl)}};
+      const afterSignInUrl: string = await (await client.getStorageManager()).getConfigDataParameter('afterSignInUrl');
+      return {data: {afterSignInUrl: String(afterSignInUrl)}, success: true};
     }
 
-    return {success: true, data: response as EmbeddedSignInFlowInitiateResponse};
+    return {data: response as EmbeddedSignInFlowInitiateResponse, success: true};
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('[signInAction] Error during sign-in:', error);
-    return {success: false, error: String(error)};
+    return {error: String(error), success: false};
   }
 };
 

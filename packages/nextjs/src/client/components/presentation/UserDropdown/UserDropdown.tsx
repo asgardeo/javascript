@@ -18,10 +18,10 @@
 
 'use client';
 
-import {FC, ReactElement, ReactNode, useState} from 'react';
 import {BaseUserDropdown, BaseUserDropdownProps} from '@asgardeo/react';
+import {FC, ReactElement, ReactNode, useState} from 'react';
 import useAsgardeo from '../../../contexts/Asgardeo/useAsgardeo';
-import UserProfile from '../UserProfile/UserProfile';
+import UserProfile from '../UserProfile/UserProfile.js';
 
 /**
  * Render props data passed to the children function
@@ -119,27 +119,29 @@ const UserDropdown: FC<UserDropdownProps> = ({
   const {user, isLoading, signOut} = useAsgardeo();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
 
-  const handleManageProfile = () => {
+  const handleManageProfile = (): void => {
     setIsProfileOpen(true);
   };
 
-  const handleSignOut = () => {
+  const handleSignOut = (): void => {
     signOut();
-    onSignOut && onSignOut();
+    if (onSignOut) {
+      onSignOut();
+    }
   };
 
-  const closeProfile = () => {
+  const closeProfile = (): void => {
     setIsProfileOpen(false);
   };
 
   // Prepare render props data
   const renderProps: UserDropdownRenderProps = {
-    user,
+    closeProfile,
     isLoading: isLoading as boolean,
+    isProfileOpen,
     openProfile: handleManageProfile,
     signOut: handleSignOut,
-    isProfileOpen,
-    closeProfile,
+    user,
   };
 
   // If children render prop is provided, use it for complete customization

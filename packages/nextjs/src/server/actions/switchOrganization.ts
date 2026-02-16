@@ -18,12 +18,13 @@
 
 'use server';
 
-import {Organization, AsgardeoAPIError, TokenResponse} from '@asgardeo/node';
+import {Organization, AsgardeoAPIError, IdToken, TokenResponse} from '@asgardeo/node';
+import {ReadonlyRequestCookies} from 'next/dist/server/web/spec-extension/adapters/request-cookies';
+import {cookies} from 'next/headers';
 import getSessionId from './getSessionId';
 import AsgardeoNextClient from '../../AsgardeoNextClient';
 import logger from '../../utils/logger';
 import SessionManager from '../../utils/SessionManager';
-import {cookies} from 'next/headers';
 
 /**
  * Server action to switch organization.
@@ -33,10 +34,10 @@ const switchOrganization = async (
   sessionId: string | undefined,
 ): Promise<TokenResponse | Response> => {
   try {
-    const cookieStore = await cookies();
+    const cookieStore: ReadonlyRequestCookies = await cookies();
     const client: AsgardeoNextClient = AsgardeoNextClient.getInstance();
-    const _sessionId: string = sessionId ?? ((await getSessionId()) as string);
-    const response: TokenResponse | Response = await client.switchOrganization(organization, _sessionId);
+    const resolvedSessionId: string = sessionId ?? ((await getSessionId()) as string);
+    const response: TokenResponse | Response = await client.switchOrganization(organization, resolvedSessionId);
 
     // After switching organization, we need to refresh the page to get updated session data
     // This is because server components don't maintain state between function calls
@@ -46,16 +47,18 @@ const switchOrganization = async (
     revalidatePath('/');
 
     if (response) {
-      const idToken = await client.getDecodedIdToken(_sessionId, (response as TokenResponse).idToken);
-      const userIdFromToken = idToken['sub'];
-      const accessToken = (response as TokenResponse).accessToken;
-      const scopes = (response as TokenResponse).scope;
-      const organizationId = idToken['user_org'] || idToken['organization_id'];
+      const idToken: IdToken = await client.getDecodedIdToken(resolvedSessionId, (response as TokenResponse).idToken);
+      const userIdFromToken: string = idToken['sub'] as string;
+      const {accessToken}: {accessToken: string} = response as TokenResponse;
+      const scopes: string = (response as TokenResponse).scope;
+      const organizationId: string | undefined = (idToken['user_org'] || idToken['organization_id']) as
+        | string
+        | undefined;
 
-      const sessionToken = await SessionManager.createSessionToken(
+      const sessionToken: string = await SessionManager.createSessionToken(
         accessToken,
         userIdFromToken as string,
-        _sessionId as string,
+        resolvedSessionId as string,
         scopes,
         organizationId,
       );

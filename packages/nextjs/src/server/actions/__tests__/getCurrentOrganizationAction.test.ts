@@ -17,7 +17,11 @@
  */
 
 // src/server/actions/__tests__/getCurrentOrganizationAction.test.ts
-import { describe, it, expect, vi, beforeEach, afterEach, type Mock } from 'vitest';
+import {describe, it, expect, vi, beforeEach, afterEach, type Mock} from 'vitest';
+
+// --- Import SUT and mocked deps ---
+import AsgardeoNextClient from '../../../AsgardeoNextClient';
+import getCurrentOrganizationAction from '../getCurrentOrganizationAction';
 
 // --- Mock client factory BEFORE importing SUT ---
 vi.mock('../../../AsgardeoNextClient', () => ({
@@ -26,20 +30,18 @@ vi.mock('../../../AsgardeoNextClient', () => ({
   },
 }));
 
-// --- Import SUT and mocked deps ---
-import getCurrentOrganizationAction from '../getCurrentOrganizationAction';
-import AsgardeoNextClient from '../../../AsgardeoNextClient';
-
 // A light org shape for testing (only fields we assert on)
-type Org = { id: string; name: string; orgHandle?: string };
+type Org = {id: string; name: string; orgHandle?: string};
 
 describe('getCurrentOrganizationAction', () => {
-  const mockClient = {
+  type ActionResult = Awaited<ReturnType<typeof getCurrentOrganizationAction>>;
+
+  const mockClient: {getCurrentOrganization: ReturnType<typeof vi.fn>} = {
     getCurrentOrganization: vi.fn(),
   };
 
-  const sessionId = 'sess-123';
-  const org: Org = { id: 'org-001', name: 'Alpha', orgHandle: 'alpha' };
+  const sessionId: string = 'sess-123';
+  const org: Org = {id: 'org-001', name: 'Alpha', orgHandle: 'alpha'};
 
   beforeEach(() => {
     vi.resetAllMocks();
@@ -53,7 +55,7 @@ describe('getCurrentOrganizationAction', () => {
   it('returns success with organization when upstream succeeds', async () => {
     mockClient.getCurrentOrganization.mockResolvedValueOnce(org);
 
-    const result = await getCurrentOrganizationAction(sessionId);
+    const result: ActionResult = await getCurrentOrganizationAction(sessionId);
 
     expect(AsgardeoNextClient.getInstance).toHaveBeenCalledTimes(1);
     expect(mockClient.getCurrentOrganization).toHaveBeenCalledWith(sessionId);
@@ -66,7 +68,7 @@ describe('getCurrentOrganizationAction', () => {
   it('should pass through the provided sessionId even if it is an empty string', async () => {
     mockClient.getCurrentOrganization.mockResolvedValueOnce(org);
 
-    const result = await getCurrentOrganizationAction('');
+    const result: ActionResult = await getCurrentOrganizationAction('');
 
     expect(mockClient.getCurrentOrganization).toHaveBeenCalledWith('');
     expect(result.success).toBe(true);
@@ -76,12 +78,12 @@ describe('getCurrentOrganizationAction', () => {
   it('should return failure shape when client.getCurrentOrganization rejects', async () => {
     mockClient.getCurrentOrganization.mockRejectedValueOnce(new Error('upstream down'));
 
-    const result = await getCurrentOrganizationAction(sessionId);
+    const result: ActionResult = await getCurrentOrganizationAction(sessionId);
 
     expect(result.success).toBe(false);
     expect(result.error).toBe('Failed to get the current organization');
     // Matches the function’s failure payload shape
-    expect(result.data).toEqual({ user: {} });
+    expect(result.data).toEqual({user: {}});
   });
 
   it('should return failure shape when AsgardeoNextClient.getInstance throws', async () => {
@@ -89,18 +91,18 @@ describe('getCurrentOrganizationAction', () => {
       throw new Error('factory failed');
     });
 
-    const result = await getCurrentOrganizationAction(sessionId);
+    const result: ActionResult = await getCurrentOrganizationAction(sessionId);
 
     expect(result.success).toBe(false);
     expect(result.error).toBe('Failed to get the current organization');
-    expect(result.data).toEqual({ user: {} });
+    expect(result.data).toEqual({user: {}});
   });
 
   it('should not mutate the organization object returned by upstream', async () => {
-    const upstreamOrg = { ...org, extra: { nested: true } };
+    const upstreamOrg: Org & {extra: {nested: boolean}} = {...org, extra: {nested: true}};
     mockClient.getCurrentOrganization.mockResolvedValueOnce(upstreamOrg);
 
-    const result = await getCurrentOrganizationAction(sessionId);
+    const result: ActionResult = await getCurrentOrganizationAction(sessionId);
 
     // exact deep equality: whatever upstream returns is passed through
     expect(result.data.organization).toEqual(upstreamOrg);

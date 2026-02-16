@@ -17,7 +17,6 @@
  */
 
 import {NextRequest, NextResponse} from 'next/server';
-import {CookieConfig} from '@asgardeo/node';
 import {AsgardeoNextConfig} from '../../models/config';
 import SessionManager, {SessionTokenPayload} from '../../utils/SessionManager';
 import {
@@ -29,6 +28,12 @@ import {
 export type AsgardeoMiddlewareOptions = Partial<AsgardeoNextConfig>;
 
 export type AsgardeoMiddlewareContext = {
+  /** Get the session payload from JWT session if available */
+  getSession: () => Promise<SessionTokenPayload | undefined>;
+  /** Get the session ID from the current request */
+  getSessionId: () => string | undefined;
+  /** Check if the current request has a valid Asgardeo session */
+  isSignedIn: () => boolean;
   /**
    * Protect a route by redirecting unauthenticated users.
    * Redirect URL fallback order:
@@ -38,13 +43,7 @@ export type AsgardeoMiddlewareContext = {
    * 4. referer (if from same origin)
    * If none are available, throws an error.
    */
-  protectRoute: (options?: {redirect?: string}) => Promise<NextResponse | void>;
-  /** Check if the current request has a valid Asgardeo session */
-  isSignedIn: () => boolean;
-  /** Get the session ID from the current request */
-  getSessionId: () => string | undefined;
-  /** Get the session payload from JWT session if available */
-  getSession: () => Promise<SessionTokenPayload | undefined>;
+  protectRoute: (routeOptions?: {redirect?: string}) => Promise<NextResponse | void>;
 };
 
 type AsgardeoMiddlewareHandler = (
@@ -73,9 +72,8 @@ const hasValidSession = async (request: NextRequest): Promise<boolean> => {
  * @param request - The Next.js request object
  * @returns The session ID if it exists, undefined otherwise
  */
-const getSessionIdFromRequestMiddleware = async (request: NextRequest): Promise<string | undefined> => {
-  return await getSessionIdFromRequest(request);
-};
+const getSessionIdFromRequestMiddleware = async (request: NextRequest): Promise<string | undefined> =>
+  getSessionIdFromRequest(request);
 
 /**
  * Asgardeo middleware that integrates authentication into your Next.js application.
@@ -133,12 +131,13 @@ const getSessionIdFromRequestMiddleware = async (request: NextRequest): Promise<
  * });
  * ```
  */
-const asgardeoMiddleware = (
-  handler?: AsgardeoMiddlewareHandler,
-  options?: AsgardeoMiddlewareOptions | ((req: NextRequest) => AsgardeoMiddlewareOptions),
-): ((request: NextRequest) => Promise<NextResponse>) => {
-  return async (request: NextRequest): Promise<NextResponse> => {
-    const resolvedOptions = typeof options === 'function' ? options(request) : options || {};
+const asgardeoMiddleware =
+  (
+    handler?: AsgardeoMiddlewareHandler,
+    options?: AsgardeoMiddlewareOptions | ((req: NextRequest) => AsgardeoMiddlewareOptions),
+  ): ((request: NextRequest) => Promise<NextResponse>) =>
+  async (request: NextRequest): Promise<NextResponse> => {
+    const resolvedOptions: AsgardeoMiddlewareOptions = typeof options === 'function' ? options(request) : options || {};
 
     const url: URL = new URL(request.url);
     const hasCallbackParams: boolean = url.searchParams.has('code') && url.searchParams.has('state');
@@ -166,27 +165,37 @@ const asgardeoMiddleware = (
       }
     }
 
-    const sessionId = await getSessionIdFromRequestMiddleware(request);
-    const isAuthenticated = await hasValidSession(request);
+    const sessionId: string | undefined = await getSessionIdFromRequestMiddleware(request);
+    const isAuthenticated: boolean = await hasValidSession(request);
 
     const asgardeo: AsgardeoMiddlewareContext = {
-      protectRoute: async (options?: {redirect?: string}): Promise<NextResponse | void> => {
+      getSession: async (): Promise<SessionTokenPayload | undefined> => {
+        try {
+          return await getSessionFromRequest(request);
+        } catch {
+          return undefined;
+        }
+      },
+      getSessionId: (): string | undefined => sessionId,
+      isSignedIn: (): boolean => isAuthenticated,
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      protectRoute: async (routeOptions?: {redirect?: string}): Promise<NextResponse | void> => {
         // Skip protection if this is a validated OAuth callback - let the callback handler process it first
         // This prevents race conditions where middleware redirects before OAuth callback completes
         if (isValidOAuthCallback) {
-          return;
+          return undefined;
         }
 
         if (!isAuthenticated) {
-          const referer = request.headers.get('referer');
+          const referer: string | null = request.headers.get('referer');
           // TODO: Make this configurable or call the signIn() from here.
           let fallbackRedirect: string = '/';
 
           // If referer exists and is from the same origin, use it as fallback
           if (referer) {
             try {
-              const refererUrl = new URL(referer);
-              const requestUrl = new URL(request.url);
+              const refererUrl: URL = new URL(referer);
+              const requestUrl: URL = new URL(request.url);
 
               if (refererUrl.origin === requestUrl.origin) {
                 fallbackRedirect = refererUrl.pathname + refererUrl.search;
@@ -199,27 +208,17 @@ const asgardeoMiddleware = (
           // Fallback chain: options.redirect -> resolvedOptions.signInUrl -> resolvedOptions.defaultRedirect -> referer (same origin only)
           const redirectUrl: string = (resolvedOptions?.signInUrl as string) || fallbackRedirect;
 
-          const signInUrl = new URL(redirectUrl, request.url);
+          const signInUrl: URL = new URL(redirectUrl, request.url);
 
           return NextResponse.redirect(signInUrl);
         }
 
-        // Session exists, allow access
-        return;
-      },
-      isSignedIn: () => isAuthenticated,
-      getSessionId: () => sessionId,
-      getSession: async () => {
-        try {
-          return await getSessionFromRequest(request);
-        } catch {
-          return undefined;
-        }
+        return undefined;
       },
     };
 
     if (handler) {
-      const result = await handler(asgardeo, request);
+      const result: NextResponse | void = await handler(asgardeo, request);
       if (result) {
         return result;
       }
@@ -227,6 +226,5 @@ const asgardeoMiddleware = (
 
     return NextResponse.next();
   };
-};
 
 export default asgardeoMiddleware;

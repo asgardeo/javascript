@@ -24,18 +24,25 @@ import AsgardeoNextClient from '../../AsgardeoNextClient';
 /**
  * Server action to create an organization.
  */
-const getOrganizationAction = async (organizationId: string, sessionId: string) => {
+const getOrganizationAction = async (
+  organizationId: string,
+  sessionId: string,
+): Promise<{
+  data: {organization?: OrganizationDetails; user?: Record<string, unknown>};
+  error: string | null;
+  success: boolean;
+}> => {
   try {
-    const client = AsgardeoNextClient.getInstance();
+    const client: AsgardeoNextClient = AsgardeoNextClient.getInstance();
     const organization: OrganizationDetails = await client.getOrganization(organizationId, sessionId);
-    return {success: true, data: {organization}, error: null};
+    return {data: {organization}, error: null, success: true};
   } catch (error) {
     return {
-      success: false,
       data: {
         user: {},
       },
       error: 'Failed to get organization',
+      success: false,
     };
   }
 };

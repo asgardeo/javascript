@@ -17,7 +17,6 @@
  */
 
 export {default as useAsgardeo} from './contexts/Asgardeo/useAsgardeo';
-export * from './contexts/Asgardeo/useAsgardeo';
 
 export {default as Organization} from './components/presentation/Organization/Organization';
 export {OrganizationProps} from './components/presentation/Organization/Organization';

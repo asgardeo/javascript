@@ -16,35 +16,41 @@
  * under the License.
  */
 
-import {TokenExchangeRequestConfig} from '@asgardeo/node';
-import AsgardeoNextClient from '../AsgardeoNextClient';
+import {TokenExchangeRequestConfig, TokenResponse} from '@asgardeo/node';
 import getSessionIdAction from './actions/getSessionId';
+import AsgardeoNextClient from '../AsgardeoNextClient';
 import {AsgardeoNextConfig} from '../models/config';
 
-const asgardeo = async () => {
-  const getAccessToken = async (sessionId: string) => {
+const asgardeo = async (): Promise<{
+  exchangeToken: (config: TokenExchangeRequestConfig, sessionId: string) => Promise<TokenResponse | Response>;
+  getAccessToken: (sessionId: string) => Promise<string>;
+  getSessionId: () => Promise<string | undefined>;
+  reInitialize: (config: Partial<AsgardeoNextConfig>) => Promise<boolean>;
+}> => {
+  const getAccessToken = async (sessionId: string): Promise<string> => {
     const client: AsgardeoNextClient = AsgardeoNextClient.getInstance();
-    return await client.getAccessToken(sessionId);
+    return client.getAccessToken(sessionId);
   };
 
-  const getSessionId = async () => {
-    return await getSessionIdAction();
+  const getSessionId = async (): Promise<string | undefined> => getSessionIdAction();
+
+  const exchangeToken = async (
+    config: TokenExchangeRequestConfig,
+    sessionId: string,
+  ): Promise<TokenResponse | Response> => {
+    const client: AsgardeoNextClient = AsgardeoNextClient.getInstance();
+    return client.exchangeToken(config, sessionId);
   };
 
-  const exchangeToken = async (config: TokenExchangeRequestConfig, sessionId: string) => {
+  const reInitialize = async (config: Partial<AsgardeoNextConfig>): Promise<boolean> => {
     const client: AsgardeoNextClient = AsgardeoNextClient.getInstance();
-    return await client.exchangeToken(config, sessionId);
-  };
-
-  const reInitialize = async (config: Partial<AsgardeoNextConfig>) => {
-    const client: AsgardeoNextClient = AsgardeoNextClient.getInstance();
-    return await client.reInitialize(config);
+    return client.reInitialize(config);
   };
 
   return {
+    exchangeToken,
     getAccessToken,
     getSessionId,
-    exchangeToken,
     reInitialize,
   };
 };

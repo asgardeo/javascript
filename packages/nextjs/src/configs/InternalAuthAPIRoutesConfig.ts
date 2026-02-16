@@ -19,11 +19,11 @@
 import {InternalAuthAPIRoutes} from '../models/api';
 
 const InternalAuthAPIRoutesConfig: InternalAuthAPIRoutes = {
-  user: '/api/auth/user',
   session: '/api/auth/session',
   signIn: '/api/auth/signin',
   signOut: '/api/auth/signout',
-  signUp: undefined
+  signUp: undefined,
+  user: '/api/auth/user',
 };
 
 export default InternalAuthAPIRoutesConfig;

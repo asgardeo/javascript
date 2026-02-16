@@ -18,12 +18,10 @@
 
 'use client';
 
-import {FC, ReactElement} from 'react';
-import {BaseUserProfile, BaseUserProfileProps, useUser} from '@asgardeo/react';
-import useAsgardeo from '../../../contexts/Asgardeo/useAsgardeo';
-import getSessionId from '../../../../server/actions/getSessionId';
-import updateUserProfileAction from '../../../../server/actions/updateUserProfileAction';
 import {Schema, User} from '@asgardeo/node';
+import {BaseUserProfile, BaseUserProfileProps, useUser} from '@asgardeo/react';
+import {FC, ReactElement} from 'react';
+import getSessionId from '../../../../server/actions/getSessionId';
 
 /**
  * Props for the UserProfile component.
@@ -55,11 +53,13 @@ export type UserProfileProps = Omit<BaseUserProfileProps, 'user' | 'profile' | '
  * ```
  */
 const UserProfile: FC<UserProfileProps> = ({...rest}: UserProfileProps): ReactElement => {
-  const {baseUrl} = useAsgardeo();
   const {profile, flattenedProfile, schemas, onUpdateProfile, updateProfile} = useUser();
 
   const handleProfileUpdate = async (payload: any): Promise<void> => {
-    const result = await updateProfile(payload, (await getSessionId()) as string);
+    const result: {data: {user: User}; error: string; success: boolean} = await updateProfile(
+      payload,
+      (await getSessionId()) as string,
+    );
     onUpdateProfile(result?.data?.user);
   };
 

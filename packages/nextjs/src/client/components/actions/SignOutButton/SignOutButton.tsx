@@ -18,10 +18,10 @@
 
 'use client';
 
-import {FC, forwardRef, ReactElement, Ref, useState, MouseEvent} from 'react';
 import {BaseSignOutButton, BaseSignOutButtonProps, useTranslation} from '@asgardeo/react';
-import useAsgardeo from '../../../../client/contexts/Asgardeo/useAsgardeo';
+import {forwardRef, ForwardRefExoticComponent, ReactElement, Ref, RefAttributes, useState, MouseEvent} from 'react';
 import logger from '../../../../utils/logger';
+import useAsgardeo from '../../../contexts/Asgardeo/useAsgardeo';
 
 /**
  * Interface for SignInButton component props.
@@ -45,7 +45,10 @@ export type SignOutButtonProps = BaseSignOutButtonProps;
  * }
  * ```
  */
-const SignOutButton = forwardRef<HTMLButtonElement, SignOutButtonProps>(
+const SignOutButton: ForwardRefExoticComponent<SignOutButtonProps & RefAttributes<HTMLButtonElement>> = forwardRef<
+  HTMLButtonElement,
+  SignOutButtonProps
+>(
   (
     {className, style, preferences, onClick, children, ...rest}: SignOutButtonProps,
     ref: Ref<HTMLButtonElement>,
