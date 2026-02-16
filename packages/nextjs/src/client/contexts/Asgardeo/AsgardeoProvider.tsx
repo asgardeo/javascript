@@ -43,6 +43,8 @@ import {
   BrandingProvider,
   getActiveTheme,
 } from '@asgardeo/react';
+import {ReadonlyURLSearchParams} from 'next/dist/client/components/navigation.react-server';
+import {AppRouterInstance} from 'next/dist/shared/lib/app-router-context.shared-runtime';
 import {useRouter, useSearchParams} from 'next/navigation';
 import {FC, PropsWithChildren, RefObject, useEffect, useMemo, useRef, useState} from 'react';
 import AsgardeoContext, {AsgardeoContextProps} from './AsgardeoContext';
@@ -104,8 +106,8 @@ const AsgardeoClientProvider: FC<PropsWithChildren<AsgardeoClientProviderProps>>
   brandingPreference,
 }: PropsWithChildren<AsgardeoClientProviderProps>) => {
   const reRenderCheckRef: RefObject<boolean> = useRef(false);
-  const router = useRouter();
-  const searchParams = useSearchParams();
+  const router: AppRouterInstance = useRouter();
+  const searchParams: ReadonlyURLSearchParams = useSearchParams();
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [user, setUser] = useState<User | null>(_user);
   const [userProfile, setUserProfile] = useState<UserProfile>(_userProfile);
@@ -135,13 +137,12 @@ const AsgardeoClientProvider: FC<PropsWithChildren<AsgardeoClientProviderProps>>
     // Don't handle callback if already signed in
     if (isSignedIn) return;
 
-    (async () => {
+    (async (): Promise<void> => {
       try {
-        const code = searchParams.get('code');
-        const state = searchParams.get('state');
-        const sessionState = searchParams.get('session_state');
-        const error = searchParams.get('error');
-        const errorDescription = searchParams.get('error_description');
+        const code: string | null = searchParams.get('code');
+        const state: string | null = searchParams.get('state');
+        const sessionState: string | null = searchParams.get('session_state');
+        const error: string | null = searchParams.get('error');
 
         // Check for OAuth errors first
         if (error) {
@@ -154,7 +155,11 @@ const AsgardeoClientProvider: FC<PropsWithChildren<AsgardeoClientProviderProps>>
         if (code && state) {
           setIsLoading(true);
 
-          const result = await handleOAuthCallback(code, state, sessionState || undefined);
+          const result: {error?: string; redirectUrl?: string; success: boolean} = await handleOAuthCallback(
+            code,
+            state,
+            sessionState || undefined,
+          );
 
           if (result.success) {
             // Redirect to the success URL
@@ -176,13 +181,6 @@ const AsgardeoClientProvider: FC<PropsWithChildren<AsgardeoClientProviderProps>>
     })();
   }, []);
 
-  const isDarkMode: boolean = useMemo(() => {
-    if (!preferences?.theme?.mode || preferences.theme.mode === 'system') {
-      return window.matchMedia('(prefers-color-scheme: dark)').matches;
-    }
-    return preferences.theme.mode === 'dark';
-  }, [preferences?.theme?.mode]);
-
   useEffect(() => {
     // Set loading to false when server has resolved authentication state
     setIsLoading(false);
@@ -191,7 +189,7 @@ const AsgardeoClientProvider: FC<PropsWithChildren<AsgardeoClientProviderProps>>
   const handleSignIn = async (
     payload: EmbeddedSignInFlowHandleRequestPayload,
     request: EmbeddedFlowExecuteRequestConfig,
-  ) => {
+  ): Promise<any> => {
     if (!signIn) {
       throw new AsgardeoRuntimeError(
         '`signIn` function is not available.',
@@ -200,37 +198,33 @@ const AsgardeoClientProvider: FC<PropsWithChildren<AsgardeoClientProviderProps>>
       );
     }
 
-    try {
-      const result = await signIn(payload, request);
+    const result: any = await signIn(payload, request);
 
-      // Redirect based flow URL is sent as `signInUrl` in the response.
-      if (result?.data?.signInUrl) {
-        router.push(result.data.signInUrl);
+    // Redirect based flow URL is sent as `signInUrl` in the response.
+    if (result?.data?.signInUrl) {
+      router.push(result.data.signInUrl);
 
-        return;
-      }
-
-      // After the Embedded flow is successful, the URL to navigate next is sent as `afterSignInUrl` in the response.
-      if (result?.data?.afterSignInUrl) {
-        router.push(result.data.afterSignInUrl);
-
-        return;
-      }
-
-      if (result?.error) {
-        throw new Error(result.error);
-      }
-
-      return result?.data ?? result;
-    } catch (error) {
-      throw error;
+      return undefined;
     }
+
+    // After the Embedded flow is successful, the URL to navigate next is sent as `afterSignInUrl` in the response.
+    if (result?.data?.afterSignInUrl) {
+      router.push(result.data.afterSignInUrl);
+
+      return undefined;
+    }
+
+    if (result?.error) {
+      throw new Error(result.error);
+    }
+
+    return result?.data ?? result;
   };
 
   const handleSignUp = async (
     payload: EmbeddedFlowExecuteRequestPayload,
     request: EmbeddedFlowExecuteRequestConfig,
-  ) => {
+  ): Promise<any> => {
     if (!signUp) {
       throw new AsgardeoRuntimeError(
         '`signUp` function is not available.',
@@ -239,45 +233,41 @@ const AsgardeoClientProvider: FC<PropsWithChildren<AsgardeoClientProviderProps>>
       );
     }
 
-    try {
-      const result = await signUp(payload, request);
+    const result: any = await signUp(payload, request);
 
-      // Redirect based flow URL is sent as `signUpUrl` in the response.
-      if (result?.data?.signUpUrl) {
-        router.push(result.data.signUpUrl);
+    // Redirect based flow URL is sent as `signUpUrl` in the response.
+    if (result?.data?.signUpUrl) {
+      router.push(result.data.signUpUrl);
 
-        return;
-      }
-
-      // After the Embedded flow is successful, the URL to navigate next is sent as `afterSignUpUrl` in the response.
-      if (result?.data?.afterSignUpUrl) {
-        router.push(result.data.afterSignUpUrl);
-
-        return;
-      }
-
-      if (result?.error) {
-        throw new Error(result.error);
-      }
-
-      return result?.data ?? result;
-    } catch (error) {
-      throw error;
+      return undefined;
     }
+
+    // After the Embedded flow is successful, the URL to navigate next is sent as `afterSignUpUrl` in the response.
+    if (result?.data?.afterSignUpUrl) {
+      router.push(result.data.afterSignUpUrl);
+
+      return undefined;
+    }
+
+    if (result?.error) {
+      throw new Error(result.error);
+    }
+
+    return result?.data ?? result;
   };
 
-  const handleSignOut = async () => {
+  const handleSignOut = async (): Promise<any> => {
     logger.debug('[AsgardeoClientProvider][handleSignOut] `handleSignOut` called.');
 
     try {
-      const result = await signOut();
+      const result: any = await signOut();
 
       logger.debug('[AsgardeoClientProvider][handleSignOut] Sign out result:', result);
 
       if (result?.data?.afterSignOutUrl) {
         router.push(result.data.afterSignOutUrl);
 
-        return {redirected: true, location: result.data.afterSignOutUrl};
+        return {location: result.data.afterSignOutUrl, redirected: true};
       }
 
       if (result?.error) {
@@ -293,32 +283,34 @@ const AsgardeoClientProvider: FC<PropsWithChildren<AsgardeoClientProviderProps>>
         '[AsgardeoClientProvider][handleSignOut] Error occurred during signing the user out with a button click:',
         error,
       );
+
+      return undefined;
     }
   };
 
-  const contextValue = useMemo(
+  const contextValue: AsgardeoContextProps = useMemo(
     () => ({
+      applicationId,
       baseUrl,
-      user,
-      isSignedIn,
       isLoading,
+      isSignedIn,
+      organizationHandle,
       signIn: handleSignIn,
+      signInUrl,
       signOut: handleSignOut,
       signUp: handleSignUp,
-      signInUrl,
       signUpUrl,
-      applicationId,
-      organizationHandle,
+      user,
     }),
     [baseUrl, user, isSignedIn, isLoading, signInUrl, signUpUrl, applicationId, organizationHandle],
   );
 
   const handleProfileUpdate = (payload: User): void => {
     setUser(payload);
-    setUserProfile(prev => ({
+    setUserProfile((prev: UserProfile) => ({
       ...prev,
-      profile: payload,
       flattenedProfile: generateFlattenedUserProfile(payload, prev?.schemas),
+      profile: payload,
     }));
   };
 

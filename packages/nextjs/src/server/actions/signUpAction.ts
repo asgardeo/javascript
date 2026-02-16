@@ -18,12 +18,7 @@
 
 'use server';
 
-import {
-  EmbeddedFlowExecuteRequestConfig,
-  EmbeddedFlowExecuteRequestPayload,
-  EmbeddedFlowExecuteResponse,
-  EmbeddedFlowStatus,
-} from '@asgardeo/node';
+import {EmbeddedFlowExecuteRequestPayload, EmbeddedFlowExecuteResponse, EmbeddedFlowStatus} from '@asgardeo/node';
 import AsgardeoNextClient from '../../AsgardeoNextClient';
 
 /**
@@ -36,9 +31,7 @@ import AsgardeoNextClient from '../../AsgardeoNextClient';
  */
 const signUpAction = async (
   payload?: EmbeddedFlowExecuteRequestPayload,
-  request?: EmbeddedFlowExecuteRequestConfig,
 ): Promise<{
-  success: boolean;
   data?:
     | {
         afterSignUpUrl?: string;
@@ -46,29 +39,29 @@ const signUpAction = async (
       }
     | EmbeddedFlowExecuteResponse;
   error?: string;
+  success: boolean;
 }> => {
   try {
-    const client = AsgardeoNextClient.getInstance();
+    const client: AsgardeoNextClient = AsgardeoNextClient.getInstance();
 
     // If no payload provided, redirect to sign-in URL for redirect-based sign-in.
     // If there's a payload, handle the embedded sign-in flow.
     if (!payload) {
-      const defaultSignUpUrl = '';
+      const defaultSignUpUrl: string = '';
 
-      return {success: true, data: {signUpUrl: String(defaultSignUpUrl)}};
-    } else {
-      const response: any = await client.signUp(payload);
-
-      if (response.flowStatus === EmbeddedFlowStatus.Complete) {
-        const afterSignUpUrl = await (await client.getStorageManager()).getConfigDataParameter('afterSignInUrl');
-
-        return {success: true, data: {afterSignUpUrl: String(afterSignUpUrl)}};
-      }
-
-      return {success: true, data: response as EmbeddedFlowExecuteResponse};
+      return {data: {signUpUrl: String(defaultSignUpUrl)}, success: true};
     }
+    const response: any = await client.signUp(payload);
+
+    if (response.flowStatus === EmbeddedFlowStatus.Complete) {
+      const afterSignUpUrl: string = await (await client.getStorageManager()).getConfigDataParameter('afterSignInUrl');
+
+      return {data: {afterSignUpUrl: String(afterSignUpUrl)}, success: true};
+    }
+
+    return {data: response as EmbeddedFlowExecuteResponse, success: true};
   } catch (error) {
-    return {success: false, error: String(error)};
+    return {error: String(error), success: false};
   }
 };
 

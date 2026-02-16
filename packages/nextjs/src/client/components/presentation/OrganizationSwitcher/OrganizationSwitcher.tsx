@@ -18,7 +18,7 @@
 
 'use client';
 
-import {FC, ReactElement, useState} from 'react';
+import {Organization} from '@asgardeo/node';
 import {
   BaseOrganizationSwitcher,
   BaseOrganizationSwitcherProps,
@@ -26,11 +26,11 @@ import {
   useOrganization,
   useTranslation,
 } from '@asgardeo/react';
+import {FC, ReactElement, useState} from 'react';
 import useAsgardeo from '../../../contexts/Asgardeo/useAsgardeo';
-import {CreateOrganization} from '../CreateOrganization/CreateOrganization';
-import OrganizationProfile from '../OrganizationProfile/OrganizationProfile';
-import OrganizationList from '../OrganizationList/OrganizationList';
-import {Organization} from '@asgardeo/node';
+import {CreateOrganization} from '../CreateOrganization/CreateOrganization.js';
+import OrganizationList from '../OrganizationList/OrganizationList.js';
+import OrganizationProfile from '../OrganizationProfile/OrganizationProfile.js';
 
 /**
  * Props interface for the OrganizationSwitcher component.
@@ -143,7 +143,8 @@ export const OrganizationSwitcher: FC<OrganizationSwitcherProps> = ({
     onClick: (): void => setIsCreateOrgOpen(true),
   });
 
-  const menuItems = props.menuItems ? [...defaultMenuItems, ...props.menuItems] : defaultMenuItems;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const menuItems: any[] = props['menuItems'] ? [...defaultMenuItems, ...props['menuItems']] : defaultMenuItems;
 
   return (
     <>

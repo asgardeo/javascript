@@ -18,12 +18,12 @@
 
 import {
   User,
-  AsgardeoAPIError,
   HttpInstance,
+  HttpResponse,
   AsgardeoSPAClient,
   HttpRequestConfig,
   getScim2Me as baseGetScim2Me,
-  GetScim2MeConfig as BaseGetScim2MeConfig
+  GetScim2MeConfig as BaseGetScim2MeConfig,
 } from '@asgardeo/browser';
 
 const httpClient: HttpInstance = AsgardeoSPAClient.getInstance().httpRequest.bind(AsgardeoSPAClient.getInstance());
@@ -78,17 +78,17 @@ export interface GetScim2MeConfig extends Omit<BaseGetScim2MeConfig, 'fetcher'> 
  */
 const getScim2Me = async ({fetcher, ...requestConfig}: GetScim2MeConfig): Promise<User> => {
   const defaultFetcher = async (url: string, config: RequestInit): Promise<Response> => {
-    const response = await httpClient({
-      url,
-      method: config.method || 'GET',
+    const response: HttpResponse<any> = await httpClient({
       headers: config.headers as Record<string, string>,
+      method: config.method || 'GET',
+      url,
     } as HttpRequestConfig);
 
     return {
+      json: () => Promise.resolve(response.data),
       ok: response.status >= 200 && response.status < 300,
       status: response.status,
       statusText: response.statusText || '',
-      json: () => Promise.resolve(response.data),
       text: () => Promise.resolve(typeof response.data === 'string' ? response.data : JSON.stringify(response.data)),
     } as Response;
   };

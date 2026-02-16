@@ -19,8 +19,8 @@
 'use client';
 
 import {Organization as IOrganization} from '@asgardeo/node';
-import {FC, ReactElement, ReactNode} from 'react';
 import {BaseOrganization, BaseOrganizationProps, useOrganization} from '@asgardeo/react';
+import {FC, ReactElement, ReactNode} from 'react';
 
 /**
  * Props for the Organization component.
@@ -68,7 +68,7 @@ export interface OrganizationProps extends Omit<BaseOrganizationProps, 'organiza
  * }
  * ```
  */
-const Organization: FC<OrganizationProps> = ({children, fallback = null}): ReactElement => {
+const Organization: FC<OrganizationProps> = ({children, fallback = null}: OrganizationProps): ReactElement => {
   const {currentOrganization} = useOrganization();
 
   return (

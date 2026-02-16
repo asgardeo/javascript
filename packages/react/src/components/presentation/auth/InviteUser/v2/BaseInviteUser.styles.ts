@@ -9,15 +9,16 @@
  *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
- * software distributed under an "AS IS" BASIS, WITHOUT WARRANTIES
- * OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and
- * limitations under the License.
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 
+import {Theme} from '@asgardeo/browser';
 import {css} from '@emotion/css';
 import {useMemo} from 'react';
-import {Theme} from '@asgardeo/browser';
 
 /**
  * Creates styles for the BaseInviteUser component
@@ -25,26 +26,26 @@ import {Theme} from '@asgardeo/browser';
  * @param colorScheme - The current color scheme (used for memoization)
  * @returns Object containing CSS class names for component styling
  */
-const useStyles = (theme: Theme, colorScheme: string) => {
-  return useMemo(() => {
-    const card = css`
+const useStyles = (theme: Theme, colorScheme: string): Record<string, string> =>
+  useMemo(() => {
+    const card: string = css`
       background: ${theme.vars.colors.background.surface};
       border-radius: ${theme.vars.borderRadius.large};
       gap: calc(${theme.vars.spacing.unit} * 2);
       min-width: 420px;
     `;
 
-    const header = css`
+    const header: string = css`
       gap: 0;
       align-items: center;
     `;
 
-    const title = css`
+    const title: string = css`
       margin: 0 0 calc(${theme.vars.spacing.unit} * 1) 0;
       color: ${theme.vars.colors.text.primary};
     `;
 
-    const subtitle = css`
+    const subtitle: string = css`
       margin-bottom: calc(${theme.vars.spacing.unit} * 1);
       color: ${theme.vars.colors.text.secondary};
     `;
@@ -52,8 +53,8 @@ const useStyles = (theme: Theme, colorScheme: string) => {
     return {
       card,
       header,
-      title,
       subtitle,
+      title,
     };
   }, [
     theme.vars.colors.background.surface,
@@ -63,6 +64,5 @@ const useStyles = (theme: Theme, colorScheme: string) => {
     theme.vars.spacing.unit,
     colorScheme,
   ]);
-};
 
 export default useStyles;

@@ -17,9 +17,9 @@
  */
 
 import {FC} from 'react';
+import {AdapterProps} from '../../models/adapters';
 import Button from '../primitives/Button/Button';
 import Spinner from '../primitives/Spinner/Spinner';
-import {AdapterProps} from '../../models/adapters';
 
 /**
  * Button component for sign-up forms that handles all button variants.
@@ -31,31 +31,31 @@ const ButtonComponent: FC<AdapterProps> = ({
   buttonClassName,
   onSubmit,
   size = 'medium',
-}) => {
+}: AdapterProps) => {
   const config: Record<string, unknown> = component.config || {};
   const buttonText: string = (config['text'] as string) || (config['label'] as string) || 'Continue';
   const buttonType: string = (config['type'] as string) || 'submit';
   const componentVariant: string = component.variant?.toUpperCase() || 'PRIMARY';
 
   // Map component variants to Button primitive props
-  const getButtonProps = () => {
+  const getButtonProps = (): {color: 'primary' | 'secondary'; variant: 'solid' | 'text' | 'outline'} => {
     switch (componentVariant) {
       case 'PRIMARY':
-        return {variant: 'solid' as const, color: 'primary' as const};
+        return {color: 'primary' as const, variant: 'solid' as const};
       case 'SECONDARY':
-        return {variant: 'solid' as const, color: 'secondary' as const};
+        return {color: 'secondary' as const, variant: 'solid' as const};
       case 'TEXT':
-        return {variant: 'text' as const, color: 'primary' as const};
+        return {color: 'primary' as const, variant: 'text' as const};
       case 'SOCIAL':
-        return {variant: 'outline' as const, color: 'primary' as const};
+        return {color: 'primary' as const, variant: 'outline' as const};
       default:
-        return {variant: 'solid' as const, color: 'primary' as const};
+        return {color: 'primary' as const, variant: 'solid' as const};
     }
   };
 
   const {variant, color} = getButtonProps();
 
-  const handleClick = () => {
+  const handleClick = (): void => {
     if (onSubmit && buttonType !== 'submit') {
       onSubmit(component);
     }

@@ -18,11 +18,12 @@
 
 'use server';
 
+import {ReadonlyRequestCookies} from 'next/dist/server/web/spec-extension/adapters/request-cookies';
 import {cookies} from 'next/headers';
-import AsgardeoNextClient from '../../AsgardeoNextClient';
-import SessionManager from '../../utils/SessionManager';
 import getSessionId from './getSessionId';
+import AsgardeoNextClient from '../../AsgardeoNextClient';
 import logger from '../../utils/logger';
+import SessionManager from '../../utils/SessionManager';
 
 /**
  * Server action for signing out a user.
@@ -30,19 +31,19 @@ import logger from '../../utils/logger';
  *
  * @returns Promise that resolves with success status and optional after sign-out URL
  */
-const signOutAction = async (): Promise<{success: boolean; data?: {afterSignOutUrl?: string}; error?: unknown}> => {
+const signOutAction = async (): Promise<{data?: {afterSignOutUrl?: string}; error?: unknown; success: boolean}> => {
   logger.debug('[signOutAction] Initiating sign out process from the server action.');
 
-  const clearSessionCookies = async () => {
-    const cookieStore = await cookies();
+  const clearSessionCookies = async (): Promise<void> => {
+    const cookieStore: ReadonlyRequestCookies = await cookies();
 
     cookieStore.delete(SessionManager.getSessionCookieName());
     cookieStore.delete(SessionManager.getTempSessionCookieName());
   };
 
   try {
-    const client = AsgardeoNextClient.getInstance();
-    const sessionId = await getSessionId();
+    const client: AsgardeoNextClient = AsgardeoNextClient.getInstance();
+    const sessionId: string | undefined = await getSessionId();
 
     let afterSignOutUrl: string = '/';
 
@@ -54,7 +55,7 @@ const signOutAction = async (): Promise<{success: boolean; data?: {afterSignOutU
 
     await clearSessionCookies();
 
-    return {success: true, data: {afterSignOutUrl}};
+    return {data: {afterSignOutUrl}, success: true};
   } catch (error) {
     logger.error('[signOutAction] Error during sign out from the server action:', error);
 
@@ -62,9 +63,18 @@ const signOutAction = async (): Promise<{success: boolean; data?: {afterSignOutU
 
     await clearSessionCookies();
 
+    let errorMessage: unknown;
+    if (typeof error === 'string') {
+      errorMessage = error;
+    } else if (error instanceof Error) {
+      errorMessage = error.message;
+    } else {
+      errorMessage = JSON.stringify(error);
+    }
+
     return {
+      error: errorMessage,
       success: false,
-      error: typeof error === 'string' ? error : error instanceof Error ? error.message : JSON.stringify(error),
     };
   }
 };

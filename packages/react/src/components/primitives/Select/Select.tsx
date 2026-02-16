@@ -16,58 +16,58 @@
  * under the License.
  */
 
-import {FC, SelectHTMLAttributes} from 'react';
-import useTheme from '../../../contexts/Theme/useTheme';
+import {withVendorCSSClassPrefix, bem} from '@asgardeo/browser';
 import {cx} from '@emotion/css';
+import {FC, SelectHTMLAttributes} from 'react';
+import useStyles from './Select.styles';
+import useTheme from '../../../contexts/Theme/useTheme';
 import FormControl from '../FormControl/FormControl';
 import InputLabel from '../InputLabel/InputLabel';
-import {withVendorCSSClassPrefix, bem} from '@asgardeo/browser';
-import useStyles from './Select.styles';
 
 export interface SelectOption {
-  /**
-   * The value that will be submitted with the form
-   */
-  value: string;
   /**
    * The text that will be displayed in the select
    */
   label: string;
+  /**
+   * The value that will be submitted with the form
+   */
+  value: string;
 }
 
 export interface SelectProps extends Omit<SelectHTMLAttributes<HTMLSelectElement>, 'className'> {
-  /**
-   * Label text to display above the select
-   */
-  label?: string;
-  /**
-   * Error message to display below the select
-   */
-  error?: string;
   /**
    * Additional CSS class names
    */
   className?: string;
   /**
-   * Whether the field is required
-   */
-  required?: boolean;
-  /**
    * Whether the field is disabled
    */
   disabled?: boolean;
+  /**
+   * Error message to display below the select
+   */
+  error?: string;
   /**
    * Helper text to display below the select
    */
   helperText?: string;
   /**
-   * Placeholder text for the default/empty option
+   * Label text to display above the select
    */
-  placeholder?: string;
+  label?: string;
   /**
    * The options to display in the select
    */
   options: SelectOption[];
+  /**
+   * Placeholder text for the default/empty option
+   */
+  placeholder?: string;
+  /**
+   * Whether the field is required
+   */
+  required?: boolean;
 }
 
 const Select: FC<SelectProps> = ({
@@ -81,16 +81,16 @@ const Select: FC<SelectProps> = ({
   options,
   style = {},
   ...rest
-}) => {
-  const {theme, colorScheme} = useTheme();
-  const hasError = !!error;
-  const styles = useStyles(theme, colorScheme, disabled, hasError);
+}: SelectProps) => {
+  const {theme, colorScheme}: ReturnType<typeof useTheme> = useTheme();
+  const hasError: boolean = !!error;
+  const styles: Record<string, string> = useStyles(theme, colorScheme, disabled, hasError);
 
-  const selectClassName = cx(
+  const selectClassName: string = cx(
     withVendorCSSClassPrefix(bem('select', 'input')),
-    styles.select,
-    hasError && styles.selectError,
-    disabled && styles.selectDisabled,
+    styles['select'],
+    hasError && styles['selectError'],
+    disabled && styles['selectDisabled'],
   );
 
   return (
@@ -117,8 +117,8 @@ const Select: FC<SelectProps> = ({
             {placeholder}
           </option>
         )}
-        {options.map(option => (
-          <option key={option.value} value={option.value} className={styles.option}>
+        {options.map((option: SelectOption) => (
+          <option key={option.value} value={option.value} className={styles['option']}>
             {option.label}
           </option>
         ))}

@@ -23,9 +23,9 @@ import {
   Platform,
 } from '@asgardeo/browser';
 import {FC, ReactElement} from 'react';
+import BaseSignIn, {BaseSignInProps} from './BaseSignIn';
 import SignInV2, {SignInRenderProps} from './v2/SignIn';
 import useAsgardeo from '../../../../contexts/Asgardeo/useAsgardeo';
-import BaseSignIn, {BaseSignInProps} from './BaseSignIn';
 
 /**
  * Props for the SignIn component.
@@ -69,9 +69,8 @@ const SignIn: FC<SignInProps> = ({className, size = 'medium', children, ...rest}
   /**
    * Initialize the authentication flow.
    */
-  const handleInitialize = async (): Promise<EmbeddedSignInFlowInitiateResponse> => {
-    return (await signIn({response_mode: 'direct'})) as EmbeddedSignInFlowInitiateResponse;
-  };
+  const handleInitialize = async (): Promise<EmbeddedSignInFlowInitiateResponse> =>
+    (await signIn({response_mode: 'direct'})) as EmbeddedSignInFlowInitiateResponse;
 
   /**
    * Handle authentication steps.
@@ -79,9 +78,7 @@ const SignIn: FC<SignInProps> = ({className, size = 'medium', children, ...rest}
   const handleOnSubmit = async (
     payload: EmbeddedSignInFlowHandleRequestPayload,
     request: Request,
-  ): Promise<EmbeddedSignInFlowHandleResponse> => {
-    return (await signIn(payload, request)) as EmbeddedSignInFlowHandleResponse;
-  };
+  ): Promise<EmbeddedSignInFlowHandleResponse> => (await signIn(payload, request)) as EmbeddedSignInFlowHandleResponse;
 
   /**
    * Handle successful authentication and redirect with query params.

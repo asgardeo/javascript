@@ -22,11 +22,10 @@ import {
   AsgardeoRuntimeError,
   EmbeddedFlowExecuteRequestPayload,
   EmbeddedFlowExecuteResponse,
-  EmbeddedFlowResponseType,
   EmbeddedFlowType,
 } from '@asgardeo/node';
-import {FC} from 'react';
 import {BaseSignUp, BaseSignUpProps} from '@asgardeo/react';
+import {FC} from 'react';
 import useAsgardeo from '../../../contexts/Asgardeo/useAsgardeo';
 
 /**
@@ -64,8 +63,14 @@ export type SignUpProps = BaseSignUpProps;
  * };
  * ```
  */
-const SignUp: FC<SignUpProps> = ({className, size = 'medium', variant = 'outlined', afterSignUpUrl, onError}) => {
-  const {signUp, isInitialized} = useAsgardeo();
+const SignUp: FC<SignUpProps> = ({
+  className,
+  size = 'medium',
+  variant = 'outlined',
+  afterSignUpUrl,
+  onError,
+}: SignUpProps) => {
+  const {signUp} = useAsgardeo();
 
   /**
    * Initialize the sign-up flow.

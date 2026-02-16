@@ -17,6 +17,7 @@
  */
 
 // Removed BEM and vendor prefix utilities
+import {cx} from '@emotion/css';
 import {
   useFloating,
   autoUpdate,
@@ -30,8 +31,8 @@ import {
   FloatingFocusManager,
   FloatingPortal,
 } from '@floating-ui/react';
-import {cx} from '@emotion/css';
-import {FC, ReactElement, ReactNode, useState} from 'react';
+import {CSSProperties, FC, ReactElement, ReactNode, useState} from 'react';
+import useStyles from './BaseOrganizationSwitcher.styles';
 import useTheme from '../../../contexts/Theme/useTheme';
 import useTranslation from '../../../hooks/useTranslation';
 import {Avatar} from '../../primitives/Avatar/Avatar';
@@ -40,7 +41,6 @@ import Building from '../../primitives/Icons/Building';
 import Check from '../../primitives/Icons/Check';
 import ChevronDown from '../../primitives/Icons/ChevronDown';
 import Typography from '../../primitives/Typography/Typography';
-import useStyles from './BaseOrganizationSwitcher.styles';
 
 interface MenuItem {
   href?: string;
@@ -116,13 +116,13 @@ export interface BaseOrganizationSwitcherProps {
    */
   menuItems?: MenuItem[];
   /**
-   * Handler for when an organization is selected.
-   */
-  onOrganizationSwitch: (organization: Organization) => void;
-  /**
    * Handler for when the manage profile button is clicked.
    */
   onManageProfile?: () => void;
+  /**
+   * Handler for when an organization is selected.
+   */
+  onOrganizationSwitch: (organization: Organization) => void;
   /**
    * List of available organizations.
    */
@@ -158,7 +158,7 @@ export interface BaseOrganizationSwitcherProps {
   /**
    * Custom styles for the component.
    */
-  style?: React.CSSProperties;
+  style?: CSSProperties;
 }
 
 /**
@@ -185,25 +185,25 @@ export const BaseOrganizationSwitcher: FC<BaseOrganizationSwitcherProps> = ({
   showTriggerLabel = true,
   avatarSize = 24,
   fallback = null,
-}): ReactElement => {
+}: BaseOrganizationSwitcherProps): ReactElement => {
   const {theme, colorScheme, direction} = useTheme();
-  const styles = useStyles(theme, colorScheme);
+  const styles: Record<string, string> = useStyles(theme, colorScheme);
   const [isOpen, setIsOpen] = useState(false);
   const [hoveredItemIndex, setHoveredItemIndex] = useState<number | null>(null);
   const {t} = useTranslation();
-  const isRTL = direction === 'rtl';
+  const isRTL: boolean = direction === 'rtl';
 
   const {refs, floatingStyles, context} = useFloating({
-    open: isOpen,
-    onOpenChange: setIsOpen,
-    placement: 'bottom-end',
     middleware: [offset(5), flip({fallbackAxisSideDirection: 'end'}), shift({padding: 5})],
+    onOpenChange: setIsOpen,
+    open: isOpen,
+    placement: 'bottom-end',
     whileElementsMounted: autoUpdate,
   });
 
-  const click = useClick(context);
-  const dismiss = useDismiss(context);
-  const role = useRole(context);
+  const click: any = useClick(context);
+  const dismiss: any = useDismiss(context);
+  const role: any = useRole(context);
 
   const {getReferenceProps, getFloatingProps} = useInteractions([click, dismiss, role]);
 
@@ -228,7 +228,7 @@ export const BaseOrganizationSwitcher: FC<BaseOrganizationSwitcherProps> = ({
     (org: Organization): boolean => org.id !== currentOrganization?.id,
   );
 
-  const defaultRenderOrganization = (organization: Organization, isSelected: boolean) => (
+  const defaultRenderOrganization = (organization: Organization, isSelected: boolean): ReactElement => (
     <>
       <Avatar
         variant="square"
@@ -237,11 +237,11 @@ export const BaseOrganizationSwitcher: FC<BaseOrganizationSwitcherProps> = ({
         size={avatarSize * 1.25}
         alt={`${organization.name} avatar`}
       />
-      <div className={cx(styles.organizationInfo)}>
-        <Typography variant="body2" fontWeight="medium" className={cx(styles.organizationName)}>
+      <div className={cx(styles['organizationInfo'])}>
+        <Typography variant="body2" fontWeight="medium" className={cx(styles['organizationName'])}>
           {organization.name}
         </Typography>
-        <div className={cx(styles.organizationMeta)}>
+        <div className={cx(styles['organizationMeta'])}>
           {showMemberCount && organization.memberCount !== undefined && (
             <span>
               {organization.memberCount}{' '}
@@ -251,34 +251,34 @@ export const BaseOrganizationSwitcher: FC<BaseOrganizationSwitcherProps> = ({
           {showRole && organization.role && showMemberCount && organization.memberCount !== undefined && (
             <span> • </span>
           )}
-          {showRole && organization.role && <span className={cx(styles.roleCapitalized)}>{organization.role}</span>}
+          {showRole && organization.role && <span className={cx(styles['roleCapitalized'])}>{organization.role}</span>}
         </div>
       </div>
       {isSelected && <Check width="16" height="16" color={theme.vars.colors.text.primary} />}
     </>
   );
 
-  const defaultRenderLoading = () => (
-    <div className={cx(styles.loadingContainer)}>
-      <Typography variant="caption" className={cx(styles.loadingText)}>
+  const defaultRenderLoading = (): ReactElement => (
+    <div className={cx(styles['loadingContainer'])}>
+      <Typography variant="caption" className={cx(styles['loadingText'])}>
         {t('organization.switcher.loading.placeholder.organizations')}
       </Typography>
     </div>
   );
 
-  const defaultRenderError = (errorMessage: string) => (
-    <div className={cx(styles.errorContainer)}>
-      <Typography variant="caption" className={cx(styles.errorText)}>
+  const defaultRenderError = (errorMessage: string): ReactElement => (
+    <div className={cx(styles['errorContainer'])}>
+      <Typography variant="caption" className={cx(styles['errorText'])}>
         {errorMessage}
       </Typography>
     </div>
   );
 
   return (
-    <div className={cx(styles.root, className)} style={style}>
+    <div className={cx(styles['root'], className)} style={style}>
       <Button
         ref={refs.setReference}
-        className={cx(styles.trigger)}
+        className={cx(styles['trigger'])}
         color="tertiary"
         variant="outline"
         size="medium"
@@ -294,7 +294,7 @@ export const BaseOrganizationSwitcher: FC<BaseOrganizationSwitcherProps> = ({
               alt={`${currentOrganization.name} avatar`}
             />
             {showTriggerLabel && (
-              <Typography variant="body2" className={cx(styles.triggerLabel)}>
+              <Typography variant="body2" className={cx(styles['triggerLabel'])}>
                 {currentOrganization.name}
               </Typography>
             )}
@@ -303,13 +303,13 @@ export const BaseOrganizationSwitcher: FC<BaseOrganizationSwitcherProps> = ({
           <>
             <Building width={avatarSize} height={avatarSize} />
             {showTriggerLabel && (
-              <Typography variant="body2" className={cx(styles.triggerLabel)}>
+              <Typography variant="body2" className={cx(styles['triggerLabel'])}>
                 {t('elements.fields.organization.select.label')}
               </Typography>
             )}
           </>
         )}
-        <span style={{transform: isRTL ? 'scaleX(-1)' : 'none', display: 'inline-flex'}}>
+        <span style={{display: 'inline-flex', transform: isRTL ? 'scaleX(-1)' : 'none'}}>
           <ChevronDown width="16" height="16" />
         </span>
       </Button>
@@ -317,10 +317,15 @@ export const BaseOrganizationSwitcher: FC<BaseOrganizationSwitcherProps> = ({
       {isOpen && (
         <FloatingPortal id={portalId}>
           <FloatingFocusManager context={context} modal={false} initialFocus={-1}>
-            <div ref={refs.setFloating} className={cx(styles.content)} style={floatingStyles} {...getFloatingProps()}>
+            <div
+              ref={refs.setFloating}
+              className={cx(styles['content'])}
+              style={floatingStyles}
+              {...getFloatingProps()}
+            >
               {/* Header - Current Organization */}
               {currentOrganization && (
-                <div className={cx(styles.header)}>
+                <div className={cx(styles['header'])}>
                   <Avatar
                     variant="square"
                     imageUrl={currentOrganization.avatar}
@@ -328,11 +333,11 @@ export const BaseOrganizationSwitcher: FC<BaseOrganizationSwitcherProps> = ({
                     size={avatarSize * 1.5}
                     alt={`${currentOrganization.name} avatar`}
                   />
-                  <div className={cx(styles.headerInfo)}>
-                    <Typography noWrap className={cx(styles.headerName)} variant="body1" fontWeight="medium">
+                  <div className={cx(styles['headerInfo'])}>
+                    <Typography noWrap className={cx(styles['headerName'])} variant="body1" fontWeight="medium">
                       {currentOrganization.name}
                     </Typography>
-                    <div className={cx(styles.headerMeta)}>
+                    <div className={cx(styles['headerMeta'])}>
                       {showMemberCount && currentOrganization.memberCount !== undefined && (
                         <Typography
                           noWrap
@@ -350,7 +355,7 @@ export const BaseOrganizationSwitcher: FC<BaseOrganizationSwitcherProps> = ({
                       {showRole &&
                         currentOrganization.role &&
                         (!showMemberCount || currentOrganization.memberCount === undefined) && (
-                          <Typography noWrap className={cx(styles.headerRole)} variant="caption" color="secondary">
+                          <Typography noWrap className={cx(styles['headerRole'])} variant="caption" color="secondary">
                             {currentOrganization.role}
                           </Typography>
                         )}
@@ -363,7 +368,7 @@ export const BaseOrganizationSwitcher: FC<BaseOrganizationSwitcherProps> = ({
                       variant="outline"
                       size="small"
                       aria-label="Manage Organization Profile"
-                      className={cx(styles.manageButton)}
+                      className={cx(styles['manageButton'])}
                       endIcon={
                         <svg
                           width="16"
@@ -389,111 +394,113 @@ export const BaseOrganizationSwitcher: FC<BaseOrganizationSwitcherProps> = ({
               {/* Section Header for Other Organizations */}
               {organizations.length > 1 && (
                 <div
-                  className={cx(styles.header, styles.sectionHeaderContainer)}
+                  className={cx(styles['header'], styles['sectionHeaderContainer'])}
                   style={{
                     borderTop: currentOrganization ? `1px solid ${theme.vars.colors.border}` : 'none',
                   }}
                 >
-                  <Typography variant="caption" fontWeight={600} className={cx(styles.sectionHeader)}>
+                  <Typography variant="caption" fontWeight={600} className={cx(styles['sectionHeader'])}>
                     {t('organization.switcher.switch.organization')}
                   </Typography>
                 </div>
               )}
 
               {/* Content */}
-              <div className={cx(styles.menu)}>
-                {loading ? (
-                  renderLoading ? (
-                    renderLoading()
-                  ) : (
-                    defaultRenderLoading()
-                  )
-                ) : error ? (
-                  renderError ? (
-                    renderError(error)
-                  ) : (
-                    defaultRenderError(error)
-                  )
-                ) : (
-                  <>
-                    {switchableOrganizations.map((organization: Organization): ReactElement => {
-                      const isSelected: boolean = false; // Never selected since we exclude current org
-                      return (
-                        <Button
-                          key={organization.id}
-                          onClick={(): void => handleOrganizationSwitch(organization)}
-                          className={cx(styles.menuItem)}
-                          color="tertiary"
-                          variant="text"
-                          size="small"
-                          style={{
-                            backgroundColor:
-                              hoveredItemIndex === switchableOrganizations.indexOf(organization)
-                                ? theme.vars.colors.action?.hover
-                                : 'transparent',
-                          }}
-                          onMouseEnter={(): void => setHoveredItemIndex(switchableOrganizations.indexOf(organization))}
-                          onMouseLeave={(): void => setHoveredItemIndex(null)}
-                        >
-                          {renderOrganization
-                            ? renderOrganization(organization, isSelected)
-                            : defaultRenderOrganization(organization, isSelected)}
-                        </Button>
-                      );
-                    })}
+              <div className={cx(styles['menu'])}>
+                {((): ReactElement => {
+                  if (loading) {
+                    return renderLoading ? renderLoading() : defaultRenderLoading();
+                  }
+                  if (error) {
+                    return renderError ? renderError(error) : defaultRenderError(error);
+                  }
+                  return (
+                    <>
+                      {switchableOrganizations.map((organization: Organization): ReactElement => {
+                        const isSelected: boolean = false; // Never selected since we exclude current org
+                        return (
+                          <Button
+                            key={organization.id}
+                            onClick={(): void => handleOrganizationSwitch(organization)}
+                            className={cx(styles['menuItem'])}
+                            color="tertiary"
+                            variant="text"
+                            size="small"
+                            style={{
+                              backgroundColor:
+                                hoveredItemIndex === switchableOrganizations.indexOf(organization)
+                                  ? theme.vars.colors.action?.hover
+                                  : 'transparent',
+                            }}
+                            onMouseEnter={(): void =>
+                              setHoveredItemIndex(switchableOrganizations.indexOf(organization))
+                            }
+                            onMouseLeave={(): void => setHoveredItemIndex(null)}
+                          >
+                            {renderOrganization
+                              ? renderOrganization(organization, isSelected)
+                              : defaultRenderOrganization(organization, isSelected)}
+                          </Button>
+                        );
+                      })}
 
-                    {/* Menu Items */}
-                    {menuItems.length > 0 && (
-                      <>
-                        <div className={cx(styles.menuDivider)} />
-                        {menuItems.map(
-                          (item, index: number): ReactElement => (
-                            <div key={index}>
-                              {item.href ? (
-                                <a
-                                  href={item.href}
-                                  style={{
-                                    backgroundColor:
-                                      hoveredItemIndex === switchableOrganizations.length + index
-                                        ? theme.vars.colors.action?.hover
-                                        : 'transparent',
-                                  }}
-                                  className={cx(styles.menuItem)}
-                                  onMouseEnter={(): void => setHoveredItemIndex(switchableOrganizations.length + index)}
-                                  onMouseLeave={(): void => setHoveredItemIndex(null)}
-                                  onFocus={(): void => setHoveredItemIndex(switchableOrganizations.length + index)}
-                                  onBlur={(): void => setHoveredItemIndex(null)}
-                                >
-                                  {item.icon}
-                                  <span>{item.label}</span>
-                                </a>
-                              ) : (
-                                <Button
-                                  onClick={(): void => handleMenuItemClick(item)}
-                                  style={{
-                                    backgroundColor:
-                                      hoveredItemIndex === switchableOrganizations.length + index
-                                        ? theme.vars.colors.action?.hover
-                                        : 'transparent',
-                                  }}
-                                  className={cx(styles.menuItem)}
-                                  color="tertiary"
-                                  variant="text"
-                                  size="small"
-                                  startIcon={item.icon}
-                                  onMouseEnter={(): void => setHoveredItemIndex(switchableOrganizations.length + index)}
-                                  onMouseLeave={(): void => setHoveredItemIndex(null)}
-                                >
-                                  {item.label}
-                                </Button>
-                              )}
-                            </div>
-                          ),
-                        )}
-                      </>
-                    )}
-                  </>
-                )}
+                      {/* Menu Items */}
+                      {menuItems.length > 0 && (
+                        <>
+                          <div className={cx(styles['menuDivider'])} />
+                          {menuItems.map(
+                            (item: any, index: number): ReactElement => (
+                              <div key={index}>
+                                {item.href ? (
+                                  <a
+                                    href={item.href}
+                                    style={{
+                                      backgroundColor:
+                                        hoveredItemIndex === switchableOrganizations.length + index
+                                          ? theme.vars.colors.action?.hover
+                                          : 'transparent',
+                                    }}
+                                    className={cx(styles['menuItem'])}
+                                    onMouseEnter={(): void =>
+                                      setHoveredItemIndex(switchableOrganizations.length + index)
+                                    }
+                                    onMouseLeave={(): void => setHoveredItemIndex(null)}
+                                    onFocus={(): void => setHoveredItemIndex(switchableOrganizations.length + index)}
+                                    onBlur={(): void => setHoveredItemIndex(null)}
+                                  >
+                                    {item.icon}
+                                    <span>{item.label}</span>
+                                  </a>
+                                ) : (
+                                  <Button
+                                    onClick={(): void => handleMenuItemClick(item)}
+                                    style={{
+                                      backgroundColor:
+                                        hoveredItemIndex === switchableOrganizations.length + index
+                                          ? theme.vars.colors.action?.hover
+                                          : 'transparent',
+                                    }}
+                                    className={cx(styles['menuItem'])}
+                                    color="tertiary"
+                                    variant="text"
+                                    size="small"
+                                    startIcon={item.icon}
+                                    onMouseEnter={(): void =>
+                                      setHoveredItemIndex(switchableOrganizations.length + index)
+                                    }
+                                    onMouseLeave={(): void => setHoveredItemIndex(null)}
+                                  >
+                                    {item.label}
+                                  </Button>
+                                )}
+                              </div>
+                            ),
+                          )}
+                        </>
+                      )}
+                    </>
+                  );
+                })()}
               </div>
             </div>
           </FloatingFocusManager>

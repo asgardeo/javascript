@@ -17,20 +17,20 @@
  */
 
 import {UpdateMeProfileConfig, User, UserProfile} from '@asgardeo/browser';
-import {FC, PropsWithChildren, ReactElement, useEffect, useState, useCallback, useMemo} from 'react';
+import {FC, PropsWithChildren, ReactElement, useMemo} from 'react';
 import UserContext from './UserContext';
 
 /**
  * Props interface of {@link UserProvider}
  */
 export interface UserProviderProps {
+  onUpdateProfile?: (payload: User) => void;
   profile: UserProfile;
   revalidateProfile?: () => Promise<void>;
   updateProfile?: (
     requestConfig: UpdateMeProfileConfig,
     sessionId?: string,
-  ) => Promise<{success: boolean; data: {user: User}; error: string}>;
-  onUpdateProfile?: (payload: User) => void;
+  ) => Promise<{data: {user: User}; error: string; success: boolean}>;
 }
 
 /**
@@ -68,14 +68,14 @@ const UserProvider: FC<PropsWithChildren<UserProviderProps>> = ({
   onUpdateProfile,
   updateProfile,
 }: PropsWithChildren<UserProviderProps>): ReactElement => {
-  const contextValue = useMemo(
+  const contextValue: any = useMemo(
     () => ({
-      schemas: profile?.schemas,
-      profile: profile?.profile,
       flattenedProfile: profile?.flattenedProfile,
-      revalidateProfile,
-      updateProfile,
       onUpdateProfile,
+      profile: profile?.profile,
+      revalidateProfile,
+      schemas: profile?.schemas,
+      updateProfile,
     }),
     [profile, onUpdateProfile, revalidateProfile, updateProfile],
   );

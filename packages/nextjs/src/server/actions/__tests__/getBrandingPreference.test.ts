@@ -17,16 +17,23 @@
  */
 
 // src/server/actions/__tests__/getBrandingPreference.test.ts
-import { describe, it, expect, vi, beforeEach, afterEach, type Mock } from 'vitest';
+import {AsgardeoAPIError, getBrandingPreference as baseGetBrandingPreference} from '@asgardeo/node';
+import {describe, it, expect, vi, beforeEach, afterEach, type Mock} from 'vitest';
+
+// Now import SUT and mocked exports
+import getBrandingPreference from '../getBrandingPreference';
 
 // Mock the upstream module first. Keep all dependencies inside the factory.
 vi.mock('@asgardeo/node', () => {
-  const getBrandingPreference = vi.fn();
+  const getBrandingPreferenceMock: ReturnType<typeof vi.fn> = vi.fn();
 
   class MockAsgardeoAPIError extends Error {
     code?: string;
+
     source?: string;
+
     statusCode?: number;
+
     constructor(message: string, code?: string, source?: string, statusCode?: number) {
       super(message);
       this.name = 'AsgardeoAPIError';
@@ -38,26 +45,19 @@ vi.mock('@asgardeo/node', () => {
 
   return {
     AsgardeoAPIError: MockAsgardeoAPIError,
-    getBrandingPreference,
+    getBrandingPreference: getBrandingPreferenceMock,
   };
 });
-
-// Now import SUT and mocked exports
-import getBrandingPreference from '../getBrandingPreference';
-import {
-  AsgardeoAPIError,
-  getBrandingPreference as baseGetBrandingPreference,
-} from '@asgardeo/node';
 
 describe('getBrandingPreference (Next.js server action)', () => {
   type BrandingPreference = Awaited<ReturnType<typeof getBrandingPreference>>;
   type Cfg = Parameters<typeof getBrandingPreference>[0];
 
-  const cfg: Cfg = { orgId: 'org-001', locale: 'en-US' } as unknown as Cfg;
+  const cfg: Cfg = {locale: 'en-US', orgId: 'org-001'} as unknown as Cfg;
 
   const mockPref: BrandingPreference = {
-    theme: { colors: { primary: '#0055aa' } },
     logoUrl: 'https://cdn.example.com/logo.png',
+    theme: {colors: {primary: '#0055aa'}},
   } as unknown as BrandingPreference;
 
   beforeEach(() => {
@@ -70,38 +70,36 @@ describe('getBrandingPreference (Next.js server action)', () => {
   });
 
   it('should return branding preferences when upstream succeeds', async () => {
-    const result = await getBrandingPreference(cfg, 'sess-123');
+    const result: BrandingPreference = await getBrandingPreference(cfg, 'sess-123');
 
     expect(baseGetBrandingPreference).toHaveBeenCalledTimes(1);
     expect(baseGetBrandingPreference).toHaveBeenCalledWith(cfg);
 
     // Ensure sessionId is not forwarded
-    const call = (baseGetBrandingPreference as unknown as Mock).mock.calls[0];
+    const call: unknown[] = (baseGetBrandingPreference as unknown as Mock).mock.calls[0];
     expect(call.length).toBe(1);
 
     expect(result).toBe(mockPref);
   });
 
   it('should wrap an AsgardeoAPIError from upstream, preserving statusCode', async () => {
-    const upstream = new AsgardeoAPIError('Not found', 'BRAND_404', 'server', 404);
+    const upstream: AsgardeoAPIError = new AsgardeoAPIError('Not found', 'BRAND_404', 'server', 404);
     (baseGetBrandingPreference as unknown as Mock).mockRejectedValueOnce(upstream);
 
     await expect(getBrandingPreference(cfg)).rejects.toMatchObject({
       constructor: AsgardeoAPIError,
-      statusCode: 404,
       message: expect.stringContaining('Failed to get branding preferences: Not found'),
+      statusCode: 404,
     });
   });
 
   it('should wrap a generic Error with undefined statusCode', async () => {
-    (baseGetBrandingPreference as unknown as Mock).mockRejectedValueOnce(
-      new Error('network down'),
-    );
+    (baseGetBrandingPreference as unknown as Mock).mockRejectedValueOnce(new Error('network down'));
 
     await expect(getBrandingPreference(cfg)).rejects.toMatchObject({
       constructor: AsgardeoAPIError,
-      statusCode: undefined,
       message: expect.stringContaining('Failed to get branding preferences: network down'),
+      statusCode: undefined,
     });
   });
 
@@ -110,8 +108,8 @@ describe('getBrandingPreference (Next.js server action)', () => {
 
     await expect(getBrandingPreference(cfg)).rejects.toMatchObject({
       constructor: AsgardeoAPIError,
-      statusCode: undefined,
       message: expect.stringContaining('Failed to get branding preferences: boom'),
+      statusCode: undefined,
     });
   });
 });

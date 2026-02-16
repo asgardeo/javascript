@@ -16,9 +16,9 @@
  * under the License.
  */
 
+import {Theme, withVendorCSSClassPrefix} from '@asgardeo/browser';
 import {css} from '@emotion/css';
 import {useMemo} from 'react';
-import {Theme, withVendorCSSClassPrefix} from '@asgardeo/browser';
 
 /**
  * Creates styles for the BaseUserProfile component
@@ -26,13 +26,13 @@ import {Theme, withVendorCSSClassPrefix} from '@asgardeo/browser';
  * @param colorScheme - The current color scheme (used for memoization)
  * @returns Object containing CSS class names for component styling
  */
-const useStyles = (theme: Theme, colorScheme: string) => {
-  const valuePlaceholder = css`
+const useStyles = (theme: Theme, colorScheme: string): Record<string, string> => {
+  const valuePlaceholder: string = css`
     font-style: italic;
     opacity: 0.7;
   `;
 
-  const editButton = css`
+  const editButton: string = css`
     font-style: italic;
     text-decoration: underline;
     opacity: 0.7;
@@ -44,21 +44,21 @@ const useStyles = (theme: Theme, colorScheme: string) => {
     }
   `;
 
-  const fieldInner = css`
+  const fieldInner: string = css`
     flex: 1;
     display: flex;
     align-items: center;
     gap: ${theme.vars.spacing.unit};
   `;
 
-  const fieldActions = css`
+  const fieldActions: string = css`
     display: flex;
     gap: calc(${theme.vars.spacing.unit} / 2);
     align-items: center;
     margin-inline-start: calc(${theme.vars.spacing.unit} * 4);
   `;
 
-  const complexTextarea = css`
+  const complexTextarea: string = css`
     min-height: 60px;
     width: 100%;
     padding: 8px;
@@ -67,59 +67,59 @@ const useStyles = (theme: Theme, colorScheme: string) => {
     resize: vertical;
   `;
 
-  const objectKey = css`
+  const objectKey: string = css`
     padding: ${theme.vars.spacing.unit};
     vertical-align: top;
   `;
 
-  const objectValue = css`
+  const objectValue: string = css`
     padding: ${theme.vars.spacing.unit};
     vertical-align: top;
   `;
 
   return useMemo(() => {
-    const root = css`
+    const root: string = css`
       padding: calc(${theme.vars.spacing.unit} * 4);
       min-width: 600px;
       margin: 0 auto;
     `;
 
-    const card = css`
+    const card: string = css`
       background: ${theme.vars.colors.background.surface};
       border-radius: ${theme.vars.borderRadius.large};
     `;
 
-    const header = css`
+    const header: string = css`
       display: flex;
       align-items: center;
       gap: calc(${theme.vars.spacing.unit} * 1.5);
       margin-bottom: calc(${theme.vars.spacing.unit} * 1.5);
     `;
 
-    const profileInfo = css`
+    const profileInfo: string = css`
       flex: 1;
     `;
 
-    const name = css`
+    const name: string = css`
       font-size: 1.5rem;
       font-weight: 600;
       margin: 0;
       color: ${theme.vars.colors.text.primary};
     `;
 
-    const profileSummary = css`
+    const profileSummary: string = css`
       display: flex;
       flex-direction: column;
       align-items: flex-start;
     `;
 
-    const sectionRow = css`
+    const sectionRow: string = css`
       display: flex;
       align-items: center;
       padding: calc(${theme.vars.spacing.unit} * 1) 0;
     `;
 
-    const sectionLabel = css`
+    const sectionLabel: string = css`
       font-size: 0.875rem;
       font-weight: 600;
       color: ${theme.vars.colors.text.primary};
@@ -127,7 +127,7 @@ const useStyles = (theme: Theme, colorScheme: string) => {
       flex-shrink: 0;
     `;
 
-    const sectionValue = css`
+    const sectionValue: string = css`
       flex: 1;
       display: flex;
       align-items: center;
@@ -136,28 +136,28 @@ const useStyles = (theme: Theme, colorScheme: string) => {
       color: ${theme.vars.colors.text.primary};
     `;
 
-    const infoContainer = css`
+    const infoContainer: string = css`
       display: flex;
       flex-direction: column;
     `;
 
-    const info = css`
+    const info: string = css`
       padding: calc(${theme.vars.spacing.unit} * 1.5) 0;
       border-bottom: 1px solid ${theme.vars.colors.border};
     `;
 
-    const field = css`
+    const field: string = css`
       display: flex;
       align-items: center;
       padding: calc(${theme.vars.spacing.unit} / 2) 0;
       min-height: 28px;
     `;
 
-    const lastField = css`
+    const lastField: string = css`
       border-bottom: none;
     `;
 
-    const label = css`
+    const label: string = css`
       font-size: 0.875rem;
       font-weight: 500;
       color: ${theme.vars.colors.text.secondary};
@@ -167,7 +167,7 @@ const useStyles = (theme: Theme, colorScheme: string) => {
       text-align: start;
     `;
 
-    const value = css`
+    const value: string = css`
       color: ${theme.vars.colors.text.primary};
       flex: 1;
       display: inline-block;
@@ -201,39 +201,39 @@ const useStyles = (theme: Theme, colorScheme: string) => {
       }
     `;
 
-    const popup = css`
+    const popup: string = css`
       padding: calc(${theme.vars.spacing.unit} * 2);
     `;
 
-    const alert = css`
+    const alert: string = css`
       margin-bottom: calc(${theme.vars.spacing.unit} * 3);
     `;
 
     return {
-      root,
       alert,
       card,
-      header,
-      profileInfo,
-      profileSummary,
-      name,
-      infoContainer,
-      info,
-      field,
-      lastField,
-      label,
-      value,
-      popup,
-      valuePlaceholder,
-      editButton,
-      fieldInner,
-      fieldActions,
       complexTextarea,
+      editButton,
+      field,
+      fieldActions,
+      fieldInner,
+      header,
+      info,
+      infoContainer,
+      label,
+      lastField,
+      name,
       objectKey,
       objectValue,
-      sectionRow,
+      popup,
+      profileInfo,
+      profileSummary,
+      root,
       sectionLabel,
+      sectionRow,
       sectionValue,
+      value,
+      valuePlaceholder,
     };
   }, [
     theme.vars.colors.background.surface,

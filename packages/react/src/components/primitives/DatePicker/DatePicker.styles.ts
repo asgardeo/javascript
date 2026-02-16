@@ -16,9 +16,9 @@
  * under the License.
  */
 
+import {Theme} from '@asgardeo/browser';
 import {css} from '@emotion/css';
 import {useMemo} from 'react';
-import {Theme} from '@asgardeo/browser';
 
 /**
  * Creates styles for the DatePicker component using BEM methodology
@@ -28,9 +28,9 @@ import {Theme} from '@asgardeo/browser';
  * @param disabled - Whether the date picker is disabled
  * @returns Object containing CSS class names for component styling
  */
-const useStyles = (theme: Theme, colorScheme: string, hasError: boolean, disabled: boolean) => {
-  return useMemo(() => {
-    const inputStyles = css`
+const useStyles = (theme: Theme, colorScheme: string, hasError: boolean, disabled: boolean): Record<string, string> =>
+  useMemo(() => {
+    const inputStyles: string = css`
       width: 100%;
       padding: ${theme.vars.spacing.unit} calc(${theme.vars.spacing.unit} * 1.5);
       border: 1px solid ${theme.vars.colors.border};
@@ -55,7 +55,7 @@ const useStyles = (theme: Theme, colorScheme: string, hasError: boolean, disable
       }
     `;
 
-    const errorInputStyles = css`
+    const errorInputStyles: string = css`
       border-color: ${theme.vars.colors.error.main};
 
       &:focus {
@@ -68,7 +68,7 @@ const useStyles = (theme: Theme, colorScheme: string, hasError: boolean, disable
       }
     `;
 
-    const disabledInputStyles = css`
+    const disabledInputStyles: string = css`
       background-color: ${theme.vars.colors.background.disabled};
       color: ${theme.vars.colors.text.secondary};
       cursor: not-allowed;
@@ -81,17 +81,16 @@ const useStyles = (theme: Theme, colorScheme: string, hasError: boolean, disable
       }
     `;
 
-    const labelStyles = css`
+    const labelStyles: string = css`
       /* Label styles will be handled by InputLabel component */
     `;
 
     return {
-      input: inputStyles,
-      errorInput: hasError ? errorInputStyles : '',
       disabledInput: disabled ? disabledInputStyles : '',
+      errorInput: hasError ? errorInputStyles : '',
+      input: inputStyles,
       label: labelStyles,
     };
   }, [theme, colorScheme, hasError, disabled]);
-};
 
 export default useStyles;

@@ -16,41 +16,41 @@
  * under the License.
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach, Mock } from 'vitest';
+import {AsgardeoAPIError, Organization, CreateOrganizationPayload} from '@asgardeo/node';
+import {describe, it, expect, vi, beforeEach, afterEach, Mock} from 'vitest';
 
 // Adjust these paths if your project structure is different
+import AsgardeoNextClient from '../../../AsgardeoNextClient';
 import createOrganization from '../createOrganization';
 
 // Use the same class so we can assert instanceof and status code propagation
-import { AsgardeoAPIError, Organization, CreateOrganizationPayload } from '@asgardeo/node';
+
+// Pull the mocked modules so we can access their spies
+import getSessionId from '../getSessionId';
 
 // ---- Mocks ----
-vi.mock('../../../AsgardeoNextClient', () => {
+vi.mock('../../../AsgardeoNextClient', () =>
   // We return a default export with a static getInstance function we can stub
-  return {
+  ({
     default: {
       getInstance: vi.fn(),
     },
-  };
-});
+  }),
+);
 
 vi.mock('../getSessionId', () => ({
   default: vi.fn(),
 }));
 
-// Pull the mocked modules so we can access their spies
-import AsgardeoNextClient from '../../../AsgardeoNextClient';
-import getSessionId from '../getSessionId';
-
 describe('createOrganization (Next.js server action)', () => {
-  const mockClient = {
+  const mockClient: {createOrganization: ReturnType<typeof vi.fn>} = {
     createOrganization: vi.fn(),
   };
 
   const basePayload: CreateOrganizationPayload = {
+    description: 'Screen sharing organization',
     name: 'Team Viewer',
     orgHandle: 'team-viewer',
-    description: 'Screen sharing organization',
     parentId: 'parent-123',
     type: 'TENANT',
   };
@@ -77,7 +77,7 @@ describe('createOrganization (Next.js server action)', () => {
   it('should create an organization successfully when a sessionId is provided', async () => {
     mockClient.createOrganization.mockResolvedValueOnce(mockOrg);
 
-    const result = await createOrganization(basePayload, 'sess-123');
+    const result: Organization = await createOrganization(basePayload, 'sess-123');
 
     expect(AsgardeoNextClient.getInstance).toHaveBeenCalledTimes(1);
     expect(getSessionId).not.toHaveBeenCalled();
@@ -88,7 +88,7 @@ describe('createOrganization (Next.js server action)', () => {
   it('should fall back to getSessionId when sessionId is undefined', async () => {
     mockClient.createOrganization.mockResolvedValueOnce(mockOrg);
 
-    const result = await createOrganization(basePayload, undefined as unknown as string);
+    const result: Organization = await createOrganization(basePayload, undefined as unknown as string);
 
     expect(getSessionId).toHaveBeenCalledTimes(1);
     expect(mockClient.createOrganization).toHaveBeenCalledWith(basePayload, 'sess-abc');
@@ -98,7 +98,7 @@ describe('createOrganization (Next.js server action)', () => {
   it('should fall back to getSessionId when sessionId is null', async () => {
     mockClient.createOrganization.mockResolvedValueOnce(mockOrg);
 
-    const result = await createOrganization(basePayload, null as unknown as string);
+    const result: Organization = await createOrganization(basePayload, null as unknown as string);
 
     expect(getSessionId).toHaveBeenCalledTimes(1);
     expect(mockClient.createOrganization).toHaveBeenCalledWith(basePayload, 'sess-abc');
@@ -108,7 +108,7 @@ describe('createOrganization (Next.js server action)', () => {
   it('should not call getSessionId when an empty string is passed (empty string is not nullish)', async () => {
     mockClient.createOrganization.mockResolvedValueOnce(mockOrg);
 
-    const result = await createOrganization(basePayload, '');
+    const result: Organization = await createOrganization(basePayload, '');
 
     expect(getSessionId).not.toHaveBeenCalled();
     expect(mockClient.createOrganization).toHaveBeenCalledWith(basePayload, '');
@@ -116,18 +116,18 @@ describe('createOrganization (Next.js server action)', () => {
   });
 
   it('should wrap an AsgardeoAPIError thrown by client.createOrganization, preserving statusCode', async () => {
-    const original = new AsgardeoAPIError(
+    const original: AsgardeoAPIError = new AsgardeoAPIError(
       'Upstream validation failed',
       'ORG_CREATE_400',
       'server',
-      400
+      400,
     );
     mockClient.createOrganization.mockRejectedValueOnce(original);
 
     await expect(createOrganization(basePayload, 'sess-1')).rejects.toMatchObject({
       constructor: AsgardeoAPIError,
-      statusCode: 400,
       message: expect.stringContaining('Failed to create the organization: Upstream validation failed'),
+      statusCode: 400,
     });
   });
 });

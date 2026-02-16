@@ -16,14 +16,20 @@
  * under the License.
  */
 
-import {FC} from 'react';
-import Button from '../primitives/Button/Button';
+import {FC, ReactElement} from 'react';
 import {AdapterProps} from '../../models/adapters';
+import Button from '../primitives/Button/Button';
 
 /**
  * Social button component for sign-up forms.
  */
-const SocialButton: FC<AdapterProps> = ({component, isLoading, buttonClassName, size = 'medium', onSubmit}) => {
+const SocialButton: FC<AdapterProps> = ({
+  component,
+  isLoading,
+  buttonClassName,
+  size = 'medium',
+  onSubmit,
+}: AdapterProps): ReactElement => {
   const config: Record<string, unknown> = component.config || {};
   const buttonText: string = (config['text'] as string) || (config['label'] as string) || 'Continue with Social';
 

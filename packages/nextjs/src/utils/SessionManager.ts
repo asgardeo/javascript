@@ -16,39 +16,39 @@
  * under the License.
  */
 
-import {SignJWT, jwtVerify, JWTPayload} from 'jose';
 import {AsgardeoRuntimeError, CookieConfig} from '@asgardeo/node';
+import {SignJWT, jwtVerify, JWTPayload} from 'jose';
 
 /**
  * Session token payload interface
  */
 export interface SessionTokenPayload extends JWTPayload {
-  /** User ID */
-  sub: string;
-  /** Session ID */
-  sessionId: string;
-  /** OAuth scopes */
-  scopes: string[];
-  /** Organization ID if applicable */
-  organizationId?: string;
-  /** Issued at timestamp */
-  iat: number;
   /** Expiration timestamp */
   exp: number;
+  /** Issued at timestamp */
+  iat: number;
+  /** Organization ID if applicable */
+  organizationId?: string;
+  /** OAuth scopes */
+  scopes: string[];
+  /** Session ID */
+  sessionId: string;
+  /** User ID */
+  sub: string;
 }
 
 /**
  * Session management utility class for JWT-based session cookies
  */
 class SessionManager {
-  private static readonly DEFAULT_EXPIRY_SECONDS = 3600;
+  private static readonly DEFAULT_EXPIRY_SECONDS: number = 3600;
 
   /**
    * Get the signing secret from environment variable
    * Throws error in production if not set
    */
   private static getSecret(): Uint8Array {
-    const secret = process.env['ASGARDEO_SECRET'];
+    const secret: string | undefined = process.env['ASGARDEO_SECRET'];
 
     if (!secret) {
       if (process.env['NODE_ENV'] === 'production') {
@@ -60,7 +60,8 @@ class SessionManager {
         );
       }
       // Use a default secret for development (not secure)
-      console.warn('⚠️  Using default secret for development. Set ASGARDEO_SECRET for production!');
+      // eslint-disable-next-line no-console
+      console.warn('Using default secret for development. Set ASGARDEO_SECRET for production!');
       return new TextEncoder().encode('development-secret-not-for-production');
     }
 
@@ -71,9 +72,9 @@ class SessionManager {
    * Create a temporary session cookie for login initiation
    */
   static async createTempSession(sessionId: string): Promise<string> {
-    const secret = this.getSecret();
+    const secret: Uint8Array = this.getSecret();
 
-    const jwt = await new SignJWT({
+    const jwt: string = await new SignJWT({
       sessionId,
       type: 'temp',
     })
@@ -96,13 +97,13 @@ class SessionManager {
     organizationId?: string,
     expirySeconds: number = this.DEFAULT_EXPIRY_SECONDS,
   ): Promise<string> {
-    const secret = this.getSecret();
+    const secret: Uint8Array = this.getSecret();
 
-    const jwt = await new SignJWT({
+    const jwt: string = await new SignJWT({
       accessToken,
-      sessionId,
-      scopes,
       organizationId,
+      scopes,
+      sessionId,
       type: 'session',
     } as Omit<SessionTokenPayload, 'sub' | 'iat' | 'exp'>)
       .setProtectedHeader({alg: 'HS256'})
@@ -119,7 +120,7 @@ class SessionManager {
    */
   static async verifySessionToken(token: string): Promise<SessionTokenPayload> {
     try {
-      const secret = this.getSecret();
+      const secret: Uint8Array = this.getSecret();
       const {payload} = await jwtVerify(token, secret);
 
       return payload as SessionTokenPayload;
@@ -138,7 +139,7 @@ class SessionManager {
    */
   static async verifyTempSession(token: string): Promise<{sessionId: string}> {
     try {
-      const secret = this.getSecret();
+      const secret: Uint8Array = this.getSecret();
       const {payload} = await jwtVerify(token, secret);
 
       if (payload['type'] !== 'temp') {
@@ -159,26 +160,38 @@ class SessionManager {
   /**
    * Get session cookie options
    */
-  static getSessionCookieOptions() {
+  static getSessionCookieOptions(): {
+    httpOnly: boolean;
+    maxAge: number;
+    path: string;
+    sameSite: 'lax';
+    secure: boolean;
+  } {
     return {
       httpOnly: true,
-      secure: process.env['NODE_ENV'] === 'production',
-      sameSite: 'lax' as const,
-      path: '/',
       maxAge: this.DEFAULT_EXPIRY_SECONDS,
+      path: '/',
+      sameSite: 'lax' as const,
+      secure: process.env['NODE_ENV'] === 'production',
     };
   }
 
   /**
    * Get temporary session cookie options
    */
-  static getTempSessionCookieOptions() {
+  static getTempSessionCookieOptions(): {
+    httpOnly: boolean;
+    maxAge: number;
+    path: string;
+    sameSite: 'lax';
+    secure: boolean;
+  } {
     return {
       httpOnly: true,
-      secure: process.env['NODE_ENV'] === 'production',
-      sameSite: 'lax' as const,
-      path: '/',
       maxAge: 15 * 60,
+      path: '/',
+      sameSite: 'lax' as const,
+      secure: process.env['NODE_ENV'] === 'production',
     };
   }
 

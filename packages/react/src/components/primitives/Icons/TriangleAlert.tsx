@@ -21,7 +21,7 @@ import {FC, SVGProps} from 'react';
 /**
  * TriangleAlert icon component.
  */
-const TriangleAlert: FC<SVGProps<SVGSVGElement>> = props => (
+const TriangleAlert: FC<SVGProps<SVGSVGElement>> = (props: SVGProps<SVGSVGElement>) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     width="24"

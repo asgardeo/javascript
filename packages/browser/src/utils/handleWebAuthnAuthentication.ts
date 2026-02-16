@@ -16,7 +16,17 @@
  * under the License.
  */
 
-import {arrayBufferToBase64url, base64urlToArrayBuffer, AsgardeoRuntimeError} from '@asgardeo/javascript';
+import {
+  arrayBufferToBase64url,
+  base64urlToArrayBuffer,
+  AsgardeoRuntimeError,
+  createPackageComponentLogger,
+} from '@asgardeo/javascript';
+
+const logger: ReturnType<typeof createPackageComponentLogger> = createPackageComponentLogger(
+  '@asgardeo/browser',
+  'WebAuthn',
+);
 
 /**
  * Handles WebAuthn/Passkey authentication flow for browser environments.
@@ -116,23 +126,23 @@ const handleWebAuthnAuthentication = async (challengeData: string): Promise<stri
   }
 
   try {
-    const decodedChallenge = JSON.parse(atob(challengeData));
+    const decodedChallenge: any = JSON.parse(atob(challengeData));
     const {publicKeyCredentialRequestOptions} = decodedChallenge;
 
-    const currentDomain = window.location.hostname;
-    const challengeRpId = publicKeyCredentialRequestOptions.rpId;
+    const currentDomain: string = window.location.hostname;
+    const challengeRpId: string = publicKeyCredentialRequestOptions.rpId;
 
-    let rpIdToUse = challengeRpId;
+    let rpIdToUse: string = challengeRpId;
 
     if (challengeRpId && !currentDomain.endsWith(challengeRpId) && challengeRpId !== currentDomain) {
-      console.warn(`RP ID mismatch detected. Challenge RP ID: ${challengeRpId}, Current domain: ${currentDomain}`);
+      logger.warn(`RP ID mismatch detected. Challenge RP ID: ${challengeRpId}, Current domain: ${currentDomain}`);
       rpIdToUse = currentDomain;
     }
 
-    const adjustedOptions = {
+    const adjustedOptions: any = {
       ...publicKeyCredentialRequestOptions,
-      rpId: rpIdToUse,
       challenge: base64urlToArrayBuffer(publicKeyCredentialRequestOptions.challenge),
+      rpId: rpIdToUse,
       ...(publicKeyCredentialRequestOptions.userVerification && {
         userVerification: publicKeyCredentialRequestOptions.userVerification,
       }),
@@ -144,7 +154,7 @@ const handleWebAuthnAuthentication = async (challengeData: string): Promise<stri
       }),
     };
 
-    const credential = (await navigator.credentials.get({
+    const credential: PublicKeyCredential = (await navigator.credentials.get({
       publicKey: adjustedOptions,
     })) as PublicKeyCredential;
 
@@ -157,10 +167,9 @@ const handleWebAuthnAuthentication = async (challengeData: string): Promise<stri
       );
     }
 
-    const authData = credential.response as AuthenticatorAssertionResponse;
+    const authData: AuthenticatorAssertionResponse = credential.response as AuthenticatorAssertionResponse;
 
-    const tokenResponse = {
-      requestId: decodedChallenge.requestId,
+    const tokenResponse: {credential: any; requestId: string} = {
       credential: {
         id: credential.id,
         rawId: arrayBufferToBase64url(credential.rawId),
@@ -174,11 +183,12 @@ const handleWebAuthnAuthentication = async (challengeData: string): Promise<stri
         },
         type: credential.type,
       },
+      requestId: decodedChallenge.requestId,
     };
 
     return JSON.stringify(tokenResponse);
   } catch (error) {
-    console.error('WebAuthn authentication failed:', error);
+    logger.error('WebAuthn authentication failed:');
 
     if (error instanceof AsgardeoRuntimeError) {
       throw error;

@@ -31,7 +31,7 @@ import SessionManager, {SessionTokenPayload} from '../../utils/SessionManager';
 const getSessionPayload = async (): Promise<SessionTokenPayload | undefined> => {
   const cookieStore: ReadonlyRequestCookies = await cookies();
 
-  const sessionToken = cookieStore.get(SessionManager.getSessionCookieName())?.value;
+  const sessionToken: string | undefined = cookieStore.get(SessionManager.getSessionCookieName())?.value;
   if (!sessionToken) {
     return undefined;
   }

@@ -20,7 +20,7 @@
 
 import {ReadonlyRequestCookies} from 'next/dist/server/web/spec-extension/adapters/request-cookies';
 import {cookies} from 'next/headers';
-import SessionManager from '../../utils/SessionManager';
+import SessionManager, {SessionTokenPayload} from '../../utils/SessionManager';
 
 /**
  * Get the session ID from cookies.
@@ -31,11 +31,11 @@ import SessionManager from '../../utils/SessionManager';
 const getSessionId = async (): Promise<string | undefined> => {
   const cookieStore: ReadonlyRequestCookies = await cookies();
 
-  const sessionToken = cookieStore.get(SessionManager.getSessionCookieName())?.value;
+  const sessionToken: string | undefined = cookieStore.get(SessionManager.getSessionCookieName())?.value;
 
   if (sessionToken) {
     try {
-      const sessionPayload = await SessionManager.verifySessionToken(sessionToken);
+      const sessionPayload: SessionTokenPayload = await SessionManager.verifySessionToken(sessionToken);
 
       return sessionPayload.sessionId;
     } catch (error) {

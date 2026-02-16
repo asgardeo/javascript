@@ -94,7 +94,7 @@ import UserContext, {UserContextProps} from './UserContext';
  * ```
  */
 const useUser = (): UserContextProps => {
-  const context = useContext(UserContext);
+  const context: UserContextProps | null = useContext(UserContext);
 
   if (!context) {
     throw new Error('useUser must be used within a UserProvider');

@@ -18,12 +18,13 @@
 
 'use client';
 
-import {FC, ReactElement, useEffect, useState} from 'react';
+import {OrganizationDetails, updateOrganization, createPatchOperations} from '@asgardeo/node';
 import {BaseOrganizationProfile, BaseOrganizationProfileProps, useTranslation} from '@asgardeo/react';
-import {OrganizationDetails, getOrganization, updateOrganization, createPatchOperations} from '@asgardeo/node';
-import useAsgardeo from '../../../contexts/Asgardeo/useAsgardeo';
+import {FC, ReactElement, useEffect, useState} from 'react';
 import getOrganizationAction from '../../../../server/actions/getOrganizationAction';
 import getSessionId from '../../../../server/actions/getSessionId';
+import logger from '../../../../utils/logger';
+import useAsgardeo from '../../../contexts/Asgardeo/useAsgardeo';
 
 /**
  * Props for the OrganizationProfile component.
@@ -138,17 +139,15 @@ const OrganizationProfile: FC<OrganizationProfileProps> = ({
   onOpenChange,
   onUpdate,
   popupTitle,
-  loadingFallback = <div>Loading organization...</div>,
-  errorFallback = <div>Failed to load organization data</div>,
   ...rest
 }: OrganizationProfileProps): ReactElement => {
   const {baseUrl} = useAsgardeo();
   const {t} = useTranslation();
   const [organization, setOrganization] = useState<OrganizationDetails | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<boolean>(false);
+  const [, setLoading] = useState<boolean>(true);
+  const [, setError] = useState<boolean>(false);
 
-  const fetchOrganization = async () => {
+  const fetchOrganization = async (): Promise<void> => {
     if (!baseUrl || !organizationId) {
       setLoading(false);
       setError(true);
@@ -158,7 +157,8 @@ const OrganizationProfile: FC<OrganizationProfileProps> = ({
     try {
       setLoading(true);
       setError(false);
-      const result = await getOrganizationAction(organizationId, (await getSessionId()) as string);
+      const result: {data?: {organization?: OrganizationDetails}; error: string | null; success: boolean} =
+        await getOrganizationAction(organizationId, (await getSessionId()) as string);
 
       if (result.data?.organization) {
         setOrganization(result.data.organization);
@@ -168,7 +168,7 @@ const OrganizationProfile: FC<OrganizationProfileProps> = ({
 
       setError(true);
     } catch (err) {
-      console.error('Failed to fetch organization:', err);
+      logger.error('Failed to fetch organization:', err);
       setError(true);
       setOrganization(null);
     } finally {
@@ -185,12 +185,13 @@ const OrganizationProfile: FC<OrganizationProfileProps> = ({
 
     try {
       // Convert payload to patch operations format
-      const operations = createPatchOperations(payload);
+      const operations: Array<{operation: 'REPLACE' | 'REMOVE'; path: string; value?: any}> =
+        createPatchOperations(payload);
 
       await updateOrganization({
         baseUrl,
-        organizationId,
         operations,
+        organizationId,
       });
       // Refetch organization data after update
       await fetchOrganization();
@@ -200,7 +201,7 @@ const OrganizationProfile: FC<OrganizationProfileProps> = ({
         await onUpdate(payload);
       }
     } catch (err) {
-      console.error('Failed to update organization:', err);
+      logger.error('Failed to update organization:', err);
       throw err;
     }
   };

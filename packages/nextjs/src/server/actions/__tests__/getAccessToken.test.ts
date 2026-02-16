@@ -17,42 +17,38 @@
  */
 
 // src/server/actions/__tests__/getAccessToken.test.ts
-import { describe, it, expect, vi, beforeEach, afterEach, Mock } from 'vitest';
+import {cookies} from 'next/headers';
+import {describe, it, expect, vi, beforeEach, afterEach, Mock} from 'vitest';
 
 // SUT
+import SessionManager from '../../../utils/SessionManager';
 import getAccessToken from '../getAccessToken';
 
-// ---- Mocks ----
-vi.mock('next/headers', () => {
-  return {
-    cookies: vi.fn(),
-  };
-});
-
-vi.mock('../../../utils/SessionManager', () => {
-  return {
-    default: {
-      getSessionCookieName: vi.fn(),
-      verifySessionToken: vi.fn(),
-    },
-  };
-});
-
 // Pull mocked modules so we can control them
-import { cookies } from 'next/headers';
-import SessionManager from '../../../utils/SessionManager';
+
+// ---- Mocks ----
+vi.mock('next/headers', () => ({
+  cookies: vi.fn(),
+}));
+
+vi.mock('../../../utils/SessionManager', () => ({
+  default: {
+    getSessionCookieName: vi.fn(),
+    verifySessionToken: vi.fn(),
+  },
+}));
 
 // A tiny helper type for the cookie store the SUT expects
-type CookieVal = { value: string };
-type CookieStore = { get: (name: string) => CookieVal | undefined };
+type CookieVal = {value: string};
+type CookieStore = {get: (name: string) => CookieVal | undefined};
 
 describe('getAccessToken', () => {
-  const SESSION_COOKIE_NAME = 'app_session';
+  const SESSION_COOKIE_NAME: string = 'app_session';
 
   const makeCookieStore = (map: Record<string, string | undefined>): CookieStore => ({
-    get: (name: string) => {
-      const v = map[name];
-      return typeof v === 'string' ? { value: v } : undefined;
+    get: (name: string): CookieVal | undefined => {
+      const v: string | undefined = map[name];
+      return typeof v === 'string' ? {value: v} : undefined;
     },
   });
 
@@ -77,12 +73,10 @@ describe('getAccessToken', () => {
 
   it('should return the access token when the session cookie exists and verification succeeds', async () => {
     // Arrange
-    (cookies as unknown as Mock).mockResolvedValue(
-      makeCookieStore({ [SESSION_COOKIE_NAME]: 'signed.jwt.token' }),
-    );
+    (cookies as unknown as Mock).mockResolvedValue(makeCookieStore({[SESSION_COOKIE_NAME]: 'signed.jwt.token'}));
 
     // Act
-    const token = await getAccessToken();
+    const token: string | undefined = await getAccessToken();
 
     // Assert
     expect(SessionManager.getSessionCookieName).toHaveBeenCalledTimes(1);
@@ -94,7 +88,7 @@ describe('getAccessToken', () => {
   it('should return undefined when the session cookie is missing', async () => {
     // Arrange: no cookie present (default makeCookieStore({}))
     // Act
-    const token = await getAccessToken();
+    const token: string | undefined = await getAccessToken();
 
     // Assert
     expect(SessionManager.getSessionCookieName).toHaveBeenCalledTimes(1);
@@ -103,43 +97,33 @@ describe('getAccessToken', () => {
   });
 
   it('should return undefined when the session cookie value is an empty string', async () => {
-    (cookies as unknown as Mock).mockResolvedValue(
-      makeCookieStore({ [SESSION_COOKIE_NAME]: '' }),
-    );
+    (cookies as unknown as Mock).mockResolvedValue(makeCookieStore({[SESSION_COOKIE_NAME]: ''}));
 
-    const token = await getAccessToken();
+    const token: string | undefined = await getAccessToken();
 
     expect(SessionManager.verifySessionToken).not.toHaveBeenCalled();
     expect(token).toBeUndefined();
   });
 
   it('should return undefined when verifySessionToken throws (invalid or expired session)', async () => {
-    (cookies as unknown as Mock).mockResolvedValue(
-      makeCookieStore({ [SESSION_COOKIE_NAME]: 'bad.token' }),
-    );
-    (SessionManager.verifySessionToken as unknown as Mock).mockRejectedValue(
-      new Error('invalid signature'),
-    );
+    (cookies as unknown as Mock).mockResolvedValue(makeCookieStore({[SESSION_COOKIE_NAME]: 'bad.token'}));
+    (SessionManager.verifySessionToken as unknown as Mock).mockRejectedValue(new Error('invalid signature'));
 
-    const token = await getAccessToken();
+    const token: string | undefined = await getAccessToken();
 
     expect(SessionManager.verifySessionToken).toHaveBeenCalledWith('bad.token');
     expect(token).toBeUndefined();
   });
 
   it('should return undefined when verification succeeds but accessToken is missing', async () => {
-    (cookies as unknown as Mock).mockResolvedValue(
-      makeCookieStore({ [SESSION_COOKIE_NAME]: 'signed.jwt.token' }),
-    );
+    (cookies as unknown as Mock).mockResolvedValue(makeCookieStore({[SESSION_COOKIE_NAME]: 'signed.jwt.token'}));
     (SessionManager.verifySessionToken as unknown as Mock).mockResolvedValue({
       // no accessToken field
       sub: 'user@tenant',
     });
 
-    const token = await getAccessToken();
+    const token: string | undefined = await getAccessToken();
 
     expect(token).toBeUndefined();
   });
-
-
 });

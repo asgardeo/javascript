@@ -17,6 +17,7 @@
  */
 
 import {
+  AllOrganizationsApiResponse,
   AsgardeoRuntimeError,
   generateFlattenedUserProfile,
   Organization,
@@ -38,11 +39,11 @@ import AsgardeoContext from './AsgardeoContext';
 import AsgardeoReactClient from '../../AsgardeoReactClient';
 import useBrowserUrl from '../../hooks/useBrowserUrl';
 import {AsgardeoReactConfig} from '../../models/config';
+import BrandingProvider from '../Branding/BrandingProvider';
 import FlowProvider from '../Flow/FlowProvider';
 import I18nProvider from '../I18n/I18nProvider';
 import OrganizationProvider from '../Organization/OrganizationProvider';
 import ThemeProvider from '../Theme/ThemeProvider';
-import BrandingProvider from '../Branding/BrandingProvider';
 import UserProvider from '../User/UserProvider';
 
 /**
@@ -53,7 +54,7 @@ export type AsgardeoProviderProps = AsgardeoReactConfig;
 const AsgardeoProvider: FC<PropsWithChildren<AsgardeoProviderProps>> = ({
   afterSignInUrl = window.location.origin,
   afterSignOutUrl = window.location.origin,
-  baseUrl: _baseUrl,
+  baseUrl: initialBaseUrl,
   clientId,
   children,
   scopes,
@@ -79,18 +80,18 @@ const AsgardeoProvider: FC<PropsWithChildren<AsgardeoProviderProps>> = ({
 
   const [myOrganizations, setMyOrganizations] = useState<Organization[]>([]);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
-  const [baseUrl, setBaseUrl] = useState<string>(_baseUrl);
+  const [baseUrl, setBaseUrl] = useState<string>(initialBaseUrl);
   const [config, setConfig] = useState<AsgardeoReactConfig>({
-    applicationId,
-    organizationHandle,
     afterSignInUrl,
     afterSignOutUrl,
+    applicationId,
     baseUrl,
     clientId,
+    organizationHandle,
     scopes,
-    signUpUrl,
-    signInUrl,
     signInOptions,
+    signInUrl,
+    signUpUrl,
     syncSession,
     ...rest,
   });
@@ -104,19 +105,19 @@ const AsgardeoProvider: FC<PropsWithChildren<AsgardeoProviderProps>> = ({
   const [hasFetchedBranding, setHasFetchedBranding] = useState<boolean>(false);
 
   useEffect(() => {
-    setBaseUrl(_baseUrl);
+    setBaseUrl(initialBaseUrl);
     // Reset branding state when baseUrl changes
-    if (_baseUrl !== baseUrl) {
+    if (initialBaseUrl !== baseUrl) {
       setHasFetchedBranding(false);
       setBrandingPreference(null);
       setBrandingError(null);
     }
-  }, [_baseUrl, baseUrl]);
+  }, [initialBaseUrl, baseUrl]);
 
   useEffect(() => {
     (async (): Promise<void> => {
       await asgardeo.initialize(config);
-      const initializedConfig = await asgardeo.getConfiguration();
+      const initializedConfig: AsgardeoReactConfig = await asgardeo.getConfiguration();
       setConfig(initializedConfig);
 
       if (initializedConfig?.platform) {
@@ -127,6 +128,117 @@ const AsgardeoProvider: FC<PropsWithChildren<AsgardeoProviderProps>> = ({
       }
     })();
   }, []);
+
+  async function updateSession(): Promise<void> {
+    try {
+      // Set flag to prevent loading state tracking from interfering
+      setIsUpdatingSession(true);
+      setIsLoadingSync(true);
+      let resolvedBaseUrl: string = baseUrl;
+
+      const decodedToken: IdToken = await asgardeo.getDecodedIdToken();
+
+      // If there's a `user_org` claim in the ID token,
+      // Treat this login as a organization login.
+      if (decodedToken?.['user_org']) {
+        resolvedBaseUrl = `${(await asgardeo.getConfiguration()).baseUrl}/o`;
+        setBaseUrl(resolvedBaseUrl);
+      }
+
+      // TEMPORARY: Asgardeo V2 platform does not support SCIM2, Organizations endpoints yet.
+      // Tracker: https://github.com/asgardeo/javascript/issues/212
+      if (config.platform === Platform.AsgardeoV2) {
+        const claims: Record<string, any> = extractUserClaimsFromIdToken(decodedToken);
+        setUser(claims);
+        setUserProfile({
+          flattenedProfile: claims as User,
+          profile: claims as User,
+          schemas: [],
+        });
+      } else {
+        try {
+          const fetchedUser: User = await asgardeo.getUser({baseUrl: resolvedBaseUrl});
+          setUser(fetchedUser);
+        } catch (error) {
+          // TODO: Add an error log.
+        }
+
+        try {
+          const fetchedUserProfile: UserProfile = await asgardeo.getUserProfile({baseUrl: resolvedBaseUrl});
+          setUserProfile(fetchedUserProfile);
+        } catch (error) {
+          // TODO: Add an error log.
+        }
+
+        try {
+          const fetchedOrganization: Organization = await asgardeo.getCurrentOrganization();
+          setCurrentOrganization(fetchedOrganization);
+        } catch (error) {
+          // TODO: Add an error log.
+        }
+
+        try {
+          const fetchedMyOrganizations: Organization[] = await asgardeo.getMyOrganizations();
+          setMyOrganizations(fetchedMyOrganizations);
+        } catch (error) {
+          // TODO: Add an error log.
+        }
+      }
+
+      // CRITICAL: Update sign-in status BEFORE setting loading to false
+      // This prevents the race condition where ProtectedRoute sees isLoading=false but isSignedIn=false
+      const currentSignInStatus: boolean = await asgardeo.isSignedIn();
+      setIsSignedInSync(currentSignInStatus);
+    } catch (error) {
+      // TODO: Add an error log.
+    } finally {
+      // Clear the flag and set final loading state
+      setIsUpdatingSession(false);
+      setIsLoadingSync(asgardeo.isLoading());
+    }
+  }
+
+  async function signIn(...args: any): Promise<User | EmbeddedSignInFlowResponseV2> {
+    // Check if this is a V2 embedded flow request BEFORE calling signIn
+    // This allows us to skip session checks entirely for V2 flows
+    const arg1: any = args[0];
+    const isV2FlowRequest: boolean =
+      config.platform === Platform.AsgardeoV2 &&
+      typeof arg1 === 'object' &&
+      arg1 !== null &&
+      ('flowId' in arg1 || 'applicationId' in arg1);
+
+    try {
+      if (!isV2FlowRequest) {
+        setIsUpdatingSession(true);
+        setIsLoadingSync(true);
+      }
+
+      const response: User | EmbeddedSignInFlowResponseV2 = await asgardeo.signIn(...args);
+
+      if (isV2FlowRequest || (response && typeof response === 'object' && 'flowStatus' in response)) {
+        return response;
+      }
+
+      if (await asgardeo.isSignedIn()) {
+        await updateSession();
+      }
+
+      return response as User;
+    } catch (error) {
+      throw new AsgardeoRuntimeError(
+        `Sign in failed: ${error instanceof Error ? error.message : String(JSON.stringify(error))}`,
+        'asgardeo-signIn-Error',
+        'react',
+        'An error occurred while trying to sign in.',
+      );
+    } finally {
+      if (!isV2FlowRequest) {
+        setIsUpdatingSession(false);
+        setIsLoadingSync(asgardeo.isLoading());
+      }
+    }
+  }
 
   /**
    * Try signing in when the component is mounted.
@@ -156,16 +268,16 @@ const AsgardeoProvider: FC<PropsWithChildren<AsgardeoProviderProps>> = ({
       const currentUrl: URL = new URL(window.location.href);
       const hasAuthParamsResult: boolean = hasAuthParams(currentUrl, afterSignInUrl);
 
-      const isV2Platform = config.platform === Platform.AsgardeoV2;
+      const isV2Platform: boolean = config.platform === Platform.AsgardeoV2;
 
       if (hasAuthParamsResult) {
         try {
           if (isV2Platform) {
             // For V2 platform, check if this is an embedded flow or traditional OAuth
-            const urlParams = currentUrl.searchParams;
-            const code = urlParams.get('code');
-            const flowIdFromUrl = urlParams.get('flowId');
-            const storedFlowId = sessionStorage.getItem('asgardeo_flow_id');
+            const urlParams: URLSearchParams = currentUrl.searchParams;
+            const code: string | null = urlParams.get('code');
+            const flowIdFromUrl: string | null = urlParams.get('flowId');
+            const storedFlowId: string | null = sessionStorage.getItem('asgardeo_flow_id');
 
             // If there's a code and no flowId, exchange OAuth code for tokens
             if (code && !flowIdFromUrl && !storedFlowId) {
@@ -257,7 +369,7 @@ const AsgardeoProvider: FC<PropsWithChildren<AsgardeoProviderProps>> = ({
 
       // Don't set loading=false while auth params are in the URL and user isn't signed in yet.
       // This prevents ProtectedRoute from redirecting before the sign-in effect processes the auth code.
-      const currentUrl = new URL(window.location.href);
+      const currentUrl: URL = new URL(window.location.href);
       if (!isSignedInSync && hasAuthParams(currentUrl, afterSignInUrl)) {
         return;
       }
@@ -269,84 +381,15 @@ const AsgardeoProvider: FC<PropsWithChildren<AsgardeoProviderProps>> = ({
     checkLoadingState();
 
     // Set up an interval to check for loading state changes
-    const interval = setInterval(checkLoadingState, 100);
+    const interval: NodeJS.Timeout = setInterval(checkLoadingState, 100);
 
     return (): void => {
       clearInterval(interval);
     };
   }, [asgardeo, isLoadingSync, isSignedInSync, isUpdatingSession]);
 
-  const updateSession = async (): Promise<void> => {
-    try {
-      // Set flag to prevent loading state tracking from interfering
-      setIsUpdatingSession(true);
-      setIsLoadingSync(true);
-      let _baseUrl: string = baseUrl;
-
-      const decodedToken: IdToken = await asgardeo.getDecodedIdToken();
-
-      // If there's a `user_org` claim in the ID token,
-      // Treat this login as a organization login.
-      if (decodedToken?.['user_org']) {
-        _baseUrl = `${(await asgardeo.getConfiguration()).baseUrl}/o`;
-        setBaseUrl(_baseUrl);
-      }
-
-      // TEMPORARY: Asgardeo V2 platform does not support SCIM2, Organizations endpoints yet.
-      // Tracker: https://github.com/asgardeo/javascript/issues/212
-      if (config.platform === Platform.AsgardeoV2) {
-        const claims = extractUserClaimsFromIdToken(decodedToken);
-        setUser(claims);
-        setUserProfile({
-          profile: claims as User,
-          flattenedProfile: claims as User,
-          schemas: [],
-        });
-      } else {
-        try {
-          const user: User = await asgardeo.getUser({baseUrl: _baseUrl});
-          setUser(user);
-        } catch (error) {
-          // TODO: Add an error log.
-        }
-
-        try {
-          const userProfile: UserProfile = await asgardeo.getUserProfile({baseUrl: _baseUrl});
-          setUserProfile(userProfile);
-        } catch (error) {
-          // TODO: Add an error log.
-        }
-
-        try {
-          const currentOrganization: Organization = await asgardeo.getCurrentOrganization();
-          setCurrentOrganization(currentOrganization);
-        } catch (error) {
-          // TODO: Add an error log.
-        }
-
-        try {
-          const myOrganizations: Organization[] = await asgardeo.getMyOrganizations();
-          setMyOrganizations(myOrganizations);
-        } catch (error) {
-          // TODO: Add an error log.
-        }
-      }
-
-      // CRITICAL: Update sign-in status BEFORE setting loading to false
-      // This prevents the race condition where ProtectedRoute sees isLoading=false but isSignedIn=false
-      const currentSignInStatus = await asgardeo.isSignedIn();
-      setIsSignedInSync(currentSignInStatus);
-    } catch (error) {
-      // TODO: Add an error log.
-    } finally {
-      // Clear the flag and set final loading state
-      setIsUpdatingSession(false);
-      setIsLoadingSync(asgardeo.isLoading());
-    }
-  };
-
   // Branding fetch function
-  const fetchBranding = useCallback(async (): Promise<void> => {
+  const fetchBranding: () => Promise<void> = useCallback(async (): Promise<void> => {
     if (!baseUrl) {
       return;
     }
@@ -366,11 +409,11 @@ const AsgardeoProvider: FC<PropsWithChildren<AsgardeoProviderProps>> = ({
         // Add other branding config options as needed
       };
 
-      const brandingData = await getBrandingPreference(getBrandingConfig);
+      const brandingData: BrandingPreference = await getBrandingPreference(getBrandingConfig);
       setBrandingPreference(brandingData);
       setHasFetchedBranding(true);
     } catch (err) {
-      const errorMessage = err instanceof Error ? err : new Error('Failed to fetch branding preference');
+      const errorMessage: Error = err instanceof Error ? err : new Error('Failed to fetch branding preference');
       setBrandingError(errorMessage);
       setBrandingPreference(null);
       setHasFetchedBranding(true); // Mark as fetched even on error to prevent retries
@@ -380,7 +423,7 @@ const AsgardeoProvider: FC<PropsWithChildren<AsgardeoProviderProps>> = ({
   }, [baseUrl, preferences?.i18n?.language]);
 
   // Refetch branding function
-  const refetchBranding = useCallback(async (): Promise<void> => {
+  const refetchBranding: () => Promise<void> = useCallback(async (): Promise<void> => {
     setHasFetchedBranding(false); // Reset the flag to allow refetching
     await fetchBranding();
   }, [fetchBranding]);
@@ -394,7 +437,7 @@ const AsgardeoProvider: FC<PropsWithChildren<AsgardeoProviderProps>> = ({
     }
 
     // Enable branding by default or when explicitly enabled
-    const shouldFetchBranding = preferences?.theme?.inheritFromBranding !== false;
+    const shouldFetchBranding: boolean = preferences?.theme?.inheritFromBranding !== false;
 
     if (shouldFetchBranding && isInitializedSync && baseUrl && !hasFetchedBranding && !isBrandingLoading) {
       fetchBranding();
@@ -407,48 +450,6 @@ const AsgardeoProvider: FC<PropsWithChildren<AsgardeoProviderProps>> = ({
     isBrandingLoading,
     fetchBranding,
   ]);
-
-  const signIn = async (...args: any): Promise<User | EmbeddedSignInFlowResponseV2> => {
-    // Check if this is a V2 embedded flow request BEFORE calling signIn
-    // This allows us to skip session checks entirely for V2 flows
-    const arg1 = args[0];
-    const isV2FlowRequest =
-      config.platform === Platform.AsgardeoV2 &&
-      typeof arg1 === 'object' &&
-      arg1 !== null &&
-      ('flowId' in arg1 || 'applicationId' in arg1);
-
-    try {
-      if (!isV2FlowRequest) {
-        setIsUpdatingSession(true);
-        setIsLoadingSync(true);
-      }
-
-      const response: User | EmbeddedSignInFlowResponseV2 = await asgardeo.signIn(...args);
-
-      if (isV2FlowRequest || (response && typeof response === 'object' && 'flowStatus' in response)) {
-        return response;
-      }
-
-      if (await asgardeo.isSignedIn()) {
-        await updateSession();
-      }
-
-      return response as User;
-    } catch (error) {
-      throw new AsgardeoRuntimeError(
-        `Sign in failed: ${error instanceof Error ? error.message : String(JSON.stringify(error))}`,
-        'asgardeo-signIn-Error',
-        'react',
-        'An error occurred while trying to sign in.',
-      );
-    } finally {
-      if (!isV2FlowRequest) {
-        setIsUpdatingSession(false);
-        setIsLoadingSync(asgardeo.isLoading());
-      }
-    }
-  };
 
   const signInSilently = async (options?: SignInOptions): Promise<User | boolean> => {
     try {
@@ -500,105 +501,91 @@ const AsgardeoProvider: FC<PropsWithChildren<AsgardeoProviderProps>> = ({
 
   const handleProfileUpdate = (payload: User): void => {
     setUser(payload);
-    setUserProfile(prev => ({
+    setUserProfile((prev: UserProfile | null) => ({
       ...prev,
-      profile: payload,
       flattenedProfile: generateFlattenedUserProfile(payload, prev?.schemas),
+      profile: payload,
     }));
   };
 
-  const getDecodedIdToken = useCallback(async (): Promise<IdToken> => {
-    return await asgardeo.getDecodedIdToken();
-  }, [asgardeo]);
-
-  const getIdToken = useCallback(async (): Promise<string> => {
-    return await asgardeo.getIdToken();
-  }, [asgardeo]);
-
-  const getAccessToken = useCallback(async (): Promise<string> => {
-    return await asgardeo.getAccessToken();
-  }, [asgardeo]);
-
-  const request = useCallback(
-    async (...args: any[]): Promise<any> => {
-      return await asgardeo.request(...args);
-    },
+  const getDecodedIdToken: () => Promise<IdToken> = useCallback(
+    async (): Promise<IdToken> => asgardeo.getDecodedIdToken(),
     [asgardeo],
   );
 
-  const requestAll = useCallback(
-    async (...args: any[]): Promise<any> => {
-      return await asgardeo.requestAll(...args);
-    },
+  const getIdToken: () => Promise<string> = useCallback(async (): Promise<string> => asgardeo.getIdToken(), [asgardeo]);
+
+  const getAccessToken: () => Promise<string> = useCallback(
+    async (): Promise<string> => asgardeo.getAccessToken(),
     [asgardeo],
   );
 
-  const exchangeToken = useCallback(
-    async (config: any, sessionId?: string): Promise<any> => {
-      return await asgardeo.exchangeToken(config, sessionId);
-    },
+  const request: (...args: any[]) => Promise<any> = useCallback(
+    async (...args: any[]): Promise<any> => asgardeo.request(...args),
     [asgardeo],
   );
 
-  const signOut = useCallback(
-    async (...args: any[]): Promise<any> => {
-      return await asgardeo.signOut(...args);
-    },
+  const requestAll: (...args: any[]) => Promise<any> = useCallback(
+    async (...args: any[]): Promise<any> => asgardeo.requestAll(...args),
     [asgardeo],
   );
 
-  const signUp = useCallback(
-    async (...args: any[]): Promise<any> => {
-      return await asgardeo.signUp(...args);
-    },
+  const exchangeToken: (exchangeConfig: any) => Promise<any> = useCallback(
+    async (exchangeConfig: any): Promise<any> => asgardeo.exchangeToken(exchangeConfig),
     [asgardeo],
   );
 
-  const clearSession = useCallback(
-    async (...args: any[]): Promise<any> => {
-      return await asgardeo.clearSession(...args);
-    },
+  const signOut: (...args: any[]) => Promise<any> = useCallback(
+    async (...args: any[]): Promise<any> => asgardeo.signOut(...args),
     [asgardeo],
   );
 
-  const reInitialize = useCallback(
-    async (config: any): Promise<any> => {
-      return await asgardeo.reInitialize(config);
-    },
+  const signUp: (...args: any[]) => Promise<any> = useCallback(
+    async (...args: any[]): Promise<any> => asgardeo.signUp(...args),
     [asgardeo],
   );
 
-  const value = useMemo(
+  const clearSession: (...args: any[]) => Promise<any> = useCallback(
+    async (...args: any[]): Promise<any> => asgardeo.clearSession(...args),
+    [asgardeo],
+  );
+
+  const reInitialize: (reInitConfig: any) => Promise<any> = useCallback(
+    async (reInitConfig: any): Promise<any> => asgardeo.reInitialize(reInitConfig),
+    [asgardeo],
+  );
+
+  const value: any = useMemo(
     () => ({
-      applicationId,
-      organizationHandle: config?.organizationHandle,
-      signInUrl,
-      signUpUrl,
       afterSignInUrl,
+      applicationId,
       baseUrl,
       clearSession,
+      exchangeToken,
       getAccessToken,
-      isInitialized: isInitializedSync,
-      isLoading: isLoadingSync,
-      isSignedIn: isSignedInSync,
-      organization: currentOrganization,
-      signIn,
-      signInSilently,
-      signOut,
-      signUp,
-      user,
+      getDecodedIdToken,
+      getIdToken,
       http: {
         request,
         requestAll,
       },
-      reInitialize,
-      signInOptions,
-      getDecodedIdToken,
-      getIdToken,
-      exchangeToken,
-      syncSession,
+      isInitialized: isInitializedSync,
+      isLoading: isLoadingSync,
+      isSignedIn: isSignedInSync,
+      organization: currentOrganization,
+      organizationHandle: config?.organizationHandle,
       platform: config?.platform,
+      reInitialize,
+      signIn,
+      signInOptions,
+      signInSilently,
+      signInUrl,
+      signOut,
+      signUp,
+      signUpUrl,
       switchOrganization,
+      syncSession,
+      user,
     }),
     [
       applicationId,
@@ -651,11 +638,11 @@ const AsgardeoProvider: FC<PropsWithChildren<AsgardeoProviderProps>> = ({
             <FlowProvider>
               <UserProvider profile={userProfile} onUpdateProfile={handleProfileUpdate}>
                 <OrganizationProvider
-                  getAllOrganizations={async () => await asgardeo.getAllOrganizations()}
+                  getAllOrganizations={async (): Promise<AllOrganizationsApiResponse> => asgardeo.getAllOrganizations()}
                   myOrganizations={myOrganizations}
                   currentOrganization={currentOrganization}
                   onOrganizationSwitch={switchOrganization}
-                  revalidateMyOrganizations={async () => await asgardeo.getMyOrganizations()}
+                  revalidateMyOrganizations={async (): Promise<Organization[]> => asgardeo.getMyOrganizations()}
                 >
                   {children}
                 </OrganizationProvider>

@@ -16,82 +16,82 @@
  * under the License.
  */
 
-import {CSSProperties, FC, ReactNode, ComponentPropsWithoutRef, ElementType} from 'react';
-import useTheme from '../../../contexts/Theme/useTheme';
-import {cx} from '@emotion/css';
 import {withVendorCSSClassPrefix, bem} from '@asgardeo/browser';
+import {cx} from '@emotion/css';
+import {CSSProperties, FC, ReactNode, ElementType} from 'react';
 import useStyles, {TypographyVariant, TypographyAlign, TypographyColor} from './Typography.styles';
+import useTheme from '../../../contexts/Theme/useTheme';
 
 export interface TypographyProps {
-  /**
-   * The content to be rendered
-   */
-  children: ReactNode;
-  /**
-   * The typography variant to apply
-   */
-  variant?: TypographyVariant;
-  /**
-   * The HTML element or React component to render
-   */
-  component?: ElementType;
   /**
    * Text alignment
    */
   align?: TypographyAlign;
   /**
-   * Color variant
+   * The content to be rendered
    */
-  color?: TypographyColor;
-  /**
-   * Whether the text should be clipped with ellipsis when it overflows
-   */
-  noWrap?: boolean;
+  children: ReactNode;
   /**
    * Additional CSS class names
    */
   className?: string;
   /**
-   * Custom styles
+   * Color variant
    */
-  style?: CSSProperties;
+  color?: TypographyColor;
   /**
-   * Whether the text should be displayed inline
+   * The HTML element or React component to render
    */
-  inline?: boolean;
-  /**
-   * Custom font weight
-   */
-  fontWeight?: 'normal' | 'medium' | 'semibold' | 'bold' | number;
+  component?: ElementType;
   /**
    * Custom font size (overrides variant sizing)
    */
   fontSize?: string | number;
   /**
-   * Line height
+   * Custom font weight
    */
-  lineHeight?: string | number;
+  fontWeight?: 'normal' | 'medium' | 'semibold' | 'bold' | number;
   /**
    * Whether to disable gutters (margin bottom)
    */
   gutterBottom?: boolean;
+  /**
+   * Whether the text should be displayed inline
+   */
+  inline?: boolean;
+  /**
+   * Line height
+   */
+  lineHeight?: string | number;
+  /**
+   * Whether the text should be clipped with ellipsis when it overflows
+   */
+  noWrap?: boolean;
+  /**
+   * Custom styles
+   */
+  style?: CSSProperties;
+  /**
+   * The typography variant to apply
+   */
+  variant?: TypographyVariant;
 }
 
 // Default component mapping for variants
 const variantMapping: Record<TypographyVariant, ElementType> = {
+  body1: 'p',
+  body2: 'p',
+  button: 'span',
+  caption: 'span',
   h1: 'h1',
   h2: 'h2',
   h3: 'h3',
   h4: 'h4',
   h5: 'h5',
   h6: 'h6',
+  overline: 'span',
   subtitle1: 'h6',
   subtitle2: 'h6',
-  body1: 'p',
-  body2: 'p',
-  caption: 'span',
-  overline: 'span',
-  button: 'span',
 };
 
 /**
@@ -113,9 +113,9 @@ const Typography: FC<TypographyProps> = ({
   lineHeight,
   gutterBottom = false,
   ...rest
-}) => {
-  const {theme, colorScheme} = useTheme();
-  const styles = useStyles(
+}: TypographyProps) => {
+  const {theme, colorScheme}: ReturnType<typeof useTheme> = useTheme();
+  const styles: Record<string, string> = useStyles(
     theme,
     colorScheme,
     variant,
@@ -129,49 +129,49 @@ const Typography: FC<TypographyProps> = ({
     lineHeight,
   );
 
-  const Component = component || variantMapping[variant] || 'span';
+  const Component: ElementType = component || variantMapping[variant] || 'span';
 
-  const getVariantClass = (variantName: TypographyVariant) => {
+  const getVariantClass = (variantName: TypographyVariant): string => {
     switch (variantName) {
       case 'h1':
-        return styles.typographyH1;
+        return styles['typographyH1'];
       case 'h2':
-        return styles.typographyH2;
+        return styles['typographyH2'];
       case 'h3':
-        return styles.typographyH3;
+        return styles['typographyH3'];
       case 'h4':
-        return styles.typographyH4;
+        return styles['typographyH4'];
       case 'h5':
-        return styles.typographyH5;
+        return styles['typographyH5'];
       case 'h6':
-        return styles.typographyH6;
+        return styles['typographyH6'];
       case 'subtitle1':
-        return styles.typographySubtitle1;
+        return styles['typographySubtitle1'];
       case 'subtitle2':
-        return styles.typographySubtitle2;
+        return styles['typographySubtitle2'];
       case 'body1':
-        return styles.typographyBody1;
+        return styles['typographyBody1'];
       case 'body2':
-        return styles.typographyBody2;
+        return styles['typographyBody2'];
       case 'caption':
-        return styles.typographyCaption;
+        return styles['typographyCaption'];
       case 'overline':
-        return styles.typographyOverline;
+        return styles['typographyOverline'];
       case 'button':
-        return styles.typographyButton;
+        return styles['typographyButton'];
       default:
         return '';
     }
   };
 
-  const typographyClassName = cx(
+  const typographyClassName: string = cx(
     withVendorCSSClassPrefix(bem('typography')),
     withVendorCSSClassPrefix(bem('typography', variant)),
-    styles.typography,
+    styles['typography'],
     getVariantClass(variant),
-    noWrap && styles.typographyNoWrap,
-    inline && styles.typographyInline,
-    gutterBottom && styles.typographyGutterBottom,
+    noWrap && styles['typographyNoWrap'],
+    inline && styles['typographyInline'],
+    gutterBottom && styles['typographyGutterBottom'],
     className,
   );
 

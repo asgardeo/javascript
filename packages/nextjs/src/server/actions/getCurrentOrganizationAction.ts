@@ -18,24 +18,30 @@
 
 'use server';
 
-import {Organization, OrganizationDetails} from '@asgardeo/node';
+import {Organization} from '@asgardeo/node';
 import AsgardeoNextClient from '../../AsgardeoNextClient';
 
 /**
  * Server action to create an organization.
  */
-const getCurrentOrganizationAction = async (sessionId: string) => {
+const getCurrentOrganizationAction = async (
+  sessionId: string,
+): Promise<{
+  data: {organization?: Organization; user?: Record<string, unknown>};
+  error: string | null;
+  success: boolean;
+}> => {
   try {
-    const client = AsgardeoNextClient.getInstance();
-    const organization: Organization = await client.getCurrentOrganization(sessionId) as Organization;
-    return {success: true, data: {organization}, error: null};
+    const client: AsgardeoNextClient = AsgardeoNextClient.getInstance();
+    const organization: Organization = (await client.getCurrentOrganization(sessionId)) as Organization;
+    return {data: {organization}, error: null, success: true};
   } catch (error) {
     return {
-      success: false,
       data: {
         user: {},
       },
       error: 'Failed to get the current organization',
+      success: false,
     };
   }
 };

@@ -16,12 +16,10 @@
  * under the License.
  */
 
-import {FC, ReactNode} from 'react';
 import {EmbeddedFlowType} from '@asgardeo/browser';
-import BaseInviteUser, {
-  BaseInviteUserRenderProps,
-  InviteUserFlowResponse,
-} from './BaseInviteUser';
+import {FC, ReactElement, ReactNode} from 'react';
+// eslint-disable-next-line import/no-named-as-default
+import BaseInviteUser, {BaseInviteUserRenderProps, InviteUserFlowResponse} from './BaseInviteUser';
 import useAsgardeo from '../../../../../contexts/Asgardeo/useAsgardeo';
 
 /**
@@ -34,9 +32,15 @@ export type InviteUserRenderProps = BaseInviteUserRenderProps;
  */
 export interface InviteUserProps {
   /**
-   * Callback when the invite link is generated successfully.
+   * Render props function for custom UI.
+   * If not provided, default UI will be rendered by the SDK.
    */
-  onInviteLinkGenerated?: (inviteLink: string, flowId: string) => void;
+  children?: (props: InviteUserRenderProps) => ReactNode;
+
+  /**
+   * Custom CSS class name.
+   */
+  className?: string;
 
   /**
    * Callback when an error occurs.
@@ -49,15 +53,19 @@ export interface InviteUserProps {
   onFlowChange?: (response: InviteUserFlowResponse) => void;
 
   /**
-   * Custom CSS class name.
+   * Callback when the invite link is generated successfully.
    */
-  className?: string;
+  onInviteLinkGenerated?: (inviteLink: string, flowId: string) => void;
 
   /**
-   * Render props function for custom UI.
-   * If not provided, default UI will be rendered by the SDK.
+   * Whether to show the subtitle.
    */
-  children?: (props: InviteUserRenderProps) => ReactNode;
+  showSubtitle?: boolean;
+
+  /**
+   * Whether to show the title.
+   */
+  showTitle?: boolean;
 
   /**
    * Size variant for the component.
@@ -68,16 +76,6 @@ export interface InviteUserProps {
    * Theme variant for the component card.
    */
   variant?: 'outlined' | 'elevated';
-
-  /**
-   * Whether to show the title.
-   */
-  showTitle?: boolean;
-
-  /**
-   * Whether to show the subtitle.
-   */
-  showSubtitle?: boolean;
 }
 
 /**
@@ -130,7 +128,7 @@ const InviteUser: FC<InviteUserProps> = ({
   variant = 'outlined',
   showTitle = true,
   showSubtitle = true,
-}) => {
+}: InviteUserProps): ReactElement => {
   const {http, baseUrl, isInitialized} = useAsgardeo();
 
   /**
@@ -138,18 +136,18 @@ const InviteUser: FC<InviteUserProps> = ({
    * Makes an authenticated request to /flow/execute with flowType: USER_ONBOARDING.
    */
   const handleInitialize = async (payload: Record<string, any>): Promise<InviteUserFlowResponse> => {
-    const response = await http.request({
-      url: `${baseUrl}/flow/execute`,
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
-      },
+    const response: any = await http.request({
       data: {
         ...payload,
         flowType: EmbeddedFlowType.UserOnboarding,
         verbose: true,
       },
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      method: 'POST',
+      url: `${baseUrl}/flow/execute`,
     } as any);
 
     return response.data as InviteUserFlowResponse;
@@ -160,17 +158,17 @@ const InviteUser: FC<InviteUserProps> = ({
    * Makes an authenticated request to /flow/execute with the step data.
    */
   const handleSubmit = async (payload: Record<string, any>): Promise<InviteUserFlowResponse> => {
-    const response = await http.request({
-      url: `${baseUrl}/flow/execute`,
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
-      },
+    const response: any = await http.request({
       data: {
         ...payload,
         verbose: true,
       },
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      method: 'POST',
+      url: `${baseUrl}/flow/execute`,
     } as any);
 
     return response.data as InviteUserFlowResponse;

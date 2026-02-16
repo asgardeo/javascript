@@ -18,11 +18,12 @@
 
 'use client';
 
-import {forwardRef, ForwardRefExoticComponent, ReactElement, Ref, RefAttributes, useState, MouseEvent} from 'react';
 import {AsgardeoRuntimeError} from '@asgardeo/node';
 import {BaseSignInButton, BaseSignInButtonProps, useTranslation} from '@asgardeo/react';
-import useAsgardeo from '../../../../client/contexts/Asgardeo/useAsgardeo';
+import {AppRouterInstance} from 'next/dist/shared/lib/app-router-context.shared-runtime';
 import {useRouter} from 'next/navigation';
+import {forwardRef, ForwardRefExoticComponent, ReactElement, Ref, RefAttributes, MouseEvent} from 'react';
+import useAsgardeo from '../../../contexts/Asgardeo/useAsgardeo';
 
 /**
  * Props interface of {@link SignInButton}
@@ -58,26 +59,25 @@ export type SignInButtonProps = BaseSignInButtonProps & {
  * When using render props, the custom button should use `type="submit"` instead of `onClick={signIn}`.
  * The `signIn` function in render props is provided for API consistency but should not be used directly.
  */
-const SignInButton = forwardRef<HTMLButtonElement, SignInButtonProps>(
+const SignInButton: ForwardRefExoticComponent<SignInButtonProps & RefAttributes<HTMLButtonElement>> = forwardRef<
+  HTMLButtonElement,
+  SignInButtonProps
+>(
   (
     {className, style, children, preferences, onClick, signInOptions = {}, ...rest}: SignInButtonProps,
     ref: Ref<HTMLButtonElement>,
   ): ReactElement => {
     const {signIn, signInUrl} = useAsgardeo();
-    const router = useRouter();
+    const router: AppRouterInstance = useRouter();
     const {t} = useTranslation(preferences?.i18n);
-
-    const [isLoading, setIsLoading] = useState(false);
 
     const handleOnClick = async (e: MouseEvent<HTMLButtonElement>): Promise<void> => {
       try {
-        setIsLoading(true);
-
         // If a custom `signInUrl` is provided, use it for navigation.
         if (signInUrl) {
           router.push(signInUrl);
-        } else {
-          signIn && (await signIn(signInOptions));
+        } else if (signIn) {
+          await signIn(signInOptions);
         }
 
         if (onClick) {
@@ -90,8 +90,6 @@ const SignInButton = forwardRef<HTMLButtonElement, SignInButtonProps>(
           'nextjs',
           'Something went wrong while trying to sign in. Please try again later.',
         );
-      } finally {
-        setIsLoading(false);
       }
     };
 

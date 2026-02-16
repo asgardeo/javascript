@@ -29,14 +29,14 @@ export interface FlowProviderProps {
   initialStep?: FlowStep;
 
   /**
-   * Initial title.
-   */
-  initialTitle?: string;
-
-  /**
    * Initial subtitle.
    */
   initialSubtitle?: string;
+
+  /**
+   * Initial title.
+   */
+  initialTitle?: string;
 
   /**
    * Callback when flow type changes.
@@ -67,7 +67,7 @@ const FlowProvider: FC<PropsWithChildren<FlowProviderProps>> = ({
   /**
    * Set the current flow step and notify listeners.
    */
-  const setCurrentStep = useCallback(
+  const setCurrentStep: (step: FlowStep) => void = useCallback(
     (step: FlowStep) => {
       setCurrentStepState(step);
       if (step) {
@@ -83,33 +83,33 @@ const FlowProvider: FC<PropsWithChildren<FlowProviderProps>> = ({
   /**
    * Add a message to the message list.
    */
-  const addMessage = useCallback((message: FlowMessage) => {
-    const messageWithId = {
+  const addMessage: (message: FlowMessage) => void = useCallback((message: FlowMessage) => {
+    const messageWithId: FlowMessage = {
       ...message,
       id: message.id ?? `msg-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
     };
 
-    setMessages(prev => [...prev, messageWithId]);
+    setMessages((prev: FlowMessage[]) => [...prev, messageWithId]);
   }, []);
 
   /**
    * Remove a specific message by ID.
    */
-  const removeMessage = useCallback((messageId: string) => {
-    setMessages(prev => prev.filter(msg => msg.id !== messageId));
+  const removeMessage: (messageId: string) => void = useCallback((messageId: string) => {
+    setMessages((prev: FlowMessage[]) => prev.filter((msg: FlowMessage) => msg.id !== messageId));
   }, []);
 
   /**
    * Clear all messages.
    */
-  const clearMessages = useCallback(() => {
+  const clearMessages: () => void = useCallback(() => {
     setMessages([]);
   }, []);
 
   /**
    * Reset the flow context to initial state.
    */
-  const reset = useCallback(() => {
+  const reset: () => void = useCallback(() => {
     setCurrentStepState(initialStep);
     setTitle(initialTitle);
     setSubtitle(initialSubtitle);
@@ -123,23 +123,26 @@ const FlowProvider: FC<PropsWithChildren<FlowProviderProps>> = ({
   /**
    * Navigate to a different authentication flow.
    */
-  const navigateToFlow = useCallback(
+  const navigateToFlow: (
+    flowType: NonNullable<FlowStep>['type'],
+    options?: {metadata?: Record<string, any>; subtitle?: string; title?: string},
+  ) => void = useCallback(
     (
       flowType: NonNullable<FlowStep>['type'],
       options?: {
-        title?: string;
-        subtitle?: string;
         metadata?: Record<string, any>;
+        subtitle?: string;
+        title?: string;
       },
     ) => {
-      const stepId = `${flowType}-${Date.now()}`;
+      const stepId: string = `${flowType}-${Date.now()}`;
       const step: NonNullable<FlowStep> = {
-        id: stepId,
-        type: flowType,
-        title: options?.title,
-        subtitle: options?.subtitle,
         canGoBack: flowType !== 'signin', // Usually allow going back except for main signin
+        id: stepId,
         metadata: options?.metadata,
+        subtitle: options?.subtitle,
+        title: options?.title,
+        type: flowType,
       };
 
       setCurrentStep(step);
@@ -151,26 +154,26 @@ const FlowProvider: FC<PropsWithChildren<FlowProviderProps>> = ({
 
   const contextValue: FlowContextValue = useMemo(
     () => ({
-      currentStep,
-      setCurrentStep,
-      title,
-      setTitle,
-      subtitle,
-      setSubtitle,
-      messages,
       addMessage,
-      removeMessage,
       clearMessages,
+      currentStep,
       error,
-      setError,
       isLoading,
-      setIsLoading,
-      showBackButton,
-      setShowBackButton,
-      onGoBack,
-      setOnGoBack,
-      reset,
+      messages,
       navigateToFlow,
+      onGoBack,
+      removeMessage,
+      reset,
+      setCurrentStep,
+      setError,
+      setIsLoading,
+      setOnGoBack,
+      setShowBackButton,
+      setSubtitle,
+      setTitle,
+      showBackButton,
+      subtitle,
+      title,
     }),
     [
       currentStep,

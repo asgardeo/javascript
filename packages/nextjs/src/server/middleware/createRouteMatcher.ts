@@ -37,20 +37,20 @@ import {NextRequest} from 'next/server';
  * }
  * ```
  */
-const createRouteMatcher = (patterns: string[]) => {
-  const regexPatterns = patterns.map(pattern => {
+const createRouteMatcher = (patterns: string[]): ((req: NextRequest) => boolean) => {
+  const regexPatterns: RegExp[] = patterns.map((pattern: string): RegExp => {
     // Convert glob-like patterns to regex
-    const regexPattern = pattern
-      .replace(/\./g, '\\.')  // Escape dots
-      .replace(/\*/g, '.*')   // Convert * to .*
+    const regexPattern: string = pattern
+      .replace(/\./g, '\\.') // Escape dots
+      .replace(/\*/g, '.*') // Convert * to .*
       .replace(/\(\.\*\)/g, '(.*)'); // Handle explicit (.*) patterns
 
     return new RegExp(`^${regexPattern}$`);
   });
 
   return (req: NextRequest): boolean => {
-    const pathname = req.nextUrl.pathname;
-    return regexPatterns.some(regex => regex.test(pathname));
+    const {pathname} = req.nextUrl;
+    return regexPatterns.some((regex: RegExp): boolean => regex.test(pathname));
   };
 };
 

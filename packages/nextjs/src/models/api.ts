@@ -22,16 +22,10 @@
  */
 export interface InternalAuthAPIRoutes {
   /**
-   * Route for handling user information retrieval.
-   * This route should return the current user's information, such as username, email, etc.
-   */
-  user: string;
-  /**
    * Route for handling session management.
    * This route should return the current signed-in status.
    */
   session: string;
-
   /**
    * Route for handling sign-in requests.
    * This route should handle the sign-in flow and redirect users to the appropriate authentication endpoint.
@@ -49,4 +43,10 @@ export interface InternalAuthAPIRoutes {
    * This route should handle the sign-up flow and redirect users to the appropriate registration endpoint.
    */
   signUp?: string;
+
+  /**
+   * Route for handling user information retrieval.
+   * This route should return the current user's information, such as username, email, etc.
+   */
+  user: string;
 }

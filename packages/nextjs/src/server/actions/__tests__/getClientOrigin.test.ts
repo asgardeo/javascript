@@ -17,25 +17,27 @@
  */
 
 // src/server/actions/__tests__/getClientOrigin.test.ts
-import { describe, it, expect, vi, beforeEach, afterEach, type Mock } from 'vitest';
+import {headers} from 'next/headers';
+import {describe, it, expect, vi, beforeEach, afterEach, type Mock} from 'vitest';
 
-//Mock next/headers BEFORE importing the SUT
+// Import SUT and mocked dep
+import getClientOrigin from '../getClientOrigin';
+
+// Mock next/headers BEFORE importing the SUT
 vi.mock('next/headers', () => ({
   headers: vi.fn(),
 }));
 
-//Import SUT and mocked dep
-import getClientOrigin from '../getClientOrigin';
-import { headers } from 'next/headers';
-
 // Helper: build a Headers-like object. get() should be case-insensitive.
-type HLike = { get: (name: string) => string | null };
+type HLike = {get: (name: string) => string | null};
 const makeHeaders = (map: Record<string, string | null | undefined>): HLike => {
   const normalized: Record<string, string | null | undefined> = {};
-  for (const [k, v] of Object.entries(map)) normalized[k.toLowerCase()] = v;
+  Object.entries(map).forEach(([k, val]: [string, string | null | undefined]) => {
+    normalized[k.toLowerCase()] = val;
+  });
   return {
-    get: (name: string) => {
-      const v = normalized[name.toLowerCase()];
+    get: (name: string): string | null => {
+      const v: string | null | undefined = normalized[name.toLowerCase()];
       return v == null ? null : v; // emulate real Headers.get(): string | null
     },
   };
@@ -53,11 +55,9 @@ describe('getClientOrigin', () => {
   });
 
   it('should return https origin when x-forwarded-proto is https and host is present', async () => {
-    (headers as unknown as Mock).mockResolvedValue(
-      makeHeaders({ host: 'example.com', 'x-forwarded-proto': 'https' }),
-    );
+    (headers as unknown as Mock).mockResolvedValue(makeHeaders({host: 'example.com', 'x-forwarded-proto': 'https'}));
 
-    const origin = await getClientOrigin();
+    const origin: string = await getClientOrigin();
 
     expect(headers).toHaveBeenCalledTimes(1);
     expect(origin).toBe('https://example.com');
@@ -65,21 +65,19 @@ describe('getClientOrigin', () => {
 
   it('should fall back to http when x-forwarded-proto is missing', async () => {
     (headers as unknown as Mock).mockResolvedValue(
-      makeHeaders({ host: 'svc.internal' /* x-forwarded-proto: missing */ }),
+      makeHeaders({host: 'svc.internal' /* x-forwarded-proto: missing */}),
     );
 
-    const origin = await getClientOrigin();
+    const origin: string = await getClientOrigin();
 
     expect(origin).toBe('http://svc.internal');
   });
 
   it('should return "protocol://null" when host is missing', async () => {
     // host header absent -> get('host') returns null -> interpolates as "null"
-    (headers as unknown as Mock).mockResolvedValue(
-      makeHeaders({ 'x-forwarded-proto': 'https' }),
-    );
+    (headers as unknown as Mock).mockResolvedValue(makeHeaders({'x-forwarded-proto': 'https'}));
 
-    const origin = await getClientOrigin();
+    const origin: string = await getClientOrigin();
 
     expect(origin).toBe('https://null');
   });
@@ -90,4 +88,3 @@ describe('getClientOrigin', () => {
     await expect(getClientOrigin()).rejects.toThrow('headers not available');
   });
 });
-

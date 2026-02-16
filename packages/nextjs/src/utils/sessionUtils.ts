@@ -18,7 +18,6 @@
 
 import {NextRequest} from 'next/server';
 import SessionManager, {SessionTokenPayload} from './SessionManager';
-import {CookieConfig} from '@asgardeo/node';
 
 /**
  * Checks if a request has a valid session cookie (JWT).
@@ -29,7 +28,7 @@ import {CookieConfig} from '@asgardeo/node';
  */
 export const hasValidSession = async (request: NextRequest): Promise<boolean> => {
   try {
-    const sessionToken = request.cookies.get(SessionManager.getSessionCookieName())?.value;
+    const sessionToken: string | undefined = request.cookies.get(SessionManager.getSessionCookieName())?.value;
     if (!sessionToken) {
       return false;
     }
@@ -50,7 +49,7 @@ export const hasValidSession = async (request: NextRequest): Promise<boolean> =>
  */
 export const getSessionFromRequest = async (request: NextRequest): Promise<SessionTokenPayload | undefined> => {
   try {
-    const sessionToken = request.cookies.get(SessionManager.getSessionCookieName())?.value;
+    const sessionToken: string | undefined = request.cookies.get(SessionManager.getSessionCookieName())?.value;
     if (!sessionToken) {
       return undefined;
     }
@@ -70,13 +69,13 @@ export const getSessionFromRequest = async (request: NextRequest): Promise<Sessi
  */
 export const getSessionIdFromRequest = async (request: NextRequest): Promise<string | undefined> => {
   try {
-    const sessionPayload = await getSessionFromRequest(request);
+    const sessionPayload: SessionTokenPayload | undefined = await getSessionFromRequest(request);
 
     if (sessionPayload) {
       return sessionPayload.sessionId;
     }
 
-    return Promise.resolve(undefined);
+    return await Promise.resolve(undefined);
   } catch {
     return Promise.resolve(undefined);
   }
@@ -90,12 +89,12 @@ export const getSessionIdFromRequest = async (request: NextRequest): Promise<str
  */
 export const getTempSessionFromRequest = async (request: NextRequest): Promise<string | undefined> => {
   try {
-    const tempToken = request.cookies.get(SessionManager.getTempSessionCookieName())?.value;
+    const tempToken: string | undefined = request.cookies.get(SessionManager.getTempSessionCookieName())?.value;
     if (!tempToken) {
       return undefined;
     }
 
-    const tempSession = await SessionManager.verifyTempSession(tempToken);
+    const tempSession: {sessionId: string} = await SessionManager.verifyTempSession(tempToken);
     return tempSession.sessionId;
   } catch {
     return undefined;

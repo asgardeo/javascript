@@ -19,10 +19,11 @@
 'use client';
 
 import {AsgardeoRuntimeError} from '@asgardeo/node';
-import {forwardRef, ForwardRefExoticComponent, MouseEvent, ReactElement, Ref, RefAttributes, useState} from 'react';
 import {BaseSignUpButton, BaseSignUpButtonProps, useTranslation} from '@asgardeo/react';
-import useAsgardeo from '../../../contexts/Asgardeo/useAsgardeo';
+import {AppRouterInstance} from 'next/dist/shared/lib/app-router-context.shared-runtime';
 import {useRouter} from 'next/navigation';
+import {forwardRef, ForwardRefExoticComponent, MouseEvent, ReactElement, Ref, RefAttributes, useState} from 'react';
+import useAsgardeo from '../../../contexts/Asgardeo/useAsgardeo';
 
 /**
  * Props interface of {@link SignUpButton}
@@ -75,7 +76,7 @@ const SignUpButton: ForwardRefExoticComponent<SignUpButtonProps & RefAttributes<
   SignUpButtonProps
 >(({children, onClick, preferences, ...rest}: SignUpButtonProps, ref: Ref<HTMLButtonElement>): ReactElement => {
   const {signUp, signUpUrl} = useAsgardeo();
-  const router = useRouter();
+  const router: AppRouterInstance = useRouter();
   const {t} = useTranslation(preferences?.i18n);
 
   const [isLoading, setIsLoading] = useState(false);
@@ -87,8 +88,8 @@ const SignUpButton: ForwardRefExoticComponent<SignUpButtonProps & RefAttributes<
       // If a custom `signUpUrl` is provided, use it for navigation.
       if (signUpUrl) {
         router.push(signUpUrl);
-      } else {
-        signUp && (await signUp());
+      } else if (signUp) {
+        await signUp();
       }
 
       if (onClick) {

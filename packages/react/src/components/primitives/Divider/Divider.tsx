@@ -18,10 +18,10 @@
 
 import {withVendorCSSClassPrefix, bem} from '@asgardeo/browser';
 import {cx} from '@emotion/css';
-import {FC, HTMLAttributes} from 'react';
+import {FC, HTMLAttributes, ReactNode} from 'react';
+import useStyles from './Divider.styles';
 import useTheme from '../../../contexts/Theme/useTheme';
 import Typography from '../Typography/Typography';
-import useStyles from './Divider.styles';
 
 export type DividerOrientation = 'horizontal' | 'vertical';
 export type DividerVariant = 'solid' | 'dashed' | 'dotted';
@@ -30,7 +30,7 @@ export interface DividerProps extends HTMLAttributes<HTMLDivElement> {
   /**
    * Text to display in the center of the divider
    */
-  children?: React.ReactNode;
+  children?: ReactNode;
 
   /**
    * Custom color for the divider
@@ -74,9 +74,9 @@ const Divider: FC<DividerProps> = ({
   className,
   style,
   ...rest
-}) => {
-  const {theme, colorScheme} = useTheme();
-  const styles = useStyles(theme, colorScheme, orientation, variant, color, !!children);
+}: DividerProps) => {
+  const {theme, colorScheme}: ReturnType<typeof useTheme> = useTheme();
+  const styles: Record<string, string> = useStyles(theme, colorScheme, orientation, variant, color, !!children);
 
   if (orientation === 'vertical') {
     return (
@@ -84,8 +84,8 @@ const Divider: FC<DividerProps> = ({
         className={cx(
           withVendorCSSClassPrefix(bem('divider')),
           withVendorCSSClassPrefix(bem('divider', 'vertical')),
-          styles.divider,
-          styles.vertical,
+          styles['divider'],
+          styles['vertical'],
           className,
         )}
         style={style}
@@ -103,8 +103,8 @@ const Divider: FC<DividerProps> = ({
           withVendorCSSClassPrefix(bem('divider')),
           withVendorCSSClassPrefix(bem('divider', 'horizontal')),
           withVendorCSSClassPrefix(bem('divider', 'with-text')),
-          styles.divider,
-          styles.horizontal,
+          styles['divider'],
+          styles['horizontal'],
           className,
         )}
         style={style}
@@ -112,16 +112,16 @@ const Divider: FC<DividerProps> = ({
         aria-orientation="horizontal"
         {...rest}
       >
-        <div className={cx(withVendorCSSClassPrefix(bem('divider', 'line')), styles.line)} />
+        <div className={cx(withVendorCSSClassPrefix(bem('divider', 'line')), styles['line'])} />
         <Typography
           variant="body2"
           color="textSecondary"
-          className={cx(withVendorCSSClassPrefix(bem('divider', 'text')), styles.text)}
+          className={cx(withVendorCSSClassPrefix(bem('divider', 'text')), styles['text'])}
           inline
         >
           {children}
         </Typography>
-        <div className={cx(withVendorCSSClassPrefix(bem('divider', 'line')), styles.line)} />
+        <div className={cx(withVendorCSSClassPrefix(bem('divider', 'line')), styles['line'])} />
       </div>
     );
   }
@@ -131,8 +131,8 @@ const Divider: FC<DividerProps> = ({
       className={cx(
         withVendorCSSClassPrefix(bem('divider')),
         withVendorCSSClassPrefix(bem('divider', 'horizontal')),
-        styles.divider,
-        styles.horizontal,
+        styles['divider'],
+        styles['horizontal'],
         className,
       )}
       style={style}

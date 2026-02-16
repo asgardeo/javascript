@@ -23,19 +23,26 @@ import {
   WithPreferences,
 } from '@asgardeo/browser';
 import {ReactElement} from 'react';
-import UsernamePassword from './UsernamePassword';
-import IdentifierFirst from './IdentifierFirst';
-import GoogleButton from '../../../../../adapters/GoogleButton';
-import GitHubButton from '../../../../../adapters/GitHubButton';
-import MicrosoftButton from '../../../../../adapters/MicrosoftButton';
-import FacebookButton from '../../../../../adapters/FacebookButton';
-import LinkedInButton from '../../../../../adapters/LinkedInButton';
-import SignInWithEthereumButton from '../../../../../adapters/SignInWithEthereumButton';
+// eslint-disable-next-line import/no-cycle, import/no-named-as-default
 import EmailOtp from './EmailOtp';
-import Totp from './Totp';
-import SmsOtp from './SmsOtp';
-import SocialButton from './SocialButton';
+// eslint-disable-next-line import/no-cycle, import/no-named-as-default
+import IdentifierFirst from './IdentifierFirst';
+// eslint-disable-next-line import/no-cycle
 import MultiOptionButton from './MultiOptionButton';
+// eslint-disable-next-line import/no-cycle, import/no-named-as-default
+import SmsOtp from './SmsOtp';
+// eslint-disable-next-line import/no-cycle
+import SocialButton from './SocialButton';
+// eslint-disable-next-line import/no-cycle, import/no-named-as-default
+import Totp from './Totp';
+// eslint-disable-next-line import/no-cycle, import/no-named-as-default
+import UsernamePassword from './UsernamePassword';
+import FacebookButton from '../../../../../adapters/FacebookButton';
+import GitHubButton from '../../../../../adapters/GitHubButton';
+import GoogleButton from '../../../../../adapters/GoogleButton';
+import LinkedInButton from '../../../../../adapters/LinkedInButton';
+import MicrosoftButton from '../../../../../adapters/MicrosoftButton';
+import SignInWithEthereumButton from '../../../../../adapters/SignInWithEthereumButton';
 
 /**
  * Base props that all sign-in option components share.
@@ -47,24 +54,29 @@ export interface BaseSignInOptionProps extends WithPreferences {
   authenticator?: EmbeddedSignInFlowAuthenticator;
 
   /**
-   * Current form values.
+   * Custom CSS class name for the submit button.
    */
-  formValues: Record<string, string>;
-
-  /**
-   * Touched state for form fields.
-   */
-  touchedFields: Record<string, boolean>;
-
-  /**
-   * Whether the component is in loading state.
-   */
-  isLoading: boolean;
+  buttonClassName?: string;
 
   /**
    * Error message to display.
    */
   error?: string | null;
+
+  /**
+   * Current form values.
+   */
+  formValues: Record<string, string>;
+
+  /**
+   * Custom CSS class name for form inputs.
+   */
+  inputClassName?: string;
+
+  /**
+   * Whether the component is in loading state.
+   */
+  isLoading: boolean;
 
   /**
    * Callback function called when input values change.
@@ -77,19 +89,14 @@ export interface BaseSignInOptionProps extends WithPreferences {
   onSubmit?: (authenticator: EmbeddedSignInFlowAuthenticator, formData?: Record<string, string>) => void;
 
   /**
-   * Custom CSS class name for form inputs.
-   */
-  inputClassName?: string;
-
-  /**
-   * Custom CSS class name for the submit button.
-   */
-  buttonClassName?: string;
-
-  /**
    * Text for the submit button.
    */
   submitButtonText?: string;
+
+  /**
+   * Touched state for form fields.
+   */
+  touchedFields: Record<string, boolean>;
 }
 
 /**
@@ -103,7 +110,7 @@ export const createSignInOption = ({
   ...rest
 }: BaseSignInOptionProps): ReactElement => {
   // Check if this authenticator has params (indicating it needs user input)
-  const hasParams = authenticator.metadata?.params && authenticator.metadata.params.length > 0;
+  const hasParams: any = authenticator.metadata?.params && authenticator.metadata.params.length > 0;
 
   // Use authenticatorId to determine the component type
   switch (authenticator.authenticatorId) {
@@ -117,7 +124,7 @@ export const createSignInOption = ({
       return (
         <GoogleButton
           className={buttonClassName}
-          onClick={() => onSubmit(authenticator)}
+          onClick={(): any => onSubmit(authenticator)}
           preferences={preferences}
           {...rest}
         />
@@ -128,7 +135,7 @@ export const createSignInOption = ({
         <GitHubButton
           preferences={preferences}
           className={buttonClassName}
-          onClick={() => onSubmit(authenticator)}
+          onClick={(): any => onSubmit(authenticator)}
           {...rest}
         />
       );
@@ -138,7 +145,7 @@ export const createSignInOption = ({
         <MicrosoftButton
           preferences={preferences}
           className={buttonClassName}
-          onClick={() => onSubmit(authenticator)}
+          onClick={(): any => onSubmit(authenticator)}
           {...rest}
         />
       );
@@ -148,7 +155,7 @@ export const createSignInOption = ({
         <FacebookButton
           preferences={preferences}
           className={buttonClassName}
-          onClick={() => onSubmit(authenticator)}
+          onClick={(): any => onSubmit(authenticator)}
           {...rest}
         />
       );
@@ -158,7 +165,7 @@ export const createSignInOption = ({
         <LinkedInButton
           preferences={preferences}
           className={buttonClassName}
-          onClick={() => onSubmit(authenticator)}
+          onClick={(): any => onSubmit(authenticator)}
           {...rest}
         />
       );
@@ -168,7 +175,7 @@ export const createSignInOption = ({
         <SignInWithEthereumButton
           preferences={preferences}
           className={buttonClassName}
-          onClick={() => onSubmit(authenticator)}
+          onClick={(): any => onSubmit(authenticator)}
           {...rest}
         />
       );
@@ -206,7 +213,7 @@ export const createSignInOption = ({
             authenticator={authenticator}
             preferences={preferences}
             className={buttonClassName}
-            onClick={() => onSubmit(authenticator)}
+            onClick={(): any => onSubmit(authenticator)}
             {...rest}
           >
             {authenticator.idp}
@@ -220,12 +227,11 @@ export const createSignInOption = ({
         return (
           <UsernamePassword authenticator={authenticator} preferences={preferences} onSubmit={onSubmit} {...rest} />
         );
-      } else {
-        // Use multi-option button for LOCAL authenticators without params
-        return (
-          <MultiOptionButton authenticator={authenticator} preferences={preferences} onSubmit={onSubmit} {...rest} />
-        );
       }
+      // Use multi-option button for LOCAL authenticators without params
+      return (
+        <MultiOptionButton authenticator={authenticator} preferences={preferences} onSubmit={onSubmit} {...rest} />
+      );
   }
 };
 
@@ -240,18 +246,17 @@ export const createSignInOptionFromAuthenticator = (
   onInputChange: (param: string, value: string) => void,
   onSubmit: (authenticator: EmbeddedSignInFlowAuthenticator, formData?: Record<string, string>) => void,
   options?: {
-    inputClassName?: string;
     buttonClassName?: string;
     error?: string | null;
+    inputClassName?: string;
   },
-): ReactElement => {
-  return createSignInOption({
+): ReactElement =>
+  createSignInOption({
     authenticator,
     formValues,
-    touchedFields,
     isLoading,
     onInputChange,
     onSubmit,
+    touchedFields,
     ...options,
   });
-};

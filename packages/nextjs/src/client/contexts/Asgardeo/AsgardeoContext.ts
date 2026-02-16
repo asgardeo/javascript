@@ -19,7 +19,6 @@
 'use client';
 
 import {AsgardeoContextProps as AsgardeoReactContextProps} from '@asgardeo/react';
-import {EmbeddedFlowExecuteRequestConfig, EmbeddedSignInFlowHandleRequestPayload, User} from '@asgardeo/node';
 import {Context, createContext} from 'react';
 
 /**
@@ -31,18 +30,18 @@ export type AsgardeoContextProps = Partial<AsgardeoReactContextProps>;
  * Context object for managing the Authentication flow builder core context.
  */
 const AsgardeoContext: Context<AsgardeoContextProps | null> = createContext<null | AsgardeoContextProps>({
-  organizationHandle: undefined,
-  applicationId: undefined,
-  signInUrl: undefined,
-  signUpUrl: undefined,
   afterSignInUrl: undefined,
+  applicationId: undefined,
   baseUrl: undefined,
   isInitialized: false,
   isLoading: true,
   isSignedIn: false,
+  organizationHandle: undefined,
   signIn: () => Promise.resolve({} as any),
+  signInUrl: undefined,
   signOut: () => Promise.resolve({} as any),
   signUp: () => Promise.resolve({} as any),
+  signUpUrl: undefined,
   user: null,
 });
 

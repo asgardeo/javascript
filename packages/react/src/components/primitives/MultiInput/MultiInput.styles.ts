@@ -16,9 +16,9 @@
  * under the License.
  */
 
+import {Theme} from '@asgardeo/browser';
 import {css} from '@emotion/css';
 import {useMemo} from 'react';
-import {Theme} from '@asgardeo/browser';
 
 export type MultiInputType = 'text' | 'email' | 'tel' | 'url' | 'password' | 'date' | 'boolean';
 export type MultiInputFieldType = 'STRING' | 'DATE_TIME' | 'BOOLEAN';
@@ -40,39 +40,39 @@ const useStyles = (
   hasError: boolean,
   canAddMore: boolean,
   canRemove: boolean,
-) => {
-  return useMemo(() => {
-    const container = css`
+): Record<string, string> =>
+  useMemo(() => {
+    const container: string = css`
       display: flex;
       flex-direction: column;
       gap: ${theme.vars.spacing.unit};
     `;
 
-    const inputRow = css`
+    const inputRow: string = css`
       display: flex;
       align-items: center;
       gap: ${theme.vars.spacing.unit};
       position: relative;
     `;
 
-    const inputWrapper = css`
+    const inputWrapper: string = css`
       flex: 1;
     `;
 
-    const plusIcon = css`
+    const plusIcon: string = css`
       background: ${theme.vars.colors.secondary.main};
       border-radius: 50%;
       outline: 4px ${theme.vars.colors.secondary.main} auto;
       color: ${theme.vars.colors.secondary.contrastText};
     `;
 
-    const listContainer = css`
+    const listContainer: string = css`
       display: flex;
       flex-direction: column;
       gap: 0;
     `;
 
-    const listItem = css`
+    const listItem: string = css`
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -88,12 +88,12 @@ const useStyles = (
       }
     `;
 
-    const listItemText = css`
+    const listItemText: string = css`
       flex: 1;
       word-break: break-word;
     `;
 
-    const removeButton = css`
+    const removeButton: string = css`
       padding: calc(${theme.vars.spacing.unit} / 2);
       min-width: auto;
       color: ${theme.vars.colors.error.main};
@@ -114,7 +114,7 @@ const useStyles = (
       }
     `;
 
-    const icon = css`
+    const icon: string = css`
       width: 16px;
       height: 16px;
       stroke: currentColor;
@@ -126,16 +126,15 @@ const useStyles = (
 
     return {
       container,
+      icon,
       inputRow,
       inputWrapper,
-      plusIcon,
       listContainer,
       listItem,
       listItemText,
+      plusIcon,
       removeButton,
-      icon,
     };
   }, [theme, colorScheme, disabled, hasError, canAddMore, canRemove]);
-};
 
 export default useStyles;

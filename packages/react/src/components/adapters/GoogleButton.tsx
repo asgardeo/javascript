@@ -16,8 +16,8 @@
  * under the License.
  */
 
-import {FC, HTMLAttributes} from 'react';
 import {WithPreferences} from '@asgardeo/browser';
+import {FC, HTMLAttributes} from 'react';
 import useTranslation from '../../hooks/useTranslation';
 import Button from '../primitives/Button/Button';
 
@@ -37,7 +37,7 @@ const GoogleButton: FC<GoogleButtonProps & HTMLAttributes<HTMLButtonElement>> = 
   preferences,
   children,
   ...rest
-}) => {
+}: GoogleButtonProps & HTMLAttributes<HTMLButtonElement>) => {
   const {t} = useTranslation(preferences?.i18n);
 
   return (

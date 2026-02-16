@@ -35,4 +35,11 @@ module.exports = {
     project: [path.resolve(__dirname, 'tsconfig.eslint.json')],
   },
   plugins: ['@wso2'],
+  settings: {
+    'import/resolver': {
+      node: {
+        extensions: ['.js', '.jsx', '.ts', '.tsx', '.d.ts', '.mjs', '.json'],
+      },
+    },
+  },
 };

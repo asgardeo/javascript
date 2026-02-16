@@ -26,10 +26,10 @@ import AsgardeoNextClient from '../../AsgardeoNextClient';
  */
 const getMyOrganizations = async (options?: any, sessionId?: string | undefined): Promise<Organization[]> => {
   try {
-    const client = AsgardeoNextClient.getInstance();
+    const client: AsgardeoNextClient = AsgardeoNextClient.getInstance();
 
     // Get session ID if not provided
-    let resolvedSessionId = sessionId;
+    let resolvedSessionId: string | undefined = sessionId;
     if (!resolvedSessionId) {
       // Import getSessionId locally to avoid circular dependencies
       const {default: getSessionId} = await import('./getSessionId');
@@ -47,7 +47,7 @@ const getMyOrganizations = async (options?: any, sessionId?: string | undefined)
 
     // Check if user is signed in by trying to get access token
     try {
-      const accessToken = await client.getAccessToken(resolvedSessionId);
+      const accessToken: string = await client.getAccessToken(resolvedSessionId);
 
       if (!accessToken) {
         throw new AsgardeoAPIError(
@@ -58,6 +58,7 @@ const getMyOrganizations = async (options?: any, sessionId?: string | undefined)
         );
       }
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error('[getMyOrganizations] Failed to get access token:', error);
       throw new AsgardeoAPIError(
         'User is not signed in - access token retrieval failed',

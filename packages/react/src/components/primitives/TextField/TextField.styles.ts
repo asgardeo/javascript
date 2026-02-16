@@ -16,9 +16,9 @@
  * under the License.
  */
 
+import {Theme} from '@asgardeo/browser';
 import {css} from '@emotion/css';
 import {useMemo} from 'react';
-import {Theme} from '@asgardeo/browser';
 
 /**
  * Creates styles for the TextField component using BEM methodology
@@ -37,20 +37,22 @@ const useStyles = (
   hasError: boolean,
   hasStartIcon: boolean,
   hasEndIcon: boolean,
-) => {
-  return useMemo(() => {
-    const inlineStartPadding = hasStartIcon
+): Record<string, string> =>
+  useMemo(() => {
+    const inlineStartPadding: string = hasStartIcon
       ? `calc(${theme.vars.spacing.unit} * 5)`
       : `calc(${theme.vars.spacing.unit} * 1.5)`;
-    const inlineEndPadding = hasEndIcon ? `calc(${theme.vars.spacing.unit} * 5)` : `calc(${theme.vars.spacing.unit} * 1.5)`;
+    const inlineEndPadding: string = hasEndIcon
+      ? `calc(${theme.vars.spacing.unit} * 5)`
+      : `calc(${theme.vars.spacing.unit} * 1.5)`;
 
-    const inputContainer = css`
+    const inputContainer: string = css`
       position: relative;
       display: flex;
       align-items: center;
     `;
 
-    const input = css`
+    const input: string = css`
       width: 100%;
       padding-block: ${theme.vars.spacing.unit};
       padding-inline-start: ${inlineStartPadding};
@@ -65,7 +67,7 @@ const useStyles = (
 
       &:focus {
         border-color: ${hasError ? theme.vars.colors.error.main : theme.vars.colors.primary.main};
-        box-shadow: 0 0 0 2px ${hasError ? theme.vars.colors.error.main + '20' : theme.vars.colors.primary.main + '20'};
+        box-shadow: 0 0 0 2px ${hasError ? `${theme.vars.colors.error.main}20` : `${theme.vars.colors.primary.main}20`};
       }
 
       &:disabled {
@@ -83,7 +85,7 @@ const useStyles = (
       }
     `;
 
-    const inputError = css`
+    const inputError: string = css`
       border-color: ${theme.vars.colors.error.main};
 
       &:focus {
@@ -96,13 +98,13 @@ const useStyles = (
       }
     `;
 
-    const inputDisabled = css`
+    const inputDisabled: string = css`
       background-color: ${theme.vars.colors.background.disabled};
       opacity: 0.6;
       cursor: not-allowed;
     `;
 
-    const icon = css`
+    const icon: string = css`
       position: absolute;
       background: none;
       border: none;
@@ -127,26 +129,25 @@ const useStyles = (
       }
     `;
 
-    const startIcon = css`
+    const startIcon: string = css`
       ${icon};
       inset-inline-start: ${theme.vars.spacing.unit};
     `;
 
-    const endIcon = css`
+    const endIcon: string = css`
       ${icon};
       inset-inline-end: ${theme.vars.spacing.unit};
     `;
 
     return {
-      inputContainer,
-      input,
-      inputError,
-      inputDisabled,
-      icon,
-      startIcon,
       endIcon,
+      icon,
+      input,
+      inputContainer,
+      inputDisabled,
+      inputError,
+      startIcon,
     };
   }, [theme, colorScheme, disabled, hasError, hasStartIcon, hasEndIcon]);
-};
 
 export default useStyles;

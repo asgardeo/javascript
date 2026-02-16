@@ -16,9 +16,9 @@
  * under the License.
  */
 
+import {Theme} from '@asgardeo/browser';
 import {css} from '@emotion/css';
 import {useMemo} from 'react';
-import {Theme} from '@asgardeo/browser';
 
 /**
  * Creates styles for the Checkbox component using BEM methodology
@@ -28,14 +28,14 @@ import {Theme} from '@asgardeo/browser';
  * @param required - Whether the checkbox is required
  * @returns Object containing CSS class names for component styling
  */
-const useStyles = (theme: Theme, colorScheme: string, hasError: boolean, required: boolean) => {
-  return useMemo(() => {
-    const containerStyles = css`
+const useStyles = (theme: Theme, colorScheme: string, hasError: boolean, required: boolean): Record<string, string> =>
+  useMemo(() => {
+    const containerStyles: string = css`
       display: flex;
       align-items: center;
     `;
 
-    const inputStyles = css`
+    const inputStyles: string = css`
       width: calc(${theme.vars.spacing.unit} * 2.5);
       height: calc(${theme.vars.spacing.unit} * 2.5);
       margin-inline-end: ${theme.vars.spacing.unit};
@@ -53,7 +53,7 @@ const useStyles = (theme: Theme, colorScheme: string, hasError: boolean, require
       }
     `;
 
-    const errorInputStyles = css`
+    const errorInputStyles: string = css`
       accent-color: ${theme.vars.colors.error.main};
 
       &:focus {
@@ -61,7 +61,7 @@ const useStyles = (theme: Theme, colorScheme: string, hasError: boolean, require
       }
     `;
 
-    const labelStyles = css`
+    const labelStyles: string = css`
       color: ${theme.vars.colors.text.primary};
       font-size: ${theme.vars.typography.fontSizes.sm};
       cursor: pointer;
@@ -71,23 +71,22 @@ const useStyles = (theme: Theme, colorScheme: string, hasError: boolean, require
       }
     `;
 
-    const errorLabelStyles = css`
+    const errorLabelStyles: string = css`
       color: ${theme.vars.colors.error.main};
     `;
 
-    const requiredStyles = css`
+    const requiredStyles: string = css`
       /* Required indicator styles will be handled by InputLabel */
     `;
 
     return {
       container: containerStyles,
-      input: inputStyles,
       errorInput: hasError ? errorInputStyles : '',
-      label: labelStyles,
       errorLabel: hasError ? errorLabelStyles : '',
+      input: inputStyles,
+      label: labelStyles,
       required: required ? requiredStyles : '',
     };
   }, [theme, colorScheme, hasError, required]);
-};
 
 export default useStyles;

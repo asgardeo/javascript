@@ -16,26 +16,18 @@
  * under the License.
  */
 
-import {createContext} from 'react';
 import {BrandingPreference, Theme} from '@asgardeo/browser';
+import {Context, createContext} from 'react';
 
 export interface BrandingContextValue {
-  /**
-   * The raw branding preference data
-   */
-  brandingPreference: BrandingPreference | null;
-  /**
-   * The transformed theme object
-   */
-  theme: Theme | null;
   /**
    * The active theme mode from branding preference ('light' | 'dark')
    */
   activeTheme: 'light' | 'dark' | null;
   /**
-   * Loading state
+   * The raw branding preference data
    */
-  isLoading: boolean;
+  brandingPreference: BrandingPreference | null;
   /**
    * Error state
    */
@@ -45,13 +37,21 @@ export interface BrandingContextValue {
    */
   fetchBranding: () => Promise<void>;
   /**
+   * Loading state
+   */
+  isLoading: boolean;
+  /**
    * Function to refetch branding preference
    * This bypasses the single-call restriction and forces a new API call
    */
   refetch: () => Promise<void>;
+  /**
+   * The transformed theme object
+   */
+  theme: Theme | null;
 }
 
-const BrandingContext = createContext<BrandingContextValue | null>(null);
+const BrandingContext: Context<BrandingContextValue | null> = createContext<BrandingContextValue | null>(null);
 
 BrandingContext.displayName = 'BrandingContext';
 

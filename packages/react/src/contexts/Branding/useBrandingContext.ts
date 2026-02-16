@@ -44,7 +44,7 @@ import BrandingContext, {BrandingContextValue} from './BrandingContext';
  * ```
  */
 const useBrandingContext = (): BrandingContextValue => {
-  const context = useContext(BrandingContext);
+  const context: BrandingContextValue | null = useContext(BrandingContext);
   if (!context) {
     throw new Error('useBrandingContext must be used within a BrandingProvider');
   }

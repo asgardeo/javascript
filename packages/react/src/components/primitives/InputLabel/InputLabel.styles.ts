@@ -16,9 +16,9 @@
  * under the License.
  */
 
+import {Theme} from '@asgardeo/browser';
 import {css} from '@emotion/css';
 import {useMemo} from 'react';
-import {Theme} from '@asgardeo/browser';
 
 export type InputLabelVariant = 'block' | 'inline';
 
@@ -37,9 +37,9 @@ const useStyles = (
   variant: InputLabelVariant,
   error: boolean,
   marginBottom?: string,
-) => {
-  return useMemo(() => {
-    const baseLabel = css`
+): Record<string, string> =>
+  useMemo(() => {
+    const baseLabel: string = css`
       display: ${variant};
       margin-bottom: ${marginBottom || (variant === 'block' ? `calc(${theme.vars.spacing.unit} + 1px)` : '0')};
       color: ${error ? theme.vars.colors.error.main : theme.vars.colors.text.secondary};
@@ -47,34 +47,33 @@ const useStyles = (
       font-weight: ${variant === 'block' ? 500 : 'normal'};
     `;
 
-    const errorLabel = css`
+    const errorLabel: string = css`
       color: ${theme.vars.colors.error.main};
     `;
 
-    const requiredIndicator = css`
+    const requiredIndicator: string = css`
       color: ${theme.vars.colors.error.main};
     `;
 
-    const blockVariant = css`
+    const blockVariant: string = css`
       display: block;
       font-weight: 500;
       margin-bottom: ${marginBottom || `calc(${theme.vars.spacing.unit} + 1px)`};
     `;
 
-    const inlineVariant = css`
+    const inlineVariant: string = css`
       display: inline;
       font-weight: normal;
       margin-bottom: 0;
     `;
 
     return {
-      label: baseLabel,
-      error: errorLabel,
-      requiredIndicator,
       block: blockVariant,
+      error: errorLabel,
       inline: inlineVariant,
+      label: baseLabel,
+      requiredIndicator,
     };
   }, [theme, colorScheme, variant, error, marginBottom]);
-};
 
 export default useStyles;

@@ -16,9 +16,6 @@
  * under the License.
  */
 
-import {FC, useState, useEffect, useRef, ReactNode} from 'react';
-import BaseSignIn, {BaseSignInProps} from './BaseSignIn';
-import useAsgardeo from '../../../../../contexts/Asgardeo/useAsgardeo';
 import {
   AsgardeoRuntimeError,
   EmbeddedFlowComponentV2 as EmbeddedFlowComponent,
@@ -28,34 +25,18 @@ import {
   EmbeddedSignInFlowStatusV2,
   EmbeddedSignInFlowTypeV2,
 } from '@asgardeo/browser';
-import {normalizeFlowResponse} from '../../../../../utils/v2/flowTransformer';
+import {FC, ReactElement, useState, useEffect, useRef, ReactNode} from 'react';
+// eslint-disable-next-line import/no-named-as-default
+import BaseSignIn, {BaseSignInProps} from './BaseSignIn';
+import useAsgardeo from '../../../../../contexts/Asgardeo/useAsgardeo';
 import useTranslation from '../../../../../hooks/useTranslation';
-import { handlePasskeyAuthentication, handlePasskeyRegistration } from '../../../../../utils/v2/passkey';
+import {normalizeFlowResponse} from '../../../../../utils/v2/flowTransformer';
+import {handlePasskeyAuthentication, handlePasskeyRegistration} from '../../../../../utils/v2/passkey';
 
 /**
  * Render props function parameters
  */
 export interface SignInRenderProps {
-  /**
-   * Function to manually initialize the flow
-   */
-  initialize: () => Promise<void>;
-
-  /**
-   * Function to submit authentication data (primary)
-   */
-  onSubmit: (payload: EmbeddedSignInFlowRequestV2) => Promise<void>;
-
-  /**
-   * Loading state indicator
-   */
-  isLoading: boolean;
-
-  /**
-   * Whether the flow has been initialized
-   */
-  isInitialized: boolean;
-
   /**
    * Current flow components
    */
@@ -65,6 +46,26 @@ export interface SignInRenderProps {
    * Current error if any
    */
   error: Error | null;
+
+  /**
+   * Function to manually initialize the flow
+   */
+  initialize: () => Promise<void>;
+
+  /**
+   * Whether the flow has been initialized
+   */
+  isInitialized: boolean;
+
+  /**
+   * Loading state indicator
+   */
+  isLoading: boolean;
+
+  /**
+   * Function to submit authentication data (primary)
+   */
+  onSubmit: (payload: EmbeddedSignInFlowRequestV2) => Promise<void>;
 }
 
 /**
@@ -73,15 +74,14 @@ export interface SignInRenderProps {
  */
 export type SignInProps = {
   /**
+   * Render props function for custom UI
+   */
+  children?: (props: SignInRenderProps) => ReactNode;
+
+  /**
    * Custom CSS class name for the form container.
    */
   className?: string;
-
-  /**
-   * Callback function called when authentication is successful.
-   * @param authData - The authentication data returned upon successful completion.
-   */
-  onSuccess?: (authData: Record<string, any>) => void;
 
   /**
    * Callback function called when authentication fails.
@@ -90,9 +90,10 @@ export type SignInProps = {
   onError?: (error: Error) => void;
 
   /**
-   * Theme variant for the component.
+   * Callback function called when authentication is successful.
+   * @param authData - The authentication data returned upon successful completion.
    */
-  variant?: BaseSignInProps['variant'];
+  onSuccess?: (authData: Record<string, any>) => void;
 
   /**
    * Size variant for the component.
@@ -100,21 +101,21 @@ export type SignInProps = {
   size?: 'small' | 'medium' | 'large';
 
   /**
-   * Render props function for custom UI
+   * Theme variant for the component.
    */
-  children?: (props: SignInRenderProps) => ReactNode;
+  variant?: BaseSignInProps['variant'];
 };
 
 /**
  * State for tracking passkey registration
  */
 interface PasskeyState {
-  isActive: boolean;
+  actionId: string | null;
   challenge: string | null;
   creationOptions: string | null;
-  flowId: string | null;
-  actionId: string | null;
   error: Error | null;
+  flowId: string | null;
+  isActive: boolean;
 }
 
 /**
@@ -178,7 +179,14 @@ interface PasskeyState {
  * };
  * ```
  */
-const SignIn: FC<SignInProps> = ({className, size = 'medium', onSuccess, onError, variant, children}) => {
+const SignIn: FC<SignInProps> = ({
+  className,
+  size = 'medium',
+  onSuccess,
+  onError,
+  variant,
+  children,
+}: SignInProps): ReactElement => {
   const {applicationId, afterSignInUrl, signIn, isInitialized, isLoading} = useAsgardeo();
   const {t} = useTranslation();
 
@@ -189,16 +197,16 @@ const SignIn: FC<SignInProps> = ({className, size = 'medium', onSuccess, onError
   const [flowError, setFlowError] = useState<Error | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [passkeyState, setPasskeyState] = useState<PasskeyState>({
-      isActive: false,
-      challenge: null,
-      creationOptions: null,
-      flowId: null,
-      actionId: null,
-      error: null,
+    actionId: null,
+    challenge: null,
+    creationOptions: null,
+    error: null,
+    flowId: null,
+    isActive: false,
   });
-  const initializationAttemptedRef = useRef(false);
-  const oauthCodeProcessedRef = useRef(false);
-  const passkeyProcessedRef = useRef(false);
+  const initializationAttemptedRef: any = useRef(false);
+  const oauthCodeProcessedRef: any = useRef(false);
+  const passkeyProcessedRef: any = useRef(false);
   /**
    * Sets flowId between sessionStorage and state.
    * This ensures both are always in sync.
@@ -226,17 +234,17 @@ const SignIn: FC<SignInProps> = ({className, size = 'medium', onSuccess, onError
   /**
    * Parse URL parameters used in flows.
    */
-  const getUrlParams = () => {
-    const urlParams = new URL(window?.location?.href ?? '').searchParams;
+  const getUrlParams = (): any => {
+    const urlParams: any = new URL(window?.location?.href ?? '').searchParams;
     return {
+      applicationId: urlParams.get('applicationId'),
+      authId: urlParams.get('authId'),
       code: urlParams.get('code'),
       error: urlParams.get('error'),
       errorDescription: urlParams.get('error_description'),
-      state: urlParams.get('state'),
-      nonce: urlParams.get('nonce'),
       flowId: urlParams.get('flowId'),
-      applicationId: urlParams.get('applicationId'),
-      authId: urlParams.get('authId'),
+      nonce: urlParams.get('nonce'),
+      state: urlParams.get('state'),
     };
   };
 
@@ -253,20 +261,18 @@ const SignIn: FC<SignInProps> = ({className, size = 'medium', onSuccess, onError
    * Resolve flowId from multiple sources with priority: currentFlowId > state > flowIdFromUrl > storedFlowId
    */
   const resolveFlowId = (
-    currentFlowId: string | null,
+    activeFlowId: string | null,
     state: string | null,
     flowIdFromUrl: string | null,
     storedFlowId: string | null,
-  ): string | null => {
-    return currentFlowId || state || flowIdFromUrl || storedFlowId || null;
-  };
+  ): string | null => activeFlowId || state || flowIdFromUrl || storedFlowId || null;
 
   /**
    * Clean up OAuth-related URL parameters from the browser URL.
    */
-  const cleanupOAuthUrlParams = (includeNonce = false): void => {
+  const cleanupOAuthUrlParams = (includeNonce: boolean = false): void => {
     if (!window?.location?.href) return;
-    const url = new URL(window.location.href);
+    const url: any = new URL(window.location.href);
     url.searchParams.delete('error');
     url.searchParams.delete('error_description');
     url.searchParams.delete('code');
@@ -283,23 +289,11 @@ const SignIn: FC<SignInProps> = ({className, size = 'medium', onSuccess, onError
    */
   const cleanupFlowUrlParams = (): void => {
     if (!window?.location?.href) return;
-    const url = new URL(window.location.href);
+    const url: any = new URL(window.location.href);
     url.searchParams.delete('flowId');
     url.searchParams.delete('authId');
     url.searchParams.delete('applicationId');
     window?.history?.replaceState({}, '', url.toString());
-  };
-
-  /**
-   * Handle OAuth error from URL parameters.
-   * Clears flow state, creates error, and cleans up URL.
-   */
-  const handleOAuthError = (error: string, errorDescription: string | null): void => {
-    clearFlowState();
-    const errorMessage = errorDescription || `OAuth error: ${error}`;
-    const err = new AsgardeoRuntimeError(errorMessage, 'SIGN_IN_ERROR', 'react');
-    setError(err);
-    cleanupOAuthUrlParams(true);
   };
 
   /**
@@ -313,18 +307,30 @@ const SignIn: FC<SignInProps> = ({className, size = 'medium', onSuccess, onError
   };
 
   /**
+   * Handle OAuth error from URL parameters.
+   * Clears flow state, creates error, and cleans up URL.
+   */
+  const handleOAuthError = (error: string, errorDescription: string | null): void => {
+    clearFlowState();
+    const errorMessage: any = errorDescription || `OAuth error: ${error}`;
+    const err: any = new AsgardeoRuntimeError(errorMessage, 'SIGN_IN_ERROR', 'react');
+    setError(err);
+    cleanupOAuthUrlParams(true);
+  };
+
+  /**
    * Handle REDIRECTION response by storing flow state and redirecting to OAuth provider.
    */
   const handleRedirection = (response: EmbeddedSignInFlowResponseV2): boolean => {
     if (response.type === EmbeddedSignInFlowTypeV2.Redirection) {
-      const redirectURL = (response.data as any)?.redirectURL || (response as any)?.redirectURL;
+      const redirectURL: any = (response.data as any)?.redirectURL || (response as any)?.redirectURL;
 
       if (redirectURL && window?.location) {
         if (response.flowId) {
           setFlowId(response.flowId);
         }
 
-        const urlParams = getUrlParams();
+        const urlParams: any = getUrlParams();
         handleAuthId(urlParams.authId);
 
         window.location.href = redirectURL;
@@ -335,59 +341,21 @@ const SignIn: FC<SignInProps> = ({className, size = 'medium', onSuccess, onError
   };
 
   /**
-   * Initialize the flow and handle cleanup of stale flow state.
-   */
-  useEffect(() => {
-    const storedFlowId = sessionStorage.getItem('asgardeo_flow_id');
-    const urlParams = getUrlParams();
-
-    // Check for OAuth error in URL
-    if (urlParams.error) {
-      handleOAuthError(urlParams.error, urlParams.errorDescription);
-      return;
-    }
-
-    handleAuthId(urlParams.authId);
-
-    // Skip OAuth code processing - let the dedicated OAuth useEffect handle it
-    if (urlParams.code || urlParams.state) {
-      return;
-    }
-
-    // Only initialize if we're not processing an OAuth callback or submission
-    const currentUrlParams = getUrlParams();
-    if (
-      isInitialized &&
-      !isLoading &&
-      !isFlowInitialized &&
-      !initializationAttemptedRef.current &&
-      !currentFlowId &&
-      !currentUrlParams.code &&
-      !currentUrlParams.state &&
-      !isSubmitting &&
-      !oauthCodeProcessedRef.current
-    ) {
-      initializationAttemptedRef.current = true;
-      initializeFlow();
-    }
-  }, [isInitialized, isLoading, isFlowInitialized, currentFlowId]);
-
-  /**
    * Initialize the authentication flow.
    * Priority: flowId > applicationId (from context) > applicationId (from URL)
    */
   const initializeFlow = async (): Promise<void> => {
-    const urlParams = getUrlParams();
+    const urlParams: any = getUrlParams();
 
     // Reset OAuth code processed ref when starting a new flow
     oauthCodeProcessedRef.current = false;
 
     handleAuthId(urlParams.authId);
 
-    const effectiveApplicationId = applicationId || urlParams.applicationId;
+    const effectiveApplicationId: any = applicationId || urlParams.applicationId;
 
     if (!urlParams.flowId && !effectiveApplicationId) {
-      const error = new AsgardeoRuntimeError(
+      const error: any = new AsgardeoRuntimeError(
         'Either flowId or applicationId is required for authentication',
         'SIGN_IN_ERROR',
         'react',
@@ -416,37 +384,73 @@ const SignIn: FC<SignInProps> = ({className, size = 'medium', onSuccess, onError
         return;
       }
 
-      const {flowId, components} = normalizeFlowResponse(response, t, {
+      const {flowId: normalizedFlowId, components: normalizedComponents} = normalizeFlowResponse(response, t, {
         resolveTranslations: !children,
       });
 
-      if (flowId && components) {
-        setFlowId(flowId);
-        setComponents(components);
+      if (normalizedFlowId && normalizedComponents) {
+        setFlowId(normalizedFlowId);
+        setComponents(normalizedComponents);
         setIsFlowInitialized(true);
         // Clean up flowId from URL after setting it in state
         cleanupFlowUrlParams();
       }
     } catch (error) {
-      const err = error as any;
+      const err: any = error as any;
       clearFlowState();
 
       // Extract error message from response or error object
-      const errorMessage = err?.failureReason || (err instanceof Error ? err.message : String(err));
+      const errorMessage: any = err?.failureReason || (err instanceof Error ? err.message : String(err));
 
       // Set error with the extracted message
       setError(new Error(errorMessage));
       initializationAttemptedRef.current = false;
-      return;
     }
   };
+
+  /**
+   * Initialize the flow and handle cleanup of stale flow state.
+   */
+  useEffect(() => {
+    const urlParams: any = getUrlParams();
+
+    // Check for OAuth error in URL
+    if (urlParams.error) {
+      handleOAuthError(urlParams.error, urlParams.errorDescription);
+      return;
+    }
+
+    handleAuthId(urlParams.authId);
+
+    // Skip OAuth code processing - let the dedicated OAuth useEffect handle it
+    if (urlParams.code || urlParams.state) {
+      return;
+    }
+
+    // Only initialize if we're not processing an OAuth callback or submission
+    const currentUrlParams: any = getUrlParams();
+    if (
+      isInitialized &&
+      !isLoading &&
+      !isFlowInitialized &&
+      !initializationAttemptedRef.current &&
+      !currentFlowId &&
+      !currentUrlParams.code &&
+      !currentUrlParams.state &&
+      !isSubmitting &&
+      !oauthCodeProcessedRef.current
+    ) {
+      initializationAttemptedRef.current = true;
+      initializeFlow();
+    }
+  }, [isInitialized, isLoading, isFlowInitialized, currentFlowId]);
 
   /**
    * Handle form submission from BaseSignIn or render props.
    */
   const handleSubmit = async (payload: EmbeddedSignInFlowRequestV2): Promise<void> => {
     // Use flowId from payload if available, otherwise fall back to currentFlowId
-    const effectiveFlowId = payload.flowId || currentFlowId;
+    const effectiveFlowId: any = payload.flowId || currentFlowId;
 
     if (!effectiveFlowId) {
       throw new Error('No active flow ID');
@@ -464,30 +468,31 @@ const SignIn: FC<SignInProps> = ({className, size = 'medium', onSuccess, onError
       if (handleRedirection(response)) {
         return;
       }
+      if (
+        response.data?.additionalData?.['passkeyChallenge'] ||
+        response.data?.additionalData?.['passkeyCreationOptions']
+      ) {
+        const {passkeyChallenge, passkeyCreationOptions}: any = response.data.additionalData;
+        const effectiveFlowIdForPasskey: any = response.flowId || effectiveFlowId;
 
-      if (response.data?.additionalData?.['passkeyChallenge'] || response.data?.additionalData?.['passkeyCreationOptions']) {
-        const passkeyChallenge = response.data.additionalData['passkeyChallenge'];
-        const passkeyCreationOptions = response.data.additionalData['passkeyCreationOptions'];
-        const effectiveFlowIdForPasskey = response.flowId || effectiveFlowId;
-        
         // Reset passkey processed ref to allow processing
         passkeyProcessedRef.current = false;
-        
+
         // Set passkey state to trigger the passkey
         setPasskeyState({
-          isActive: true,
+          actionId: 'submit',
           challenge: passkeyChallenge,
           creationOptions: passkeyCreationOptions,
-          flowId: effectiveFlowIdForPasskey,
-          actionId: 'submit',
           error: null,
+          flowId: effectiveFlowIdForPasskey,
+          isActive: true,
         });
         setIsSubmitting(false);
 
         return;
       }
 
-      const {flowId, components, ...rest} = normalizeFlowResponse(response, t, {
+      const {flowId: normalizedFlowId, components: normalizedComponents} = normalizeFlowResponse(response, t, {
         resolveTranslations: !children,
       });
 
@@ -495,9 +500,9 @@ const SignIn: FC<SignInProps> = ({className, size = 'medium', onSuccess, onError
       if (response.flowStatus === EmbeddedSignInFlowStatusV2.Error) {
         clearFlowState();
         // Extract failureReason from response if available
-        const failureReason = (response as any)?.failureReason;
-        const errorMessage = failureReason || 'Authentication flow failed. Please try again.';
-        const err = new Error(errorMessage);
+        const failureReason: any = (response as any)?.failureReason;
+        const errorMessage: any = failureReason || 'Authentication flow failed. Please try again.';
+        const err: any = new Error(errorMessage);
         setError(err);
         cleanupFlowUrlParams();
         // Throw the error so it's caught by the catch block and propagated to BaseSignIn
@@ -506,8 +511,8 @@ const SignIn: FC<SignInProps> = ({className, size = 'medium', onSuccess, onError
 
       if (response.flowStatus === EmbeddedSignInFlowStatusV2.Complete) {
         // Get redirectUrl from response (from /oauth2/auth/callback) or fall back to afterSignInUrl
-        const redirectUrl = (response as any)?.redirectUrl || (response as any)?.redirect_uri;
-        const finalRedirectUrl = redirectUrl || afterSignInUrl;
+        const redirectUrl: any = (response as any)?.redirectUrl || (response as any)?.redirect_uri;
+        const finalRedirectUrl: any = redirectUrl || afterSignInUrl;
 
         // Clear submitting state before redirect
         setIsSubmitting(false);
@@ -521,11 +526,12 @@ const SignIn: FC<SignInProps> = ({className, size = 'medium', onSuccess, onError
         // Clean up OAuth URL params before redirect
         cleanupOAuthUrlParams(true);
 
-        onSuccess &&
+        if (onSuccess) {
           onSuccess({
             redirectUrl: finalRedirectUrl,
             ...(response.data || {}),
           });
+        }
 
         if (finalRedirectUrl && window?.location) {
           window.location.href = finalRedirectUrl;
@@ -535,20 +541,20 @@ const SignIn: FC<SignInProps> = ({className, size = 'medium', onSuccess, onError
       }
 
       // Update flowId if response contains a new one
-      if (flowId && components) {
-        setFlowId(flowId);
-        setComponents(components);
+      if (normalizedFlowId && normalizedComponents) {
+        setFlowId(normalizedFlowId);
+        setComponents(normalizedComponents);
         // Ensure flow is marked as initialized when we have components
         setIsFlowInitialized(true);
         // Clean up flowId from URL after setting it in state
         cleanupFlowUrlParams();
       }
     } catch (error) {
-      const err = error as any;
+      const err: any = error as any;
       clearFlowState();
 
       // Extract error message from response or error object
-      const errorMessage = err?.failureReason || (err instanceof Error ? err.message : String(err));
+      const errorMessage: any = err?.failureReason || (err instanceof Error ? err.message : String(err));
 
       setError(new Error(errorMessage));
       return;
@@ -568,8 +574,8 @@ const SignIn: FC<SignInProps> = ({className, size = 'medium', onSuccess, onError
    * Handle OAuth code processing from external OAuth providers.
    */
   useEffect(() => {
-    const urlParams = getUrlParams();
-    const storedFlowId = sessionStorage.getItem('asgardeo_flow_id');
+    const urlParams: any = getUrlParams();
+    const storedFlowId: any = sessionStorage.getItem('asgardeo_flow_id');
 
     // Check for OAuth error first - if present, don't process code
     if (urlParams.error) {
@@ -582,7 +588,7 @@ const SignIn: FC<SignInProps> = ({className, size = 'medium', onSuccess, onError
       return;
     }
 
-    const flowIdToUse = resolveFlowId(currentFlowId, urlParams.state, urlParams.flowId, storedFlowId);
+    const flowIdToUse: any = resolveFlowId(currentFlowId, urlParams.state, urlParams.flowId, storedFlowId);
 
     if (!flowIdToUse || !signIn) {
       return;
@@ -595,18 +601,17 @@ const SignIn: FC<SignInProps> = ({className, size = 'medium', onSuccess, onError
     }
     const submitPayload: EmbeddedSignInFlowRequestV2 = {
       flowId: flowIdToUse,
+
       inputs: {
         code: urlParams.code,
         ...(urlParams.nonce && {nonce: urlParams.nonce}),
       },
     };
 
-    handleSubmit(submitPayload).catch(error => {
+    handleSubmit(submitPayload).catch(() => {
       cleanupOAuthUrlParams(true);
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isFlowInitialized, currentFlowId, isInitialized, isLoading, isSubmitting, signIn]);
-
 
   /**
    * Handle passkey authentication/registration when passkey state becomes active.
@@ -623,28 +628,28 @@ const SignIn: FC<SignInProps> = ({className, size = 'medium', onSuccess, onError
     }
     passkeyProcessedRef.current = true;
 
-    const performPasskeyProcess = async () => {
+    const performPasskeyProcess = async (): Promise<void> => {
       let inputs: Record<string, string>;
 
       if (passkeyState.challenge) {
-        const passkeyResponse = await handlePasskeyAuthentication(passkeyState.challenge!);
-        const passkeyResponseObj = JSON.parse(passkeyResponse);
+        const passkeyResponse: any = await handlePasskeyAuthentication(passkeyState.challenge!);
+        const passkeyResponseObj: any = JSON.parse(passkeyResponse);
 
         inputs = {
-          credentialId: passkeyResponseObj.id,
           authenticatorData: passkeyResponseObj.response.authenticatorData,
           clientDataJSON: passkeyResponseObj.response.clientDataJSON,
+          credentialId: passkeyResponseObj.id,
           signature: passkeyResponseObj.response.signature,
           userHandle: passkeyResponseObj.response.userHandle,
         };
       } else if (passkeyState.creationOptions) {
-        const passkeyResponse = await handlePasskeyRegistration(passkeyState.creationOptions!);
-        const passkeyResponseObj = JSON.parse(passkeyResponse);
+        const passkeyResponse: any = await handlePasskeyRegistration(passkeyState.creationOptions!);
+        const passkeyResponseObj: any = JSON.parse(passkeyResponse);
 
         inputs = {
-          credentialId: passkeyResponseObj.id,
-          clientDataJSON: passkeyResponseObj.response.clientDataJSON,
           attestationObject: passkeyResponseObj.response.attestationObject,
+          clientDataJSON: passkeyResponseObj.response.clientDataJSON,
+          credentialId: passkeyResponseObj.id,
         };
       } else {
         throw new Error('No passkey challenge or creation options available');
@@ -658,24 +663,30 @@ const SignIn: FC<SignInProps> = ({className, size = 'medium', onSuccess, onError
 
     performPasskeyProcess()
       .then(() => {
-        setPasskeyState({ isActive: false, challenge: null, creationOptions: null, flowId: null, actionId: null, error: null });
+        setPasskeyState({
+          actionId: null,
+          challenge: null,
+          creationOptions: null,
+          error: null,
+          flowId: null,
+          isActive: false,
+        });
       })
-      .catch((error) => {
-        setPasskeyState(prev => ({ ...prev, isActive: false, error: error as Error }));
+      .catch((error: any) => {
+        setPasskeyState((prev: any) => ({...prev, error: error as Error, isActive: false}));
         setFlowError(error as Error);
         onError?.(error as Error);
       });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [passkeyState.isActive, passkeyState.challenge, passkeyState.creationOptions, passkeyState.flowId]);
 
   if (children) {
     const renderProps: SignInRenderProps = {
-      initialize: initializeFlow,
-      onSubmit: handleSubmit,
-      isLoading: isLoading || isSubmitting || !isInitialized,
-      isInitialized: isFlowInitialized,
       components,
       error: flowError,
+      initialize: initializeFlow,
+      isInitialized: isFlowInitialized,
+      isLoading: isLoading || isSubmitting || !isInitialized,
+      onSubmit: handleSubmit,
     };
 
     return <>{children(renderProps)}</>;

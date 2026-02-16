@@ -39,7 +39,7 @@ export interface BuildingAltProps {
  * @param props - Props injected to the component.
  * @returns Alternative Building Icon component.
  */
-const BuildingAlt: FC<BuildingAltProps> = ({color = 'currentColor', height = 24, width = 24}: BuildingAltProps) => (
+const BuildingAlt: FC<BuildingAltProps> = ({height = 24, width = 24}: BuildingAltProps) => (
   <svg
     width={width}
     height={height}
