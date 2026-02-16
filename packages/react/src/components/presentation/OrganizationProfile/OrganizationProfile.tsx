@@ -158,8 +158,8 @@ const OrganizationProfile: FC<OrganizationProfileProps> = ({
     try {
       const orgData: any = await getOrganization({
         baseUrl,
-        organizationId,
         instanceId,
+        organizationId,
       });
       setOrganization(orgData);
     } catch (err) {
@@ -181,9 +181,9 @@ const OrganizationProfile: FC<OrganizationProfileProps> = ({
 
       await updateOrganization({
         baseUrl,
+        instanceId,
         operations,
         organizationId,
-        instanceId,
       });
       // Refetch organization data after update
       await fetchOrganization();

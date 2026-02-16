@@ -75,7 +75,7 @@ const UserProfile: FC<UserProfileProps> = ({...rest}: UserProfileProps): ReactEl
     setError(null);
 
     try {
-      const response: User = await updateMeProfile({baseUrl, payload, instanceId});
+      const response: User = await updateMeProfile({baseUrl, instanceId, payload});
       onUpdateProfile(response);
     } catch (caughtError: unknown) {
       let message: string = t('user.profile.update.generic.error');

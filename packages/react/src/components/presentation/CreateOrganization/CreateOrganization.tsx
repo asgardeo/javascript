@@ -108,11 +108,11 @@ export const CreateOrganization: FC<CreateOrganizationProps> = ({
 
         result = await createOrganization({
           baseUrl,
+          instanceId,
           payload: {
             ...payload,
             parentId,
           },
-          instanceId,
         });
       }
 

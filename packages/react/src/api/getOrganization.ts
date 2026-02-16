@@ -80,7 +80,11 @@ export interface GetOrganizationConfig extends Omit<BaseGetOrganizationConfig, '
  * }
  * ```
  */
-const getOrganization = async ({fetcher, instanceId = 0, ...requestConfig}: GetOrganizationConfig): Promise<OrganizationDetails> => {
+const getOrganization = async ({
+  fetcher,
+  instanceId = 0,
+  ...requestConfig,
+}: GetOrganizationConfig): Promise<OrganizationDetails> => {
   const defaultFetcher = async (url: string, config: RequestInit): Promise<Response> => {
     const httpClient: HttpInstance = AsgardeoSPAClient.getInstance(instanceId).httpRequest.bind(
       AsgardeoSPAClient.getInstance(instanceId)
