@@ -2,6 +2,7 @@
 '@asgardeo/browser': patch
 '@asgardeo/nextjs': patch
 '@asgardeo/react': patch
+'@asgardeo/node': patch
 ---
 
-Fix lint errors in the packages
+Fix lint issues in packages
