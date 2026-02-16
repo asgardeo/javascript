@@ -55,6 +55,7 @@ const getAuthorizeRequestUrlParams = (
     clientId: string;
     codeChallenge?: string;
     codeChallengeMethod?: string;
+    instanceId?: string;
     prompt?: string;
     redirectUri: string;
     responseMode?: string;
@@ -105,12 +106,18 @@ const getAuthorizeRequestUrlParams = (
     });
   }
 
+  const AUTH_INSTANCE_PREFIX: string = 'instance_';
+  let customStateValue: string = '';
+
+  if (options.instanceId) {
+    customStateValue = AUTH_INSTANCE_PREFIX + options.instanceId;
+  } else if (customParams) {
+    customStateValue = customParams[OIDCRequestConstants.Params.STATE]?.toString() ?? '';
+  }
+
   authorizeRequestParams.set(
     OIDCRequestConstants.Params.STATE,
-    generateStateParamForRequestCorrelation(
-      pkceKey,
-      customParams ? customParams[OIDCRequestConstants.Params.STATE]?.toString() : '',
-    ),
+    generateStateParamForRequestCorrelation(pkceKey, customStateValue),
   );
 
   return authorizeRequestParams;
