@@ -122,8 +122,12 @@ export {default as SignUp} from './components/presentation/auth/SignUp/SignUp';
 export * from './components/presentation/auth/SignUp/SignUp';
 
 export {BaseInviteUser, InviteUser} from './components/presentation/auth/InviteUser';
+export * from './components/presentation/auth/InviteUser';
 
 export {BaseAcceptInvite, AcceptInvite} from './components/presentation/auth/AcceptInvite';
+
+export {default as BaseCallback} from './components/auth/Callback/BaseCallback';
+export * from './components/auth/Callback/BaseCallback';
 
 // Sign-In Options
 export {default as IdentifierFirst} from './components/presentation/auth/SignIn/v1/options/IdentifierFirst';

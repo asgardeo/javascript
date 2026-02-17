@@ -18,3 +18,6 @@
 
 export {default as ProtectedRoute} from './components/ProtectedRoute';
 export * from './components/ProtectedRoute';
+
+export {default as Callback} from './components/Callback';
+export * from './components/Callback';

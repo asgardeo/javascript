@@ -1,0 +1,91 @@
+/**
+ * Copyright (c) 2025, WSO2 LLC. (https://www.wso2.com).
+ *
+ * WSO2 LLC. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
+import {FC} from 'react';
+import {useNavigate, useLocation} from 'react-router';
+import {BaseCallback} from '@asgardeo/react';
+
+/**
+ * Props for the Callback component.
+ */
+export interface CallbackProps {
+  /**
+   * Callback function called when an error occurs during OAuth processing.
+   * @param error - The error that occurred
+   */
+  onError?: (error: Error) => void;
+
+  /**
+   * Optional custom navigation handler.
+   * If provided, this will be called instead of the default navigate() behavior.
+   * Useful for apps that need custom navigation logic.
+   * @param path - The path to navigate to
+   */
+  onNavigate?: (path: string) => void;
+}
+
+/**
+ * Handles OAuth callback redirects for React Router applications.
+ * Processes authorization code, validates CSRF state, and navigates back to the original path.
+ * Automatically handles React Router basename when configured.
+ *
+ * @example
+ * ```tsx
+ * <Route path="/callback" element={<Callback />} />
+ * ```
+ */
+const Callback: FC<CallbackProps> = ({
+  onError,
+  onNavigate,
+}) => {
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const handleNavigate = (path: string): void => {
+    if (onNavigate) {
+      onNavigate(path);
+      return;
+    }
+
+    const fullPath = window.location.pathname;
+    const relativePath = location.pathname;
+    const basename = fullPath.endsWith(relativePath)
+      ? fullPath.slice(0, -relativePath.length).replace(/\/$/, '')
+      : '';
+
+    const navigationPath =
+      basename && path.startsWith(basename) ? path.slice(basename.length) || '/' : path;
+
+    navigate(navigationPath);
+  };
+
+  return (
+    <BaseCallback
+      onNavigate={handleNavigate}
+      onError={
+        onError ||
+        ((error: Error) => {
+          // eslint-disable-next-line no-console
+          console.error('OAuth callback error:', error);
+        })
+      }
+    />
+  );
+};
+
+export default Callback;

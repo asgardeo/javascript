@@ -29,8 +29,10 @@ import {FC, ReactElement, useState, useEffect, useRef, ReactNode} from 'react';
 // eslint-disable-next-line import/no-named-as-default
 import BaseSignIn, {BaseSignInProps} from './BaseSignIn';
 import useAsgardeo from '../../../../../contexts/Asgardeo/useAsgardeo';
+import {useOAuthCallback} from '../../../../../hooks/useOAuthCallback';
 import useTranslation from '../../../../../hooks/useTranslation';
 import {normalizeFlowResponse} from '../../../../../utils/v2/flowTransformer';
+import {initiateOAuthRedirect} from '../../../../../utils/oauth';
 import {handlePasskeyAuthentication, handlePasskeyRegistration} from '../../../../../utils/v2/passkey';
 
 /**
@@ -258,16 +260,6 @@ const SignIn: FC<SignInProps> = ({
   };
 
   /**
-   * Resolve flowId from multiple sources with priority: currentFlowId > state > flowIdFromUrl > storedFlowId
-   */
-  const resolveFlowId = (
-    activeFlowId: string | null,
-    state: string | null,
-    flowIdFromUrl: string | null,
-    storedFlowId: string | null,
-  ): string | null => activeFlowId || state || flowIdFromUrl || storedFlowId || null;
-
-  /**
    * Clean up OAuth-related URL parameters from the browser URL.
    */
   const cleanupOAuthUrlParams = (includeNonce: boolean = false): void => {
@@ -333,7 +325,7 @@ const SignIn: FC<SignInProps> = ({
         const urlParams: any = getUrlParams();
         handleAuthId(urlParams.authId);
 
-        window.location.href = redirectURL;
+        initiateOAuthRedirect(redirectURL);
         return true;
       }
     }
@@ -570,48 +562,18 @@ const SignIn: FC<SignInProps> = ({
     setError(error);
   };
 
-  /**
-   * Handle OAuth code processing from external OAuth providers.
-   */
-  useEffect(() => {
-    const urlParams: any = getUrlParams();
-    const storedFlowId: any = sessionStorage.getItem('asgardeo_flow_id');
-
-    // Check for OAuth error first - if present, don't process code
-    if (urlParams.error) {
-      handleOAuthError(urlParams.error, urlParams.errorDescription);
-      oauthCodeProcessedRef.current = true; // Mark as processed to prevent retry
-      return;
-    }
-
-    if (!urlParams.code || oauthCodeProcessedRef.current || isSubmitting) {
-      return;
-    }
-
-    const flowIdToUse: any = resolveFlowId(currentFlowId, urlParams.state, urlParams.flowId, storedFlowId);
-
-    if (!flowIdToUse || !signIn) {
-      return;
-    }
-
-    oauthCodeProcessedRef.current = true;
-
-    if (!currentFlowId) {
-      setFlowId(flowIdToUse);
-    }
-    const submitPayload: EmbeddedSignInFlowRequestV2 = {
-      flowId: flowIdToUse,
-
-      inputs: {
-        code: urlParams.code,
-        ...(urlParams.nonce && {nonce: urlParams.nonce}),
-      },
-    };
-
-    handleSubmit(submitPayload).catch(() => {
-      cleanupOAuthUrlParams(true);
-    });
-  }, [isFlowInitialized, currentFlowId, isInitialized, isLoading, isSubmitting, signIn]);
+  useOAuthCallback({
+    onSubmit: async (payload: any) => handleSubmit({flowId: payload.flowId, inputs: payload.inputs}),
+    onError: (err: any) => {
+      clearFlowState();
+      setError(err instanceof Error ? err : new Error(String(err)));
+    },
+    currentFlowId,
+    isInitialized: isInitialized && !isLoading,
+    isSubmitting,
+    setFlowId,
+    processedRef: oauthCodeProcessedRef,
+  });
 
   /**
    * Handle passkey authentication/registration when passkey state becomes active.
