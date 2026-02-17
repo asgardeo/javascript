@@ -32,18 +32,20 @@ import {AsgardeoSPAClient} from '../__legacy__/client';
  * ```typescript
  * // Use default instance
  * const httpClient = http();
- * 
+ *
  * // Use specific instance
  * const httpInstance1 = http(1);
  * const httpInstance2 = http(2);
  * ```
  */
-export const http = (instanceId: number = 0): {
+export const http = (
+  instanceId: number = 0,
+): {
   request: typeof AsgardeoSPAClient.prototype.httpRequest;
   requestAll: typeof AsgardeoSPAClient.prototype.httpRequestAll;
 } => {
-  const client = AsgardeoSPAClient.getInstance(instanceId);
-  
+  const client: AsgardeoSPAClient = AsgardeoSPAClient.getInstance(instanceId);
+
   return {
     /**
      * Makes a single HTTP request using the AsgardeoSPAClient instance.
