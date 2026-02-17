@@ -20,7 +20,7 @@ import {cx} from '@emotion/css';
 import {FC, ReactElement, ReactNode, useCallback, useEffect, useRef, useState} from 'react';
 import useStyles from './BaseAcceptInvite.styles';
 import useTheme from '../../../../../contexts/Theme/useTheme';
-import {useOAuthCallback} from '../../../../../hooks/useOAuthCallback';
+import {useOAuthCallback} from '../../../../../hooks/v2/useOAuthCallback';
 import useTranslation from '../../../../../hooks/useTranslation';
 import {initiateOAuthRedirect} from '../../../../../utils/oauth';
 import {normalizeFlowResponse, extractErrorMessage} from '../../../../../utils/v2/flowTransformer';

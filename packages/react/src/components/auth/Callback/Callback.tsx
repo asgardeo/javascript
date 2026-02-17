@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2025, WSO2 LLC. (https://www.wso2.com).
+ * Copyright (c) 2026, WSO2 LLC. (https://www.wso2.com).
  *
  * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -16,21 +16,24 @@
  * under the License.
  */
 
+import {navigate as browserNavigate} from '@asgardeo/browser';
 import {FC, useEffect, useRef} from 'react';
 
 /**
- * Props for BaseCallback component
+ * Props for Callback component
  */
-export interface BaseCallbackProps {
+export interface CallbackProps {
   /**
    * Callback function called when an error occurs
    */
   onError?: (error: Error) => void;
 
   /**
-   * Function to navigate to a different path
+   * Function to navigate to a different path.
+   * If not provided, falls back to the browser navigate utility (SPA navigation via History API for same-origin paths).
+   * Provide this prop to enable framework-specific navigation (e.g., from React Router).
    */
-  onNavigate: (path: string) => void;
+  onNavigate?: (path: string) => void;
 }
 
 /**
@@ -38,8 +41,8 @@ export interface BaseCallbackProps {
  * This component extracts OAuth parameters (code, state, error) from the URL and forwards them
  * to the original component that initiated the OAuth flow.
  *
- * This component is framework-agnostic and should be wrapped by framework-specific
- * implementations that provide navigation functions.
+ * Works standalone using the browser navigate utility (History API) for navigation by default.
+ * Pass an onNavigate prop to enable framework-specific navigation (e.g., via React Router).
  *
  * Flow: Extract OAuth parameters from URL -> Parse state parameter -> Redirect to original path with parameters
  *
@@ -49,9 +52,18 @@ export interface BaseCallbackProps {
  * - Handling the assertion and auth/callback POST
  * - Managing the authenticated session
  */
-export const BaseCallback: FC<BaseCallbackProps> = ({onNavigate, onError}: BaseCallbackProps) => {
+export const Callback: FC<CallbackProps> = ({onNavigate, onError}: CallbackProps) => {
   // Prevent double execution in React Strict Mode
   const processingRef: any = useRef(false);
+
+  // Resolve navigation: use provided onNavigate (router-aware) or fall back to browser navigate utility
+  const navigate = (path: string): void => {
+    if (onNavigate) {
+      onNavigate(path);
+    } else {
+      browserNavigate(path);
+    }
+  };
 
   useEffect(() => {
     const processOAuthCallback = (): void => {
@@ -92,7 +104,7 @@ export const BaseCallback: FC<BaseCallbackProps> = ({onNavigate, onError}: BaseC
               params.set('error_description', errorDescription);
             }
 
-            onNavigate(`/?${params.toString()}`);
+            navigate(`/?${params.toString()}`);
             return;
           }
           throw new Error('Invalid OAuth state - possible CSRF attack');
@@ -123,7 +135,7 @@ export const BaseCallback: FC<BaseCallbackProps> = ({onNavigate, onError}: BaseC
             params.set('error_description', errorDescription);
           }
 
-          onNavigate(`${returnPath}?${params.toString()}`);
+          navigate(`${returnPath}?${params.toString()}`);
           return;
         }
 
@@ -140,7 +152,7 @@ export const BaseCallback: FC<BaseCallbackProps> = ({onNavigate, onError}: BaseC
           params.set('nonce', nonce);
         }
 
-        onNavigate(`${returnPath}?${params.toString()}`);
+        navigate(`${returnPath}?${params.toString()}`);
       } catch (err) {
         const errorMessage: string = err instanceof Error ? err.message : 'OAuth callback processing failed';
         // eslint-disable-next-line no-console
@@ -153,7 +165,7 @@ export const BaseCallback: FC<BaseCallbackProps> = ({onNavigate, onError}: BaseC
         params.set('error', 'callback_error');
         params.set('error_description', errorMessage);
 
-        onNavigate(`${returnPath}?${params.toString()}`);
+        navigate(`${returnPath}?${params.toString()}`);
       }
     };
 
@@ -164,4 +176,4 @@ export const BaseCallback: FC<BaseCallbackProps> = ({onNavigate, onError}: BaseC
   return null;
 };
 
-export default BaseCallback;
+export default Callback;

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2025, WSO2 LLC. (https://www.wso2.com).
+ * Copyright (c) 2026, WSO2 LLC. (https://www.wso2.com).
  *
  * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -16,14 +16,14 @@
  * under the License.
  */
 
-import {BaseCallback} from '@asgardeo/react';
+import {Callback} from '@asgardeo/react';
 import {FC} from 'react';
 import {useLocation, useNavigate} from 'react-router';
 
 /**
- * Props for the Callback component.
+ * Props for the CallbackRoute component.
  */
-export interface CallbackProps {
+export interface CallbackRouteProps {
   /**
    * Callback function called when an error occurs during OAuth processing.
    * @param error - The error that occurred
@@ -46,10 +46,10 @@ export interface CallbackProps {
  *
  * @example
  * ```tsx
- * <Route path="/callback" element={<Callback />} />
+ * <Route path="/callback" element={<CallbackRoute />} />
  * ```
  */
-const Callback: FC<CallbackProps> = ({onError, onNavigate}: CallbackProps) => {
+const CallbackRoute: FC<CallbackRouteProps> = ({onError, onNavigate}: CallbackRouteProps) => {
   const navigate: ReturnType<typeof useNavigate> = useNavigate();
   const location: ReturnType<typeof useLocation> = useLocation();
 
@@ -71,7 +71,7 @@ const Callback: FC<CallbackProps> = ({onError, onNavigate}: CallbackProps) => {
   };
 
   return (
-    <BaseCallback
+    <Callback
       onNavigate={handleNavigate}
       onError={
         onError ||
@@ -84,4 +84,4 @@ const Callback: FC<CallbackProps> = ({onError, onNavigate}: CallbackProps) => {
   );
 };
 
-export default Callback;
+export default CallbackRoute;
