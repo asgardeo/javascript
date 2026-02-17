@@ -23,14 +23,14 @@ import {FC, useEffect, useRef} from 'react';
  */
 export interface BaseCallbackProps {
   /**
-   * Function to navigate to a different path
-   */
-  onNavigate: (path: string) => void;
-
-  /**
    * Callback function called when an error occurs
    */
   onError?: (error: Error) => void;
+
+  /**
+   * Function to navigate to a different path
+   */
+  onNavigate: (path: string) => void;
 }
 
 /**
@@ -49,12 +49,9 @@ export interface BaseCallbackProps {
  * - Handling the assertion and auth/callback POST
  * - Managing the authenticated session
  */
-export const BaseCallback: FC<BaseCallbackProps> = ({
-  onNavigate,
-  onError,
-}) => {
+export const BaseCallback: FC<BaseCallbackProps> = ({onNavigate, onError}: BaseCallbackProps) => {
   // Prevent double execution in React Strict Mode
-  const processingRef = useRef(false);
+  const processingRef: any = useRef(false);
 
   useEffect(() => {
     const processOAuthCallback = (): void => {
@@ -65,31 +62,31 @@ export const BaseCallback: FC<BaseCallbackProps> = ({
       processingRef.current = true;
 
       // Declare variables outside try block for use in catch
-      var returnPath = '/';
+      let returnPath: string = '/';
 
       try {
-        // Extract OAuth parameters from URL
-        const urlParams = new URLSearchParams(window.location.search);
-        const code = urlParams.get('code');
-        const state = urlParams.get('state');
-        const nonce = urlParams.get('nonce');
-        const oauthError = urlParams.get('error');
-        const errorDescription = urlParams.get('error_description');
+        // 1. Extract OAuth parameters from URL
+        const urlParams: URLSearchParams = new URLSearchParams(window.location.search);
+        const code: string | null = urlParams.get('code');
+        const state: string | null = urlParams.get('state');
+        const nonce: string | null = urlParams.get('nonce');
+        const oauthError: string | null = urlParams.get('error');
+        const errorDescription: string | null = urlParams.get('error_description');
 
-        // Validate and retrieve OAuth state from sessionStorage
+        // 2. Validate and retrieve OAuth state from sessionStorage
         if (!state) {
           throw new Error('Missing OAuth state parameter - possible security issue');
         }
 
-        const storedData = sessionStorage.getItem(`asgardeo_oauth_${state}`);
+        const storedData: string | null = sessionStorage.getItem(`asgardeo_oauth_${state}`);
         if (!storedData) {
           // If state not found, might be an error callback - try to handle gracefully
           if (oauthError) {
-            const errorMsg = errorDescription || oauthError || 'OAuth authentication failed';
-            const err = new Error(errorMsg);
+            const errorMsg: string = errorDescription || oauthError || 'OAuth authentication failed';
+            const err: Error = new Error(errorMsg);
             onError?.(err);
 
-            const params = new URLSearchParams();
+            const params: URLSearchParams = new URLSearchParams();
             params.set('error', oauthError);
             if (errorDescription) {
               params.set('error_description', errorDescription);
@@ -104,23 +101,23 @@ export const BaseCallback: FC<BaseCallbackProps> = ({
         const {path, timestamp} = JSON.parse(storedData);
         returnPath = path || '/';
 
-        // Validate state freshness
-        const MAX_STATE_AGE = 600000; // 10 minutes
+        // 3. Validate state freshness
+        const MAX_STATE_AGE: number = 600000; // 10 minutes
         if (Date.now() - timestamp > MAX_STATE_AGE) {
           sessionStorage.removeItem(`asgardeo_oauth_${state}`);
           throw new Error('OAuth state expired - please try again');
         }
 
-        // Clean up state
+        // 4. Clean up state
         sessionStorage.removeItem(`asgardeo_oauth_${state}`);
 
-        // Handle OAuth error response
+        // 5. Handle OAuth error response
         if (oauthError) {
-          const errorMsg = errorDescription || oauthError || 'OAuth authentication failed';
-          const err = new Error(errorMsg);
+          const errorMsg: string = errorDescription || oauthError || 'OAuth authentication failed';
+          const err: Error = new Error(errorMsg);
           onError?.(err);
 
-          const params = new URLSearchParams();
+          const params: URLSearchParams = new URLSearchParams();
           params.set('error', oauthError);
           if (errorDescription) {
             params.set('error_description', errorDescription);
@@ -130,14 +127,14 @@ export const BaseCallback: FC<BaseCallbackProps> = ({
           return;
         }
 
-        // Validate required parameters
+        // 6. Validate required parameters
         if (!code) {
           throw new Error('Missing OAuth authorization code');
         }
 
-        // Forward OAuth code to original component
+        // 7. Forward OAuth code to original component
         // The component (SignIn/AcceptInvite) will retrieve flowId/authId from sessionStorage
-        const params = new URLSearchParams();
+        const params: URLSearchParams = new URLSearchParams();
         params.set('code', code);
         if (nonce) {
           params.set('nonce', nonce);
@@ -145,13 +142,14 @@ export const BaseCallback: FC<BaseCallbackProps> = ({
 
         onNavigate(`${returnPath}?${params.toString()}`);
       } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : 'OAuth callback processing failed';
+        const errorMessage: string = err instanceof Error ? err.message : 'OAuth callback processing failed';
+        // eslint-disable-next-line no-console
         console.error('OAuth callback error:', err);
 
         onError?.(err instanceof Error ? err : new Error(errorMessage));
 
         // Redirect back with OAuth error format
-        const params = new URLSearchParams();
+        const params: URLSearchParams = new URLSearchParams();
         params.set('error', 'callback_error');
         params.set('error_description', errorMessage);
 

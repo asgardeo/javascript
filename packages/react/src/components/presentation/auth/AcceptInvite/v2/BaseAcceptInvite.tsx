@@ -22,8 +22,8 @@ import useStyles from './BaseAcceptInvite.styles';
 import useTheme from '../../../../../contexts/Theme/useTheme';
 import {useOAuthCallback} from '../../../../../hooks/useOAuthCallback';
 import useTranslation from '../../../../../hooks/useTranslation';
-import {normalizeFlowResponse, extractErrorMessage} from '../../../../../utils/v2/flowTransformer';
 import {initiateOAuthRedirect} from '../../../../../utils/oauth';
+import {normalizeFlowResponse, extractErrorMessage} from '../../../../../utils/v2/flowTransformer';
 import AlertPrimitive from '../../../../primitives/Alert/Alert';
 import Button from '../../../../primitives/Button/Button';
 // eslint-disable-next-line import/no-named-as-default
@@ -289,44 +289,6 @@ const BaseAcceptInvite: FC<BaseAcceptInviteProps> = ({
   );
 
   /**
-   * Handle OAuth callback when returning from OAuth provider.
-   * This hook processes the authorization code and continues the flow.
-   */
-  useOAuthCallback({
-    onSubmit: async (payload: any) => {
-      const rawResponse: any = await onSubmit(payload);
-      const response: any = normalizeFlowResponseLocal(rawResponse);
-      return response;
-    },
-    onComplete: () => {
-      setIsComplete(true);
-      setIsValidatingToken(false);
-      onComplete?.();
-    },
-    onError: (error: any) => {
-      setIsTokenInvalid(true);
-      setIsValidatingToken(false);
-      handleError(error);
-    },
-    onProcessingStart: () => {
-      setIsValidatingToken(true);
-    },
-    currentFlowId: flowId ?? null,
-    isInitialized: true,
-    tokenValidationAttemptedRef,
-    onFlowChange: (response: any) => {
-      onFlowChange?.(response);
-      // Initialize currentFlow for next steps if not complete
-      if (response.flowStatus !== 'COMPLETE') {
-        setCurrentFlow(response);
-        setFormValues({});
-        setFormErrors({});
-        setTouchedFields({});
-      }
-    },
-  });
-
-  /**
    * Normalize flow response to ensure component-driven format.
    * Transforms data.meta.components to data.components.
    */
@@ -356,6 +318,44 @@ const BaseAcceptInvite: FC<BaseAcceptInviteProps> = ({
     },
     [t, children],
   );
+
+  /**
+   * Handle OAuth callback when returning from OAuth provider.
+   * This hook processes the authorization code and continues the flow.
+   */
+  useOAuthCallback({
+    currentFlowId: flowId ?? null,
+    isInitialized: true,
+    onComplete: () => {
+      setIsComplete(true);
+      setIsValidatingToken(false);
+      onComplete?.();
+    },
+    onError: (error: any) => {
+      setIsTokenInvalid(true);
+      setIsValidatingToken(false);
+      handleError(error);
+    },
+    onFlowChange: (response: any) => {
+      onFlowChange?.(response);
+      // Initialize currentFlow for next steps if not complete
+      if (response.flowStatus !== 'COMPLETE') {
+        setCurrentFlow(response);
+        setFormValues({});
+        setFormErrors({});
+        setTouchedFields({});
+      }
+    },
+    onProcessingStart: () => {
+      setIsValidatingToken(true);
+    },
+    onSubmit: async (payload: any) => {
+      const rawResponse: any = await onSubmit(payload);
+      const response: any = normalizeFlowResponseLocal(rawResponse);
+      return response;
+    },
+    tokenValidationAttemptedRef,
+  });
 
   /**
    * Handle input value changes.

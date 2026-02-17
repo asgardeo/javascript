@@ -16,9 +16,9 @@
  * under the License.
  */
 
-import {FC} from 'react';
-import {useNavigate, useLocation} from 'react-router';
 import {BaseCallback} from '@asgardeo/react';
+import {FC} from 'react';
+import {useLocation, useNavigate} from 'react-router';
 
 /**
  * Props for the Callback component.
@@ -49,12 +49,9 @@ export interface CallbackProps {
  * <Route path="/callback" element={<Callback />} />
  * ```
  */
-const Callback: FC<CallbackProps> = ({
-  onError,
-  onNavigate,
-}) => {
-  const navigate = useNavigate();
-  const location = useLocation();
+const Callback: FC<CallbackProps> = ({onError, onNavigate}: CallbackProps) => {
+  const navigate: ReturnType<typeof useNavigate> = useNavigate();
+  const location: ReturnType<typeof useLocation> = useLocation();
 
   const handleNavigate = (path: string): void => {
     if (onNavigate) {
@@ -62,14 +59,13 @@ const Callback: FC<CallbackProps> = ({
       return;
     }
 
-    const fullPath = window.location.pathname;
-    const relativePath = location.pathname;
-    const basename = fullPath.endsWith(relativePath)
+    const fullPath: string = window.location.pathname;
+    const relativePath: string = location.pathname;
+    const basename: string = fullPath.endsWith(relativePath)
       ? fullPath.slice(0, -relativePath.length).replace(/\/$/, '')
       : '';
 
-    const navigationPath =
-      basename && path.startsWith(basename) ? path.slice(basename.length) || '/' : path;
+    const navigationPath: string = basename && path.startsWith(basename) ? path.slice(basename.length) || '/' : path;
 
     navigate(navigationPath);
   };
@@ -79,7 +75,7 @@ const Callback: FC<CallbackProps> = ({
       onNavigate={handleNavigate}
       onError={
         onError ||
-        ((error: Error) => {
+        ((error: Error): void => {
           // eslint-disable-next-line no-console
           console.error('OAuth callback error:', error);
         })

@@ -23,14 +23,14 @@
  * @param redirectURL - OAuth authorization URL from the server
  */
 export function initiateOAuthRedirect(redirectURL: string): void {
-  const basePath = document.querySelector('base')?.getAttribute('href') || '';
-  let returnPath = window.location.pathname;
+  const basePath: string = document.querySelector('base')?.getAttribute('href') || '';
+  let returnPath: string = window.location.pathname;
 
   if (basePath && returnPath.startsWith(basePath)) {
     returnPath = returnPath.slice(basePath.length) || '/';
   }
 
-  const state = crypto.randomUUID();
+  const state: string = crypto.randomUUID();
 
   sessionStorage.setItem(
     `asgardeo_oauth_${state}`,
@@ -40,7 +40,7 @@ export function initiateOAuthRedirect(redirectURL: string): void {
     }),
   );
 
-  const redirectUrlObj = new URL(redirectURL);
+  const redirectUrlObj: URL = new URL(redirectURL);
   redirectUrlObj.searchParams.set('state', state);
 
   window.location.href = redirectUrlObj.toString();

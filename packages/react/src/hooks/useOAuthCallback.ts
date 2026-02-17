@@ -20,21 +20,6 @@ import {useEffect, useRef, type RefObject} from 'react';
 
 export interface UseOAuthCallbackOptions {
   /**
-   * Function to submit OAuth code to the server
-   */
-  onSubmit: (payload: OAuthCallbackPayload) => Promise<any>;
-
-  /**
-   * Callback when OAuth flow completes successfully
-   */
-  onComplete?: () => void;
-
-  /**
-   * Callback when OAuth flow encounters an error
-   */
-  onError?: (error: any) => void;
-
-  /**
    * Current flowId from component state
    */
   currentFlowId: string | null;
@@ -55,9 +40,35 @@ export interface UseOAuthCallbackOptions {
   isSubmitting?: boolean;
 
   /**
+   * Callback when OAuth flow completes successfully
+   */
+  onComplete?: () => void;
+
+  /**
+   * Callback when OAuth flow encounters an error
+   */
+  onError?: (error: any) => void;
+
+  /**
    * Function to handle flow response after submission
    */
   onFlowChange?: (response: any) => void;
+
+  /**
+   * Callback to set loading state at the start of OAuth processing
+   */
+  onProcessingStart?: () => void;
+
+  /**
+   * Function to submit OAuth code to the server
+   */
+  onSubmit: (payload: OAuthCallbackPayload) => Promise<any>;
+
+  /**
+   * Optional external ref to track processed state. If provided, the component
+   * manages the ref (allowing resets on flow clear/retry). Otherwise hook manages internally.
+   */
+  processedRef?: RefObject<boolean>;
 
   /**
    * Additional handler for setting state (e.g., setFlowId)
@@ -69,17 +80,6 @@ export interface UseOAuthCallbackOptions {
    * Used in AcceptInvite to coordinate between OAuth callback and token validation
    */
   tokenValidationAttemptedRef?: RefObject<boolean>;
-
-  /**
-   * Callback to set loading state at the start of OAuth processing
-   */
-  onProcessingStart?: () => void;
-
-  /**
-   * Optional external ref to track processed state. If provided, the component
-   * manages the ref (allowing resets on flow clear/retry). Otherwise hook manages internally.
-   */
-  processedRef?: RefObject<boolean>;
 }
 
 export interface OAuthCallbackPayload {
@@ -90,43 +90,57 @@ export interface OAuthCallbackPayload {
   };
 }
 
+function cleanupUrlParams(): void {
+  if (typeof window === 'undefined') return;
+
+  const url: URL = new URL(window.location.href);
+  url.searchParams.delete('code');
+  url.searchParams.delete('nonce');
+  url.searchParams.delete('state');
+  url.searchParams.delete('error');
+  url.searchParams.delete('error_description');
+
+  window.history.replaceState({}, '', url.toString());
+}
+
 /**
  * Processes OAuth callbacks by detecting auth code in URL, resolving flowId, and submitting to server.
  * Used by SignIn, SignUp, and AcceptInvite components.
  */
 export function useOAuthCallback({
-  onSubmit,
-  onComplete,
-  onError,
   currentFlowId,
   flowIdStorageKey = 'asgardeo_flow_id',
   isInitialized,
   isSubmitting = false,
+  onComplete,
+  onError,
   onFlowChange,
+  onProcessingStart,
+  onSubmit,
+  processedRef,
   setFlowId,
   tokenValidationAttemptedRef,
-  onProcessingStart,
-  processedRef,
 }: UseOAuthCallbackOptions): void {
-  const internalRef = useRef(false);
-  const oauthCodeProcessedRef = processedRef ?? internalRef;
+  const internalRef: any = useRef(false);
+  const oauthCodeProcessedRef: any = processedRef ?? internalRef;
 
   useEffect(() => {
     if (!isInitialized || isSubmitting) {
       return;
     }
 
-    const urlParams = new URLSearchParams(window.location.search);
-    const code = urlParams.get('code');
-    const nonce = urlParams.get('nonce');
-    const state = urlParams.get('state');
-    const flowIdFromUrl = urlParams.get('flowId');
-    const error = urlParams.get('error');
-    const errorDescription = urlParams.get('error_description');
+    const urlParams: URLSearchParams = new URLSearchParams(window.location.search);
+    const code: string | null = urlParams.get('code');
+    const nonce: string | null = urlParams.get('nonce');
+    const state: string | null = urlParams.get('state');
+    const flowIdFromUrl: string | null = urlParams.get('flowId');
+    const error: string | null = urlParams.get('error');
+    const errorDescription: string | null = urlParams.get('error_description');
 
     if (error) {
       oauthCodeProcessedRef.current = true;
       if (tokenValidationAttemptedRef) {
+        // eslint-disable-next-line no-param-reassign
         tokenValidationAttemptedRef.current = true;
       }
       onError?.(new Error(errorDescription || error || 'OAuth authentication failed'));
@@ -142,8 +156,8 @@ export function useOAuthCallback({
       return;
     }
 
-    const storedFlowId = sessionStorage.getItem(flowIdStorageKey);
-    const flowIdToUse = currentFlowId || storedFlowId || flowIdFromUrl || state || null;
+    const storedFlowId: string | null = sessionStorage.getItem(flowIdStorageKey);
+    const flowIdToUse: string | null = currentFlowId || storedFlowId || flowIdFromUrl || state || null;
 
     if (!flowIdToUse) {
       oauthCodeProcessedRef.current = true;
@@ -155,6 +169,7 @@ export function useOAuthCallback({
     oauthCodeProcessedRef.current = true;
 
     if (tokenValidationAttemptedRef) {
+      // eslint-disable-next-line no-param-reassign
       tokenValidationAttemptedRef.current = true;
     }
 
@@ -164,7 +179,7 @@ export function useOAuthCallback({
       setFlowId(flowIdToUse);
     }
 
-    (async () => {
+    (async (): Promise<void> => {
       try {
         const payload: OAuthCallbackPayload = {
           flowId: flowIdToUse,
@@ -174,7 +189,7 @@ export function useOAuthCallback({
           },
         };
 
-        const response = await onSubmit(payload);
+        const response: any = await onSubmit(payload);
 
         onFlowChange?.(response);
 
@@ -203,17 +218,4 @@ export function useOAuthCallback({
     setFlowId,
     flowIdStorageKey,
   ]);
-}
-
-function cleanupUrlParams(): void {
-  if (typeof window === 'undefined') return;
-
-  const url = new URL(window.location.href);
-  url.searchParams.delete('code');
-  url.searchParams.delete('nonce');
-  url.searchParams.delete('state');
-  url.searchParams.delete('error');
-  url.searchParams.delete('error_description');
-
-  window.history.replaceState({}, '', url.toString());
 }

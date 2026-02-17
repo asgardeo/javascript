@@ -31,8 +31,8 @@ import BaseSignIn, {BaseSignInProps} from './BaseSignIn';
 import useAsgardeo from '../../../../../contexts/Asgardeo/useAsgardeo';
 import {useOAuthCallback} from '../../../../../hooks/useOAuthCallback';
 import useTranslation from '../../../../../hooks/useTranslation';
-import {normalizeFlowResponse} from '../../../../../utils/v2/flowTransformer';
 import {initiateOAuthRedirect} from '../../../../../utils/oauth';
+import {normalizeFlowResponse} from '../../../../../utils/v2/flowTransformer';
 import {handlePasskeyAuthentication, handlePasskeyRegistration} from '../../../../../utils/v2/passkey';
 
 /**
@@ -563,16 +563,16 @@ const SignIn: FC<SignInProps> = ({
   };
 
   useOAuthCallback({
-    onSubmit: async (payload: any) => handleSubmit({flowId: payload.flowId, inputs: payload.inputs}),
+    currentFlowId,
+    isInitialized: isInitialized && !isLoading,
+    isSubmitting,
     onError: (err: any) => {
       clearFlowState();
       setError(err instanceof Error ? err : new Error(String(err)));
     },
-    currentFlowId,
-    isInitialized: isInitialized && !isLoading,
-    isSubmitting,
-    setFlowId,
+    onSubmit: async (payload: any) => handleSubmit({flowId: payload.flowId, inputs: payload.inputs}),
     processedRef: oauthCodeProcessedRef,
+    setFlowId,
   });
 
   /**
