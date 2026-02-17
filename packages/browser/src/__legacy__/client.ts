@@ -223,8 +223,6 @@ export class AsgardeoSPAClient {
    * ```
    *
    * @memberof AsgardeoSPAClient
-   *
-   * @preserve
    */
   public static hasInstance(id: number = 0): boolean {
     return this._instances.has(id);
@@ -247,11 +245,15 @@ export class AsgardeoSPAClient {
    * ```
    *
    * @memberof AsgardeoSPAClient
-   *
-   * @preserve
    */
   public static destroyInstance(id: number = 0): boolean {
-    return this._instances.delete(id);
+    const instance = this._instances.get(id);
+    if (instance) {
+      // Clean up the instance's session data before removing it
+      instance.clearSession();
+      return this._instances.delete(id);
+    }
+    return false;
   }
 
   /**
@@ -267,8 +269,6 @@ export class AsgardeoSPAClient {
    * ```
    *
    * @memberof AsgardeoSPAClient
-   *
-   * @preserve
    */
   public static getInstanceKeys(): number[] {
     return Array.from(this._instances.keys());
@@ -284,10 +284,12 @@ export class AsgardeoSPAClient {
    * ```
    *
    * @memberof AsgardeoSPAClient
-   *
-   * @preserve
    */
   public static destroyAllInstances(): void {
+    // Clean up each instance's session data before clearing
+    this._instances.forEach((instance) => {
+      instance.clearSession();
+    });
     this._instances.clear();
   }
 

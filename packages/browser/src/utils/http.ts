@@ -20,30 +20,51 @@
 import {AsgardeoSPAClient} from '../__legacy__/client';
 
 /**
- * HTTP utility for making requests using the AsgardeoSPAClient instance.
+ * Creates an HTTP utility for making requests using a specific AsgardeoSPAClient instance.
+ *
+ * @param instanceId - Optional instance ID for multi-instance support. Defaults to 0.
+ * @returns An object with request and requestAll methods bound to the specified instance.
  *
  * @remarks
- * This utility provides methods to make single or multiple HTTP requests.
+ * This utility provides methods to make single or multiple HTTP requests for a specific instance.
+ *
+ * @example
+ * ```typescript
+ * // Use default instance
+ * const httpClient = http();
+ * 
+ * // Use specific instance
+ * const httpInstance1 = http(1);
+ * const httpInstance2 = http(2);
+ * ```
  */
-const http: {
+export const http = (instanceId: number = 0): {
   request: typeof AsgardeoSPAClient.prototype.httpRequest;
   requestAll: typeof AsgardeoSPAClient.prototype.httpRequestAll;
-} = {
-  /**
-   * Makes a single HTTP request using the AsgardeoSPAClient instance.
-   *
-   * @param config - The HTTP request configuration object.
-   * @returns A promise resolving to the HTTP response.
-   */
-  request: AsgardeoSPAClient.getInstance().httpRequest.bind(AsgardeoSPAClient.getInstance()),
+} => {
+  const client = AsgardeoSPAClient.getInstance(instanceId);
+  
+  return {
+    /**
+     * Makes a single HTTP request using the AsgardeoSPAClient instance.
+     *
+     * @param config - The HTTP request configuration object.
+     * @returns A promise resolving to the HTTP response.
+     */
+    request: client.httpRequest.bind(client),
 
-  /**
-   * Makes multiple HTTP requests in parallel using the AsgardeoSPAClient instance.
-   *
-   * @param configs - An array of HTTP request configuration objects.
-   * @returns A promise resolving to an array of HTTP responses.
-   */
-  requestAll: AsgardeoSPAClient.getInstance().httpRequestAll.bind(AsgardeoSPAClient.getInstance()),
+    /**
+     * Makes multiple HTTP requests in parallel using the AsgardeoSPAClient instance.
+     *
+     * @param configs - An array of HTTP request configuration objects.
+     * @returns A promise resolving to an array of HTTP responses.
+     */
+    requestAll: client.httpRequestAll.bind(client),
+  };
 };
 
-export default http;
+/**
+ * Default HTTP utility using instance 0.
+ * For multi-instance support, use http(instanceId) instead.
+ */
+export default http();

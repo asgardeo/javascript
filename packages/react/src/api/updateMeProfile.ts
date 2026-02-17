@@ -68,9 +68,8 @@ export interface UpdateMeProfileConfig extends Omit<BaseUpdateMeProfileConfig, '
  */
 const updateMeProfile = async ({fetcher, instanceId = 0, ...requestConfig}: UpdateMeProfileConfig): Promise<User> => {
   const defaultFetcher = async (url: string, config: RequestInit): Promise<Response> => {
-    const httpClient: HttpInstance = AsgardeoSPAClient.getInstance(instanceId).httpRequest.bind(
-      AsgardeoSPAClient.getInstance(instanceId),
-    );
+    const client = AsgardeoSPAClient.getInstance(instanceId);
+    const httpClient: HttpInstance = client.httpRequest.bind(client);
     const response: HttpResponse<any> = await httpClient({
       data: config.body ? JSON.parse(config.body as string) : undefined,
       headers: config.headers as Record<string, string>,

@@ -250,8 +250,6 @@ export class AsgardeoAuthClient<T> {
         authRequestConfig['client_secret'] = configData.clientSecret;
       }
 
-      authRequestConfig['state'] = `instance_${this.getInstanceId()}-${configData.clientId}`;
-
       const authorizeRequestParams: Map<string, string> = getAuthorizeRequestUrlParams(
         {
           clientId: configData.clientId,

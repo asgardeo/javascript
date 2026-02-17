@@ -86,9 +86,8 @@ const getOrganization = async ({
   ...requestConfig
 }: GetOrganizationConfig): Promise<OrganizationDetails> => {
   const defaultFetcher = async (url: string, config: RequestInit): Promise<Response> => {
-    const httpClient: HttpInstance = AsgardeoSPAClient.getInstance(instanceId).httpRequest.bind(
-      AsgardeoSPAClient.getInstance(instanceId),
-    );
+    const client = AsgardeoSPAClient.getInstance(instanceId);
+    const httpClient: HttpInstance = client.httpRequest.bind(client);
     const response: HttpResponse<any> = await httpClient({
       headers: config.headers as Record<string, string>,
       method: config.method || 'GET',
