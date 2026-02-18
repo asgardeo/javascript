@@ -121,9 +121,11 @@ export * from './components/presentation/auth/SignUp/BaseSignUp';
 export {default as SignUp} from './components/presentation/auth/SignUp/SignUp';
 export * from './components/presentation/auth/SignUp/SignUp';
 
-export {BaseInviteUser, InviteUser} from './components/presentation/auth/InviteUser';
+export * from './components/presentation/auth/InviteUser';
 
 export {BaseAcceptInvite, AcceptInvite} from './components/presentation/auth/AcceptInvite';
+
+export * from './components/auth/Callback/Callback';
 
 // Sign-In Options
 export {default as IdentifierFirst} from './components/presentation/auth/SignIn/v1/options/IdentifierFirst';

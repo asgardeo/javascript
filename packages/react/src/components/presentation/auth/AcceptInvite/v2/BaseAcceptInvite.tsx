@@ -20,7 +20,9 @@ import {cx} from '@emotion/css';
 import {FC, ReactElement, ReactNode, useCallback, useEffect, useRef, useState} from 'react';
 import useStyles from './BaseAcceptInvite.styles';
 import useTheme from '../../../../../contexts/Theme/useTheme';
+import {useOAuthCallback} from '../../../../../hooks/v2/useOAuthCallback';
 import useTranslation from '../../../../../hooks/useTranslation';
+import {initiateOAuthRedirect} from '../../../../../utils/oauth';
 import {normalizeFlowResponse, extractErrorMessage} from '../../../../../utils/v2/flowTransformer';
 import AlertPrimitive from '../../../../primitives/Alert/Alert';
 import Button from '../../../../primitives/Button/Button';
@@ -40,6 +42,7 @@ export interface AcceptInviteFlowResponse {
     meta?: {
       components?: any[];
     };
+    redirectURL?: string;
   };
   failureReason?: string;
   flowId: string;
@@ -317,6 +320,44 @@ const BaseAcceptInvite: FC<BaseAcceptInviteProps> = ({
   );
 
   /**
+   * Handle OAuth callback when returning from OAuth provider.
+   * This hook processes the authorization code and continues the flow.
+   */
+  useOAuthCallback({
+    currentFlowId: flowId ?? null,
+    isInitialized: true,
+    onComplete: () => {
+      setIsComplete(true);
+      setIsValidatingToken(false);
+      onComplete?.();
+    },
+    onError: (error: any) => {
+      setIsTokenInvalid(true);
+      setIsValidatingToken(false);
+      handleError(error);
+    },
+    onFlowChange: (response: any) => {
+      onFlowChange?.(response);
+      // Initialize currentFlow for next steps if not complete
+      if (response.flowStatus !== 'COMPLETE') {
+        setCurrentFlow(response);
+        setFormValues({});
+        setFormErrors({});
+        setTouchedFields({});
+      }
+    },
+    onProcessingStart: () => {
+      setIsValidatingToken(true);
+    },
+    onSubmit: async (payload: any) => {
+      const rawResponse: any = await onSubmit(payload);
+      const response: any = normalizeFlowResponseLocal(rawResponse);
+      return response;
+    },
+    tokenValidationAttemptedRef,
+  });
+
+  /**
    * Handle input value changes.
    */
   const handleInputChange: any = useCallback((name: string, value: string) => {
@@ -416,6 +457,16 @@ const BaseAcceptInvite: FC<BaseAcceptInviteProps> = ({
         const response: any = normalizeFlowResponseLocal(rawResponse);
         onFlowChange?.(response);
 
+        // Handle OAuth redirect response
+        if (response.type === 'REDIRECTION') {
+          const redirectURL: any = response.data?.redirectURL || (response as any)?.redirectURL;
+          if (redirectURL && typeof window !== 'undefined') {
+            // Initiate OAuth redirect with secure state management
+            initiateOAuthRedirect(redirectURL);
+            return;
+          }
+        }
+
         // Store the heading from current flow before completion
         if (currentFlow?.data?.components || currentFlow?.data?.meta?.components) {
           const currentComponents: any = currentFlow.data.components || currentFlow.data.meta?.components || [];
@@ -467,12 +518,16 @@ const BaseAcceptInvite: FC<BaseAcceptInviteProps> = ({
    * Validate invite token on component mount.
    */
   useEffect(() => {
-    if (!flowId || !inviteToken || tokenValidationAttemptedRef.current) {
-      if (!flowId || !inviteToken) {
-        setIsValidatingToken(false);
-        setIsTokenInvalid(true);
-        handleError(new Error('Invalid invite link. Missing flowId or inviteToken.'));
-      }
+    // Skip validation if already validated
+    if (tokenValidationAttemptedRef.current) {
+      return;
+    }
+
+    // Validate required params for initial invite link
+    if (!flowId || !inviteToken) {
+      setIsValidatingToken(false);
+      setIsTokenInvalid(true);
+      handleError(new Error('Invalid invite link. Missing flowId or inviteToken.'));
       return;
     }
 
@@ -483,6 +538,11 @@ const BaseAcceptInvite: FC<BaseAcceptInviteProps> = ({
       setApiError(null);
 
       try {
+        // Store flowId in sessionStorage for OAuth callback
+        if (flowId) {
+          sessionStorage.setItem('asgardeo_flow_id', flowId);
+        }
+
         // Send the invite token to validate and continue the flow
         const payload: any = {
           flowId,
