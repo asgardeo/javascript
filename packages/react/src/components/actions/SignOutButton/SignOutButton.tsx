@@ -71,7 +71,7 @@ const SignOutButton: ForwardRefExoticComponent<SignOutButtonProps & RefAttribute
   HTMLButtonElement,
   SignOutButtonProps
 >(({children, onClick, preferences, ...rest}: SignOutButtonProps, ref: Ref<HTMLButtonElement>): ReactElement => {
-  const {signOut} = useAsgardeo();
+  const {signOut, meta} = useAsgardeo();
   const {t} = useTranslation(preferences?.i18n);
 
   const [isLoading, setIsLoading] = useState(false);
@@ -102,6 +102,7 @@ const SignOutButton: ForwardRefExoticComponent<SignOutButtonProps & RefAttribute
       ref={ref}
       onClick={handleSignOut}
       isLoading={isLoading}
+      meta={meta}
       signOut={handleSignOut}
       preferences={preferences}
       {...rest}

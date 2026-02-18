@@ -16,9 +16,11 @@
  * under the License.
  */
 
+import {FlowMetadataResponse} from '@asgardeo/browser';
 import {cx} from '@emotion/css';
 import {FC, ReactElement, ReactNode, useCallback, useEffect, useRef, useState} from 'react';
 import useStyles from './BaseAcceptInvite.styles';
+import useAsgardeo from '../../../../../contexts/Asgardeo/useAsgardeo';
 import useTheme from '../../../../../contexts/Theme/useTheme';
 import {useOAuthCallback} from '../../../../../hooks/v2/useOAuthCallback';
 import useTranslation from '../../../../../hooks/useTranslation';
@@ -128,6 +130,11 @@ export interface BaseAcceptInviteRenderProps {
    * Whether the invite token is being validated.
    */
   isValidatingToken: boolean;
+
+  /**
+   * Flow metadata returned by the platform (v2 only). `null` while loading or unavailable.
+   */
+  meta: FlowMetadataResponse | null;
 
   /**
    * Subtitle for the current step.
@@ -252,6 +259,7 @@ const BaseAcceptInvite: FC<BaseAcceptInviteProps> = ({
   showTitle = true,
   showSubtitle = true,
 }: BaseAcceptInviteProps): ReactElement => {
+  const {meta} = useAsgardeo();
   const {t} = useTranslation();
   const {theme} = useTheme();
   const styles: any = useStyles(theme, theme.vars.colors.text.primary);
@@ -661,6 +669,7 @@ const BaseAcceptInvite: FC<BaseAcceptInviteProps> = ({
     isTokenInvalid,
     isValid: isFormValid,
     isValidatingToken,
+    meta,
     subtitle,
     title,
     touched: touchedFields,

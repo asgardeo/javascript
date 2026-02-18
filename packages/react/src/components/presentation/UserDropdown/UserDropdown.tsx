@@ -16,6 +16,7 @@
  * under the License.
  */
 
+import {FlowMetadataResponse} from '@asgardeo/browser';
 import {FC, ReactElement, ReactNode, useState} from 'react';
 import {BaseUserDropdown as BaseUserDropdownComponent, BaseUserDropdownProps} from './BaseUserDropdown';
 import useAsgardeo from '../../../contexts/Asgardeo/useAsgardeo';
@@ -31,6 +32,8 @@ export interface UserDropdownRenderProps {
   isLoading: boolean;
   /** Whether the profile dialog is currently open */
   isProfileOpen: boolean;
+  /** Flow metadata returned by the platform (v2 only). `null` while loading or unavailable. */
+  meta: FlowMetadataResponse | null;
   /** Function to open the user profile dialog */
   openProfile: () => void;
   /** Function to sign out the user */
@@ -114,7 +117,7 @@ const UserDropdown: FC<UserDropdownProps> = ({
   onSignOut,
   ...rest
 }: UserDropdownProps): ReactElement => {
-  const {user, isLoading, signOut} = useAsgardeo();
+  const {user, isLoading, signOut, meta} = useAsgardeo();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
 
   const handleManageProfile = (): void => {
@@ -137,6 +140,7 @@ const UserDropdown: FC<UserDropdownProps> = ({
     closeProfile,
     isLoading: isLoading as boolean,
     isProfileOpen,
+    meta,
     openProfile: handleManageProfile,
     signOut: handleSignOut,
     user,

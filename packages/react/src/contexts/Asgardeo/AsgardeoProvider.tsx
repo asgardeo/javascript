@@ -41,6 +41,7 @@ import useBrowserUrl from '../../hooks/useBrowserUrl';
 import {AsgardeoReactConfig} from '../../models/config';
 import BrandingProvider from '../Branding/BrandingProvider';
 import FlowProvider from '../Flow/FlowProvider';
+import FlowMetaProvider from '../FlowMeta/FlowMetaProvider';
 import I18nProvider from '../I18n/I18nProvider';
 import OrganizationProvider from '../Organization/OrganizationProvider';
 import ThemeProvider from '../Theme/ThemeProvider';
@@ -623,36 +624,40 @@ const AsgardeoProvider: FC<PropsWithChildren<AsgardeoProviderProps>> = ({
   return (
     <AsgardeoContext.Provider value={value}>
       <I18nProvider preferences={preferences?.i18n}>
-        <BrandingProvider
-          brandingPreference={brandingPreference}
-          isLoading={isBrandingLoading}
-          error={brandingError}
-          enabled={preferences?.theme?.inheritFromBranding !== false}
-          refetch={refetchBranding}
-        >
-          <ThemeProvider
-            inheritFromBranding={preferences?.theme?.inheritFromBranding}
-            theme={{
-              ...preferences?.theme?.overrides,
-              direction: preferences?.theme?.direction,
-            }}
-            mode={getActiveTheme(preferences?.theme?.mode)}
+        <FlowMetaProvider enabled={preferences?.resolveFromMeta !== false}>
+          <BrandingProvider
+            brandingPreference={brandingPreference}
+            isLoading={isBrandingLoading}
+            error={brandingError}
+            enabled={preferences?.theme?.inheritFromBranding !== false}
+            refetch={refetchBranding}
           >
-            <FlowProvider>
-              <UserProvider profile={userProfile} onUpdateProfile={handleProfileUpdate}>
-                <OrganizationProvider
-                  getAllOrganizations={async (): Promise<AllOrganizationsApiResponse> => asgardeo.getAllOrganizations()}
-                  myOrganizations={myOrganizations}
-                  currentOrganization={currentOrganization}
-                  onOrganizationSwitch={switchOrganization}
-                  revalidateMyOrganizations={async (): Promise<Organization[]> => asgardeo.getMyOrganizations()}
-                >
-                  {children}
-                </OrganizationProvider>
-              </UserProvider>
-            </FlowProvider>
-          </ThemeProvider>
-        </BrandingProvider>
+            <ThemeProvider
+              inheritFromBranding={preferences?.theme?.inheritFromBranding}
+              theme={{
+                ...preferences?.theme?.overrides,
+                direction: preferences?.theme?.direction,
+              }}
+              mode={getActiveTheme(preferences?.theme?.mode)}
+            >
+              <FlowProvider>
+                <UserProvider profile={userProfile} onUpdateProfile={handleProfileUpdate}>
+                  <OrganizationProvider
+                    getAllOrganizations={async (): Promise<AllOrganizationsApiResponse> =>
+                      asgardeo.getAllOrganizations()
+                    }
+                    myOrganizations={myOrganizations}
+                    currentOrganization={currentOrganization}
+                    onOrganizationSwitch={switchOrganization}
+                    revalidateMyOrganizations={async (): Promise<Organization[]> => asgardeo.getMyOrganizations()}
+                  >
+                    {children}
+                  </OrganizationProvider>
+                </UserProvider>
+              </FlowProvider>
+            </ThemeProvider>
+          </BrandingProvider>
+        </FlowMetaProvider>
       </I18nProvider>
     </AsgardeoContext.Provider>
   );

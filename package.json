@@ -20,6 +20,8 @@
   ],
   "scripts": {
     "build": "nx run-many --target=build --all",
+    "build:packages": "nx run-many --target=build --projects=packages/*",
+    "build:samples": "nx run-many --target=build --projects=samples/*",
     "fix:lint": "nx run-many --target=fix:lint --all --parallel",
     "lint": "nx run-many --target=lint --all --parallel",
     "publish:packages": "changeset publish",

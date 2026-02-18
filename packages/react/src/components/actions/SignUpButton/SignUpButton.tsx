@@ -72,7 +72,7 @@ const SignUpButton: ForwardRefExoticComponent<SignUpButtonProps & RefAttributes<
   HTMLButtonElement,
   SignUpButtonProps
 >(({children, onClick, preferences, ...rest}: SignUpButtonProps, ref: Ref<HTMLButtonElement>): ReactElement => {
-  const {signUp, signUpUrl} = useAsgardeo();
+  const {signUp, signUpUrl, meta} = useAsgardeo();
   const {t} = useTranslation(preferences?.i18n);
 
   const [isLoading, setIsLoading] = useState(false);
@@ -108,6 +108,7 @@ const SignUpButton: ForwardRefExoticComponent<SignUpButtonProps & RefAttributes<
       ref={ref}
       onClick={handleSignUp}
       isLoading={isLoading}
+      meta={meta}
       signUp={handleSignUp}
       preferences={preferences}
       {...rest}

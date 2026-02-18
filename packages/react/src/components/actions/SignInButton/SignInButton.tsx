@@ -80,7 +80,7 @@ const SignInButton: ForwardRefExoticComponent<SignInButtonProps & RefAttributes<
     {children, onClick, preferences, signInOptions: overriddenSignInOptions = {}, ...rest}: SignInButtonProps,
     ref: Ref<HTMLButtonElement>,
   ): ReactElement => {
-    const {signIn, signInUrl, signInOptions} = useAsgardeo();
+    const {signIn, signInUrl, signInOptions, meta} = useAsgardeo();
     const {t} = useTranslation(preferences?.i18n);
 
     const [isLoading, setIsLoading] = useState(false);
@@ -116,6 +116,7 @@ const SignInButton: ForwardRefExoticComponent<SignInButtonProps & RefAttributes<
         ref={ref}
         onClick={handleSignIn}
         isLoading={isLoading}
+        meta={meta}
         signIn={handleSignIn}
         preferences={preferences}
         {...rest}

@@ -24,6 +24,7 @@ import {
   EmbeddedSignInFlowRequestV2,
   EmbeddedSignInFlowStatusV2,
   EmbeddedSignInFlowTypeV2,
+  FlowMetadataResponse,
 } from '@asgardeo/browser';
 import {FC, ReactElement, useState, useEffect, useRef, ReactNode} from 'react';
 // eslint-disable-next-line import/no-named-as-default
@@ -63,6 +64,11 @@ export interface SignInRenderProps {
    * Loading state indicator
    */
   isLoading: boolean;
+
+  /**
+   * Flow metadata returned by the platform (v2 only). `null` while loading or unavailable.
+   */
+  meta: FlowMetadataResponse | null;
 
   /**
    * Function to submit authentication data (primary)
@@ -189,7 +195,7 @@ const SignIn: FC<SignInProps> = ({
   variant,
   children,
 }: SignInProps): ReactElement => {
-  const {applicationId, afterSignInUrl, signIn, isInitialized, isLoading} = useAsgardeo();
+  const {applicationId, afterSignInUrl, signIn, isInitialized, isLoading, meta} = useAsgardeo();
   const {t} = useTranslation();
 
   // State management for the flow
@@ -648,6 +654,7 @@ const SignIn: FC<SignInProps> = ({
       initialize: initializeFlow,
       isInitialized: isFlowInitialized,
       isLoading: isLoading || isSubmitting || !isInitialized,
+      meta,
       onSubmit: handleSubmit,
     };
 

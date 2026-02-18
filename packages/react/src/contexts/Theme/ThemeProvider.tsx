@@ -17,282 +17,106 @@
  */
 
 import {
-  createTheme,
-  Theme,
+  BrowserThemeDetection,
+  Platform,
+  RecursivePartial,
   ThemeConfig,
   ThemeMode,
-  RecursivePartial,
-  detectThemeMode,
-  createClassObserver,
-  createMediaQueryListener,
-  BrowserThemeDetection,
   ThemePreferences,
-  DEFAULT_THEME,
-  createPackageComponentLogger,
 } from '@asgardeo/browser';
-import {FC, PropsWithChildren, ReactElement, useEffect, useMemo, useState, useCallback} from 'react';
-import ThemeContext from './ThemeContext';
-
-import useBrandingContext from '../Branding/useBrandingContext';
-
-const logger: ReturnType<typeof createPackageComponentLogger> = createPackageComponentLogger(
-  '@asgardeo/react',
-  'ThemeProvider',
-);
+import {FC, PropsWithChildren, ReactElement} from 'react';
+import V1ThemeProvider from './v1/ThemeProvider';
+import ThemeProviderV2, {ThemeProviderProps as ThemeProviderV2Props} from './v2/ThemeProvider';
+import useAsgardeo from '../Asgardeo/useAsgardeo';
 
 export interface ThemeProviderProps {
+  // ─── v1 props (ignored in v2 mode) ──────────────────────────────────────────
   /**
-   * Configuration for theme detection when using 'class' or 'system' mode
+   * Configuration for theme detection when using 'class' or 'system' mode.
    */
   detection?: BrowserThemeDetection;
   /**
-   * Configuration for branding integration
+   * Whether to inherit the theme from the Asgardeo branding preference.
+   * @default true
    */
   inheritFromBranding?: ThemePreferences['inheritFromBranding'];
   /**
-   * The theme mode to use for automatic detection
-   * - 'light': Always use light theme
-   * - 'dark': Always use dark theme
-   * - 'system': Use system preference (prefers-color-scheme media query)
-   * - 'class': Detect theme based on CSS classes on HTML element
-   * - 'branding': Use active theme from branding preference (requires inheritFromBranding=true)
+   * The theme mode to use for automatic detection.
+   * - `'light'` | `'dark'`: Fixed color scheme.
+   * - `'system'`: Follows the OS preference.
+   * - `'class'`: Detects theme from CSS classes on the `<html>` element.
+   * - `'branding'`: Follows the active theme from the branding preference.
    */
   mode?: ThemeMode | 'branding';
+
+  // ─── shared ──────────────────────────────────────────────────────────────────
+  /**
+   * Optional partial theme overrides applied on top of the resolved theme.
+   * User-supplied values always take the highest precedence.
+   */
   theme?: RecursivePartial<ThemeConfig>;
 }
 
-const applyThemeToDOM = (theme: Theme): void => {
-  Object.entries(theme.cssVariables).forEach(([key, value]: [string, string]) => {
-    document.documentElement.style.setProperty(key, value);
-  });
-};
-
 /**
- * ThemeProvider component that manages theme state and provides theme context to child components.
+ * ThemeProvider is the single entry-point for theme management in `@asgardeo/react`.
  *
- * This provider integrates with Asgardeo branding preferences to automatically apply
- * organization-specific themes while allowing for custom theme overrides.
+ * It transparently switches between two internal implementations:
  *
- * Features:
- * - Automatic theme mode detection (light/dark/system/class)
- * - Integration with Asgardeo branding API through useBranding hook
- * - Merging of branding themes with custom theme configurations
- * - CSS variable injection for easy styling
- * - Loading and error states for branding integration
+ * **v1** (`ThemeProvider` classic): Sources colors from the Asgardeo Branding API.
+ * Used automatically when no `FlowMetaProvider` is present in the component tree.
+ *
+ * **v2** (`FlowMetaThemeProvider`): Sources colors from the `GET /flow/meta` endpoint
+ * via `FlowMetaProvider`. Used automatically when a `FlowMetaProvider` is present
+ * in the tree — or when `version="v2"` is set explicitly.
+ *
+ * The active version can also be pinned explicitly via the `version` prop.
+ * All components that consume `useTheme()` continue to work regardless of which
+ * version is active.
  *
  * @example
- * Basic usage with branding integration:
+ * Auto-detection (recommended):
  * ```tsx
- * <ThemeProvider inheritFromBranding={true}>
+ * // v2 mode – FlowMetaProvider is present
+ * <FlowMetaProvider config={{ baseUrl, type: FlowMetaType.App, id: appId }}>
+ *   <ThemeProvider>
+ *     <App />
+ *   </ThemeProvider>
+ * </FlowMetaProvider>
+ *
+ * // v1 mode – no FlowMetaProvider
+ * <ThemeProvider>
  *   <App />
  * </ThemeProvider>
  * ```
  *
  * @example
- * With custom theme overrides:
+ * Explicit version pinning:
  * ```tsx
- * <ThemeProvider
- *   theme={{
- *     colors: {
- *       primary: { main: '#custom-color' }
- *     }
- *   }}
- *   inheritFromBranding={true}
- * >
- *   <App />
- * </ThemeProvider>
- * ```
- *
- * @example
- * With branding-driven theme mode:
- * ```tsx
- * <ThemeProvider
- *   mode="branding"
- *   inheritFromBranding={true}
- * >
+ * <ThemeProvider version="v2">
  *   <App />
  * </ThemeProvider>
  * ```
  */
 const ThemeProvider: FC<PropsWithChildren<ThemeProviderProps>> = ({
   children,
-  theme: themeConfig,
-  mode = DEFAULT_THEME,
-  detection = {},
-  inheritFromBranding = true,
+  theme,
+  detection,
+  inheritFromBranding,
+  mode,
 }: PropsWithChildren<ThemeProviderProps>): ReactElement => {
-  const [colorScheme, setColorScheme] = useState<'light' | 'dark'>(() => {
-    // Initialize with detected theme mode or fallback to defaultMode
-    if (mode === 'light' || mode === 'dark') {
-      return mode;
-    }
-    // For 'branding' mode, start with system preference and update when branding loads
-    if (mode === 'branding') {
-      return detectThemeMode('system', detection);
-    }
-    return detectThemeMode(mode, detection);
-  });
+  const {platform} = useAsgardeo();
 
-  // Use branding theme if inheritFromBranding is enabled
-  // Handle case where BrandingProvider might not be available
-  let brandingTheme: Theme | null = null;
-  let brandingActiveTheme: 'light' | 'dark' | null = null;
-  let isBrandingLoading: boolean = false;
-  let brandingError: Error | null = null;
+  if (platform === Platform.AsgardeoV2) {
+    const v2Props: ThemeProviderV2Props = {theme};
 
-  try {
-    const brandingContext: any = useBrandingContext();
-    brandingTheme = brandingContext.theme;
-    brandingActiveTheme = brandingContext.activeTheme;
-    isBrandingLoading = brandingContext.isLoading;
-    brandingError = brandingContext.error;
-  } catch (error) {
-    // BrandingProvider not available, fall back to no branding
-    if (inheritFromBranding) {
-      logger.warn(
-        'ThemeProvider: inheritFromBranding is enabled but BrandingProvider is not available. ' +
-          'Make sure to wrap your app with BrandingProvider or AsgardeoProvider with branding preferences.',
-      );
-    }
+    return <ThemeProviderV2 {...v2Props}>{children}</ThemeProviderV2>;
   }
 
-  // Update color scheme based on branding active theme when available
-  useEffect(() => {
-    if (inheritFromBranding && brandingActiveTheme) {
-      // Update color scheme based on mode preference
-      if (mode === 'branding') {
-        // Always follow branding active theme
-        setColorScheme(brandingActiveTheme);
-      } else if (mode === 'system' && !isBrandingLoading) {
-        // For system mode, prefer branding but allow system override if no branding
-        setColorScheme(brandingActiveTheme);
-      }
-    }
-  }, [inheritFromBranding, brandingActiveTheme, mode, isBrandingLoading]);
-
-  // Merge user-provided theme config with branding theme
-  const finalThemeConfig: RecursivePartial<ThemeConfig> | undefined = useMemo(() => {
-    if (!inheritFromBranding || !brandingTheme) {
-      return themeConfig;
-    }
-
-    // Convert branding theme to our theme config format
-    const brandingThemeConfig: RecursivePartial<ThemeConfig> = {
-      borderRadius: brandingTheme.borderRadius,
-      colors: brandingTheme.colors,
-      components: brandingTheme.components,
-      images: brandingTheme.images,
-      shadows: brandingTheme.shadows,
-      spacing: brandingTheme.spacing,
-    };
-
-    // Merge branding theme with user-provided theme config
-    // User-provided config takes precedence over branding
-    return {
-      ...brandingThemeConfig,
-      ...themeConfig,
-      borderRadius: {
-        ...brandingThemeConfig.borderRadius,
-        ...themeConfig?.borderRadius,
-      },
-      colors: {
-        ...brandingThemeConfig.colors,
-        ...themeConfig?.colors,
-      },
-      components: {
-        ...brandingThemeConfig.components,
-        ...themeConfig?.components,
-      },
-      images: {
-        ...brandingThemeConfig.images,
-        ...themeConfig?.images,
-      },
-      shadows: {
-        ...brandingThemeConfig.shadows,
-        ...themeConfig?.shadows,
-      },
-      spacing: {
-        ...brandingThemeConfig.spacing,
-        ...themeConfig?.spacing,
-      },
-    };
-  }, [inheritFromBranding, brandingTheme, themeConfig]);
-
-  const theme: Theme = useMemo(
-    () => createTheme(finalThemeConfig, colorScheme === 'dark'),
-    [finalThemeConfig, colorScheme],
+  return (
+    <V1ThemeProvider detection={detection} inheritFromBranding={inheritFromBranding} mode={mode} theme={theme}>
+      {children}
+    </V1ThemeProvider>
   );
-
-  // Get direction from theme config or default to 'ltr'
-  const direction: string = (finalThemeConfig as any)?.direction || 'ltr';
-
-  const handleThemeChange: (isDark: boolean) => void = useCallback((isDark: boolean) => {
-    setColorScheme(isDark ? 'dark' : 'light');
-  }, []);
-
-  const toggleTheme: () => void = useCallback(() => {
-    setColorScheme((prev: 'light' | 'dark') => (prev === 'light' ? 'dark' : 'light'));
-  }, []);
-
-  useEffect(() => {
-    let observer: MutationObserver | null = null;
-    let mediaQuery: MediaQueryList | null = null;
-
-    // Don't set up automatic theme detection for branding mode
-    if (mode === 'branding') {
-      return null;
-    }
-
-    if (mode === 'class') {
-      const targetElement: HTMLElement = detection.targetElement || document.documentElement;
-      if (targetElement) {
-        observer = createClassObserver(targetElement, handleThemeChange, detection);
-      }
-    } else if (mode === 'system') {
-      // Only set up system listener if not using branding or branding hasn't loaded yet
-      if (!inheritFromBranding || !brandingActiveTheme) {
-        mediaQuery = createMediaQueryListener(handleThemeChange);
-      }
-    }
-
-    return () => {
-      if (observer) {
-        observer.disconnect();
-      }
-      if (mediaQuery) {
-        // Clean up media query listener
-        if (mediaQuery.removeEventListener) {
-          mediaQuery.removeEventListener('change', handleThemeChange as any);
-        } else {
-          // Fallback for older browsers
-          mediaQuery.removeListener(handleThemeChange as any);
-        }
-      }
-    };
-  }, [mode, detection, handleThemeChange, inheritFromBranding, brandingActiveTheme]);
-
-  useEffect(() => {
-    applyThemeToDOM(theme);
-  }, [theme]);
-
-  // Apply direction to document
-  useEffect(() => {
-    if (typeof document !== 'undefined') {
-      document.documentElement.dir = direction;
-    }
-  }, [direction]);
-
-  const value: any = {
-    brandingError,
-    colorScheme,
-    direction,
-    inheritFromBranding,
-    isBrandingLoading,
-    theme,
-    toggleTheme,
-  };
-
-  return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
 };
 
 export default ThemeProvider;
