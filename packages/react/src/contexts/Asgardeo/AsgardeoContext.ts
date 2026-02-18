@@ -83,6 +83,10 @@ export type AsgardeoContextProps = {
      */
     requestAll: (requestConfigs?: HttpRequestConfig[]) => Promise<HttpResponse<any>[]>;
   };
+  /**
+   * Instance ID for multi-instance support.
+   */
+  instanceId: number;
   isInitialized: boolean;
   /**
    * Flag indicating whether the SDK is working in the background.
@@ -165,6 +169,7 @@ const AsgardeoContext: Context<AsgardeoContextProps | null> = createContext<null
     request: () => null,
     requestAll: () => null,
   },
+  instanceId: 0,
   isInitialized: false,
   isLoading: true,
   isSignedIn: false,

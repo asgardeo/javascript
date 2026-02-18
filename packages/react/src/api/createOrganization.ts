@@ -26,8 +26,6 @@ import {
   CreateOrganizationConfig as BaseCreateOrganizationConfig,
 } from '@asgardeo/browser';
 
-const httpClient: HttpInstance = AsgardeoSPAClient.getInstance().httpRequest.bind(AsgardeoSPAClient.getInstance());
-
 /**
  * Configuration for the createOrganization request (React-specific)
  */
@@ -37,6 +35,10 @@ export interface CreateOrganizationConfig extends Omit<BaseCreateOrganizationCon
    * which is a wrapper around axios http.request
    */
   fetcher?: (url: string, config: RequestInit) => Promise<Response>;
+  /**
+   * Optional instance ID for multi-instance support. Defaults to 0.
+   */
+  instanceId?: number;
 }
 
 /**
@@ -90,8 +92,14 @@ export interface CreateOrganizationConfig extends Omit<BaseCreateOrganizationCon
  * }
  * ```
  */
-const createOrganization = async ({fetcher, ...requestConfig}: CreateOrganizationConfig): Promise<Organization> => {
+const createOrganization = async ({
+  fetcher,
+  instanceId = 0,
+  ...requestConfig
+}: CreateOrganizationConfig): Promise<Organization> => {
   const defaultFetcher = async (url: string, config: RequestInit): Promise<Response> => {
+    const client: AsgardeoSPAClient = AsgardeoSPAClient.getInstance(instanceId);
+    const httpClient: HttpInstance = client.httpRequest.bind(client);
     const response: HttpResponse<any> = await httpClient({
       data: config.body ? JSON.parse(config.body as string) : undefined,
       headers: config.headers as Record<string, string>,
