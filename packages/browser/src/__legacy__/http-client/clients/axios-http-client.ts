@@ -43,7 +43,7 @@ import {HttpClientInstance, HttpClientInterface, HttpClientStatic} from '../mode
 export class HttpClient implements HttpClientInterface<HttpRequestConfig, HttpResponse, HttpError> {
   private static instances: Map<number, HttpClientInstance> = new Map();
   private static clientInstances: Map<number, HttpClient> = new Map();
-  private isHandlerEnabled: boolean = true;
+  private isHandlerEnabled: boolean;
   private attachToken: (request: HttpRequestConfig) => Promise<void> = () => Promise.resolve();
   private requestStartCallback: (request: HttpRequestConfig) => void = () => null;
   private requestSuccessCallback: (response: HttpResponse) => void = () => null;
