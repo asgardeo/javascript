@@ -36,7 +36,7 @@ overrides:
   tmp: 0.2.4
   min-document: 2.19.1
   lodash: 4.17.23
-  tar: 7.5.7
+  tar: 7.5.8
   seroval: 1.4.1
   qs: 6.14.1
   '@vitejs/plugin-vue>vite': 7.1.12
@@ -638,7 +638,7 @@ importers:
         version: https://codeload.github.com/brionmario/wso2-ui-configs/tar.gz/a1fc6eb570653c999828aea9f5027cba06af4391#path:packages/prettier-config(prettier@2.6.2)(typescript@5.1.6)
       '@wso2/stylelint-config':
         specifier: 'catalog:'
-        version: https://codeload.github.com/brionmario/wso2-ui-configs/tar.gz/a1fc6eb570653c999828aea9f5027cba06af4391#path:packages/stylelint-config(postcss@8.5.6)(stylelint@15.1.0(typescript@5.1.6))(typescript@5.1.6)
+        version: https://codeload.github.com/brionmario/wso2-ui-configs/tar.gz/a1fc6eb570653c999828aea9f5027cba06af4391#path:packages/stylelint-config(postcss@8.5.3)(stylelint@15.1.0(typescript@5.1.6))(typescript@5.1.6)
       eslint:
         specifier: 8.57.0
         version: 8.57.0
@@ -6440,8 +6440,8 @@ packages:
     resolution: {integrity: sha512-ujeqbceABgwMZxEJnk2HDY2DlnUZ+9oEcb1KzTVfYHio0UE6dG71n60d8D2I4qNvleWrrXpmjpt7vZeF1LnMZQ==}
     engines: {node: '>=6'}
 
-  tar@7.5.7:
-    resolution: {integrity: sha512-fov56fJiRuThVFXD6o6/Q354S7pnWMJIVlDBYijsTNx6jKSE4pvrDTs6lUnmGvNyfJwFQQwWy3owKz1ucIhveQ==}
+  tar@7.5.8:
+    resolution: {integrity: sha512-SYkBtK99u0yXa+IWL0JRzzcl7RxNpvX/U08Z+8DKnysfno7M+uExnTZH8K+VGgShf2qFPKtbNr9QBl8n7WBP6Q==}
     engines: {node: '>=18'}
 
   term-size@2.2.1:
@@ -8404,7 +8404,7 @@ snapshots:
   '@tailwindcss/oxide@4.1.8':
     dependencies:
       detect-libc: 2.0.4
-      tar: 7.5.7
+      tar: 7.5.8
     optionalDependencies:
       '@tailwindcss/oxide-android-arm64': 4.1.8
       '@tailwindcss/oxide-darwin-arm64': 4.1.8
@@ -9302,11 +9302,11 @@ snapshots:
     optionalDependencies:
       typescript: 5.7.2
 
-  '@wso2/stylelint-config@https://codeload.github.com/brionmario/wso2-ui-configs/tar.gz/a1fc6eb570653c999828aea9f5027cba06af4391#path:packages/stylelint-config(postcss@8.5.6)(stylelint@15.1.0(typescript@5.1.6))(typescript@5.1.6)':
+  '@wso2/stylelint-config@https://codeload.github.com/brionmario/wso2-ui-configs/tar.gz/a1fc6eb570653c999828aea9f5027cba06af4391#path:packages/stylelint-config(postcss@8.5.3)(stylelint@15.1.0(typescript@5.1.6))(typescript@5.1.6)':
     dependencies:
-      postcss-scss: 4.0.9(postcss@8.5.6)
+      postcss-scss: 4.0.9(postcss@8.5.3)
       stylelint: 15.1.0(typescript@5.1.6)
-      stylelint-config-standard-scss: 6.1.0(postcss@8.5.6)(stylelint@15.1.0(typescript@5.1.6))
+      stylelint-config-standard-scss: 6.1.0(postcss@8.5.3)(stylelint@15.1.0(typescript@5.1.6))
     optionalDependencies:
       typescript: 5.1.6
     transitivePeerDependencies:
@@ -12472,9 +12472,9 @@ snapshots:
     dependencies:
       postcss: 8.5.3
 
-  postcss-scss@4.0.9(postcss@8.5.6):
+  postcss-scss@4.0.9(postcss@8.5.3):
     dependencies:
-      postcss: 8.5.6
+      postcss: 8.5.3
 
   postcss-selector-parser@6.1.2:
     dependencies:
@@ -13320,26 +13320,26 @@ snapshots:
       postcss: 8.4.31
       postcss-selector-parser: 6.1.2
 
-  stylelint-config-recommended-scss@8.0.0(postcss@8.5.6)(stylelint@15.1.0(typescript@5.1.6)):
+  stylelint-config-recommended-scss@8.0.0(postcss@8.5.3)(stylelint@15.1.0(typescript@5.1.6)):
     dependencies:
-      postcss-scss: 4.0.9(postcss@8.5.6)
+      postcss-scss: 4.0.9(postcss@8.5.3)
       stylelint: 15.1.0(typescript@5.1.6)
       stylelint-config-recommended: 9.0.0(stylelint@15.1.0(typescript@5.1.6))
       stylelint-scss: 4.7.0(stylelint@15.1.0(typescript@5.1.6))
     optionalDependencies:
-      postcss: 8.5.6
+      postcss: 8.5.3
 
   stylelint-config-recommended@9.0.0(stylelint@15.1.0(typescript@5.1.6)):
     dependencies:
       stylelint: 15.1.0(typescript@5.1.6)
 
-  stylelint-config-standard-scss@6.1.0(postcss@8.5.6)(stylelint@15.1.0(typescript@5.1.6)):
+  stylelint-config-standard-scss@6.1.0(postcss@8.5.3)(stylelint@15.1.0(typescript@5.1.6)):
     dependencies:
       stylelint: 15.1.0(typescript@5.1.6)
-      stylelint-config-recommended-scss: 8.0.0(postcss@8.5.6)(stylelint@15.1.0(typescript@5.1.6))
+      stylelint-config-recommended-scss: 8.0.0(postcss@8.5.3)(stylelint@15.1.0(typescript@5.1.6))
       stylelint-config-standard: 29.0.0(stylelint@15.1.0(typescript@5.1.6))
     optionalDependencies:
-      postcss: 8.5.6
+      postcss: 8.5.3
 
   stylelint-config-standard@29.0.0(stylelint@15.1.0(typescript@5.1.6)):
     dependencies:
@@ -13470,7 +13470,7 @@ snapshots:
       inherits: 2.0.4
       readable-stream: 3.6.2
 
-  tar@7.5.7:
+  tar@7.5.8:
     dependencies:
       '@isaacs/fs-minipass': 4.0.1
       chownr: 3.0.0
