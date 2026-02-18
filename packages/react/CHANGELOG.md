@@ -1,5 +1,24 @@
 # @asgardeo/react
 
+## 0.12.0
+
+### Minor Changes
+
+- [#367](https://github.com/asgardeo/javascript/pull/367)
+  [`5a85761`](https://github.com/asgardeo/javascript/commit/5a85761335a37c00f924b58f0c1a9c36ccb06ad4) Thanks
+  [@thiva-k](https://github.com/thiva-k)! - Add oauth callback support for v2
+
+### Patch Changes
+
+- [#327](https://github.com/asgardeo/javascript/pull/327)
+  [`8705827`](https://github.com/asgardeo/javascript/commit/87058278fd7f53552418af9223da7d72b22c5b3f) Thanks
+  [@kavindadimuthu](https://github.com/kavindadimuthu)! - Fix login flow isolation when using multiple AuthProvider
+  instances
+
+- Updated dependencies
+  [[`8705827`](https://github.com/asgardeo/javascript/commit/87058278fd7f53552418af9223da7d72b22c5b3f)]:
+  - @asgardeo/browser@0.2.10
+
 ## 0.11.3
 
 ### Patch Changes

@@ -1,5 +1,18 @@
 # @asgardeo/browser
 
+## 0.2.10
+
+### Patch Changes
+
+- [#327](https://github.com/asgardeo/javascript/pull/327)
+  [`8705827`](https://github.com/asgardeo/javascript/commit/87058278fd7f53552418af9223da7d72b22c5b3f) Thanks
+  [@kavindadimuthu](https://github.com/kavindadimuthu)! - Fix login flow isolation when using multiple AuthProvider
+  instances
+
+- Updated dependencies
+  [[`8705827`](https://github.com/asgardeo/javascript/commit/87058278fd7f53552418af9223da7d72b22c5b3f)]:
+  - @asgardeo/javascript@0.7.3
+
 ## 0.2.9
 
 ### Patch Changes

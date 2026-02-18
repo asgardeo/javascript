@@ -1,5 +1,13 @@
 # @asgardeo/react-router
 
+## 1.1.0
+
+### Minor Changes
+
+- [#367](https://github.com/asgardeo/javascript/pull/367)
+  [`5a85761`](https://github.com/asgardeo/javascript/commit/5a85761335a37c00f924b58f0c1a9c36ccb06ad4) Thanks
+  [@thiva-k](https://github.com/thiva-k)! - Add oauth callback support for v2
+
 ## 1.0.32
 
 ### Patch Changes
