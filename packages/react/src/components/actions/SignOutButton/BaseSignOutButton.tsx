@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import {WithPreferences, withVendorCSSClassPrefix} from '@asgardeo/browser';
+import {FlowMetadataResponse, WithPreferences, withVendorCSSClassPrefix} from '@asgardeo/browser';
 import {cx} from '@emotion/css';
 import {
   forwardRef,
@@ -37,6 +37,10 @@ export interface CommonBaseSignOutButtonProps {
    * Loading state during sign-out process
    */
   isLoading?: boolean;
+  /**
+   * Flow metadata returned by the platform (v2 only). `null` while loading or unavailable.
+   */
+  meta?: FlowMetadataResponse | null;
   /**
    * Function to initiate the sign-out process
    */
@@ -83,11 +87,11 @@ export interface BaseSignOutButtonProps
 const BaseSignOutButton: ForwardRefExoticComponent<BaseSignOutButtonProps & RefAttributes<HTMLButtonElement>> =
   forwardRef<HTMLButtonElement, BaseSignOutButtonProps>(
     (
-      {children, className, style, signOut, isLoading, preferences, ...rest}: BaseSignOutButtonProps,
+      {children, className, style, signOut, isLoading, meta, preferences, ...rest}: BaseSignOutButtonProps,
       ref: Ref<HTMLButtonElement>,
     ): ReactElement => {
       if (typeof children === 'function') {
-        return <>{children({isLoading, signOut})}</>;
+        return <>{children({isLoading, meta, signOut})}</>;
       }
 
       return (

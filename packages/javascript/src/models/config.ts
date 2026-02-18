@@ -290,6 +290,11 @@ export interface Preferences {
    */
   i18n?: I18nPreferences;
   /**
+   * Whether to resolve the theme from the Flow Meta API (GET /flow/meta).
+   * @remarks This is only applicable when using platform `Asgardeo V2` (Thunder).
+   */
+  resolveFromMeta?: boolean;
+  /**
    * Theme preferences for the Asgardeo UI components
    */
   theme?: ThemePreferences;

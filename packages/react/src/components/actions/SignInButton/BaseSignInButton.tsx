@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import {WithPreferences, withVendorCSSClassPrefix} from '@asgardeo/browser';
+import {FlowMetadataResponse, WithPreferences, withVendorCSSClassPrefix} from '@asgardeo/browser';
 import {cx} from '@emotion/css';
 import {
   ButtonHTMLAttributes,
@@ -37,6 +37,10 @@ export interface CommonBaseSignInButtonProps {
    * Loading state during sign-in process
    */
   isLoading?: boolean;
+  /**
+   * Flow metadata returned by the platform (v2 only). `null` while loading or unavailable.
+   */
+  meta?: FlowMetadataResponse | null;
   /**
    * Function to initiate the sign-in process
    */
@@ -83,11 +87,11 @@ export interface BaseSignInButtonProps
 const BaseSignInButton: ForwardRefExoticComponent<BaseSignInButtonProps & RefAttributes<HTMLButtonElement>> =
   forwardRef<HTMLButtonElement, BaseSignInButtonProps>(
     (
-      {children, className, style, signIn, isLoading, preferences, ...rest}: BaseSignInButtonProps,
+      {children, className, style, signIn, isLoading, meta, preferences, ...rest}: BaseSignInButtonProps,
       ref: Ref<HTMLButtonElement>,
     ): ReactElement => {
       if (typeof children === 'function') {
-        return <>{children({isLoading, signIn})}</>;
+        return <>{children({isLoading, meta, signIn})}</>;
       }
 
       return (

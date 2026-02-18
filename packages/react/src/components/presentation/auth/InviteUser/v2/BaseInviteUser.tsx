@@ -16,10 +16,11 @@
  * under the License.
  */
 
-import {EmbeddedFlowType} from '@asgardeo/browser';
+import {EmbeddedFlowType, FlowMetadataResponse} from '@asgardeo/browser';
 import {cx} from '@emotion/css';
 import {FC, ReactElement, ReactNode, useCallback, useEffect, useRef, useState} from 'react';
 import useStyles from './BaseInviteUser.styles';
+import useAsgardeo from '../../../../../contexts/Asgardeo/useAsgardeo';
 import useTheme from '../../../../../contexts/Theme/useTheme';
 import useTranslation from '../../../../../hooks/useTranslation';
 import {normalizeFlowResponse, extractErrorMessage} from '../../../../../utils/v2/flowTransformer';
@@ -116,6 +117,11 @@ export interface BaseInviteUserRenderProps {
    * Whether the form is valid.
    */
   isValid: boolean;
+
+  /**
+   * Flow metadata returned by the platform (v2 only). `null` while loading or unavailable.
+   */
+  meta: FlowMetadataResponse | null;
 
   /**
    * Reset the flow to invite another user.
@@ -240,6 +246,7 @@ const BaseInviteUser: FC<BaseInviteUserProps> = ({
   showTitle = true,
   showSubtitle = true,
 }: BaseInviteUserProps): ReactElement => {
+  const {meta} = useAsgardeo();
   const {t} = useTranslation();
   const {theme} = useTheme();
   const styles: any = useStyles(theme, theme.vars.colors.text.primary);
@@ -620,6 +627,7 @@ const BaseInviteUser: FC<BaseInviteUserProps> = ({
     isInviteGenerated,
     isLoading,
     isValid: isFormValid,
+    meta,
     resetFlow,
     subtitle,
     title,

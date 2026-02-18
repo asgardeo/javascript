@@ -51,6 +51,7 @@ export {
   default as executeEmbeddedUserOnboardingFlowV2,
   EmbeddedUserOnboardingFlowResponse,
 } from './api/v2/executeEmbeddedUserOnboardingFlowV2';
+export {default as getFlowMetaV2} from './api/v2/getFlowMetaV2';
 
 export {default as ApplicationNativeAuthenticationConstants} from './constants/ApplicationNativeAuthenticationConstants';
 export {default as TokenConstants} from './constants/TokenConstants';
@@ -105,6 +106,23 @@ export {
   EmbeddedSignUpFlowRequest as EmbeddedSignUpFlowRequestV2,
   EmbeddedSignUpFlowErrorResponse as EmbeddedSignUpFlowErrorResponseV2,
 } from './models/v2/embedded-signup-flow-v2';
+export {
+  FlowMetaType,
+  ApplicationMetadata,
+  OUMetadata,
+  DesignMetadata,
+  I18nMetadata,
+  FlowMetadataResponse,
+  GetFlowMetaRequestConfig,
+  FlowMetaTheme,
+  FlowMetaThemeColorSet,
+  FlowMetaThemeBackground,
+  FlowMetaThemeTextColors,
+  FlowMetaThemeColors,
+  FlowMetaThemeColorScheme,
+  FlowMetaThemeShape,
+  FlowMetaThemeTypography,
+} from './models/v2/flow-meta-v2';
 export {
   EmbeddedFlowType,
   EmbeddedFlowStatus,

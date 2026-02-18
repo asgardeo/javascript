@@ -18,6 +18,7 @@
 
 import {useContext} from 'react';
 import AsgardeoContext, {AsgardeoContextProps} from './AsgardeoContext';
+import FlowMetaContext, {FlowMetaContextValue} from '../FlowMeta/FlowMetaContext';
 
 const useAsgardeo = (): AsgardeoContextProps => {
   const context: AsgardeoContextProps | null = useContext(AsgardeoContext);
@@ -26,7 +27,15 @@ const useAsgardeo = (): AsgardeoContextProps => {
     throw new Error('useAsgardeo must be used within an AsgardeoProvider');
   }
 
-  return context;
+  // FlowMetaContext lives inside AsgardeoProvider, so it is always present in
+  // normal usage.  Optional chaining keeps the hook safe in unit tests that
+  // don't render FlowMetaProvider.
+  const flowMetaContext: FlowMetaContextValue | null = useContext(FlowMetaContext);
+
+  return {
+    ...context,
+    meta: flowMetaContext?.meta ?? null,
+  };
 };
 
 export default useAsgardeo;

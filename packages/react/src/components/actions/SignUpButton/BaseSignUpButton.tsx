@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import {WithPreferences, withVendorCSSClassPrefix} from '@asgardeo/browser';
+import {FlowMetadataResponse, WithPreferences, withVendorCSSClassPrefix} from '@asgardeo/browser';
 import {cx} from '@emotion/css';
 import {
   forwardRef,
@@ -37,6 +37,10 @@ export interface CommonBaseSignUpButtonProps {
    * Loading state during sign-up process
    */
   isLoading?: boolean;
+  /**
+   * Flow metadata returned by the platform (v2 only). `null` while loading or unavailable.
+   */
+  meta?: FlowMetadataResponse | null;
   /**
    * Function to initiate the sign-up process
    */
@@ -83,11 +87,11 @@ export interface BaseSignUpButtonProps
 const BaseSignUpButton: ForwardRefExoticComponent<BaseSignUpButtonProps & RefAttributes<HTMLButtonElement>> =
   forwardRef<HTMLButtonElement, BaseSignUpButtonProps>(
     (
-      {children, className, style, signUp, isLoading, preferences, ...rest}: BaseSignUpButtonProps,
+      {children, className, style, signUp, isLoading, meta, preferences, ...rest}: BaseSignUpButtonProps,
       ref: Ref<HTMLButtonElement>,
     ): ReactElement => {
       if (typeof children === 'function') {
-        return <>{children({isLoading, signUp})}</>;
+        return <>{children({isLoading, meta, signUp})}</>;
       }
 
       return (

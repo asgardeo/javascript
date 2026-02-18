@@ -20,9 +20,11 @@ import {
   withVendorCSSClassPrefix,
   EmbeddedSignInFlowRequestV2 as EmbeddedSignInFlowRequest,
   EmbeddedFlowComponentV2 as EmbeddedFlowComponent,
+  FlowMetadataResponse,
 } from '@asgardeo/browser';
 import {cx} from '@emotion/css';
 import {FC, useState, useCallback, ReactElement, ReactNode} from 'react';
+import useAsgardeo from '../../../../../contexts/Asgardeo/useAsgardeo';
 import FlowProvider from '../../../../../contexts/Flow/FlowProvider';
 import useFlow from '../../../../../contexts/Flow/useFlow';
 import useTheme from '../../../../../contexts/Theme/useTheme';
@@ -82,6 +84,11 @@ export interface BaseSignInRenderProps {
    * Flow messages
    */
   messages: Array<{message: string; type: string}>;
+
+  /**
+   * Flow metadata returned by the platform (v2 only). `null` while loading or unavailable.
+   */
+  meta: FlowMetadataResponse | null;
 
   /**
    * Flow subtitle
@@ -222,6 +229,7 @@ const BaseSignInContent: FC<BaseSignInProps> = ({
   showTitle = true,
   showSubtitle = true,
 }: BaseSignInProps): ReactElement => {
+  const {meta} = useAsgardeo();
   const {theme} = useTheme();
   const {t} = useTranslation();
   const {subtitle: flowSubtitle, title: flowTitle, messages: flowMessages, addMessage, clearMessages} = useFlow();
@@ -471,6 +479,7 @@ const BaseSignInContent: FC<BaseSignInProps> = ({
       isLoading,
       isValid: isFormValid,
       messages: flowMessages || [],
+      meta,
       subtitle: flowSubtitle || t('signin.subheading'),
       title: flowTitle || t('signin.heading'),
       touched: touchedFields,

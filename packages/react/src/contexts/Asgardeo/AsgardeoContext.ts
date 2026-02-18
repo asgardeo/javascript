@@ -17,6 +17,7 @@
  */
 
 import {
+  FlowMetadataResponse,
   HttpRequestConfig,
   HttpResponse,
   IdToken,
@@ -96,6 +97,13 @@ export type AsgardeoContextProps = {
    * Flag indicating whether the user is signed in or not.
    */
   isSignedIn: boolean;
+
+  /**
+   * Flow metadata returned by `GET /flow/meta` (v2 platform only).
+   * `null` while loading or when `resolveFromMeta` is disabled.
+   */
+  meta: FlowMetadataResponse | null;
+
   organization: Organization;
 
   organizationHandle: string | undefined;
@@ -173,6 +181,7 @@ const AsgardeoContext: Context<AsgardeoContextProps | null> = createContext<null
   isInitialized: false,
   isLoading: true,
   isSignedIn: false,
+  meta: null,
   organization: null,
   organizationHandle: undefined,
   platform: undefined,
