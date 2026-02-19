@@ -914,77 +914,95 @@ export class AsgardeoAuthClient<T> {
    * @preserve
    */
   public async exchangeToken(config: TokenExchangeRequestConfig, userId?: string): Promise<TokenResponse | Response> {
-    const oidcProviderMetadata: OIDCDiscoveryApiResponse = await this.oidcProviderMetaDataProvider();
-    const configData: StrictAuthClientConfig = await this.configProvider();
+    const __TODO__ = async () => {
+      const oidcProviderMetadata: OIDCDiscoveryApiResponse = await this.oidcProviderMetaDataProvider();
+      const configData: StrictAuthClientConfig = await this.configProvider();
 
-    let tokenEndpoint: string | undefined;
+      let tokenEndpoint: string | undefined;
 
-    if (config.tokenEndpoint && config.tokenEndpoint.trim().length !== 0) {
-      tokenEndpoint = config.tokenEndpoint;
-    } else {
-      tokenEndpoint = oidcProviderMetadata.token_endpoint;
-    }
+      if (config.tokenEndpoint && config.tokenEndpoint.trim().length !== 0) {
+        tokenEndpoint = config.tokenEndpoint;
+      } else {
+        tokenEndpoint = oidcProviderMetadata.token_endpoint;
+      }
 
-    if (!tokenEndpoint || tokenEndpoint.trim().length === 0) {
-      throw new AsgardeoAuthException(
-        'JS-AUTH_CORE-RCG-NF01',
-        'Token endpoint not found.',
-        'No token endpoint was found in the OIDC provider meta data returned by the well-known endpoint ' +
-          'or the token endpoint passed to the SDK is empty.',
+      if (!tokenEndpoint || tokenEndpoint.trim().length === 0) {
+        throw new AsgardeoAuthException(
+          'JS-AUTH_CORE-RCG-NF01',
+          'Token endpoint not found.',
+          'No token endpoint was found in the OIDC provider meta data returned by the well-known endpoint ' +
+            'or the token endpoint passed to the SDK is empty.',
+        );
+      }
+
+      const data: string[] = await Promise.all(
+        Object.entries(config.data).map(async ([key, value]: [key: string, value: any]) => {
+          const newValue: string = await this.authHelper.replaceCustomGrantTemplateTags(
+            value as string,
+            userId,
+          );
+
+          return `${key}=${newValue}`;
+        }),
       );
-    }
 
-    const data: string[] = await Promise.all(
-      Object.entries(config.data).map(async ([key, value]: [key: string, value: any]) => {
-        const newValue: string = await this.authHelper.replaceCustomGrantTemplateTags(value as string, userId);
-
-        return `${key}=${newValue}`;
-      }),
-    );
-
-    let requestHeaders: Record<string, any> = {
-      Accept: 'application/json',
-      'Content-Type': 'application/x-www-form-urlencoded',
-    };
-
-    if (config.attachToken) {
-      requestHeaders = {
-        ...requestHeaders,
-        Authorization: `Bearer ${(await this.storageManager.getSessionData(userId)).access_token}`,
+      let requestHeaders: Record<string, any> = {
+        Accept: 'application/json',
+        'Content-Type': 'application/x-www-form-urlencoded',
       };
-    }
 
-    const requestConfig: RequestInit = {
-      body: data.join('&'),
-      credentials: configData.sendCookiesInRequests ? 'include' : 'same-origin',
-      headers: new Headers(requestHeaders),
-      method: 'POST',
+      if (config.attachToken) {
+        requestHeaders = {
+          ...requestHeaders,
+          Authorization: `Bearer ${(await this.storageManager.getSessionData(userId)).access_token}`,
+        };
+      }
+
+      const requestConfig: RequestInit = {
+        body: data.join('&'),
+        credentials: configData.sendCookiesInRequests ? 'include' : 'same-origin',
+        headers: new Headers(requestHeaders),
+        method: 'POST',
+      };
+
+      let response: Response;
+
+      try {
+        response = await fetch(tokenEndpoint, requestConfig);
+      } catch (error: any) {
+        throw new AsgardeoAuthException(
+          'JS-AUTH_CORE-RCG-NE02',
+          'The custom grant request failed.',
+          error ?? 'The request sent to get the custom grant failed.',
+        );
+      }
+
+      if (response.status !== 200 || !response.ok) {
+        throw new AsgardeoAuthException(
+          'JS-AUTH_CORE-RCG-HE03',
+          `Invalid response status received for the custom grant request. (${response.statusText})`,
+          (await response.json()) as string,
+        );
+      }
+
+      if (config.returnsSession) {
+        return this.authHelper.handleTokenResponse(response, userId);
+      } else {
+        return Promise.resolve((await response.json()) as TokenResponse | Response);
+      }
     };
 
-    let response: Response;
-
-    try {
-      response = await fetch(tokenEndpoint, requestConfig);
-    } catch (error: any) {
-      throw new AsgardeoAuthException(
-        'JS-AUTH_CORE-RCG-NE02',
-        'The custom grant request failed.',
-        error ?? 'The request sent to get the custom grant failed.',
-      );
+    if (
+      await this.storageManager.getTemporaryDataParameter(
+        OIDCDiscoveryConstants.Storage.StorageKeys.OPENID_PROVIDER_CONFIG_INITIATED,
+      )
+    ) {
+      return __TODO__();
     }
 
-    if (response.status !== 200 || !response.ok) {
-      throw new AsgardeoAuthException(
-        'JS-AUTH_CORE-RCG-HE03',
-        `Invalid response status received for the custom grant request. (${response.statusText})`,
-        (await response.json()) as string,
-      );
-    }
-
-    if (config.returnsSession) {
-      return this.authHelper.handleTokenResponse(response, userId);
-    }
-    return Promise.resolve((await response.json()) as TokenResponse | Response);
+    return this.loadOpenIDProviderConfiguration(false).then(() => {
+      return __TODO__();
+    });
   }
 
   /**

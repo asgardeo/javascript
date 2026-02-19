@@ -66,6 +66,7 @@ const AsgardeoProvider: FC<PropsWithChildren<AsgardeoProviderProps>> = ({
   signInOptions,
   syncSession,
   instanceId = 0,
+  organizationChain,
   ...rest
 }: PropsWithChildren<AsgardeoProviderProps>): ReactElement => {
   const reRenderCheckRef: RefObject<boolean> = useRef(false);
@@ -87,6 +88,7 @@ const AsgardeoProvider: FC<PropsWithChildren<AsgardeoProviderProps>> = ({
     applicationId,
     baseUrl,
     clientId,
+    organizationChain,
     organizationHandle,
     scopes,
     signInOptions,
@@ -562,6 +564,7 @@ const AsgardeoProvider: FC<PropsWithChildren<AsgardeoProviderProps>> = ({
       applicationId,
       baseUrl,
       clearSession,
+      clientId,
       exchangeToken,
       getAccessToken,
       getDecodedIdToken,
@@ -575,6 +578,7 @@ const AsgardeoProvider: FC<PropsWithChildren<AsgardeoProviderProps>> = ({
       isLoading: isLoadingSync,
       isSignedIn: isSignedInSync,
       organization: currentOrganization,
+      organizationChain,
       organizationHandle: config?.organizationHandle,
       platform: config?.platform,
       reInitialize,
@@ -596,6 +600,7 @@ const AsgardeoProvider: FC<PropsWithChildren<AsgardeoProviderProps>> = ({
       signUpUrl,
       afterSignInUrl,
       baseUrl,
+      clientId,
       isInitializedSync,
       isLoadingSync,
       isSignedInSync,
@@ -617,6 +622,7 @@ const AsgardeoProvider: FC<PropsWithChildren<AsgardeoProviderProps>> = ({
       clearSession,
       reInitialize,
       instanceId,
+      organizationChain,
     ],
   );
 

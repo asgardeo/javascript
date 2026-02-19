@@ -75,8 +75,16 @@ class StorageManager<T> {
     await this.store.setData(key, dataToBeSavedJSON);
   }
 
-  protected resolveKey(store: Stores | string, userId?: string): string {
-    return userId ? `${store}-${this.id}-${userId}` : `${store}-${this.id}`;
+  protected resolveKey(store: Stores | string, userId?: string, instanceId?: string): string {
+    if (userId && instanceId) {
+      return `${store}-${instanceId}-${userId}`;
+    } else if (userId) {
+      return `${store}-${this.id}-${userId}`;
+    } else if (instanceId) {
+      return `${store}-${instanceId}`;
+    } else {
+      return `${store}-${this.id}`;
+    }
   }
 
   protected static isLocalStorageAvailable(): boolean {
@@ -124,8 +132,8 @@ class StorageManager<T> {
     return JSON.parse((await this.store.getData(this.resolveKey(Stores.TemporaryData, userId))) ?? null);
   }
 
-  public async getSessionData(userId?: string): Promise<SessionData> {
-    return JSON.parse((await this.store.getData(this.resolveKey(Stores.SessionData, userId))) ?? null);
+  public async getSessionData(userId?: string, instanceId?: string): Promise<SessionData> {
+    return JSON.parse((await this.store.getData(this.resolveKey(Stores.SessionData, userId, instanceId))) ?? null);
   }
 
   public async getCustomData<K>(key: string, userId?: string): Promise<K> {

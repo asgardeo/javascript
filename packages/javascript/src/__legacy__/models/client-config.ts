@@ -26,6 +26,18 @@ export interface DefaultAuthClientConfig {
   clientId?: string;
   clientSecret?: string;
   enablePKCE?: boolean;
+  organizationChain?: {
+    /**
+     * Instance ID of the source organization context to retrieve access token from for organization token exchange.
+     * Used in linked organization scenarios to automatically fetch the source organization's access token.
+     */
+    sourceInstanceId?: string | number;
+    /**
+     * Organization ID for the target organization.
+     * When provided with sourceInstanceId, triggers automatic organization token exchange.
+     */
+    targetOrganizationId?: string;
+  };
   prompt?: string;
   responseMode?: OAuthResponseMode;
   scopes?: string | string[] | undefined;
