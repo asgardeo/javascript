@@ -1,5 +1,28 @@
 # @asgardeo/react
 
+## 0.13.0
+
+### Minor Changes
+
+- [#371](https://github.com/asgardeo/javascript/pull/371)
+  [`90b5d89`](https://github.com/asgardeo/javascript/commit/90b5d8987ba4dc62d347923f720c8e5e30f783f5) Thanks
+  [@brionmario](https://github.com/brionmario)! - Integrate Design APIs of Thunder
+
+### Patch Changes
+
+- [#334](https://github.com/asgardeo/javascript/pull/334)
+  [`cf6f059`](https://github.com/asgardeo/javascript/commit/cf6f05980cef488fd79de64f2667ce39cb0c30b8) Thanks
+  [@kavindadimuthu](https://github.com/kavindadimuthu)! - Fix failure of calling authenticated APIs when using multiple
+  AuthProvider instances
+
+- [#375](https://github.com/asgardeo/javascript/pull/375)
+  [`ee7d5f0`](https://github.com/asgardeo/javascript/commit/ee7d5f0f5040c1147f515f5b29936feac857c2fe) Thanks
+  [@ThaminduDilshan](https://github.com/ThaminduDilshan)! - Handle failure reason from flow execution response
+
+- Updated dependencies
+  [[`cf6f059`](https://github.com/asgardeo/javascript/commit/cf6f05980cef488fd79de64f2667ce39cb0c30b8)]:
+  - @asgardeo/browser@0.3.0
+
 ## 0.12.0
 
 ### Minor Changes
