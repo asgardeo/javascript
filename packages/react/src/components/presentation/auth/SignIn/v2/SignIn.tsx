@@ -546,6 +546,11 @@ const SignIn: FC<SignInProps> = ({
         setIsFlowInitialized(true);
         // Clean up flowId from URL after setting it in state
         cleanupFlowUrlParams();
+
+        // Display failure reason from INCOMPLETE response
+        if ((response as any)?.failureReason) {
+          setFlowError(new Error((response as any).failureReason));
+        }
       }
     } catch (error) {
       const err: any = error as any;
