@@ -85,7 +85,7 @@ export const MainThreadClient = async (
 
   let _getSignOutURLFromSessionStorage: boolean = false;
 
-  const _httpClient: HttpClientInstance = HttpClient.getInstance();
+  const _httpClient: HttpClientInstance = HttpClient.getInstance(instanceID);
   let _isHttpHandlerEnabled: boolean = true;
   let _httpErrorCallback: (error: HttpError) => void | Promise<void>;
   let _httpFinishCallback: () => void;
