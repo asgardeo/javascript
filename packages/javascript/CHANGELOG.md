@@ -1,5 +1,18 @@
 # @asgardeo/javascript
 
+## 0.8.0
+
+### Minor Changes
+
+- [#334](https://github.com/asgardeo/javascript/pull/334)
+  [`cf6f059`](https://github.com/asgardeo/javascript/commit/cf6f05980cef488fd79de64f2667ce39cb0c30b8) Thanks
+  [@kavindadimuthu](https://github.com/kavindadimuthu)! - Fix failure of calling authenticated APIs when using multiple
+  AuthProvider instances
+
+- [#371](https://github.com/asgardeo/javascript/pull/371)
+  [`90b5d89`](https://github.com/asgardeo/javascript/commit/90b5d8987ba4dc62d347923f720c8e5e30f783f5) Thanks
+  [@brionmario](https://github.com/brionmario)! - Integrate Design APIs of Thunder
+
 ## 0.7.3
 
 ### Patch Changes
