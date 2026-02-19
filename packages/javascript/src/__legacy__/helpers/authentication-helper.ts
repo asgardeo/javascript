@@ -238,7 +238,31 @@ export class AuthenticationHelper<T> {
 
   public async replaceCustomGrantTemplateTags(text: string, userId?: string): Promise<string> {
     const configData: StrictAuthClientConfig = await this.config();
-    const sessionData: SessionData = await this.storageManager.getSessionData(userId);
+
+    const sourceInstanceId = configData.organizationChain?.sourceInstanceId ?? null;
+
+    let sessionData: SessionData;
+
+    if (sourceInstanceId) {
+      const clientId = configData.clientId;
+      let instanceKey: string;
+      if (clientId) {
+        instanceKey = `instance_${sourceInstanceId}-${clientId}`;
+      } else {
+        instanceKey = `instance_${sourceInstanceId}`;
+      }
+      sessionData = await this.storageManager.getSessionData(userId, instanceKey);
+
+      if (!sessionData.access_token) {
+        throw new AsgardeoAuthException(
+          'JS-AUTH_HELPER-RCGTT-NE01',
+          'No session data found for source instance.',
+          'Failed to retrieve session data from the source organization context.',
+        );
+      }
+    } else {
+      sessionData = await this.storageManager.getSessionData(userId);
+    }
 
     const scope: string = processOpenIDScopes(configData.scopes);
 
