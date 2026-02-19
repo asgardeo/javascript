@@ -43,7 +43,7 @@ import {HttpClientInstance, HttpClientInterface, HttpClientStatic} from '../mode
 export class HttpClient implements HttpClientInterface<HttpRequestConfig, HttpResponse, HttpError> {
   private static instances: Map<number, HttpClientInstance> = new Map();
   private static clientInstances: Map<number, HttpClient> = new Map();
-  private isHandlerEnabled: boolean;
+  private isHandlerEnabled: boolean = true;
   private attachToken: (request: HttpRequestConfig) => Promise<void> = () => Promise.resolve();
   private requestStartCallback: (request: HttpRequestConfig) => void = () => null;
   private requestSuccessCallback: (response: HttpResponse) => void = () => null;
@@ -59,6 +59,9 @@ export class HttpClient implements HttpClientInterface<HttpRequestConfig, HttpRe
    */
   private constructor() {
     this.init = this.init.bind(this);
+    this.enableHandler = this.enableHandler.bind(this);
+    this.disableHandler = this.disableHandler.bind(this);
+    this.disableHandlerWithTimeout = this.disableHandlerWithTimeout.bind(this);
     this.setHttpRequestErrorCallback = this.setHttpRequestErrorCallback.bind(this);
     this.setHttpRequestFinishCallback = this.setHttpRequestFinishCallback.bind(this);
     this.setHttpRequestStartCallback = this.setHttpRequestStartCallback.bind(this);
