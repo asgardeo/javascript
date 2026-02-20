@@ -719,7 +719,7 @@ export class AsgardeoSPAClient {
     if (config.signInRequired) {
       await this._validateMethod();
     } else {
-      await this._validateMethod();
+      // await this._validateMethod();
     }
 
     if (!config.id) {
