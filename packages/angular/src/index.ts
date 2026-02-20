@@ -45,6 +45,7 @@ export {AsgardeoLoadingDirective} from './directives/loading.directive';
 
 // --- Components ---
 export {AsgardeoCallbackComponent} from './components/callback/callback.component';
+export {AsgardeoUserProfileComponent} from './components/user-profile/user-profile.component';
 
 // --- API ---
 export {default as getAllOrganizations, GetAllOrganizationsConfig} from './api/getAllOrganizations';

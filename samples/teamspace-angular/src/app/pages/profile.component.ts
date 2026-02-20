@@ -1,7 +1,7 @@
 import {Component, inject} from '@angular/core';
 import {RouterLink} from '@angular/router';
 import {JsonPipe} from '@angular/common';
-import {AsgardeoUserService} from '@asgardeo/angular';
+import {AsgardeoAuthService} from '@asgardeo/angular';
 import {HeaderComponent} from '../components/header.component';
 
 @Component({
@@ -27,7 +27,7 @@ import {HeaderComponent} from '../components/header.component';
           </p>
         </div>
 
-        @if (userService.isLoading()) {
+        @if (authService.isLoading()) {
           <div class="flex items-center justify-center py-12">
             <div class="w-8 h-8 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin"></div>
           </div>
@@ -51,7 +51,7 @@ import {HeaderComponent} from '../components/header.component';
 
             <!-- Profile Details -->
             <div class="p-6 space-y-6">
-              @if (userService.flattenedProfile(); as profile) {
+              @if (authService.flattenedProfile(); as profile) {
                 <!-- Basic Info -->
                 <div>
                   <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wider mb-3">Basic Information</h3>
@@ -94,7 +94,7 @@ import {HeaderComponent} from '../components/header.component';
               <div>
                 <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wider mb-3">Raw Profile Data</h3>
                 <div class="bg-gray-50 rounded-lg p-4 overflow-auto max-h-64">
-                  <pre class="text-xs font-mono text-gray-700 whitespace-pre-wrap">{{ userService.flattenedProfile() | json }}</pre>
+                  <pre class="text-xs font-mono text-gray-700 whitespace-pre-wrap">{{ authService.flattenedProfile() | json }}</pre>
                 </div>
               </div>
 
@@ -102,7 +102,7 @@ import {HeaderComponent} from '../components/header.component';
               <div class="flex items-center justify-between pt-4 border-t border-gray-200">
                 <button
                   (click)="refresh()"
-                  [disabled]="userService.isLoading()"
+                  [disabled]="authService.isLoading()"
                   class="inline-flex items-center px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors disabled:opacity-50"
                 >
                   <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -119,10 +119,10 @@ import {HeaderComponent} from '../components/header.component';
   `,
 })
 export class ProfileComponent {
-  userService = inject(AsgardeoUserService);
+  authService = inject(AsgardeoAuthService);
 
   getDisplayName(): string {
-    const profile = this.userService.flattenedProfile();
+    const profile = this.authService.flattenedProfile();
     if (!profile) return 'User';
     return (
       (profile as Record<string, any>)['given_name'] ||
@@ -133,7 +133,7 @@ export class ProfileComponent {
   }
 
   getEmail(): string {
-    const profile = this.userService.flattenedProfile();
+    const profile = this.authService.flattenedProfile();
     if (!profile) return '';
     return (profile as Record<string, any>)['email'] || '';
   }
@@ -149,6 +149,6 @@ export class ProfileComponent {
   }
 
   async refresh(): Promise<void> {
-    await this.userService.refreshUser();
+    await this.authService.reInitialize({});
   }
 }

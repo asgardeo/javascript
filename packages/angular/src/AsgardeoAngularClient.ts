@@ -296,8 +296,18 @@ class AsgardeoAngularClient<T extends AsgardeoAngularConfig = AsgardeoAngularCon
     return this.spaClient.isSignedIn();
   }
 
+  // NOTE: spaClient.getConfigData() is async, so this returns a Promise<T> at runtime.
+  // Callers MUST await the result. The sync return type is inherited from the base interface.
   override getConfiguration(): T {
     return this.spaClient.getConfigData() as unknown as T;
+  }
+
+  /**
+   * Async version of getConfiguration that properly awaits the config data.
+   * Use this instead of getConfiguration() for correct behavior.
+   */
+  async getConfigurationAsync(): Promise<T> {
+    return (await this.spaClient.getConfigData()) as unknown as T;
   }
 
   override async exchangeToken(config: TokenExchangeRequestConfig): Promise<TokenResponse | Response> {

@@ -33,6 +33,7 @@ import {
   hasCalledForThisInstanceInUrl,
   Platform,
   extractUserClaimsFromIdToken,
+  generateFlattenedUserProfile,
 } from '@asgardeo/browser';
 import {BehaviorSubject, Observable} from 'rxjs';
 import AsgardeoAngularClient from '../AsgardeoAngularClient';
@@ -127,7 +128,7 @@ export class AsgardeoAuthService implements OnDestroy {
   async initialize(): Promise<void> {
     try {
       await this.client.initialize(this.config);
-      const initializedConfig: AsgardeoAngularConfig = this.client.getConfiguration();
+      const initializedConfig: AsgardeoAngularConfig = await this.client.getConfigurationAsync();
       this.config = initializedConfig;
 
       if (initializedConfig?.platform) {
@@ -323,8 +324,35 @@ export class AsgardeoAuthService implements OnDestroy {
     return this.config;
   }
 
+  /**
+   * Returns the resolved base URL, including the `/o` suffix for organization logins.
+   */
+  getBaseUrl(): string {
+    return this._baseUrl();
+  }
+
   async reInitialize(config: Partial<AsgardeoAngularConfig>): Promise<boolean> {
     return this.client.reInitialize(config);
+  }
+
+  // --- Profile Update ---
+
+  /**
+   * Updates the cached user and user profile after a successful SCIM2 PATCH.
+   * Mirrors AsgardeoProvider's handleProfileUpdate from the React SDK.
+   *
+   * @param updatedUser - The updated user object returned from the SCIM2 API.
+   */
+  handleProfileUpdate(updatedUser: User): void {
+    this._user.set(updatedUser);
+    this._user$.next(updatedUser);
+
+    const currentProfile = this._userProfile();
+    this._userProfile.set({
+      ...currentProfile,
+      flattenedProfile: generateFlattenedUserProfile(updatedUser, currentProfile?.schemas),
+      profile: updatedUser,
+    } as UserProfile);
   }
 
   // --- Internal: Expose client for secondary services ---
@@ -350,7 +378,7 @@ export class AsgardeoAuthService implements OnDestroy {
 
       // If there's a `user_org` claim, treat this as an organization login
       if (decodedToken?.['user_org']) {
-        resolvedBaseUrl = `${this.client.getConfiguration().baseUrl}/o`;
+        resolvedBaseUrl = `${(await this.client.getConfigurationAsync()).baseUrl}/o`;
         this._baseUrl.set(resolvedBaseUrl);
       }
 

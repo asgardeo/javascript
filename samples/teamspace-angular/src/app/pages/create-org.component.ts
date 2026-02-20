@@ -1,7 +1,7 @@
 import {Component, inject, signal} from '@angular/core';
 import {Router, RouterLink} from '@angular/router';
 import {FormsModule} from '@angular/forms';
-import {AsgardeoOrganizationService} from '@asgardeo/angular';
+import {AsgardeoAuthService, createOrganization} from '@asgardeo/angular';
 import {HeaderComponent} from '../components/header.component';
 
 @Component({
@@ -102,7 +102,7 @@ import {HeaderComponent} from '../components/header.component';
   `,
 })
 export class CreateOrgComponent {
-  private orgService = inject(AsgardeoOrganizationService);
+  private authService = inject(AsgardeoAuthService);
   private router = inject(Router);
 
   orgName = '';
@@ -119,8 +119,16 @@ export class CreateOrgComponent {
     this.success.set(false);
 
     try {
-      await this.orgService.createOrganization({name: this.orgName.trim(), description: this.orgDescription.trim()});
-      await this.orgService.revalidateMyOrganizations();
+      await createOrganization({
+        baseUrl: import.meta.env['VITE_ASGARDEO_BASE_URL'] || '',
+        payload: {
+          name: this.orgName.trim(),
+          description: this.orgDescription.trim(),
+          parentId: this.authService.currentOrganization()?.id || '',
+          type: 'TENANT',
+        },
+      });
+      await this.authService.getClient().getMyOrganizations();
       this.success.set(true);
       setTimeout(() => {
         this.router.navigate(['/organizations']);

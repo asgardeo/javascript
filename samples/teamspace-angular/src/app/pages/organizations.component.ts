@@ -1,6 +1,6 @@
-import {Component, inject} from '@angular/core';
+import {Component, inject, signal} from '@angular/core';
 import {RouterLink} from '@angular/router';
-import {AsgardeoOrganizationService} from '@asgardeo/angular';
+import {AsgardeoAuthService} from '@asgardeo/angular';
 import {HeaderComponent} from '../components/header.component';
 
 @Component({
@@ -37,17 +37,17 @@ import {HeaderComponent} from '../components/header.component';
           </div>
         </div>
 
-        @if (orgService.isLoading()) {
+        @if (isLoading()) {
           <div class="flex items-center justify-center py-12">
             <div class="w-8 h-8 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin"></div>
           </div>
-        } @else if (orgService.error()) {
+        } @else if (error()) {
           <div class="bg-red-50 border border-red-200 rounded-lg p-4">
-            <p class="text-sm text-red-600">{{ orgService.error() }}</p>
+            <p class="text-sm text-red-600">{{ error() }}</p>
           </div>
         } @else {
           <!-- Current Organization -->
-          @if (orgService.currentOrganization(); as currentOrg) {
+          @if (authService.currentOrganization(); as currentOrg) {
             <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
               <div class="flex items-center justify-between">
                 <div>
@@ -61,7 +61,7 @@ import {HeaderComponent} from '../components/header.component';
 
           <!-- Organization List -->
           <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-            @if (orgService.myOrganizations().length === 0) {
+            @if (authService.myOrganizations().length === 0) {
               <div class="p-8 text-center">
                 <svg class="h-12 w-12 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
@@ -76,7 +76,7 @@ import {HeaderComponent} from '../components/header.component';
               </div>
             } @else {
               <ul class="divide-y divide-gray-200">
-                @for (org of orgService.myOrganizations(); track org.id) {
+                @for (org of authService.myOrganizations(); track org.id) {
                   <li class="p-4 hover:bg-gray-50 transition-colors">
                     <div class="flex items-center justify-between">
                       <div class="flex items-center space-x-3">
@@ -93,7 +93,7 @@ import {HeaderComponent} from '../components/header.component';
                         </div>
                       </div>
                       <div class="flex items-center space-x-2">
-                        @if (orgService.currentOrganization()?.id === org.id) {
+                        @if (authService.currentOrganization()?.id === org.id) {
                           <span class="px-3 py-1 bg-green-100 text-green-700 text-xs font-medium rounded-full">Current</span>
                         } @else {
                           <button
@@ -115,7 +115,7 @@ import {HeaderComponent} from '../components/header.component';
           <div class="mt-4 flex justify-end">
             <button
               (click)="revalidate()"
-              [disabled]="orgService.isLoading()"
+              [disabled]="isLoading()"
               class="inline-flex items-center px-3 py-1.5 text-sm text-gray-600 hover:text-gray-800 transition-colors disabled:opacity-50"
             >
               <svg class="h-4 w-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -130,13 +130,23 @@ import {HeaderComponent} from '../components/header.component';
   `,
 })
 export class OrganizationsComponent {
-  orgService = inject(AsgardeoOrganizationService);
+  authService = inject(AsgardeoAuthService);
+  isLoading = signal(false);
+  error = signal<string | null>(null);
 
   async switchTo(org: any): Promise<void> {
-    await this.orgService.switchOrganization(org);
+    await this.authService.switchOrganization(org);
   }
 
   async revalidate(): Promise<void> {
-    await this.orgService.revalidateMyOrganizations();
+    this.isLoading.set(true);
+    this.error.set(null);
+    try {
+      await this.authService.getClient().getMyOrganizations();
+    } catch (err: any) {
+      this.error.set(err?.message || 'Failed to fetch organizations');
+    } finally {
+      this.isLoading.set(false);
+    }
   }
 }
