@@ -16,29 +16,28 @@
  * under the License.
  */
 
-import { FC, PropsWithChildren } from "react";
-import AsgardeoProvider, { AsgardeoProviderProps } from "../../contexts/Asgardeo/AsgardeoProvider";
-import useAsgardeo from "../../contexts/Asgardeo/useAsgardeo";
-import OrganizationContextController from "./OrganizationContextController";
+import {FC, PropsWithChildren} from 'react';
+import OrganizationContextController from './OrganizationContextController';
+import AsgardeoProvider, {AsgardeoProviderProps} from '../../contexts/Asgardeo/AsgardeoProvider';
+import useAsgardeo from '../../contexts/Asgardeo/useAsgardeo';
 
-interface OrganizationContextProps extends Omit<AsgardeoProviderProps, 'organizationChain' | 'baseUrl'> {
+export interface OrganizationContextProps extends Omit<AsgardeoProviderProps, 'organizationChain' | 'baseUrl'> {
+  /**
+   * Optional base URL for the organization context. If not provided, it will default to the source provider's base URL.
+   */
+  baseUrl?: string;
   /**
    * Instance ID for this organization context. Must be unique across the app if multiple contexts are used.
    */
   instanceId: number;
   /**
-   * ID of the organization to authenticate with
-   */
-  targetOrganizationId: string;
-
-  /**
    * Optional source instance ID. If not provided, immediate parent provider is used as source.
    */
   sourceInstanceId?: number;
   /**
-   * Optional base URL for the organization context. If not provided, it will default to the source provider's base URL.
+   * ID of the organization to authenticate with
    */
-  baseUrl?: string;
+  targetOrganizationId: string;
 }
 
 const OrganizationContext: FC<PropsWithChildren<OrganizationContextProps>> = ({
@@ -52,13 +51,13 @@ const OrganizationContext: FC<PropsWithChildren<OrganizationContextProps>> = ({
   scopes,
   children,
   ...rest
-}) => {
+}: PropsWithChildren<OrganizationContextProps>) => {
   // Get the source provider's signed-in status
-  const { 
+  const {
     isSignedIn: isSourceSignedIn,
-    instanceId: sourceInstanceIdFromContext, 
-    baseUrl: sourceBaseUrl, 
-    clientId: sourceClientId
+    instanceId: sourceInstanceIdFromContext,
+    baseUrl: sourceBaseUrl,
+    clientId: sourceClientId,
   } = useAsgardeo();
 
   return (
@@ -71,14 +70,11 @@ const OrganizationContext: FC<PropsWithChildren<OrganizationContextProps>> = ({
       scopes={scopes}
       organizationChain={{
         sourceInstanceId: sourceInstanceId || sourceInstanceIdFromContext,
-        targetOrganizationId: targetOrganizationId,
+        targetOrganizationId,
       }}
       {...rest}
     >
-      <OrganizationContextController
-        targetOrganizationId={targetOrganizationId}
-        isSourceSignedIn={isSourceSignedIn}
-      >
+      <OrganizationContextController targetOrganizationId={targetOrganizationId} isSourceSignedIn={isSourceSignedIn}>
         {children}
       </OrganizationContextController>
     </AsgardeoProvider>

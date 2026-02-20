@@ -78,13 +78,14 @@ class StorageManager<T> {
   protected resolveKey(store: Stores | string, userId?: string, instanceId?: string): string {
     if (userId && instanceId) {
       return `${store}-${instanceId}-${userId}`;
-    } else if (userId) {
-      return `${store}-${this.id}-${userId}`;
-    } else if (instanceId) {
-      return `${store}-${instanceId}`;
-    } else {
-      return `${store}-${this.id}`;
     }
+    if (userId) {
+      return `${store}-${this.id}-${userId}`;
+    }
+    if (instanceId) {
+      return `${store}-${instanceId}`;
+    }
+    return `${store}-${this.id}`;
   }
 
   protected static isLocalStorageAvailable(): boolean {

@@ -276,8 +276,8 @@ class AsgardeoReactClient<T extends AsgardeoReactConfig = AsgardeoReactConfig> e
   override async switchOrganization(organization: Organization): Promise<TokenResponse | Response> {
     return this.withLoading(async () => {
       try {
-        const configData = await this.asgardeo.getConfigData();
-        const sourceInstanceId = configData?.organizationChain?.sourceInstanceId;
+        const configData: any = await this.asgardeo.getConfigData();
+        const sourceInstanceId: number | undefined = configData?.organizationChain?.sourceInstanceId;
 
         if (!organization.id) {
           throw new AsgardeoRuntimeError(
@@ -299,7 +299,7 @@ class AsgardeoReactClient<T extends AsgardeoReactConfig = AsgardeoReactConfig> e
           },
           id: 'organization-switch',
           returnsSession: true,
-          signInRequired: sourceInstanceId !== undefined ? false : true ,
+          signInRequired: sourceInstanceId === undefined,
         };
 
         return (await this.asgardeo.exchangeToken(exchangeConfig, () => {})) as TokenResponse | Response;
