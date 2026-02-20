@@ -914,7 +914,7 @@ export class AsgardeoAuthClient<T> {
    * @preserve
    */
   public async exchangeToken(config: TokenExchangeRequestConfig, userId?: string): Promise<TokenResponse | Response> {
-    const __TODO__ = async () => {
+    const executeTokenExchange = async (): Promise<TokenResponse | Response> => {
       const oidcProviderMetadata: OIDCDiscoveryApiResponse = await this.oidcProviderMetaDataProvider();
       const configData: StrictAuthClientConfig = await this.configProvider();
 
@@ -937,10 +937,7 @@ export class AsgardeoAuthClient<T> {
 
       const data: string[] = await Promise.all(
         Object.entries(config.data).map(async ([key, value]: [key: string, value: any]) => {
-          const newValue: string = await this.authHelper.replaceCustomGrantTemplateTags(
-            value as string,
-            userId,
-          );
+          const newValue: string = await this.authHelper.replaceCustomGrantTemplateTags(value as string, userId);
 
           return `${key}=${newValue}`;
         }),
@@ -987,9 +984,8 @@ export class AsgardeoAuthClient<T> {
 
       if (config.returnsSession) {
         return this.authHelper.handleTokenResponse(response, userId);
-      } else {
-        return Promise.resolve((await response.json()) as TokenResponse | Response);
       }
+      return Promise.resolve((await response.json()) as TokenResponse | Response);
     };
 
     if (
@@ -997,12 +993,10 @@ export class AsgardeoAuthClient<T> {
         OIDCDiscoveryConstants.Storage.StorageKeys.OPENID_PROVIDER_CONFIG_INITIATED,
       )
     ) {
-      return __TODO__();
+      return executeTokenExchange();
     }
 
-    return this.loadOpenIDProviderConfiguration(false).then(() => {
-      return __TODO__();
-    });
+    return this.loadOpenIDProviderConfiguration(false).then(() => executeTokenExchange());
   }
 
   /**
