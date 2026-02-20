@@ -126,20 +126,27 @@ import {AsgardeoAuthService, AsgardeoSignedInDirective, AsgardeoSignedOutDirecti
             </div>
 
             <!-- Signed Out: Sign In / Sign Up buttons -->
-            <div *asgardeoSignedOut class="flex items-center space-x-3">
-              <button
-                (click)="signIn()"
-                class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors"
-              >
-                Sign In
-              </button>
-              <button
-                (click)="signUp()"
-                class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors"
-              >
-                Sign Up
-              </button>
-            </div>
+            @if (!authService.isSignedIn()) {
+              <div class="flex items-center space-x-3">
+                <button
+                  (click)="signIn()"
+                  [disabled]="signingIn()"
+                  class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+                >
+                  @if (signingIn()) {
+                    <div class="w-4 h-4 border-2 border-gray-300 border-t-blue-600 rounded-full animate-spin mr-1.5"></div>
+                  }
+                  Sign In
+                </button>
+                <button
+                  (click)="signUp()"
+                  [disabled]="signingIn()"
+                  class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+                >
+                  Sign Up
+                </button>
+              </div>
+            }
           </div>
         </div>
       </div>
@@ -148,8 +155,7 @@ import {AsgardeoAuthService, AsgardeoSignedInDirective, AsgardeoSignedOutDirecti
     <!-- User Profile Popup (matches React SDK's UserProfile mode="popup") -->
     <asgardeo-user-profile
       mode="popup"
-      [open]="showProfile()"
-      (openChange)="showProfile.set($event)"
+      [(open)]="showProfile"
     />
   `,
   styles: `
@@ -278,6 +284,7 @@ export class HeaderComponent {
   authService = inject(AsgardeoAuthService);
   dropdownOpen = signal(false);
   showProfile = signal(false);
+  signingIn = signal(false);
 
   /** Computed gradient background matching the React SDK Avatar's name-seeded algorithm */
   avatarGradient = computed(() => {
@@ -355,6 +362,7 @@ export class HeaderComponent {
   }
 
   signIn(): void {
+    this.signingIn.set(true);
     this.authService.signIn();
   }
 

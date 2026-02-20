@@ -18,7 +18,6 @@
 
 import {Injectable, Signal, WritableSignal, computed, signal} from '@angular/core';
 import {User, UserProfile} from '@asgardeo/browser';
-import {BehaviorSubject, Observable} from 'rxjs';
 import {AsgardeoAuthService} from './asgardeo-auth.service';
 import updateMeProfile, {UpdateMeProfileConfig} from '../api/updateMeProfile';
 
@@ -45,13 +44,7 @@ export class AsgardeoUserService {
 
   readonly schemas: Signal<any[]>;
 
-  // Observable variants
-  private readonly _isLoading$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
-
-  readonly isLoading$: Observable<boolean> = this._isLoading$.asObservable();
-
   constructor(private authService: AsgardeoAuthService) {
-    // Delegate to auth service's user profile signal
     this.userProfile = this.authService.userProfile;
     this.flattenedProfile = this.authService.flattenedProfile;
     this.profile = this.authService.profile;
@@ -63,40 +56,36 @@ export class AsgardeoUserService {
    */
   async refreshUser(): Promise<void> {
     this._isLoading.set(true);
-    this._isLoading$.next(true);
     this._error.set(null);
 
     try {
-      // Re-initialize to trigger updateSession which refreshes the user data
-      await this.authService.reInitialize({});
+      await this.authService.refreshSession();
     } catch (error) {
       this._error.set(error instanceof Error ? error : new Error('Failed to refresh user profile'));
     } finally {
       this._isLoading.set(false);
-      this._isLoading$.next(false);
     }
   }
 
   /**
-   * Updates the user profile via the SCIM2 API.
+   * Updates the user profile via the SCIM2 API and updates the cached state.
    *
    * @param config - The update configuration containing operations and baseUrl.
    * @returns The updated user profile data.
    */
   async updateUser(config: UpdateMeProfileConfig): Promise<User> {
     this._isLoading.set(true);
-    this._isLoading$.next(true);
     this._error.set(null);
 
     try {
       const result: User = await updateMeProfile(config);
+      this.authService.handleProfileUpdate(result);
       return result;
     } catch (error) {
       this._error.set(error instanceof Error ? error : new Error('Failed to update user profile'));
       throw error;
     } finally {
       this._isLoading.set(false);
-      this._isLoading$.next(false);
     }
   }
 }

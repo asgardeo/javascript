@@ -123,7 +123,12 @@ class AsgardeoAngularClient<T extends AsgardeoAngularConfig = AsgardeoAngularCon
 
   // eslint-disable-next-line class-methods-use-this
   override async updateUserProfile(): Promise<User> {
-    throw new Error('Not implemented');
+    throw new AsgardeoRuntimeError(
+      'updateUserProfile() is not supported in the Angular SDK. Use AsgardeoUserService.updateUser() instead.',
+      'AsgardeoAngularClient-updateUserProfile-NotSupported',
+      'angular',
+      'Use AsgardeoUserService.updateUser() to update the user profile via the SCIM2 API.',
+    );
   }
 
   override async getUser(options?: any): Promise<User> {
@@ -296,15 +301,20 @@ class AsgardeoAngularClient<T extends AsgardeoAngularConfig = AsgardeoAngularCon
     return this.spaClient.isSignedIn();
   }
 
-  // NOTE: spaClient.getConfigData() is async, so this returns a Promise<T> at runtime.
-  // Callers MUST await the result. The sync return type is inherited from the base interface.
+  /**
+   * @deprecated This method returns a Promise at runtime despite its sync return type
+   * (inherited from the base class). Use {@link getConfigurationAsync} instead.
+   *
+   * Calling `getConfiguration().baseUrl` will return `undefined` because the
+   * return value is actually a Promise, not the config object.
+   */
   override getConfiguration(): T {
     return this.spaClient.getConfigData() as unknown as T;
   }
 
   /**
-   * Async version of getConfiguration that properly awaits the config data.
-   * Use this instead of getConfiguration() for correct behavior.
+   * Returns the resolved configuration data.
+   * Always use this instead of {@link getConfiguration} for correct behavior.
    */
   async getConfigurationAsync(): Promise<T> {
     return (await this.spaClient.getConfigData()) as unknown as T;

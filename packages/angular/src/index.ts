@@ -16,9 +16,6 @@
  * under the License.
  */
 
-// --- Client ---
-export {default as AsgardeoAngularClient} from './AsgardeoAngularClient';
-
 // --- Config ---
 export type {AsgardeoAngularConfig} from './models/config';
 

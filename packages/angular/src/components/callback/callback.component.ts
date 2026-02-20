@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import {Component, OnInit, Output, EventEmitter, inject} from '@angular/core';
+import {Component, OnInit, output, inject} from '@angular/core';
 import {Router} from '@angular/router';
 import {navigate as browserNavigate} from '@asgardeo/browser';
 
@@ -44,7 +44,7 @@ import {navigate as browserNavigate} from '@asgardeo/browser';
 export class AsgardeoCallbackComponent implements OnInit {
   private router: Router | null = inject(Router, {optional: true});
 
-  @Output() readonly error: EventEmitter<Error> = new EventEmitter<Error>();
+  readonly error = output<Error>();
 
   ngOnInit(): void {
     this.processOAuthCallback();

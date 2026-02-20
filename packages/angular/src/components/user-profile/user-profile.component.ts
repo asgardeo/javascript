@@ -18,18 +18,17 @@
 
 import {
   Component,
-  Input,
-  Output,
-  EventEmitter,
   inject,
+  input,
+  model,
   signal,
   computed,
-  OnChanges,
-  SimpleChanges,
+  effect,
   HostListener,
 } from '@angular/core';
+import {NgTemplateOutlet} from '@angular/common';
 import {AsgardeoAuthService} from '../../services/asgardeo-auth.service';
-import updateMeProfile from '../../api/updateMeProfile';
+import {AsgardeoUserService} from '../../services/asgardeo-user.service';
 
 /** Fields that should never be displayed in the profile fields list.
  *  Matches React SDK's BaseUserProfile.fieldsToSkip. */
@@ -99,108 +98,9 @@ interface SchemaField {
 @Component({
   selector: 'asgardeo-user-profile',
   standalone: true,
+  imports: [NgTemplateOutlet],
   template: `
-    @if (mode === 'popup') {
-      @if (open) {
-        <div class="asgardeo-dialog__overlay" (click)="onOverlayClick($event)">
-          <div class="asgardeo-dialog__content" (click)="$event.stopPropagation()">
-            <div class="asgardeo-dialog__header">
-              <h2 class="asgardeo-dialog__heading">{{ title || 'Profile' }}</h2>
-              <button class="asgardeo-dialog__close" (click)="close()" aria-label="Close">
-                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
-            <div class="asgardeo-user-profile__popup">
-              <div class="asgardeo-user-profile">
-                @if (error()) {
-                  <div class="asgardeo-alert asgardeo-alert--error">
-                    <div class="asgardeo-alert__title">Error</div>
-                    <div class="asgardeo-alert__description">{{ error() }}</div>
-                  </div>
-                }
-                <div class="asgardeo-user-profile__summary">
-                  @if (profileImageUrl()) {
-                    <img [src]="profileImageUrl()" [alt]="displayName()" class="asgardeo-avatar asgardeo-avatar--lg" />
-                  } @else {
-                    <div class="asgardeo-avatar asgardeo-avatar--lg" [style.background]="avatarGradient()">
-                      {{ initials() }}
-                    </div>
-                  }
-                  <div class="asgardeo-user-profile__summary-name">{{ displayName() }}</div>
-                  @if (emailValue()) {
-                    <div class="asgardeo-user-profile__summary-email">{{ emailValue() }}</div>
-                  }
-                </div>
-                <div class="asgardeo-divider"></div>
-                @if (visibleFields().length > 0) {
-                  @for (field of visibleFields(); track field.name) {
-                    <div class="asgardeo-user-profile__info">
-                      <div class="asgardeo-user-profile__field">
-                        <div class="asgardeo-user-profile__field-inner">
-                          <div class="asgardeo-user-profile__field-label">
-                            {{ field.displayName || field.description || formatLabel(field.name || '') }}
-                          </div>
-                          <div class="asgardeo-user-profile__field-value">
-                            @if (isFieldEditing(field.name || '')) {
-                              @if (field.type === 'BOOLEAN') {
-                                <label class="asgardeo-checkbox">
-                                  <input type="checkbox" [checked]="!!getEditedValue(field.name || '')" (change)="onFieldChange(field.name || '', $any($event.target).checked)" />
-                                </label>
-                              } @else if (field.type === 'DATE_TIME') {
-                                <input type="date" class="asgardeo-text-field" [value]="getEditedValue(field.name || '') || ''" (input)="onFieldChange(field.name || '', $any($event.target).value)" />
-                              } @else {
-                                <input type="text" class="asgardeo-text-field" [value]="getEditedValue(field.name || '') || ''" (input)="onFieldChange(field.name || '', $any($event.target).value)" [placeholder]="'Enter your ' + (field.displayName || field.name || '').toLowerCase()" />
-                              }
-                            } @else {
-                              @if (hasFieldValue(field)) {
-                                <span>{{ formatFieldValue(field) }}</span>
-                              } @else if (editable && !isReadonly(field)) {
-                                <span class="asgardeo-user-profile__field-placeholder" (click)="toggleEdit(field.name || '')">
-                                  Add {{ (field.displayName || field.name || '').toLowerCase() }}
-                                </span>
-                              }
-                            }
-                          </div>
-                        </div>
-                        @if (editable && !isReadonly(field)) {
-                          <div class="asgardeo-user-profile__field-actions">
-                            @if (isFieldEditing(field.name || '')) {
-                              <button class="asgardeo-btn asgardeo-btn--primary asgardeo-btn--sm" (click)="saveField(field)">Save</button>
-                              <button class="asgardeo-btn asgardeo-btn--secondary asgardeo-btn--sm" (click)="cancelEdit(field.name || '')">Cancel</button>
-                            } @else if (hasFieldValue(field)) {
-                              <button class="asgardeo-btn asgardeo-btn--icon" (click)="toggleEdit(field.name || '')" aria-label="Edit">
-                                <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                </svg>
-                              </button>
-                            }
-                          </div>
-                        }
-                      </div>
-                    </div>
-                  }
-                } @else {
-                  @for (entry of flatProfileEntries(); track entry.key) {
-                    <div class="asgardeo-user-profile__info">
-                      <div class="asgardeo-user-profile__field">
-                        <div class="asgardeo-user-profile__field-inner">
-                          <div class="asgardeo-user-profile__field-label">{{ formatLabel(entry.key) }}</div>
-                          <div class="asgardeo-user-profile__field-value">
-                            <span>{{ entry.value }}</span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  }
-                }
-              </div>
-            </div>
-          </div>
-        </div>
-      }
-    } @else {
+    <ng-template #profileBody>
       <div class="asgardeo-user-profile">
         @if (error()) {
           <div class="asgardeo-alert asgardeo-alert--error">
@@ -236,37 +136,37 @@ interface SchemaField {
                         <label class="asgardeo-checkbox">
                           <input type="checkbox" [checked]="!!getEditedValue(field.name || '')" (change)="onFieldChange(field.name || '', $any($event.target).checked)" />
                         </label>
-                    } @else if (field.type === 'DATE_TIME') {
-                      <input type="date" class="asgardeo-text-field" [value]="getEditedValue(field.name || '') || ''" (input)="onFieldChange(field.name || '', $any($event.target).value)" />
+                      } @else if (field.type === 'DATE_TIME') {
+                        <input type="date" class="asgardeo-text-field" [value]="getEditedValue(field.name || '') || ''" (input)="onFieldChange(field.name || '', $any($event.target).value)" />
+                      } @else {
+                        <input type="text" class="asgardeo-text-field" [value]="getEditedValue(field.name || '') || ''" (input)="onFieldChange(field.name || '', $any($event.target).value)" [placeholder]="'Enter your ' + (field.displayName || field.name || '').toLowerCase()" />
+                      }
                     } @else {
-                      <input type="text" class="asgardeo-text-field" [value]="getEditedValue(field.name || '') || ''" (input)="onFieldChange(field.name || '', $any($event.target).value)" [placeholder]="'Enter your ' + (field.displayName || field.name || '').toLowerCase()" />
+                      @if (hasFieldValue(field)) {
+                        <span>{{ formatFieldValue(field) }}</span>
+                      } @else if (editable() && !isReadonly(field)) {
+                        <span class="asgardeo-user-profile__field-placeholder" (click)="toggleEdit(field.name || '')">
+                          Add {{ (field.displayName || field.name || '').toLowerCase() }}
+                        </span>
+                      }
                     }
-                  } @else {
-                    @if (hasFieldValue(field)) {
-                      <span>{{ formatFieldValue(field) }}</span>
-                    } @else if (editable && !isReadonly(field)) {
-                      <span class="asgardeo-user-profile__field-placeholder" (click)="toggleEdit(field.name || '')">
-                        Add {{ (field.displayName || field.name || '').toLowerCase() }}
-                      </span>
-                    }
-                  }
+                  </div>
                 </div>
+                @if (editable() && !isReadonly(field)) {
+                  <div class="asgardeo-user-profile__field-actions">
+                    @if (isFieldEditing(field.name || '')) {
+                      <button class="asgardeo-btn asgardeo-btn--primary asgardeo-btn--sm" (click)="saveField(field)">Save</button>
+                      <button class="asgardeo-btn asgardeo-btn--secondary asgardeo-btn--sm" (click)="cancelEdit(field.name || '')">Cancel</button>
+                    } @else if (hasFieldValue(field)) {
+                      <button class="asgardeo-btn asgardeo-btn--icon" (click)="toggleEdit(field.name || '')" aria-label="Edit">
+                        <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        </svg>
+                      </button>
+                    }
+                  </div>
+                }
               </div>
-              @if (editable && !isReadonly(field)) {
-                <div class="asgardeo-user-profile__field-actions">
-                  @if (isFieldEditing(field.name || '')) {
-                    <button class="asgardeo-btn asgardeo-btn--primary asgardeo-btn--sm" (click)="saveField(field)">Save</button>
-                    <button class="asgardeo-btn asgardeo-btn--secondary asgardeo-btn--sm" (click)="cancelEdit(field.name || '')">Cancel</button>
-                  } @else if (hasFieldValue(field)) {
-                    <button class="asgardeo-btn asgardeo-btn--icon" (click)="toggleEdit(field.name || '')" aria-label="Edit">
-                      <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                      </svg>
-                    </button>
-                  }
-                </div>
-              }
-            </div>
             </div>
           }
         } @else {
@@ -284,14 +184,89 @@ interface SchemaField {
           }
         }
       </div>
+    </ng-template>
+
+    @if (mode() === 'popup') {
+      @if (open()) {
+        <div class="asgardeo-dialog__overlay" (click)="onOverlayClick($event)">
+          <div class="asgardeo-dialog__content" (click)="$event.stopPropagation()">
+            <div class="asgardeo-dialog__header">
+              <h2 class="asgardeo-dialog__heading">{{ title() || 'Profile' }}</h2>
+              <button class="asgardeo-dialog__close" (click)="close()" aria-label="Close">
+                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            <div class="asgardeo-user-profile__popup">
+              <ng-container *ngTemplateOutlet="profileBody" />
+            </div>
+          </div>
+        </div>
+      }
+    } @else {
+      <ng-container *ngTemplateOutlet="profileBody" />
     }
   `,
   styles: `
+    /* ------------------------------------------------------------------ */
+    /* Custom Properties — override these to theme the component.         */
+    /*                                                                    */
+    /* Usage:                                                             */
+    /*   asgardeo-user-profile {                                          */
+    /*     --asgardeo-color-primary: #0ea5e9;                             */
+    /*     --asgardeo-color-primary-hover: #0284c7;                       */
+    /*   }                                                                */
+    /* ------------------------------------------------------------------ */
+    :host {
+      /* Core palette */
+      --asgardeo-color-primary: #4f46e5;
+      --asgardeo-color-primary-hover: #4338ca;
+      --asgardeo-color-primary-ring: rgba(99, 102, 241, 0.2);
+
+      /* Text */
+      --asgardeo-color-text: #111827;
+      --asgardeo-color-text-secondary: #6b7280;
+      --asgardeo-color-text-muted: #9ca3af;
+
+      /* Surfaces & borders */
+      --asgardeo-color-surface: #fff;
+      --asgardeo-color-border: #e5e7eb;
+      --asgardeo-color-input-border: #d1d5db;
+      --asgardeo-color-hover: rgba(0, 0, 0, 0.05);
+
+      /* Secondary button */
+      --asgardeo-color-secondary: #f3f4f6;
+      --asgardeo-color-secondary-hover: #e5e7eb;
+      --asgardeo-color-secondary-text: #374151;
+
+      /* Alert / error */
+      --asgardeo-color-error-bg: #fef2f2;
+      --asgardeo-color-error-border: #fecaca;
+      --asgardeo-color-error-title: #991b1b;
+      --asgardeo-color-error-text: #b91c1c;
+
+      /* Overlay */
+      --asgardeo-overlay-bg: rgba(0, 0, 0, 0.5);
+
+      /* Border radius */
+      --asgardeo-radius-sm: 4px;
+      --asgardeo-radius-md: 6px;
+      --asgardeo-radius-lg: 8px;
+      --asgardeo-radius-xl: 12px;
+
+      /* Font sizes */
+      --asgardeo-font-size-xs: 0.8125rem;
+      --asgardeo-font-size-sm: 0.875rem;
+      --asgardeo-font-size-md: 1.2rem;
+      --asgardeo-font-size-lg: 1.5rem;
+    }
+
     /* Dialog Overlay */
     .asgardeo-dialog__overlay {
       position: fixed;
       inset: 0;
-      background: rgba(0, 0, 0, 0.5);
+      background: var(--asgardeo-overlay-bg);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -299,8 +274,8 @@ interface SchemaField {
     }
 
     .asgardeo-dialog__content {
-      background: #fff;
-      border-radius: 12px;
+      background: var(--asgardeo-color-surface);
+      border-radius: var(--asgardeo-radius-xl);
       box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
       max-width: 600px;
       width: 90vw;
@@ -316,13 +291,13 @@ interface SchemaField {
       align-items: center;
       justify-content: space-between;
       padding: 1rem 2rem;
-      border-bottom: 1px solid #e5e7eb;
+      border-bottom: 1px solid var(--asgardeo-color-border);
     }
 
     .asgardeo-dialog__heading {
-      font-size: 1.2rem;
+      font-size: var(--asgardeo-font-size-md);
       font-weight: 600;
-      color: #111827;
+      color: var(--asgardeo-color-text);
       margin: 0;
     }
 
@@ -334,13 +309,13 @@ interface SchemaField {
       height: 32px;
       background: none;
       border: none;
-      border-radius: 6px;
+      border-radius: var(--asgardeo-radius-md);
       cursor: pointer;
-      color: #6b7280;
+      color: var(--asgardeo-color-text-secondary);
 
       &:hover {
-        background: rgba(0, 0, 0, 0.05);
-        color: #111827;
+        background: var(--asgardeo-color-hover);
+        color: var(--asgardeo-color-text);
       }
     }
 
@@ -357,24 +332,24 @@ interface SchemaField {
     /* Alert */
     .asgardeo-alert {
       padding: 12px 16px;
-      border-radius: 8px;
+      border-radius: var(--asgardeo-radius-lg);
       margin-bottom: 24px;
     }
 
     .asgardeo-alert--error {
-      background: #fef2f2;
-      border: 1px solid #fecaca;
+      background: var(--asgardeo-color-error-bg);
+      border: 1px solid var(--asgardeo-color-error-border);
     }
 
     .asgardeo-alert__title {
-      font-size: 0.875rem;
+      font-size: var(--asgardeo-font-size-sm);
       font-weight: 600;
-      color: #991b1b;
+      color: var(--asgardeo-color-error-title);
     }
 
     .asgardeo-alert__description {
-      font-size: 0.875rem;
-      color: #b91c1c;
+      font-size: var(--asgardeo-font-size-sm);
+      color: var(--asgardeo-color-error-text);
       margin-top: 2px;
     }
 
@@ -412,26 +387,26 @@ interface SchemaField {
     }
 
     .asgardeo-user-profile__summary-name {
-      font-size: 1.5rem;
+      font-size: var(--asgardeo-font-size-lg);
       font-weight: 600;
-      color: #111827;
+      color: var(--asgardeo-color-text);
       margin-top: 8px;
     }
 
     .asgardeo-user-profile__summary-email {
-      font-size: 0.875rem;
-      color: #6b7280;
+      font-size: var(--asgardeo-font-size-sm);
+      color: var(--asgardeo-color-text-secondary);
     }
 
     /* Divider */
     .asgardeo-divider {
-      border-bottom: 1px solid #e5e7eb;
+      border-bottom: 1px solid var(--asgardeo-color-border);
     }
 
-    /* Field info row — wraps each field + divider with vertical padding and bottom border */
+    /* Field info row */
     .asgardeo-user-profile__info {
       padding: 12px 0;
-      border-bottom: 1px solid #e5e7eb;
+      border-bottom: 1px solid var(--asgardeo-color-border);
 
       &:last-child {
         border-bottom: none;
@@ -457,16 +432,16 @@ interface SchemaField {
     .asgardeo-user-profile__field-label {
       width: 120px;
       flex-shrink: 0;
-      font-size: 0.875rem;
+      font-size: var(--asgardeo-font-size-sm);
       font-weight: 500;
-      color: #6b7280;
+      color: var(--asgardeo-color-text-secondary);
       line-height: 28px;
     }
 
     .asgardeo-user-profile__field-value {
       flex: 1;
-      font-size: 0.875rem;
-      color: #111827;
+      font-size: var(--asgardeo-font-size-sm);
+      color: var(--asgardeo-color-text);
       min-width: 0;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -481,7 +456,7 @@ interface SchemaField {
       opacity: 0.7;
       cursor: pointer;
       text-decoration: underline;
-      font-size: 0.875rem;
+      font-size: var(--asgardeo-font-size-sm);
     }
 
     .asgardeo-user-profile__field-actions {
@@ -496,15 +471,15 @@ interface SchemaField {
       width: 100%;
       max-width: 280px;
       padding: 6px 10px;
-      font-size: 0.875rem;
-      border: 1px solid #d1d5db;
-      border-radius: 6px;
+      font-size: var(--asgardeo-font-size-sm);
+      border: 1px solid var(--asgardeo-color-input-border);
+      border-radius: var(--asgardeo-radius-md);
       outline: none;
       font-family: inherit;
 
       &:focus {
-        border-color: #6366f1;
-        box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+        border-color: var(--asgardeo-color-primary);
+        box-shadow: 0 0 0 2px var(--asgardeo-color-primary-ring);
       }
     }
 
@@ -528,31 +503,31 @@ interface SchemaField {
       border: none;
       cursor: pointer;
       font-family: inherit;
-      border-radius: 6px;
+      border-radius: var(--asgardeo-radius-md);
       transition: background-color 0.15s;
     }
 
     .asgardeo-btn--sm {
       padding: 4px 12px;
-      font-size: 0.8125rem;
+      font-size: var(--asgardeo-font-size-xs);
       font-weight: 500;
     }
 
     .asgardeo-btn--primary {
-      background: #4f46e5;
+      background: var(--asgardeo-color-primary);
       color: white;
 
       &:hover {
-        background: #4338ca;
+        background: var(--asgardeo-color-primary-hover);
       }
     }
 
     .asgardeo-btn--secondary {
-      background: #f3f4f6;
-      color: #374151;
+      background: var(--asgardeo-color-secondary);
+      color: var(--asgardeo-color-secondary-text);
 
       &:hover {
-        background: #e5e7eb;
+        background: var(--asgardeo-color-secondary-hover);
       }
     }
 
@@ -561,41 +536,50 @@ interface SchemaField {
       height: 28px;
       padding: 0;
       background: none;
-      color: #9ca3af;
-      border-radius: 4px;
+      color: var(--asgardeo-color-text-muted);
+      border-radius: var(--asgardeo-radius-sm);
 
       &:hover {
-        background: rgba(0, 0, 0, 0.05);
-        color: #6b7280;
+        background: var(--asgardeo-color-hover);
+        color: var(--asgardeo-color-text-secondary);
       }
     }
   `,
 })
-export class AsgardeoUserProfileComponent implements OnChanges {
+export class AsgardeoUserProfileComponent {
   /** Display mode: inline (default) or popup dialog */
-  @Input() mode: 'inline' | 'popup' = 'inline';
+  readonly mode = input<'inline' | 'popup'>('inline');
 
-  /** Whether the popup dialog is open (popup mode only) */
-  @Input() open = false;
+  /** Whether the popup dialog is open (popup mode only). Supports two-way binding via `[(open)]`. */
+  readonly open = model(false);
 
   /** Dialog title (popup mode only) */
-  @Input() title = '';
+  readonly title = input('');
 
   /** Whether fields can be edited */
-  @Input() editable = true;
+  readonly editable = input(true);
 
   /** Whitelist of field names to show (if set, only these are shown) */
-  @Input() showFields?: string[];
+  readonly showFields = input<string[] | undefined>();
 
   /** Blacklist of field names to hide */
-  @Input() hideFields?: string[];
-
-  /** Emitted when the popup open state changes */
-  @Output() openChange = new EventEmitter<boolean>();
+  readonly hideFields = input<string[] | undefined>();
 
   private authService = inject(AsgardeoAuthService);
+  private userService = inject(AsgardeoUserService);
   private editingFields = signal<Record<string, boolean>>({});
   private editedValues = signal<Record<string, any>>({});
+
+  constructor() {
+    // Reset editing state when the popup closes
+    effect(() => {
+      if (!this.open()) {
+        this.editingFields.set({});
+        this.editedValues.set({});
+        this.error.set(null);
+      }
+    });
+  }
 
   error = signal<string | null>(null);
 
@@ -662,9 +646,10 @@ export class AsgardeoUserProfileComponent implements OnChanges {
       .filter((f: SchemaField) => {
         if (!f.name) return false;
         if (FIELDS_TO_SKIP.includes(f.name)) return false;
-        if (this.hideFields?.includes(f.name)) return false;
-        if (this.showFields && this.showFields.length > 0 && !this.showFields.includes(f.name)) return false;
-        if (!this.editable) {
+        if (this.hideFields()?.includes(f.name)) return false;
+        const sf = this.showFields();
+        if (sf && sf.length > 0 && !sf.includes(f.name)) return false;
+        if (!this.editable()) {
           return f.value !== undefined && f.value !== '' && f.value !== null;
         }
         return true;
@@ -687,8 +672,9 @@ export class AsgardeoUserProfileComponent implements OnChanges {
       for (const [key, value] of Object.entries(obj)) {
         const fullKey = prefix ? `${prefix}.${key}` : key;
         if (FIELDS_TO_SKIP.includes(fullKey) || FIELDS_TO_SKIP.includes(key)) continue;
-        if (this.hideFields?.includes(fullKey)) continue;
-        if (this.showFields && this.showFields.length > 0 && !this.showFields.includes(fullKey)) continue;
+        if (this.hideFields()?.includes(fullKey)) continue;
+        const sf = this.showFields();
+        if (sf && sf.length > 0 && !sf.includes(fullKey)) continue;
         if (value === undefined || value === '' || value === null) continue;
 
         if (Array.isArray(value)) {
@@ -706,23 +692,15 @@ export class AsgardeoUserProfileComponent implements OnChanges {
     return entries.sort((a, b) => a.key.localeCompare(b.key));
   });
 
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes['open'] && !changes['open'].currentValue) {
-      this.editingFields.set({});
-      this.editedValues.set({});
-      this.error.set(null);
-    }
-  }
-
   @HostListener('document:keydown.escape')
   onEscapeKey(): void {
-    if (this.mode === 'popup' && this.open) {
+    if (this.mode() === 'popup' && this.open()) {
       this.close();
     }
   }
 
   close(): void {
-    this.openChange.emit(false);
+    this.open.set(false);
   }
 
   onOverlayClick(event: Event): void {
@@ -782,10 +760,7 @@ export class AsgardeoUserProfileComponent implements OnChanges {
       const baseUrl = this.authService.getBaseUrl();
       const instanceId = this.authService.getClient().getInstanceId();
 
-      const response = await updateMeProfile({baseUrl, instanceId, payload});
-
-      // Update cached user & profile signals from the SCIM response
-      this.authService.handleProfileUpdate(response);
+      await this.userService.updateUser({baseUrl, instanceId, payload});
 
       this.editingFields.update(v => ({...v, [fieldName]: false}));
       this.editedValues.update(v => {

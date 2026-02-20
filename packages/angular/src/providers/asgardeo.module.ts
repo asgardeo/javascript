@@ -19,6 +19,7 @@
 import {NgModule, ModuleWithProviders, APP_INITIALIZER} from '@angular/core';
 import {ASGARDEO_CONFIG} from './asgardeo-config.token';
 import {AsgardeoCallbackComponent} from '../components/callback/callback.component';
+import {AsgardeoUserProfileComponent} from '../components/user-profile/user-profile.component';
 import {AsgardeoLoadingDirective} from '../directives/loading.directive';
 import {AsgardeoSignedInDirective} from '../directives/signed-in.directive';
 import {AsgardeoSignedOutDirective} from '../directives/signed-out.directive';
@@ -48,8 +49,8 @@ import {AsgardeoUserService} from '../services/asgardeo-user.service';
  * ```
  */
 @NgModule({
-  exports: [AsgardeoSignedInDirective, AsgardeoSignedOutDirective, AsgardeoLoadingDirective, AsgardeoCallbackComponent],
-  imports: [AsgardeoSignedInDirective, AsgardeoSignedOutDirective, AsgardeoLoadingDirective, AsgardeoCallbackComponent],
+  exports: [AsgardeoSignedInDirective, AsgardeoSignedOutDirective, AsgardeoLoadingDirective, AsgardeoCallbackComponent, AsgardeoUserProfileComponent],
+  imports: [AsgardeoSignedInDirective, AsgardeoSignedOutDirective, AsgardeoLoadingDirective, AsgardeoCallbackComponent, AsgardeoUserProfileComponent],
 })
 export class AsgardeoModule {
   static forRoot(config: AsgardeoAngularConfig): ModuleWithProviders<AsgardeoModule> {

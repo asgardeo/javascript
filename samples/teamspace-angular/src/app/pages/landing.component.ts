@@ -1,30 +1,18 @@
-import {Component, inject} from '@angular/core';
+import {Component, inject, signal} from '@angular/core';
 import {RouterLink} from '@angular/router';
 import {
   AsgardeoAuthService,
   AsgardeoSignedInDirective,
-  AsgardeoSignedOutDirective,
-  AsgardeoLoadingDirective,
 } from '@asgardeo/angular';
 import {HeaderComponent} from '../components/header.component';
 
 @Component({
   selector: 'app-landing',
   standalone: true,
-  imports: [RouterLink, HeaderComponent, AsgardeoSignedInDirective, AsgardeoSignedOutDirective, AsgardeoLoadingDirective],
+  imports: [RouterLink, HeaderComponent, AsgardeoSignedInDirective],
   template: `
     <div class="min-h-screen bg-white">
       <app-header />
-
-      <!-- Loading State -->
-      <div *asgardeoLoading class="flex items-center justify-center min-h-[60vh]">
-        <div class="text-center">
-          <div
-            class="w-12 h-12 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mx-auto mb-4"
-          ></div>
-          <p class="text-gray-600">Loading...</p>
-        </div>
-      </div>
 
       <!-- Hero Section -->
       <section class="relative overflow-hidden bg-gradient-to-br from-blue-50 via-white to-purple-50">
@@ -44,23 +32,32 @@ import {HeaderComponent} from '../components/header.component';
               Asgardeo authentication.
             </p>
 
-            <div *asgardeoSignedOut class="flex flex-col sm:flex-row gap-4 justify-center">
-              <button
-                (click)="signIn()"
-                class="inline-flex items-center justify-center px-8 py-4 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors"
-              >
-                Sign In
-                <svg class="ml-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                </svg>
-              </button>
-              <button
-                (click)="signUp()"
-                class="inline-flex items-center justify-center px-8 py-4 border border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-50 transition-colors"
-              >
-                Create Account
-              </button>
-            </div>
+            @if (!authService.isSignedIn()) {
+              <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <button
+                  (click)="signIn()"
+                  [disabled]="signingIn()"
+                  class="inline-flex items-center justify-center px-8 py-4 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-60 disabled:cursor-not-allowed disabled:pointer-events-none"
+                >
+                  @if (signingIn()) {
+                    <div class="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2"></div>
+                  }
+                  Sign In
+                  @if (!signingIn()) {
+                    <svg class="ml-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                    </svg>
+                  }
+                </button>
+                <button
+                  (click)="signUp()"
+                  [disabled]="signingIn()"
+                  class="inline-flex items-center justify-center px-8 py-4 border border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+                >
+                  Create Account
+                </button>
+              </div>
+            }
 
             <div *asgardeoSignedIn class="flex flex-col sm:flex-row gap-4 justify-center">
               <a
@@ -254,8 +251,10 @@ import {HeaderComponent} from '../components/header.component';
 })
 export class LandingComponent {
   authService = inject(AsgardeoAuthService);
+  signingIn = signal(false);
 
   signIn(): void {
+    this.signingIn.set(true);
     this.authService.signIn();
   }
 

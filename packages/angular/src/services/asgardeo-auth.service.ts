@@ -16,7 +16,8 @@
  * under the License.
  */
 
-import {Injectable, Inject, signal, computed, OnDestroy, Signal, WritableSignal} from '@angular/core';
+import {Injectable, Inject, Injector, signal, computed, OnDestroy, Signal, WritableSignal} from '@angular/core';
+import {toObservable} from '@angular/core/rxjs-interop';
 import {
   AsgardeoRuntimeError,
   User,
@@ -35,7 +36,7 @@ import {
   extractUserClaimsFromIdToken,
   generateFlattenedUserProfile,
 } from '@asgardeo/browser';
-import {BehaviorSubject, Observable} from 'rxjs';
+import {Observable} from 'rxjs';
 import AsgardeoAngularClient from '../AsgardeoAngularClient';
 import {AsgardeoAngularConfig} from '../models/config';
 import {ASGARDEO_CONFIG} from '../providers/asgardeo-config.token';
@@ -44,7 +45,7 @@ import {ASGARDEO_CONFIG} from '../providers/asgardeo-config.token';
  * Core authentication service for Asgardeo Angular SDK.
  *
  * This service manages the authentication lifecycle and provides reactive state
- * via both Angular Signals and RxJS Observables.
+ * via Angular Signals (primary) with RxJS Observable accessors derived via `toObservable()`.
  *
  * It is the Angular equivalent of React's `AsgardeoProvider` + `useAsgardeo()` hook.
  */
@@ -87,22 +88,14 @@ export class AsgardeoAuthService implements OnDestroy {
 
   readonly profile: Signal<User | null> = computed(() => this._userProfile()?.profile ?? null);
 
-  // --- RxJS Observables (for consumers preferring Observable API) ---
-  private readonly _isLoading$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(true);
+  // --- RxJS Observables (derived from signals via toObservable) ---
+  readonly isLoading$: Observable<boolean>;
 
-  private readonly _isSignedIn$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+  readonly isSignedIn$: Observable<boolean>;
 
-  private readonly _isInitialized$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+  readonly isInitialized$: Observable<boolean>;
 
-  private readonly _user$: BehaviorSubject<User | null> = new BehaviorSubject<User | null>(null);
-
-  readonly isLoading$: Observable<boolean> = this._isLoading$.asObservable();
-
-  readonly isSignedIn$: Observable<boolean> = this._isSignedIn$.asObservable();
-
-  readonly isInitialized$: Observable<boolean> = this._isInitialized$.asObservable();
-
-  readonly user$: Observable<User | null> = this._user$.asObservable();
+  readonly user$: Observable<User | null>;
 
   // --- Internal state ---
   private client: AsgardeoAngularClient;
@@ -115,10 +108,19 @@ export class AsgardeoAuthService implements OnDestroy {
 
   private isUpdatingSession: boolean = false;
 
-  constructor(@Inject(ASGARDEO_CONFIG) config: AsgardeoAngularConfig) {
+  constructor(
+    @Inject(ASGARDEO_CONFIG) config: AsgardeoAngularConfig,
+    injector: Injector,
+  ) {
     this.config = {...config};
     this.client = new AsgardeoAngularClient(config.instanceId ?? 0);
     this._baseUrl.set(config.baseUrl || '');
+
+    // Derive observables from signals within the injection context
+    this.isLoading$ = toObservable(this.isLoading, {injector});
+    this.isSignedIn$ = toObservable(this.isSignedIn, {injector});
+    this.isInitialized$ = toObservable(this.isInitialized, {injector});
+    this.user$ = toObservable(this.user, {injector});
   }
 
   /**
@@ -139,7 +141,7 @@ export class AsgardeoAuthService implements OnDestroy {
         this._baseUrl.set(initializedConfig.baseUrl);
       }
 
-      this.syncState('isInitialized', true);
+      this.setInitializedState(true);
 
       // Check if user is already signed in
       const isAlreadySignedIn: boolean = await this.client.isSignedIn();
@@ -163,7 +165,7 @@ export class AsgardeoAuthService implements OnDestroy {
       if (hasParams && isForThisInstance) {
         try {
           this.isUpdatingSession = true;
-          this.syncState('isLoading', true);
+          this.setLoadingState(true);
 
           await this.client.signIn({callOnlyOnRedirect: true} as any);
 
@@ -179,16 +181,16 @@ export class AsgardeoAuthService implements OnDestroy {
           );
         } finally {
           this.isUpdatingSession = false;
-          this.syncState('isLoading', this.client.isLoading());
+          this.setLoadingState(this.client.isLoading());
         }
       } else {
-        this.syncState('isLoading', false);
+        this.setLoadingState(false);
       }
 
       this.startSignInPolling();
       this.startLoadingStateTracking();
     } catch (error) {
-      this.syncState('isLoading', false);
+      this.setLoadingState(false);
       throw error;
     }
   }
@@ -198,7 +200,7 @@ export class AsgardeoAuthService implements OnDestroy {
   async signIn(options?: SignInOptions): Promise<User> {
     try {
       this.isUpdatingSession = true;
-      this.syncState('isLoading', true);
+      this.setLoadingState(true);
 
       const response: User = await this.client.signIn(options);
 
@@ -216,14 +218,14 @@ export class AsgardeoAuthService implements OnDestroy {
       );
     } finally {
       this.isUpdatingSession = false;
-      this.syncState('isLoading', this.client.isLoading());
+      this.setLoadingState(this.client.isLoading());
     }
   }
 
   async signInSilently(options?: SignInOptions): Promise<User | boolean> {
     try {
       this.isUpdatingSession = true;
-      this.syncState('isLoading', true);
+      this.setLoadingState(true);
       const response: User | boolean = await this.client.signInSilently(options);
 
       if (await this.client.isSignedIn()) {
@@ -240,7 +242,7 @@ export class AsgardeoAuthService implements OnDestroy {
       );
     } finally {
       this.isUpdatingSession = false;
-      this.syncState('isLoading', this.client.isLoading());
+      this.setLoadingState(this.client.isLoading());
     }
   }
 
@@ -255,7 +257,7 @@ export class AsgardeoAuthService implements OnDestroy {
   async switchOrganization(organization: Organization): Promise<TokenResponse | Response> {
     try {
       this.isUpdatingSession = true;
-      this.syncState('isLoading', true);
+      this.setLoadingState(true);
       const response: TokenResponse | Response = await this.client.switchOrganization(organization);
 
       if (await this.client.isSignedIn()) {
@@ -272,7 +274,7 @@ export class AsgardeoAuthService implements OnDestroy {
       );
     } finally {
       this.isUpdatingSession = false;
-      this.syncState('isLoading', this.client.isLoading());
+      this.setLoadingState(this.client.isLoading());
     }
   }
 
@@ -335,24 +337,41 @@ export class AsgardeoAuthService implements OnDestroy {
     return this.client.reInitialize(config);
   }
 
-  // --- Profile Update ---
+  // --- Session Refresh ---
+
+  /**
+   * Re-fetches user, profile, and organization data from the server.
+   * Use this to refresh the cached session state without re-initializing the client.
+   */
+  async refreshSession(): Promise<void> {
+    return this.updateSession();
+  }
+
+  // --- State Mutations (for secondary services) ---
 
   /**
    * Updates the cached user and user profile after a successful SCIM2 PATCH.
-   * Mirrors AsgardeoProvider's handleProfileUpdate from the React SDK.
    *
    * @param updatedUser - The updated user object returned from the SCIM2 API.
    */
   handleProfileUpdate(updatedUser: User): void {
     this._user.set(updatedUser);
-    this._user$.next(updatedUser);
 
-    const currentProfile = this._userProfile();
+    const currentProfile: UserProfile | null = this._userProfile();
     this._userProfile.set({
       ...currentProfile,
       flattenedProfile: generateFlattenedUserProfile(updatedUser, currentProfile?.schemas),
       profile: updatedUser,
     } as UserProfile);
+  }
+
+  /**
+   * Updates the cached list of the user's organizations.
+   *
+   * @param organizations - The updated list of organizations.
+   */
+  setMyOrganizations(organizations: Organization[]): void {
+    this._myOrganizations.set(organizations);
   }
 
   // --- Internal: Expose client for secondary services ---
@@ -371,7 +390,7 @@ export class AsgardeoAuthService implements OnDestroy {
   private async updateSession(): Promise<void> {
     try {
       this.isUpdatingSession = true;
-      this.syncState('isLoading', true);
+      this.setLoadingState(true);
       let resolvedBaseUrl: string = this._baseUrl();
 
       const decodedToken: IdToken = await this.client.getDecodedIdToken();
@@ -385,7 +404,6 @@ export class AsgardeoAuthService implements OnDestroy {
       if (this.config.platform === Platform.AsgardeoV2) {
         const claims: Record<string, any> = extractUserClaimsFromIdToken(decodedToken);
         this._user.set(claims as User);
-        this._user$.next(claims as User);
         this._userProfile.set({
           flattenedProfile: claims as User,
           profile: claims as User,
@@ -395,7 +413,6 @@ export class AsgardeoAuthService implements OnDestroy {
         try {
           const fetchedUser: User = await this.client.getUser({baseUrl: resolvedBaseUrl});
           this._user.set(fetchedUser);
-          this._user$.next(fetchedUser);
         } catch {
           // Silently handle user fetch failure
         }
@@ -424,12 +441,12 @@ export class AsgardeoAuthService implements OnDestroy {
 
       // Update sign-in status BEFORE setting loading to false
       const currentSignInStatus: boolean = await this.client.isSignedIn();
-      this.syncState('isSignedIn', currentSignInStatus);
+      this.setSignedInState(currentSignInStatus);
     } catch {
       // Silently handle session update failure
     } finally {
       this.isUpdatingSession = false;
-      this.syncState('isLoading', this.client.isLoading());
+      this.setLoadingState(this.client.isLoading());
     }
   }
 
@@ -442,14 +459,14 @@ export class AsgardeoAuthService implements OnDestroy {
     }
 
     this.client.isSignedIn().then((status: boolean) => {
-      this.syncState('isSignedIn', status);
+      this.setSignedInState(status);
 
       if (!status) {
         this.signInCheckInterval = setInterval(async () => {
           const newStatus: boolean = await this.client.isSignedIn();
 
           if (newStatus) {
-            this.syncState('isSignedIn', true);
+            this.setSignedInState(true);
             if (this.signInCheckInterval) {
               clearInterval(this.signInCheckInterval);
               this.signInCheckInterval = null;
@@ -461,7 +478,7 @@ export class AsgardeoAuthService implements OnDestroy {
   }
 
   /**
-   * Tracks loading state changes from the client. Mirrors AsgardeoProvider's loading state tracking useEffect.
+   * Tracks loading state changes from the client.
    */
   private startLoadingStateTracking(): void {
     this.loadingCheckInterval = setInterval(() => {
@@ -479,30 +496,20 @@ export class AsgardeoAuthService implements OnDestroy {
         }
       }
 
-      this.syncState('isLoading', this.client.isLoading());
+      this.setLoadingState(this.client.isLoading());
     }, 100);
   }
 
-  /**
-   * Syncs a state value across both the signal and BehaviorSubject.
-   */
-  private syncState(key: string, value: any): void {
-    switch (key) {
-      case 'isLoading':
-        this._isLoading.set(value);
-        this._isLoading$.next(value);
-        break;
-      case 'isSignedIn':
-        this._isSignedIn.set(value);
-        this._isSignedIn$.next(value);
-        break;
-      case 'isInitialized':
-        this._isInitialized.set(value);
-        this._isInitialized$.next(value);
-        break;
-      default:
-        break;
-    }
+  private setLoadingState(value: boolean): void {
+    this._isLoading.set(value);
+  }
+
+  private setSignedInState(value: boolean): void {
+    this._isSignedIn.set(value);
+  }
+
+  private setInitializedState(value: boolean): void {
+    this._isInitialized.set(value);
   }
 
   ngOnDestroy(): void {
@@ -514,9 +521,5 @@ export class AsgardeoAuthService implements OnDestroy {
       clearInterval(this.loadingCheckInterval);
       this.loadingCheckInterval = null;
     }
-    this._isLoading$.complete();
-    this._isSignedIn$.complete();
-    this._isInitialized$.complete();
-    this._user$.complete();
   }
 }

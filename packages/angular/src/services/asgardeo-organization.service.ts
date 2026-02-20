@@ -18,7 +18,6 @@
 
 import {Injectable, Signal, WritableSignal, signal} from '@angular/core';
 import {Organization, AllOrganizationsApiResponse, TokenResponse} from '@asgardeo/browser';
-import {BehaviorSubject, Observable} from 'rxjs';
 import {AsgardeoAuthService} from './asgardeo-auth.service';
 import createOrganization, {CreateOrganizationConfig} from '../api/createOrganization';
 
@@ -30,21 +29,16 @@ import createOrganization, {CreateOrganizationConfig} from '../api/createOrganiz
 export class AsgardeoOrganizationService {
   private readonly _isLoading: WritableSignal<boolean> = signal(false);
 
-  private readonly _error: WritableSignal<string | null> = signal(null);
+  private readonly _error: WritableSignal<Error | null> = signal(null);
 
   readonly isLoading: Signal<boolean> = this._isLoading.asReadonly();
 
-  readonly error: Signal<string | null> = this._error.asReadonly();
+  readonly error: Signal<Error | null> = this._error.asReadonly();
 
   /** Delegates to AsgardeoAuthService signals. */
   readonly myOrganizations: Signal<Organization[]>;
 
   readonly currentOrganization: Signal<Organization | null>;
-
-  // Observable variants
-  private readonly _isLoading$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
-
-  readonly isLoading$: Observable<boolean> = this._isLoading$.asObservable();
 
   constructor(private authService: AsgardeoAuthService) {
     this.myOrganizations = this.authService.myOrganizations;
@@ -56,18 +50,15 @@ export class AsgardeoOrganizationService {
    */
   async getAllOrganizations(): Promise<AllOrganizationsApiResponse> {
     this._isLoading.set(true);
-    this._isLoading$.next(true);
     this._error.set(null);
 
     try {
       return await this.authService.getClient().getAllOrganizations();
     } catch (error) {
-      const errorMessage: string = error instanceof Error ? error.message : 'Failed to fetch organizations';
-      this._error.set(errorMessage);
+      this._error.set(error instanceof Error ? error : new Error('Failed to fetch organizations'));
       throw error;
     } finally {
       this._isLoading.set(false);
-      this._isLoading$.next(false);
     }
   }
 
@@ -79,22 +70,21 @@ export class AsgardeoOrganizationService {
   }
 
   /**
-   * Re-fetches the user's organizations from the server.
+   * Re-fetches the user's organizations from the server and updates the cached state.
    */
   async revalidateMyOrganizations(): Promise<Organization[]> {
     this._isLoading.set(true);
-    this._isLoading$.next(true);
     this._error.set(null);
 
     try {
-      return await this.authService.getClient().getMyOrganizations();
+      const organizations: Organization[] = await this.authService.getClient().getMyOrganizations();
+      this.authService.setMyOrganizations(organizations);
+      return organizations;
     } catch (error) {
-      const errorMessage: string = error instanceof Error ? error.message : 'Failed to fetch organizations';
-      this._error.set(errorMessage);
+      this._error.set(error instanceof Error ? error : new Error('Failed to fetch organizations'));
       throw error;
     } finally {
       this._isLoading.set(false);
-      this._isLoading$.next(false);
     }
   }
 
@@ -103,18 +93,15 @@ export class AsgardeoOrganizationService {
    */
   async createOrganization(config: CreateOrganizationConfig): Promise<Organization> {
     this._isLoading.set(true);
-    this._isLoading$.next(true);
     this._error.set(null);
 
     try {
       return await createOrganization(config);
     } catch (error) {
-      const errorMessage: string = error instanceof Error ? error.message : 'Failed to create organization';
-      this._error.set(errorMessage);
+      this._error.set(error instanceof Error ? error : new Error('Failed to create organization'));
       throw error;
     } finally {
       this._isLoading.set(false);
-      this._isLoading$.next(false);
     }
   }
 }
