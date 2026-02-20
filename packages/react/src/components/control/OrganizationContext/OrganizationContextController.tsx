@@ -18,7 +18,7 @@
 
 import {Organization} from '@asgardeo/browser';
 import {FC, useEffect, useRef} from 'react';
-import useAsgardeo from '../../contexts/Asgardeo/useAsgardeo';
+import useAsgardeo from '../../../contexts/Asgardeo/useAsgardeo';
 
 interface OrganizationContextControllerProps {
   /**

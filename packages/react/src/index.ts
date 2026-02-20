@@ -106,8 +106,8 @@ export * from './components/control/SignedOut';
 export {default as Loading} from './components/control/Loading';
 export * from './components/control/Loading';
 
-export {default as OrganizationContext} from './components/control/OrganizationContext';
-export * from './components/control/OrganizationContext';
+export {default as OrganizationContext} from './components/control/OrganizationContext/OrganizationContext';
+export * from './components/control/OrganizationContext/OrganizationContext';
 
 export {default as BaseSignIn} from './components/presentation/auth/SignIn/BaseSignIn';
 export * from './components/presentation/auth/SignIn/BaseSignIn';

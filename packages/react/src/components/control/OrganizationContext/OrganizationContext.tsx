@@ -18,8 +18,8 @@
 
 import {FC, PropsWithChildren} from 'react';
 import OrganizationContextController from './OrganizationContextController';
-import AsgardeoProvider, {AsgardeoProviderProps} from '../../contexts/Asgardeo/AsgardeoProvider';
-import useAsgardeo from '../../contexts/Asgardeo/useAsgardeo';
+import AsgardeoProvider, {AsgardeoProviderProps} from '../../../contexts/Asgardeo/AsgardeoProvider';
+import useAsgardeo from '../../../contexts/Asgardeo/useAsgardeo';
 
 export interface OrganizationContextProps extends Omit<AsgardeoProviderProps, 'organizationChain' | 'baseUrl'> {
   /**
