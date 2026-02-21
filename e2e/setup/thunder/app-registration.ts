@@ -34,7 +34,7 @@ export async function getThunderAppClientId(): Promise<{clientId: string; applic
   let applicationId: string | undefined;
 
   try {
-    const result = thunderSqlite("SELECT APP_ID FROM SP_APP WHERE APP_NAME='React SDK Sample'");
+    const result = thunderSqlite("SELECT APP_ID FROM APPLICATION WHERE APP_NAME='React SDK Sample'");
 
     if (result) {
       applicationId = result;
@@ -44,15 +44,13 @@ export async function getThunderAppClientId(): Promise<{clientId: string; applic
     console.warn('[E2E] Could not retrieve Thunder application ID from database');
   }
 
-  // Patch the pre-configured app's OAuth config:
-  // 1. Add the callback URL to redirect_uris (bootstrap only has / and /dashboard)
-  // 2. Fix the token issuer to match the OIDC discovery issuer (baseUrl, not baseUrl/oauth2/token)
+  // Patch the pre-configured app's OAuth config to add the callback URL
+  // to redirect_uris (bootstrap only has / and /dashboard).
   const callbackUrl = `${SAMPLE_APP.url}${SAMPLE_APP.afterSignInPath}`;
-  const correctIssuer = THUNDER_CONFIG.baseUrl;
 
   try {
     const configJson = thunderSqlite(
-      `SELECT OAUTH_CONFIG_JSON FROM IDN_OAUTH_CONSUMER_APPS WHERE CONSUMER_KEY='${clientId}'`,
+      `SELECT OAUTH_CONFIG_JSON FROM APP_OAUTH_INBOUND_CONFIG WHERE CLIENT_ID='${clientId}'`,
     );
 
     if (configJson) {
@@ -68,25 +66,19 @@ export async function getThunderAppClientId(): Promise<{clientId: string; applic
         needsUpdate = true;
       }
 
-      // Fix token issuer to match OIDC discovery (required for ID token validation)
-      if (config.token?.issuer !== correctIssuer) {
-        config.token.issuer = correctIssuer;
-        needsUpdate = true;
-      }
-
       if (needsUpdate) {
         const updatedJson = JSON.stringify(config);
 
         // Write JSON to a temp file inside the container to avoid shell escaping issues,
         // then use readfile() in the SQLite UPDATE.
-        execSync(
-          `docker exec -i ${CONTAINER} sh -c 'cat > /tmp/oauth_config.json'`,
-          {input: updatedJson, encoding: 'utf-8'},
-        );
+        execSync(`docker exec -i ${CONTAINER} sh -c 'cat > /tmp/oauth_config.json'`, {
+          input: updatedJson,
+          encoding: 'utf-8',
+        });
         thunderSqlite(
-          `UPDATE IDN_OAUTH_CONSUMER_APPS SET OAUTH_CONFIG_JSON=readfile('/tmp/oauth_config.json') WHERE CONSUMER_KEY='${clientId}'`,
+          `UPDATE APP_OAUTH_INBOUND_CONFIG SET OAUTH_CONFIG_JSON=readfile('/tmp/oauth_config.json') WHERE CLIENT_ID='${clientId}'`,
         );
-        console.log(`[E2E] Thunder app OAuth config updated (redirect_uris, token issuer)`);
+        console.log(`[E2E] Thunder app OAuth config updated (redirect_uris)`);
       }
     }
   } catch (err) {

@@ -188,7 +188,7 @@ RESPONSE=$(thunder_api_call POST "/applications" "{
   \"registration_flow_graph_id\": \"${REG_FLOW_ID}\",
   \"is_registration_flow_enabled\": true,
   \"user_attributes\": [\"given_name\",\"family_name\",\"email\",\"groups\",\"name\"],
-  \"allowed_user_types\": [\"Customer\"],
+  \"allowed_user_types\": [\"Customer\",\"Person\"],
   \"inbound_auth_config\": [{
     \"type\": \"oauth2\",
     \"config\": {
@@ -201,7 +201,7 @@ RESPONSE=$(thunder_api_call POST "/applications" "{
       \"pkce_required\": true,
       \"public_client\": true,
       \"token\": {
-        \"issuer\": \"${PUBLIC_URL}/oauth2/token\",
+        \"issuer\": \"${PUBLIC_URL}\",
         \"access_token\": {
           \"validity_period\": 3600,
           \"user_attributes\": [\"given_name\",\"family_name\",\"email\",\"groups\",\"name\"]
