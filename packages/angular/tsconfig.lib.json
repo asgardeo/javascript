@@ -6,6 +6,9 @@
     "declarationDir": "dist",
     "types": ["node"]
   },
+  "angularCompilerOptions": {
+    "compilationMode": "partial"
+  },
   "exclude": [
     "**/*.spec.ts",
     "**/*.test.ts"

@@ -3,9 +3,7 @@
   "compileOnSave": false,
   "compilerOptions": {
     "declaration": false,
-    "emitDecoratorMetadata": true,
     "esModuleInterop": true,
-    "experimentalDecorators": true,
     "importHelpers": true,
     "lib": ["ESNext", "DOM"],
     "module": "ESNext",
@@ -15,7 +13,7 @@
     "sourceMap": true,
     "target": "ESNext",
     "forceConsistentCasingInFileNames": true,
-    "strict": false,
+    "strict": true,
     "noImplicitOverride": true,
     "noPropertyAccessFromIndexSignature": true,
     "noImplicitReturns": true,

@@ -35,11 +35,11 @@ import {AsgardeoAuthService} from '../services/asgardeo-auth.service';
   standalone: true,
 })
 export class AsgardeoSignedInDirective {
-  private authService: AsgardeoAuthService = inject(AsgardeoAuthService);
+  private readonly authService: AsgardeoAuthService = inject(AsgardeoAuthService);
 
-  private templateRef: TemplateRef<any> = inject(TemplateRef);
+  private readonly templateRef: TemplateRef<any> = inject(TemplateRef);
 
-  private viewContainer: ViewContainerRef = inject(ViewContainerRef);
+  private readonly viewContainer: ViewContainerRef = inject(ViewContainerRef);
 
   private hasView: boolean = false;
 

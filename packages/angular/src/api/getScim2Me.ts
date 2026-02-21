@@ -16,15 +16,8 @@
  * under the License.
  */
 
-import {
-  User,
-  HttpInstance,
-  HttpResponse,
-  AsgardeoSPAClient,
-  HttpRequestConfig,
-  getScim2Me as baseGetScim2Me,
-  GetScim2MeConfig as BaseGetScim2MeConfig,
-} from '@asgardeo/browser';
+import {User, getScim2Me as baseGetScim2Me, GetScim2MeConfig as BaseGetScim2MeConfig} from '@asgardeo/browser';
+import {createDefaultFetcher} from '../utils/fetcher';
 
 /**
  * Configuration for the getScim2Me request (Angular-specific)
@@ -78,29 +71,10 @@ export interface GetScim2MeConfig extends Omit<BaseGetScim2MeConfig, 'fetcher'> 
  * }
  * ```
  */
-const getScim2Me = async ({fetcher, instanceId = 0, ...requestConfig}: GetScim2MeConfig): Promise<User> => {
-  const defaultFetcher = async (url: string, config: RequestInit): Promise<Response> => {
-    const client: AsgardeoSPAClient = AsgardeoSPAClient.getInstance(instanceId);
-    const httpClient: HttpInstance = client.httpRequest.bind(client);
-    const response: HttpResponse<any> = await httpClient({
-      headers: config.headers as Record<string, string>,
-      method: config.method || 'GET',
-      url,
-    } as HttpRequestConfig);
-
-    return {
-      json: () => Promise.resolve(response.data),
-      ok: response.status >= 200 && response.status < 300,
-      status: response.status,
-      statusText: response.statusText || '',
-      text: () => Promise.resolve(typeof response.data === 'string' ? response.data : JSON.stringify(response.data)),
-    } as Response;
-  };
-
-  return baseGetScim2Me({
+const getScim2Me = async ({fetcher, instanceId = 0, ...requestConfig}: GetScim2MeConfig): Promise<User> =>
+  baseGetScim2Me({
     ...requestConfig,
-    fetcher: fetcher || defaultFetcher,
+    fetcher: fetcher || createDefaultFetcher(instanceId),
   });
-};
 
 export default getScim2Me;

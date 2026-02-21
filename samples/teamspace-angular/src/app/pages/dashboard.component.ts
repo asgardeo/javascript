@@ -1,4 +1,4 @@
-import {Component, inject} from '@angular/core';
+import {Component, computed, inject} from '@angular/core';
 import {RouterLink} from '@angular/router';
 import {AsgardeoAuthService} from '@asgardeo/angular';
 import {HeaderComponent} from '../components/header.component';
@@ -15,7 +15,7 @@ import {HeaderComponent} from '../components/header.component';
         <!-- Welcome Header -->
         <div class="mb-8">
           <h1 class="text-3xl font-bold text-gray-900">
-            Welcome back {{ getUserFullName() }}!
+            Welcome back {{ userFullName() }}!
           </h1>
           @if (authService.currentOrganization(); as org) {
             <p class="text-gray-600 mt-2">
@@ -204,11 +204,11 @@ export class DashboardComponent {
     {id: 3, title: 'Client presentation prep', dueDate: 'Friday, 2:00 PM', priority: 'high', project: 'Client Work'},
   ];
 
-  getUserFullName(): string {
+  userFullName = computed(() => {
     const user = this.authService.user();
     if (!user) return '';
     const givenName = (user as any)['givenName'] || (user as any)['name']?.['givenName'] || (user as any)['given_name'] || '';
     const familyName = (user as any)['name']?.['familyName'] || (user as any)['familyName'] || (user as any)['family_name'] || '';
     return [givenName, familyName].filter(Boolean).join(' ');
-  }
+  });
 }

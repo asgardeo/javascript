@@ -1,12 +1,12 @@
-import {Component, inject, signal} from '@angular/core';
+import {Component} from '@angular/core';
 import {RouterLink} from '@angular/router';
-import {AsgardeoAuthService} from '@asgardeo/angular';
+import {AsgardeoOrganizationListComponent} from '@asgardeo/angular';
 import {HeaderComponent} from '../components/header.component';
 
 @Component({
   selector: 'app-organizations',
   standalone: true,
-  imports: [RouterLink, HeaderComponent],
+  imports: [RouterLink, HeaderComponent, AsgardeoOrganizationListComponent],
   template: `
     <div class="min-h-screen bg-gray-50">
       <app-header />
@@ -37,116 +37,11 @@ import {HeaderComponent} from '../components/header.component';
           </div>
         </div>
 
-        @if (isLoading()) {
-          <div class="flex items-center justify-center py-12">
-            <div class="w-8 h-8 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin"></div>
-          </div>
-        } @else if (error()) {
-          <div class="bg-red-50 border border-red-200 rounded-lg p-4">
-            <p class="text-sm text-red-600">{{ error() }}</p>
-          </div>
-        } @else {
-          <!-- Current Organization -->
-          @if (authService.currentOrganization(); as currentOrg) {
-            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-              <div class="flex items-center justify-between">
-                <div>
-                  <p class="text-sm font-medium text-blue-800">Current Organization</p>
-                  <p class="text-lg font-semibold text-blue-900">{{ currentOrg.name || currentOrg.id }}</p>
-                </div>
-                <div class="px-3 py-1 bg-blue-100 text-blue-700 text-xs font-medium rounded-full">Active</div>
-              </div>
-            </div>
-          }
-
-          <!-- Organization List -->
-          <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-            @if (authService.myOrganizations().length === 0) {
-              <div class="p-8 text-center">
-                <svg class="h-12 w-12 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                </svg>
-                <p class="text-gray-500 mb-4">No organizations found</p>
-                <a
-                  routerLink="/organizations/new"
-                  class="inline-flex items-center px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100"
-                >
-                  Create your first organization
-                </a>
-              </div>
-            } @else {
-              <ul class="divide-y divide-gray-200">
-                @for (org of authService.myOrganizations(); track org.id) {
-                  <li class="p-4 hover:bg-gray-50 transition-colors">
-                    <div class="flex items-center justify-between">
-                      <div class="flex items-center space-x-3">
-                        <div class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
-                          <svg class="h-5 w-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                          </svg>
-                        </div>
-                        <div>
-                          <p class="text-sm font-medium text-gray-900">{{ org.name || org.id }}</p>
-                          @if (org.id) {
-                            <p class="text-xs text-gray-500">{{ org.id }}</p>
-                          }
-                        </div>
-                      </div>
-                      <div class="flex items-center space-x-2">
-                        @if (authService.currentOrganization()?.id === org.id) {
-                          <span class="px-3 py-1 bg-green-100 text-green-700 text-xs font-medium rounded-full">Current</span>
-                        } @else {
-                          <button
-                            (click)="switchTo(org)"
-                            class="px-3 py-1 text-sm font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors"
-                          >
-                            Switch
-                          </button>
-                        }
-                      </div>
-                    </div>
-                  </li>
-                }
-              </ul>
-            }
-          </div>
-
-          <!-- Refresh -->
-          <div class="mt-4 flex justify-end">
-            <button
-              (click)="revalidate()"
-              [disabled]="isLoading()"
-              class="inline-flex items-center px-3 py-1.5 text-sm text-gray-600 hover:text-gray-800 transition-colors disabled:opacity-50"
-            >
-              <svg class="h-4 w-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-              </svg>
-              Refresh
-            </button>
-          </div>
-        }
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden p-4">
+          <asgardeo-organization-list [showStatus]="true" />
+        </div>
       </div>
     </div>
   `,
 })
-export class OrganizationsComponent {
-  authService = inject(AsgardeoAuthService);
-  isLoading = signal(false);
-  error = signal<string | null>(null);
-
-  async switchTo(org: any): Promise<void> {
-    await this.authService.switchOrganization(org);
-  }
-
-  async revalidate(): Promise<void> {
-    this.isLoading.set(true);
-    this.error.set(null);
-    try {
-      await this.authService.getClient().getMyOrganizations();
-    } catch (err: any) {
-      this.error.set(err?.message || 'Failed to fetch organizations');
-    } finally {
-      this.isLoading.set(false);
-    }
-  }
-}
+export class OrganizationsComponent {}

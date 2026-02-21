@@ -3,7 +3,7 @@ import {CanActivateFn, Router, UrlTree} from '@angular/router';
 import {AsgardeoAuthService} from '@asgardeo/angular';
 
 /**
- * Custom auth guard that waits for the OAuth token exchange to complete
+ * Auth guard that waits for the OAuth token exchange to complete
  * before checking authentication status.
  *
  * The SDK's APP_INITIALIZER may resolve before the async token exchange finishes,
@@ -22,10 +22,9 @@ export const authGuard: CanActivateFn = async (): Promise<boolean | UrlTree> => 
   // Wait for it to complete.
   const urlParams = new URLSearchParams(window.location.search);
   if (urlParams.has('code')) {
-    await waitForSignIn(authService, 10000);
+    await waitForSignal(() => authService.isSignedIn(), 10000);
 
     if (authService.isSignedIn()) {
-      // Clean the OAuth params from the URL
       router.navigateByUrl(window.location.pathname);
       return true;
     }
@@ -33,7 +32,7 @@ export const authGuard: CanActivateFn = async (): Promise<boolean | UrlTree> => 
 
   // If still loading, wait for loading to finish
   if (authService.isLoading()) {
-    await waitForLoading(authService, 10000);
+    await waitForSignal(() => !authService.isLoading(), 10000);
 
     if (authService.isSignedIn()) {
       return true;
@@ -44,23 +43,15 @@ export const authGuard: CanActivateFn = async (): Promise<boolean | UrlTree> => 
   return router.createUrlTree(['/']);
 };
 
-function waitForSignIn(authService: AsgardeoAuthService, timeoutMs: number): Promise<void> {
+function waitForSignal(predicate: () => boolean, timeoutMs: number): Promise<void> {
   return new Promise((resolve) => {
+    if (predicate()) {
+      resolve();
+      return;
+    }
     const start = Date.now();
     const interval = setInterval(() => {
-      if (authService.isSignedIn() || Date.now() - start > timeoutMs) {
-        clearInterval(interval);
-        resolve();
-      }
-    }, 50);
-  });
-}
-
-function waitForLoading(authService: AsgardeoAuthService, timeoutMs: number): Promise<void> {
-  return new Promise((resolve) => {
-    const start = Date.now();
-    const interval = setInterval(() => {
-      if (!authService.isLoading() || Date.now() - start > timeoutMs) {
+      if (predicate() || Date.now() - start > timeoutMs) {
         clearInterval(interval);
         resolve();
       }

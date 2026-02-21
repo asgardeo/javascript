@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import {Injectable, Signal, WritableSignal, computed, signal} from '@angular/core';
+import {Injectable, Signal, WritableSignal, computed, inject, signal} from '@angular/core';
 import {User, UserProfile} from '@asgardeo/browser';
 import {AsgardeoAuthService} from './asgardeo-auth.service';
 import updateMeProfile, {UpdateMeProfileConfig} from '../api/updateMeProfile';
@@ -44,7 +44,9 @@ export class AsgardeoUserService {
 
   readonly schemas: Signal<any[]>;
 
-  constructor(private authService: AsgardeoAuthService) {
+  private readonly authService: AsgardeoAuthService = inject(AsgardeoAuthService);
+
+  constructor() {
     this.userProfile = this.authService.userProfile;
     this.flattenedProfile = this.authService.flattenedProfile;
     this.profile = this.authService.profile;

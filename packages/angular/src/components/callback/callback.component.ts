@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import {Component, OnInit, output, inject} from '@angular/core';
+import {Component, ChangeDetectionStrategy, OnInit, output, inject, OutputEmitterRef} from '@angular/core';
 import {Router} from '@angular/router';
 import {navigate as browserNavigate} from '@asgardeo/browser';
 
@@ -37,6 +37,7 @@ import {navigate as browserNavigate} from '@asgardeo/browser';
  * ```
  */
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'asgardeo-callback',
   standalone: true,
   template: '',
@@ -44,7 +45,7 @@ import {navigate as browserNavigate} from '@asgardeo/browser';
 export class AsgardeoCallbackComponent implements OnInit {
   private router: Router | null = inject(Router, {optional: true});
 
-  readonly error = output<Error>();
+  readonly error: OutputEmitterRef<Error> = output<Error>();
 
   ngOnInit(): void {
     this.processOAuthCallback();
@@ -128,7 +129,7 @@ export class AsgardeoCallbackComponent implements OnInit {
       }
 
       this.navigate(`${returnPath}?${params.toString()}`);
-    } catch (err) {
+    } catch (err: unknown) {
       const errorMessage: string = err instanceof Error ? err.message : 'OAuth callback processing failed';
       // eslint-disable-next-line no-console
       console.error('OAuth callback error:', err);

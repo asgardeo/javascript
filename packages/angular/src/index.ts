@@ -43,6 +43,10 @@ export {AsgardeoLoadingDirective} from './directives/loading.directive';
 // --- Components ---
 export {AsgardeoCallbackComponent} from './components/callback/callback.component';
 export {AsgardeoUserProfileComponent} from './components/user-profile/user-profile.component';
+export {AsgardeoOrganizationListComponent} from './components/organization-list/organization-list.component';
+export {AsgardeoCreateOrganizationComponent} from './components/create-organization/create-organization.component';
+export {AsgardeoOrganizationProfileComponent} from './components/organization-profile/organization-profile.component';
+export {AsgardeoOrganizationSwitcherComponent} from './components/organization-switcher/organization-switcher.component';
 
 // --- API ---
 export {default as getAllOrganizations, GetAllOrganizationsConfig} from './api/getAllOrganizations';
@@ -63,6 +67,7 @@ export {
   type User,
   type UserProfile,
   type Organization,
+  type OrganizationDetails,
   type IdToken,
   type TokenResponse,
   type HttpRequestConfig,

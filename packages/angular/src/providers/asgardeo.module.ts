@@ -19,6 +19,10 @@
 import {NgModule, ModuleWithProviders, APP_INITIALIZER} from '@angular/core';
 import {ASGARDEO_CONFIG} from './asgardeo-config.token';
 import {AsgardeoCallbackComponent} from '../components/callback/callback.component';
+import {AsgardeoCreateOrganizationComponent} from '../components/create-organization/create-organization.component';
+import {AsgardeoOrganizationListComponent} from '../components/organization-list/organization-list.component';
+import {AsgardeoOrganizationProfileComponent} from '../components/organization-profile/organization-profile.component';
+import {AsgardeoOrganizationSwitcherComponent} from '../components/organization-switcher/organization-switcher.component';
 import {AsgardeoUserProfileComponent} from '../components/user-profile/user-profile.component';
 import {AsgardeoLoadingDirective} from '../directives/loading.directive';
 import {AsgardeoSignedInDirective} from '../directives/signed-in.directive';
@@ -49,8 +53,28 @@ import {AsgardeoUserService} from '../services/asgardeo-user.service';
  * ```
  */
 @NgModule({
-  exports: [AsgardeoSignedInDirective, AsgardeoSignedOutDirective, AsgardeoLoadingDirective, AsgardeoCallbackComponent, AsgardeoUserProfileComponent],
-  imports: [AsgardeoSignedInDirective, AsgardeoSignedOutDirective, AsgardeoLoadingDirective, AsgardeoCallbackComponent, AsgardeoUserProfileComponent],
+  exports: [
+    AsgardeoSignedInDirective,
+    AsgardeoSignedOutDirective,
+    AsgardeoLoadingDirective,
+    AsgardeoCallbackComponent,
+    AsgardeoUserProfileComponent,
+    AsgardeoOrganizationListComponent,
+    AsgardeoCreateOrganizationComponent,
+    AsgardeoOrganizationProfileComponent,
+    AsgardeoOrganizationSwitcherComponent,
+  ],
+  imports: [
+    AsgardeoSignedInDirective,
+    AsgardeoSignedOutDirective,
+    AsgardeoLoadingDirective,
+    AsgardeoCallbackComponent,
+    AsgardeoUserProfileComponent,
+    AsgardeoOrganizationListComponent,
+    AsgardeoCreateOrganizationComponent,
+    AsgardeoOrganizationProfileComponent,
+    AsgardeoOrganizationSwitcherComponent,
+  ],
 })
 export class AsgardeoModule {
   static forRoot(config: AsgardeoAngularConfig): ModuleWithProviders<AsgardeoModule> {

@@ -16,10 +16,12 @@
  * under the License.
  */
 
-import {Injectable, Signal, WritableSignal, signal} from '@angular/core';
-import {Organization, AllOrganizationsApiResponse, TokenResponse} from '@asgardeo/browser';
+import {Injectable, Signal, WritableSignal, inject, signal} from '@angular/core';
+import {Organization, AllOrganizationsApiResponse, TokenResponse, OrganizationDetails} from '@asgardeo/browser';
 import {AsgardeoAuthService} from './asgardeo-auth.service';
 import createOrganization, {CreateOrganizationConfig} from '../api/createOrganization';
+import getOrganizationApi from '../api/getOrganization';
+import updateOrganizationApi, {createPatchOperations} from '../api/updateOrganization';
 
 /**
  * Service for managing organizations.
@@ -40,7 +42,9 @@ export class AsgardeoOrganizationService {
 
   readonly currentOrganization: Signal<Organization | null>;
 
-  constructor(private authService: AsgardeoAuthService) {
+  private readonly authService: AsgardeoAuthService = inject(AsgardeoAuthService);
+
+  constructor() {
     this.myOrganizations = this.authService.myOrganizations;
     this.currentOrganization = this.authService.currentOrganization;
   }
@@ -99,6 +103,46 @@ export class AsgardeoOrganizationService {
       return await createOrganization(config);
     } catch (error) {
       this._error.set(error instanceof Error ? error : new Error('Failed to create organization'));
+      throw error;
+    } finally {
+      this._isLoading.set(false);
+    }
+  }
+
+  /**
+   * Fetches detailed information for a specific organization.
+   */
+  async getOrganization(organizationId: string): Promise<OrganizationDetails> {
+    this._isLoading.set(true);
+    this._error.set(null);
+
+    try {
+      const baseUrl: string = this.authService.getBaseUrl();
+      const instanceId: number = this.authService.getClient().getInstanceId();
+      return await getOrganizationApi({baseUrl, instanceId, organizationId});
+    } catch (error) {
+      this._error.set(error instanceof Error ? error : new Error('Failed to fetch organization'));
+      throw error;
+    } finally {
+      this._isLoading.set(false);
+    }
+  }
+
+  /**
+   * Updates an organization using PATCH operations.
+   */
+  async updateOrganization(organizationId: string, data: Record<string, any>): Promise<OrganizationDetails> {
+    this._isLoading.set(true);
+    this._error.set(null);
+
+    try {
+      const baseUrl: string = this.authService.getBaseUrl();
+      const instanceId: number = this.authService.getClient().getInstanceId();
+      const operations: Array<{operation: 'REPLACE' | 'REMOVE'; path: string; value?: any}> =
+        createPatchOperations(data);
+      return await updateOrganizationApi({baseUrl, instanceId, operations, organizationId});
+    } catch (error) {
+      this._error.set(error instanceof Error ? error : new Error('Failed to update organization'));
       throw error;
     } finally {
       this._isLoading.set(false);

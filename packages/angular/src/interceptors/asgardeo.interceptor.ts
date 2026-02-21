@@ -22,12 +22,32 @@ import {from, switchMap} from 'rxjs';
 import {AsgardeoAuthService} from '../services/asgardeo-auth.service';
 
 /**
+ * Checks whether the request URL belongs to the same origin as the configured base URL.
+ * Only attaches tokens to requests targeting the Asgardeo/IS server to prevent leaking
+ * credentials to third-party APIs.
+ */
+function isAllowedUrl(requestUrl: string, baseUrl: string): boolean {
+  if (!baseUrl) {
+    return false;
+  }
+
+  try {
+    const reqOrigin: string = new URL(requestUrl).origin;
+    const baseOrigin: string = new URL(baseUrl).origin;
+    return reqOrigin === baseOrigin;
+  } catch {
+    return false;
+  }
+}
+
+/**
  * Functional HTTP interceptor that automatically attaches the access token
  * to outgoing HTTP requests as a Bearer token in the Authorization header.
  *
  * Skips token attachment if:
  * - The request already has an Authorization header
  * - The user is not signed in
+ * - The request URL does not match the configured base URL origin
  *
  * @example
  * ```typescript
@@ -53,6 +73,12 @@ export const asgardeoInterceptor: HttpInterceptorFn = (req: HttpRequest<unknown>
 
   // Skip token attachment if the user is not signed in
   if (!authService.isSignedIn()) {
+    return next(req);
+  }
+
+  // Only attach token to requests targeting the configured base URL origin
+  const baseUrl: string = authService.getBaseUrl();
+  if (!isAllowedUrl(req.url, baseUrl)) {
     return next(req);
   }
 

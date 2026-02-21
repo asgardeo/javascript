@@ -242,7 +242,7 @@ import {HeaderComponent} from '../components/header.component';
             <span class="ml-2 text-xl font-bold">Teamspace</span>
           </div>
           <p class="text-gray-400">
-            Built with Angular 19 and &#64;asgardeo/angular SDK. A sample application for demonstration purposes.
+            Built with Angular 21 and &#64;asgardeo/angular SDK. A sample application for demonstration purposes.
           </p>
         </div>
       </footer>

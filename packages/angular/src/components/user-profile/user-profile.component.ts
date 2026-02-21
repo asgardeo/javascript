@@ -16,8 +16,10 @@
  * under the License.
  */
 
+import {NgTemplateOutlet} from '@angular/common';
 import {
   Component,
+  ChangeDetectionStrategy,
   inject,
   input,
   model,
@@ -25,10 +27,14 @@ import {
   computed,
   effect,
   HostListener,
+  InputSignal,
+  ModelSignal,
+  WritableSignal,
+  Signal,
 } from '@angular/core';
-import {NgTemplateOutlet} from '@angular/common';
 import {AsgardeoAuthService} from '../../services/asgardeo-auth.service';
 import {AsgardeoUserService} from '../../services/asgardeo-user.service';
+import {generateGradient, getInitials} from '../../utils/avatar';
 
 /** Fields that should never be displayed in the profile fields list.
  *  Matches React SDK's BaseUserProfile.fieldsToSkip. */
@@ -56,7 +62,7 @@ const FIELDS_TO_SKIP: string[] = [
 const READONLY_FIELDS: string[] = ['username', 'userName', 'user_name'];
 
 /** Well-known SCIM2 schema IDs */
-const WELL_KNOWN_USER_SCHEMA = 'urn:ietf:params:scim:schemas:core:2.0:User';
+const WELL_KNOWN_USER_SCHEMA: string = 'urn:ietf:params:scim:schemas:core:2.0:User';
 
 interface SchemaField {
   caseExact?: boolean;
@@ -66,14 +72,14 @@ interface SchemaField {
   multiValued?: boolean;
   mutability?: string;
   name?: string;
+  path?: string;
   required?: boolean;
   returned?: string;
+  schemaId?: string;
   subAttributes?: SchemaField[];
   type?: string;
   uniqueness?: string;
   value?: any;
-  path?: string;
-  schemaId?: string;
 }
 
 /**
@@ -96,118 +102,10 @@ interface SchemaField {
  * ```
  */
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [NgTemplateOutlet],
   selector: 'asgardeo-user-profile',
   standalone: true,
-  imports: [NgTemplateOutlet],
-  template: `
-    <ng-template #profileBody>
-      <div class="asgardeo-user-profile">
-        @if (error()) {
-          <div class="asgardeo-alert asgardeo-alert--error">
-            <div class="asgardeo-alert__title">Error</div>
-            <div class="asgardeo-alert__description">{{ error() }}</div>
-          </div>
-        }
-        <div class="asgardeo-user-profile__summary">
-          @if (profileImageUrl()) {
-            <img [src]="profileImageUrl()" [alt]="displayName()" class="asgardeo-avatar asgardeo-avatar--lg" />
-          } @else {
-            <div class="asgardeo-avatar asgardeo-avatar--lg" [style.background]="avatarGradient()">
-              {{ initials() }}
-            </div>
-          }
-          <div class="asgardeo-user-profile__summary-name">{{ displayName() }}</div>
-          @if (emailValue()) {
-            <div class="asgardeo-user-profile__summary-email">{{ emailValue() }}</div>
-          }
-        </div>
-        <div class="asgardeo-divider"></div>
-        @if (visibleFields().length > 0) {
-          @for (field of visibleFields(); track field.name) {
-            <div class="asgardeo-user-profile__info">
-              <div class="asgardeo-user-profile__field">
-                <div class="asgardeo-user-profile__field-inner">
-                  <div class="asgardeo-user-profile__field-label">
-                    {{ field.displayName || field.description || formatLabel(field.name || '') }}
-                  </div>
-                  <div class="asgardeo-user-profile__field-value">
-                    @if (isFieldEditing(field.name || '')) {
-                      @if (field.type === 'BOOLEAN') {
-                        <label class="asgardeo-checkbox">
-                          <input type="checkbox" [checked]="!!getEditedValue(field.name || '')" (change)="onFieldChange(field.name || '', $any($event.target).checked)" />
-                        </label>
-                      } @else if (field.type === 'DATE_TIME') {
-                        <input type="date" class="asgardeo-text-field" [value]="getEditedValue(field.name || '') || ''" (input)="onFieldChange(field.name || '', $any($event.target).value)" />
-                      } @else {
-                        <input type="text" class="asgardeo-text-field" [value]="getEditedValue(field.name || '') || ''" (input)="onFieldChange(field.name || '', $any($event.target).value)" [placeholder]="'Enter your ' + (field.displayName || field.name || '').toLowerCase()" />
-                      }
-                    } @else {
-                      @if (hasFieldValue(field)) {
-                        <span>{{ formatFieldValue(field) }}</span>
-                      } @else if (editable() && !isReadonly(field)) {
-                        <span class="asgardeo-user-profile__field-placeholder" (click)="toggleEdit(field.name || '')">
-                          Add {{ (field.displayName || field.name || '').toLowerCase() }}
-                        </span>
-                      }
-                    }
-                  </div>
-                </div>
-                @if (editable() && !isReadonly(field)) {
-                  <div class="asgardeo-user-profile__field-actions">
-                    @if (isFieldEditing(field.name || '')) {
-                      <button class="asgardeo-btn asgardeo-btn--primary asgardeo-btn--sm" (click)="saveField(field)">Save</button>
-                      <button class="asgardeo-btn asgardeo-btn--secondary asgardeo-btn--sm" (click)="cancelEdit(field.name || '')">Cancel</button>
-                    } @else if (hasFieldValue(field)) {
-                      <button class="asgardeo-btn asgardeo-btn--icon" (click)="toggleEdit(field.name || '')" aria-label="Edit">
-                        <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                        </svg>
-                      </button>
-                    }
-                  </div>
-                }
-              </div>
-            </div>
-          }
-        } @else {
-          @for (entry of flatProfileEntries(); track entry.key) {
-            <div class="asgardeo-user-profile__info">
-              <div class="asgardeo-user-profile__field">
-                <div class="asgardeo-user-profile__field-inner">
-                  <div class="asgardeo-user-profile__field-label">{{ formatLabel(entry.key) }}</div>
-                  <div class="asgardeo-user-profile__field-value">
-                    <span>{{ entry.value }}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          }
-        }
-      </div>
-    </ng-template>
-
-    @if (mode() === 'popup') {
-      @if (open()) {
-        <div class="asgardeo-dialog__overlay" (click)="onOverlayClick($event)">
-          <div class="asgardeo-dialog__content" (click)="$event.stopPropagation()">
-            <div class="asgardeo-dialog__header">
-              <h2 class="asgardeo-dialog__heading">{{ title() || 'Profile' }}</h2>
-              <button class="asgardeo-dialog__close" (click)="close()" aria-label="Close">
-                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
-            <div class="asgardeo-user-profile__popup">
-              <ng-container *ngTemplateOutlet="profileBody" />
-            </div>
-          </div>
-        </div>
-      }
-    } @else {
-      <ng-container *ngTemplateOutlet="profileBody" />
-    }
-  `,
   styles: `
     /* ------------------------------------------------------------------ */
     /* Custom Properties — override these to theme the component.         */
@@ -545,30 +443,142 @@ interface SchemaField {
       }
     }
   `,
+  template: `
+    <ng-template #profileBody>
+      <div class="asgardeo-user-profile">
+        @if (error()) {
+          <div class="asgardeo-alert asgardeo-alert--error">
+            <div class="asgardeo-alert__title">Error</div>
+            <div class="asgardeo-alert__description">{{ error() }}</div>
+          </div>
+        }
+        <div class="asgardeo-user-profile__summary">
+          @if (profileImageUrl()) {
+            <img [src]="profileImageUrl()" [alt]="displayName()" class="asgardeo-avatar asgardeo-avatar--lg" />
+          } @else {
+            <div class="asgardeo-avatar asgardeo-avatar--lg" [style.background]="avatarGradient()">
+              {{ initials() }}
+            </div>
+          }
+          <div class="asgardeo-user-profile__summary-name">{{ displayName() }}</div>
+          @if (emailValue()) {
+            <div class="asgardeo-user-profile__summary-email">{{ emailValue() }}</div>
+          }
+        </div>
+        <div class="asgardeo-divider"></div>
+        @if (visibleFields().length > 0) {
+          @for (field of visibleFields(); track field.name) {
+            <div class="asgardeo-user-profile__info">
+              <div class="asgardeo-user-profile__field">
+                <div class="asgardeo-user-profile__field-inner">
+                  <div class="asgardeo-user-profile__field-label">
+                    {{ field.displayName || field.description || formatLabel(field.name || '') }}
+                  </div>
+                  <div class="asgardeo-user-profile__field-value">
+                    @if (isFieldEditing(field.name || '')) {
+                      @if (field.type === 'BOOLEAN') {
+                        <label class="asgardeo-checkbox">
+                          <input type="checkbox" [checked]="!!getEditedValue(field.name || '')" (change)="onFieldChange(field.name || '', $any($event.target).checked)" />
+                        </label>
+                      } @else if (field.type === 'DATE_TIME') {
+                        <input type="date" class="asgardeo-text-field" [value]="getEditedValue(field.name || '') || ''" (input)="onFieldChange(field.name || '', $any($event.target).value)" />
+                      } @else {
+                        <input type="text" class="asgardeo-text-field" [value]="getEditedValue(field.name || '') || ''" (input)="onFieldChange(field.name || '', $any($event.target).value)" [placeholder]="'Enter your ' + (field.displayName || field.name || '').toLowerCase()" />
+                      }
+                    } @else {
+                      @if (hasFieldValue(field)) {
+                        <span>{{ formatFieldValue(field) }}</span>
+                      } @else if (editable() && !isReadonly(field)) {
+                        <span class="asgardeo-user-profile__field-placeholder" (click)="toggleEdit(field.name || '')">
+                          Add {{ (field.displayName || field.name || '').toLowerCase() }}
+                        </span>
+                      }
+                    }
+                  </div>
+                </div>
+                @if (editable() && !isReadonly(field)) {
+                  <div class="asgardeo-user-profile__field-actions">
+                    @if (isFieldEditing(field.name || '')) {
+                      <button class="asgardeo-btn asgardeo-btn--primary asgardeo-btn--sm" (click)="saveField(field)">Save</button>
+                      <button class="asgardeo-btn asgardeo-btn--secondary asgardeo-btn--sm" (click)="cancelEdit(field.name || '')">Cancel</button>
+                    } @else if (hasFieldValue(field)) {
+                      <button class="asgardeo-btn asgardeo-btn--icon" (click)="toggleEdit(field.name || '')" aria-label="Edit">
+                        <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        </svg>
+                      </button>
+                    }
+                  </div>
+                }
+              </div>
+            </div>
+          }
+        } @else {
+          @for (entry of flatProfileEntries(); track entry.key) {
+            <div class="asgardeo-user-profile__info">
+              <div class="asgardeo-user-profile__field">
+                <div class="asgardeo-user-profile__field-inner">
+                  <div class="asgardeo-user-profile__field-label">{{ formatLabel(entry.key) }}</div>
+                  <div class="asgardeo-user-profile__field-value">
+                    <span>{{ entry.value }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          }
+        }
+      </div>
+    </ng-template>
+
+    @if (mode() === 'popup') {
+      @if (open()) {
+        <div class="asgardeo-dialog__overlay" (click)="onOverlayClick($event)">
+          <div class="asgardeo-dialog__content" (click)="$event.stopPropagation()">
+            <div class="asgardeo-dialog__header">
+              <h2 class="asgardeo-dialog__heading">{{ title() || 'Profile' }}</h2>
+              <button class="asgardeo-dialog__close" (click)="close()" aria-label="Close">
+                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            <div class="asgardeo-user-profile__popup">
+              <ng-container *ngTemplateOutlet="profileBody" />
+            </div>
+          </div>
+        </div>
+      }
+    } @else {
+      <ng-container *ngTemplateOutlet="profileBody" />
+    }
+  `,
 })
 export class AsgardeoUserProfileComponent {
   /** Display mode: inline (default) or popup dialog */
-  readonly mode = input<'inline' | 'popup'>('inline');
+  readonly mode: InputSignal<'inline' | 'popup'> = input<'inline' | 'popup'>('inline');
 
   /** Whether the popup dialog is open (popup mode only). Supports two-way binding via `[(open)]`. */
-  readonly open = model(false);
+  readonly open: ModelSignal<boolean> = model(false);
 
   /** Dialog title (popup mode only) */
-  readonly title = input('');
+  readonly title: InputSignal<string> = input('');
 
   /** Whether fields can be edited */
-  readonly editable = input(true);
+  readonly editable: InputSignal<boolean> = input(true);
 
   /** Whitelist of field names to show (if set, only these are shown) */
-  readonly showFields = input<string[] | undefined>();
+  readonly showFields: InputSignal<string[] | undefined> = input<string[] | undefined>();
 
   /** Blacklist of field names to hide */
-  readonly hideFields = input<string[] | undefined>();
+  readonly hideFields: InputSignal<string[] | undefined> = input<string[] | undefined>();
 
-  private authService = inject(AsgardeoAuthService);
-  private userService = inject(AsgardeoUserService);
-  private editingFields = signal<Record<string, boolean>>({});
-  private editedValues = signal<Record<string, any>>({});
+  private authService: AsgardeoAuthService = inject(AsgardeoAuthService);
+
+  private userService: AsgardeoUserService = inject(AsgardeoUserService);
+
+  private editingFields: WritableSignal<Record<string, boolean>> = signal<Record<string, boolean>>({});
+
+  private editedValues: WritableSignal<Record<string, any>> = signal<Record<string, any>>({});
 
   constructor() {
     // Reset editing state when the popup closes
@@ -581,53 +591,45 @@ export class AsgardeoUserProfileComponent {
     });
   }
 
-  error = signal<string | null>(null);
+  error: WritableSignal<string | null> = signal<string | null>(null);
 
-  schemasAvailable = computed(() => {
-    const up = this.authService.userProfile();
-    return up?.schemas && up.schemas.length > 0;
+  schemasAvailable: Signal<boolean> = computed(() => {
+    const up: Record<string, any> | null = this.authService.userProfile();
+    return up?.['schemas'] && up['schemas'].length > 0;
   });
 
-  displayName = computed(() => {
-    const user = this.authService.flattenedProfile() || this.authService.user();
+  displayName: Signal<string> = computed(() => {
+    const user: Record<string, any> | null = this.authService.flattenedProfile() || this.authService.user();
     if (!user) return 'User';
-    const u = user as Record<string, any>;
-    const firstName = u['name']?.['givenName'] || u['given_name'] || '';
-    const lastName = u['name']?.['familyName'] || u['family_name'] || '';
+    const u: Record<string, any> = user as Record<string, any>;
+    const firstName: string = u['name']?.['givenName'] || u['given_name'] || '';
+    const lastName: string = u['name']?.['familyName'] || u['family_name'] || '';
     if (firstName && lastName) return `${firstName} ${lastName}`;
     return u['userName'] || u['username'] || u['email'] || 'User';
   });
 
-  emailValue = computed(() => {
-    const user = this.authService.flattenedProfile() || this.authService.user();
+  emailValue: Signal<string> = computed(() => {
+    const user: Record<string, any> | null = this.authService.flattenedProfile() || this.authService.user();
     if (!user) return '';
-    const u = user as Record<string, any>;
-    const emails = u['emails'];
+    const u: Record<string, any> = user as Record<string, any>;
+    const {emails}: {emails: any} = u as {emails: any};
     if (Array.isArray(emails)) return emails[0] || '';
     return u['email'] || '';
   });
 
-  profileImageUrl = computed(() => {
-    const user = this.authService.flattenedProfile() || this.authService.user();
+  profileImageUrl: Signal<string | null> = computed(() => {
+    const user: Record<string, any> | null = this.authService.flattenedProfile() || this.authService.user();
     if (!user) return null;
-    const u = user as Record<string, any>;
+    const u: Record<string, any> = user as Record<string, any>;
     return u['profile'] || u['profileUrl'] || u['picture'] || u['URL'] || null;
   });
 
-  initials = computed(() => {
-    const name = this.displayName();
-    return name
-      .split(' ')
-      .map((p: string) => p[0])
-      .slice(0, 2)
-      .join('')
-      .toUpperCase();
-  });
+  initials: Signal<string> = computed(() => getInitials(this.displayName()));
 
-  avatarGradient = computed(() => {
-    const name = this.displayName();
+  avatarGradient: Signal<string> = computed(() => {
+    const name: string = this.displayName();
     if (!name) return 'linear-gradient(135deg, #6366f1, #8b5cf6)';
-    return this.generateGradient(name);
+    return generateGradient(name);
   });
 
   /**
@@ -636,18 +638,18 @@ export class AsgardeoUserProfileComponent {
    * array of field definitions (each with `name`, `type`, `schemaId`, `displayOrder`, etc.),
    * NOT nested schema objects with `.attributes`.
    */
-  visibleFields = computed(() => {
-    const up = this.authService.userProfile();
-    if (!up?.schemas || up.schemas.length === 0) return [];
-    const flatProfile = (this.authService.flattenedProfile() || {}) as Record<string, any>;
+  visibleFields: Signal<SchemaField[]> = computed(() => {
+    const up: Record<string, any> | null = this.authService.userProfile();
+    if (!up?.['schemas'] || up['schemas'].length === 0) return [];
+    const flatProfile: Record<string, any> = (this.authService.flattenedProfile() || {}) as Record<string, any>;
 
-    return (up.schemas as any[])
+    return (up['schemas'] as any[])
       .map((field: any) => ({...field, value: flatProfile[field.name]} as SchemaField))
       .filter((f: SchemaField) => {
         if (!f.name) return false;
         if (FIELDS_TO_SKIP.includes(f.name)) return false;
         if (this.hideFields()?.includes(f.name)) return false;
-        const sf = this.showFields();
+        const sf: string[] | undefined = this.showFields();
         if (sf && sf.length > 0 && !sf.includes(f.name)) return false;
         if (!this.editable()) {
           return f.value !== undefined && f.value !== '' && f.value !== null;
@@ -655,41 +657,48 @@ export class AsgardeoUserProfileComponent {
         return true;
       })
       .sort((a: SchemaField, b: SchemaField) => {
-        const orderA = a.displayOrder ? parseInt(a.displayOrder, 10) : 999;
-        const orderB = b.displayOrder ? parseInt(b.displayOrder, 10) : 999;
+        const orderA: number = a.displayOrder ? parseInt(a.displayOrder, 10) : 999;
+        const orderB: number = b.displayOrder ? parseInt(b.displayOrder, 10) : 999;
         return orderA - orderB;
       });
   });
 
   /** Fallback flat profile key-value pairs when no schemas available */
-  flatProfileEntries = computed(() => {
-    const profile = (this.authService.flattenedProfile() || this.authService.user()) as Record<string, any>;
+  flatProfileEntries: Signal<{key: string; value: string}[]> = computed(() => {
+    const profile: Record<string, any> = (this.authService.flattenedProfile() || this.authService.user()) as Record<
+      string,
+      any
+    >;
     if (!profile) return [];
 
     const entries: {key: string; value: string}[] = [];
 
     const flatten = (obj: Record<string, any>, prefix: string = ''): void => {
-      for (const [key, value] of Object.entries(obj)) {
-        const fullKey = prefix ? `${prefix}.${key}` : key;
-        if (FIELDS_TO_SKIP.includes(fullKey) || FIELDS_TO_SKIP.includes(key)) continue;
-        if (this.hideFields()?.includes(fullKey)) continue;
-        const sf = this.showFields();
-        if (sf && sf.length > 0 && !sf.includes(fullKey)) continue;
-        if (value === undefined || value === '' || value === null) continue;
+      Object.entries(obj).forEach((entry: [string, any]) => {
+        const key: string = entry[0];
+        const value: any = entry[1];
+        const fullKey: string = prefix ? `${prefix}.${key}` : key;
+        if (FIELDS_TO_SKIP.includes(fullKey) || FIELDS_TO_SKIP.includes(key)) return;
+        if (this.hideFields()?.includes(fullKey)) return;
+        const sf: string[] | undefined = this.showFields();
+        if (sf && sf.length > 0 && !sf.includes(fullKey)) return;
+        if (value === undefined || value === '' || value === null) return;
 
         if (Array.isArray(value)) {
-          const displayVal = value.filter(v => v !== null && v !== undefined && v !== '').join(', ');
+          const displayVal: string = value.filter((v: any) => v !== null && v !== undefined && v !== '').join(', ');
           if (displayVal) entries.push({key: fullKey, value: displayVal});
         } else if (typeof value === 'object') {
           flatten(value, fullKey);
         } else {
           entries.push({key: fullKey, value: String(value)});
         }
-      }
+      });
     };
 
     flatten(profile);
-    return entries.sort((a, b) => a.key.localeCompare(b.key));
+    return entries.sort((a: {key: string; value: string}, b: {key: string; value: string}) =>
+      a.key.localeCompare(b.key),
+    );
   });
 
   @HostListener('document:keydown.escape')
@@ -714,25 +723,25 @@ export class AsgardeoUserProfileComponent {
   }
 
   getEditedValue(fieldName: string): any {
-    const edited = this.editedValues();
+    const edited: Record<string, any> = this.editedValues();
     if (fieldName in edited) return edited[fieldName];
-    const profile = (this.authService.flattenedProfile() || {}) as Record<string, any>;
+    const profile: Record<string, any> = (this.authService.flattenedProfile() || {}) as Record<string, any>;
     return profile[fieldName];
   }
 
   toggleEdit(fieldName: string): void {
-    const current = this.editingFields();
+    const current: Record<string, boolean> = this.editingFields();
     this.editingFields.set({...current, [fieldName]: !current[fieldName]});
   }
 
   onFieldChange(fieldName: string, value: any): void {
-    this.editedValues.update(v => ({...v, [fieldName]: value}));
+    this.editedValues.update((v: Record<string, any>) => ({...v, [fieldName]: value}));
   }
 
   cancelEdit(fieldName: string): void {
-    this.editingFields.update(v => ({...v, [fieldName]: false}));
-    this.editedValues.update(v => {
-      const copy = {...v};
+    this.editingFields.update((v: Record<string, boolean>) => ({...v, [fieldName]: false}));
+    this.editedValues.update((v: Record<string, any>) => {
+      const copy: Record<string, any> = {...v};
       delete copy[fieldName];
       return copy;
     });
@@ -741,8 +750,8 @@ export class AsgardeoUserProfileComponent {
   async saveField(field: SchemaField): Promise<void> {
     if (!field.name) return;
 
-    const fieldName = field.name;
-    let fieldValue = this.getEditedValue(fieldName) ?? '';
+    const fieldName: string = field.name;
+    let fieldValue: any = this.getEditedValue(fieldName) ?? '';
 
     if (Array.isArray(fieldValue)) {
       fieldValue = fieldValue.filter((v: any) => v !== undefined && v !== null && v !== '');
@@ -752,19 +761,19 @@ export class AsgardeoUserProfileComponent {
     if (field.schemaId && field.schemaId !== WELL_KNOWN_USER_SCHEMA) {
       payload = {[field.schemaId]: {[fieldName]: fieldValue}};
     } else {
-      this.setNestedValue(payload, fieldName, fieldValue);
+      AsgardeoUserProfileComponent.setNestedValue(payload, fieldName, fieldValue);
     }
 
     this.error.set(null);
     try {
-      const baseUrl = this.authService.getBaseUrl();
-      const instanceId = this.authService.getClient().getInstanceId();
+      const baseUrl: string = this.authService.getBaseUrl();
+      const instanceId: number = this.authService.getClient().getInstanceId();
 
       await this.userService.updateUser({baseUrl, instanceId, payload});
 
-      this.editingFields.update(v => ({...v, [fieldName]: false}));
-      this.editedValues.update(v => {
-        const copy = {...v};
+      this.editingFields.update((v: Record<string, boolean>) => ({...v, [fieldName]: false}));
+      this.editedValues.update((v: Record<string, any>) => {
+        const copy: Record<string, any> = {...v};
         delete copy[fieldName];
         return copy;
       });
@@ -773,24 +782,28 @@ export class AsgardeoUserProfileComponent {
     }
   }
 
+  // eslint-disable-next-line class-methods-use-this
   isReadonly(field: SchemaField): boolean {
     if (field.mutability === 'READ_ONLY') return true;
     if (field.name && READONLY_FIELDS.includes(field.name)) return true;
     return false;
   }
 
+  // eslint-disable-next-line class-methods-use-this
   hasFieldValue(field: SchemaField): boolean {
     return field.value !== undefined && field.value !== '' && field.value !== null;
   }
 
+  // eslint-disable-next-line class-methods-use-this
   formatFieldValue(field: SchemaField): string {
-    const val = field.value;
+    const val: any = field.value;
     if (val === null || val === undefined) return '';
     if (typeof val === 'boolean') return val ? 'Yes' : 'No';
     if (typeof val === 'object') return JSON.stringify(val);
     return String(val);
   }
 
+  // eslint-disable-next-line class-methods-use-this
   formatLabel(key: string): string {
     return key
       .split(/(?=[A-Z])|_|\./)
@@ -798,10 +811,10 @@ export class AsgardeoUserProfileComponent {
       .join(' ');
   }
 
-  private setNestedValue(obj: Record<string, any>, path: string, value: any): void {
-    const keys = path.split('.');
-    let current = obj;
-    for (let i = 0; i < keys.length; i++) {
+  private static setNestedValue(obj: Record<string, any>, path: string, value: any): void {
+    const keys: string[] = path.split('.');
+    let current: Record<string, any> = obj;
+    for (let i: number = 0; i < keys.length; i += 1) {
       if (i === keys.length - 1) {
         current[keys[i]] = value;
       } else {
@@ -811,20 +824,5 @@ export class AsgardeoUserProfileComponent {
         current = current[keys[i]];
       }
     }
-  }
-
-  private generateGradient(inputString: string): string {
-    let hash = inputString.split('').reduce((acc: number, char: string) => {
-      const charCode = char.charCodeAt(0);
-      return ((acc << 5) - acc + charCode) & 0xffffffff;
-    }, 0);
-    const seed = Math.abs(hash);
-    const hue1 = (seed + seed) % 360;
-    const hue2 = (hue1 + 60 + (seed % 120)) % 360;
-    const saturation = 70 + (seed % 20);
-    const lightness1 = 55 + (seed % 15);
-    const lightness2 = 60 + ((seed + seed) % 15);
-    const angle = 45 + (seed % 91);
-    return `linear-gradient(${angle}deg, hsl(${hue1}, ${saturation}%, ${lightness1}%), hsl(${hue2}, ${saturation}%, ${lightness2}%))`;
   }
 }

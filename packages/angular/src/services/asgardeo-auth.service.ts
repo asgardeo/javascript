@@ -16,10 +16,11 @@
  * under the License.
  */
 
-import {Injectable, Inject, Injector, signal, computed, OnDestroy, Signal, WritableSignal} from '@angular/core';
+import {Injectable, Injector, inject, signal, computed, OnDestroy, Signal, WritableSignal} from '@angular/core';
 import {toObservable} from '@angular/core/rxjs-interop';
 import {
   AsgardeoRuntimeError,
+  AsgardeoSPAClient,
   User,
   UserProfile,
   Organization,
@@ -30,6 +31,7 @@ import {
   HttpRequestConfig,
   HttpResponse,
   TokenExchangeRequestConfig,
+  Hooks,
   hasAuthParamsInUrl,
   hasCalledForThisInstanceInUrl,
   Platform,
@@ -88,39 +90,52 @@ export class AsgardeoAuthService implements OnDestroy {
 
   readonly profile: Signal<User | null> = computed(() => this._userProfile()?.profile ?? null);
 
-  // --- RxJS Observables (derived from signals via toObservable) ---
-  readonly isLoading$: Observable<boolean>;
+  // --- RxJS Observables (lazily derived from signals via toObservable) ---
+  // These are lazy because toObservable() requires ChangeDetectionScheduler,
+  // which is not available during APP_INITIALIZER when this service is constructed.
+  private _isLoading$: Observable<boolean> | null = null;
 
-  readonly isSignedIn$: Observable<boolean>;
+  private _isSignedIn$: Observable<boolean> | null = null;
 
-  readonly isInitialized$: Observable<boolean>;
+  private _isInitialized$: Observable<boolean> | null = null;
 
-  readonly user$: Observable<User | null>;
+  private _user$: Observable<User | null> | null = null;
+
+  get isLoading$(): Observable<boolean> {
+    if (!this._isLoading$) this._isLoading$ = toObservable(this.isLoading, {injector: this.injector});
+    return this._isLoading$;
+  }
+
+  get isSignedIn$(): Observable<boolean> {
+    if (!this._isSignedIn$) this._isSignedIn$ = toObservable(this.isSignedIn, {injector: this.injector});
+    return this._isSignedIn$;
+  }
+
+  get isInitialized$(): Observable<boolean> {
+    if (!this._isInitialized$) this._isInitialized$ = toObservable(this.isInitialized, {injector: this.injector});
+    return this._isInitialized$;
+  }
+
+  get user$(): Observable<User | null> {
+    if (!this._user$) this._user$ = toObservable(this.user, {injector: this.injector});
+    return this._user$;
+  }
 
   // --- Internal state ---
-  private client: AsgardeoAngularClient;
+  private readonly injector: Injector = inject(Injector);
 
-  private config: AsgardeoAngularConfig;
+  private config: AsgardeoAngularConfig = {...inject(ASGARDEO_CONFIG)};
 
-  private signInCheckInterval: ReturnType<typeof setInterval> | null = null;
+  private client: AsgardeoAngularClient = new AsgardeoAngularClient(this.config.instanceId ?? 0);
+
+  private signInHookRegistered: boolean = false;
 
   private loadingCheckInterval: ReturnType<typeof setInterval> | null = null;
 
   private isUpdatingSession: boolean = false;
 
-  constructor(
-    @Inject(ASGARDEO_CONFIG) config: AsgardeoAngularConfig,
-    injector: Injector,
-  ) {
-    this.config = {...config};
-    this.client = new AsgardeoAngularClient(config.instanceId ?? 0);
-    this._baseUrl.set(config.baseUrl || '');
-
-    // Derive observables from signals within the injection context
-    this.isLoading$ = toObservable(this.isLoading, {injector});
-    this.isSignedIn$ = toObservable(this.isSignedIn, {injector});
-    this.isInitialized$ = toObservable(this.isInitialized, {injector});
-    this.user$ = toObservable(this.user, {injector});
+  constructor() {
+    this._baseUrl.set(this.config.baseUrl || '');
   }
 
   /**
@@ -302,11 +317,11 @@ export class AsgardeoAuthService implements OnDestroy {
 
   // --- HTTP ---
 
-  async request(requestConfig?: HttpRequestConfig): Promise<HttpResponse<any>> {
+  async request(requestConfig: HttpRequestConfig): Promise<HttpResponse<any>> {
     return this.client.request(requestConfig);
   }
 
-  async requestAll(requestConfigs?: HttpRequestConfig[]): Promise<HttpResponse<any>[]> {
+  async requestAll(requestConfigs: HttpRequestConfig[]): Promise<HttpResponse<any>[]> {
     return this.client.requestAll(requestConfigs);
   }
 
@@ -360,7 +375,7 @@ export class AsgardeoAuthService implements OnDestroy {
     const currentProfile: UserProfile | null = this._userProfile();
     this._userProfile.set({
       ...currentProfile,
-      flattenedProfile: generateFlattenedUserProfile(updatedUser, currentProfile?.schemas),
+      flattenedProfile: generateFlattenedUserProfile(updatedUser, currentProfile?.schemas ?? []),
       profile: updatedUser,
     } as UserProfile);
   }
@@ -425,7 +440,7 @@ export class AsgardeoAuthService implements OnDestroy {
         }
 
         try {
-          const fetchedOrganization: Organization = await this.client.getCurrentOrganization();
+          const fetchedOrganization: Organization | null = await this.client.getCurrentOrganization();
           this._currentOrganization.set(fetchedOrganization);
         } catch {
           // Silently handle organization fetch failure
@@ -451,10 +466,11 @@ export class AsgardeoAuthService implements OnDestroy {
   }
 
   /**
-   * Polls for sign-in status changes. Mirrors AsgardeoProvider's sign-in status polling useEffect.
+   * Registers a hook to be notified when sign-in completes,
+   * instead of polling with setInterval.
    */
   private startSignInPolling(): void {
-    if (this.signInCheckInterval) {
+    if (this.signInHookRegistered) {
       return;
     }
 
@@ -462,36 +478,36 @@ export class AsgardeoAuthService implements OnDestroy {
       this.setSignedInState(status);
 
       if (!status) {
-        this.signInCheckInterval = setInterval(async () => {
-          const newStatus: boolean = await this.client.isSignedIn();
-
-          if (newStatus) {
-            this.setSignedInState(true);
-            if (this.signInCheckInterval) {
-              clearInterval(this.signInCheckInterval);
-              this.signInCheckInterval = null;
-            }
-          }
-        }, 1000);
+        this.signInHookRegistered = true;
+        AsgardeoSPAClient.getInstance(this.config.instanceId ?? 0).on(Hooks.SignIn, () => {
+          this.setSignedInState(true);
+        });
       }
     });
   }
 
   /**
    * Tracks loading state changes from the client.
+   * Caches the afterSignInUrl path to avoid repeated URL parsing on every tick.
    */
   private startLoadingStateTracking(): void {
+    const afterSignInUrl: string = this.config.afterSignInUrl || window.location.origin;
+    let cachedAfterSignInPath: string;
+    try {
+      const parsed: URL = new URL(afterSignInUrl);
+      cachedAfterSignInPath = new URL(parsed.origin + parsed.pathname).toString();
+    } catch {
+      cachedAfterSignInPath = afterSignInUrl;
+    }
+
     this.loadingCheckInterval = setInterval(() => {
       if (this.isUpdatingSession) {
         return;
       }
 
-      const currentUrl: URL = new URL(window.location.href);
-      const afterSignInUrl: string = this.config.afterSignInUrl || window.location.origin;
       if (!this._isSignedIn() && hasAuthParamsInUrl()) {
-        const currentPathUrl: string = new URL(currentUrl.origin + currentUrl.pathname).toString();
-        const afterSignInPathUrl: string = new URL(afterSignInUrl).toString();
-        if (currentPathUrl === afterSignInPathUrl) {
+        const currentPathUrl: string = window.location.origin + window.location.pathname;
+        if (currentPathUrl === cachedAfterSignInPath) {
           return;
         }
       }
@@ -513,10 +529,6 @@ export class AsgardeoAuthService implements OnDestroy {
   }
 
   ngOnDestroy(): void {
-    if (this.signInCheckInterval) {
-      clearInterval(this.signInCheckInterval);
-      this.signInCheckInterval = null;
-    }
     if (this.loadingCheckInterval) {
       clearInterval(this.loadingCheckInterval);
       this.loadingCheckInterval = null;

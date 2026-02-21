@@ -16,15 +16,8 @@
  * under the License.
  */
 
-import {
-  Schema,
-  HttpInstance,
-  HttpResponse,
-  AsgardeoSPAClient,
-  HttpRequestConfig,
-  getSchemas as baseGetSchemas,
-  GetSchemasConfig as BaseGetSchemasConfig,
-} from '@asgardeo/browser';
+import {Schema, getSchemas as baseGetSchemas, GetSchemasConfig as BaseGetSchemasConfig} from '@asgardeo/browser';
+import {createDefaultFetcher} from '../utils/fetcher';
 
 /**
  * Configuration for the getSchemas request (Angular-specific)
@@ -78,29 +71,10 @@ export interface GetSchemasConfig extends Omit<BaseGetSchemasConfig, 'fetcher'> 
  * }
  * ```
  */
-const getSchemas = async ({fetcher, instanceId = 0, ...requestConfig}: GetSchemasConfig): Promise<Schema[]> => {
-  const defaultFetcher = async (url: string, config: RequestInit): Promise<Response> => {
-    const client: AsgardeoSPAClient = AsgardeoSPAClient.getInstance(instanceId);
-    const httpClient: HttpInstance = client.httpRequest.bind(client);
-    const response: HttpResponse<any> = await httpClient({
-      headers: config.headers as Record<string, string>,
-      method: config.method || 'GET',
-      url,
-    } as HttpRequestConfig);
-
-    return {
-      json: () => Promise.resolve(response.data),
-      ok: response.status >= 200 && response.status < 300,
-      status: response.status,
-      statusText: response.statusText || '',
-      text: () => Promise.resolve(typeof response.data === 'string' ? response.data : JSON.stringify(response.data)),
-    } as Response;
-  };
-
-  return baseGetSchemas({
+const getSchemas = async ({fetcher, instanceId = 0, ...requestConfig}: GetSchemasConfig): Promise<Schema[]> =>
+  baseGetSchemas({
     ...requestConfig,
-    fetcher: fetcher || defaultFetcher,
+    fetcher: fetcher || createDefaultFetcher(instanceId),
   });
-};
 
 export default getSchemas;

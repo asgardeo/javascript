@@ -1,11 +1,11 @@
 import {Component, inject, signal, HostListener, computed} from '@angular/core';
 import {RouterLink} from '@angular/router';
-import {AsgardeoAuthService, AsgardeoSignedInDirective, AsgardeoSignedOutDirective, AsgardeoUserProfileComponent} from '@asgardeo/angular';
+import {AsgardeoAuthService, AsgardeoSignedInDirective, AsgardeoSignedOutDirective, AsgardeoUserProfileComponent, AsgardeoOrganizationSwitcherComponent} from '@asgardeo/angular';
 
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [RouterLink, AsgardeoSignedInDirective, AsgardeoSignedOutDirective, AsgardeoUserProfileComponent],
+  imports: [RouterLink, AsgardeoSignedInDirective, AsgardeoSignedOutDirective, AsgardeoUserProfileComponent, AsgardeoOrganizationSwitcherComponent],
   template: `
     <header class="bg-white border-b border-gray-200">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -41,6 +41,11 @@ import {AsgardeoAuthService, AsgardeoSignedInDirective, AsgardeoSignedOutDirecti
 
           <!-- Actions -->
           <div class="flex items-center space-x-4">
+            <!-- Organization Switcher -->
+            <div *asgardeoSignedIn>
+              <asgardeo-organization-switcher [avatarSize]="28" />
+            </div>
+
             <!-- Signed In: User Dropdown (matches React SDK UserDropdown) -->
             <div *asgardeoSignedIn class="asgardeo-user-dropdown" style="position: relative;">
               <button

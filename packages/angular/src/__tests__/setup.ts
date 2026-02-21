@@ -16,30 +16,4 @@
  * under the License.
  */
 
-import {readFileSync} from 'fs';
-import {build} from 'esbuild';
-
-const pkg = JSON.parse(readFileSync('./package.json', 'utf8'));
-
-const commonOptions = {
-  bundle: true,
-  entryPoints: ['src/index.ts'],
-  external: [...Object.keys(pkg.dependencies || {}), ...Object.keys(pkg.peerDependencies || {})],
-  metafile: true,
-  platform: 'browser',
-  target: ['es2020'],
-};
-
-await build({
-  ...commonOptions,
-  format: 'esm',
-  outfile: 'dist/index.js',
-  sourcemap: true,
-});
-
-await build({
-  ...commonOptions,
-  format: 'cjs',
-  outfile: 'dist/cjs/index.js',
-  sourcemap: true,
-});
+import '@angular/compiler';

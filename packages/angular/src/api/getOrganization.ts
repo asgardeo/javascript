@@ -17,14 +17,11 @@
  */
 
 import {
-  HttpInstance,
-  HttpResponse,
-  AsgardeoSPAClient,
-  HttpRequestConfig,
   getOrganization as baseGetOrganization,
   GetOrganizationConfig as BaseGetOrganizationConfig,
   OrganizationDetails,
 } from '@asgardeo/browser';
+import {createDefaultFetcher} from '../utils/fetcher';
 
 /**
  * Configuration for the getOrganization request (Angular-specific)
@@ -84,29 +81,10 @@ const getOrganization = async ({
   fetcher,
   instanceId = 0,
   ...requestConfig
-}: GetOrganizationConfig): Promise<OrganizationDetails> => {
-  const defaultFetcher = async (url: string, config: RequestInit): Promise<Response> => {
-    const client: AsgardeoSPAClient = AsgardeoSPAClient.getInstance(instanceId);
-    const httpClient: HttpInstance = client.httpRequest.bind(client);
-    const response: HttpResponse<any> = await httpClient({
-      headers: config.headers as Record<string, string>,
-      method: config.method || 'GET',
-      url,
-    } as HttpRequestConfig);
-
-    return {
-      json: () => Promise.resolve(response.data),
-      ok: response.status >= 200 && response.status < 300,
-      status: response.status,
-      statusText: response.statusText || '',
-      text: () => Promise.resolve(typeof response.data === 'string' ? response.data : JSON.stringify(response.data)),
-    } as Response;
-  };
-
-  return baseGetOrganization({
+}: GetOrganizationConfig): Promise<OrganizationDetails> =>
+  baseGetOrganization({
     ...requestConfig,
-    fetcher: fetcher || defaultFetcher,
+    fetcher: fetcher || createDefaultFetcher(instanceId),
   });
-};
 
 export default getOrganization;

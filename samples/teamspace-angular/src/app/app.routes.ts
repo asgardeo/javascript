@@ -1,20 +1,13 @@
 import {Routes} from '@angular/router';
-import {LandingComponent} from './pages/landing.component';
-import {CallbackPageComponent} from './pages/callback.component';
-import {DashboardComponent} from './pages/dashboard.component';
-import {ProfileComponent} from './pages/profile.component';
-import {OrganizationsComponent} from './pages/organizations.component';
-import {CreateOrgComponent} from './pages/create-org.component';
-import {DebugComponent} from './pages/debug.component';
 import {authGuard} from './guards/auth.guard';
 
 export const routes: Routes = [
-  {path: '', component: LandingComponent},
-  {path: 'callback', component: CallbackPageComponent},
-  {path: 'dashboard', component: DashboardComponent, canActivate: [authGuard]},
-  {path: 'profile', component: ProfileComponent, canActivate: [authGuard]},
-  {path: 'organizations', component: OrganizationsComponent, canActivate: [authGuard]},
-  {path: 'organizations/new', component: CreateOrgComponent, canActivate: [authGuard]},
-  {path: 'debug', component: DebugComponent, canActivate: [authGuard]},
+  {path: '', loadComponent: () => import('./pages/landing.component').then(m => m.LandingComponent)},
+  {path: 'callback', loadComponent: () => import('./pages/callback.component').then(m => m.CallbackPageComponent)},
+  {path: 'dashboard', loadComponent: () => import('./pages/dashboard.component').then(m => m.DashboardComponent), canActivate: [authGuard]},
+  {path: 'profile', loadComponent: () => import('./pages/profile.component').then(m => m.ProfileComponent), canActivate: [authGuard]},
+  {path: 'organizations', loadComponent: () => import('./pages/organizations.component').then(m => m.OrganizationsComponent), canActivate: [authGuard]},
+  {path: 'organizations/new', loadComponent: () => import('./pages/create-org.component').then(m => m.CreateOrgComponent), canActivate: [authGuard]},
+  {path: 'debug', loadComponent: () => import('./pages/debug.component').then(m => m.DebugComponent), canActivate: [authGuard]},
   {path: '**', redirectTo: ''},
 ];

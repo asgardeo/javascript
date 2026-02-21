@@ -150,11 +150,11 @@ class AsgardeoAngularClient<T extends AsgardeoAngularConfig = AsgardeoAngularCon
   }
 
   async getDecodedIdToken(sessionId?: string): Promise<IdToken> {
-    return this.spaClient.getDecodedIdToken(sessionId);
+    return (await this.spaClient.getDecodedIdToken(sessionId)) as IdToken;
   }
 
   async getIdToken(): Promise<string> {
-    return this.withLoading(async () => this.spaClient.getIdToken());
+    return this.withLoading(async () => (await this.spaClient.getIdToken()) as string);
   }
 
   async getUserProfile(options?: any): Promise<UserProfile> {
@@ -236,9 +236,9 @@ class AsgardeoAngularClient<T extends AsgardeoAngularConfig = AsgardeoAngularCon
       return await this.withLoading(async () => {
         const idToken: IdToken = await this.getDecodedIdToken();
         return {
-          id: idToken?.org_id,
-          name: idToken?.org_name,
-          orgHandle: idToken?.org_handle,
+          id: idToken?.org_id || '',
+          name: idToken?.org_name || '',
+          orgHandle: idToken?.org_handle || '',
         };
       });
     } catch (error) {
@@ -298,7 +298,7 @@ class AsgardeoAngularClient<T extends AsgardeoAngularConfig = AsgardeoAngularCon
   }
 
   override async isSignedIn(): Promise<boolean> {
-    return this.spaClient.isSignedIn();
+    return (await this.spaClient.isSignedIn()) ?? false;
   }
 
   /**
@@ -329,7 +329,7 @@ class AsgardeoAngularClient<T extends AsgardeoAngularConfig = AsgardeoAngularCon
   }
 
   override async signInSilently(options?: SignInOptions): Promise<User | boolean> {
-    return this.spaClient.signInSilently(options as Record<string, string | boolean>);
+    return (await this.spaClient.signInSilently(options as Record<string, string | boolean>)) as User | boolean;
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -353,12 +353,12 @@ class AsgardeoAngularClient<T extends AsgardeoAngularConfig = AsgardeoAngularCon
     navigate(getRedirectBasedSignUpUrl(config as Config));
   }
 
-  async request(requestConfig?: HttpRequestConfig): Promise<HttpResponse<any>> {
-    return this.spaClient.httpRequest(requestConfig);
+  async request(requestConfig: HttpRequestConfig): Promise<HttpResponse<any>> {
+    return (await this.spaClient.httpRequest(requestConfig)) as HttpResponse<any>;
   }
 
-  async requestAll(requestConfigs?: HttpRequestConfig[]): Promise<HttpResponse<any>[]> {
-    return this.spaClient.httpRequestAll(requestConfigs);
+  async requestAll(requestConfigs: HttpRequestConfig[]): Promise<HttpResponse<any>[]> {
+    return (await this.spaClient.httpRequestAll(requestConfigs)) as HttpResponse<any>[];
   }
 
   override async getAccessToken(sessionId?: string): Promise<string> {
@@ -374,7 +374,7 @@ class AsgardeoAngularClient<T extends AsgardeoAngularConfig = AsgardeoAngularCon
   }
 
   override decodeJwtToken<TResult = Record<string, unknown>>(token: string): Promise<TResult> {
-    return this.spaClient.decodeJwtToken<TResult>(token);
+    return this.spaClient.decodeJwtToken<TResult>(token) as Promise<TResult>;
   }
 }
 
