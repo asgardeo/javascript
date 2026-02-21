@@ -137,7 +137,7 @@ export async function registerIsApp(): Promise<{clientId: string; clientSecret: 
   };
 
   // Remove read-only fields that can't be sent in PUT
-  delete updatedConfig.state;
+  delete (updatedConfig as Record<string, unknown>).state;
 
   const oidcPutResponse = await fetch(oidcUrl, {
     method: 'PUT',

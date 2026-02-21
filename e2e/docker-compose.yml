@@ -60,10 +60,11 @@ services:
       thunder-setup:
         condition: service_completed_successfully
     ports:
-      - "8090:8090"
+      - "9090:8090"
     volumes:
       - thunder-db:/opt/thunder/repository/database
       - ./thunder-config/deployment.yaml:/opt/thunder/repository/conf/deployment.yaml:ro
+      - ./thunder-config/gate-config.js:/opt/thunder/apps/gate/config.js:ro
     healthcheck:
       test: ["CMD", "curl", "-k", "-f", "https://localhost:8090/health/readiness"]
       interval: 10s
