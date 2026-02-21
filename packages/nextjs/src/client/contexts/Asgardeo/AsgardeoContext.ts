@@ -19,6 +19,7 @@
 'use client';
 
 import {AsgardeoContextProps as AsgardeoReactContextProps} from '@asgardeo/react';
+import {TokenExchangeRequestConfig, TokenResponse, IdToken} from '@asgardeo/node';
 import {Context, createContext} from 'react';
 
 /**
@@ -43,6 +44,10 @@ const AsgardeoContext: Context<AsgardeoContextProps | null> = createContext<null
   signUp: () => Promise.resolve({} as any),
   signUpUrl: undefined,
   user: null,
+  getDecodedIdToken: async (sessionId?:string) => Promise.resolve({} as IdToken),
+  getIdToken: async () => Promise.resolve(undefined),
+  getAccessToken: async (sessionId?:string) => Promise.resolve(undefined),
+  exchangeToken: async (config: TokenExchangeRequestConfig, sessionId?:string) => Promise.resolve({} as TokenResponse | Response | undefined),
 });
 
 AsgardeoContext.displayName = 'AsgardeoContext';
