@@ -1,7 +1,7 @@
-import {test, expect} from '../../../fixtures/base.fixture';
-import {performSignIn} from '../../../helpers/auth-helpers';
-import {SELECTORS} from '../../../helpers/selectors';
-import {THUNDER_SELECTORS} from '../../../helpers/thunder/selectors';
+import {test, expect} from '../../../../fixtures/base.fixture';
+import {performSignIn} from '../../../../helpers/auth-helpers';
+import {SELECTORS} from '../../../../helpers/selectors';
+import {THUNDER_SELECTORS} from '../../../../helpers/thunder/selectors';
 
 test.describe('Sign-In Flow', () => {
   test('should redirect to the Thunder Gate login page from /signin', async ({page}) => {

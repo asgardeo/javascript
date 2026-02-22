@@ -1,7 +1,7 @@
-import {test, expect} from '../../../fixtures/base.fixture';
-import {performSignIn} from '../../../helpers/auth-helpers';
-import {SELECTORS} from '../../../helpers/selectors';
-import {IS_SELECTORS} from '../../../helpers/is/selectors';
+import {test, expect} from '../../../../fixtures/base.fixture';
+import {performSignIn} from '../../../../helpers/auth-helpers';
+import {SELECTORS} from '../../../../helpers/selectors';
+import {IS_SELECTORS} from '../../../../helpers/is/selectors';
 
 test.describe('Sign-In Flow', () => {
   test('should redirect to the IS login page from /signin', async ({page}) => {

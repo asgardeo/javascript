@@ -8,7 +8,7 @@
 import {spawn} from 'child_process';
 import {writeFileSync} from 'fs';
 import path from 'path';
-import {getIdpTarget, SAMPLE_APP} from './constants';
+import {getIdpTarget, getSampleApp, getSampleAppTarget} from './constants';
 import {IS_CONFIG} from './is/constants';
 import {THUNDER_CONFIG} from './thunder/constants';
 import {waitForIdp} from './wait-for-idp';
@@ -18,7 +18,8 @@ import {provisionIsTestUser} from './is/user-provisioning';
 import {provisionThunderTestUser} from './thunder/user-provisioning';
 
 function writeSampleAppEnv(vars: Record<string, string>): void {
-  const envPath = path.resolve(__dirname, '../../samples/teamspace-react/.env');
+  const sampleApp = getSampleApp();
+  const envPath = path.resolve(__dirname, `../../samples/${sampleApp.envDir}/.env`);
   const content = Object.entries(vars)
     .map(([key, value]) => `${key}='${value}'`)
     .join('\n');
@@ -29,9 +30,11 @@ function writeSampleAppEnv(vars: Record<string, string>): void {
 
 async function setup(): Promise<void> {
   const idpTarget = getIdpTarget();
+  const appTarget = getSampleAppTarget();
+  const sampleApp = getSampleApp();
   const signInMode = process.env.SIGN_IN_MODE ?? 'redirect';
 
-  console.log(`\n[E2E Setup] IDP target: ${idpTarget}, sign-in mode: ${signInMode}\n`);
+  console.log(`\n[E2E Setup] App: ${appTarget}, IDP: ${idpTarget}, sign-in mode: ${signInMode}\n`);
 
   if (idpTarget === 'is') {
     const {baseUrl, healthCheckPath} = IS_CONFIG;
@@ -45,14 +48,14 @@ async function setup(): Promise<void> {
     const envVars: Record<string, string> = {
       VITE_ASGARDEO_BASE_URL: baseUrl,
       VITE_ASGARDEO_CLIENT_ID: clientId,
-      VITE_ASGARDEO_AFTER_SIGN_IN_URL: `${SAMPLE_APP.url}${SAMPLE_APP.afterSignInPath}`,
-      VITE_ASGARDEO_AFTER_SIGN_OUT_URL: `${SAMPLE_APP.url}${SAMPLE_APP.afterSignOutPath}`,
-      VITE_ASGARDEO_SIGN_UP_URL: `${SAMPLE_APP.url}${SAMPLE_APP.signUpPath}`,
+      VITE_ASGARDEO_AFTER_SIGN_IN_URL: `${sampleApp.url}${sampleApp.afterSignInPath}`,
+      VITE_ASGARDEO_AFTER_SIGN_OUT_URL: `${sampleApp.url}${sampleApp.afterSignOutPath}`,
+      VITE_ASGARDEO_SIGN_UP_URL: `${sampleApp.url}${sampleApp.signUpPath}`,
     };
 
     // Only set signInUrl for embedded mode — its presence tells the app to render <SignIn /> inline
     if (signInMode === 'embedded') {
-      envVars.VITE_ASGARDEO_SIGN_IN_URL = `${SAMPLE_APP.url}${SAMPLE_APP.signInPath}`;
+      envVars.VITE_ASGARDEO_SIGN_IN_URL = `${sampleApp.url}${sampleApp.signInPath}`;
     }
 
     writeSampleAppEnv(envVars);
@@ -69,14 +72,14 @@ async function setup(): Promise<void> {
       VITE_ASGARDEO_BASE_URL: baseUrl,
       VITE_ASGARDEO_CLIENT_ID: clientId,
       VITE_ASGARDEO_PLATFORM: 'AsgardeoV2',
-      VITE_ASGARDEO_AFTER_SIGN_IN_URL: `${SAMPLE_APP.url}${SAMPLE_APP.afterSignInPath}`,
-      VITE_ASGARDEO_AFTER_SIGN_OUT_URL: `${SAMPLE_APP.url}${SAMPLE_APP.afterSignOutPath}`,
-      VITE_ASGARDEO_SIGN_UP_URL: `${SAMPLE_APP.url}${SAMPLE_APP.signUpPath}`,
+      VITE_ASGARDEO_AFTER_SIGN_IN_URL: `${sampleApp.url}${sampleApp.afterSignInPath}`,
+      VITE_ASGARDEO_AFTER_SIGN_OUT_URL: `${sampleApp.url}${sampleApp.afterSignOutPath}`,
+      VITE_ASGARDEO_SIGN_UP_URL: `${sampleApp.url}${sampleApp.signUpPath}`,
     };
 
     // Only set signInUrl for embedded mode — its presence tells the app to render <SignIn /> inline
     if (signInMode === 'embedded') {
-      envVars.VITE_ASGARDEO_SIGN_IN_URL = `${SAMPLE_APP.url}${SAMPLE_APP.signInPath}`;
+      envVars.VITE_ASGARDEO_SIGN_IN_URL = `${sampleApp.url}${sampleApp.signInPath}`;
     }
 
     if (applicationId) {
@@ -93,8 +96,9 @@ async function main(): Promise<void> {
   await setup();
 
   // Start Vite dev server — this replaces the current process
+  const sampleApp = getSampleApp();
   const repoRoot = path.resolve(__dirname, '../..');
-  const child = spawn('pnpm', ['--filter', '@asgardeo/teamspace-react', 'dev'], {
+  const child = spawn('pnpm', ['--filter', sampleApp.pnpmFilter, 'dev'], {
     cwd: repoRoot,
     stdio: 'inherit',
     shell: true,

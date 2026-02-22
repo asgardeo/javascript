@@ -1,6 +1,6 @@
-import {test, expect} from '../../../fixtures/base.fixture';
-import {performSignIn, performSignOut} from '../../../helpers/auth-helpers';
-import {SELECTORS} from '../../../helpers/selectors';
+import {test, expect} from '../../../../fixtures/base.fixture';
+import {performSignIn, performSignOut} from '../../../../helpers/auth-helpers';
+import {SELECTORS} from '../../../../helpers/selectors';
 
 test.describe('Sign-Out Flow', () => {
   test.beforeEach(async ({page}) => {

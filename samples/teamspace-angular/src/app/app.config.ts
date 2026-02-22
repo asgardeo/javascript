@@ -16,6 +16,8 @@ export const appConfig: ApplicationConfig = {
       afterSignOutUrl: import.meta.env['VITE_ASGARDEO_AFTER_SIGN_OUT_URL'] || window.location.origin,
       scopes:
         'openid address email profile internal_organization_create internal_organization_view internal_organization_update internal_organization_delete internal_org_organization_update internal_org_organization_create internal_org_organization_view internal_org_organization_delete',
+      ...(import.meta.env['VITE_ASGARDEO_PLATFORM'] && {platform: import.meta.env['VITE_ASGARDEO_PLATFORM']}),
+      ...(import.meta.env['VITE_ASGARDEO_APPLICATION_ID'] && {applicationId: import.meta.env['VITE_ASGARDEO_APPLICATION_ID']}),
     }),
   ],
 };

@@ -12,7 +12,7 @@
  */
 
 import {execSync} from 'child_process';
-import {SAMPLE_APP} from '../constants';
+import {getSampleApp} from '../constants';
 import {THUNDER_CONFIG} from './constants';
 
 const CONTAINER = 'asgardeo-e2e-thunder';
@@ -46,7 +46,8 @@ export async function getThunderAppClientId(): Promise<{clientId: string; applic
 
   // Patch the pre-configured app's OAuth config to add the callback URL
   // to redirect_uris (bootstrap only has / and /dashboard).
-  const callbackUrl = `${SAMPLE_APP.url}${SAMPLE_APP.afterSignInPath}`;
+  const sampleApp = getSampleApp();
+  const callbackUrl = `${sampleApp.url}${sampleApp.afterSignInPath}`;
 
   try {
     const configJson = thunderSqlite(

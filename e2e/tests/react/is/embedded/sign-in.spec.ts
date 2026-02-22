@@ -1,6 +1,6 @@
-import {test, expect} from '../../../fixtures/base.fixture';
-import {performEmbeddedSignIn} from '../../../helpers/auth-helpers';
-import {SELECTORS} from '../../../helpers/selectors';
+import {test, expect} from '../../../../fixtures/base.fixture';
+import {performEmbeddedSignIn} from '../../../../helpers/auth-helpers';
+import {SELECTORS} from '../../../../helpers/selectors';
 
 test.describe('Embedded Sign-In Flow', () => {
   test('should render the embedded <SignIn /> component with form fields', async ({page}) => {
