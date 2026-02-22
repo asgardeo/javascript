@@ -4,6 +4,7 @@
     "baseUrl": ".",
     "paths": {
       "@asgardeo/react": ["packages/react/src/index.ts"],
+      "@asgardeo/angular": ["packages/angular/src/index.ts"],
     }
   }
 }

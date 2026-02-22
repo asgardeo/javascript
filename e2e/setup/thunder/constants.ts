@@ -3,7 +3,7 @@
  */
 
 export const THUNDER_CONFIG = {
-  baseUrl: process.env.THUNDER_BASE_URL ?? 'https://localhost:8090',
+  baseUrl: process.env.THUNDER_BASE_URL ?? 'https://localhost:9090',
   healthCheckPath: '/health/readiness',
   adminUsername: 'admin',
   adminPassword: 'admin',

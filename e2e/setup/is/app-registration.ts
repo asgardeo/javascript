@@ -2,7 +2,7 @@
  * OAuth2/OIDC application registration on WSO2 Identity Server.
  */
 
-import {SAMPLE_APP} from '../constants';
+import {getSampleApp} from '../constants';
 import {basicAuth, insecureAgent} from '../http-utils';
 import {IS_CONFIG} from './constants';
 
@@ -23,6 +23,7 @@ function escapeRegex(str: string): string {
 export async function registerIsApp(): Promise<{clientId: string; clientSecret: string}> {
   const {baseUrl, dcrEndpoint, adminUsername, adminPassword} = IS_CONFIG;
   const authHeader = basicAuth(adminUsername, adminPassword);
+  const sampleApp = getSampleApp();
 
   // Step 1: Register via DCR
   const dcrUrl = `${baseUrl}${dcrEndpoint}`;
@@ -32,7 +33,7 @@ export async function registerIsApp(): Promise<{clientId: string; clientSecret: 
   const dcrBody = {
     client_name: 'asgardeo-e2e-test-app',
     grant_types: ['authorization_code', 'refresh_token'],
-    redirect_uris: [`${SAMPLE_APP.url}${SAMPLE_APP.afterSignInPath}`],
+    redirect_uris: [`${sampleApp.url}${sampleApp.afterSignInPath}`],
     token_type_extension: 'JWT',
     application_type: 'web',
     ext_public_client: true,
@@ -121,13 +122,13 @@ export async function registerIsApp(): Promise<{clientId: string; clientSecret: 
 
   // Update the config with allowed origins, PKCE, and callback URLs (including post-logout).
   // IS requires a single regex pattern for multiple callback URLs.
-  const afterSignInUrl = `${SAMPLE_APP.url}${SAMPLE_APP.afterSignInPath}`;
-  const afterSignOutUrl = `${SAMPLE_APP.url}${SAMPLE_APP.afterSignOutPath}`;
+  const afterSignInUrl = `${sampleApp.url}${sampleApp.afterSignInPath}`;
+  const afterSignOutUrl = `${sampleApp.url}${sampleApp.afterSignOutPath}`;
   const callbackRegex = `regexp=(${escapeRegex(afterSignInUrl)}|${escapeRegex(afterSignOutUrl)})`;
 
   const updatedConfig = {
     ...oidcConfig,
-    allowedOrigins: [SAMPLE_APP.url],
+    allowedOrigins: [sampleApp.url],
     callbackURLs: [callbackRegex],
     publicClient: true,
     pkce: {
@@ -137,7 +138,7 @@ export async function registerIsApp(): Promise<{clientId: string; clientSecret: 
   };
 
   // Remove read-only fields that can't be sent in PUT
-  delete updatedConfig.state;
+  delete (updatedConfig as Record<string, unknown>).state;
 
   const oidcPutResponse = await fetch(oidcUrl, {
     method: 'PUT',

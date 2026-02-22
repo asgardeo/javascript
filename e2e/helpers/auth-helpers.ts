@@ -6,7 +6,7 @@
  */
 
 import {type Page} from '@playwright/test';
-import {TEST_USER, getIdpTarget} from '../setup/constants';
+import {TEST_USER, getIdpTarget, getSampleApp} from '../setup/constants';
 import {THUNDER_CONFIG} from '../setup/thunder/constants';
 import {SELECTORS} from './selectors';
 import {performIsSignIn, handleIsLogoutConsent} from './is/auth-helpers';
@@ -18,7 +18,7 @@ import {performThunderSignIn} from './thunder/auth-helpers';
  * - IS: Uses the provisioned test user (e2e-test-user)
  * - Thunder: Uses the pre-created admin user (admin/admin)
  */
-function getSignInCredentials(): {username: string; password: string} {
+export function getSignInCredentials(): {username: string; password: string} {
   const idpTarget = getIdpTarget();
 
   if (idpTarget === 'thunder') {
@@ -62,8 +62,9 @@ export async function performSignIn(page: Page): Promise<void> {
  */
 export async function performEmbeddedSignIn(page: Page): Promise<void> {
   const credentials = getSignInCredentials();
+  const sampleApp = getSampleApp();
 
-  await page.goto('/signin');
+  await page.goto(sampleApp.signInPath);
 
   // Wait for the <SignIn /> component to load and render form fields from the IDP
   await page.waitForSelector(SELECTORS.embeddedSignIn.container, {timeout: 30_000});

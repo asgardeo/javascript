@@ -1,16 +1,18 @@
 #!/usr/bin/env bash
-# Usage: ./e2e/scripts/run-e2e.sh [--idp is|thunder] [--mode redirect|embedded|all] [--headed]
+# Usage: ./e2e/scripts/run-e2e.sh [--app react|angular|all] [--idp is|thunder|all] [--mode redirect|embedded|all] [--headed]
 #
-# Defaults: --idp is --mode redirect
+# Defaults: --app all --idp all --mode all
 
 set -euo pipefail
 
-IDP="is"
-MODE="redirect"
+APP="all"
+IDP="all"
+MODE="all"
 EXTRA_ARGS=""
 
 while [[ $# -gt 0 ]]; do
   case $1 in
+    --app) APP="$2"; shift 2 ;;
     --idp) IDP="$2"; shift 2 ;;
     --mode) MODE="$2"; shift 2 ;;
     --headed) EXTRA_ARGS="--headed"; shift ;;
@@ -19,28 +21,49 @@ while [[ $# -gt 0 ]]; do
 done
 
 run_suite() {
-  local idp=$1
-  local mode=$2
+  local app=$1
+  local idp=$2
+  local mode=$3
+  local test_dir="e2e/tests/${app}/${idp}/${mode}"
+
+  # Skip combinations that don't have tests yet
+  if [[ ! -d "$test_dir" ]]; then
+    echo ""
+    echo "=== Skipping e2e: APP=$app IDP=$idp MODE=$mode (no tests at $test_dir) ==="
+    return 0
+  fi
+
   echo ""
-  echo "=== Running e2e: IDP=$idp MODE=$mode ==="
+  echo "=== Running e2e: APP=$app IDP=$idp MODE=$mode ==="
   echo ""
-  IDP_TARGET="$idp" npx playwright test --config "e2e/playwright.${mode}.config.ts" $EXTRA_ARGS
+  SAMPLE_APP_TARGET="$app" IDP_TARGET="$idp" npx playwright test --config "e2e/playwright.${mode}.config.ts" $EXTRA_ARGS
 }
 
-if [[ "$IDP" == "all" && "$MODE" == "all" ]]; then
-  for idp in is thunder; do
-    for mode in redirect embedded; do
-      run_suite "$idp" "$mode"
+# Expand APP dimension
+if [[ "$APP" == "all" ]]; then
+  apps=(react angular)
+else
+  apps=("$APP")
+fi
+
+# Expand IDP dimension
+if [[ "$IDP" == "all" ]]; then
+  idps=(is thunder)
+else
+  idps=("$IDP")
+fi
+
+# Expand MODE dimension
+if [[ "$MODE" == "all" ]]; then
+  modes=(redirect embedded)
+else
+  modes=("$MODE")
+fi
+
+for app in "${apps[@]}"; do
+  for idp in "${idps[@]}"; do
+    for mode in "${modes[@]}"; do
+      run_suite "$app" "$idp" "$mode"
     done
   done
-elif [[ "$IDP" == "all" ]]; then
-  for idp in is thunder; do
-    run_suite "$idp" "$MODE"
-  done
-elif [[ "$MODE" == "all" ]]; then
-  for mode in redirect embedded; do
-    run_suite "$IDP" "$mode"
-  done
-else
-  run_suite "$IDP" "$MODE"
-fi
+done
