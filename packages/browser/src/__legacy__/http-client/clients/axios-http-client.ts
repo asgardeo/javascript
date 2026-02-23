@@ -117,6 +117,23 @@ export class HttpClient implements HttpClientInterface<HttpRequestConfig, HttpRe
   }
 
   /**
+   * Destroys and cleans up an HttpClient instance.
+   * This should be called during provider teardown to prevent memory leaks.
+   *
+   * @param instanceId - The instance ID to destroy. Defaults to 0.
+   */
+  public static destroyInstance(instanceId: number = 0): void {
+    const axiosInstance = this.instances.get(instanceId);
+    if (axiosInstance) {
+      // Eject interceptors to prevent memory leaks
+      axiosInstance.interceptors.request.clear();
+      axiosInstance.interceptors.response.clear();
+    }
+    this.instances.delete(instanceId);
+    this.clientInstances.delete(instanceId);
+  }
+
+  /**
    * Intercepts all the requests.
    * If the `isHandlerEnabled` flag is set to true, fires the `requestStartCallback`
    * and retrieves the access token from the server and attaches it to the request.
