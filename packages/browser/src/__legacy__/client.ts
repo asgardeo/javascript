@@ -718,8 +718,6 @@ export class AsgardeoSPAClient {
   public async exchangeToken(config: TokenExchangeRequestConfig): Promise<Response | User | undefined> {
     if (config.signInRequired) {
       await this._validateMethod();
-    } else {
-      // await this._validateMethod();
     }
 
     if (!config.id) {
