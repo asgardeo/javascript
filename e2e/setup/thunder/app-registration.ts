@@ -34,7 +34,7 @@ export async function getThunderAppClientId(): Promise<{clientId: string; applic
   let applicationId: string | undefined;
 
   try {
-    const result = thunderSqlite("SELECT APP_ID FROM SP_APP WHERE APP_NAME='React SDK Sample'");
+    const result = thunderSqlite("SELECT APP_ID FROM APPLICATION WHERE APP_NAME='React SDK Sample'");
 
     if (result) {
       applicationId = result;
@@ -44,15 +44,44 @@ export async function getThunderAppClientId(): Promise<{clientId: string; applic
     console.warn('[E2E] Could not retrieve Thunder application ID from database');
   }
 
-  // Patch the pre-configured app's OAuth config:
-  // 1. Add the callback URL to redirect_uris (bootstrap only has / and /dashboard)
-  // 2. Fix the token issuer to match the OIDC discovery issuer (baseUrl, not baseUrl/oauth2/token)
+  // Patch the pre-configured app to ensure:
+  // 1. allowed_user_types includes "Person" (admin user is Person type)
+  // 2. The callback URL is in redirect_uris
+  // 3. The token issuer matches the OIDC discovery issuer
+  try {
+    const appJson = thunderSqlite(
+      `SELECT APP_JSON FROM APPLICATION WHERE APP_NAME='React SDK Sample'`,
+    );
+
+    if (appJson) {
+      const appConfig = JSON.parse(appJson);
+      const userTypes: string[] = appConfig.allowed_user_types || [];
+
+      if (!userTypes.includes('Person')) {
+        userTypes.push('Person');
+        appConfig.allowed_user_types = userTypes;
+        const updatedAppJson = JSON.stringify(appConfig);
+
+        execSync(
+          `docker exec -i ${CONTAINER} sh -c 'cat > /tmp/app_config.json'`,
+          {input: updatedAppJson, encoding: 'utf-8'},
+        );
+        thunderSqlite(
+          `UPDATE APPLICATION SET APP_JSON=readfile('/tmp/app_config.json') WHERE APP_NAME='React SDK Sample'`,
+        );
+        console.log(`[E2E] Thunder app config updated (allowed_user_types includes Person)`);
+      }
+    }
+  } catch (err) {
+    console.warn('[E2E] Could not update Thunder app config:', err);
+  }
+
   const callbackUrl = `${SAMPLE_APP.url}${SAMPLE_APP.afterSignInPath}`;
   const correctIssuer = THUNDER_CONFIG.baseUrl;
 
   try {
     const configJson = thunderSqlite(
-      `SELECT OAUTH_CONFIG_JSON FROM IDN_OAUTH_CONSUMER_APPS WHERE CONSUMER_KEY='${clientId}'`,
+      `SELECT OAUTH_CONFIG_JSON FROM APP_OAUTH_INBOUND_CONFIG WHERE CLIENT_ID='${clientId}'`,
     );
 
     if (configJson) {
@@ -84,7 +113,7 @@ export async function getThunderAppClientId(): Promise<{clientId: string; applic
           {input: updatedJson, encoding: 'utf-8'},
         );
         thunderSqlite(
-          `UPDATE IDN_OAUTH_CONSUMER_APPS SET OAUTH_CONFIG_JSON=readfile('/tmp/oauth_config.json') WHERE CONSUMER_KEY='${clientId}'`,
+          `UPDATE APP_OAUTH_INBOUND_CONFIG SET OAUTH_CONFIG_JSON=readfile('/tmp/oauth_config.json') WHERE CLIENT_ID='${clientId}'`,
         );
         console.log(`[E2E] Thunder app OAuth config updated (redirect_uris, token issuer)`);
       }
