@@ -16,13 +16,13 @@
  * under the License.
  */
 
-import { EmbeddedSignInFlowInitiateResponse } from "./models/embedded-signin-flow";
-import { AuthClientConfig } from './__legacy__/models/client-config';
-import { EmbeddedFlowExecuteRequestConfig } from "./models/embedded-flow";
-import { EmbeddedSignInFlowHandleResponse } from "./models/embedded-signin-flow";
-import { EmbeddedSignInFlowStatus } from "./models/embedded-signin-flow";
-import { Crypto } from "./models/crypto";
-import { AsgardeoAuthClient } from "./__legacy__/client";
+import {EmbeddedSignInFlowInitiateResponse} from "./models/embedded-signin-flow";
+import {AuthClientConfig} from './__legacy__/models/client-config';
+import {EmbeddedFlowExecuteRequestConfig} from "./models/embedded-flow";
+import {EmbeddedSignInFlowHandleResponse} from "./models/embedded-signin-flow";
+import {EmbeddedSignInFlowStatus} from "./models/embedded-signin-flow";
+import {Crypto} from "./models/crypto";
+import {AsgardeoAuthClient} from "./__legacy__/client";
 import StorageManager from "./StorageManager";
 import executeEmbeddedSignInFlow from "./api/executeEmbeddedSignInFlow";
 import {AsgardeoClient} from './models/client';
