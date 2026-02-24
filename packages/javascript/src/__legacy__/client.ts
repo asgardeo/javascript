@@ -242,7 +242,7 @@ export class AsgardeoAuthClient<T> {
 
       if (configData.enablePKCE) {
         codeVerifier = this.cryptoHelper?.getCodeVerifier();
-        codeChallenge = this.cryptoHelper?.getCodeChallenge(codeVerifier);
+        codeChallenge = await this.cryptoHelper?.getCodeChallenge(codeVerifier);
         await this.storageManager.setTemporaryDataParameter(pkceKey, codeVerifier, userId);
       }
 

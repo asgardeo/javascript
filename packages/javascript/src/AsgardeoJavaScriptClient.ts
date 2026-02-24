@@ -33,6 +33,8 @@ import {Storage} from './models/store';
 import {TokenExchangeRequestConfig, TokenResponse} from './models/token';
 import {User, UserProfile} from './models/user';
 import initializeEmbeddedSignInFlow from './api/initializeEmbeddedSignInFlow';
+import {DefaultCacheStore} from './DefaultCacheStore';
+import {DefaultCrypto} from './DefaultCrypto';
 
 interface AgentConfig {
   agentID: string;
@@ -61,8 +63,8 @@ class AsgardeoJavaScriptClient<T = Config> implements AsgardeoClient<T> {
   void: void;
   
   constructor(config?: AuthClientConfig<T>, cacheStore?: Storage, cryptoUtils?: Crypto) {
-    this.cacheStore = cacheStore;
-    this.cryptoUtils = cryptoUtils;
+    this.cacheStore = cacheStore ?? new DefaultCacheStore();
+    this.cryptoUtils =  cryptoUtils ?? new DefaultCrypto();
     this.auth = new AsgardeoAuthClient();
     this.auth.initialize(config, this.cacheStore, this.cryptoUtils);
     this.storageManager = this.auth.getStorageManager();

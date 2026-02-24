@@ -43,8 +43,9 @@ export class IsomorphicCrypto<T = any> {
    *
    * @returns - code challenge.
    */
-  public getCodeChallenge(verifier: string): string {
-    return this.cryptoUtils.base64URLEncode(this.cryptoUtils.hashSha256(verifier));
+  public async getCodeChallenge(verifier: string): Promise<string> {
+    const hashed = await this.cryptoUtils.hashSha256(verifier);
+    return this.cryptoUtils.base64URLEncode(hashed);
   }
 
   /**
