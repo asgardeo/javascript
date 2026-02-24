@@ -23,7 +23,7 @@ import { HttpError, HttpResponse } from "../../models";
  * Http client interface with static functions.
  */
 export interface HttpClientStatic<S> {
-    getInstance(): S;
+    getInstance(instanceId?: number): S;
 }
 
 /**

@@ -365,8 +365,8 @@ export const WebWorkerClient = async (
       }
     };
 
-    const message: Message<AuthClientConfig<WebWorkerClientConfig>> = {
-      data: config,
+    const message: Message<AuthClientConfig<WebWorkerClientConfig> & {instanceID: number}> = {
+      data: {...config, instanceID},
       type: INIT,
     };
 

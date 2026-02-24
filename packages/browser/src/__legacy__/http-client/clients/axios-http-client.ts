@@ -41,9 +41,9 @@ import {HttpClientInstance, HttpClientInterface, HttpClientStatic} from '../mode
  */
 @staticDecorator<HttpClientStatic<HttpClientInstance>>()
 export class HttpClient implements HttpClientInterface<HttpRequestConfig, HttpResponse, HttpError> {
-  private static axiosInstance: HttpClientInstance;
-  private static clientInstance: HttpClient;
-  private static isHandlerEnabled: boolean;
+  private static instances: Map<number, HttpClientInstance> = new Map();
+  private static clientInstances: Map<number, HttpClient> = new Map();
+  private isHandlerEnabled: boolean = true;
   private attachToken: (request: HttpRequestConfig) => Promise<void> = () => Promise.resolve();
   private requestStartCallback: (request: HttpRequestConfig) => void = () => null;
   private requestSuccessCallback: (response: HttpResponse) => void = () => null;
@@ -59,6 +59,9 @@ export class HttpClient implements HttpClientInterface<HttpRequestConfig, HttpRe
    */
   private constructor() {
     this.init = this.init.bind(this);
+    this.enableHandler = this.enableHandler.bind(this);
+    this.disableHandler = this.disableHandler.bind(this);
+    this.disableHandlerWithTimeout = this.disableHandlerWithTimeout.bind(this);
     this.setHttpRequestErrorCallback = this.setHttpRequestErrorCallback.bind(this);
     this.setHttpRequestFinishCallback = this.setHttpRequestFinishCallback.bind(this);
     this.setHttpRequestStartCallback = this.setHttpRequestStartCallback.bind(this);
@@ -66,48 +69,68 @@ export class HttpClient implements HttpClientInterface<HttpRequestConfig, HttpRe
   }
 
   /**
-   * Returns an aggregated instance of type `HttpInstance` of `HttpClient`.
+   * Returns an instance-specific HttpClient instance.
+   * Each instance ID gets its own axios instance and HttpClient to avoid state conflicts.
    *
-   * @return {any}
+   * @param instanceId - The instance ID for multi-auth context support. Defaults to 0.
+   * @return {HttpClientInstance}
    */
-  public static getInstance(): HttpClientInstance {
-    if (this.axiosInstance) {
-      return this.axiosInstance;
+  public static getInstance(instanceId: number = 0): HttpClientInstance {
+    if (this.instances.has(instanceId)) {
+      return this.instances.get(instanceId)!;
     }
 
-    this.axiosInstance = axios.create({
+    const axiosInstance = axios.create({
       withCredentials: true,
-    });
+    }) as HttpClientInstance;
 
-    if (!this.clientInstance) {
-      this.clientInstance = new HttpClient();
-    }
+    const clientInstance = new HttpClient();
+    this.clientInstances.set(instanceId, clientInstance);
 
     // Register request interceptor
-    this.axiosInstance.interceptors.request.use(async (request: InternalAxiosRequestConfig) => await this.clientInstance.requestHandler(request as HttpRequestConfig) as InternalAxiosRequestConfig);
+    axiosInstance.interceptors.request.use(async (request: InternalAxiosRequestConfig) => await clientInstance.requestHandler(request as HttpRequestConfig) as InternalAxiosRequestConfig);
 
     // Register response interceptor
-    this.axiosInstance.interceptors.response.use(
-      response => this.clientInstance.successHandler(response),
-      error => this.clientInstance.errorHandler(error),
+    axiosInstance.interceptors.response.use(
+      response => clientInstance.successHandler(response),
+      error => clientInstance.errorHandler(error),
     );
 
     // Add the missing helper methods from axios
-    this.axiosInstance.all = axios.all;
-    this.axiosInstance.spread = axios.spread;
+    axiosInstance.all = axios.all;
+    axiosInstance.spread = axios.spread;
 
     // Add the init method from the `HttpClient` instance.
-    this.axiosInstance.init = this.clientInstance.init;
+    axiosInstance.init = clientInstance.init;
 
     // Add the handler enabling & disabling methods to the instance.
-    this.axiosInstance.enableHandler = this.clientInstance.enableHandler;
-    this.axiosInstance.disableHandler = this.clientInstance.disableHandler;
-    this.axiosInstance.disableHandlerWithTimeout = this.clientInstance.disableHandlerWithTimeout;
-    this.axiosInstance.setHttpRequestStartCallback = this.clientInstance.setHttpRequestStartCallback;
-    this.axiosInstance.setHttpRequestSuccessCallback = this.clientInstance.setHttpRequestSuccessCallback;
-    this.axiosInstance.setHttpRequestErrorCallback = this.clientInstance.setHttpRequestErrorCallback;
-    this.axiosInstance.setHttpRequestFinishCallback = this.clientInstance.setHttpRequestFinishCallback;
-    return this.axiosInstance;
+    axiosInstance.enableHandler = clientInstance.enableHandler;
+    axiosInstance.disableHandler = clientInstance.disableHandler;
+    axiosInstance.disableHandlerWithTimeout = clientInstance.disableHandlerWithTimeout;
+    axiosInstance.setHttpRequestStartCallback = clientInstance.setHttpRequestStartCallback;
+    axiosInstance.setHttpRequestSuccessCallback = clientInstance.setHttpRequestSuccessCallback;
+    axiosInstance.setHttpRequestErrorCallback = clientInstance.setHttpRequestErrorCallback;
+    axiosInstance.setHttpRequestFinishCallback = clientInstance.setHttpRequestFinishCallback;
+    
+    this.instances.set(instanceId, axiosInstance);
+    return axiosInstance;
+  }
+
+  /**
+   * Destroys and cleans up an HttpClient instance.
+   * This should be called during provider teardown to prevent memory leaks.
+   *
+   * @param instanceId - The instance ID to destroy. Defaults to 0.
+   */
+  public static destroyInstance(instanceId: number = 0): void {
+    const axiosInstance = this.instances.get(instanceId);
+    if (axiosInstance) {
+      // Eject interceptors to prevent memory leaks
+      axiosInstance.interceptors.request.clear();
+      axiosInstance.interceptors.response.clear();
+    }
+    this.instances.delete(instanceId);
+    this.clientInstances.delete(instanceId);
   }
 
   /**
@@ -134,7 +157,7 @@ export class HttpClient implements HttpClientInterface<HttpRequestConfig, HttpRe
 
     request.startTimeInMs = new Date().getTime();
 
-    if (HttpClient.isHandlerEnabled) {
+    if (this.isHandlerEnabled) {
       if (this.requestStartCallback && typeof this.requestStartCallback === 'function') {
         this.requestStartCallback(request);
       }
@@ -151,7 +174,7 @@ export class HttpClient implements HttpClientInterface<HttpRequestConfig, HttpRe
    * @return {HttpError}
    */
   public errorHandler(error: HttpError): HttpError {
-    if (HttpClient.isHandlerEnabled) {
+    if (this.isHandlerEnabled) {
       if (this.requestErrorCallback && typeof this.requestErrorCallback === 'function') {
         this.requestErrorCallback(error);
       }
@@ -171,7 +194,7 @@ export class HttpClient implements HttpClientInterface<HttpRequestConfig, HttpRe
    * @return {HttpResponse}
    */
   public successHandler(response: HttpResponse): HttpResponse {
-    if (HttpClient.isHandlerEnabled) {
+    if (this.isHandlerEnabled) {
       if (this.requestSuccessCallback && typeof this.requestSuccessCallback === 'function') {
         this.requestSuccessCallback(response);
       }
@@ -195,7 +218,7 @@ export class HttpClient implements HttpClientInterface<HttpRequestConfig, HttpRe
     isHandlerEnabled = true,
     attachToken: (request: HttpRequestConfig) => Promise<void>,
   ): Promise<void> {
-    HttpClient.isHandlerEnabled = isHandlerEnabled;
+    this.isHandlerEnabled = isHandlerEnabled;
     this.attachToken = attachToken;
   }
 
@@ -203,14 +226,14 @@ export class HttpClient implements HttpClientInterface<HttpRequestConfig, HttpRe
    * Enables the handler.
    */
   public enableHandler(): void {
-    HttpClient.isHandlerEnabled = true;
+    this.isHandlerEnabled = true;
   }
 
   /**
    * Disables the handler.
    */
   public disableHandler(): void {
-    HttpClient.isHandlerEnabled = false;
+    this.isHandlerEnabled = false;
   }
 
   /**
@@ -219,10 +242,10 @@ export class HttpClient implements HttpClientInterface<HttpRequestConfig, HttpRe
    * @param {number} timeout - Timeout in milliseconds.
    */
   public disableHandlerWithTimeout(timeout: number = HttpClient.DEFAULT_HANDLER_DISABLE_TIMEOUT): void {
-    HttpClient.isHandlerEnabled = false;
+    this.isHandlerEnabled = false;
 
     setTimeout(() => {
-      HttpClient.isHandlerEnabled = true;
+      this.isHandlerEnabled = true;
     }, timeout);
   }
 
