@@ -57,7 +57,7 @@ const initiateStore = (store: BrowserStorage | undefined): Storage => {
 };
 
 export const MainThreadClient = async (
-  instanceID: number,
+  instanceId: number,
   config: AuthClientConfig<MainThreadClientConfig>,
   getAuthHelper: (
     authClient: AsgardeoAuthClient<MainThreadClientConfig>,
@@ -67,7 +67,7 @@ export const MainThreadClient = async (
   const _store: Storage = initiateStore(config.storage as BrowserStorage);
   const _cryptoUtils: SPACryptoUtils = new SPACryptoUtils();
   const _authenticationClient = new AsgardeoAuthClient<MainThreadClientConfig>();
-  await _authenticationClient.initialize(config, _store, _cryptoUtils, instanceID);
+  await _authenticationClient.initialize(config, _store, _cryptoUtils, instanceId);
 
   const _spaHelper = new SPAHelper<MainThreadClientConfig>(_authenticationClient);
   const _dataLayer = _authenticationClient.getStorageManager();
@@ -85,7 +85,7 @@ export const MainThreadClient = async (
 
   let _getSignOutURLFromSessionStorage: boolean = false;
 
-  const _httpClient: HttpClientInstance = HttpClient.getInstance(instanceID);
+  const _httpClient: HttpClientInstance = HttpClient.getInstance(instanceId);
   let _isHttpHandlerEnabled: boolean = true;
   let _httpErrorCallback: (error: HttpError) => void | Promise<void>;
   let _httpFinishCallback: () => void;
@@ -261,7 +261,7 @@ export const MainThreadClient = async (
     if ((await _authenticationClient.isSignedIn()) && !_getSignOutURLFromSessionStorage) {
       location.href = await _authenticationClient.getSignOutUrl();
     } else {
-      location.href = SPAUtils.getSignOutUrl(config.clientId, instanceID);
+      location.href = SPAUtils.getSignOutUrl(config.clientId, instanceId);
     }
 
     _spaHelper.clearRefreshTokenTimeout();
