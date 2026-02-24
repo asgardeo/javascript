@@ -159,94 +159,94 @@ class AsgardeoJavaScriptClient<T = Config> implements AsgardeoClient<T> {
   }
 
   // Get Agent Token. (AI agent acting on its own)
-    public async getAgentToken(agentConfig: AgentConfig): Promise<TokenResponse> {
-      const customParam = {
-        response_mode: "direct",
-      };
+  public async getAgentToken(agentConfig: AgentConfig): Promise<TokenResponse> {
+    const customParam = {
+      response_mode: "direct",
+    };
 
-      const authorizeURL: URL = new URL(await this.auth.getSignInUrl(customParam));
+    const authorizeURL: URL = new URL(await this.auth.getSignInUrl(customParam));
 
-      const authorizeResponse: EmbeddedSignInFlowInitiateResponse = await initializeEmbeddedSignInFlow({
-        url: `${authorizeURL.origin}${authorizeURL.pathname}`,
-        payload: Object.fromEntries(authorizeURL.searchParams.entries()),
-      });
+    const authorizeResponse: EmbeddedSignInFlowInitiateResponse = await initializeEmbeddedSignInFlow({
+      url: `${authorizeURL.origin}${authorizeURL.pathname}`,
+      payload: Object.fromEntries(authorizeURL.searchParams.entries()),
+    });
 
-      const usernamePasswordAuthenticator = authorizeResponse.nextStep.authenticators.find(
-        (auth) => auth.authenticator === "Username & Password",
-      );
+    const usernamePasswordAuthenticator = authorizeResponse.nextStep.authenticators.find(
+      (auth) => auth.authenticator === "Username & Password",
+    );
 
-      if (!usernamePasswordAuthenticator) {
-        console.error("Basic authenticator not found among authentication steps.");
-        return Promise.reject(new Error("Basic authenticator not found among authentication steps."));
-      }
+    if (!usernamePasswordAuthenticator) {
+      console.error("Basic authenticator not found among authentication steps.");
+      return Promise.reject(new Error("Basic authenticator not found among authentication steps."));
+    }
 
-      const authnRequest: EmbeddedFlowExecuteRequestConfig = {
-        baseUrl: this.baseURL,
-        payload: {
-          flowId: authorizeResponse.flowId,
-          selectedAuthenticator: {
-            authenticatorId: usernamePasswordAuthenticator.authenticatorId,
-            params: {
-              username: agentConfig.agentID,
-              password: agentConfig.agentSecret,
-            },
+    const authnRequest: EmbeddedFlowExecuteRequestConfig = {
+      baseUrl: this.baseURL,
+      payload: {
+        flowId: authorizeResponse.flowId,
+        selectedAuthenticator: {
+          authenticatorId: usernamePasswordAuthenticator.authenticatorId,
+          params: {
+            username: agentConfig.agentID,
+            password: agentConfig.agentSecret,
           },
         },
-      };
+      },
+    };
 
-      const authnResponse: EmbeddedSignInFlowHandleResponse = await executeEmbeddedSignInFlow(authnRequest);
+    const authnResponse: EmbeddedSignInFlowHandleResponse = await executeEmbeddedSignInFlow(authnRequest);
 
-      if (authnResponse.flowStatus != EmbeddedSignInFlowStatus.SuccessCompleted) {
-        console.error("Agent Authentication Failed.");
-        return Promise.reject(new Error("Agent Authentication Failed."));
-      }
-
-      const tokenResponse = await this.auth.requestAccessToken(
-        authnResponse.authData['code'],
-        authnResponse.authData['session_state'],
-        authnResponse.authData['state'],
-      );
-
-      return tokenResponse;
+    if (authnResponse.flowStatus != EmbeddedSignInFlowStatus.SuccessCompleted) {
+      console.error("Agent Authentication Failed.");
+      return Promise.reject(new Error("Agent Authentication Failed."));
     }
 
-    // Build Authorize request for the OBO Flow
-    public async getOBOSignInURL(agentConfig: AgentConfig): Promise<string> {
-      // The authorize request must include requested_actor parameter from the agent configs
-      const customParam = {
-        requested_actor: agentConfig.agentID,
-      };
+    const tokenResponse = await this.auth.requestAccessToken(
+      authnResponse.authData['code'],
+      authnResponse.authData['session_state'],
+      authnResponse.authData['state'],
+    );
 
-      // Build authorize URL using AsgardeoAuthClient
-      const authURL: string | undefined = await this.auth.getSignInUrl(customParam);
+    return tokenResponse;
+  }
 
-      if (authURL) {
-        return Promise.resolve(authURL.toString());
-      }
-      return Promise.reject(new Error("Could not build Authorize URL"));
+  // Build Authorize request for the OBO Flow
+  public async getOBOSignInURL(agentConfig: AgentConfig): Promise<string> {
+    // The authorize request must include requested_actor parameter from the agent configs
+    const customParam = {
+      requested_actor: agentConfig.agentID,
+    };
+
+    // Build authorize URL using AsgardeoAuthClient
+    const authURL: string | undefined = await this.auth.getSignInUrl(customParam);
+
+    if (authURL) {
+      return Promise.resolve(authURL.toString());
     }
+    return Promise.reject(new Error("Could not build Authorize URL"));
+  }
 
-    // Get OBO Token. (AI agent acting on behalf of a user)
-    public async getOBOToken(agentConfig: AgentConfig, authCodeResponse: AuthCodeResponse): Promise<TokenResponse> {
-      // Get Agent Token
-      const agentToken = await this.getAgentToken(agentConfig);
+  // Get OBO Token. (AI agent acting on behalf of a user)
+  public async getOBOToken(agentConfig: AgentConfig, authCodeResponse: AuthCodeResponse): Promise<TokenResponse> {
+    // Get Agent Token
+    const agentToken = await this.getAgentToken(agentConfig);
 
-      // Pass Agent Token when requesting access token
-      const tokenRequestConfig = {
-        params: {
-          actor_token: agentToken.accessToken,
-        },
-      };
+    // Pass Agent Token when requesting access token
+    const tokenRequestConfig = {
+      params: {
+        actor_token: agentToken.accessToken,
+      },
+    };
 
-      // Return OBO Token
-      return await this.auth.requestAccessToken(
-        authCodeResponse.code,
-        authCodeResponse.session_state,
-        authCodeResponse.state,
-        undefined,
-        tokenRequestConfig
-      );
-    }
+    // Return OBO Token
+    return await this.auth.requestAccessToken(
+      authCodeResponse.code,
+      authCodeResponse.session_state,
+      authCodeResponse.state,
+      undefined,
+      tokenRequestConfig
+    );
+  }
 }
 
 export default AsgardeoJavaScriptClient;
