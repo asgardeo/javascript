@@ -36,6 +36,7 @@ import extractPkceStorageKeyFromState from '../utils/extractPkceStorageKeyFromSt
 import generatePkceStorageKey from '../utils/generatePkceStorageKey';
 import getAuthorizeRequestUrlParams from '../utils/getAuthorizeRequestUrlParams';
 import processOpenIDScopes from '../utils/processOpenIDScopes';
+import deepMerge from '../utils/deepMerge';
 
 /**
  * Default configurations.
@@ -1138,7 +1139,9 @@ export class AsgardeoAuthClient<T> {
    * @preserve
    */
   public async reInitialize(config: Partial<AuthClientConfig<T>>): Promise<void> {
-    await this.storageManager.setConfigData(config);
+    const currentConfig = this.storageManager.getConfigData();
+    const newConfig = deepMerge(currentConfig as unknown as AuthClientConfig<T>, config);
+    await this.storageManager.setConfigData(newConfig);
     await this.loadOpenIDProviderConfiguration(true);
   }
 
