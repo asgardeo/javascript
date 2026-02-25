@@ -46,11 +46,6 @@ createRoot(document.getElementById('root')!).render(
           //     },
           //   },
           // },
-          overrides: {
-            typography: {
-              fontFamily: 'Comic Sans MS, cursive, sans-serif',
-            },
-          },
         },
         // Import the locale file and add it here to enable i18n
         // ex: import fr_FR from './i18n/fr-FR.json';
