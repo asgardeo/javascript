@@ -16,84 +16,60 @@
  * under the License.
  */
 
-import * as jose from "jose";
-import { JWKInterface } from "./models/crypto";
+import * as jose from 'jose';
+import {Crypto, JWKInterface} from './models/crypto';
 
-interface CryptoInterface<T> {
-    base64URLEncode(value: T): string;
-    base64URLDecode(value: string): string;
-    hashSha256(data: string): Promise<Uint8Array>; // Changed to Promise to match implementation
-    generateRandomBytes(length: number): Uint8Array;
-    verifyJwt(
-        idToken: string,
-        jwk: Partial<any>,
-        algorithms: string[],
-        clientId: string,
-        issuer: string,
-        subject: string,
-        clockTolerance?: number,
-    ): Promise<boolean>;
-}
+/**
+ * Default implementation of the Crypto interface using the 'jose' library
+ * and the native Web Crypto API.
+ */
+export class DefaultCrypto implements Crypto<Uint8Array> {
+  // eslint-disable-next-line class-methods-use-this
+  public base64URLDecode(value: string): string {
+    const decodedArray: Uint8Array = jose.base64url.decode(value);
+    return new TextDecoder().decode(decodedArray);
+  }
 
-export class DefaultCrypto implements CryptoInterface<Uint8Array | string> {
+  // eslint-disable-next-line class-methods-use-this
+  public base64URLEncode(value: Uint8Array): string {
+    return jose.base64url.encode(value);
+  }
 
-    constructor() {}
+  // eslint-disable-next-line class-methods-use-this
+  public generateRandomBytes(length: number): Uint8Array {
+    return crypto.getRandomValues(new Uint8Array(length));
+  }
 
-    /**
-     * Cross-platform Base64URL encoding using 'jose' utilities
-     */
-    public base64URLEncode(value: Uint8Array | string): string {
-        const uint8Array = typeof value === "string" 
-            ? new TextEncoder().encode(value) 
-            : value;
-        
-        return jose.base64url.encode(uint8Array);
-    }
+  // eslint-disable-next-line class-methods-use-this
+  public async hashSha256(data: string): Promise<Uint8Array> {
+    const encoder: TextEncoder = new TextEncoder();
+    const dataBuffer: Uint8Array = encoder.encode(data);
+    const hashBuffer: ArrayBuffer = await crypto.subtle.digest('SHA-256', dataBuffer);
 
-    /**
-     * Cross-platform Base64URL decoding
-     */
-    public base64URLDecode(value: string): string {
-        const decodedArray = jose.base64url.decode(value);
-        return new TextDecoder().decode(decodedArray);
-    }
+    return new Uint8Array(hashBuffer);
+  }
 
-    public async hashSha256(data: string): Promise<Uint8Array> {
-        const encoder = new TextEncoder();
-        const dataBuffer = encoder.encode(data);
+  // eslint-disable-next-line class-methods-use-this
+  public async verifyJwt(
+    idToken: string,
+    jwk: JWKInterface,
+    algorithms: string[],
+    clientId: string,
+    issuer: string,
+    subject: string,
+    clockTolerance?: number,
+    validateJwtIssuer: boolean = true,
+  ): Promise<boolean> {
+    const key: jose.KeyLike | Uint8Array = await jose.importJWK(jwk as jose.JWK);
 
-        // Using native web crypto (available in modern Node and Browsers)
-        const hashBuffer = await crypto.subtle.digest("SHA-256", dataBuffer);
-        return new Uint8Array(hashBuffer);
-    }
+    await jose.jwtVerify(idToken, key, {
+      algorithms,
+      audience: clientId,
+      clockTolerance,
+      issuer: validateJwtIssuer ? issuer : undefined,
+      subject,
+    });
 
-    public generateRandomBytes(length: number): Uint8Array {
-        // globalThis.crypto works in Browsers and Node.js 19+
-        const array = new Uint8Array(length);
-        crypto.getRandomValues(array);
-        return array;
-    }
-
-    public async verifyJwt(
-        idToken: string,
-        jwk: Partial<JWKInterface>,
-        algorithms: string[],
-        clientId: string,
-        issuer: string,
-        subject: string,
-        clockTolerance?: number,
-    ): Promise<boolean> {
-
-        const key = await jose.importJWK(jwk as any);
-
-        await jose.jwtVerify(idToken, key, {
-            algorithms,
-            audience: clientId,
-            issuer,
-            subject,
-            clockTolerance,
-        });
-
-        return true;
-    }
+    return true;
+  }
 }
