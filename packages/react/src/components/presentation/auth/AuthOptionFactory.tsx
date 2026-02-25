@@ -280,7 +280,7 @@ const createAuthComponentFromFlow = (
     }
 
     case EmbeddedFlowComponentType.Divider: {
-      return <Divider key={key}>{component.label || ''}</Divider>;
+      return <Divider key={key}>{resolve(component.label) || ''}</Divider>;
     }
 
     case EmbeddedFlowComponentType.Select: {
