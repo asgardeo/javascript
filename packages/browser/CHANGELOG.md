@@ -1,5 +1,14 @@
 # @asgardeo/browser
 
+## 0.4.0
+
+### Minor Changes
+
+- [#337](https://github.com/asgardeo/javascript/pull/337)
+  [`303663e`](https://github.com/asgardeo/javascript/commit/303663e4a8676e88b005ba21394b0aaa9c966674) Thanks
+  [@kavindadimuthu](https://github.com/kavindadimuthu)! - Fix failure of calling authenticated APIs from secondary
+  AsgardeoProvider Instances in Multi Provider scenarios
+
 ## 0.3.0
 
 ### Minor Changes
