@@ -253,7 +253,7 @@ export class AuthenticationHelper<T> {
       }
       sessionData = await this.storageManager.getSessionData(userId, instanceKey);
 
-      if (!sessionData.access_token) {
+      if (!sessionData || !sessionData.access_token) {
         throw new AsgardeoAuthException(
           'JS-AUTH_HELPER-RCGTT-NE01',
           'No session data found for source instance.',
