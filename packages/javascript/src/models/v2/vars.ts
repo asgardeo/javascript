@@ -16,8 +16,8 @@
  * under the License.
  */
 
-import {TranslationFn} from './translation';
 import {FlowMetadataResponse} from './flow-meta-v2';
+import {TranslationFn} from './translation';
 
 /**
  * Options for the resolveVars function.

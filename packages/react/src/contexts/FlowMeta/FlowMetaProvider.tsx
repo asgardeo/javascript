@@ -18,10 +18,20 @@
 
 import {FlowMetadataResponse, FlowMetaType, getFlowMetaV2} from '@asgardeo/browser';
 import {I18nBundle} from '@asgardeo/i18n';
-import {FC, PropsWithChildren, ReactElement, RefObject, useCallback, useContext, useEffect, useRef, useState} from 'react';
+import {
+  FC,
+  PropsWithChildren,
+  ReactElement,
+  RefObject,
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import FlowMetaContext from './FlowMetaContext';
-import I18nContext from '../I18n/I18nContext';
 import useAsgardeo from '../Asgardeo/useAsgardeo';
+import I18nContext, {I18nContextValue} from '../I18n/I18nContext';
 
 export interface FlowMetaProviderProps {
   /**
@@ -59,7 +69,7 @@ const FlowMetaProvider: FC<PropsWithChildren<FlowMetaProviderProps>> = ({
   enabled = true,
 }: PropsWithChildren<FlowMetaProviderProps>): ReactElement => {
   const {baseUrl, applicationId} = useAsgardeo();
-  const i18nContext = useContext(I18nContext);
+  const i18nContext: I18nContextValue = useContext(I18nContext);
 
   const [meta, setMeta] = useState<FlowMetadataResponse | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);

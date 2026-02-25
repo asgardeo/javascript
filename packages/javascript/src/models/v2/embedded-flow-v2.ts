@@ -221,14 +221,14 @@ export interface EmbeddedFlowComponent {
   alt?: string;
 
   /**
-   * Nested child components for container components like Block and Stack.
-   */
-  components?: EmbeddedFlowComponent[];
-
-  /**
    * Icon color, CSS color value (for Icon components).
    */
   color?: string;
+
+  /**
+   * Nested child components for container components like Block and Stack.
+   */
+  components?: EmbeddedFlowComponent[];
 
   /**
    * Layout direction for Stack components ('row' | 'column').
@@ -250,6 +250,12 @@ export interface EmbeddedFlowComponent {
    * Gap between children in Stack components (number, maps to spacing units).
    */
   gap?: number;
+
+  /**
+   * Height of the component (for Image components, can be string with units or number for pixels).
+   * The value depends on the component type (e.g., for Image components).
+   */
+  height?: string | number;
 
   /**
    * Unique identifier for the component
@@ -331,12 +337,6 @@ export interface EmbeddedFlowComponent {
    * The value depends on the component type (e.g., for Image components).
    */
   width?: string | number;
-
-  /**
-   * Height of the component (for Image components, can be string with units or number for pixels).
-   * The value depends on the component type (e.g., for Image components).
-   */
-  height?: string | number;
 }
 
 /**

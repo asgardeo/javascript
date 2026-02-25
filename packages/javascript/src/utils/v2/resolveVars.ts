@@ -16,9 +16,9 @@
  * under the License.
  */
 
+import resolveMeta from './resolveMeta';
 import {TranslationFn} from '../../models/v2/translation';
 import {ResolveVarsOptions} from '../../models/v2/vars';
-import resolveMeta from './resolveMeta';
 
 /**
  * Resolves all template expressions in a string.

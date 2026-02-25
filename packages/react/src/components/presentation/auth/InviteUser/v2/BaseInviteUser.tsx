@@ -293,10 +293,15 @@ const BaseInviteUser: FC<BaseInviteUserProps> = ({
       }
 
       try {
-        const {components} = normalizeFlowResponse(response, t, {
-          defaultErrorKey: 'components.inviteUser.errors.generic',
-          resolveTranslations: false,
-        }, meta);
+        const {components} = normalizeFlowResponse(
+          response,
+          t,
+          {
+            defaultErrorKey: 'components.inviteUser.errors.generic',
+            resolveTranslations: false,
+          },
+          meta,
+        );
 
         return {
           ...response,

@@ -21,7 +21,7 @@ import {
   EmbeddedSignInFlowRequestV2 as EmbeddedSignInFlowRequest,
   EmbeddedFlowComponentV2 as EmbeddedFlowComponent,
   FlowMetadataResponse,
-  resolveVars
+  resolveVars,
 } from '@asgardeo/browser';
 import {cx} from '@emotion/css';
 import {FC, useState, useCallback, ReactElement, ReactNode} from 'react';
@@ -528,13 +528,11 @@ const BaseSignInContent: FC<BaseSignInProps> = ({
   }
 
   // Extract heading and subheading components and filter them from the main components
-  const {title: rawTitle, subtitle: rawSubtitle, componentsWithoutHeadings} = getAuthComponentHeadings(
-    components as any,
-    flowTitle,
-    flowSubtitle,
-    undefined,
-    undefined,
-  );
+  const {
+    title: rawTitle,
+    subtitle: rawSubtitle,
+    componentsWithoutHeadings,
+  } = getAuthComponentHeadings(components as any, flowTitle, flowSubtitle, undefined, undefined);
   // Resolve any remaining {{meta()}} or {{t()}} expressions in the title/subtitle at render time
   const title: string = resolveVars(rawTitle, {meta, t});
   const subtitle: string = resolveVars(rawSubtitle, {meta, t});

@@ -30,11 +30,11 @@ import {
 import {css} from '@emotion/css';
 import DOMPurify from 'dompurify';
 import {cloneElement, CSSProperties, ReactElement} from 'react';
-import flowIconRegistry from '../../primitives/Icons/flowIconRegistry';
 import {UseTranslation} from '../../../hooks/useTranslation';
 import FacebookButton from '../../adapters/FacebookButton';
 import GitHubButton from '../../adapters/GitHubButton';
 import GoogleButton from '../../adapters/GoogleButton';
+import ImageComponent from '../../adapters/ImageComponent';
 import LinkedInButton from '../../adapters/LinkedInButton';
 import MicrosoftButton from '../../adapters/MicrosoftButton';
 import SignInWithEthereumButton from '../../adapters/SignInWithEthereumButton';
@@ -42,10 +42,10 @@ import SmsOtpButton from '../../adapters/SmsOtpButton';
 import {createField} from '../../factories/FieldFactory';
 import Button from '../../primitives/Button/Button';
 import Divider from '../../primitives/Divider/Divider';
+import flowIconRegistry from '../../primitives/Icons/flowIconRegistry';
 import Select from '../../primitives/Select/Select';
 import Typography from '../../primitives/Typography/Typography';
 import {TypographyVariant} from '../../primitives/Typography/Typography.styles';
-import ImageComponent from '../../adapters/ImageComponent';
 
 const logger: ReturnType<typeof createPackageComponentLogger> = createPackageComponentLogger(
   '@asgardeo/react',
@@ -161,7 +161,7 @@ const createAuthComponentFromFlow = (
     if (!text || (!options.t && !options.meta)) {
       return text || '';
     }
-    return resolveVars(text, {meta: options.meta, t: options.t || ((k: string) => k)});
+    return resolveVars(text, {meta: options.meta, t: options.t || ((k: string): string => k)});
   };
 
   switch (component.type) {
@@ -348,7 +348,7 @@ const createAuthComponentFromFlow = (
           key={key}
           className={richTextClass}
           // Manually sanitizes with `DOMPurify`.
-          // eslint-disable-next-line react/no-danger
+          // IMPORTANT: DO NOT REMOVE OR MODIFY THIS SANITIZATION STEP.
           dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(resolve(component.label))}}
         />
       );
@@ -361,10 +361,10 @@ const createAuthComponentFromFlow = (
           component={
             {
               config: {
-                src: resolve(component.src),
                 alt: resolve(component.alt) || resolve(component.label) || 'Image',
-                width: resolve(component.width.toString()) || '100%',
                 height: resolve(component.height.toString()) || 'auto',
+                src: resolve(component.src),
+                width: resolve(component.width.toString()) || '100%',
               },
             } as any
           }
@@ -372,7 +372,7 @@ const createAuthComponentFromFlow = (
           formValues={undefined}
           isFormValid={false}
           isLoading={false}
-          onInputChange={function (name: string, value: string): void {
+          onInputChange={(): void => {
             throw new Error('Function not implemented.');
           }}
           touchedFields={undefined}

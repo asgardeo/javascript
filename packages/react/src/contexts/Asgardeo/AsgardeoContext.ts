@@ -104,20 +104,6 @@ export type AsgardeoContextProps = {
    */
   meta: FlowMetadataResponse | null;
 
-  /**
-   * Resolves `{{ t(key) }}` and `{{ meta(path) }}` template expressions in a string,
-   * using the current i18n translation function and flow metadata from context.
-   *
-   * Useful in render-props patterns where consumers need to expand template strings
-   * that come from the server (e.g. component labels, placeholders, headings).
-   *
-   * @example
-   * const {resolveVars} = useAsgardeo();
-   * resolveVars('{{ t(signin.heading.label) }}') // → 'Sign In'
-   * resolveVars('Login to {{ meta(application.name) }}') // → 'Login to My App'
-   */
-  resolveVars: (text: string | undefined) => string;
-
   organization: Organization;
 
   organizationHandle: string | undefined;
@@ -132,6 +118,21 @@ export type AsgardeoContextProps = {
    * @returns Promise resolving to boolean indicating success.
    */
   reInitialize: (config: Partial<AsgardeoReactConfig>) => Promise<boolean>;
+
+  /**
+   * Resolves `{{ t(key) }}` and `{{ meta(path) }}` template expressions in a string,
+   * using the current i18n translation function and flow metadata from context.
+   *
+   * Useful in render-props patterns where consumers need to expand template strings
+   * that come from the server (e.g. component labels, placeholders, headings).
+   *
+   * @example
+   * const {resolveVars} = useAsgardeo();
+   * resolveVars('{{ t(signin.heading.label) }}') // → 'Sign In'
+   * resolveVars('Login to {{ meta(application.name) }}') // → 'Login to My App'
+   */
+  resolveVars: (text: string | undefined) => string;
+
   /**
    * Sign-in function to initiate the authentication process.
    * @remark This is the programmatic version of the `SignInButton` component.
@@ -196,11 +197,11 @@ const AsgardeoContext: Context<AsgardeoContextProps | null> = createContext<null
   isLoading: true,
   isSignedIn: false,
   meta: null,
-  resolveVars: (text: string | undefined) => text ?? '',
   organization: null,
   organizationHandle: undefined,
   platform: undefined,
   reInitialize: null,
+  resolveVars: (text: string | undefined) => text ?? '',
   signIn: () => Promise.resolve({} as any),
   signInOptions: {},
   signInSilently: () => Promise.resolve({} as any),

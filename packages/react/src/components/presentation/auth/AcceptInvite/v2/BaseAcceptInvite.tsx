@@ -22,8 +22,8 @@ import {FC, ReactElement, ReactNode, useCallback, useEffect, useRef, useState} f
 import useStyles from './BaseAcceptInvite.styles';
 import useAsgardeo from '../../../../../contexts/Asgardeo/useAsgardeo';
 import useTheme from '../../../../../contexts/Theme/useTheme';
-import {useOAuthCallback} from '../../../../../hooks/v2/useOAuthCallback';
 import useTranslation from '../../../../../hooks/useTranslation';
+import {useOAuthCallback} from '../../../../../hooks/v2/useOAuthCallback';
 import {initiateOAuthRedirect} from '../../../../../utils/oauth';
 import {normalizeFlowResponse, extractErrorMessage} from '../../../../../utils/v2/flowTransformer';
 import AlertPrimitive from '../../../../primitives/Alert/Alert';
@@ -307,10 +307,15 @@ const BaseAcceptInvite: FC<BaseAcceptInviteProps> = ({
       }
 
       try {
-        const {components} = normalizeFlowResponse(response, t, {
-          defaultErrorKey: 'components.acceptInvite.errors.generic',
-          resolveTranslations: false,
-        }, meta);
+        const {components} = normalizeFlowResponse(
+          response,
+          t,
+          {
+            defaultErrorKey: 'components.acceptInvite.errors.generic',
+            resolveTranslations: false,
+          },
+          meta,
+        );
 
         return {
           ...response,

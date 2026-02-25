@@ -34,18 +34,16 @@ import {FlowMetadataResponse} from '../../models/v2/flow-meta-v2';
  * @returns The resolved string value, or empty string if not found
  */
 export default function resolveMeta(path: string, meta: FlowMetadataResponse): string {
-  const parts: string[] = path.split('.');
-  let value: any = meta;
-
-  for (const part of parts) {
-    if (value == null || typeof value !== 'object') {
-      return '';
+  const value: unknown = path.split('.').reduce<unknown>((current: unknown, part: string) => {
+    if (current == null || typeof current !== 'object') {
+      return undefined;
     }
 
+    const obj: Record<string, unknown> = current as Record<string, unknown>;
     const snakePart: string = part.replace(/[A-Z]/g, (c: string) => `_${c.toLowerCase()}`);
 
-    value = part in value ? value[part] : value[snakePart];
-  }
+    return part in obj ? obj[part] : obj[snakePart];
+  }, meta);
 
   return value != null ? String(value) : '';
 }
