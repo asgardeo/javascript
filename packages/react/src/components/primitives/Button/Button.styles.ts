@@ -71,7 +71,7 @@ const useStyles = (
       white-space: nowrap;
       width: ${fullWidth ? '100%' : 'auto'};
       opacity: ${disabled || loading ? 0.6 : 1};
-      font-family: inherit;
+      font-family: ${theme.vars.typography.fontFamily};
       border-width: 1px;
       border-style: solid;
       ${variant === 'icon'

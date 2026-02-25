@@ -309,8 +309,8 @@ const BaseAcceptInvite: FC<BaseAcceptInviteProps> = ({
       try {
         const {components} = normalizeFlowResponse(response, t, {
           defaultErrorKey: 'components.acceptInvite.errors.generic',
-          resolveTranslations: !children,
-        });
+          resolveTranslations: false,
+        }, meta);
 
         return {
           ...response,

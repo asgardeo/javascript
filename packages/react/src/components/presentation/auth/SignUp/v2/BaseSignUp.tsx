@@ -265,7 +265,7 @@ const BaseSignUpContent: FC<BaseSignUpProps> = ({
   const {theme, colorScheme} = useTheme();
   const {t} = useTranslation();
   const {subtitle: flowSubtitle, title: flowTitle, messages: flowMessages, addMessage, clearMessages} = useFlow();
-  useAsgardeo();
+  const {meta} = useAsgardeo();
   const styles: any = useStyles(theme, colorScheme);
 
   const [isLoading, setIsLoading] = useState(false);
@@ -318,10 +318,15 @@ const BaseSignUpContent: FC<BaseSignUpProps> = ({
 
       // Use the transformer to handle meta.components structure
       if (response?.data) {
-        const {components} = normalizeFlowResponse(response, t, {
-          defaultErrorKey: 'components.signUp.errors.generic',
-          resolveTranslations: !children,
-        });
+        const {components} = normalizeFlowResponse(
+          response,
+          t,
+          {
+            defaultErrorKey: 'components.signUp.errors.generic',
+            resolveTranslations: false,
+          },
+          meta,
+        );
 
         return {
           ...response,

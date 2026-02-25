@@ -35,6 +35,7 @@ const useStyles = (theme: Theme, colorScheme: string, variant: AlertVariant): Re
       padding: calc(${theme.vars.spacing.unit} * 2);
       border-radius: ${theme.vars.borderRadius.medium};
       border: 1px solid;
+      font-family: ${theme.vars.typography.fontFamily};
       display: flex;
       gap: calc(${theme.vars.spacing.unit} * 1.5);
       align-items: flex-start;

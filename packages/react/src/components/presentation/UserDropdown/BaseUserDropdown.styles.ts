@@ -74,6 +74,7 @@ const useStyles = (theme: Theme, colorScheme: string): Record<string, string> =>
       border-radius: ${theme.vars.borderRadius.large};
       box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
       border: 1px solid ${theme.vars.colors.border};
+      font-family: ${theme.vars.typography.fontFamily};
       min-width: 250px;
       max-width: 600px;
       z-index: 1000;
@@ -220,6 +221,7 @@ const useStyles = (theme: Theme, colorScheme: string): Record<string, string> =>
     theme.vars.borderRadius.medium,
     theme.vars.borderRadius.large,
     theme.vars.spacing.unit,
+    theme.vars.typography.fontFamily,
     colorScheme,
   ]);
 

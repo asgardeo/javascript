@@ -64,6 +64,7 @@ const useStyles = (theme: Theme, colorScheme: string, hasError: boolean, require
     const labelStyles: string = css`
       color: ${theme.vars.colors.text.primary};
       font-size: ${theme.vars.typography.fontSizes.sm};
+      font-family: ${theme.vars.typography.fontFamily};
       cursor: pointer;
 
       &:hover {

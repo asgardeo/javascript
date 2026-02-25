@@ -36,6 +36,7 @@ const useStyles = (theme: Theme, colorScheme: string, hasError: boolean, disable
       border: 1px solid ${theme.vars.colors.border};
       border-radius: ${theme.vars.components?.Field?.root?.borderRadius || theme.vars.borderRadius.medium};
       font-size: 1rem;
+      font-family: ${theme.vars.typography.fontFamily};
       color: ${theme.vars.colors.text.primary};
       background-color: ${theme.vars.colors.background.surface};
       outline: none;

@@ -50,6 +50,12 @@ export enum EmbeddedFlowComponentType {
   /** Email input field with validation for email addresses. */
   EmailInput = 'EMAIL_INPUT',
 
+  /** Icon display component for rendering named vector icons */
+  Icon = 'ICON',
+
+  /** Image display component for logos and illustrations */
+  Image = 'IMAGE',
+
   /** One-time password input field for multi-factor authentication */
   OtpInput = 'OTP_INPUT',
 
@@ -59,8 +65,14 @@ export enum EmbeddedFlowComponentType {
   /** Phone number input field with country code support */
   PhoneInput = 'PHONE_INPUT',
 
+  /** Rich text display component that renders formatted HTML content */
+  RichText = 'RICH_TEXT',
+
   /** Select/dropdown input component for single choice selection */
   Select = 'SELECT',
+
+  /** Stack layout component for arranging children in a row or column */
+  Stack = 'STACK',
 
   /** Text display component for labels, headings, and messages */
   Text = 'TEXT',
@@ -199,9 +211,34 @@ export enum EmbeddedFlowEventType {
  */
 export interface EmbeddedFlowComponent {
   /**
-   * Nested child components for container components like Block.
+   * Alignment of children along the cross axis (for Stack components).
+   */
+  align?: string;
+
+  /**
+   * Alternative text for Image components.
+   */
+  alt?: string;
+
+  /**
+   * Nested child components for container components like Block and Stack.
    */
   components?: EmbeddedFlowComponent[];
+
+  /**
+   * Icon color, CSS color value (for Icon components).
+   */
+  color?: string;
+
+  /**
+   * Layout direction for Stack components ('row' | 'column').
+   */
+  direction?: string;
+
+  /**
+   * Icon to render at the end of an Action button (URL string).
+   */
+  endIcon?: string;
 
   /**
    * Event type for action components that defines the interaction behavior.
@@ -210,15 +247,35 @@ export interface EmbeddedFlowComponent {
   eventType?: EmbeddedFlowEventType | string;
 
   /**
+   * Gap between children in Stack components (number, maps to spacing units).
+   */
+  gap?: number;
+
+  /**
    * Unique identifier for the component
    */
   id: string;
+
+  /**
+   * Number of items across the main axis (for Stack grid-like layouts).
+   */
+  items?: string | number;
+
+  /**
+   * Justification of children along the main axis (for Stack components).
+   */
+  justify?: string;
 
   /**
    * Display label for the component (e.g., field label, button text).
    * Supports internationalization and may contain template strings.
    */
   label?: string;
+
+  /**
+   * Icon name for Icon components (e.g., lucide-react icon names like 'ArrowLeftRight').
+   */
+  name?: string;
 
   /**
    * Options for SELECT components.
@@ -244,6 +301,21 @@ export interface EmbeddedFlowComponent {
   required?: boolean;
 
   /**
+   * Icon size in pixels (for Icon components).
+   */
+  size?: number;
+
+  /**
+   * Image source URL (for Image components).
+   */
+  src?: string;
+
+  /**
+   * Icon to render at the start of an Action button (URL string).
+   */
+  startIcon?: string;
+
+  /**
    * Component type that determines rendering behavior
    */
   type: EmbeddedFlowComponentType | string;
@@ -253,6 +325,18 @@ export interface EmbeddedFlowComponent {
    * The value depends on the component type (e.g., button variants, text variants).
    */
   variant?: EmbeddedFlowActionVariant | EmbeddedFlowTextVariant | string;
+
+  /**
+   * Width of the component (for Image components, can be string with units or number for pixels).
+   * The value depends on the component type (e.g., for Image components).
+   */
+  width?: string | number;
+
+  /**
+   * Height of the component (for Image components, can be string with units or number for pixels).
+   * The value depends on the component type (e.g., for Image components).
+   */
+  height?: string | number;
 }
 
 /**

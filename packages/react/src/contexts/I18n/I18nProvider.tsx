@@ -101,36 +101,72 @@ const I18nProvider: FC<PropsWithChildren<I18nProviderProps>> = ({
 
   const [currentLanguage, setCurrentLanguage] = useState<string>(determineInitialLanguage);
 
-  // Merge default bundles with user-provided bundles
+  // Bundles injected at runtime (e.g., from flow metadata i18n translations).
+  // These take precedence over defaults but are overridden by prop-provided bundles.
+  const [injectedBundles, setInjectedBundles] = useState<Record<string, I18nBundle>>({});
+
+  const injectBundles: (newBundles: Record<string, I18nBundle>) => void = useCallback(
+    (newBundles: Record<string, I18nBundle>): void => {
+      setInjectedBundles((prev: Record<string, I18nBundle>) => {
+        const merged: Record<string, I18nBundle> = {...prev};
+        Object.entries(newBundles).forEach(([key, bundle]: [string, I18nBundle]) => {
+          if (merged[key]) {
+            merged[key] = {
+              ...merged[key],
+              translations: deepMerge(merged[key].translations, bundle.translations),
+            };
+          } else {
+            merged[key] = bundle;
+          }
+        });
+        return merged;
+      });
+    },
+    [],
+  );
+
+  /**
+   * Merge bundles in priority order: defaults → injected (meta) → prop-provided
+   */
   const mergedBundles: Record<string, I18nBundle> = useMemo(() => {
     const merged: Record<string, I18nBundle> = {};
 
-    // Add default bundles
+    // 1. Default bundles
     Object.entries(defaultBundles).forEach(([key, bundle]: [string, I18nBundle]) => {
       // Convert key format (e.g., 'en_US' to 'en-US')
       const languageKey: string = key.replace('_', '-');
       merged[languageKey] = bundle;
     });
 
-    // Add user-provided bundles using deepMerge for better merging
+    // 2. Injected bundles (e.g., from flow metadata) — override defaults
+    Object.entries(injectedBundles).forEach(([key, bundle]: [string, I18nBundle]) => {
+      if (merged[key]) {
+        merged[key] = {
+          ...merged[key],
+          translations: deepMerge(merged[key].translations, bundle.translations),
+        };
+      } else {
+        merged[key] = bundle;
+      }
+    });
+
+    // 3. User-provided bundles (from props) — highest priority, override everything
     if (preferences?.bundles) {
       Object.entries(preferences.bundles).forEach(([key, userBundle]: [string, I18nBundle]) => {
         if (merged[key]) {
-          // Deep merge user bundle with existing default bundle
           merged[key] = {
             ...merged[key],
             metadata: userBundle.metadata ? {...merged[key].metadata, ...userBundle.metadata} : merged[key].metadata,
             translations: deepMerge(merged[key].translations, userBundle.translations),
           };
         } else {
-          // No default bundle for this language, use user bundle as-is
           merged[key] = userBundle;
         }
       });
     }
 
     return merged;
-  }, [defaultBundles, preferences?.bundles]);
+  }, [defaultBundles, injectedBundles, preferences?.bundles]);
 
   const fallbackLanguage: string = preferences?.fallbackLanguage || 'en-US';
 
@@ -196,10 +232,11 @@ const I18nProvider: FC<PropsWithChildren<I18nProviderProps>> = ({
       bundles: mergedBundles,
       currentLanguage,
       fallbackLanguage,
+      injectBundles,
       setLanguage,
       t,
     }),
-    [currentLanguage, fallbackLanguage, mergedBundles, setLanguage, t],
+    [currentLanguage, fallbackLanguage, injectBundles, mergedBundles, setLanguage, t],
   );
 
   return <I18nContext.Provider value={contextValue}>{children}</I18nContext.Provider>;

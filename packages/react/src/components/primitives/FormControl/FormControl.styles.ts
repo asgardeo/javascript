@@ -41,6 +41,7 @@ const useStyles = (
   useMemo(() => {
     const formControl: string = css`
       text-align: start;
+      font-family: ${theme.vars.typography.fontFamily};
       margin-bottom: calc(${theme.vars.spacing.unit} * 2);
     `;
 

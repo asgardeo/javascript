@@ -244,6 +244,7 @@ const SignIn: FC<SignInProps> = ({
    */
   const getUrlParams = (): any => {
     const urlParams: any = new URL(window?.location?.href ?? '').searchParams;
+
     return {
       applicationId: urlParams.get('applicationId'),
       authId: urlParams.get('authId'),
@@ -382,9 +383,14 @@ const SignIn: FC<SignInProps> = ({
         return;
       }
 
-      const {flowId: normalizedFlowId, components: normalizedComponents} = normalizeFlowResponse(response, t, {
-        resolveTranslations: !children,
-      });
+      const {flowId: normalizedFlowId, components: normalizedComponents} = normalizeFlowResponse(
+        response,
+        t,
+        {
+          resolveTranslations: false,
+        },
+        meta,
+      );
 
       if (normalizedFlowId && normalizedComponents) {
         setFlowId(normalizedFlowId);
@@ -490,9 +496,14 @@ const SignIn: FC<SignInProps> = ({
         return;
       }
 
-      const {flowId: normalizedFlowId, components: normalizedComponents} = normalizeFlowResponse(response, t, {
-        resolveTranslations: !children,
-      });
+      const {flowId: normalizedFlowId, components: normalizedComponents} = normalizeFlowResponse(
+        response,
+        t,
+        {
+          resolveTranslations: false,
+        },
+        meta,
+      );
 
       // Handle Error flow status - flow has failed and is invalidated
       if (response.flowStatus === EmbeddedSignInFlowStatusV2.Error) {

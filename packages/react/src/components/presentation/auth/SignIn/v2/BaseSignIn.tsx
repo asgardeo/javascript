@@ -21,6 +21,7 @@ import {
   EmbeddedSignInFlowRequestV2 as EmbeddedSignInFlowRequest,
   EmbeddedFlowComponentV2 as EmbeddedFlowComponent,
   FlowMetadataResponse,
+  resolveVars
 } from '@asgardeo/browser';
 import {cx} from '@emotion/css';
 import {FC, useState, useCallback, ReactElement, ReactNode} from 'react';
@@ -447,9 +448,11 @@ const BaseSignInContent: FC<BaseSignInProps> = ({
         {
           buttonClassName: buttonClasses,
           inputClassName: inputClasses,
+          meta,
           onInputBlur: handleInputBlur,
           onSubmit: handleSubmit,
           size,
+          t,
           variant,
         },
       ),
@@ -458,6 +461,8 @@ const BaseSignInContent: FC<BaseSignInProps> = ({
       touchedFields,
       formErrors,
       isFormValid,
+      meta,
+      t,
       isLoading,
       size,
       variant,
@@ -480,7 +485,7 @@ const BaseSignInContent: FC<BaseSignInProps> = ({
       isValid: isFormValid,
       messages: flowMessages || [],
       meta,
-      subtitle: flowSubtitle || t('signin.subheading'),
+      subtitle: flowSubtitle,
       title: flowTitle || t('signin.heading'),
       touched: touchedFields,
       validateForm: () => {
@@ -523,13 +528,16 @@ const BaseSignInContent: FC<BaseSignInProps> = ({
   }
 
   // Extract heading and subheading components and filter them from the main components
-  const {title, subtitle, componentsWithoutHeadings} = getAuthComponentHeadings(
+  const {title: rawTitle, subtitle: rawSubtitle, componentsWithoutHeadings} = getAuthComponentHeadings(
     components as any,
     flowTitle,
     flowSubtitle,
-    t('signin.heading'),
-    t('signin.subheading'),
+    undefined,
+    undefined,
   );
+  // Resolve any remaining {{meta()}} or {{t()}} expressions in the title/subtitle at render time
+  const title: string = resolveVars(rawTitle, {meta, t});
+  const subtitle: string = resolveVars(rawSubtitle, {meta, t});
 
   return (
     <CardPrimitive className={cx(containerClasses, styles.card)} data-testid="asgardeo-signin" variant={variant}>
