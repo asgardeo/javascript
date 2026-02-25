@@ -104,6 +104,20 @@ export type AsgardeoContextProps = {
    */
   meta: FlowMetadataResponse | null;
 
+  /**
+   * Resolves `{{ t(key) }}` and `{{ meta(path) }}` template expressions in a string,
+   * using the current i18n translation function and flow metadata from context.
+   *
+   * Useful in render-props patterns where consumers need to expand template strings
+   * that come from the server (e.g. component labels, placeholders, headings).
+   *
+   * @example
+   * const {resolveVars} = useAsgardeo();
+   * resolveVars('{{ t(signin.heading.label) }}') // → 'Sign In'
+   * resolveVars('Login to {{ meta(application.name) }}') // → 'Login to My App'
+   */
+  resolveVars: (text: string | undefined) => string;
+
   organization: Organization;
 
   organizationHandle: string | undefined;
@@ -182,6 +196,7 @@ const AsgardeoContext: Context<AsgardeoContextProps | null> = createContext<null
   isLoading: true,
   isSignedIn: false,
   meta: null,
+  resolveVars: (text: string | undefined) => text ?? '',
   organization: null,
   organizationHandle: undefined,
   platform: undefined,
