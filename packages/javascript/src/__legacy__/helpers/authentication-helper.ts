@@ -239,7 +239,7 @@ export class AuthenticationHelper<T> {
   public async replaceCustomGrantTemplateTags(text: string, userId?: string): Promise<string> {
     const configData: StrictAuthClientConfig = await this.config();
 
-    const sourceInstanceId: string | number | null = configData.organizationChain?.sourceInstanceId ?? null;
+    const sourceInstanceId: number | null = configData.organizationChain?.sourceInstanceId ?? null;
 
     let sessionData: SessionData;
 
