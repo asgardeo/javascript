@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import {CreateOrganizationPayload, createPackageComponentLogger} from '@asgardeo/browser';
+import {CreateOrganizationPayload, createPackageComponentLogger, Preferences} from '@asgardeo/browser';
 import {cx} from '@emotion/css';
 import {ChangeEvent, CSSProperties, FC, FormEvent, ReactElement, ReactNode, useState} from 'react';
 import useStyles from './BaseCreateOrganization.styles';
@@ -62,6 +62,13 @@ export interface BaseCreateOrganizationProps {
   renderAdditionalFields?: () => ReactNode;
   style?: CSSProperties;
   title?: string;
+
+  /**
+   * Component-level preferences to override global i18n and theme settings.
+   * Preferences are deep-merged with global ones, with component preferences
+   * taking precedence. Affects this component and all its descendants.
+   */
+  preferences?: Preferences;
 }
 
 /**
@@ -95,13 +102,14 @@ export const BaseCreateOrganization: FC<BaseCreateOrganizationProps> = ({
   onSubmit,
   onSuccess,
   open = false,
+  preferences,
   renderAdditionalFields,
   style,
   title = 'Create Organization',
 }: BaseCreateOrganizationProps): ReactElement => {
   const {theme, colorScheme} = useTheme();
   const styles: ReturnType<typeof useStyles> = useStyles(theme, colorScheme);
-  const {t} = useTranslation();
+  const {t} = useTranslation(preferences?.i18n);
   const [formData, setFormData] = useState<OrganizationFormData>({
     description: '',
     handle: '',

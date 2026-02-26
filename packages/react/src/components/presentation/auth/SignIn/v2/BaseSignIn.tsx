@@ -21,11 +21,13 @@ import {
   EmbeddedSignInFlowRequestV2 as EmbeddedSignInFlowRequest,
   EmbeddedFlowComponentV2 as EmbeddedFlowComponent,
   FlowMetadataResponse,
+  Preferences,
   resolveVars,
 } from '@asgardeo/browser';
 import {cx} from '@emotion/css';
 import {FC, useState, useCallback, ReactElement, ReactNode} from 'react';
 import useAsgardeo from '../../../../../contexts/Asgardeo/useAsgardeo';
+import ComponentPreferencesContext from '../../../../../contexts/I18n/ComponentPreferencesContext';
 import FlowProvider from '../../../../../contexts/Flow/FlowProvider';
 import useFlow from '../../../../../contexts/Flow/useFlow';
 import useTheme from '../../../../../contexts/Theme/useTheme';
@@ -184,6 +186,13 @@ export interface BaseSignInProps {
    * @param authData - The authentication data returned upon successful completion.
    */
   onSuccess?: (authData: Record<string, any>) => void;
+
+  /**
+   * Component-level preferences to override global i18n and theme settings.
+   * Preferences are deep-merged with global ones, with component preferences
+   * taking precedence. Affects this component and all its descendants.
+   */
+  preferences?: Preferences;
 
   /**
    * Whether to show the logo.
@@ -631,11 +640,11 @@ const BaseSignInContent: FC<BaseSignInProps> = ({
  * </BaseSignIn>
  * ```
  */
-const BaseSignIn: FC<BaseSignInProps> = ({showLogo = true, ...rest}: BaseSignInProps): ReactElement => {
+const BaseSignIn: FC<BaseSignInProps> = ({preferences, showLogo = true, ...rest}: BaseSignInProps): ReactElement => {
   const {theme} = useTheme();
   const styles: any = useStyles(theme, theme.vars.colors.text.primary);
 
-  return (
+  const content: ReactElement = (
     <div>
       {showLogo && (
         <div className={styles.logoContainer}>
@@ -646,6 +655,14 @@ const BaseSignIn: FC<BaseSignInProps> = ({showLogo = true, ...rest}: BaseSignInP
         <BaseSignInContent showLogo={showLogo} {...rest} />
       </FlowProvider>
     </div>
+  );
+
+  if (!preferences) return content;
+
+  return (
+    <ComponentPreferencesContext.Provider value={preferences}>
+      {content}
+    </ComponentPreferencesContext.Provider>
   );
 };
 

@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import {User, withVendorCSSClassPrefix, WellKnownSchemaIds, bem} from '@asgardeo/browser';
+import {User, withVendorCSSClassPrefix, WellKnownSchemaIds, bem, Preferences} from '@asgardeo/browser';
 import {cx} from '@emotion/css';
 import {FC, ReactElement, useState, useCallback} from 'react';
 import useStyles from './BaseUserProfile.styles';
@@ -82,6 +82,13 @@ export interface BaseUserProfileProps {
   schemas?: Schema[];
   showFields?: string[];
   title?: string;
+
+  /**
+   * Component-level preferences to override global i18n and theme settings.
+   * Preferences are deep-merged with global ones, with component preferences
+   * taking precedence. Affects this component and all its descendants.
+   */
+  preferences?: Preferences;
 }
 
 // Fields to skip based on schema.name
@@ -125,6 +132,7 @@ const BaseUserProfile: FC<BaseUserProfileProps> = ({
   open = false,
   error = null,
   isLoading = false,
+  preferences,
   showFields = [],
   hideFields = [],
   displayNameAttributes = [],
@@ -132,7 +140,7 @@ const BaseUserProfile: FC<BaseUserProfileProps> = ({
   const {theme, colorScheme} = useTheme();
   const [editedUser, setEditedUser] = useState(flattenedProfile || profile);
   const [editingFields, setEditingFields] = useState<Record<string, boolean>>({});
-  const {t} = useTranslation();
+  const {t} = useTranslation(preferences?.i18n);
 
   /**
    * Determines if a field should be visible based on showFields, hideFields, and fieldsToSkip arrays.

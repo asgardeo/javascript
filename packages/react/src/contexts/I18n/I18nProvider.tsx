@@ -17,7 +17,7 @@
  */
 
 import {deepMerge, I18nPreferences, createPackageComponentLogger} from '@asgardeo/browser';
-import {I18nBundle, getDefaultI18nBundles} from '@asgardeo/i18n';
+import {I18nBundle, I18nTranslations, getDefaultI18nBundles, normalizeTranslations} from '@asgardeo/i18n';
 import {FC, PropsWithChildren, ReactElement, useCallback, useEffect, useMemo, useState} from 'react';
 import I18nContext, {I18nContextValue} from './I18nContext';
 
@@ -110,13 +110,16 @@ const I18nProvider: FC<PropsWithChildren<I18nProviderProps>> = ({
       setInjectedBundles((prev: Record<string, I18nBundle>) => {
         const merged: Record<string, I18nBundle> = {...prev};
         Object.entries(newBundles).forEach(([key, bundle]: [string, I18nBundle]) => {
+          const normalizedTranslations: I18nTranslations = normalizeTranslations(
+            bundle.translations as unknown as Record<string, string | Record<string, string>>,
+          );
           if (merged[key]) {
             merged[key] = {
               ...merged[key],
-              translations: deepMerge(merged[key].translations, bundle.translations),
+              translations: deepMerge(merged[key].translations, normalizedTranslations),
             };
           } else {
-            merged[key] = bundle;
+            merged[key] = {...bundle, translations: normalizedTranslations};
           }
         });
         return merged;
@@ -140,27 +143,33 @@ const I18nProvider: FC<PropsWithChildren<I18nProviderProps>> = ({
 
     // 2. Injected bundles (e.g., from flow metadata) — override defaults
     Object.entries(injectedBundles).forEach(([key, bundle]: [string, I18nBundle]) => {
+      const normalizedTranslations: I18nTranslations = normalizeTranslations(
+        bundle.translations as unknown as Record<string, string | Record<string, string>>,
+      );
       if (merged[key]) {
         merged[key] = {
           ...merged[key],
-          translations: deepMerge(merged[key].translations, bundle.translations),
+          translations: deepMerge(merged[key].translations, normalizedTranslations),
         };
       } else {
-        merged[key] = bundle;
+        merged[key] = {...bundle, translations: normalizedTranslations};
       }
     });
 
     // 3. User-provided bundles (from props) — highest priority, override everything
     if (preferences?.bundles) {
       Object.entries(preferences.bundles).forEach(([key, userBundle]: [string, I18nBundle]) => {
+        const normalizedTranslations: I18nTranslations = normalizeTranslations(
+          userBundle.translations as unknown as Record<string, string | Record<string, string>>,
+        );
         if (merged[key]) {
           merged[key] = {
             ...merged[key],
             metadata: userBundle.metadata ? {...merged[key].metadata, ...userBundle.metadata} : merged[key].metadata,
-            translations: deepMerge(merged[key].translations, userBundle.translations),
+            translations: deepMerge(merged[key].translations, normalizedTranslations),
           };
         } else {
-          merged[key] = userBundle;
+          merged[key] = {...userBundle, translations: normalizedTranslations};
         }
       });
     }

@@ -17,6 +17,7 @@
  */
 
 // Removed BEM and vendor prefix utilities
+import {Preferences} from '@asgardeo/browser';
 import {cx} from '@emotion/css';
 import {
   useFloating,
@@ -159,6 +160,13 @@ export interface BaseOrganizationSwitcherProps {
    * Custom styles for the component.
    */
   style?: CSSProperties;
+
+  /**
+   * Component-level preferences to override global i18n and theme settings.
+   * Preferences are deep-merged with global ones, with component preferences
+   * taking precedence. Affects this component and all its descendants.
+   */
+  preferences?: Preferences;
 }
 
 /**
@@ -185,12 +193,13 @@ export const BaseOrganizationSwitcher: FC<BaseOrganizationSwitcherProps> = ({
   showTriggerLabel = true,
   avatarSize = 24,
   fallback = null,
+  preferences,
 }: BaseOrganizationSwitcherProps): ReactElement => {
   const {theme, colorScheme, direction} = useTheme();
   const styles: Record<string, string> = useStyles(theme, colorScheme);
   const [isOpen, setIsOpen] = useState(false);
   const [hoveredItemIndex, setHoveredItemIndex] = useState<number | null>(null);
-  const {t} = useTranslation();
+  const {t} = useTranslation(preferences?.i18n);
   const isRTL: boolean = direction === 'rtl';
 
   const {refs, floatingStyles, context} = useFloating({

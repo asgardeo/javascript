@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import {AsgardeoError, User} from '@asgardeo/browser';
+import {AsgardeoError, User, Preferences} from '@asgardeo/browser';
 import {FC, ReactElement, useState} from 'react';
 // eslint-disable-next-line import/no-named-as-default
 import BaseUserProfile, {BaseUserProfileProps} from './BaseUserProfile';
@@ -64,10 +64,10 @@ export type UserProfileProps = Omit<BaseUserProfileProps, 'user' | 'profile' | '
  * />
  * ```
  */
-const UserProfile: FC<UserProfileProps> = ({...rest}: UserProfileProps): ReactElement => {
+const UserProfile: FC<UserProfileProps> = ({preferences, ...rest}: UserProfileProps): ReactElement => {
   const {baseUrl, instanceId} = useAsgardeo();
   const {profile, flattenedProfile, schemas, onUpdateProfile} = useUser();
-  const {t} = useTranslation();
+  const {t} = useTranslation(preferences?.i18n);
 
   const [error, setError] = useState<string | null>(null);
 
@@ -95,6 +95,7 @@ const UserProfile: FC<UserProfileProps> = ({...rest}: UserProfileProps): ReactEl
       schemas={schemas}
       onUpdate={handleProfileUpdate}
       error={error}
+      preferences={preferences}
       {...rest}
     />
   );
