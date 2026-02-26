@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import {AllOrganizationsApiResponse, Organization} from '@asgardeo/browser';
+import {AllOrganizationsApiResponse, Organization, Preferences} from '@asgardeo/browser';
 import {cx} from '@emotion/css';
 import {CSSProperties, FC, MouseEvent, ReactElement, ReactNode, useMemo} from 'react';
 import useStyles from './BaseOrganizationList.styles';
@@ -120,6 +120,13 @@ export interface BaseOrganizationListProps {
    * Title for the popup dialog (only used in popup mode)
    */
   title?: string;
+
+  /**
+   * Component-level preferences to override global i18n and theme settings.
+   * Preferences are deep-merged with global ones, with component preferences
+   * taking precedence. Affects this component and all its descendants.
+   */
+  preferences?: Preferences;
 }
 
 /**
@@ -269,10 +276,11 @@ export const BaseOrganizationList: FC<BaseOrganizationListProps> = ({
   style,
   title = 'Organizations',
   showStatus,
+  preferences,
 }: BaseOrganizationListProps): ReactElement => {
   const {theme, colorScheme} = useTheme();
   const styles: ReturnType<typeof useStyles> = useStyles(theme, colorScheme);
-  const {t} = useTranslation();
+  const {t} = useTranslation(preferences?.i18n);
 
   const organizationsWithSwitchAccess: OrganizationWithSwitchAccess[] = useMemo(() => {
     if (!allOrganizations?.organizations) {
