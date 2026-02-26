@@ -40,6 +40,7 @@ const useStyles = (
     const baseCard: string = css`
       border-radius: ${theme.vars.borderRadius.medium};
       background-color: ${theme.vars.colors.background.surface};
+      font-family: ${theme.vars.typography.fontFamily};
       transition: all 0.2s ease-in-out;
       position: relative;
       display: flex;

@@ -149,6 +149,7 @@ const useStyles = (theme: Theme, colorScheme: string): Record<string, string> =>
         padding: calc(${theme.vars.spacing.unit} * 4);
         min-width: 600px;
         margin: 0 auto;
+        font-family: ${theme.vars.typography.fontFamily};
       `,
       statusBadge: css`
         padding: calc(${theme.vars.spacing.unit} / 2) ${theme.vars.spacing.unit};

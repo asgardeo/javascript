@@ -45,28 +45,28 @@ const buildThemeConfigFromFlowMeta = (
   // base-theme defaults inside `createTheme`.
   let colors: RecursivePartial<ThemeConfig['colors']> | undefined;
 
-  if (scheme?.colors) {
+  if (scheme?.palette) {
     colors = {};
 
-    if (scheme.colors.primary) {
-      colors.primary = scheme.colors.primary;
+    if (scheme.palette.primary) {
+      colors.primary = scheme.palette.primary;
     }
-    if (scheme.colors.secondary) {
-      colors.secondary = scheme.colors.secondary;
+    if (scheme.palette.secondary) {
+      colors.secondary = scheme.palette.secondary;
     }
-    if (scheme.colors.text) {
-      colors.text = scheme.colors.text;
+    if (scheme.palette.text) {
+      colors.text = scheme.palette.text;
     }
 
     // Build background incrementally to avoid replacing the full base object.
-    if (scheme.colors.background) {
+    if (scheme.palette.background) {
       const bg: RecursivePartial<ThemeConfig['colors']['background']> = {};
 
-      if (scheme.colors.background.default) {
-        bg.body = {main: scheme.colors.background.default};
+      if (scheme.palette.background.default) {
+        bg.body = {main: scheme.palette.background.default};
       }
-      if (scheme.colors.background.paper) {
-        bg.surface = scheme.colors.background.paper;
+      if (scheme.palette.background.paper) {
+        bg.surface = scheme.palette.background.paper;
       }
 
       if (Object.keys(bg).length > 0) {

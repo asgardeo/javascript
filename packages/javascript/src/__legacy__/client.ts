@@ -32,6 +32,7 @@ import {Storage, TemporaryStore} from '../models/store';
 import {TokenResponse, IdToken, TokenExchangeRequestConfig} from '../models/token';
 import {User} from '../models/user';
 import StorageManager from '../StorageManager';
+import deepMerge from '../utils/deepMerge';
 import extractPkceStorageKeyFromState from '../utils/extractPkceStorageKeyFromState';
 import generatePkceStorageKey from '../utils/generatePkceStorageKey';
 import getAuthorizeRequestUrlParams from '../utils/getAuthorizeRequestUrlParams';
@@ -1138,7 +1139,10 @@ export class AsgardeoAuthClient<T> {
    * @preserve
    */
   public async reInitialize(config: Partial<AuthClientConfig<T>>): Promise<void> {
-    await this.storageManager.setConfigData(config);
+    const currentConfig: AuthClientConfig<T> = this.storageManager.getConfigData() as unknown as AuthClientConfig<T>;
+    const newConfig: AuthClientConfig<T> = deepMerge(currentConfig, config);
+
+    await this.storageManager.setConfigData(newConfig);
     await this.loadOpenIDProviderConfiguration(true);
   }
 

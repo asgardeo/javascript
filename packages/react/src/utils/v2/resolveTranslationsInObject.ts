@@ -16,26 +16,28 @@
  * under the License.
  */
 
-import {resolveTranslation} from './resolveTranslation';
+import {FlowMetadataResponse, resolveVars} from '@asgardeo/browser';
 import {UseTranslation} from '../../hooks/useTranslation';
 
 /**
- * Resolves translation strings in an object's properties.
+ * Resolves all {{ t() }} and {{ meta() }} template expressions in an object's string properties.
  * @param obj - The object to process
  * @param t - The translation function from useTranslation
  * @param properties - Array of property names to resolve (optional, defaults to common properties)
- * @returns A new object with resolved translations
+ * @param meta - Optional flow metadata for resolving meta() expressions
+ * @returns A new object with resolved template strings
  */
 export const resolveTranslationsInObject = <T extends Record<string, any>>(
   obj: T,
   t: UseTranslation['t'],
   properties: string[] = ['label', 'placeholder', 'text', 'title', 'subtitle'],
+  meta?: FlowMetadataResponse | null,
 ): T => {
   const resolved: T = {...obj};
 
   properties.forEach((prop: string) => {
     if (resolved[prop] && typeof resolved[prop] === 'string') {
-      (resolved as any)[prop] = resolveTranslation(resolved[prop], t);
+      (resolved as any)[prop] = resolveVars(resolved[prop], {meta, t});
     }
   });
 

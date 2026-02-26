@@ -121,7 +121,7 @@ const TokenInfo: React.FC<TokenInfoProps> = ({isOpen, onClose, isPage = false}) 
       <div className="overflow-auto">
         <pre
           className="text-sm font-mono whitespace-pre-wrap break-words"
-          dangerouslySetInnerHTML={{__html: highlightedJSON}}
+          dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(highlightedJSON)}}
         />
       </div>
     );
@@ -144,7 +144,7 @@ const TokenInfo: React.FC<TokenInfoProps> = ({isOpen, onClose, isPage = false}) 
       <div className="overflow-auto">
         <pre
           className="text-sm font-mono whitespace-pre-wrap break-words"
-          dangerouslySetInnerHTML={{__html: highlightedJSON}}
+          dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(highlightedJSON)}}
         />
       </div>
     );

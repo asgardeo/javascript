@@ -52,6 +52,7 @@ const useStyles = (
       height: calc(${theme.vars.spacing.unit} * 6);
       text-align: center;
       font-size: ${theme.vars.typography.fontSizes.xl};
+      font-family: ${theme.vars.typography.fontFamily};
       font-weight: 500;
       border: 2px solid ${hasError ? theme.vars.colors.error.main : theme.vars.colors.border};
       border-radius: ${theme.vars.components?.Field?.root?.borderRadius || theme.vars.borderRadius.medium};

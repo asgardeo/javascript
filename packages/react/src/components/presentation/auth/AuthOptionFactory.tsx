@@ -18,17 +18,23 @@
 
 import {
   FieldType,
+  FlowMetadataResponse,
   EmbeddedFlowComponentV2 as EmbeddedFlowComponent,
   EmbeddedFlowComponentTypeV2 as EmbeddedFlowComponentType,
   EmbeddedFlowTextVariantV2 as EmbeddedFlowTextVariant,
   EmbeddedFlowActionVariantV2 as EmbeddedFlowActionVariant,
   EmbeddedFlowEventTypeV2 as EmbeddedFlowEventType,
   createPackageComponentLogger,
+  resolveVars,
 } from '@asgardeo/browser';
-import {cloneElement, ReactElement} from 'react';
+import {css} from '@emotion/css';
+import DOMPurify from 'dompurify';
+import {cloneElement, CSSProperties, ReactElement} from 'react';
+import {UseTranslation} from '../../../hooks/useTranslation';
 import FacebookButton from '../../adapters/FacebookButton';
 import GitHubButton from '../../adapters/GitHubButton';
 import GoogleButton from '../../adapters/GoogleButton';
+import ImageComponent from '../../adapters/ImageComponent';
 import LinkedInButton from '../../adapters/LinkedInButton';
 import MicrosoftButton from '../../adapters/MicrosoftButton';
 import SignInWithEthereumButton from '../../adapters/SignInWithEthereumButton';
@@ -36,6 +42,7 @@ import SmsOtpButton from '../../adapters/SmsOtpButton';
 import {createField} from '../../factories/FieldFactory';
 import Button from '../../primitives/Button/Button';
 import Divider from '../../primitives/Divider/Divider';
+import flowIconRegistry from '../../primitives/Icons/flowIconRegistry';
 import Select from '../../primitives/Select/Select';
 import Typography from '../../primitives/Typography/Typography';
 import {TypographyVariant} from '../../primitives/Typography/Typography.styles';
@@ -44,6 +51,15 @@ const logger: ReturnType<typeof createPackageComponentLogger> = createPackageCom
   '@asgardeo/react',
   'AuthOptionFactory',
 );
+
+/** Ensures rich-text content (including all inner elements from the server) always word-wraps. */
+const richTextClass: string = css`
+  overflow-wrap: anywhere;
+  & * {
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+`;
 
 export type AuthType = 'signin' | 'signup';
 
@@ -128,13 +144,25 @@ const createAuthComponentFromFlow = (
     buttonClassName?: string;
     inputClassName?: string;
     key?: string | number;
+    /** Flow metadata for resolving {{meta(...)}} expressions at render time */
+    meta?: FlowMetadataResponse | null;
     onInputBlur?: (name: string) => void;
     onSubmit?: (component: EmbeddedFlowComponent, data?: Record<string, any>, skipValidation?: boolean) => void;
     size?: 'small' | 'medium' | 'large';
+    /** Translation function for resolving {{t(...)}} expressions at render time */
+    t?: UseTranslation['t'];
     variant?: any;
   } = {},
 ): ReactElement | null => {
   const key: string | number = options.key || component.id;
+
+  /** Resolve any remaining {{t()}} or {{meta()}} template expressions in a string at render time. */
+  const resolve = (text: string | undefined): string => {
+    if (!text || (!options.t && !options.meta)) {
+      return text || '';
+    }
+    return resolveVars(text, {meta: options.meta, t: options.t || ((k: string): string => k)});
+  };
 
   switch (component.type) {
     case EmbeddedFlowComponentType.TextInput:
@@ -149,11 +177,11 @@ const createAuthComponentFromFlow = (
       const field: any = createField({
         className: options.inputClassName,
         error,
-        label: component.label || '',
+        label: resolve(component.label) || '',
         name: identifier,
         onBlur: () => options.onInputBlur?.(identifier),
         onChange: (newValue: string) => onInputChange(identifier, newValue),
-        placeholder: component.placeholder || '',
+        placeholder: resolve(component.placeholder) || '',
         required: component.required || false,
         type: fieldType as FieldType,
         value,
@@ -165,7 +193,7 @@ const createAuthComponentFromFlow = (
     case EmbeddedFlowComponentType.Action: {
       const actionId: string = component.id;
       const eventType: string = (component.eventType as string) || '';
-      const buttonText: string = component.label || '';
+      const buttonText: string = resolve(component.label);
       const componentVariant: string = (component.variant as string) || '';
 
       // Only validate on submit type events.
@@ -206,7 +234,24 @@ const createAuthComponentFromFlow = (
         return <SmsOtpButton key={key} onClick={handleClick} className={options.buttonClassName} />;
       }
 
-      // Fallback to generic button
+      const startIconEl: ReactElement | null = component.startIcon ? (
+        <img
+          src={component.startIcon}
+          alt=""
+          aria-hidden="true"
+          style={{height: '1.25em', objectFit: 'contain', width: '1.25em'}}
+        />
+      ) : null;
+
+      const endIconEl: ReactElement | null = component.endIcon ? (
+        <img
+          src={component.endIcon}
+          alt=""
+          aria-hidden="true"
+          style={{height: '1.25em', objectFit: 'contain', width: '1.25em'}}
+        />
+      ) : null;
+
       return (
         <Button
           fullWidth
@@ -217,6 +262,8 @@ const createAuthComponentFromFlow = (
           data-testid="asgardeo-signin-submit"
           variant={component.variant?.toLowerCase() === 'primary' ? 'solid' : 'outline'}
           color={component.variant?.toLowerCase() === 'primary' ? 'primary' : 'secondary'}
+          startIcon={startIconEl}
+          endIcon={endIconEl}
         >
           {buttonText || 'Submit'}
         </Button>
@@ -227,13 +274,13 @@ const createAuthComponentFromFlow = (
       const variant: any = getTypographyVariant(component.variant);
       return (
         <Typography key={key} variant={variant}>
-          {component.label || ''}
+          {resolve(component.label)}
         </Typography>
       );
     }
 
     case EmbeddedFlowComponentType.Divider: {
-      return <Divider key={key}>{component.label || ''}</Divider>;
+      return <Divider key={key}>{resolve(component.label) || ''}</Divider>;
     }
 
     case EmbeddedFlowComponentType.Select: {
@@ -252,8 +299,8 @@ const createAuthComponentFromFlow = (
         <Select
           key={key}
           name={identifier}
-          label={component.label || ''}
-          placeholder={component.placeholder}
+          label={resolve(component.label) || ''}
+          placeholder={resolve(component.placeholder)}
           required={component.required}
           options={selectOptions}
           value={value}
@@ -295,6 +342,95 @@ const createAuthComponentFromFlow = (
       return null;
     }
 
+    case EmbeddedFlowComponentType.RichText: {
+      return (
+        <div
+          key={key}
+          className={richTextClass}
+          // Manually sanitizes with `DOMPurify`.
+          // IMPORTANT: DO NOT REMOVE OR MODIFY THIS SANITIZATION STEP.
+          dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(resolve(component.label))}}
+        />
+      );
+    }
+
+    case EmbeddedFlowComponentType.Image: {
+      return (
+        <ImageComponent
+          key={key}
+          component={
+            {
+              config: {
+                alt: resolve(component.alt) || resolve(component.label) || 'Image',
+                height: resolve(component.height.toString()) || 'auto',
+                src: resolve(component.src),
+                width: resolve(component.width.toString()) || '100%',
+              },
+            } as any
+          }
+          formErrors={undefined}
+          formValues={undefined}
+          isFormValid={false}
+          isLoading={false}
+          onInputChange={(): void => {
+            throw new Error('Function not implemented.');
+          }}
+          touchedFields={undefined}
+        />
+      );
+    }
+
+    case EmbeddedFlowComponentType.Icon: {
+      const iconName: string = component.name || '';
+      const IconComponent: any = flowIconRegistry[iconName];
+      if (!IconComponent) {
+        logger.warn(`Unknown icon name: "${iconName}". Skipping render.`);
+        return null;
+      }
+      return <IconComponent key={key} size={component.size || 24} color={component.color || 'currentColor'} />;
+    }
+
+    case EmbeddedFlowComponentType.Stack: {
+      const direction: string = (component as any).direction || 'row';
+      const gap: number = (component as any).gap ?? 2;
+      const align: string = (component as any).align || 'center';
+      const justify: string = (component as any).justify || 'flex-start';
+
+      const stackStyle: CSSProperties = {
+        alignItems: align,
+        display: 'flex',
+        flexDirection: direction as CSSProperties['flexDirection'],
+        flexWrap: 'wrap',
+        gap: `${gap * 0.5}rem`,
+        justifyContent: justify,
+      };
+
+      const stackChildren: (ReactElement | null)[] = component.components
+        ? component.components.map((childComponent: any, index: number) =>
+            createAuthComponentFromFlow(
+              childComponent,
+              formValues,
+              touchedFields,
+              formErrors,
+              isLoading,
+              isFormValid,
+              onInputChange,
+              authType,
+              {
+                ...options,
+                key: childComponent.id || `${component.id}_${index}`,
+              },
+            ),
+          )
+        : [];
+
+      return (
+        <div key={key} style={stackStyle}>
+          {stackChildren}
+        </div>
+      );
+    }
+
     default:
       // Gracefully handle unsupported component types by returning null
       logger.warn(`Unsupported component type: ${component.type}. Skipping render.`);
@@ -316,9 +452,13 @@ export const renderSignInComponents = (
   options?: {
     buttonClassName?: string;
     inputClassName?: string;
+    /** Flow metadata for resolving {{meta(...)}} expressions at render time */
+    meta?: FlowMetadataResponse | null;
     onInputBlur?: (name: string) => void;
     onSubmit?: (component: EmbeddedFlowComponent, data?: Record<string, any>, skipValidation?: boolean) => void;
     size?: 'small' | 'medium' | 'large';
+    /** Translation function for resolving {{t(...)}} expressions at render time */
+    t?: UseTranslation['t'];
     variant?: any;
   },
 ): ReactElement[] =>
@@ -355,9 +495,13 @@ export const renderSignUpComponents = (
   options?: {
     buttonClassName?: string;
     inputClassName?: string;
+    /** Flow metadata for resolving {{meta(...)}} expressions at render time */
+    meta?: FlowMetadataResponse | null;
     onInputBlur?: (name: string) => void;
     onSubmit?: (component: EmbeddedFlowComponent, data?: Record<string, any>, skipValidation?: boolean) => void;
     size?: 'small' | 'medium' | 'large';
+    /** Translation function for resolving {{t(...)}} expressions at render time */
+    t?: UseTranslation['t'];
     variant?: any;
   },
 ): ReactElement[] =>
@@ -395,9 +539,13 @@ export const renderInviteUserComponents = (
   options?: {
     buttonClassName?: string;
     inputClassName?: string;
+    /** Flow metadata for resolving {{meta(...)}} expressions at render time */
+    meta?: FlowMetadataResponse | null;
     onInputBlur?: (name: string) => void;
     onSubmit?: (component: EmbeddedFlowComponent, data?: Record<string, any>, skipValidation?: boolean) => void;
     size?: 'small' | 'medium' | 'large';
+    /** Translation function for resolving {{t(...)}} expressions at render time */
+    t?: UseTranslation['t'];
     variant?: any;
   },
 ): ReactElement[] =>

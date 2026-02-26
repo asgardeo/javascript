@@ -76,6 +76,11 @@
       "@wso2/eslint-plugin>@typescript-eslint/parser": "6.21.0",
       "@wso2/eslint-plugin>@typescript-eslint/type-utils": "6.21.0",
       "@wso2/eslint-plugin>@typescript-eslint/utils": "6.21.0"
+    },
+    "auditConfig": {
+      "ignoreCves": [
+        "CVE-2026-26996"
+      ]
     }
   },
   "publishConfig": {

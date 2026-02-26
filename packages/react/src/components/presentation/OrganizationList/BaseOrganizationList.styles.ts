@@ -32,6 +32,7 @@ const useStyles = (theme: Theme, colorScheme: string): Record<string, string> =>
       padding: calc(${theme.vars.spacing.unit} * 4);
       min-width: 600px;
       margin: 0 auto;
+      font-family: ${theme.vars.typography.fontFamily};
       background: ${theme.vars.colors.background.surface};
       border-radius: ${theme.vars.borderRadius.large};
     `;
@@ -273,6 +274,7 @@ const useStyles = (theme: Theme, colorScheme: string): Record<string, string> =>
     theme.vars.colors.success.main,
     theme.vars.colors.error.main,
     theme.vars.colors.primary.contrastText,
+    theme.vars.typography.fontFamily,
     colorScheme,
   ]);
 

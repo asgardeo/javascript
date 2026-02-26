@@ -44,6 +44,7 @@ const useStyles = (
       margin-bottom: ${marginBottom || (variant === 'block' ? `calc(${theme.vars.spacing.unit} + 1px)` : '0')};
       color: ${error ? theme.vars.colors.error.main : theme.vars.colors.text.secondary};
       font-size: ${theme.vars.typography.fontSizes.sm};
+      font-family: ${theme.vars.typography.fontFamily};
       font-weight: ${variant === 'block' ? 500 : 'normal'};
     `;
 

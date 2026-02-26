@@ -42,7 +42,7 @@
  * consistent response handling across all embedded flows.
  */
 
-import {EmbeddedFlowComponentV2 as EmbeddedFlowComponent} from '@asgardeo/browser';
+import {EmbeddedFlowComponentV2 as EmbeddedFlowComponent, FlowMetadataResponse} from '@asgardeo/browser';
 import resolveTranslationsInArray from './resolveTranslationsInArray';
 import {UseTranslation} from '../../hooks/useTranslation';
 
@@ -204,6 +204,7 @@ export const transformComponents = (
   response: any,
   t: UseTranslation['t'],
   resolveTranslations: boolean = true,
+  meta?: FlowMetadataResponse | null,
 ): EmbeddedFlowComponent[] => {
   if (!response?.data?.meta?.components) {
     return [];
@@ -225,7 +226,7 @@ export const transformComponents = (
     components = applyInputRefMapping(components, refMapping, actionMapping, inputsData);
   }
 
-  return resolveTranslations ? resolveTranslationsInArray(components, t) : components;
+  return resolveTranslations ? resolveTranslationsInArray(components, t, undefined, meta) : components;
 };
 
 /**
@@ -292,6 +293,7 @@ export const normalizeFlowResponse = (
   response: any,
   t: UseTranslation['t'],
   options: FlowTransformOptions = {},
+  meta?: FlowMetadataResponse | null,
 ): {
   components: EmbeddedFlowComponent[];
   flowId: string;
@@ -307,7 +309,7 @@ export const normalizeFlowResponse = (
   }
 
   return {
-    components: transformComponents(response, t, resolveTranslations),
+    components: transformComponents(response, t, resolveTranslations, meta),
     flowId: response.flowId,
   };
 };

@@ -30,8 +30,8 @@ import {FC, ReactElement, useState, useEffect, useRef, ReactNode} from 'react';
 // eslint-disable-next-line import/no-named-as-default
 import BaseSignIn, {BaseSignInProps} from './BaseSignIn';
 import useAsgardeo from '../../../../../contexts/Asgardeo/useAsgardeo';
-import {useOAuthCallback} from '../../../../../hooks/v2/useOAuthCallback';
 import useTranslation from '../../../../../hooks/useTranslation';
+import {useOAuthCallback} from '../../../../../hooks/v2/useOAuthCallback';
 import {initiateOAuthRedirect} from '../../../../../utils/oauth';
 import {normalizeFlowResponse} from '../../../../../utils/v2/flowTransformer';
 import {handlePasskeyAuthentication, handlePasskeyRegistration} from '../../../../../utils/v2/passkey';
@@ -244,6 +244,7 @@ const SignIn: FC<SignInProps> = ({
    */
   const getUrlParams = (): any => {
     const urlParams: any = new URL(window?.location?.href ?? '').searchParams;
+
     return {
       applicationId: urlParams.get('applicationId'),
       authId: urlParams.get('authId'),
@@ -382,9 +383,14 @@ const SignIn: FC<SignInProps> = ({
         return;
       }
 
-      const {flowId: normalizedFlowId, components: normalizedComponents} = normalizeFlowResponse(response, t, {
-        resolveTranslations: !children,
-      });
+      const {flowId: normalizedFlowId, components: normalizedComponents} = normalizeFlowResponse(
+        response,
+        t,
+        {
+          resolveTranslations: false,
+        },
+        meta,
+      );
 
       if (normalizedFlowId && normalizedComponents) {
         setFlowId(normalizedFlowId);
@@ -490,9 +496,14 @@ const SignIn: FC<SignInProps> = ({
         return;
       }
 
-      const {flowId: normalizedFlowId, components: normalizedComponents} = normalizeFlowResponse(response, t, {
-        resolveTranslations: !children,
-      });
+      const {flowId: normalizedFlowId, components: normalizedComponents} = normalizeFlowResponse(
+        response,
+        t,
+        {
+          resolveTranslations: false,
+        },
+        meta,
+      );
 
       // Handle Error flow status - flow has failed and is invalidated
       if (response.flowStatus === EmbeddedSignInFlowStatusV2.Error) {

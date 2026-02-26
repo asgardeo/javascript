@@ -16,9 +16,11 @@
  * under the License.
  */
 
+import {resolveVars as resolveVarsUtil} from '@asgardeo/browser';
 import {useContext} from 'react';
 import AsgardeoContext, {AsgardeoContextProps} from './AsgardeoContext';
 import FlowMetaContext, {FlowMetaContextValue} from '../FlowMeta/FlowMetaContext';
+import I18nContext, {I18nContextValue} from '../I18n/I18nContext';
 
 const useAsgardeo = (): AsgardeoContextProps => {
   const context: AsgardeoContextProps | null = useContext(AsgardeoContext);
@@ -32,9 +34,20 @@ const useAsgardeo = (): AsgardeoContextProps => {
   // don't render FlowMetaProvider.
   const flowMetaContext: FlowMetaContextValue | null = useContext(FlowMetaContext);
 
+  // I18nContext provides the translation function.  Direct useContext (rather
+  // than useTranslation) avoids throwing in test environments without I18nProvider.
+  const i18nContext: I18nContextValue | null = useContext(I18nContext);
+
+  const meta: FlowMetaContextValue['meta'] = flowMetaContext?.meta ?? null;
+
   return {
     ...context,
-    meta: flowMetaContext?.meta ?? null,
+    meta,
+    resolveVars: (text: string | undefined): string =>
+      resolveVarsUtil(text, {
+        meta,
+        t: i18nContext?.t ?? ((key: string): string => key),
+      }),
   };
 };
 

@@ -17,9 +17,21 @@
  */
 
 import {FlowMetadataResponse, FlowMetaType, getFlowMetaV2} from '@asgardeo/browser';
-import {FC, PropsWithChildren, ReactElement, RefObject, useCallback, useEffect, useRef, useState} from 'react';
+import {I18nBundle} from '@asgardeo/i18n';
+import {
+  FC,
+  PropsWithChildren,
+  ReactElement,
+  RefObject,
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import FlowMetaContext from './FlowMetaContext';
 import useAsgardeo from '../Asgardeo/useAsgardeo';
+import I18nContext, {I18nContextValue} from '../I18n/I18nContext';
 
 export interface FlowMetaProviderProps {
   /**
@@ -57,6 +69,7 @@ const FlowMetaProvider: FC<PropsWithChildren<FlowMetaProviderProps>> = ({
   enabled = true,
 }: PropsWithChildren<FlowMetaProviderProps>): ReactElement => {
   const {baseUrl, applicationId} = useAsgardeo();
+  const i18nContext: I18nContextValue = useContext(I18nContext);
 
   const [meta, setMeta] = useState<FlowMetadataResponse | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -94,6 +107,39 @@ const FlowMetaProvider: FC<PropsWithChildren<FlowMetaProviderProps>> = ({
     // Re-fetch when config or enabled changes after the initial mount
     fetchFlowMeta();
   }, [fetchFlowMeta]);
+
+  // When meta loads with i18n translations, inject them into the i18n system.
+  // Meta translations act as the base layer — prop-provided bundles still take precedence.
+  useEffect(() => {
+    if (!meta?.i18n?.translations || !i18nContext?.injectBundles) {
+      return;
+    }
+
+    const metaLanguage: string = meta.i18n.language || 'en';
+
+    // Flatten namespace-keyed translations to dot-path keys:
+    // { "signin": { "heading": "Sign In" } } → { "signin.heading": "Sign In" }
+    const flatTranslations: Record<string, string> = {};
+    Object.entries(meta.i18n.translations).forEach(([namespace, keys]: [string, Record<string, string>]) => {
+      Object.entries(keys).forEach(([key, value]: [string, string]) => {
+        flatTranslations[`${namespace}.${key}`] = value;
+      });
+    });
+
+    const bundle: I18nBundle = {translations: flatTranslations} as unknown as I18nBundle;
+
+    // Inject under the meta language code and the i18n current language so
+    // lookups succeed regardless of whether the system uses "en" or "en-US".
+    const bundlesToInject: Record<string, I18nBundle> = {[metaLanguage]: bundle};
+    if (i18nContext.currentLanguage && i18nContext.currentLanguage !== metaLanguage) {
+      bundlesToInject[i18nContext.currentLanguage] = bundle;
+    }
+    if (i18nContext.fallbackLanguage && i18nContext.fallbackLanguage !== metaLanguage) {
+      bundlesToInject[i18nContext.fallbackLanguage] = bundle;
+    }
+
+    i18nContext.injectBundles(bundlesToInject);
+  }, [meta?.i18n?.translations, i18nContext?.injectBundles]);
 
   const value: any = {
     error,

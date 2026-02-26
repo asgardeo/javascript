@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2025, WSO2 LLC. (https://www.wso2.com).
+ * Copyright (c) 2026, WSO2 LLC. (https://www.wso2.com).
  *
  * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -16,14 +16,20 @@
  * under the License.
  */
 
-export {default as ArrowLeftRight} from './ArrowLeftRight';
-export {default as CircleAlert} from './CircleAlert';
-export {default as CircleCheck} from './CircleCheck';
-export {default as Eye} from './Eye';
-export {default as EyeOff} from './EyeOff';
-export {default as Info} from './Info';
-export {default as LogOut} from './LogOut';
-export {default as Plus} from './Plus';
-export {default as TriangleAlert} from './TriangleAlert';
-export {default as User} from './User';
-export {default as X} from './X';
+import {FC} from 'react';
+import ArrowLeftRight from './ArrowLeftRight';
+
+export interface FlowIconProps {
+  color?: string;
+  size?: number;
+}
+
+/**
+ * Registry of icon components keyed by their lucide-compatible name.
+ * Add new icons here as needed by flow definitions.
+ */
+const flowIconRegistry: Record<string, FC<FlowIconProps>> = {
+  ArrowLeftRight,
+};
+
+export default flowIconRegistry;

@@ -33,6 +33,7 @@ const useStyles = (theme: Theme, colorScheme: string): Record<string, string> =>
       border-radius: ${theme.vars.borderRadius.large};
       gap: calc(${theme.vars.spacing.unit} * 2);
       min-width: 420px;
+      font-family: ${theme.vars.typography.fontFamily};
     `;
 
     const header: string = css`
@@ -62,6 +63,7 @@ const useStyles = (theme: Theme, colorScheme: string): Record<string, string> =>
     theme.vars.colors.text.secondary,
     theme.vars.borderRadius.large,
     theme.vars.spacing.unit,
+    theme.vars.typography.fontFamily,
     colorScheme,
   ]);
 

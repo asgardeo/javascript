@@ -32,6 +32,7 @@ const useStyles = (theme: Theme, colorScheme: string): Record<string, string> =>
       padding: calc(${theme.vars.spacing.unit} * 4);
       min-width: 600px;
       margin: 0 auto;
+      font-family: ${theme.vars.typography.fontFamily};
     `;
 
     const card: string = css`
@@ -82,7 +83,7 @@ const useStyles = (theme: Theme, colorScheme: string): Record<string, string> =>
       font-size: ${theme.vars.typography.fontSizes.md};
       color: ${theme.vars.colors.text.primary};
       background-color: ${theme.vars.colors.background.surface};
-      font-family: inherit;
+      font-family: ${theme.vars.typography.fontFamily};
       min-height: 80px;
       resize: vertical;
       outline: none;
@@ -172,6 +173,7 @@ const useStyles = (theme: Theme, colorScheme: string): Record<string, string> =>
     theme.vars.colors.background.disabled,
     theme.vars.colors.text.secondary,
     theme.vars.colors.error.main,
+    theme.vars.typography.fontFamily,
     colorScheme,
   ]);
 
