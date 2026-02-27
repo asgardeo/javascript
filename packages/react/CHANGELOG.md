@@ -1,5 +1,20 @@
 # @asgardeo/react
 
+## 0.13.2
+
+### Patch Changes
+
+- [#379](https://github.com/asgardeo/javascript/pull/379)
+  [`a8dee26`](https://github.com/asgardeo/javascript/commit/a8dee265acced95ce469a0426c6c193ccd607a19) Thanks
+  [@lashinijay](https://github.com/lashinijay)! - Introduce Agent token related functions
+
+- [#376](https://github.com/asgardeo/javascript/pull/376)
+  [`fbdd49b`](https://github.com/asgardeo/javascript/commit/fbdd49b0197058ddf436176decb76bcfd848b685) Thanks
+  [@brionmario](https://github.com/brionmario)! - Fix some issues related to design in AsgardeoV2
+
+- Updated dependencies []:
+  - @asgardeo/browser@0.4.1
+
 ## 0.13.1
 
 ### Patch Changes

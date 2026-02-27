@@ -1,5 +1,19 @@
 # @asgardeo/nextjs
 
+## 0.1.81
+
+### Patch Changes
+
+- [#379](https://github.com/asgardeo/javascript/pull/379)
+  [`a8dee26`](https://github.com/asgardeo/javascript/commit/a8dee265acced95ce469a0426c6c193ccd607a19) Thanks
+  [@lashinijay](https://github.com/lashinijay)! - Introduce Agent token related functions
+
+- Updated dependencies
+  [[`a8dee26`](https://github.com/asgardeo/javascript/commit/a8dee265acced95ce469a0426c6c193ccd607a19),
+  [`fbdd49b`](https://github.com/asgardeo/javascript/commit/fbdd49b0197058ddf436176decb76bcfd848b685)]:
+  - @asgardeo/react@0.13.2
+  - @asgardeo/node@0.0.55
+
 ## 0.1.80
 
 ### Patch Changes
