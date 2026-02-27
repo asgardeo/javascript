@@ -45,17 +45,17 @@ export class SPAUtils {
     sessionStorage.setItem(pkceKey, pkce);
   }
 
-  public static setSignOutURL(url: string, clientId: string, instanceID: number): void {
+  public static setSignOutURL(url: string, clientId: string, instanceId: number): void {
     sessionStorage.setItem(
-      `${OIDCRequestConstants.SignOut.Storage.StorageKeys.SIGN_OUT_URL}-instance_${instanceID}-${clientId}`,
+      `${OIDCRequestConstants.SignOut.Storage.StorageKeys.SIGN_OUT_URL}-instance_${instanceId}-${clientId}`,
       url,
     );
   }
 
-  public static getSignOutUrl(clientId: string, instanceID: number): string {
+  public static getSignOutUrl(clientId: string, instanceId: number): string {
     return (
       sessionStorage.getItem(
-        `${OIDCRequestConstants.SignOut.Storage.StorageKeys.SIGN_OUT_URL}-instance_${instanceID}-${clientId}`,
+        `${OIDCRequestConstants.SignOut.Storage.StorageKeys.SIGN_OUT_URL}-instance_${instanceId}-${clientId}`,
       ) ?? ''
     );
   }

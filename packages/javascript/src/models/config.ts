@@ -130,6 +130,24 @@ export interface BaseConfig<T = unknown> extends WithPreferences {
   instanceId?: number;
 
   /**
+   * Configuration for chaining authentication across multiple organization contexts.
+   * Used when you need to authenticate a user in one organization using credentials
+   * from another organization context.
+   */
+  organizationChain?: {
+    /**
+     * Instance ID of the source organization context to retrieve access token from for organization token exchange.
+     * Used in linked organization scenarios to automatically fetch the source organization's access token.
+     */
+    sourceInstanceId?: number;
+    /**
+     * Organization ID for the target organization.
+     * When provided with sourceInstanceId, triggers automatic organization token exchange.
+     */
+    targetOrganizationId?: string;
+  };
+
+  /**
    * Optional organization handle for the Organization in Asgardeo.
    * This is used to identify the organization in the Asgardeo identity server in cases like Branding, etc.
    * If not provided, the framework layer will try to use the `baseUrl` to determine the organization handle.

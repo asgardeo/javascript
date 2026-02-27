@@ -63,14 +63,14 @@ export class AuthenticationHelper<T extends MainThreadClientConfig | WebWorkerCl
   protected _authenticationClient: AsgardeoAuthClient<T>;
   protected _storageManager: StorageManager<T>;
   protected _spaHelper: SPAHelper<T>;
-  protected _instanceID: number;
+  protected _instanceId: number;
   protected _isTokenRefreshing: boolean;
 
   public constructor(authClient: AsgardeoAuthClient<T>, spaHelper: SPAHelper<T>) {
     this._authenticationClient = authClient;
     this._storageManager = this._authenticationClient.getStorageManager();
     this._spaHelper = spaHelper;
-    this._instanceID = this._authenticationClient.getInstanceId();
+    this._instanceId = this._authenticationClient.getInstanceId();
     this._isTokenRefreshing = false;
   }
 
@@ -486,7 +486,7 @@ export class AuthenticationHelper<T extends MainThreadClientConfig | WebWorkerCl
                         SPAUtils.setSignOutURL(await _authenticationClient.getSignOutUrl());
                     } */
           if (config.storage !== BrowserStorage.WebWorker) {
-            SPAUtils.setSignOutURL(await this._authenticationClient.getSignOutUrl(), config.clientId, this._instanceID);
+            SPAUtils.setSignOutURL(await this._authenticationClient.getSignOutUrl(), config.clientId, this._instanceId);
 
             if (this._spaHelper) {
               this._spaHelper.clearRefreshTokenTimeout();

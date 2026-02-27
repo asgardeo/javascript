@@ -37,6 +37,7 @@ export type AsgardeoContextProps = {
   afterSignInUrl: string | undefined;
   applicationId: string | undefined;
   baseUrl: string | undefined;
+  clientId: string | undefined;
   /**
    * Swaps the current access token with a new one based on the provided configuration (with a grant type).
    * @param config - Configuration for the token exchange request.
@@ -184,6 +185,7 @@ const AsgardeoContext: Context<AsgardeoContextProps | null> = createContext<null
   applicationId: undefined,
   baseUrl: undefined,
   clearSession: () => {},
+  clientId: undefined,
   exchangeToken: null,
   getAccessToken: null,
   getDecodedIdToken: null,
