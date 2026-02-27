@@ -179,7 +179,7 @@ class AsgardeoReactClient<T extends AsgardeoReactConfig = AsgardeoReactConfig> e
     return this.withLoading(async () => this.asgardeo.getIdToken());
   }
 
-  async getUserProfile(options?: any): Promise<UserProfile> {
+  override async getUserProfile(options?: any): Promise<UserProfile> {
     return this.withLoading(async () => {
       try {
         let baseUrl: string = options?.baseUrl;

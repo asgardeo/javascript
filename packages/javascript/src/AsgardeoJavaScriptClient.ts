@@ -16,80 +16,235 @@
  * under the License.
  */
 
+import {AsgardeoAuthClient} from './__legacy__/client';
+import {AuthClientConfig} from './__legacy__/models/client-config';
+import executeEmbeddedSignInFlow from './api/executeEmbeddedSignInFlow';
+import initializeEmbeddedSignInFlow from './api/initializeEmbeddedSignInFlow';
+import {DefaultCacheStore} from './DefaultCacheStore';
+import {DefaultCrypto} from './DefaultCrypto';
+import {AgentConfig} from './models/agent';
+import {AuthCodeResponse} from './models/auth-code-response';
 import {AsgardeoClient} from './models/client';
 import {Config, SignInOptions, SignOutOptions, SignUpOptions} from './models/config';
-import {EmbeddedFlowExecuteRequestPayload, EmbeddedFlowExecuteResponse} from './models/embedded-flow';
-import {EmbeddedSignInFlowHandleRequestPayload} from './models/embedded-signin-flow';
+import {Crypto} from './models/crypto';
+import {
+  EmbeddedFlowExecuteRequestConfig,
+  EmbeddedFlowExecuteRequestPayload,
+  EmbeddedFlowExecuteResponse,
+} from './models/embedded-flow';
+import {
+  EmbeddedSignInFlowAuthenticator,
+  EmbeddedSignInFlowHandleResponse,
+  EmbeddedSignInFlowInitiateResponse,
+  EmbeddedSignInFlowStatus,
+} from './models/embedded-signin-flow';
 import {AllOrganizationsApiResponse, Organization} from './models/organization';
 import {Storage} from './models/store';
 import {TokenExchangeRequestConfig, TokenResponse} from './models/token';
 import {User, UserProfile} from './models/user';
+import StorageManager from './StorageManager';
 
-/**
- * Base class for implementing Asgardeo clients.
- * This class provides the core functionality for managing user authentication and sessions.
- *
- * @typeParam T - Configuration type that extends Config.
- */
-abstract class AsgardeoJavaScriptClient<T = Config> implements AsgardeoClient<T> {
-  abstract switchOrganization(organization: Organization, sessionId?: string): Promise<TokenResponse | Response>;
+class AsgardeoJavaScriptClient<T = Config> implements AsgardeoClient<T> {
+  private cacheStore: Storage;
 
-  abstract initialize(config: T, storage?: Storage): Promise<boolean>;
+  private cryptoUtils: Crypto;
 
-  abstract reInitialize(config: Partial<T>): Promise<boolean>;
+  private auth: AsgardeoAuthClient<T>;
 
-  abstract getUser(options?: any): Promise<User>;
+  private storageManager: StorageManager<T>;
 
-  abstract getAllOrganizations(options?: any, sessionId?: string): Promise<AllOrganizationsApiResponse>;
+  private baseURL: string;
 
-  abstract getMyOrganizations(options?: any, sessionId?: string): Promise<Organization[]>;
+  constructor(config?: AuthClientConfig<T>, cacheStore?: Storage, cryptoUtils?: Crypto) {
+    this.cacheStore = cacheStore ?? new DefaultCacheStore();
+    this.cryptoUtils = cryptoUtils ?? new DefaultCrypto();
+    this.auth = new AsgardeoAuthClient();
 
-  abstract getCurrentOrganization(sessionId?: string): Promise<Organization | null>;
+    if (config) {
+      this.auth.initialize(config, this.cacheStore, this.cryptoUtils);
+      this.storageManager = this.auth.getStorageManager();
+    }
 
-  abstract getUserProfile(options?: any): Promise<UserProfile>;
+    this.baseURL = config?.baseUrl ?? '';
+  }
 
-  abstract isLoading(): boolean;
+  /* eslint-disable class-methods-use-this, @typescript-eslint/no-unused-vars */
+  switchOrganization(_organization: Organization, _sessionId?: string): Promise<TokenResponse | Response> {
+    throw new Error('Method not implemented.');
+  }
 
-  abstract isSignedIn(): Promise<boolean>;
+  initialize(_config: T, _storage?: Storage): Promise<boolean> {
+    throw new Error('Method not implemented.');
+  }
 
-  abstract updateUserProfile(payload: any, userId?: string): Promise<User>;
+  reInitialize(_config: Partial<T>): Promise<boolean> {
+    throw new Error('Method not implemented.');
+  }
 
-  abstract getConfiguration(): T;
+  getUser(_options?: any): Promise<User> {
+    throw new Error('Method not implemented.');
+  }
 
-  abstract exchangeToken(config: TokenExchangeRequestConfig, sessionId?: string): Promise<TokenResponse | Response>;
+  getAllOrganizations(_options?: any, _sessionId?: string): Promise<AllOrganizationsApiResponse> {
+    throw new Error('Method not implemented.');
+  }
 
-  abstract signIn(
-    options?: SignInOptions,
-    sessionId?: string,
-    onSignInSuccess?: (afterSignInUrl: string) => void,
-  ): Promise<User>;
-  abstract signIn(
-    payload: EmbeddedSignInFlowHandleRequestPayload,
-    request: Request,
-    sessionId?: string,
-    onSignInSuccess?: (afterSignInUrl: string) => void,
-  ): Promise<User>;
+  getMyOrganizations(_options?: any, _sessionId?: string): Promise<Organization[]> {
+    throw new Error('Method not implemented.');
+  }
 
-  abstract signInSilently(options?: SignInOptions): Promise<User | boolean>;
+  getCurrentOrganization(_sessionId?: string): Promise<Organization | null> {
+    throw new Error('Method not implemented.');
+  }
 
-  abstract signOut(options?: SignOutOptions, afterSignOut?: (afterSignOutUrl: string) => void): Promise<string>;
-  abstract signOut(
-    options?: SignOutOptions,
-    sessionId?: string,
-    afterSignOut?: (afterSignOutUrl: string) => void,
-  ): Promise<string>;
+  getUserProfile(_options?: any): Promise<UserProfile> {
+    throw new Error('Method not implemented.');
+  }
 
-  abstract signUp(options?: SignUpOptions): Promise<void>;
-  abstract signUp(payload: EmbeddedFlowExecuteRequestPayload): Promise<EmbeddedFlowExecuteResponse>;
-  abstract signUp(payload?: unknown): Promise<void> | Promise<EmbeddedFlowExecuteResponse>;
+  isLoading(): boolean {
+    throw new Error('Method not implemented.');
+  }
 
-  abstract getAccessToken(sessionId?: string): Promise<string>;
+  isSignedIn(): Promise<boolean> {
+    throw new Error('Method not implemented.');
+  }
 
-  abstract clearSession(sessionId?: string): void;
+  updateUserProfile(_payload: any, _userId?: string): Promise<User> {
+    throw new Error('Method not implemented.');
+  }
 
-  abstract setSession(sessionData: Record<string, unknown>, sessionId?: string): Promise<void>;
+  getConfiguration(): T {
+    throw new Error('Method not implemented.');
+  }
 
-  abstract decodeJwtToken<R = Record<string, unknown>>(token: string): Promise<R>;
+  exchangeToken(_config: TokenExchangeRequestConfig, _sessionId?: string): Promise<TokenResponse | Response> {
+    throw new Error('Method not implemented.');
+  }
+
+  signInSilently(_options?: SignInOptions): Promise<User | boolean> {
+    throw new Error('Method not implemented.');
+  }
+
+  getAccessToken(_sessionId?: string): Promise<string> {
+    throw new Error('Method not implemented.');
+  }
+
+  clearSession(_sessionId?: string): void {
+    throw new Error('Method not implemented.');
+  }
+
+  setSession(_sessionData: Record<string, unknown>, _sessionId?: string): Promise<void> {
+    throw new Error('Method not implemented.');
+  }
+
+  decodeJwtToken<R = Record<string, unknown>>(_token: string): Promise<R> {
+    throw new Error('Method not implemented.');
+  }
+
+  signIn(_options?: SignInOptions): Promise<User> {
+    throw new Error('Method not implemented.');
+  }
+
+  signOut(
+    _options?: SignOutOptions,
+    _sessionIdOrAfterSignOut?: string | ((afterSignOutUrl: string) => void),
+    _afterSignOut?: (afterSignOutUrl: string) => void,
+  ): Promise<string> {
+    throw new Error('Method not implemented.');
+  }
+
+  signUp(options?: SignUpOptions): Promise<void>;
+
+  signUp(payload: EmbeddedFlowExecuteRequestPayload): Promise<EmbeddedFlowExecuteResponse>;
+
+  signUp(
+    _optionsOrPayload?: SignUpOptions | EmbeddedFlowExecuteRequestPayload,
+  ): Promise<void | EmbeddedFlowExecuteResponse> {
+    throw new Error('Method not implemented.');
+  }
+  /* eslint-enable class-methods-use-this, @typescript-eslint/no-unused-vars */
+
+  public async getAgentToken(agentConfig: AgentConfig): Promise<TokenResponse> {
+    const customParam: Record<string, string> = {
+      response_mode: 'direct',
+    };
+
+    const authorizeURL: URL = new URL(await this.auth.getSignInUrl(customParam));
+
+    const authorizeResponse: EmbeddedSignInFlowInitiateResponse = await initializeEmbeddedSignInFlow({
+      payload: Object.fromEntries(authorizeURL.searchParams.entries()),
+      url: `${authorizeURL.origin}${authorizeURL.pathname}`,
+    });
+
+    const authenticatorName: string = agentConfig.authenticatorName ?? AgentConfig.DEFAULT_AUTHENTICATOR_NAME;
+
+    const targetAuthenticator: EmbeddedSignInFlowAuthenticator | undefined =
+      authorizeResponse.nextStep.authenticators.find(
+        (auth: EmbeddedSignInFlowAuthenticator) => auth.authenticator === authenticatorName,
+      );
+
+    if (!targetAuthenticator) {
+      throw new Error(`Authenticator '${authenticatorName}' not found among authentication steps.`);
+    }
+
+    const authnRequest: EmbeddedFlowExecuteRequestConfig = {
+      baseUrl: this.baseURL,
+      payload: {
+        flowId: authorizeResponse.flowId,
+        selectedAuthenticator: {
+          authenticatorId: targetAuthenticator.authenticatorId,
+          params: {
+            password: agentConfig.agentSecret,
+            username: agentConfig.agentID,
+          },
+        },
+      },
+    };
+
+    const authnResponse: EmbeddedSignInFlowHandleResponse = await executeEmbeddedSignInFlow(authnRequest);
+
+    if (authnResponse.flowStatus !== EmbeddedSignInFlowStatus.SuccessCompleted) {
+      throw new Error('Agent authentication failed.');
+    }
+
+    return this.auth.requestAccessToken(
+      authnResponse.authData['code'],
+      authnResponse.authData['session_state'],
+      authnResponse.authData['state'],
+    );
+  }
+
+  public async getOBOSignInURL(agentConfig: AgentConfig): Promise<string> {
+    const customParam: Record<string, string> = {
+      requested_actor: agentConfig.agentID,
+    };
+
+    const authURL: string | undefined = await this.auth.getSignInUrl(customParam);
+
+    if (authURL) {
+      return authURL.toString();
+    }
+
+    throw new Error('Could not build Authorize URL');
+  }
+
+  public async getOBOToken(agentConfig: AgentConfig, authCodeResponse: AuthCodeResponse): Promise<TokenResponse> {
+    const agentToken: TokenResponse = await this.getAgentToken(agentConfig);
+
+    const tokenRequestConfig: {params: {actor_token: string}} = {
+      params: {
+        actor_token: agentToken.accessToken,
+      },
+    };
+
+    return this.auth.requestAccessToken(
+      authCodeResponse.code,
+      authCodeResponse.session_state,
+      authCodeResponse.state,
+      undefined,
+      tokenRequestConfig,
+    );
+  }
 }
 
 export default AsgardeoJavaScriptClient;

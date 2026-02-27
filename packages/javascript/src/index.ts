@@ -149,6 +149,8 @@ export {
   SignUpOptions,
 } from './models/config';
 export {TokenResponse, IdToken, TokenExchangeRequestConfig} from './models/token';
+export {AgentConfig} from './models/agent';
+export {AuthCodeResponse} from './models/auth-code-response';
 export {Crypto, JWKInterface} from './models/crypto';
 export {OAuthResponseMode} from './models/oauth-response';
 export {
