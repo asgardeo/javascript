@@ -1,5 +1,14 @@
 # @asgardeo/browser
 
+## 0.4.1
+
+### Patch Changes
+
+- Updated dependencies
+  [[`a8dee26`](https://github.com/asgardeo/javascript/commit/a8dee265acced95ce469a0426c6c193ccd607a19),
+  [`fbdd49b`](https://github.com/asgardeo/javascript/commit/fbdd49b0197058ddf436176decb76bcfd848b685)]:
+  - @asgardeo/javascript@0.8.1
+
 ## 0.4.0
 
 ### Minor Changes
