@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2025, WSO2 LLC. (https://www.wso2.com).
+ * Copyright (c) 2026, WSO2 LLC. (https://www.wso2.com).
  *
  * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -16,12 +16,14 @@
  * under the License.
  */
 
-// Models
-export type {I18nBundle, I18nTranslations, I18nMetadata, I18nTextDirection} from './models/i18n';
+import {Preferences} from '@asgardeo/browser';
+import {createContext} from 'react';
 
-// Translations
-export * from './translations';
+/**
+ * Context for component-level preferences overrides.
+ * Presentational components can provide this context to override the global i18n
+ * and theme settings for their entire subtree, including all nested components.
+ */
+const ComponentPreferencesContext = createContext<Preferences | undefined>(undefined);
 
-// Utils
-export {default as getDefaultI18nBundles} from './utils/getDefaultI18nBundles';
-export {default as normalizeTranslations} from './utils/normalizeTranslations';
+export default ComponentPreferencesContext;

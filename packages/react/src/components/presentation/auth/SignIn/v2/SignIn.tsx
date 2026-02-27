@@ -25,6 +25,7 @@ import {
   EmbeddedSignInFlowStatusV2,
   EmbeddedSignInFlowTypeV2,
   FlowMetadataResponse,
+  Preferences,
 } from '@asgardeo/browser';
 import {FC, ReactElement, useState, useEffect, useRef, ReactNode} from 'react';
 // eslint-disable-next-line import/no-named-as-default
@@ -112,6 +113,13 @@ export type SignInProps = {
    * Theme variant for the component.
    */
   variant?: BaseSignInProps['variant'];
+
+  /**
+   * Component-level preferences to override global i18n and theme settings.
+   * Preferences are deep-merged with global ones, with component preferences
+   * taking precedence. Affects this component and all its descendants.
+   */
+  preferences?: Preferences;
 };
 
 /**
@@ -189,6 +197,7 @@ interface PasskeyState {
  */
 const SignIn: FC<SignInProps> = ({
   className,
+  preferences,
   size = 'medium',
   onSuccess,
   onError,
@@ -196,7 +205,7 @@ const SignIn: FC<SignInProps> = ({
   children,
 }: SignInProps): ReactElement => {
   const {applicationId, afterSignInUrl, signIn, isInitialized, isLoading, meta} = useAsgardeo();
-  const {t} = useTranslation();
+  const {t} = useTranslation(preferences?.i18n);
 
   // State management for the flow
   const [components, setComponents] = useState<EmbeddedFlowComponent[]>([]);
@@ -687,6 +696,7 @@ const SignIn: FC<SignInProps> = ({
       className={className}
       size={size}
       variant={variant}
+      preferences={preferences}
     />
   );
 };

@@ -24,10 +24,12 @@ import {
   withVendorCSSClassPrefix,
   EmbeddedFlowComponentTypeV2 as EmbeddedFlowComponentType,
   createPackageComponentLogger,
+  Preferences,
 } from '@asgardeo/browser';
 import {cx} from '@emotion/css';
 import {FC, ReactElement, ReactNode, useEffect, useState, useCallback, useRef} from 'react';
 import useAsgardeo from '../../../../../contexts/Asgardeo/useAsgardeo';
+import ComponentPreferencesContext from '../../../../../contexts/I18n/ComponentPreferencesContext';
 import FlowProvider from '../../../../../contexts/Flow/FlowProvider';
 import useFlow from '../../../../../contexts/Flow/useFlow';
 import useTheme from '../../../../../contexts/Theme/useTheme';
@@ -237,6 +239,13 @@ export interface BaseSignUpProps {
    * Theme variant for the component.
    */
   variant?: CardProps['variant'];
+
+  /**
+   * Component-level preferences to override global i18n and theme settings.
+   * Preferences are deep-merged with global ones, with component preferences
+   * taking precedence. Affects this component and all its descendants.
+   */
+  preferences?: Preferences;
 }
 
 /**
@@ -1016,11 +1025,11 @@ const BaseSignUpContent: FC<BaseSignUpProps> = ({
  * This component handles both the presentation layer and sign-up flow logic.
  * It accepts API functions as props to maintain framework independence.
  */
-const BaseSignUp: FC<BaseSignUpProps> = ({showLogo = true, ...rest}: BaseSignUpProps): ReactElement => {
+const BaseSignUp: FC<BaseSignUpProps> = ({preferences, showLogo = true, ...rest}: BaseSignUpProps): ReactElement => {
   const {theme, colorScheme} = useTheme();
   const styles: any = useStyles(theme, colorScheme);
 
-  return (
+  const content: ReactElement = (
     <div>
       {showLogo && (
         <div className={styles.logoContainer}>
@@ -1031,6 +1040,14 @@ const BaseSignUp: FC<BaseSignUpProps> = ({showLogo = true, ...rest}: BaseSignUpP
         <BaseSignUpContent showLogo={showLogo} {...rest} />
       </FlowProvider>
     </div>
+  );
+
+  if (!preferences) return content;
+
+  return (
+    <ComponentPreferencesContext.Provider value={preferences}>
+      {content}
+    </ComponentPreferencesContext.Provider>
   );
 };
 
