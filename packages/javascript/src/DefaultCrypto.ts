@@ -64,7 +64,7 @@ export class DefaultCrypto implements Crypto<Uint8Array> {
 
     await jose.jwtVerify(idToken, key, {
       algorithms,
-      audience: clientId,
+      audience: [clientId],
       clockTolerance,
       issuer: validateJwtIssuer ? issuer : undefined,
       subject,
