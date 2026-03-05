@@ -74,6 +74,7 @@ const FlowMetaProvider: FC<PropsWithChildren<FlowMetaProviderProps>> = ({
   const [meta, setMeta] = useState<FlowMetadataResponse | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<Error | null>(null);
+  const [pendingLanguage, setPendingLanguage] = useState<string | null>(null);
 
   // Track whether an initial fetch has been triggered so we don't double-fetch
   // when the component first mounts with a stable config reference.
@@ -97,6 +98,56 @@ const FlowMetaProvider: FC<PropsWithChildren<FlowMetaProviderProps>> = ({
       setIsLoading(false);
     }
   }, [enabled, baseUrl, applicationId]);
+
+  const switchLanguage: (language: string) => Promise<void> = useCallback(
+    async (language: string): Promise<void> => {
+      if (!enabled) return;
+
+      setIsLoading(true);
+      setError(null);
+
+      try {
+        const result: FlowMetadataResponse = await getFlowMetaV2({
+          baseUrl,
+          id: applicationId,
+          language,
+          type: FlowMetaType.App,
+        });
+
+        // Inject translations for the new language before switching
+        if (result.i18n?.translations && i18nContext?.injectBundles) {
+          const flatTranslations: Record<string, string> = {};
+          Object.entries(result.i18n.translations).forEach(([namespace, keys]: [string, Record<string, string>]) => {
+            Object.entries(keys).forEach(([key, value]: [string, string]) => {
+              flatTranslations[`${namespace}.${key}`] = value;
+            });
+          });
+          const bundle: I18nBundle = {translations: flatTranslations} as unknown as I18nBundle;
+          i18nContext.injectBundles({[language]: bundle});
+        }
+
+        // Defer setLanguage to the next effect cycle so injectBundles state
+        // is committed before I18nProvider's setLanguage checks mergedBundles.
+        setPendingLanguage(language);
+        setMeta(result);
+      } catch (err: unknown) {
+        setError(err instanceof Error ? err : new Error(String(err)));
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [enabled, baseUrl, applicationId, i18nContext],
+  );
+
+  // After injectBundles + setPendingLanguage are batched and committed, this
+  // effect fires with the updated i18nContext (mergedBundles now includes the
+  // new language), so setLanguage succeeds on the first switch.
+  useEffect(() => {
+    if (pendingLanguage && i18nContext?.setLanguage) {
+      i18nContext.setLanguage(pendingLanguage);
+      setPendingLanguage(null);
+    }
+  }, [pendingLanguage, i18nContext?.setLanguage]);
 
   useEffect(() => {
     if (!hasFetchedRef.current) {
@@ -146,6 +197,7 @@ const FlowMetaProvider: FC<PropsWithChildren<FlowMetaProviderProps>> = ({
     fetchFlowMeta,
     isLoading,
     meta,
+    switchLanguage,
   };
 
   return <FlowMetaContext.Provider value={value}>{children}</FlowMetaContext.Provider>;

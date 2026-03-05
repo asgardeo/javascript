@@ -36,6 +36,11 @@ export interface FlowMetaContextValue {
    * The fetched flow metadata response, or null while loading / on error
    */
   meta: FlowMetadataResponse | null;
+  /**
+   * Fetches flow metadata for the given language and activates it in the i18n system.
+   * Use this to switch the UI language at runtime.
+   */
+  switchLanguage: (language: string) => Promise<void>;
 }
 
 const FlowMetaContext: Context<FlowMetaContextValue | null> = createContext<FlowMetaContextValue | null>(null);
