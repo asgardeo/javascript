@@ -456,6 +456,13 @@ class AsgardeoReactClient<T extends AsgardeoReactConfig = AsgardeoReactConfig> e
     // Tracker: https://github.com/asgardeo/javascript/issues/212#issuecomment-3435713699
     if (config.platform === Platform.AsgardeoV2) {
       this.asgardeo.clearSession();
+
+      if (config.signInUrl) {
+        navigate(config.signInUrl);
+      } else {
+        this.signIn(config.signInOptions);
+      }
+
       args[1]?.(config.afterSignOutUrl || '');
 
       return Promise.resolve(config.afterSignOutUrl || '');
