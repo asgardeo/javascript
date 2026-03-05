@@ -143,6 +143,7 @@ export {
   Preferences,
   ThemePreferences,
   I18nPreferences,
+  I18nStorageStrategy,
   WithPreferences,
   SignInOptions,
   SignOutOptions,

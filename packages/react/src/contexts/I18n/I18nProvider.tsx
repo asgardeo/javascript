@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import {deepMerge, I18nPreferences, createPackageComponentLogger} from '@asgardeo/browser';
+import {deepMerge, I18nPreferences, I18nStorageStrategy, createPackageComponentLogger} from '@asgardeo/browser';
 import {I18nBundle, I18nTranslations, getDefaultI18nBundles, normalizeTranslations} from '@asgardeo/i18n';
 import {FC, PropsWithChildren, ReactElement, useCallback, useEffect, useMemo, useState} from 'react';
 import I18nContext, {I18nContextValue} from './I18nContext';
@@ -26,7 +26,8 @@ const logger: ReturnType<typeof createPackageComponentLogger> = createPackageCom
   'I18nProvider',
 );
 
-const I18N_LANGUAGE_STORAGE_KEY: string = 'asgardeo-i18n-language';
+const DEFAULT_STORAGE_KEY: string = 'asgardeo-i18n-language';
+const DEFAULT_URL_PARAM: string = 'lang';
 
 export interface I18nProviderProps {
   /**
@@ -35,9 +36,6 @@ export interface I18nProviderProps {
   preferences?: I18nPreferences;
 }
 
-/**
- * Detects the browser's default language or returns a fallback
- */
 const detectBrowserLanguage = (): string => {
   if (typeof window !== 'undefined' && window.navigator) {
     return window.navigator.language || 'en-US';
@@ -45,32 +43,79 @@ const detectBrowserLanguage = (): string => {
   return 'en-US';
 };
 
-/**
- * Gets the stored language from localStorage or returns null
- */
-const getStoredLanguage = (): string | null => {
-  if (typeof window !== 'undefined' && window.localStorage) {
-    try {
-      return window.localStorage.getItem(I18N_LANGUAGE_STORAGE_KEY);
-    } catch (error) {
-      // localStorage might not be available or accessible
-      return null;
-    }
-  }
-  return null;
+const deriveRootDomain = (hostname: string): string => {
+  const parts: string[] = hostname.split('.');
+  return parts.length > 1 ? parts.slice(-2).join('.') : hostname;
 };
 
-/**
- * Stores the language in localStorage
- */
-const storeLanguage = (language: string): void => {
-  if (typeof window !== 'undefined' && window.localStorage) {
-    try {
-      window.localStorage.setItem(I18N_LANGUAGE_STORAGE_KEY, language);
-    } catch (error) {
-      // localStorage might not be available or accessible
-      logger.warn('Failed to store language preference:');
-    }
+const getCookie = (name: string): string | null => {
+  if (typeof document === 'undefined') return null;
+  const match: RegExpMatchArray | null = document.cookie.match(
+    new RegExp('(?:^|; )' + name.replace(/([.*+?^${}()|[\]\\])/g, '\\$1') + '=([^;]*)'),
+  );
+  return match ? decodeURIComponent(match[1]) : null;
+};
+
+const setCookie = (name: string, value: string, domain: string): void => {
+  if (typeof document === 'undefined') return;
+  const maxAge: number = 365 * 24 * 60 * 60;
+  const secure: string = typeof window !== 'undefined' && window.location.protocol === 'https:' ? '; Secure' : '';
+  document.cookie =
+    `${encodeURIComponent(name)}=${encodeURIComponent(value)}` +
+    `; Max-Age=${maxAge}` +
+    `; Path=/` +
+    `; Domain=${domain}` +
+    `; SameSite=Lax` +
+    secure;
+};
+
+interface StorageAdapter {
+  read: () => string | null;
+  write: (language: string) => void;
+}
+
+const createStorageAdapter = (strategy: I18nStorageStrategy, key: string, cookieDomain?: string): StorageAdapter => {
+  switch (strategy) {
+    case 'cookie':
+      return {
+        read: (): string | null => getCookie(key),
+        write: (language: string): void => {
+          const domain: string =
+            cookieDomain ?? (typeof window !== 'undefined' ? deriveRootDomain(window.location.hostname) : '');
+          if (domain) setCookie(key, language, domain);
+        },
+      };
+    case 'localStorage':
+      return {
+        read: (): string | null => {
+          if (typeof window === 'undefined' || !window.localStorage) return null;
+          try {
+            return window.localStorage.getItem(key);
+          } catch {
+            return null;
+          }
+        },
+        write: (language: string): void => {
+          if (typeof window === 'undefined' || !window.localStorage) return;
+          try {
+            window.localStorage.setItem(key, language);
+          } catch {
+            logger.warn('Failed to persist language preference to localStorage.');
+          }
+        },
+      };
+    case 'none':
+    default:
+      return {read: (): null => null, write: (): void => {}};
+  }
+};
+
+const detectUrlParamLanguage = (paramName: string): string | null => {
+  if (typeof window === 'undefined') return null;
+  try {
+    return new URLSearchParams(window.location.search).get(paramName);
+  } catch {
+    return null;
   }
 };
 
@@ -85,18 +130,35 @@ const I18nProvider: FC<PropsWithChildren<I18nProviderProps>> = ({
   // Get default bundles from the browser package
   const defaultBundles: Record<string, I18nBundle> = getDefaultI18nBundles();
 
-  // Determine the initial language based on preference order:
-  // 1. User preference from config
-  // 2. Stored language in localStorage
-  // 3. Browser's default language
-  // 4. Fallback language
-  const determineInitialLanguage = (): string => {
-    const configLanguage: string | undefined = preferences?.language;
-    const storedLanguage: string | null = getStoredLanguage();
-    const browserLanguage: string = detectBrowserLanguage();
-    const fallbackLanguage: string = preferences?.fallbackLanguage || 'en-US';
+  const storageStrategy: I18nStorageStrategy = preferences?.storageStrategy ?? 'cookie';
+  const storageKey: string = preferences?.storageKey ?? DEFAULT_STORAGE_KEY;
+  const urlParamConfig: string | false = preferences?.urlParam === undefined ? DEFAULT_URL_PARAM : preferences.urlParam;
 
-    return configLanguage || storedLanguage || browserLanguage || fallbackLanguage;
+  const resolvedCookieDomain: string | undefined = useMemo((): string | undefined => {
+    if (storageStrategy !== 'cookie') return undefined;
+    if (preferences?.cookieDomain) return preferences.cookieDomain;
+    return typeof window !== 'undefined' ? deriveRootDomain(window.location.hostname) : undefined;
+  }, [storageStrategy, preferences?.cookieDomain]);
+
+  const storage: StorageAdapter = useMemo(
+    () => createStorageAdapter(storageStrategy, storageKey, resolvedCookieDomain),
+    [storageStrategy, storageKey, resolvedCookieDomain],
+  );
+
+  const determineInitialLanguage = (): string => {
+    if (preferences?.language) return preferences.language;
+    if (urlParamConfig !== false) {
+      const urlLanguage: string | null = detectUrlParamLanguage(urlParamConfig);
+      if (urlLanguage) {
+        storage.write(urlLanguage);
+        return urlLanguage;
+      }
+    }
+    const storedLanguage: string | null = storage.read();
+    if (storedLanguage) return storedLanguage;
+    const browserLanguage: string = detectBrowserLanguage();
+    if (browserLanguage) return browserLanguage;
+    return preferences?.fallbackLanguage || 'en-US';
   };
 
   const [currentLanguage, setCurrentLanguage] = useState<string>(determineInitialLanguage);
@@ -179,10 +241,10 @@ const I18nProvider: FC<PropsWithChildren<I18nProviderProps>> = ({
 
   const fallbackLanguage: string = preferences?.fallbackLanguage || 'en-US';
 
-  // Update stored language when current language changes
+  // Persist language changes to the configured storage.
   useEffect(() => {
-    storeLanguage(currentLanguage);
-  }, [currentLanguage]);
+    storage.write(currentLanguage);
+  }, [currentLanguage, storage]);
 
   // Translation function
   const t: (key: string, params?: Record<string, string | number>) => string = useCallback(
