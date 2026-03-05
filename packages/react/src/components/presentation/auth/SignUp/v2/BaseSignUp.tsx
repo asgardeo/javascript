@@ -29,9 +29,9 @@ import {
 import {cx} from '@emotion/css';
 import {FC, ReactElement, ReactNode, useEffect, useState, useCallback, useRef} from 'react';
 import useAsgardeo from '../../../../../contexts/Asgardeo/useAsgardeo';
-import ComponentPreferencesContext from '../../../../../contexts/I18n/ComponentPreferencesContext';
 import FlowProvider from '../../../../../contexts/Flow/FlowProvider';
 import useFlow from '../../../../../contexts/Flow/useFlow';
+import ComponentPreferencesContext from '../../../../../contexts/I18n/ComponentPreferencesContext';
 import useTheme from '../../../../../contexts/Theme/useTheme';
 import {useForm, FormField} from '../../../../../hooks/useForm';
 import useTranslation from '../../../../../hooks/useTranslation';
@@ -211,6 +211,13 @@ export interface BaseSignUpProps {
    */
   onSubmit?: (payload: EmbeddedFlowExecuteRequestPayload) => Promise<EmbeddedFlowExecuteResponse>;
   /**
+   * Component-level preferences to override global i18n and theme settings.
+   * Preferences are deep-merged with global ones, with component preferences
+   * taking precedence. Affects this component and all its descendants.
+   */
+  preferences?: Preferences;
+
+  /**
    *  Whether to redirect after sign-up.
    */
   shouldRedirectAfterSignUp?: boolean;
@@ -239,13 +246,6 @@ export interface BaseSignUpProps {
    * Theme variant for the component.
    */
   variant?: CardProps['variant'];
-
-  /**
-   * Component-level preferences to override global i18n and theme settings.
-   * Preferences are deep-merged with global ones, with component preferences
-   * taking precedence. Affects this component and all its descendants.
-   */
-  preferences?: Preferences;
 }
 
 /**
@@ -1044,11 +1044,7 @@ const BaseSignUp: FC<BaseSignUpProps> = ({preferences, showLogo = true, ...rest}
 
   if (!preferences) return content;
 
-  return (
-    <ComponentPreferencesContext.Provider value={preferences}>
-      {content}
-    </ComponentPreferencesContext.Provider>
-  );
+  return <ComponentPreferencesContext.Provider value={preferences}>{content}</ComponentPreferencesContext.Provider>;
 };
 
 export default BaseSignUp;

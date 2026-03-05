@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import {OrganizationDetails, createPackageComponentLogger, Preferences} from '@asgardeo/browser';
+import {OrganizationDetails, createPackageComponentLogger} from '@asgardeo/browser';
 import {FC, ReactElement, useEffect, useState} from 'react';
 import BaseOrganizationProfile, {BaseOrganizationProfileProps} from './BaseOrganizationProfile';
 import getOrganization from '../../../api/getOrganization';

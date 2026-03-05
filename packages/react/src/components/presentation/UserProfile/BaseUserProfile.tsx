@@ -78,17 +78,17 @@ export interface BaseUserProfileProps {
   onOpenChange?: (open: boolean) => void;
   onUpdate?: (payload: any) => Promise<void>;
   open?: boolean;
-  profile?: User;
-  schemas?: Schema[];
-  showFields?: string[];
-  title?: string;
-
   /**
    * Component-level preferences to override global i18n and theme settings.
    * Preferences are deep-merged with global ones, with component preferences
    * taking precedence. Affects this component and all its descendants.
    */
   preferences?: Preferences;
+  profile?: User;
+  schemas?: Schema[];
+  showFields?: string[];
+
+  title?: string;
 }
 
 // Fields to skip based on schema.name

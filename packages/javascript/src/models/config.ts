@@ -303,16 +303,16 @@ export interface I18nPreferences {
    */
   language?: string;
   /**
-   * The storage strategy to use for persisting the user's language selection.
-   * @default 'cookie'
-   */
-  storageStrategy?: I18nStorageStrategy;
-  /**
    * The key used when reading/writing the language to the chosen storage.
    * For `localStorage` this is the key name; for `cookie` this is the cookie name.
    * @default 'asgardeo-i18n-language'
    */
   storageKey?: string;
+  /**
+   * The storage strategy to use for persisting the user's language selection.
+   * @default 'cookie'
+   */
+  storageStrategy?: I18nStorageStrategy;
   /**
    * The URL query-parameter name to inspect for a language override.
    * Set to `false` to disable URL-parameter detection entirely.

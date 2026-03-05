@@ -51,7 +51,7 @@ const deriveRootDomain = (hostname: string): string => {
 const getCookie = (name: string): string | null => {
   if (typeof document === 'undefined') return null;
   const match: RegExpMatchArray | null = document.cookie.match(
-    new RegExp('(?:^|; )' + name.replace(/([.*+?^${}()|[\]\\])/g, '\\$1') + '=([^;]*)'),
+    new RegExp(`(?:^|; )${name.replace(/([.*+?^${}()|[\]\\])/g, '\\$1')}=([^;]*)`),
   );
   return match ? decodeURIComponent(match[1]) : null;
 };
@@ -65,8 +65,7 @@ const setCookie = (name: string, value: string, domain: string): void => {
     `; Max-Age=${maxAge}` +
     `; Path=/` +
     `; Domain=${domain}` +
-    `; SameSite=Lax` +
-    secure;
+    `; SameSite=Lax${secure}`;
 };
 
 interface StorageAdapter {

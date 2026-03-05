@@ -30,7 +30,6 @@ import {
   EmbeddedFlowExecuteRequestConfig,
   handleWebAuthnAuthentication,
   createPackageComponentLogger,
-  Preferences,
 } from '@asgardeo/browser';
 import {cx} from '@emotion/css';
 import {FC, FormEvent, RefObject, useEffect, useState, useCallback, useRef, ReactElement} from 'react';

@@ -100,6 +100,13 @@ export interface BaseOrganizationProfileProps {
   organization?: OrganizationDetails | null;
 
   /**
+   * Component-level preferences to override global i18n and theme settings.
+   * Preferences are deep-merged with global ones, with component preferences
+   * taking precedence. Affects this component and all its descendants.
+   */
+  preferences?: Preferences;
+
+  /**
    * Text for the save button (only used in editable mode).
    */
   saveButtonText?: string;
@@ -108,13 +115,6 @@ export interface BaseOrganizationProfileProps {
    * Custom title for the profile.
    */
   title?: string;
-
-  /**
-   * Component-level preferences to override global i18n and theme settings.
-   * Preferences are deep-merged with global ones, with component preferences
-   * taking precedence. Affects this component and all its descendants.
-   */
-  preferences?: Preferences;
 }
 
 /**

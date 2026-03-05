@@ -59,16 +59,16 @@ export interface BaseCreateOrganizationProps {
   onSubmit?: (payload: CreateOrganizationPayload) => void | Promise<void>;
   onSuccess?: (organization: any) => void;
   open?: boolean;
-  renderAdditionalFields?: () => ReactNode;
-  style?: CSSProperties;
-  title?: string;
-
   /**
    * Component-level preferences to override global i18n and theme settings.
    * Preferences are deep-merged with global ones, with component preferences
    * taking precedence. Affects this component and all its descendants.
    */
   preferences?: Preferences;
+  renderAdditionalFields?: () => ReactNode;
+  style?: CSSProperties;
+
+  title?: string;
 }
 
 /**

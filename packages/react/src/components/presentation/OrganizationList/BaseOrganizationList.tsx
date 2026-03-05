@@ -89,6 +89,12 @@ export interface BaseOrganizationListProps {
    */
   open?: boolean;
   /**
+   * Component-level preferences to override global i18n and theme settings.
+   * Preferences are deep-merged with global ones, with component preferences
+   * taking precedence. Affects this component and all its descendants.
+   */
+  preferences?: Preferences;
+  /**
    * Custom renderer for when no organizations are found
    */
   renderEmpty?: () => ReactNode;
@@ -116,17 +122,11 @@ export interface BaseOrganizationListProps {
    * Inline styles to apply to the container
    */
   style?: CSSProperties;
+
   /**
    * Title for the popup dialog (only used in popup mode)
    */
   title?: string;
-
-  /**
-   * Component-level preferences to override global i18n and theme settings.
-   * Preferences are deep-merged with global ones, with component preferences
-   * taking precedence. Affects this component and all its descendants.
-   */
-  preferences?: Preferences;
 }
 
 /**

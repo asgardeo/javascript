@@ -197,6 +197,13 @@ export interface BaseInviteUserProps {
   onSubmit: (payload: Record<string, any>) => Promise<InviteUserFlowResponse>;
 
   /**
+   * Component-level preferences to override global i18n and theme settings.
+   * Preferences are deep-merged with global ones, with component preferences
+   * taking precedence. Affects this component and all its descendants.
+   */
+  preferences?: Preferences;
+
+  /**
    * Whether to show the subtitle.
    */
   showSubtitle?: boolean;
@@ -215,13 +222,6 @@ export interface BaseInviteUserProps {
    * Theme variant for the component.
    */
   variant?: CardProps['variant'];
-
-  /**
-   * Component-level preferences to override global i18n and theme settings.
-   * Preferences are deep-merged with global ones, with component preferences
-   * taking precedence. Affects this component and all its descendants.
-   */
-  preferences?: Preferences;
 }
 
 /**

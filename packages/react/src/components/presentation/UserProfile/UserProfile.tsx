@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import {AsgardeoError, User, Preferences} from '@asgardeo/browser';
+import {AsgardeoError, User} from '@asgardeo/browser';
 import {FC, ReactElement, useState} from 'react';
 // eslint-disable-next-line import/no-named-as-default
 import BaseUserProfile, {BaseUserProfileProps} from './BaseUserProfile';

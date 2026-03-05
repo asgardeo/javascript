@@ -16,7 +16,6 @@
  * under the License.
  */
 
-import {Preferences} from '@asgardeo/browser';
 import {FC, ReactElement, useState} from 'react';
 
 import {

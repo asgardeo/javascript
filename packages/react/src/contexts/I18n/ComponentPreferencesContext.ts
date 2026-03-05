@@ -17,13 +17,13 @@
  */
 
 import {Preferences} from '@asgardeo/browser';
-import {createContext} from 'react';
+import {Context, createContext} from 'react';
 
 /**
  * Context for component-level preferences overrides.
  * Presentational components can provide this context to override the global i18n
  * and theme settings for their entire subtree, including all nested components.
  */
-const ComponentPreferencesContext = createContext<Preferences | undefined>(undefined);
+const ComponentPreferencesContext: Context<Preferences | undefined> = createContext<Preferences | undefined>(undefined);
 
 export default ComponentPreferencesContext;

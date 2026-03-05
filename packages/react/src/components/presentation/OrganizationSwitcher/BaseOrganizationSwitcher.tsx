@@ -133,6 +133,12 @@ export interface BaseOrganizationSwitcherProps {
    */
   portalId?: string;
   /**
+   * Component-level preferences to override global i18n and theme settings.
+   * Preferences are deep-merged with global ones, with component preferences
+   * taking precedence. Affects this component and all its descendants.
+   */
+  preferences?: Preferences;
+  /**
    * Custom render function for the error state.
    */
   renderError?: (error: string) => ReactElement;
@@ -156,17 +162,11 @@ export interface BaseOrganizationSwitcherProps {
    * Show organization name next to avatar in the trigger button
    */
   showTriggerLabel?: boolean;
+
   /**
    * Custom styles for the component.
    */
   style?: CSSProperties;
-
-  /**
-   * Component-level preferences to override global i18n and theme settings.
-   * Preferences are deep-merged with global ones, with component preferences
-   * taking precedence. Affects this component and all its descendants.
-   */
-  preferences?: Preferences;
 }
 
 /**

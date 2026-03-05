@@ -33,8 +33,8 @@ import {
 import {FC, ReactElement, ReactNode, useState} from 'react';
 import useStyles from './BaseLanguageSwitcher.styles';
 import useTheme from '../../../contexts/Theme/useTheme';
-import ChevronDown from '../../primitives/Icons/ChevronDown';
 import Check from '../../primitives/Icons/Check';
+import ChevronDown from '../../primitives/Icons/ChevronDown';
 
 /**
  * A resolved language option with display name and emoji flag.
@@ -107,7 +107,7 @@ const BaseLanguageSwitcher: FC<BaseLanguageSwitcherProps> = ({
   onLanguageChange,
 }: BaseLanguageSwitcherProps): ReactElement => {
   const {theme, colorScheme} = useTheme();
-  const styles = useStyles(theme, colorScheme);
+  const styles: Record<string, string> = useStyles(theme, colorScheme);
   const [isOpen, setIsOpen] = useState(false);
 
   const {refs, floatingStyles, context} = useFloating({
@@ -117,12 +117,12 @@ const BaseLanguageSwitcher: FC<BaseLanguageSwitcherProps> = ({
     whileElementsMounted: autoUpdate,
   });
 
-  const click = useClick(context);
-  const dismiss = useDismiss(context);
-  const role = useRole(context, {role: 'listbox'});
+  const click: ReturnType<typeof useClick> = useClick(context);
+  const dismiss: ReturnType<typeof useDismiss> = useDismiss(context);
+  const role: ReturnType<typeof useRole> = useRole(context, {role: 'listbox'});
   const {getReferenceProps, getFloatingProps} = useInteractions([click, dismiss, role]);
 
-  const currentOption: LanguageOption | undefined = languages.find(l => l.code === currentLanguage);
+  const currentOption: LanguageOption | undefined = languages.find((l: LanguageOption) => l.code === currentLanguage);
 
   if (children) {
     return (

@@ -105,6 +105,13 @@ export type SignInProps = {
   onSuccess?: (authData: Record<string, any>) => void;
 
   /**
+   * Component-level preferences to override global i18n and theme settings.
+   * Preferences are deep-merged with global ones, with component preferences
+   * taking precedence. Affects this component and all its descendants.
+   */
+  preferences?: Preferences;
+
+  /**
    * Size variant for the component.
    */
   size?: 'small' | 'medium' | 'large';
@@ -113,13 +120,6 @@ export type SignInProps = {
    * Theme variant for the component.
    */
   variant?: BaseSignInProps['variant'];
-
-  /**
-   * Component-level preferences to override global i18n and theme settings.
-   * Preferences are deep-merged with global ones, with component preferences
-   * taking precedence. Affects this component and all its descendants.
-   */
-  preferences?: Preferences;
 };
 
 /**
