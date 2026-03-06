@@ -109,7 +109,7 @@ const BaseLanguageSwitcher: FC<BaseLanguageSwitcherProps> = ({
   const {theme, colorScheme} = useTheme();
   const styles: Record<string, string> = useStyles(theme, colorScheme);
   const [isOpen, setIsOpen] = useState(false);
-  const hasMultipleLanguages = languages.length > 1;
+  const hasMultipleLanguages: boolean = languages.length > 1;
 
   useEffect(() => {
     if (!hasMultipleLanguages && isOpen) {

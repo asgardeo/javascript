@@ -22,7 +22,6 @@ import {
   EmbeddedFlowComponentV2 as EmbeddedFlowComponent,
   EmbeddedFlowComponentTypeV2 as EmbeddedFlowComponentType,
   EmbeddedFlowTextVariantV2 as EmbeddedFlowTextVariant,
-  EmbeddedFlowActionVariantV2 as EmbeddedFlowActionVariant,
   EmbeddedFlowEventTypeV2 as EmbeddedFlowEventType,
   createPackageComponentLogger,
   resolveVars,
@@ -110,6 +109,7 @@ const matchesSocialProvider = (
   buttonText: string,
   provider: string,
   authType: AuthType,
+  _componentVariant?: string,
 ): boolean => {
   const providerId: any = `${provider}_auth`;
   const providerMatches: any = actionId === providerId || eventType === providerId;
@@ -142,8 +142,8 @@ const createAuthComponentFromFlow = (
   authType: AuthType,
   options: {
     buttonClassName?: string;
-    inputClassName?: string;
     inStack?: boolean;
+    inputClassName?: string;
     key?: string | number;
     /** Flow metadata for resolving {{meta(...)}} expressions at render time */
     meta?: FlowMetadataResponse | null;
