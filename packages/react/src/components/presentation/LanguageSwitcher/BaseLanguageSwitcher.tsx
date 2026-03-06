@@ -30,7 +30,7 @@ import {
   useInteractions,
   useRole,
 } from '@floating-ui/react';
-import {FC, ReactElement, ReactNode, useState} from 'react';
+import {FC, ReactElement, ReactNode, useEffect, useState} from 'react';
 import useStyles from './BaseLanguageSwitcher.styles';
 import useTheme from '../../../contexts/Theme/useTheme';
 import Check from '../../primitives/Icons/Check';
@@ -109,6 +109,13 @@ const BaseLanguageSwitcher: FC<BaseLanguageSwitcherProps> = ({
   const {theme, colorScheme} = useTheme();
   const styles: Record<string, string> = useStyles(theme, colorScheme);
   const [isOpen, setIsOpen] = useState(false);
+  const hasMultipleLanguages = languages.length > 1;
+
+  useEffect(() => {
+    if (!hasMultipleLanguages && isOpen) {
+      setIsOpen(false);
+    }
+  }, [hasMultipleLanguages, isOpen]);
 
   const {refs, floatingStyles, context} = useFloating({
     middleware: [offset(4), flip(), shift()],
@@ -117,9 +124,9 @@ const BaseLanguageSwitcher: FC<BaseLanguageSwitcherProps> = ({
     whileElementsMounted: autoUpdate,
   });
 
-  const click: ReturnType<typeof useClick> = useClick(context);
-  const dismiss: ReturnType<typeof useDismiss> = useDismiss(context);
-  const role: ReturnType<typeof useRole> = useRole(context, {role: 'listbox'});
+  const click: ReturnType<typeof useClick> = useClick(context, {enabled: hasMultipleLanguages});
+  const dismiss: ReturnType<typeof useDismiss> = useDismiss(context, {enabled: hasMultipleLanguages});
+  const role: ReturnType<typeof useRole> = useRole(context, {enabled: hasMultipleLanguages, role: 'listbox'});
   const {getReferenceProps, getFloatingProps} = useInteractions([click, dismiss, role]);
 
   const currentOption: LanguageOption | undefined = languages.find((l: LanguageOption) => l.code === currentLanguage);
@@ -149,10 +156,10 @@ const BaseLanguageSwitcher: FC<BaseLanguageSwitcherProps> = ({
       >
         {currentOption && <span className={styles['triggerEmoji']}>{currentOption.emoji}</span>}
         <span className={styles['triggerLabel']}>{currentOption?.displayName ?? currentLanguage}</span>
-        <ChevronDown />
+        {hasMultipleLanguages && <ChevronDown />}
       </button>
 
-      {isOpen && (
+      {isOpen && hasMultipleLanguages && (
         <FloatingPortal>
           <FloatingFocusManager context={context} modal={false}>
             <div
