@@ -92,7 +92,7 @@ const initiateStore = (store: BrowserStorage | undefined): Storage => {
 };
 
 export const WebWorkerClient = async (
-  instanceID: number,
+  instanceId: number,
   config: AuthClientConfig<WebWorkerClientConfig>,
   webWorker: new () => Worker,
   getAuthHelper: (
@@ -114,7 +114,7 @@ export const WebWorkerClient = async (
   const _store: Storage = initiateStore(config.storage as BrowserStorage);
   const _cryptoUtils: SPACryptoUtils = new SPACryptoUtils();
   const _authenticationClient = new AsgardeoAuthClient<WebWorkerClientConfig>();
-  await _authenticationClient.initialize(config, _store, _cryptoUtils, instanceID);
+  await _authenticationClient.initialize(config, _store, _cryptoUtils, instanceId);
   const _spaHelper = new SPAHelper<WebWorkerClientConfig>(_authenticationClient);
 
   const _sessionManagementHelper = await SessionManagementHelper(
@@ -128,7 +128,7 @@ export const WebWorkerClient = async (
 
         return signOutURL;
       } catch {
-        return SPAUtils.getSignOutUrl(config.clientId, instanceID);
+        return SPAUtils.getSignOutUrl(config.clientId, instanceId);
       }
     },
     config.storage as BrowserStorage,
@@ -365,8 +365,9 @@ export const WebWorkerClient = async (
       }
     };
 
-    const message: Message<AuthClientConfig<WebWorkerClientConfig> & {instanceID: number}> = {
-      data: {...config, instanceID},
+    const message: Message<AuthClientConfig<WebWorkerClientConfig>> = {
+      data: config,
+      instanceId,
       type: INIT,
     };
 
@@ -524,7 +525,7 @@ export const WebWorkerClient = async (
 
         return communicate<null, string>(message)
           .then((url: string) => {
-            SPAUtils.setSignOutURL(url, config.clientId, instanceID);
+            SPAUtils.setSignOutURL(url, config.clientId, instanceId);
 
             // Enable OIDC Sessions Management only if it is set to true in the config.
             if (config.syncSession) {
@@ -656,7 +657,7 @@ export const WebWorkerClient = async (
             return reject(error);
           });
       } else {
-        window.location.href = SPAUtils.getSignOutUrl(config.clientId, instanceID);
+        window.location.href = SPAUtils.getSignOutUrl(config.clientId, instanceId);
 
         return SPAUtils.waitTillPageRedirect().then(() => {
           return Promise.resolve(true);

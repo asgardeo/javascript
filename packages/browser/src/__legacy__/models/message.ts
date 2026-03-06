@@ -63,6 +63,7 @@ export interface ResponseMessage<T> {
 export interface Message<T> {
     type: MessageType;
     data?: T;
+    instanceId?: number;
 }
 
 export interface AuthorizationInfo {

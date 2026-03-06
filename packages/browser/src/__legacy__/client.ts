@@ -87,10 +87,10 @@ export class AsgardeoSPAClient {
   protected _onEndUserSession: (response: any) => void = () => null;
   protected _onInitialize: (response: boolean) => void = () => null;
   protected _onCustomGrant: Map<string, (response: any) => void> = new Map();
-  protected _instanceID: number;
+  protected _instanceId: number;
 
   protected constructor(id: number) {
-    this._instanceID = id;
+    this._instanceId = id;
   }
 
   public instantiateAuthHelper(authHelper?: typeof AuthenticationHelper): void {
@@ -309,7 +309,7 @@ export class AsgardeoSPAClient {
    * @preserve
    */
   public getInstanceId(): number {
-    return this._instanceID;
+    return this._instanceId;
   }
 
   /**
@@ -364,7 +364,7 @@ export class AsgardeoSPAClient {
       // Tracker: https://github.com/asgardeo/asgardeo-auth-react-sdk/issues/240
       if (!this._client || (this._client && (!_config || Object.keys(_config)?.length === 0))) {
         this._client = await MainThreadClient(
-          this._instanceID,
+          this._instanceId,
           mergedConfig,
           (authClient: AsgardeoAuthClient<MainThreadClientConfig>, spaHelper: SPAHelper<MainThreadClientConfig>) => {
             return new this._authHelper(authClient, spaHelper);
@@ -399,7 +399,7 @@ export class AsgardeoSPAClient {
       if (!this._client || (this._client && (!_config || Object.keys(_config)?.length === 0))) {
         const webWorkerClientConfig = config as AuthClientConfig<WebWorkerClientConfig>;
         this._client = (await WebWorkerClient(
-          this._instanceID,
+          this._instanceId,
           {
             ...DefaultConfig,
             ...webWorkerClientConfig,
@@ -717,8 +717,6 @@ export class AsgardeoSPAClient {
    */
   public async exchangeToken(config: TokenExchangeRequestConfig): Promise<Response | User | undefined> {
     if (config.signInRequired) {
-      await this._validateMethod();
-    } else {
       await this._validateMethod();
     }
 

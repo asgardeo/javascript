@@ -42,7 +42,7 @@ import {MemoryStore} from '../stores';
 import {SPACryptoUtils} from '../utils/crypto-utils';
 
 export const WebWorkerCore = async (
-  instanceID: number,
+  instanceId: number,
   config: AuthClientConfig<WebWorkerClientConfig>,
   getAuthHelper: (
     authClient: AsgardeoAuthClient<WebWorkerClientConfig>,
@@ -52,7 +52,7 @@ export const WebWorkerCore = async (
   const _store: Storage = new MemoryStore();
   const _cryptoUtils: SPACryptoUtils = new SPACryptoUtils();
   const _authenticationClient = new AsgardeoAuthClient<WebWorkerClientConfig>();
-  await _authenticationClient.initialize(config, _store, _cryptoUtils, instanceID);
+  await _authenticationClient.initialize(config, _store, _cryptoUtils, instanceId);
 
   const _spaHelper = new SPAHelper<WebWorkerClientConfig>(_authenticationClient);
 
@@ -63,7 +63,7 @@ export const WebWorkerCore = async (
 
   const _dataLayer = _authenticationClient.getStorageManager();
 
-  const _httpClient: HttpClientInstance = HttpClient.getInstance(instanceID);
+  const _httpClient: HttpClientInstance = HttpClient.getInstance(instanceId);
 
   const attachToken = async (request: HttpRequestConfig): Promise<void> => {
     await _authenticationHelper.attachTokenToRequestConfig(request);

@@ -84,9 +84,9 @@ export const workerReceiver = (
     switch (data.type) {
       case INIT:
         try {
-          const {instanceID = 0, ...configData} = data.data;
-          const config: AuthClientConfig<WebWorkerClientConfig> = {...configData};
-          webWorker = await WebWorkerCore(instanceID, config, getAuthHelper);
+          const instanceId: number = data.instanceId ?? 0;
+          const config: AuthClientConfig<WebWorkerClientConfig> = {...data.data};
+          webWorker = await WebWorkerCore(instanceId, config, getAuthHelper);
           webWorker.setHttpRequestFinishCallback(onRequestFinishCallback);
           webWorker.setHttpRequestStartCallback(onRequestStartCallback);
           webWorker.setHttpRequestSuccessCallback(onRequestSuccessCallback);
