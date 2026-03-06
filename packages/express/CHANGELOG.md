@@ -1,5 +1,13 @@
 # @asgardeo/express
 
+## 0.0.56
+
+### Patch Changes
+
+- Updated dependencies
+  [[`2771a78`](https://github.com/asgardeo/javascript/commit/2771a7891a8668ff00500e8dd346f7de6bfeafe9)]:
+  - @asgardeo/node@0.0.57
+
 ## 0.0.55
 
 ### Patch Changes

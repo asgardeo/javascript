@@ -1,5 +1,14 @@
 # @asgardeo/javascript
 
+## 0.8.3
+
+### Patch Changes
+
+- [#382](https://github.com/asgardeo/javascript/pull/382)
+  [`2771a78`](https://github.com/asgardeo/javascript/commit/2771a7891a8668ff00500e8dd346f7de6bfeafe9) Thanks
+  [@dileepapeiris](https://github.com/dileepapeiris)! - fix multiple audiences in ID token validation.Change audience
+  parameter from string to array to support tokens with multiple audiences
+
 ## 0.8.2
 
 ### Patch Changes
