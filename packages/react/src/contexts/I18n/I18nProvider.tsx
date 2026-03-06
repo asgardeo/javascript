@@ -17,7 +17,13 @@
  */
 
 import {deepMerge, I18nPreferences, I18nStorageStrategy, createPackageComponentLogger} from '@asgardeo/browser';
-import {I18nBundle, I18nTranslations, getDefaultI18nBundles, normalizeTranslations} from '@asgardeo/i18n';
+import {
+  I18nBundle,
+  I18nTranslations,
+  TranslationBundleConstants,
+  getDefaultI18nBundles,
+  normalizeTranslations,
+} from '@asgardeo/i18n';
 import {FC, PropsWithChildren, ReactElement, useCallback, useEffect, useMemo, useState} from 'react';
 import I18nContext, {I18nContextValue} from './I18nContext';
 
@@ -38,9 +44,10 @@ export interface I18nProviderProps {
 
 const detectBrowserLanguage = (): string => {
   if (typeof window !== 'undefined' && window.navigator) {
-    return window.navigator.language || 'en-US';
+    return window.navigator.language || TranslationBundleConstants.FALLBACK_LOCALE;
   }
-  return 'en-US';
+
+  return TranslationBundleConstants.FALLBACK_LOCALE;
 };
 
 const deriveRootDomain = (hostname: string): string => {
@@ -157,7 +164,7 @@ const I18nProvider: FC<PropsWithChildren<I18nProviderProps>> = ({
     if (storedLanguage) return storedLanguage;
     const browserLanguage: string = detectBrowserLanguage();
     if (browserLanguage) return browserLanguage;
-    return preferences?.fallbackLanguage || 'en-US';
+    return preferences?.fallbackLanguage || TranslationBundleConstants.FALLBACK_LOCALE;
   };
 
   const [currentLanguage, setCurrentLanguage] = useState<string>(determineInitialLanguage);
@@ -238,7 +245,7 @@ const I18nProvider: FC<PropsWithChildren<I18nProviderProps>> = ({
     return merged;
   }, [defaultBundles, injectedBundles, preferences?.bundles]);
 
-  const fallbackLanguage: string = preferences?.fallbackLanguage || 'en-US';
+  const fallbackLanguage: string = preferences?.fallbackLanguage || TranslationBundleConstants.FALLBACK_LOCALE;
 
   // Persist language changes to the configured storage.
   useEffect(() => {

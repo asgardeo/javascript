@@ -27,7 +27,7 @@
  * @param displayLocale - Locale used for the display name language (defaults to "en")
  * @returns Human-readable language name (e.g. "English", "French")
  */
-export default function resolveLocaleDisplayName(locale: string, displayLocale: string = 'en'): string {
+export default function resolveLocaleDisplayName(locale: string, displayLocale: string): string {
   try {
     const displayNames: Intl.DisplayNames = new Intl.DisplayNames([displayLocale], {type: 'language'});
     return displayNames.of(locale) ?? locale;

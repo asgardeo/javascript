@@ -17,7 +17,7 @@
  */
 
 import {FlowMetadataResponse, FlowMetaType, getFlowMetaV2} from '@asgardeo/browser';
-import {I18nBundle} from '@asgardeo/i18n';
+import {I18nBundle, TranslationBundleConstants} from '@asgardeo/i18n';
 import {
   FC,
   PropsWithChildren,
@@ -166,7 +166,7 @@ const FlowMetaProvider: FC<PropsWithChildren<FlowMetaProviderProps>> = ({
       return;
     }
 
-    const metaLanguage: string = meta.i18n.language || 'en';
+    const metaLanguage: string = meta.i18n.language || TranslationBundleConstants.FALLBACK_LOCALE;
 
     // Flatten namespace-keyed translations to dot-path keys:
     // { "signin": { "heading": "Sign In" } } → { "signin.heading": "Sign In" }
