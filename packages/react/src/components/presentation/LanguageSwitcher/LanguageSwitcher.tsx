@@ -96,10 +96,11 @@ const LanguageSwitcher: FC<LanguageSwitcherProps> = ({children, className}: Lang
     () =>
       effectiveLanguageCodes.map((code: string) => ({
         code,
-        displayName: resolveLocaleDisplayName(code, currentLanguage) || code,
+        // Resolve each label in its own locale so option names stay stable across UI language switches.
+        displayName: resolveLocaleDisplayName(code, code) || code,
         emoji: resolveLocaleEmoji(code),
       })),
-    [effectiveLanguageCodes, currentLanguage],
+    [effectiveLanguageCodes],
   );
 
   const handleLanguageChange = (language: string): void => {
