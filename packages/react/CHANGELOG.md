@@ -1,5 +1,13 @@
 # @asgardeo/react
 
+## 0.13.4
+
+### Patch Changes
+
+- Updated dependencies
+  [[`2771a78`](https://github.com/asgardeo/javascript/commit/2771a7891a8668ff00500e8dd346f7de6bfeafe9)]:
+  - @asgardeo/browser@0.4.3
+
 ## 0.13.3
 
 ### Patch Changes
