@@ -16,14 +16,14 @@
  * under the License.
  */
 
-import {FlowMetadataResponse} from '@asgardeo/browser';
+import {FlowMetadataResponse, Preferences} from '@asgardeo/browser';
 import {cx} from '@emotion/css';
 import {FC, ReactElement, ReactNode, useCallback, useEffect, useRef, useState} from 'react';
 import useStyles from './BaseAcceptInvite.styles';
 import useAsgardeo from '../../../../../contexts/Asgardeo/useAsgardeo';
 import useTheme from '../../../../../contexts/Theme/useTheme';
-import {useOAuthCallback} from '../../../../../hooks/v2/useOAuthCallback';
 import useTranslation from '../../../../../hooks/useTranslation';
+import {useOAuthCallback} from '../../../../../hooks/v2/useOAuthCallback';
 import {initiateOAuthRedirect} from '../../../../../utils/oauth';
 import {normalizeFlowResponse, extractErrorMessage} from '../../../../../utils/v2/flowTransformer';
 import AlertPrimitive from '../../../../primitives/Alert/Alert';
@@ -209,6 +209,13 @@ export interface BaseAcceptInviteProps {
   onSubmit: (payload: Record<string, any>) => Promise<AcceptInviteFlowResponse>;
 
   /**
+   * Component-level preferences to override global i18n and theme settings.
+   * Preferences are deep-merged with global ones, with component preferences
+   * taking precedence. Affects this component and all its descendants.
+   */
+  preferences?: Preferences;
+
+  /**
    * Whether to show the subtitle.
    */
   showSubtitle?: boolean;
@@ -254,13 +261,14 @@ const BaseAcceptInvite: FC<BaseAcceptInviteProps> = ({
   onGoToSignIn,
   className = '',
   children,
+  preferences,
   size = 'medium',
   variant = 'outlined',
   showTitle = true,
   showSubtitle = true,
 }: BaseAcceptInviteProps): ReactElement => {
   const {meta} = useAsgardeo();
-  const {t} = useTranslation();
+  const {t} = useTranslation(preferences?.i18n);
   const {theme} = useTheme();
   const styles: any = useStyles(theme, theme.vars.colors.text.primary);
   const [isLoading, setIsLoading] = useState(false);
@@ -307,10 +315,15 @@ const BaseAcceptInvite: FC<BaseAcceptInviteProps> = ({
       }
 
       try {
-        const {components} = normalizeFlowResponse(response, t, {
-          defaultErrorKey: 'components.acceptInvite.errors.generic',
-          resolveTranslations: !children,
-        });
+        const {components} = normalizeFlowResponse(
+          response,
+          t,
+          {
+            defaultErrorKey: 'components.acceptInvite.errors.generic',
+            resolveTranslations: false,
+          },
+          meta,
+        );
 
         return {
           ...response,

@@ -31,6 +31,7 @@ const useStyles = (theme: Theme, colorScheme: string): Record<string, string> =>
     const signIn: string = css`
       min-width: 420px;
       margin: 0 auto;
+      font-family: ${theme.vars.typography.fontFamily};
     `;
 
     const card: string = css`
@@ -185,6 +186,7 @@ const useStyles = (theme: Theme, colorScheme: string): Record<string, string> =>
     theme.vars.colors.text.secondary,
     theme.vars.borderRadius.large,
     theme.vars.spacing.unit,
+    theme.vars.typography.fontFamily,
     colorScheme,
   ]);
 

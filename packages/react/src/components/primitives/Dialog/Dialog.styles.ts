@@ -40,6 +40,7 @@ const useStyles = (theme: Theme, colorScheme: string): Record<string, string> =>
       background: ${theme.vars.colors.background.surface};
       border-radius: ${theme.vars.borderRadius.large};
       box-shadow: 0 2px 8px ${colorScheme === 'dark' ? 'rgba(0, 0, 0, 0.3)' : 'rgba(0, 0, 0, 0.15)'};
+      font-family: ${theme.vars.typography.fontFamily};
       outline: none;
       overflow-y: auto;
       z-index: 10000;

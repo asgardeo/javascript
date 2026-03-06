@@ -85,7 +85,7 @@ export interface Crypto<T = any> {
    *
    * @returns Hashed data.
    */
-  hashSha256(data: string): T;
+  hashSha256(data: string): T | Promise<T>;
 
   /**
    * Verify the provided JWT.

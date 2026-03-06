@@ -47,6 +47,7 @@ const useStyles = (
       color: ${backgroundColor ? '#ffffff' : theme.vars.colors.text.primary};
       display: flex;
       font-size: ${size * 0.4}px;
+      font-family: ${theme.vars.typography.fontFamily};
       font-weight: 600;
       height: ${size}px;
       justify-content: center;

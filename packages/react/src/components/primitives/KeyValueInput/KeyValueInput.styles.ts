@@ -40,6 +40,7 @@ const useStyles = (
     const container: string = css`
       display: flex;
       flex-direction: column;
+      font-family: ${theme.vars.typography.fontFamily};
       gap: calc(${theme.vars.spacing.unit} / 2);
     `;
 

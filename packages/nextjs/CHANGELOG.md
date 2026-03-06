@@ -1,5 +1,64 @@
 # @asgardeo/nextjs
 
+## 0.1.84
+
+### Patch Changes
+
+- Updated dependencies
+  [[`48bfa67`](https://github.com/asgardeo/javascript/commit/48bfa67229535e95a29a704f547bfddbb53b2abe)]:
+  - @asgardeo/react@0.14.0
+  - @asgardeo/node@0.0.58
+
+## 0.1.83
+
+### Patch Changes
+
+- Updated dependencies
+  [[`2771a78`](https://github.com/asgardeo/javascript/commit/2771a7891a8668ff00500e8dd346f7de6bfeafe9)]:
+  - @asgardeo/node@0.0.57
+  - @asgardeo/react@0.13.4
+
+## 0.1.82
+
+### Patch Changes
+
+- Updated dependencies
+  [[`dcf6ddf`](https://github.com/asgardeo/javascript/commit/dcf6ddf5bb168bf19eb65c8792e896dcc905d5cd)]:
+  - @asgardeo/react@0.13.3
+  - @asgardeo/node@0.0.56
+
+## 0.1.81
+
+### Patch Changes
+
+- [#379](https://github.com/asgardeo/javascript/pull/379)
+  [`a8dee26`](https://github.com/asgardeo/javascript/commit/a8dee265acced95ce469a0426c6c193ccd607a19) Thanks
+  [@lashinijay](https://github.com/lashinijay)! - Introduce Agent token related functions
+
+- Updated dependencies
+  [[`a8dee26`](https://github.com/asgardeo/javascript/commit/a8dee265acced95ce469a0426c6c193ccd607a19),
+  [`fbdd49b`](https://github.com/asgardeo/javascript/commit/fbdd49b0197058ddf436176decb76bcfd848b685)]:
+  - @asgardeo/react@0.13.2
+  - @asgardeo/node@0.0.55
+
+## 0.1.80
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @asgardeo/react@0.13.1
+
+## 0.1.79
+
+### Patch Changes
+
+- Updated dependencies
+  [[`cf6f059`](https://github.com/asgardeo/javascript/commit/cf6f05980cef488fd79de64f2667ce39cb0c30b8),
+  [`ee7d5f0`](https://github.com/asgardeo/javascript/commit/ee7d5f0f5040c1147f515f5b29936feac857c2fe),
+  [`90b5d89`](https://github.com/asgardeo/javascript/commit/90b5d8987ba4dc62d347923f720c8e5e30f783f5)]:
+  - @asgardeo/react@0.13.0
+  - @asgardeo/node@0.0.54
+
 ## 0.1.78
 
 ### Patch Changes

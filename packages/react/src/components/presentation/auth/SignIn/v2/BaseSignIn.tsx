@@ -21,12 +21,15 @@ import {
   EmbeddedSignInFlowRequestV2 as EmbeddedSignInFlowRequest,
   EmbeddedFlowComponentV2 as EmbeddedFlowComponent,
   FlowMetadataResponse,
+  Preferences,
+  resolveVars,
 } from '@asgardeo/browser';
 import {cx} from '@emotion/css';
 import {FC, useState, useCallback, ReactElement, ReactNode} from 'react';
 import useAsgardeo from '../../../../../contexts/Asgardeo/useAsgardeo';
 import FlowProvider from '../../../../../contexts/Flow/FlowProvider';
 import useFlow from '../../../../../contexts/Flow/useFlow';
+import ComponentPreferencesContext from '../../../../../contexts/I18n/ComponentPreferencesContext';
 import useTheme from '../../../../../contexts/Theme/useTheme';
 import {FormField, useForm} from '../../../../../hooks/useForm';
 import useTranslation from '../../../../../hooks/useTranslation';
@@ -183,6 +186,13 @@ export interface BaseSignInProps {
    * @param authData - The authentication data returned upon successful completion.
    */
   onSuccess?: (authData: Record<string, any>) => void;
+
+  /**
+   * Component-level preferences to override global i18n and theme settings.
+   * Preferences are deep-merged with global ones, with component preferences
+   * taking precedence. Affects this component and all its descendants.
+   */
+  preferences?: Preferences;
 
   /**
    * Whether to show the logo.
@@ -447,9 +457,11 @@ const BaseSignInContent: FC<BaseSignInProps> = ({
         {
           buttonClassName: buttonClasses,
           inputClassName: inputClasses,
+          meta,
           onInputBlur: handleInputBlur,
           onSubmit: handleSubmit,
           size,
+          t,
           variant,
         },
       ),
@@ -458,6 +470,8 @@ const BaseSignInContent: FC<BaseSignInProps> = ({
       touchedFields,
       formErrors,
       isFormValid,
+      meta,
+      t,
       isLoading,
       size,
       variant,
@@ -480,7 +494,7 @@ const BaseSignInContent: FC<BaseSignInProps> = ({
       isValid: isFormValid,
       messages: flowMessages || [],
       meta,
-      subtitle: flowSubtitle || t('signin.subheading'),
+      subtitle: flowSubtitle,
       title: flowTitle || t('signin.heading'),
       touched: touchedFields,
       validateForm: () => {
@@ -523,13 +537,14 @@ const BaseSignInContent: FC<BaseSignInProps> = ({
   }
 
   // Extract heading and subheading components and filter them from the main components
-  const {title, subtitle, componentsWithoutHeadings} = getAuthComponentHeadings(
-    components as any,
-    flowTitle,
-    flowSubtitle,
-    t('signin.heading'),
-    t('signin.subheading'),
-  );
+  const {
+    title: rawTitle,
+    subtitle: rawSubtitle,
+    componentsWithoutHeadings,
+  } = getAuthComponentHeadings(components as any, flowTitle, flowSubtitle, undefined, undefined);
+  // Resolve any remaining {{meta()}} or {{t()}} expressions in the title/subtitle at render time
+  const title: string = resolveVars(rawTitle, {meta, t});
+  const subtitle: string = resolveVars(rawSubtitle, {meta, t});
 
   return (
     <CardPrimitive className={cx(containerClasses, styles.card)} data-testid="asgardeo-signin" variant={variant}>
@@ -625,11 +640,11 @@ const BaseSignInContent: FC<BaseSignInProps> = ({
  * </BaseSignIn>
  * ```
  */
-const BaseSignIn: FC<BaseSignInProps> = ({showLogo = true, ...rest}: BaseSignInProps): ReactElement => {
+const BaseSignIn: FC<BaseSignInProps> = ({preferences, showLogo = true, ...rest}: BaseSignInProps): ReactElement => {
   const {theme} = useTheme();
   const styles: any = useStyles(theme, theme.vars.colors.text.primary);
 
-  return (
+  const content: ReactElement = (
     <div>
       {showLogo && (
         <div className={styles.logoContainer}>
@@ -641,6 +656,10 @@ const BaseSignIn: FC<BaseSignInProps> = ({showLogo = true, ...rest}: BaseSignInP
       </FlowProvider>
     </div>
   );
+
+  if (!preferences) return content;
+
+  return <ComponentPreferencesContext.Provider value={preferences}>{content}</ComponentPreferencesContext.Provider>;
 };
 
 export default BaseSignIn;

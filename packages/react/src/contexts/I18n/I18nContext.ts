@@ -36,6 +36,12 @@ export interface I18nContextValue {
   fallbackLanguage: string;
 
   /**
+   * Injects additional bundles into the i18n system (e.g., from flow metadata).
+   * Injected bundles take precedence over defaults but are overridden by prop-provided bundles.
+   */
+  injectBundles: (bundles: Record<string, I18nBundle>) => void;
+
+  /**
    * Function to change the current language
    */
   setLanguage: (language: string) => void;

@@ -179,7 +179,7 @@ class AsgardeoReactClient<T extends AsgardeoReactConfig = AsgardeoReactConfig> e
     return this.withLoading(async () => this.asgardeo.getIdToken());
   }
 
-  async getUserProfile(options?: any): Promise<UserProfile> {
+  override async getUserProfile(options?: any): Promise<UserProfile> {
     return this.withLoading(async () => {
       try {
         let baseUrl: string = options?.baseUrl;
@@ -276,6 +276,9 @@ class AsgardeoReactClient<T extends AsgardeoReactConfig = AsgardeoReactConfig> e
   override async switchOrganization(organization: Organization): Promise<TokenResponse | Response> {
     return this.withLoading(async () => {
       try {
+        const configData: any = await this.asgardeo.getConfigData();
+        const sourceInstanceId: number | undefined = configData?.organizationChain?.sourceInstanceId;
+
         if (!organization.id) {
           throw new AsgardeoRuntimeError(
             'Organization ID is required for switching organizations',
@@ -296,7 +299,7 @@ class AsgardeoReactClient<T extends AsgardeoReactConfig = AsgardeoReactConfig> e
           },
           id: 'organization-switch',
           returnsSession: true,
-          signInRequired: true,
+          signInRequired: sourceInstanceId === undefined,
         };
 
         return (await this.asgardeo.exchangeToken(exchangeConfig, () => {})) as TokenResponse | Response;
@@ -456,6 +459,13 @@ class AsgardeoReactClient<T extends AsgardeoReactConfig = AsgardeoReactConfig> e
     // Tracker: https://github.com/asgardeo/javascript/issues/212#issuecomment-3435713699
     if (config.platform === Platform.AsgardeoV2) {
       this.asgardeo.clearSession();
+
+      if (config.signInUrl) {
+        navigate(config.signInUrl);
+      } else {
+        this.signIn(config.signInOptions);
+      }
+
       args[1]?.(config.afterSignOutUrl || '');
 
       return Promise.resolve(config.afterSignOutUrl || '');

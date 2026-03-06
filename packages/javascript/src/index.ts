@@ -143,12 +143,15 @@ export {
   Preferences,
   ThemePreferences,
   I18nPreferences,
+  I18nStorageStrategy,
   WithPreferences,
   SignInOptions,
   SignOutOptions,
   SignUpOptions,
 } from './models/config';
 export {TokenResponse, IdToken, TokenExchangeRequestConfig} from './models/token';
+export {AgentConfig} from './models/agent';
+export {AuthCodeResponse} from './models/auth-code-response';
 export {Crypto, JWKInterface} from './models/crypto';
 export {OAuthResponseMode} from './models/oauth-response';
 export {
@@ -161,6 +164,8 @@ export {Storage, TemporaryStore} from './models/store';
 export {User, UserProfile} from './models/user';
 export {SessionData} from './models/session';
 export {Organization} from './models/organization';
+export {TranslationFn} from './models/v2/translation';
+export {ResolveVarsOptions} from './models/v2/vars';
 export {
   BrandingPreference,
   BrandingPreferenceConfig,
@@ -204,6 +209,11 @@ export {default as get} from './utils/get';
 export {default as removeTrailingSlash} from './utils/removeTrailingSlash';
 export {default as resolveFieldType} from './utils/resolveFieldType';
 export {default as resolveFieldName} from './utils/resolveFieldName';
+export {default as resolveMeta} from './utils/v2/resolveMeta';
+export {default as resolveVars} from './utils/v2/resolveVars';
+export {default as countryCodeToFlagEmoji} from './utils/v2/countryCodeToFlagEmoji';
+export {default as resolveLocaleDisplayName} from './utils/v2/resolveLocaleDisplayName';
+export {default as resolveLocaleEmoji} from './utils/v2/resolveLocaleEmoji';
 export {default as processOpenIDScopes} from './utils/processOpenIDScopes';
 export {default as withVendorCSSClassPrefix} from './utils/withVendorCSSClassPrefix';
 export {default as transformBrandingPreferenceToTheme} from './utils/transformBrandingPreferenceToTheme';

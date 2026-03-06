@@ -28,14 +28,14 @@ const ImageComponent: FC<AdapterProps> = ({component}: AdapterProps) => {
   const config: Record<string, unknown> = component.config || {};
   const src: string = (config['src'] as string) || '';
   const alt: string = (config['alt'] as string) || (config['label'] as string) || 'Image';
+  const width: string = (config['width'] as string) || '100%';
+  const height: string = (config['height'] as string) || 'auto';
   const variant: string = (component.variant?.toLowerCase() as string) || 'image_block';
 
   const imageStyle: CSSProperties = {
     borderRadius: theme.vars.borderRadius.small,
     display: 'block',
-    height: 'auto',
     margin: variant === 'image_block' ? '1rem auto' : '0',
-    maxWidth: '100%',
   };
 
   if (!src) {
@@ -47,6 +47,8 @@ const ImageComponent: FC<AdapterProps> = ({component}: AdapterProps) => {
       <img
         src={src}
         alt={alt}
+        height={height}
+        width={width}
         style={imageStyle}
         onError={(e: SyntheticEvent<HTMLImageElement>): void => {
           // Hide broken images

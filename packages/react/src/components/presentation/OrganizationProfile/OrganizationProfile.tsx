@@ -144,10 +144,11 @@ const OrganizationProfile: FC<OrganizationProfileProps> = ({
   popupTitle,
   loadingFallback,
   errorFallback,
+  preferences,
   ...rest
 }: OrganizationProfileProps): ReactElement => {
   const {baseUrl, instanceId} = useAsgardeo();
-  const {t} = useTranslation();
+  const {t} = useTranslation(preferences?.i18n);
   const [organization, setOrganization] = useState<OrganizationDetails | null>(null);
 
   const fetchOrganization = async (): Promise<void> => {
@@ -206,6 +207,7 @@ const OrganizationProfile: FC<OrganizationProfileProps> = ({
       open={open}
       onOpenChange={onOpenChange}
       title={popupTitle || t('organization.profile.heading')}
+      preferences={preferences}
       {...rest}
     />
   );

@@ -31,6 +31,7 @@ const useStyles = (theme: Theme, colorScheme: string): Record<string, string> =>
     const cssOrganizationListWrapper: string = css`
       /* Container wrapper styles for OrganizationList component */
       width: 100%;
+      font-family: ${theme.vars.typography.fontFamily};
 
       &__container {
         position: relative;

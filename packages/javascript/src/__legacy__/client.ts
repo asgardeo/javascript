@@ -32,6 +32,7 @@ import {Storage, TemporaryStore} from '../models/store';
 import {TokenResponse, IdToken, TokenExchangeRequestConfig} from '../models/token';
 import {User} from '../models/user';
 import StorageManager from '../StorageManager';
+import deepMerge from '../utils/deepMerge';
 import extractPkceStorageKeyFromState from '../utils/extractPkceStorageKeyFromState';
 import generatePkceStorageKey from '../utils/generatePkceStorageKey';
 import getAuthorizeRequestUrlParams from '../utils/getAuthorizeRequestUrlParams';
@@ -242,7 +243,7 @@ export class AsgardeoAuthClient<T> {
 
       if (configData.enablePKCE) {
         codeVerifier = this.cryptoHelper?.getCodeVerifier();
-        codeChallenge = this.cryptoHelper?.getCodeChallenge(codeVerifier);
+        codeChallenge = await this.cryptoHelper?.getCodeChallenge(codeVerifier);
         await this.storageManager.setTemporaryDataParameter(pkceKey, codeVerifier, userId);
       }
 
@@ -317,97 +318,93 @@ export class AsgardeoAuthClient<T> {
       params: Record<string, unknown>;
     },
   ): Promise<TokenResponse> {
-    const performTokenRequest = async (): Promise<TokenResponse> => {
-      const tokenEndpoint: string | undefined = (await this.oidcProviderMetaDataProvider()).token_endpoint;
-      const configData: StrictAuthClientConfig = await this.configProvider();
-
-      if (!tokenEndpoint || tokenEndpoint.trim().length === 0) {
-        throw new AsgardeoAuthException(
-          'JS-AUTH_CORE-RAT1-NF01',
-          'Token endpoint not found.',
-          'No token endpoint was found in the OIDC provider meta data returned by the well-known endpoint ' +
-            'or the token endpoint passed to the SDK is empty.',
-        );
-      }
-
-      if (sessionState) {
-        await this.storageManager.setSessionDataParameter(
-          OIDCRequestConstants.Params.SESSION_STATE as keyof SessionData,
-          sessionState,
-          userId,
-        );
-      }
-
-      const body: URLSearchParams = new URLSearchParams();
-
-      body.set('client_id', configData.clientId);
-
-      if (configData.clientSecret && configData.clientSecret.trim().length > 0) {
-        body.set('client_secret', configData.clientSecret);
-      }
-
-      const code: string = authorizationCode;
-
-      body.set('code', code);
-
-      body.set('grant_type', 'authorization_code');
-      body.set('redirect_uri', configData.afterSignInUrl);
-
-      if (tokenRequestConfig?.params) {
-        Object.entries(tokenRequestConfig.params).forEach(([key, value]: [key: string, value: unknown]) => {
-          body.append(key, value as string);
-        });
-      }
-
-      if (configData.enablePKCE) {
-        body.set(
-          'code_verifier',
-          `${await this.storageManager.getTemporaryDataParameter(extractPkceStorageKeyFromState(state), userId)}`,
-        );
-
-        await this.storageManager.removeTemporaryDataParameter(extractPkceStorageKeyFromState(state), userId);
-      }
-
-      let tokenResponse: Response;
-
-      try {
-        tokenResponse = await fetch(tokenEndpoint, {
-          body,
-          credentials: configData.sendCookiesInRequests ? 'include' : 'same-origin',
-          headers: {
-            Accept: 'application/json',
-            'Content-Type': 'application/x-www-form-urlencoded',
-          },
-          method: 'POST',
-        });
-      } catch (error: any) {
-        throw new AsgardeoAuthException(
-          'JS-AUTH_CORE-RAT1-NE02',
-          'Requesting access token failed',
-          error ?? 'The request to get the access token from the server failed.',
-        );
-      }
-
-      if (!tokenResponse.ok) {
-        throw new AsgardeoAuthException(
-          'JS-AUTH_CORE-RAT1-HE03',
-          `Requesting access token failed with ${tokenResponse.statusText}`,
-          (await tokenResponse.json()) as string,
-        );
-      }
-
-      return this.authHelper.handleTokenResponse(tokenResponse, userId);
-    };
-
     if (
-      await this.storageManager.getTemporaryDataParameter(
+      !(await this.storageManager.getTemporaryDataParameter(
         OIDCDiscoveryConstants.Storage.StorageKeys.OPENID_PROVIDER_CONFIG_INITIATED,
-      )
+      ))
     ) {
-      return performTokenRequest();
+      await this.loadOpenIDProviderConfiguration(false);
     }
 
-    return this.loadOpenIDProviderConfiguration(false).then(() => performTokenRequest());
+    const tokenEndpoint: string | undefined = (await this.oidcProviderMetaDataProvider()).token_endpoint;
+    const configData: StrictAuthClientConfig = await this.configProvider();
+
+    if (!tokenEndpoint || tokenEndpoint.trim().length === 0) {
+      throw new AsgardeoAuthException(
+        'JS-AUTH_CORE-RAT1-NF01',
+        'Token endpoint not found.',
+        'No token endpoint was found in the OIDC provider meta data returned by the well-known endpoint ' +
+          'or the token endpoint passed to the SDK is empty.',
+      );
+    }
+
+    if (sessionState) {
+      await this.storageManager.setSessionDataParameter(
+        OIDCRequestConstants.Params.SESSION_STATE as keyof SessionData,
+        sessionState,
+        userId,
+      );
+    }
+
+    const body: URLSearchParams = new URLSearchParams();
+
+    body.set('client_id', configData.clientId);
+
+    if (configData.clientSecret && configData.clientSecret.trim().length > 0) {
+      body.set('client_secret', configData.clientSecret);
+    }
+
+    const code: string = authorizationCode;
+
+    body.set('code', code);
+
+    body.set('grant_type', 'authorization_code');
+    body.set('redirect_uri', configData.afterSignInUrl);
+
+    if (tokenRequestConfig?.params) {
+      Object.entries(tokenRequestConfig.params).forEach(([key, value]: [key: string, value: unknown]) => {
+        body.append(key, value as string);
+      });
+    }
+
+    if (configData.enablePKCE) {
+      body.set(
+        'code_verifier',
+        `${await this.storageManager.getTemporaryDataParameter(extractPkceStorageKeyFromState(state), userId)}`,
+      );
+
+      await this.storageManager.removeTemporaryDataParameter(extractPkceStorageKeyFromState(state), userId);
+    }
+
+    let tokenResponse: Response;
+
+    try {
+      tokenResponse = await fetch(tokenEndpoint, {
+        body,
+        credentials: configData.sendCookiesInRequests ? 'include' : 'same-origin',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        method: 'POST',
+      });
+    } catch (error: any) {
+      throw new AsgardeoAuthException(
+        'JS-AUTH_CORE-RAT1-NE02',
+        'Requesting access token failed',
+        error ?? 'The request to get the access token from the server failed.',
+      );
+    }
+
+    if (!tokenResponse.ok) {
+      throw new AsgardeoAuthException(
+        'JS-AUTH_CORE-RAT1-HE03',
+        `Requesting access token failed with ${tokenResponse.statusText}`,
+        (await tokenResponse.json()) as string,
+      );
+    }
+
+    return this.authHelper.handleTokenResponse(tokenResponse, userId);
   }
 
   public async loadOpenIDProviderConfiguration(forceInit: boolean): Promise<void> {
@@ -914,6 +911,14 @@ export class AsgardeoAuthClient<T> {
    * @preserve
    */
   public async exchangeToken(config: TokenExchangeRequestConfig, userId?: string): Promise<TokenResponse | Response> {
+    if (
+      !(await this.storageManager.getTemporaryDataParameter(
+        OIDCDiscoveryConstants.Storage.StorageKeys.OPENID_PROVIDER_CONFIG_INITIATED,
+      ))
+    ) {
+      await this.loadOpenIDProviderConfiguration(false);
+    }
+
     const oidcProviderMetadata: OIDCDiscoveryApiResponse = await this.oidcProviderMetaDataProvider();
     const configData: StrictAuthClientConfig = await this.configProvider();
 
@@ -1138,7 +1143,10 @@ export class AsgardeoAuthClient<T> {
    * @preserve
    */
   public async reInitialize(config: Partial<AuthClientConfig<T>>): Promise<void> {
-    await this.storageManager.setConfigData(config);
+    const currentConfig: AuthClientConfig<T> = this.storageManager.getConfigData() as unknown as AuthClientConfig<T>;
+    const newConfig: AuthClientConfig<T> = deepMerge(currentConfig, config);
+
+    await this.storageManager.setConfigData(newConfig);
     await this.loadOpenIDProviderConfiguration(true);
   }
 

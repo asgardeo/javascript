@@ -44,10 +44,41 @@ export async function getThunderAppClientId(): Promise<{clientId: string; applic
     console.warn('[E2E] Could not retrieve Thunder application ID from database');
   }
 
-  // Patch the pre-configured app's OAuth config to add the callback URL
-  // to redirect_uris (bootstrap only has / and /dashboard).
+  // Patch the pre-configured app to ensure:
+  // 1. allowed_user_types includes "Person" (admin user is Person type)
+  // 2. The callback URL is in redirect_uris
+  // 3. The token issuer matches the OIDC discovery issuer
+  try {
+    const appJson = thunderSqlite(
+      `SELECT APP_JSON FROM APPLICATION WHERE APP_NAME='React SDK Sample'`,
+    );
+
+    if (appJson) {
+      const appConfig = JSON.parse(appJson);
+      const userTypes: string[] = appConfig.allowed_user_types || [];
+
+      if (!userTypes.includes('Person')) {
+        userTypes.push('Person');
+        appConfig.allowed_user_types = userTypes;
+        const updatedAppJson = JSON.stringify(appConfig);
+
+        execSync(
+          `docker exec -i ${CONTAINER} sh -c 'cat > /tmp/app_config.json'`,
+          {input: updatedAppJson, encoding: 'utf-8'},
+        );
+        thunderSqlite(
+          `UPDATE APPLICATION SET APP_JSON=readfile('/tmp/app_config.json') WHERE APP_NAME='React SDK Sample'`,
+        );
+        console.log(`[E2E] Thunder app config updated (allowed_user_types includes Person)`);
+      }
+    }
+  } catch (err) {
+    console.warn('[E2E] Could not update Thunder app config:', err);
+  }
+
   const sampleApp = getSampleApp();
   const callbackUrl = `${sampleApp.url}${sampleApp.afterSignInPath}`;
+  const correctIssuer = THUNDER_CONFIG.baseUrl;
 
   try {
     const configJson = thunderSqlite(
@@ -67,6 +98,12 @@ export async function getThunderAppClientId(): Promise<{clientId: string; applic
         needsUpdate = true;
       }
 
+      // Fix token issuer to match OIDC discovery (required for ID token validation)
+      if (config.token?.issuer !== correctIssuer) {
+        config.token.issuer = correctIssuer;
+        needsUpdate = true;
+      }
+
       if (needsUpdate) {
         const updatedJson = JSON.stringify(config);
 
@@ -79,7 +116,7 @@ export async function getThunderAppClientId(): Promise<{clientId: string; applic
         thunderSqlite(
           `UPDATE APP_OAUTH_INBOUND_CONFIG SET OAUTH_CONFIG_JSON=readfile('/tmp/oauth_config.json') WHERE CLIENT_ID='${clientId}'`,
         );
-        console.log(`[E2E] Thunder app OAuth config updated (redirect_uris)`);
+        console.log(`[E2E] Thunder app OAuth config updated (redirect_uris, token issuer)`);
       }
     }
   } catch (err) {

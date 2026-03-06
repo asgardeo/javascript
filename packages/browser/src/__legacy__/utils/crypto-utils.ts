@@ -57,7 +57,7 @@ export class SPACryptoUtils implements Crypto<Buffer | string> {
   ): Promise<boolean> {
     const jwtVerifyOptions = {
       algorithms: algorithms,
-      audience: clientId,
+      audience: [clientId],
       clockTolerance: clockTolerance,
       subject: subject,
     };

@@ -85,6 +85,7 @@ const useStyles = (
 
     const dividerText: string = css`
       background-color: ${theme.vars.colors.background.surface};
+      font-family: ${theme.vars.typography.fontFamily};
       padding: 0 calc(${theme.vars.spacing.unit} * 1);
       white-space: nowrap;
     `;

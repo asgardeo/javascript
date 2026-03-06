@@ -1,5 +1,51 @@
 # @asgardeo/node
 
+## 0.0.58
+
+### Patch Changes
+
+- Updated dependencies
+  [[`48bfa67`](https://github.com/asgardeo/javascript/commit/48bfa67229535e95a29a704f547bfddbb53b2abe)]:
+  - @asgardeo/javascript@0.9.0
+
+## 0.0.57
+
+### Patch Changes
+
+- [#382](https://github.com/asgardeo/javascript/pull/382)
+  [`2771a78`](https://github.com/asgardeo/javascript/commit/2771a7891a8668ff00500e8dd346f7de6bfeafe9) Thanks
+  [@dileepapeiris](https://github.com/dileepapeiris)! - fix multiple audiences in ID token validation.Change audience
+  parameter from string to array to support tokens with multiple audiences
+- Updated dependencies
+  [[`2771a78`](https://github.com/asgardeo/javascript/commit/2771a7891a8668ff00500e8dd346f7de6bfeafe9)]:
+  - @asgardeo/javascript@0.8.3
+
+## 0.0.56
+
+### Patch Changes
+
+- Updated dependencies
+  [[`dcf6ddf`](https://github.com/asgardeo/javascript/commit/dcf6ddf5bb168bf19eb65c8792e896dcc905d5cd)]:
+  - @asgardeo/javascript@0.8.2
+
+## 0.0.55
+
+### Patch Changes
+
+- Updated dependencies
+  [[`a8dee26`](https://github.com/asgardeo/javascript/commit/a8dee265acced95ce469a0426c6c193ccd607a19),
+  [`fbdd49b`](https://github.com/asgardeo/javascript/commit/fbdd49b0197058ddf436176decb76bcfd848b685)]:
+  - @asgardeo/javascript@0.8.1
+
+## 0.0.54
+
+### Patch Changes
+
+- Updated dependencies
+  [[`cf6f059`](https://github.com/asgardeo/javascript/commit/cf6f05980cef488fd79de64f2667ce39cb0c30b8),
+  [`90b5d89`](https://github.com/asgardeo/javascript/commit/90b5d8987ba4dc62d347923f720c8e5e30f783f5)]:
+  - @asgardeo/javascript@0.8.0
+
 ## 0.0.53
 
 ### Patch Changes

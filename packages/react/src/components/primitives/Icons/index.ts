@@ -16,6 +16,7 @@
  * under the License.
  */
 
+export {default as ArrowLeftRight} from './ArrowLeftRight';
 export {default as CircleAlert} from './CircleAlert';
 export {default as CircleCheck} from './CircleCheck';
 export {default as Eye} from './Eye';

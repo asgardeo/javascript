@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import {OrganizationDetails, formatDate} from '@asgardeo/browser';
+import {OrganizationDetails, formatDate, Preferences} from '@asgardeo/browser';
 import {cx} from '@emotion/css';
 import {FC, ReactElement, ReactNode, useState, useCallback} from 'react';
 import useStyles from './BaseOrganizationProfile.styles';
@@ -98,6 +98,13 @@ export interface BaseOrganizationProfileProps {
    * The organization details to display.
    */
   organization?: OrganizationDetails | null;
+
+  /**
+   * Component-level preferences to override global i18n and theme settings.
+   * Preferences are deep-merged with global ones, with component preferences
+   * taking precedence. Affects this component and all its descendants.
+   */
+  preferences?: Preferences;
 
   /**
    * Text for the save button (only used in editable mode).

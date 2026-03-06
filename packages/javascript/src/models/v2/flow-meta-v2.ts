@@ -165,7 +165,7 @@ export interface FlowMetaThemeColors {
  */
 export interface FlowMetaThemeColorScheme {
   /** All colors defined for this color scheme (light or dark) */
-  colors: FlowMetaThemeColors;
+  palette: FlowMetaThemeColors;
 }
 
 /**

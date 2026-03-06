@@ -1,5 +1,60 @@
 # @asgardeo/javascript
 
+## 0.9.0
+
+### Minor Changes
+
+- [#374](https://github.com/asgardeo/javascript/pull/374)
+  [`48bfa67`](https://github.com/asgardeo/javascript/commit/48bfa67229535e95a29a704f547bfddbb53b2abe) Thanks
+  [@kavindadimuthu](https://github.com/kavindadimuthu)! - Adds multi-organization authentication context management
+  support
+
+## 0.8.3
+
+### Patch Changes
+
+- [#382](https://github.com/asgardeo/javascript/pull/382)
+  [`2771a78`](https://github.com/asgardeo/javascript/commit/2771a7891a8668ff00500e8dd346f7de6bfeafe9) Thanks
+  [@dileepapeiris](https://github.com/dileepapeiris)! - fix multiple audiences in ID token validation.Change audience
+  parameter from string to array to support tokens with multiple audiences
+
+## 0.8.2
+
+### Patch Changes
+
+- [#381](https://github.com/asgardeo/javascript/pull/381)
+  [`dcf6ddf`](https://github.com/asgardeo/javascript/commit/dcf6ddf5bb168bf19eb65c8792e896dcc905d5cd) Thanks
+  [@brionmario](https://github.com/brionmario)! - Introduce `<LanguageSwitcher />` & improve i18n support
+
+- Updated dependencies
+  [[`dcf6ddf`](https://github.com/asgardeo/javascript/commit/dcf6ddf5bb168bf19eb65c8792e896dcc905d5cd)]:
+  - @asgardeo/i18n@0.4.3
+
+## 0.8.1
+
+### Patch Changes
+
+- [#379](https://github.com/asgardeo/javascript/pull/379)
+  [`a8dee26`](https://github.com/asgardeo/javascript/commit/a8dee265acced95ce469a0426c6c193ccd607a19) Thanks
+  [@lashinijay](https://github.com/lashinijay)! - Introduce Agent token related functions
+
+- [#376](https://github.com/asgardeo/javascript/pull/376)
+  [`fbdd49b`](https://github.com/asgardeo/javascript/commit/fbdd49b0197058ddf436176decb76bcfd848b685) Thanks
+  [@brionmario](https://github.com/brionmario)! - Fix some issues related to design in AsgardeoV2
+
+## 0.8.0
+
+### Minor Changes
+
+- [#334](https://github.com/asgardeo/javascript/pull/334)
+  [`cf6f059`](https://github.com/asgardeo/javascript/commit/cf6f05980cef488fd79de64f2667ce39cb0c30b8) Thanks
+  [@kavindadimuthu](https://github.com/kavindadimuthu)! - Fix failure of calling authenticated APIs when using multiple
+  AuthProvider instances
+
+- [#371](https://github.com/asgardeo/javascript/pull/371)
+  [`90b5d89`](https://github.com/asgardeo/javascript/commit/90b5d8987ba4dc62d347923f720c8e5e30f783f5) Thanks
+  [@brionmario](https://github.com/brionmario)! - Integrate Design APIs of Thunder
+
 ## 0.7.3
 
 ### Patch Changes

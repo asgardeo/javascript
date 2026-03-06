@@ -32,6 +32,7 @@ const useStyles = (theme: Theme, colorScheme: string): Record<string, string> =>
     const root: string = css`
       display: inline-block;
       position: relative;
+      font-family: ${theme.vars.typography.fontFamily};
     `;
 
     const trigger: string = css`
@@ -267,6 +268,7 @@ const useStyles = (theme: Theme, colorScheme: string): Record<string, string> =>
     theme.vars.shadows.medium,
     theme.vars.spacing.unit,
     theme.vars.colors.action?.hover,
+    theme.vars.typography.fontFamily,
     colorScheme,
   ]);
 

@@ -21,6 +21,7 @@ import {
   EmbeddedSignInFlowHandleResponse,
   EmbeddedSignInFlowHandleRequestPayload,
   Platform,
+  Preferences,
 } from '@asgardeo/browser';
 import {FC, ReactElement} from 'react';
 import BaseSignIn, {BaseSignInProps} from './BaseSignIn';
@@ -36,6 +37,10 @@ export type SignInProps = Pick<BaseSignInProps, 'className' | 'onSuccess' | 'onE
    * Render function for custom UI (render props pattern).
    */
   children?: (props: SignInRenderProps) => ReactElement;
+  /**
+   * Component-level preferences to override global i18n and theme settings.
+   */
+  preferences?: Preferences;
 };
 
 /**
@@ -63,7 +68,7 @@ export type SignInProps = Pick<BaseSignInProps, 'className' | 'onSuccess' | 'onE
  * };
  * ```
  */
-const SignIn: FC<SignInProps> = ({className, size = 'medium', children, ...rest}: SignInProps) => {
+const SignIn: FC<SignInProps> = ({className, size = 'medium', children, preferences, ...rest}: SignInProps) => {
   const {signIn, afterSignInUrl, isInitialized, isLoading, platform} = useAsgardeo();
 
   /**
@@ -105,6 +110,7 @@ const SignIn: FC<SignInProps> = ({className, size = 'medium', children, ...rest}
         variant={rest.variant}
         onSuccess={rest.onSuccess}
         onError={rest.onError}
+        preferences={preferences}
       >
         {children}
       </SignInV2>
@@ -123,6 +129,7 @@ const SignIn: FC<SignInProps> = ({className, size = 'medium', children, ...rest}
       showLogo={true}
       showSubtitle={true}
       showTitle={true}
+      preferences={preferences}
       {...rest}
     />
   );

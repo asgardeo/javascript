@@ -412,7 +412,7 @@ class AsgardeoNextClient<T extends AsgardeoNextConfig = AsgardeoNextConfig> exte
    * otherwise falls back to legacy client method.
    */
   // eslint-disable-next-line class-methods-use-this, @typescript-eslint/no-unused-vars
-  async getAccessToken(_sessionId?: string): Promise<string> {
+  override async getAccessToken(_sessionId?: string): Promise<string> {
     const {default: getAccessToken} = await import('./server/actions/getAccessToken');
     const token: string | undefined = await getAccessToken();
 
@@ -573,7 +573,7 @@ class AsgardeoNextClient<T extends AsgardeoNextConfig = AsgardeoNextConfig> exte
   }
 
   // eslint-disable-next-line class-methods-use-this
-  public async clearSession(): Promise<void> {
+  public override async clearSession(): Promise<void> {
     throw new AsgardeoRuntimeError(
       'Not implemented',
       'AsgardeoNextClient-clearSession-NotImplementedError-001',

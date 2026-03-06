@@ -25,13 +25,14 @@ import {
   EmbeddedSignInFlowStatusV2,
   EmbeddedSignInFlowTypeV2,
   FlowMetadataResponse,
+  Preferences,
 } from '@asgardeo/browser';
 import {FC, ReactElement, useState, useEffect, useRef, ReactNode} from 'react';
 // eslint-disable-next-line import/no-named-as-default
 import BaseSignIn, {BaseSignInProps} from './BaseSignIn';
 import useAsgardeo from '../../../../../contexts/Asgardeo/useAsgardeo';
-import {useOAuthCallback} from '../../../../../hooks/v2/useOAuthCallback';
 import useTranslation from '../../../../../hooks/useTranslation';
+import {useOAuthCallback} from '../../../../../hooks/v2/useOAuthCallback';
 import {initiateOAuthRedirect} from '../../../../../utils/oauth';
 import {normalizeFlowResponse} from '../../../../../utils/v2/flowTransformer';
 import {handlePasskeyAuthentication, handlePasskeyRegistration} from '../../../../../utils/v2/passkey';
@@ -102,6 +103,13 @@ export type SignInProps = {
    * @param authData - The authentication data returned upon successful completion.
    */
   onSuccess?: (authData: Record<string, any>) => void;
+
+  /**
+   * Component-level preferences to override global i18n and theme settings.
+   * Preferences are deep-merged with global ones, with component preferences
+   * taking precedence. Affects this component and all its descendants.
+   */
+  preferences?: Preferences;
 
   /**
    * Size variant for the component.
@@ -189,6 +197,7 @@ interface PasskeyState {
  */
 const SignIn: FC<SignInProps> = ({
   className,
+  preferences,
   size = 'medium',
   onSuccess,
   onError,
@@ -196,7 +205,7 @@ const SignIn: FC<SignInProps> = ({
   children,
 }: SignInProps): ReactElement => {
   const {applicationId, afterSignInUrl, signIn, isInitialized, isLoading, meta} = useAsgardeo();
-  const {t} = useTranslation();
+  const {t} = useTranslation(preferences?.i18n);
 
   // State management for the flow
   const [components, setComponents] = useState<EmbeddedFlowComponent[]>([]);
@@ -244,6 +253,7 @@ const SignIn: FC<SignInProps> = ({
    */
   const getUrlParams = (): any => {
     const urlParams: any = new URL(window?.location?.href ?? '').searchParams;
+
     return {
       applicationId: urlParams.get('applicationId'),
       authId: urlParams.get('authId'),
@@ -382,9 +392,14 @@ const SignIn: FC<SignInProps> = ({
         return;
       }
 
-      const {flowId: normalizedFlowId, components: normalizedComponents} = normalizeFlowResponse(response, t, {
-        resolveTranslations: !children,
-      });
+      const {flowId: normalizedFlowId, components: normalizedComponents} = normalizeFlowResponse(
+        response,
+        t,
+        {
+          resolveTranslations: false,
+        },
+        meta,
+      );
 
       if (normalizedFlowId && normalizedComponents) {
         setFlowId(normalizedFlowId);
@@ -490,9 +505,14 @@ const SignIn: FC<SignInProps> = ({
         return;
       }
 
-      const {flowId: normalizedFlowId, components: normalizedComponents} = normalizeFlowResponse(response, t, {
-        resolveTranslations: !children,
-      });
+      const {flowId: normalizedFlowId, components: normalizedComponents} = normalizeFlowResponse(
+        response,
+        t,
+        {
+          resolveTranslations: false,
+        },
+        meta,
+      );
 
       // Handle Error flow status - flow has failed and is invalidated
       if (response.flowStatus === EmbeddedSignInFlowStatusV2.Error) {
@@ -546,6 +566,11 @@ const SignIn: FC<SignInProps> = ({
         setIsFlowInitialized(true);
         // Clean up flowId from URL after setting it in state
         cleanupFlowUrlParams();
+
+        // Display failure reason from INCOMPLETE response
+        if ((response as any)?.failureReason) {
+          setFlowError(new Error((response as any).failureReason));
+        }
       }
     } catch (error) {
       const err: any = error as any;
@@ -671,6 +696,7 @@ const SignIn: FC<SignInProps> = ({
       className={className}
       size={size}
       variant={variant}
+      preferences={preferences}
     />
   );
 };

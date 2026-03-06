@@ -80,6 +80,7 @@ const useStyles = (
       background-color: ${theme.vars.colors.background.surface};
       border-radius: ${theme.vars.borderRadius.medium};
       font-size: 1rem;
+      font-family: ${theme.vars.typography.fontFamily};
       color: ${theme.vars.colors.text.primary};
       margin-bottom: calc(${theme.vars.spacing.unit} / 2);
 

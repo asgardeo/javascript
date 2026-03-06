@@ -12,3 +12,4 @@ catalog:
   '@wso2/eslint-plugin': 'git+https://github.com/brionmario/wso2-ui-configs.git#d3041825a4f8f235c8f9fa36b55cf29d54e791c8&path:packages/eslint-plugin'
   '@wso2/prettier-config': 'git+https://github.com/brionmario/wso2-ui-configs.git#d3041825a4f8f235c8f9fa36b55cf29d54e791c8&path:packages/prettier-config'
   '@wso2/stylelint-config': 'git+https://github.com/brionmario/wso2-ui-configs.git#d3041825a4f8f235c8f9fa36b55cf29d54e791c8&path:packages/stylelint-config'
+  dompurify: '3.3.1'

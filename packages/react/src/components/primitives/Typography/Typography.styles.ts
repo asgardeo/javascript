@@ -201,6 +201,7 @@ const useStyles = (
 
     const typography: string = css`
       margin: 0;
+      font-family: ${theme.vars.typography.fontFamily};
       color: ${colorValue};
       text-align: ${align};
       display: ${inline ? 'inline' : 'block'};

@@ -37,6 +37,7 @@ export type AsgardeoContextProps = {
   afterSignInUrl: string | undefined;
   applicationId: string | undefined;
   baseUrl: string | undefined;
+  clientId: string | undefined;
   /**
    * Swaps the current access token with a new one based on the provided configuration (with a grant type).
    * @param config - Configuration for the token exchange request.
@@ -118,6 +119,21 @@ export type AsgardeoContextProps = {
    * @returns Promise resolving to boolean indicating success.
    */
   reInitialize: (config: Partial<AsgardeoReactConfig>) => Promise<boolean>;
+
+  /**
+   * Resolves `{{ t(key) }}` and `{{ meta(path) }}` template expressions in a string,
+   * using the current i18n translation function and flow metadata from context.
+   *
+   * Useful in render-props patterns where consumers need to expand template strings
+   * that come from the server (e.g. component labels, placeholders, headings).
+   *
+   * @example
+   * const {resolveVars} = useAsgardeo();
+   * resolveVars('{{ t(signin.heading.label) }}') // → 'Sign In'
+   * resolveVars('Login to {{ meta(application.name) }}') // → 'Login to My App'
+   */
+  resolveVars: (text: string | undefined) => string;
+
   /**
    * Sign-in function to initiate the authentication process.
    * @remark This is the programmatic version of the `SignInButton` component.
@@ -169,6 +185,7 @@ const AsgardeoContext: Context<AsgardeoContextProps | null> = createContext<null
   applicationId: undefined,
   baseUrl: undefined,
   clearSession: () => {},
+  clientId: undefined,
   exchangeToken: null,
   getAccessToken: null,
   getDecodedIdToken: null,
@@ -186,6 +203,7 @@ const AsgardeoContext: Context<AsgardeoContextProps | null> = createContext<null
   organizationHandle: undefined,
   platform: undefined,
   reInitialize: null,
+  resolveVars: (text: string | undefined) => text ?? '',
   signIn: () => Promise.resolve({} as any),
   signInOptions: {},
   signInSilently: () => Promise.resolve({} as any),

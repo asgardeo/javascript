@@ -87,6 +87,7 @@ export const OrganizationSwitcher: FC<OrganizationSwitcherProps> = ({
   fallback = null,
   onOrganizationSwitch: propOnOrganizationSwitch,
   organizations: propOrganizations,
+  preferences,
   ...props
 }: OrganizationSwitcherProps): ReactElement => {
   const {isSignedIn} = useAsgardeo();
@@ -100,7 +101,7 @@ export const OrganizationSwitcher: FC<OrganizationSwitcherProps> = ({
   const [isCreateOrgOpen, setIsCreateOrgOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isOrganizationListOpen, setIsOrganizationListOpen] = useState(false);
-  const {t} = useTranslation();
+  const {t} = useTranslation(preferences?.i18n);
 
   if (!isSignedIn && fallback) {
     return fallback;
@@ -155,6 +156,7 @@ export const OrganizationSwitcher: FC<OrganizationSwitcherProps> = ({
         error={error}
         menuItems={menuItems}
         onManageProfile={handleManageOrganization}
+        preferences={preferences}
         {...props}
       />
       <CreateOrganization

@@ -82,6 +82,7 @@ const useStyles = (theme: Theme, colorScheme: string): Record<string, string> =>
       padding: calc(${theme.vars.spacing.unit} * 4);
       min-width: 600px;
       margin: 0 auto;
+      font-family: ${theme.vars.typography.fontFamily};
     `;
 
     const card: string = css`
@@ -243,6 +244,7 @@ const useStyles = (theme: Theme, colorScheme: string): Record<string, string> =>
     theme.vars.borderRadius.large,
     theme.vars.borderRadius.medium,
     theme.vars.spacing.unit,
+    theme.vars.typography.fontFamily,
     colorScheme,
   ]);
 };

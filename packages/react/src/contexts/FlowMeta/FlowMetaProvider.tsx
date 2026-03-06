@@ -17,9 +17,21 @@
  */
 
 import {FlowMetadataResponse, FlowMetaType, getFlowMetaV2} from '@asgardeo/browser';
-import {FC, PropsWithChildren, ReactElement, RefObject, useCallback, useEffect, useRef, useState} from 'react';
+import {I18nBundle, TranslationBundleConstants} from '@asgardeo/i18n';
+import {
+  FC,
+  PropsWithChildren,
+  ReactElement,
+  RefObject,
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import FlowMetaContext from './FlowMetaContext';
 import useAsgardeo from '../Asgardeo/useAsgardeo';
+import I18nContext, {I18nContextValue} from '../I18n/I18nContext';
 
 export interface FlowMetaProviderProps {
   /**
@@ -57,10 +69,12 @@ const FlowMetaProvider: FC<PropsWithChildren<FlowMetaProviderProps>> = ({
   enabled = true,
 }: PropsWithChildren<FlowMetaProviderProps>): ReactElement => {
   const {baseUrl, applicationId} = useAsgardeo();
+  const i18nContext: I18nContextValue = useContext(I18nContext);
 
   const [meta, setMeta] = useState<FlowMetadataResponse | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<Error | null>(null);
+  const [pendingLanguage, setPendingLanguage] = useState<string | null>(null);
 
   // Track whether an initial fetch has been triggered so we don't double-fetch
   // when the component first mounts with a stable config reference.
@@ -85,6 +99,56 @@ const FlowMetaProvider: FC<PropsWithChildren<FlowMetaProviderProps>> = ({
     }
   }, [enabled, baseUrl, applicationId]);
 
+  const switchLanguage: (language: string) => Promise<void> = useCallback(
+    async (language: string): Promise<void> => {
+      if (!enabled) return;
+
+      setIsLoading(true);
+      setError(null);
+
+      try {
+        const result: FlowMetadataResponse = await getFlowMetaV2({
+          baseUrl,
+          id: applicationId,
+          language,
+          type: FlowMetaType.App,
+        });
+
+        // Inject translations for the new language before switching
+        if (result.i18n?.translations && i18nContext?.injectBundles) {
+          const flatTranslations: Record<string, string> = {};
+          Object.entries(result.i18n.translations).forEach(([namespace, keys]: [string, Record<string, string>]) => {
+            Object.entries(keys).forEach(([key, value]: [string, string]) => {
+              flatTranslations[`${namespace}.${key}`] = value;
+            });
+          });
+          const bundle: I18nBundle = {translations: flatTranslations} as unknown as I18nBundle;
+          i18nContext.injectBundles({[language]: bundle});
+        }
+
+        // Defer setLanguage to the next effect cycle so injectBundles state
+        // is committed before I18nProvider's setLanguage checks mergedBundles.
+        setPendingLanguage(language);
+        setMeta(result);
+      } catch (err: unknown) {
+        setError(err instanceof Error ? err : new Error(String(err)));
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [enabled, baseUrl, applicationId, i18nContext],
+  );
+
+  // After injectBundles + setPendingLanguage are batched and committed, this
+  // effect fires with the updated i18nContext (mergedBundles now includes the
+  // new language), so setLanguage succeeds on the first switch.
+  useEffect(() => {
+    if (pendingLanguage && i18nContext?.setLanguage) {
+      i18nContext.setLanguage(pendingLanguage);
+      setPendingLanguage(null);
+    }
+  }, [pendingLanguage, i18nContext?.setLanguage]);
+
   useEffect(() => {
     if (!hasFetchedRef.current) {
       hasFetchedRef.current = true;
@@ -95,11 +159,45 @@ const FlowMetaProvider: FC<PropsWithChildren<FlowMetaProviderProps>> = ({
     fetchFlowMeta();
   }, [fetchFlowMeta]);
 
+  // When meta loads with i18n translations, inject them into the i18n system.
+  // Meta translations act as the base layer — prop-provided bundles still take precedence.
+  useEffect(() => {
+    if (!meta?.i18n?.translations || !i18nContext?.injectBundles) {
+      return;
+    }
+
+    const metaLanguage: string = meta.i18n.language || TranslationBundleConstants.FALLBACK_LOCALE;
+
+    // Flatten namespace-keyed translations to dot-path keys:
+    // { "signin": { "heading": "Sign In" } } → { "signin.heading": "Sign In" }
+    const flatTranslations: Record<string, string> = {};
+    Object.entries(meta.i18n.translations).forEach(([namespace, keys]: [string, Record<string, string>]) => {
+      Object.entries(keys).forEach(([key, value]: [string, string]) => {
+        flatTranslations[`${namespace}.${key}`] = value;
+      });
+    });
+
+    const bundle: I18nBundle = {translations: flatTranslations} as unknown as I18nBundle;
+
+    // Inject under the meta language code and the i18n current language so
+    // lookups succeed regardless of whether the system uses "en" or "en-US".
+    const bundlesToInject: Record<string, I18nBundle> = {[metaLanguage]: bundle};
+    if (i18nContext.currentLanguage && i18nContext.currentLanguage !== metaLanguage) {
+      bundlesToInject[i18nContext.currentLanguage] = bundle;
+    }
+    if (i18nContext.fallbackLanguage && i18nContext.fallbackLanguage !== metaLanguage) {
+      bundlesToInject[i18nContext.fallbackLanguage] = bundle;
+    }
+
+    i18nContext.injectBundles(bundlesToInject);
+  }, [meta?.i18n?.translations, i18nContext?.injectBundles]);
+
   const value: any = {
     error,
     fetchFlowMeta,
     isLoading,
     meta,
+    switchLanguage,
   };
 
   return <FlowMetaContext.Provider value={value}>{children}</FlowMetaContext.Provider>;

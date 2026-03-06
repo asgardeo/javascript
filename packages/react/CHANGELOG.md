@@ -1,5 +1,87 @@
 # @asgardeo/react
 
+## 0.14.0
+
+### Minor Changes
+
+- [#374](https://github.com/asgardeo/javascript/pull/374)
+  [`48bfa67`](https://github.com/asgardeo/javascript/commit/48bfa67229535e95a29a704f547bfddbb53b2abe) Thanks
+  [@kavindadimuthu](https://github.com/kavindadimuthu)! - Adds multi-organization authentication context management
+  support
+
+### Patch Changes
+
+- Updated dependencies
+  [[`48bfa67`](https://github.com/asgardeo/javascript/commit/48bfa67229535e95a29a704f547bfddbb53b2abe)]:
+  - @asgardeo/browser@0.5.0
+
+## 0.13.4
+
+### Patch Changes
+
+- Updated dependencies
+  [[`2771a78`](https://github.com/asgardeo/javascript/commit/2771a7891a8668ff00500e8dd346f7de6bfeafe9)]:
+  - @asgardeo/browser@0.4.3
+
+## 0.13.3
+
+### Patch Changes
+
+- [#381](https://github.com/asgardeo/javascript/pull/381)
+  [`dcf6ddf`](https://github.com/asgardeo/javascript/commit/dcf6ddf5bb168bf19eb65c8792e896dcc905d5cd) Thanks
+  [@brionmario](https://github.com/brionmario)! - Introduce `<LanguageSwitcher />` & improve i18n support
+
+- Updated dependencies
+  [[`dcf6ddf`](https://github.com/asgardeo/javascript/commit/dcf6ddf5bb168bf19eb65c8792e896dcc905d5cd)]:
+  - @asgardeo/i18n@0.4.3
+  - @asgardeo/browser@0.4.2
+
+## 0.13.2
+
+### Patch Changes
+
+- [#379](https://github.com/asgardeo/javascript/pull/379)
+  [`a8dee26`](https://github.com/asgardeo/javascript/commit/a8dee265acced95ce469a0426c6c193ccd607a19) Thanks
+  [@lashinijay](https://github.com/lashinijay)! - Introduce Agent token related functions
+
+- [#376](https://github.com/asgardeo/javascript/pull/376)
+  [`fbdd49b`](https://github.com/asgardeo/javascript/commit/fbdd49b0197058ddf436176decb76bcfd848b685) Thanks
+  [@brionmario](https://github.com/brionmario)! - Fix some issues related to design in AsgardeoV2
+
+- Updated dependencies []:
+  - @asgardeo/browser@0.4.1
+
+## 0.13.1
+
+### Patch Changes
+
+- Updated dependencies
+  [[`303663e`](https://github.com/asgardeo/javascript/commit/303663e4a8676e88b005ba21394b0aaa9c966674)]:
+  - @asgardeo/browser@0.4.0
+
+## 0.13.0
+
+### Minor Changes
+
+- [#371](https://github.com/asgardeo/javascript/pull/371)
+  [`90b5d89`](https://github.com/asgardeo/javascript/commit/90b5d8987ba4dc62d347923f720c8e5e30f783f5) Thanks
+  [@brionmario](https://github.com/brionmario)! - Integrate Design APIs of Thunder
+
+### Patch Changes
+
+- [#334](https://github.com/asgardeo/javascript/pull/334)
+  [`cf6f059`](https://github.com/asgardeo/javascript/commit/cf6f05980cef488fd79de64f2667ce39cb0c30b8) Thanks
+  [@kavindadimuthu](https://github.com/kavindadimuthu)! - Fix failure of calling authenticated APIs when using multiple
+  AuthProvider instances
+
+- [#375](https://github.com/asgardeo/javascript/pull/375)
+  [`ee7d5f0`](https://github.com/asgardeo/javascript/commit/ee7d5f0f5040c1147f515f5b29936feac857c2fe) Thanks
+  [@ThaminduDilshan](https://github.com/ThaminduDilshan)! - Handle failure reason from flow execution response
+
+- Updated dependencies
+  [[`cf6f059`](https://github.com/asgardeo/javascript/commit/cf6f05980cef488fd79de64f2667ce39cb0c30b8)]:
+  - @asgardeo/browser@0.3.0
+
 ## 0.12.0
 
 ### Minor Changes

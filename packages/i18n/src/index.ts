@@ -24,3 +24,5 @@ export * from './translations';
 
 // Utils
 export {default as getDefaultI18nBundles} from './utils/getDefaultI18nBundles';
+export {default as normalizeTranslations} from './utils/normalizeTranslations';
+export {default as TranslationBundleConstants} from './constants/TranslationBundleConstants';
