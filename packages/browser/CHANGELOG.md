@@ -1,5 +1,20 @@
 # @asgardeo/browser
 
+## 0.5.0
+
+### Minor Changes
+
+- [#374](https://github.com/asgardeo/javascript/pull/374)
+  [`48bfa67`](https://github.com/asgardeo/javascript/commit/48bfa67229535e95a29a704f547bfddbb53b2abe) Thanks
+  [@kavindadimuthu](https://github.com/kavindadimuthu)! - Adds multi-organization authentication context management
+  support
+
+### Patch Changes
+
+- Updated dependencies
+  [[`48bfa67`](https://github.com/asgardeo/javascript/commit/48bfa67229535e95a29a704f547bfddbb53b2abe)]:
+  - @asgardeo/javascript@0.9.0
+
 ## 0.4.3
 
 ### Patch Changes
