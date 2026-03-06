@@ -65,7 +65,7 @@ export class NodeCryptoUtils implements Crypto<Buffer | string> {
     return jose
       .jwtVerify(idToken, key, {
         algorithms,
-        audience: clientId,
+        audience: [clientId],
         clockTolerance,
         issuer,
         subject,
