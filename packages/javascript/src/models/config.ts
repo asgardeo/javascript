@@ -265,6 +265,17 @@ export interface ThemePreferences {
   overrides?: RecursivePartial<ThemeConfig>;
 }
 
+/**
+ * The storage strategy to use for persisting the user's language selection.
+ *
+ * - `'cookie'`       — persists in `document.cookie` as a domain cookie (default).
+ *                      Useful for cross-subdomain scenarios where the auth portal and
+ *                      the application share a root domain.
+ * - `'localStorage'` — persists in `window.localStorage`.
+ * - `'none'`         — no persistence; the resolved language is held in React state only.
+ */
+export type I18nStorageStrategy = 'cookie' | 'localStorage' | 'none';
+
 export interface I18nPreferences {
   /**
    * Custom translations to override default ones.
@@ -273,15 +284,45 @@ export interface I18nPreferences {
     [key: string]: I18nBundle;
   };
   /**
+   * The domain to use when setting the language cookie.
+   * Only applies when `storageStrategy` is `'cookie'`.
+   * Defaults to the root domain derived from `window.location.hostname`
+   * (e.g. `'app.example.com'` → `'example.com'`).
+   * Override this for eTLD+1 domains like `.co.uk` or custom cookie scoping.
+   */
+  cookieDomain?: string;
+  /**
    * The fallback language to use if translations are not available in the specified language.
    * Defaults to 'en-US'.
    */
   fallbackLanguage?: string;
   /**
    * The language to use for translations.
-   * Defaults to the browser's default language.
+   * When set, acts as a hard override and bypasses all other detection sources
+   * (URL param, stored preference, browser language).
    */
   language?: string;
+  /**
+   * The key used when reading/writing the language to the chosen storage.
+   * For `localStorage` this is the key name; for `cookie` this is the cookie name.
+   * @default 'asgardeo-i18n-language'
+   */
+  storageKey?: string;
+  /**
+   * The storage strategy to use for persisting the user's language selection.
+   * @default 'cookie'
+   */
+  storageStrategy?: I18nStorageStrategy;
+  /**
+   * The URL query-parameter name to inspect for a language override.
+   * Set to `false` to disable URL-parameter detection entirely.
+   * When a URL param is detected its value is immediately persisted to storage.
+   * @default 'lang'
+   * @example
+   * // With urlParam: 'locale', the URL ?locale=fr-FR will select French.
+   * // With urlParam: false, URL parameters are ignored.
+   */
+  urlParam?: string | false;
 }
 
 export interface Preferences {

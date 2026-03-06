@@ -24,12 +24,14 @@ import {
   withVendorCSSClassPrefix,
   EmbeddedFlowComponentTypeV2 as EmbeddedFlowComponentType,
   createPackageComponentLogger,
+  Preferences,
 } from '@asgardeo/browser';
 import {cx} from '@emotion/css';
 import {FC, ReactElement, ReactNode, useEffect, useState, useCallback, useRef} from 'react';
 import useAsgardeo from '../../../../../contexts/Asgardeo/useAsgardeo';
 import FlowProvider from '../../../../../contexts/Flow/FlowProvider';
 import useFlow from '../../../../../contexts/Flow/useFlow';
+import ComponentPreferencesContext from '../../../../../contexts/I18n/ComponentPreferencesContext';
 import useTheme from '../../../../../contexts/Theme/useTheme';
 import {useForm, FormField} from '../../../../../hooks/useForm';
 import useTranslation from '../../../../../hooks/useTranslation';
@@ -208,6 +210,13 @@ export interface BaseSignUpProps {
    * @returns Promise resolving to the sign-up response.
    */
   onSubmit?: (payload: EmbeddedFlowExecuteRequestPayload) => Promise<EmbeddedFlowExecuteResponse>;
+  /**
+   * Component-level preferences to override global i18n and theme settings.
+   * Preferences are deep-merged with global ones, with component preferences
+   * taking precedence. Affects this component and all its descendants.
+   */
+  preferences?: Preferences;
+
   /**
    *  Whether to redirect after sign-up.
    */
@@ -1016,11 +1025,11 @@ const BaseSignUpContent: FC<BaseSignUpProps> = ({
  * This component handles both the presentation layer and sign-up flow logic.
  * It accepts API functions as props to maintain framework independence.
  */
-const BaseSignUp: FC<BaseSignUpProps> = ({showLogo = true, ...rest}: BaseSignUpProps): ReactElement => {
+const BaseSignUp: FC<BaseSignUpProps> = ({preferences, showLogo = true, ...rest}: BaseSignUpProps): ReactElement => {
   const {theme, colorScheme} = useTheme();
   const styles: any = useStyles(theme, colorScheme);
 
-  return (
+  const content: ReactElement = (
     <div>
       {showLogo && (
         <div className={styles.logoContainer}>
@@ -1032,6 +1041,10 @@ const BaseSignUp: FC<BaseSignUpProps> = ({showLogo = true, ...rest}: BaseSignUpP
       </FlowProvider>
     </div>
   );
+
+  if (!preferences) return content;
+
+  return <ComponentPreferencesContext.Provider value={preferences}>{content}</ComponentPreferencesContext.Provider>;
 };
 
 export default BaseSignUp;

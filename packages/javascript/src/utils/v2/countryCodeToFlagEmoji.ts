@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2025, WSO2 LLC. (https://www.wso2.com).
+ * Copyright (c) 2026, WSO2 LLC. (https://www.wso2.com).
  *
  * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -16,13 +16,17 @@
  * under the License.
  */
 
-// Models
-export type {I18nBundle, I18nTranslations, I18nMetadata, I18nTextDirection} from './models/i18n';
-
-// Translations
-export * from './translations';
-
-// Utils
-export {default as getDefaultI18nBundles} from './utils/getDefaultI18nBundles';
-export {default as normalizeTranslations} from './utils/normalizeTranslations';
-export {default as TranslationBundleConstants} from './constants/TranslationBundleConstants';
+/**
+ * Converts a two-letter ISO 3166-1 alpha-2 country code to a flag emoji using
+ * Unicode Regional Indicator Symbols (U+1F1E6–U+1F1FF).
+ *
+ * @param countryCode - Two-letter uppercase country code (e.g. "US", "GB")
+ * @returns Flag emoji string (e.g. "🇺🇸", "🇬🇧")
+ */
+export default function countryCodeToFlagEmoji(countryCode: string): string {
+  return countryCode
+    .toUpperCase()
+    .split('')
+    .map((char: string) => String.fromCodePoint(0x1f1e6 - 65 + char.charCodeAt(0)))
+    .join('');
+}

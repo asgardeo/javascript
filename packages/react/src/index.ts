@@ -193,6 +193,16 @@ export type {
 
 export {CreateOrganization} from './components/presentation/CreateOrganization/CreateOrganization';
 
+export {default as BaseLanguageSwitcher} from './components/presentation/LanguageSwitcher/BaseLanguageSwitcher';
+export type {
+  BaseLanguageSwitcherProps,
+  LanguageOption,
+  LanguageSwitcherRenderProps,
+} from './components/presentation/LanguageSwitcher/BaseLanguageSwitcher';
+
+export {default as LanguageSwitcher} from './components/presentation/LanguageSwitcher/LanguageSwitcher';
+export type {LanguageSwitcherProps} from './components/presentation/LanguageSwitcher/LanguageSwitcher';
+
 export {default as Button} from './components/primitives/Button/Button';
 export * from './components/primitives/Button/Button';
 
