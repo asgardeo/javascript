@@ -110,14 +110,14 @@ const matchesSocialProvider = (
   buttonText: string,
   provider: string,
   authType: AuthType,
-  componentVariant?: string,
 ): boolean => {
   const providerId: any = `${provider}_auth`;
   const providerMatches: any = actionId === providerId || eventType === providerId;
 
-  // For social variant, also check button text for provider name
-  if (componentVariant?.toUpperCase() === EmbeddedFlowActionVariant.Social) {
-    return buttonText.toLowerCase().includes(provider);
+  // Social buttons usually have "Sign in with X" or "Continue with X" text,
+  // so also check button text for the provider name to increase chances of correct detection (especially for signup flows where action IDs are less standardized)
+  if (buttonText.toLowerCase().includes(provider)) {
+    return true;
   }
 
   // For signup, also check button text
