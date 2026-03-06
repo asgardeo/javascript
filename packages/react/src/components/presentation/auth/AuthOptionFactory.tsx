@@ -143,6 +143,7 @@ const createAuthComponentFromFlow = (
   options: {
     buttonClassName?: string;
     inputClassName?: string;
+    inStack?: boolean;
     key?: string | number;
     /** Flow metadata for resolving {{meta(...)}} expressions at render time */
     meta?: FlowMetadataResponse | null;
@@ -355,6 +356,8 @@ const createAuthComponentFromFlow = (
     }
 
     case EmbeddedFlowComponentType.Image: {
+      const explicitHeight: string = resolve(component.height?.toString());
+      const explicitWidth: string = resolve(component.width?.toString());
       return (
         <ImageComponent
           key={key}
@@ -362,9 +365,9 @@ const createAuthComponentFromFlow = (
             {
               config: {
                 alt: resolve(component.alt) || resolve(component.label) || 'Image',
-                height: resolve(component.height.toString()) || 'auto',
+                height: explicitHeight || (options.inStack ? '50' : 'auto'),
                 src: resolve(component.src),
-                width: resolve(component.width.toString()) || '100%',
+                width: explicitWidth || (options.inStack ? '50' : '100%'),
               },
             } as any
           }
@@ -418,6 +421,7 @@ const createAuthComponentFromFlow = (
               authType,
               {
                 ...options,
+                inStack: true,
                 key: childComponent.id || `${component.id}_${index}`,
               },
             ),

@@ -17,21 +17,36 @@
  */
 
 import {FC} from 'react';
-import ArrowLeftRight from './ArrowLeftRight';
-import ArrowRightLeft from './ArrowRightLeft';
 
-export interface FlowIconProps {
+export interface ArrowRightLeftProps {
+  /** Color of the icon stroke */
   color?: string;
+  /** Icon size in pixels */
   size?: number;
 }
 
 /**
- * Registry of icon components keyed by their lucide-compatible name.
- * Add new icons here as needed by flow definitions.
+ * ArrowRightLeft Icon component (lucide-compatible).
  */
-const flowIconRegistry: Record<string, FC<FlowIconProps>> = {
-  ArrowLeftRight,
-  ArrowRightLeft,
-};
+const ArrowRightLeft: FC<ArrowRightLeftProps> = ({color = 'currentColor', size = 24}: ArrowRightLeftProps) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke={color}
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <path d="m16 3 4 4-4 4" />
+    <path d="M20 7H4" />
+    <path d="m8 21-4-4 4-4" />
+    <path d="M4 17h16" />
+  </svg>
+);
 
-export default flowIconRegistry;
+ArrowRightLeft.displayName = 'ArrowRightLeft';
+
+export default ArrowRightLeft;
