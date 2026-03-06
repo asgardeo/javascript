@@ -1,5 +1,18 @@
 # @asgardeo/react
 
+## 0.13.3
+
+### Patch Changes
+
+- [#381](https://github.com/asgardeo/javascript/pull/381)
+  [`dcf6ddf`](https://github.com/asgardeo/javascript/commit/dcf6ddf5bb168bf19eb65c8792e896dcc905d5cd) Thanks
+  [@brionmario](https://github.com/brionmario)! - Introduce `<LanguageSwitcher />` & improve i18n support
+
+- Updated dependencies
+  [[`dcf6ddf`](https://github.com/asgardeo/javascript/commit/dcf6ddf5bb168bf19eb65c8792e896dcc905d5cd)]:
+  - @asgardeo/i18n@0.4.3
+  - @asgardeo/browser@0.4.2
+
 ## 0.13.2
 
 ### Patch Changes
