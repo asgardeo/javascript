@@ -22,7 +22,6 @@ import {
   EmbeddedFlowComponentV2 as EmbeddedFlowComponent,
   EmbeddedFlowComponentTypeV2 as EmbeddedFlowComponentType,
   EmbeddedFlowTextVariantV2 as EmbeddedFlowTextVariant,
-  EmbeddedFlowActionVariantV2 as EmbeddedFlowActionVariant,
   EmbeddedFlowEventTypeV2 as EmbeddedFlowEventType,
   createPackageComponentLogger,
   resolveVars,
@@ -110,14 +109,16 @@ const matchesSocialProvider = (
   buttonText: string,
   provider: string,
   authType: AuthType,
-  componentVariant?: string,
+  /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
+  _componentVariant?: string,
 ): boolean => {
   const providerId: any = `${provider}_auth`;
   const providerMatches: any = actionId === providerId || eventType === providerId;
 
-  // For social variant, also check button text for provider name
-  if (componentVariant?.toUpperCase() === EmbeddedFlowActionVariant.Social) {
-    return buttonText.toLowerCase().includes(provider);
+  // Social buttons usually have "Sign in with X" or "Continue with X" text,
+  // so also check button text for the provider name to increase chances of correct detection (especially for signup flows where action IDs are less standardized)
+  if (buttonText.toLowerCase().includes(provider)) {
+    return true;
   }
 
   // For signup, also check button text
@@ -142,6 +143,7 @@ const createAuthComponentFromFlow = (
   authType: AuthType,
   options: {
     buttonClassName?: string;
+    inStack?: boolean;
     inputClassName?: string;
     key?: string | number;
     /** Flow metadata for resolving {{meta(...)}} expressions at render time */
@@ -355,6 +357,8 @@ const createAuthComponentFromFlow = (
     }
 
     case EmbeddedFlowComponentType.Image: {
+      const explicitHeight: string = resolve(component.height?.toString());
+      const explicitWidth: string = resolve(component.width?.toString());
       return (
         <ImageComponent
           key={key}
@@ -362,9 +366,9 @@ const createAuthComponentFromFlow = (
             {
               config: {
                 alt: resolve(component.alt) || resolve(component.label) || 'Image',
-                height: resolve(component.height.toString()) || 'auto',
+                height: explicitHeight || (options.inStack ? '50' : 'auto'),
                 src: resolve(component.src),
-                width: resolve(component.width.toString()) || '100%',
+                width: explicitWidth || (options.inStack ? '50' : '100%'),
               },
             } as any
           }
@@ -418,6 +422,7 @@ const createAuthComponentFromFlow = (
               authType,
               {
                 ...options,
+                inStack: true,
                 key: childComponent.id || `${component.id}_${index}`,
               },
             ),

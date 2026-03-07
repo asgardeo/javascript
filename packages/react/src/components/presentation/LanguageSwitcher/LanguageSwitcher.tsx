@@ -85,15 +85,22 @@ const LanguageSwitcher: FC<LanguageSwitcherProps> = ({children, className}: Lang
   const {currentLanguage} = useTranslation();
 
   const availableLanguageCodes: string[] = meta?.i18n?.languages ?? [];
+  const effectiveLanguageCodes: string[] = useMemo(() => {
+    const fallbackCodes: string[] = availableLanguageCodes.length > 0 ? availableLanguageCodes : [currentLanguage];
+
+    // Ensure the current language is always resolvable for display label and emoji.
+    return Array.from(new Set([currentLanguage, ...fallbackCodes]));
+  }, [availableLanguageCodes, currentLanguage]);
 
   const languages: LanguageOption[] = useMemo(
     () =>
-      availableLanguageCodes.map((code: string) => ({
+      effectiveLanguageCodes.map((code: string) => ({
         code,
-        displayName: resolveLocaleDisplayName(code, currentLanguage),
+        // Resolve each label in its own locale so option names stay stable across UI language switches.
+        displayName: resolveLocaleDisplayName(code, code) || code,
         emoji: resolveLocaleEmoji(code),
       })),
-    [availableLanguageCodes, currentLanguage],
+    [effectiveLanguageCodes],
   );
 
   const handleLanguageChange = (language: string): void => {

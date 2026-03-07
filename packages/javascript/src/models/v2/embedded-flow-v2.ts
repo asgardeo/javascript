@@ -96,14 +96,14 @@ export enum EmbeddedFlowActionVariant {
   /** Link-styled action button */
   Link = 'LINK',
 
+  /** Outlined action button for secondary emphasis */
+  Outlined = 'OUTLINED',
+
   /** Primary action button with highest visual emphasis */
   Primary = 'PRIMARY',
 
   /** Secondary action button with moderate visual emphasis */
   Secondary = 'SECONDARY',
-
-  /** Social media action button (e.g., Google, Facebook) */
-  Social = 'SOCIAL',
 
   /** Success action button for positive confirmations */
   Success = 'SUCCESS',

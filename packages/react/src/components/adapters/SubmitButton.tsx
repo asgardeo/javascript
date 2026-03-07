@@ -47,6 +47,7 @@ const ButtonComponent: FC<AdapterProps> = ({
       case 'TEXT':
         return {color: 'primary' as const, variant: 'text' as const};
       case 'SOCIAL':
+      case 'OUTLINED':
         return {color: 'primary' as const, variant: 'outline' as const};
       default:
         return {color: 'primary' as const, variant: 'solid' as const};
