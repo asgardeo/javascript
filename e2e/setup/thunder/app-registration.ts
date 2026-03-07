@@ -12,7 +12,7 @@
  */
 
 import {execSync} from 'child_process';
-import {SAMPLE_APP} from '../constants';
+import {getSampleApp} from '../constants';
 import {THUNDER_CONFIG} from './constants';
 
 const CONTAINER = 'asgardeo-e2e-thunder';
@@ -76,7 +76,8 @@ export async function getThunderAppClientId(): Promise<{clientId: string; applic
     console.warn('[E2E] Could not update Thunder app config:', err);
   }
 
-  const callbackUrl = `${SAMPLE_APP.url}${SAMPLE_APP.afterSignInPath}`;
+  const sampleApp = getSampleApp();
+  const callbackUrl = `${sampleApp.url}${sampleApp.afterSignInPath}`;
   const correctIssuer = THUNDER_CONFIG.baseUrl;
 
   try {
@@ -108,10 +109,10 @@ export async function getThunderAppClientId(): Promise<{clientId: string; applic
 
         // Write JSON to a temp file inside the container to avoid shell escaping issues,
         // then use readfile() in the SQLite UPDATE.
-        execSync(
-          `docker exec -i ${CONTAINER} sh -c 'cat > /tmp/oauth_config.json'`,
-          {input: updatedJson, encoding: 'utf-8'},
-        );
+        execSync(`docker exec -i ${CONTAINER} sh -c 'cat > /tmp/oauth_config.json'`, {
+          input: updatedJson,
+          encoding: 'utf-8',
+        });
         thunderSqlite(
           `UPDATE APP_OAUTH_INBOUND_CONFIG SET OAUTH_CONFIG_JSON=readfile('/tmp/oauth_config.json') WHERE CLIENT_ID='${clientId}'`,
         );

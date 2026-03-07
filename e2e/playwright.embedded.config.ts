@@ -2,10 +2,11 @@ import {defineConfig, devices} from '@playwright/test';
 import path from 'path';
 
 const SAMPLE_APP_URL = process.env.SAMPLE_APP_URL ?? 'https://localhost:5173';
+const SAMPLE_APP_TARGET = process.env.SAMPLE_APP_TARGET ?? 'react';
 const IDP_TARGET = process.env.IDP_TARGET ?? 'is';
 
 export default defineConfig({
-  testDir: `./tests/${IDP_TARGET}/embedded`,
+  testDir: `./tests/${SAMPLE_APP_TARGET}/${IDP_TARGET}/embedded`,
   fullyParallel: false,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
