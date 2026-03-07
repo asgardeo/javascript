@@ -109,6 +109,7 @@ const matchesSocialProvider = (
   buttonText: string,
   provider: string,
   authType: AuthType,
+  /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
   _componentVariant?: string,
 ): boolean => {
   const providerId: any = `${provider}_auth`;
