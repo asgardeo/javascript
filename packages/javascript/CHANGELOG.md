@@ -1,5 +1,13 @@
 # @asgardeo/javascript
 
+## 0.9.1
+
+### Patch Changes
+
+- [#390](https://github.com/asgardeo/javascript/pull/390)
+  [`3707df8`](https://github.com/asgardeo/javascript/commit/3707df804ffae199a3dc44f279e8a5527e604aa4) Thanks
+  [@brionmario](https://github.com/brionmario)! - Improve `<LanguageSwitcher />` & other components
+
 ## 0.9.0
 
 ### Minor Changes
