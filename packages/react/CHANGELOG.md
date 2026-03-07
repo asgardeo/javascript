@@ -1,5 +1,16 @@
 # @asgardeo/react
 
+## 0.14.1
+
+### Patch Changes
+
+- [#390](https://github.com/asgardeo/javascript/pull/390)
+  [`3707df8`](https://github.com/asgardeo/javascript/commit/3707df804ffae199a3dc44f279e8a5527e604aa4) Thanks
+  [@brionmario](https://github.com/brionmario)! - Improve `<LanguageSwitcher />` & other components
+
+- Updated dependencies []:
+  - @asgardeo/browser@0.5.1
+
 ## 0.14.0
 
 ### Minor Changes
