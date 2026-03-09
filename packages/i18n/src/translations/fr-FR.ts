@@ -175,6 +175,7 @@ const translations: I18nTranslations = {
     "Le formulaire d'inscription n'est pas disponible pour le moment. Veuillez réessayer plus tard.",
   'errors.signin.components.not.available':
     "Le formulaire de connexion n'est pas disponible pour le moment. Veuillez réessayer plus tard.",
+  'errors.signin.timeout': "Le temps imparti pour effectuer cette e'tape est expire'.",
 };
 
 const metadata: I18nMetadata = {

@@ -42,6 +42,12 @@ import {handlePasskeyAuthentication, handlePasskeyRegistration} from '../../../.
  */
 export interface SignInRenderProps {
   /**
+   * Additional data from the flow response containing contextual information
+   * like consent prompt details and session timeouts.
+   */
+  additionalData?: Record<string, any>;
+
+  /**
    * Current flow components
    */
   components: EmbeddedFlowComponent[];
@@ -65,6 +71,12 @@ export interface SignInRenderProps {
    * Loading state indicator
    */
   isLoading: boolean;
+
+  /**
+   * Flag indicating whether the flow step timeout has expired.
+   * Consuming components can use this to disable submit buttons.
+   */
+  isTimeoutDisabled?: boolean;
 
   /**
    * Flow metadata returned by the platform (v2 only). `null` while loading or unavailable.
@@ -209,10 +221,12 @@ const SignIn: FC<SignInProps> = ({
 
   // State management for the flow
   const [components, setComponents] = useState<EmbeddedFlowComponent[]>([]);
+  const [additionalData, setAdditionalData] = useState<Record<string, any>>({});
   const [currentFlowId, setCurrentFlowId] = useState<string | null>(null);
   const [isFlowInitialized, setIsFlowInitialized] = useState(false);
   const [flowError, setFlowError] = useState<Error | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isTimeoutDisabled, setIsTimeoutDisabled] = useState<boolean>(false);
   const [passkeyState, setPasskeyState] = useState<PasskeyState>({
     actionId: null,
     challenge: null,
@@ -244,6 +258,7 @@ const SignIn: FC<SignInProps> = ({
     setFlowId(null);
     setIsFlowInitialized(false);
     sessionStorage.removeItem('asgardeo_auth_id');
+    setIsTimeoutDisabled(false);
     // Reset refs to allow new flows to start properly
     oauthCodeProcessedRef.current = false;
   };
@@ -392,7 +407,11 @@ const SignIn: FC<SignInProps> = ({
         return;
       }
 
-      const {flowId: normalizedFlowId, components: normalizedComponents} = normalizeFlowResponse(
+      const {
+        flowId: normalizedFlowId,
+        components: normalizedComponents,
+        additionalData: normalizedAdditionalData,
+      } = normalizeFlowResponse(
         response,
         t,
         {
@@ -404,7 +423,9 @@ const SignIn: FC<SignInProps> = ({
       if (normalizedFlowId && normalizedComponents) {
         setFlowId(normalizedFlowId);
         setComponents(normalizedComponents);
+        setAdditionalData(normalizedAdditionalData ?? {});
         setIsFlowInitialized(true);
+        setIsTimeoutDisabled(false);
         // Clean up flowId from URL after setting it in state
         cleanupFlowUrlParams();
       }
@@ -436,10 +457,10 @@ const SignIn: FC<SignInProps> = ({
     handleAuthId(urlParams.authId);
 
     // Skip OAuth code processing - let the dedicated OAuth useEffect handle it
-    if (urlParams.code || urlParams.state) {
-      return;
-    }
+    // No action needed here as the dedicated useEffect will handle it
+  }, []);
 
+  useEffect(() => {
     // Only initialize if we're not processing an OAuth callback or submission
     const currentUrlParams: any = getUrlParams();
     if (
@@ -459,6 +480,36 @@ const SignIn: FC<SignInProps> = ({
   }, [isInitialized, isLoading, isFlowInitialized, currentFlowId]);
 
   /**
+   * Handle step timeout if configured in additionalData.
+   */
+  useEffect(() => {
+    const timeoutMs: number = Number(additionalData?.['stepTimeout']) || 0;
+    if (timeoutMs <= 0 || !isFlowInitialized) {
+      setIsTimeoutDisabled(false);
+      return undefined;
+    }
+
+    const remaining: number = Math.max(0, Math.floor((timeoutMs - Date.now()) / 1000));
+
+    const handleTimeout = (): void => {
+      const errorMessage: string = t('errors.signin.timeout') || 'Time allowed to complete the step has expired.';
+      setError(new Error(errorMessage));
+      setIsTimeoutDisabled(true);
+    };
+
+    if (remaining <= 0) {
+      handleTimeout();
+      return undefined;
+    }
+
+    const timerId: any = setTimeout(() => {
+      handleTimeout();
+    }, remaining * 1000);
+
+    return () => clearTimeout(timerId);
+  }, [additionalData?.['stepTimeout'], isFlowInitialized, t]);
+
+  /**
    * Handle form submission from BaseSignIn or render props.
    */
   const handleSubmit = async (payload: EmbeddedSignInFlowRequestV2): Promise<void> => {
@@ -469,6 +520,73 @@ const SignIn: FC<SignInProps> = ({
       throw new Error('No active flow ID');
     }
 
+    const processedInputs: Record<string, any> = {...payload.inputs};
+
+    // Auto-compile consent decisions if we are currently on a consent prompt step
+    if (additionalData?.['consentPrompt']) {
+      try {
+        const consentPromptRawData: any = additionalData['consentPrompt'];
+        const purposes: any[] =
+          typeof consentPromptRawData === 'string'
+            ? JSON.parse(consentPromptRawData)
+            : consentPromptRawData.purposes || consentPromptRawData;
+
+        // Find the action component to determine if it was a deny action
+        let isDeny: boolean = false;
+        if (payload.action) {
+          // Flatten components to find the action
+          const findAction = (comps: any[]): any => {
+            if (!comps || comps.length === 0) return null;
+
+            const found: any = comps.find((c: any) => c.id === payload.action);
+            if (found) return found;
+
+            return comps.reduce((acc: any, c: any) => {
+              if (acc) return acc;
+              if (c.components) return findAction(c.components);
+              return null;
+            }, null);
+          };
+
+          const submitAction: any = findAction(components);
+
+          if (submitAction && submitAction.variant?.toLowerCase() !== 'primary') {
+            isDeny = true;
+          }
+        }
+
+        const decisions: any = {
+          purposes: purposes.map((p: any) => ({
+            approved: !isDeny,
+            elements: [
+              ...(p.essential || []).map((attr: string) => ({
+                approved: !isDeny,
+                name: attr,
+              })),
+              ...(p.optional || []).map((attr: string) => {
+                const key: string = `__consent_opt__${p.purpose_id}__${attr}`;
+                return {
+                  approved: isDeny ? false : processedInputs[key] !== 'false',
+                  name: attr,
+                };
+              }),
+            ],
+            purpose_name: p.purpose_name,
+          })),
+        };
+        processedInputs['consent_decisions'] = JSON.stringify(decisions);
+
+        // Cleanup temporary consent tracking fields from inputs
+        Object.keys(processedInputs).forEach((key: string) => {
+          if (key.startsWith('__consent_opt__')) {
+            delete processedInputs[key];
+          }
+        });
+      } catch (e) {
+        // Failed to construct consent_decisions payload automatically
+      }
+    }
+
     try {
       setIsSubmitting(true);
       setFlowError(null);
@@ -476,6 +594,7 @@ const SignIn: FC<SignInProps> = ({
       const response: EmbeddedSignInFlowResponseV2 = (await signIn({
         flowId: effectiveFlowId,
         ...payload,
+        inputs: processedInputs,
       })) as EmbeddedSignInFlowResponseV2;
 
       if (handleRedirection(response)) {
@@ -505,7 +624,11 @@ const SignIn: FC<SignInProps> = ({
         return;
       }
 
-      const {flowId: normalizedFlowId, components: normalizedComponents} = normalizeFlowResponse(
+      const {
+        flowId: normalizedFlowId,
+        components: normalizedComponents,
+        additionalData: normalizedAdditionalData,
+      } = normalizeFlowResponse(
         response,
         t,
         {
@@ -562,6 +685,8 @@ const SignIn: FC<SignInProps> = ({
       if (normalizedFlowId && normalizedComponents) {
         setFlowId(normalizedFlowId);
         setComponents(normalizedComponents);
+        setAdditionalData(normalizedAdditionalData ?? {});
+        setIsTimeoutDisabled(false);
         // Ensure flow is marked as initialized when we have components
         setIsFlowInitialized(true);
         // Clean up flowId from URL after setting it in state
@@ -674,11 +799,13 @@ const SignIn: FC<SignInProps> = ({
 
   if (children) {
     const renderProps: SignInRenderProps = {
+      additionalData,
       components,
       error: flowError,
       initialize: initializeFlow,
       isInitialized: isFlowInitialized,
       isLoading: isLoading || isSubmitting || !isInitialized,
+      isTimeoutDisabled,
       meta,
       onSubmit: handleSubmit,
     };
@@ -688,8 +815,10 @@ const SignIn: FC<SignInProps> = ({
   // Otherwise, render the default BaseSignIn component
   return (
     <BaseSignIn
+      additionalData={additionalData}
       components={components}
       isLoading={isLoading || !isInitialized || !isFlowInitialized}
+      isTimeoutDisabled={isTimeoutDisabled}
       onSubmit={handleSubmit}
       onError={handleError}
       error={flowError}

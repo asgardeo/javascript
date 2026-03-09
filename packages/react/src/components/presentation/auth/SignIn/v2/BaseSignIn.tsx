@@ -79,6 +79,11 @@ export interface BaseSignInRenderProps {
   isLoading: boolean;
 
   /**
+   * Flag indicating if the step timer has reached zero
+   */
+  isTimeoutDisabled?: boolean;
+
+  /**
    * Whether the form is valid
    */
   isValid: boolean;
@@ -124,6 +129,11 @@ export interface BaseSignInRenderProps {
  */
 export interface BaseSignInProps {
   /**
+   * Additional data from the flow response.
+   */
+  additionalData?: Record<string, any>;
+
+  /**
    * Custom CSS class name for the submit button.
    */
   buttonClassName?: string;
@@ -162,6 +172,11 @@ export interface BaseSignInProps {
    * Flag to determine if the component is ready to be rendered.
    */
   isLoading?: boolean;
+
+  /**
+   * Timer flag disabling actions
+   */
+  isTimeoutDisabled?: boolean;
 
   /**
    * Custom CSS class name for info messages.
@@ -238,6 +253,8 @@ const BaseSignInContent: FC<BaseSignInProps> = ({
   children,
   showTitle = true,
   showSubtitle = true,
+  additionalData = {},
+  isTimeoutDisabled = false,
 }: BaseSignInProps): ReactElement => {
   const {meta} = useAsgardeo();
   const {theme} = useTheme();
@@ -455,8 +472,10 @@ const BaseSignInContent: FC<BaseSignInProps> = ({
         isFormValid,
         handleInputChange,
         {
+          additionalData,
           buttonClassName: buttonClasses,
           inputClassName: inputClasses,
+          isTimeoutDisabled,
           meta,
           onInputBlur: handleInputBlur,
           onSubmit: handleSubmit,
@@ -466,6 +485,7 @@ const BaseSignInContent: FC<BaseSignInProps> = ({
         },
       ),
     [
+      additionalData,
       formValues,
       touchedFields,
       formErrors,
@@ -479,6 +499,7 @@ const BaseSignInContent: FC<BaseSignInProps> = ({
       buttonClasses,
       handleInputBlur,
       handleSubmit,
+      isTimeoutDisabled,
     ],
   );
 
@@ -491,6 +512,7 @@ const BaseSignInContent: FC<BaseSignInProps> = ({
       handleInputChange,
       handleSubmit,
       isLoading,
+      isTimeoutDisabled,
       isValid: isFormValid,
       messages: flowMessages || [],
       meta,

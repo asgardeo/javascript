@@ -44,6 +44,9 @@ export enum EmbeddedFlowComponentType {
   /** Container block component that groups other components */
   Block = 'BLOCK',
 
+  /** Consent component for displaying consent purposes and attributes */
+  Consent = 'CONSENT',
+
   /** Divider component for visual separation of content */
   Divider = 'DIVIDER',
 
@@ -79,6 +82,9 @@ export enum EmbeddedFlowComponentType {
 
   /** Standard text input field for user data entry */
   TextInput = 'TEXT_INPUT',
+
+  /** Timer component for displaying a countdown */
+  Timer = 'TIMER',
 }
 
 /**
@@ -448,6 +454,70 @@ export interface EmbeddedFlowResponseData {
    * Optional redirect URL for flow completion or external authentication.
    */
   redirectURL?: string;
+}
+
+/**
+ * Individual consent attribute/element decision.
+ *
+ * @experimental This interface may change in future versions
+ */
+export interface ConsentAttributeElement {
+  /** Whether the user approved collection of this attribute */
+  approved: boolean;
+  /** The name of the attribute being consented */
+  name: string;
+}
+
+/**
+ * Consent decision for a single purpose.
+ *
+ * @experimental This interface may change in future versions
+ */
+export interface ConsentPurposeDecision {
+  /** Whether the user approved this purpose */
+  approved: boolean;
+  /** Per-attribute decisions for this purpose */
+  elements: ConsentAttributeElement[];
+  /** The name of the consent purpose */
+  purpose_name: string;
+}
+
+/**
+ * Full consent decisions structure sent to the backend when user submits the consent form.
+ *
+ * @experimental This interface may change in future versions
+ */
+export interface ConsentDecisions {
+  /** Array of per-purpose decisions */
+  purposes: ConsentPurposeDecision[];
+}
+
+/**
+ * Single consent purpose data returned by the backend in additionalData.consent_prompt.
+ *
+ * @experimental This interface may change in future versions
+ */
+export interface ConsentPurposeData {
+  /** Optional human-readable description of the purpose */
+  description?: string;
+  /** Attributes that are always required and cannot be declined */
+  essential: string[];
+  /** Attributes that the user can optionally decline */
+  optional: string[];
+  /** Unique identifier for the purpose */
+  purpose_id: string;
+  /** Human-readable purpose name */
+  purpose_name: string;
+}
+
+/**
+ * Consent prompt data structure stored in additionalData.consent_prompt.
+ *
+ * @experimental This interface may change in future versions
+ */
+export interface ConsentPromptData {
+  /** Array of consent purposes requiring user review */
+  purposes: ConsentPurposeData[];
 }
 
 /**
