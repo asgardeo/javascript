@@ -165,6 +165,7 @@ const translations: I18nTranslations = {
   'errors.signin.flow.passkeys.failure': 'An error occurred while signing in with passkeys. Please try again later.',
   'errors.signin.flow.passkeys.completion.failure':
     'An error occurred while completing the passkeys sign-in flow. Please try again later.',
+  'errors.signin.timeout': 'Time allowed to complete the step has expired.',
 
   'errors.signup.initialization': 'An error occurred while initializing. Please try again later.',
   'errors.signup.flow.failure': 'An error occurred during the sign-up flow. Please try again later.',

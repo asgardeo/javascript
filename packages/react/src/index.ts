@@ -143,6 +143,15 @@ export {default as SocialButton} from './components/presentation/auth/SignIn/v1/
 export {default as MultiOptionButton} from './components/presentation/auth/SignIn/v1/options/MultiOptionButton';
 export * from './components/presentation/auth/SignIn/v1/options/SignInOptionFactory';
 
+export {default as FlowTimer} from './components/adapters/FlowTimer';
+export * from './components/adapters/FlowTimer';
+
+export {default as ConsentCheckboxList} from './components/adapters/ConsentCheckboxList';
+export * from './components/adapters/ConsentCheckboxList';
+
+export {default as Consent} from './components/adapters/Consent';
+export * from './components/adapters/Consent';
+
 export {default as BaseUser} from './components/presentation/User/BaseUser';
 export * from './components/presentation/User/BaseUser';
 

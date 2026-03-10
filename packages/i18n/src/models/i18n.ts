@@ -167,6 +167,7 @@ export interface I18nTranslations {
   'errors.signup.flow.initialization.failure': string;
   'errors.signup.components.not.available': string;
   'errors.signin.components.not.available': string;
+  'errors.signin.timeout': string;
 }
 
 export type I18nTextDirection = 'ltr' | 'rtl';

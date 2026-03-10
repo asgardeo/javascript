@@ -172,6 +172,7 @@ const translations: I18nTranslations = {
     'O formulário de cadastro não está disponível no momento. Tente novamente mais tarde.',
   'errors.signin.components.not.available':
     'O formulário de login não está disponível no momento. Tente novamente mais tarde.',
+  'errors.signin.timeout': 'O tempo permitido para concluir a etapa expirou.',
 };
 
 const metadata: I18nMetadata = {

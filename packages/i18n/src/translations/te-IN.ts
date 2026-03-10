@@ -172,6 +172,7 @@ const translations: I18nTranslations = {
     'సైన్ అప్ ఫారం ప్రస్తుతం అందుబాటులో లేదు. దయచేసి తరువాత మళ్లీ ప్రయత్నించండి.',
   'errors.signin.components.not.available':
     'సైన్ ఇన్ ఫారం ప్రస్తుతం అందుబాటులో లేదు. దయచేసి తరువాత మళ్లీ ప్రయత్నించండి.',
+  'errors.signin.timeout': 'దశను పూర్తి చేయడానికి అనుమతించబడిన సమయం ముగిసింది.',
 };
 
 const metadata: I18nMetadata = {

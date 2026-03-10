@@ -173,6 +173,7 @@ const translations: I18nTranslations = {
     'O formulário de registo não está disponível de momento. Tente novamente mais tarde.',
   'errors.signin.components.not.available':
     'O formulário de início de sessão não está disponível de momento. Tente novamente mais tarde.',
+  'errors.signin.timeout': 'O tempo permitido para completar a etapa expirou.',
 };
 
 const metadata: I18nMetadata = {

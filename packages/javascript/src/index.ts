@@ -86,6 +86,11 @@ export {
   EmbeddedFlowComponent as EmbeddedFlowComponentV2,
   EmbeddedFlowResponseData as EmbeddedFlowResponseDataV2,
   EmbeddedFlowExecuteRequestConfig as EmbeddedFlowExecuteRequestConfigV2,
+  ConsentAttributeElement as ConsentAttributeElementV2,
+  ConsentPurposeDecision as ConsentPurposeDecisionV2,
+  ConsentDecisions as ConsentDecisionsV2,
+  ConsentPurposeData as ConsentPurposeDataV2,
+  ConsentPromptData as ConsentPromptDataV2,
 } from './models/v2/embedded-flow-v2';
 export {
   EmbeddedSignInFlowStatus as EmbeddedSignInFlowStatusV2,

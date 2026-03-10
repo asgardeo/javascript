@@ -172,6 +172,7 @@ const translations: I18nTranslations = {
     'பதிவு செய்யும் செயல்பாட்டை தொடங்கும்போது பிழை ஏற்பட்டது. பின்னர் மீண்டும் முயற்சிக்கவும்.',
   'errors.signup.components.not.available': 'பதிவு படிவம் இப்போது கிடைக்கவில்லை. பின்னர் மீண்டும் முயற்சிக்கவும்.',
   'errors.signin.components.not.available': 'உள்நுழைவு படிவம் இப்போது கிடைக்கவில்லை. பின்னர் மீண்டும் முயற்சிக்கவும்.',
+  'errors.signin.timeout': 'படிநிலையை முடிக்க அனுமதிக்கப்பட்ட நேரம் காலாவதியானது.',
 };
 
 const metadata: I18nMetadata = {

@@ -295,6 +295,7 @@ export const normalizeFlowResponse = (
   options: FlowTransformOptions = {},
   meta?: FlowMetadataResponse | null,
 ): {
+  additionalData: Record<string, any>;
   components: EmbeddedFlowComponent[];
   flowId: string;
 } => {
@@ -308,7 +309,21 @@ export const normalizeFlowResponse = (
     throw response;
   }
 
+  const additionalData: Record<string, any> = (response?.data?.additionalData as Record<string, any>) ?? {};
+
+  // The consent prompt is serialized as a JSON string (array) by the backend.
+  // Parse it and wrap in the expected {purposes: [...]} structure.
+  if (typeof additionalData['consentPrompt'] === 'string') {
+    try {
+      const parsed: any = JSON.parse(additionalData['consentPrompt']);
+      additionalData['consentPrompt'] = {purposes: Array.isArray(parsed) ? parsed : []};
+    } catch {
+      // Leave unparseable value as-is
+    }
+  }
+
   return {
+    additionalData,
     components: transformComponents(response, t, resolveTranslations, meta),
     flowId: response.flowId,
   };

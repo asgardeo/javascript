@@ -25,12 +25,20 @@ import {
   EmbeddedFlowEventTypeV2 as EmbeddedFlowEventType,
   createPackageComponentLogger,
   resolveVars,
+  ConsentPurposeDataV2 as ConsentPurposeData,
+  ConsentPromptDataV2 as ConsentPromptData,
+  ConsentDecisionsV2 as ConsentDecisions,
+  ConsentPurposeDecisionV2 as ConsentPurposeDecision,
+  ConsentAttributeElementV2 as ConsentAttributeElement,
 } from '@asgardeo/browser';
 import {css} from '@emotion/css';
 import DOMPurify from 'dompurify';
 import {cloneElement, CSSProperties, ReactElement} from 'react';
 import {UseTranslation} from '../../../hooks/useTranslation';
+import Consent from '../../adapters/Consent';
+import {getConsentOptionalKey} from '../../adapters/ConsentCheckboxList';
 import FacebookButton from '../../adapters/FacebookButton';
+import FlowTimer from '../../adapters/FlowTimer';
 import GitHubButton from '../../adapters/GitHubButton';
 import GoogleButton from '../../adapters/GoogleButton';
 import ImageComponent from '../../adapters/ImageComponent';
@@ -142,9 +150,15 @@ const createAuthComponentFromFlow = (
   onInputChange: (name: string, value: string) => void,
   authType: AuthType,
   options: {
+    /** Additional data from the flow response, used for different dynamic data */
+    additionalData?: Record<string, any>;
     buttonClassName?: string;
+    /** Current consent purpose being rendered. Set by CONSENT_PURPOSE block iteration. */
+    currentConsentPurpose?: ConsentPurposeData;
     inStack?: boolean;
     inputClassName?: string;
+    /** Flag to determine if the step timeline has expired */
+    isTimeoutDisabled?: boolean;
     key?: string | number;
     /** Flow metadata for resolving {{meta(...)}} expressions at render time */
     meta?: FlowMetadataResponse | null;
@@ -208,6 +222,35 @@ const createAuthComponentFromFlow = (
             // Include all values, even empty strings, to ensure proper submission
             formData[field] = formValues[field];
           });
+
+          // For consent actions, build the consent_decisions JSON from the form values.
+          // The allow action captures per-attribute choices; the deny action sends
+          // all purposes as rejected so the backend ConsentExecutor can fail the flow.
+          const consentPrompt: ConsentPromptData | undefined = options.additionalData?.['consentPrompt'] as
+            | ConsentPromptData
+            | undefined;
+          if (consentPrompt && eventType.toUpperCase() === EmbeddedFlowEventType.Submit) {
+            const isDeny: boolean = componentVariant.toLowerCase() !== 'primary';
+            const decisions: ConsentDecisions = {
+              purposes: consentPrompt.purposes.map(
+                (p: ConsentPurposeData): ConsentPurposeDecision => ({
+                  approved: !isDeny,
+                  elements: [
+                    ...p.essential.map((attr: string): ConsentAttributeElement => ({approved: !isDeny, name: attr})),
+                    ...p.optional.map(
+                      (attr: string): ConsentAttributeElement => ({
+                        approved: isDeny ? false : formValues[getConsentOptionalKey(p.purpose_id, attr)] !== 'false',
+                        name: attr,
+                      }),
+                    ),
+                  ],
+                  purpose_name: p.purpose_name,
+                }),
+              ),
+            };
+            formData['consent_decisions'] = JSON.stringify(decisions);
+          }
+
           options.onSubmit(component, formData, shouldSkipValidation);
         }
       };
@@ -259,7 +302,12 @@ const createAuthComponentFromFlow = (
           fullWidth
           key={key}
           onClick={handleClick}
-          disabled={isLoading || !isFormValid}
+          disabled={
+            isLoading ||
+            (!isFormValid && !shouldSkipValidation) ||
+            options.isTimeoutDisabled ||
+            (component as any).config?.disabled
+          }
           className={options.buttonClassName}
           data-testid="asgardeo-signin-submit"
           variant={component.variant?.toLowerCase() === 'primary' ? 'solid' : 'outline'}
@@ -436,6 +484,28 @@ const createAuthComponentFromFlow = (
       );
     }
 
+    case EmbeddedFlowComponentType.Consent: {
+      const consentPromptRawData: ConsentPromptData | string | undefined = options.additionalData?.['consentPrompt'];
+
+      return (
+        <Consent
+          key={key}
+          consentData={consentPromptRawData as any}
+          formValues={formValues}
+          onInputChange={onInputChange}
+        />
+      );
+    }
+
+    case EmbeddedFlowComponentType.Timer: {
+      const timerConfig: {text?: string} = (component as any).config || {};
+      const textTemplate: string = timerConfig.text || 'Time remaining: {time}';
+      const timeoutMs: number = Number(options.additionalData?.['stepTimeout']) || 0;
+      const expiresIn: number = timeoutMs > 0 ? Math.max(0, Math.floor((timeoutMs - Date.now()) / 1000)) : 0;
+
+      return <FlowTimer key={key} expiresIn={expiresIn} textTemplate={textTemplate} />;
+    }
+
     default:
       // Gracefully handle unsupported component types by returning null
       logger.warn(`Unsupported component type: ${component.type}. Skipping render.`);
@@ -455,8 +525,12 @@ export const renderSignInComponents = (
   isFormValid: boolean,
   onInputChange: (name: string, value: string) => void,
   options?: {
+    /** Additional data from the flow response */
+    additionalData?: Record<string, any>;
     buttonClassName?: string;
     inputClassName?: string;
+    /** Flag to determine if the step timeline has expired */
+    isTimeoutDisabled?: boolean;
     /** Flow metadata for resolving {{meta(...)}} expressions at render time */
     meta?: FlowMetadataResponse | null;
     onInputBlur?: (name: string) => void;
@@ -498,6 +572,8 @@ export const renderSignUpComponents = (
   isFormValid: boolean,
   onInputChange: (name: string, value: string) => void,
   options?: {
+    /** Additional data from the flow response */
+    additionalData?: Record<string, any>;
     buttonClassName?: string;
     inputClassName?: string;
     /** Flow metadata for resolving {{meta(...)}} expressions at render time */
@@ -542,6 +618,8 @@ export const renderInviteUserComponents = (
   isFormValid: boolean,
   onInputChange: (name: string, value: string) => void,
   options?: {
+    /** Additional data from the flow response */
+    additionalData?: Record<string, any>;
     buttonClassName?: string;
     inputClassName?: string;
     /** Flow metadata for resolving {{meta(...)}} expressions at render time */
