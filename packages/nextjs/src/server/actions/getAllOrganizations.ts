@@ -28,10 +28,11 @@ import AsgardeoNextClient from '../../AsgardeoNextClient';
 const getAllOrganizations = async (
   options?: any,
   sessionId?: string | undefined,
+  instanceId: number = 0,
 ): Promise<AllOrganizationsApiResponse> => {
   try {
-    const client: AsgardeoNextClient = AsgardeoNextClient.getInstance();
-    return await client.getAllOrganizations(options, sessionId ?? ((await getSessionId()) as string));
+    const client: AsgardeoNextClient = AsgardeoNextClient.getInstance(instanceId);
+    return await client.getAllOrganizations(options, sessionId ?? ((await getSessionId(instanceId)) as string));
   } catch (error) {
     throw new AsgardeoAPIError(
       `Failed to get all the organizations for the user: ${error instanceof Error ? error.message : String(error)}`,

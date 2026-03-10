@@ -24,16 +24,16 @@ import AsgardeoNextClient from '../../AsgardeoNextClient';
 /**
  * Server action to get organizations.
  */
-const getMyOrganizations = async (options?: any, sessionId?: string | undefined): Promise<Organization[]> => {
+const getMyOrganizations = async (options?: any, sessionId?: string | undefined, instanceId: number = 0): Promise<Organization[]> => {
   try {
-    const client: AsgardeoNextClient = AsgardeoNextClient.getInstance();
+    const client: AsgardeoNextClient = AsgardeoNextClient.getInstance(instanceId);
 
     // Get session ID if not provided
     let resolvedSessionId: string | undefined = sessionId;
     if (!resolvedSessionId) {
       // Import getSessionId locally to avoid circular dependencies
       const {default: getSessionId} = await import('./getSessionId');
-      resolvedSessionId = await getSessionId();
+      resolvedSessionId = await getSessionId(instanceId);
     }
 
     if (!resolvedSessionId) {

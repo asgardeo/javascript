@@ -31,19 +31,19 @@ import SessionManager from '../../utils/SessionManager';
  *
  * @returns Promise that resolves with success status and optional after sign-out URL
  */
-const signOutAction = async (): Promise<{data?: {afterSignOutUrl?: string}; error?: unknown; success: boolean}> => {
+const signOutAction = async (instanceId: number = 0): Promise<{data?: {afterSignOutUrl?: string}; error?: unknown; success: boolean}> => {
   logger.debug('[signOutAction] Initiating sign out process from the server action.');
 
   const clearSessionCookies = async (): Promise<void> => {
     const cookieStore: ReadonlyRequestCookies = await cookies();
 
-    cookieStore.delete(SessionManager.getSessionCookieName());
-    cookieStore.delete(SessionManager.getTempSessionCookieName());
+    cookieStore.delete(SessionManager.getSessionCookieName(instanceId));
+    cookieStore.delete(SessionManager.getTempSessionCookieName(instanceId));
   };
 
   try {
-    const client: AsgardeoNextClient = AsgardeoNextClient.getInstance();
-    const sessionId: string | undefined = await getSessionId();
+    const client: AsgardeoNextClient = AsgardeoNextClient.getInstance(instanceId);
+    const sessionId: string | undefined = await getSessionId(instanceId);
 
     let afterSignOutUrl: string = '/';
 

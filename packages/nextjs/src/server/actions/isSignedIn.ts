@@ -30,15 +30,15 @@ import {SessionTokenPayload} from '../../utils/SessionManager';
  * @param sessionId - Optional session ID to check (if not provided, gets from cookies)
  * @returns True if user is signed in, false otherwise
  */
-const isSignedIn = async (sessionId?: string): Promise<boolean> => {
+const isSignedIn = async (sessionId?: string, instanceId: number = 0): Promise<boolean> => {
   try {
-    const sessionPayload: SessionTokenPayload | undefined = await getSessionPayload();
+    const sessionPayload: SessionTokenPayload | undefined = await getSessionPayload(instanceId);
 
     if (sessionPayload) {
       const resolvedSessionId: string = sessionPayload.sessionId;
 
       if (resolvedSessionId) {
-        const client: AsgardeoNextClient = AsgardeoNextClient.getInstance();
+        const client: AsgardeoNextClient = AsgardeoNextClient.getInstance(instanceId);
         try {
           const accessToken: string = await client.getAccessToken(resolvedSessionId);
           return !!accessToken;
@@ -48,13 +48,13 @@ const isSignedIn = async (sessionId?: string): Promise<boolean> => {
       }
     }
 
-    const resolvedSessionId: string | undefined = sessionId || (await getSessionId());
+    const resolvedSessionId: string | undefined = sessionId || (await getSessionId(instanceId));
 
     if (!resolvedSessionId) {
       return false;
     }
 
-    const client: AsgardeoNextClient = AsgardeoNextClient.getInstance();
+    const client: AsgardeoNextClient = AsgardeoNextClient.getInstance(instanceId);
 
     try {
       const accessToken: string = await client.getAccessToken(resolvedSessionId);

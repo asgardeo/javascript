@@ -28,9 +28,10 @@ import AsgardeoNextClient from '../../AsgardeoNextClient';
 const updateUserProfileAction = async (
   payload: UpdateMeProfileConfig,
   sessionId?: string,
+  instanceId: number = 0,
 ): Promise<{data: {user: User}; error: string; success: boolean}> => {
   try {
-    const client: AsgardeoNextClient = AsgardeoNextClient.getInstance();
+    const client: AsgardeoNextClient = AsgardeoNextClient.getInstance(instanceId);
     const user: User = await client.updateUserProfile(payload, sessionId);
     return {data: {user}, error: '', success: true};
   } catch (error) {

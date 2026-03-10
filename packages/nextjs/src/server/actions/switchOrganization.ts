@@ -32,11 +32,12 @@ import SessionManager from '../../utils/SessionManager';
 const switchOrganization = async (
   organization: Organization,
   sessionId: string | undefined,
+  instanceId: number = 0,
 ): Promise<TokenResponse | Response> => {
   try {
     const cookieStore: ReadonlyRequestCookies = await cookies();
-    const client: AsgardeoNextClient = AsgardeoNextClient.getInstance();
-    const resolvedSessionId: string = sessionId ?? ((await getSessionId()) as string);
+    const client: AsgardeoNextClient = AsgardeoNextClient.getInstance(instanceId);
+    const resolvedSessionId: string = sessionId ?? ((await getSessionId(instanceId)) as string);
     const response: TokenResponse | Response = await client.switchOrganization(organization, resolvedSessionId);
 
     // After switching organization, we need to refresh the page to get updated session data
@@ -65,7 +66,7 @@ const switchOrganization = async (
 
       logger.debug('[switchOrganization] Session token created successfully.');
 
-      cookieStore.set(SessionManager.getSessionCookieName(), sessionToken, SessionManager.getSessionCookieOptions());
+      cookieStore.set(SessionManager.getSessionCookieName(instanceId), sessionToken, SessionManager.getSessionCookieOptions());
     }
 
     return response;
