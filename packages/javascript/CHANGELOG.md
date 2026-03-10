@@ -1,5 +1,18 @@
 # @asgardeo/javascript
 
+## 0.9.2
+
+### Patch Changes
+
+- [#392](https://github.com/asgardeo/javascript/pull/392)
+  [`42dcd4a`](https://github.com/asgardeo/javascript/commit/42dcd4a9948a10a71fdff7e3b0f93c09bb5c40e8) Thanks
+  [@ThaminduDilshan](https://github.com/ThaminduDilshan)! - Add new consent prompt and timer components to render
+  consent UI pages in V2 Platform
+
+- Updated dependencies
+  [[`42dcd4a`](https://github.com/asgardeo/javascript/commit/42dcd4a9948a10a71fdff7e3b0f93c09bb5c40e8)]:
+  - @asgardeo/i18n@0.4.4
+
 ## 0.9.1
 
 ### Patch Changes
