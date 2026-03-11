@@ -169,6 +169,7 @@ class AsgardeoNextClient<T extends AsgardeoNextConfig = AsgardeoNextConfig> exte
         ...rest,
       } as any,
       storage,
+      this.instanceId,
     );
   }
 
