@@ -37,10 +37,10 @@ import SessionManager from '../../utils/SessionManager';
  * @returns Promise that resolves with success status and optional error message
  */
 const handleOAuthCallbackAction = async (
+  instanceId: number = 0,
   code: string,
   state: string,
   sessionState?: string,
-  instanceId: number = 0,
 ): Promise<{
   error?: string;
   redirectUrl?: string;

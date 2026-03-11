@@ -30,8 +30,8 @@ import AsgardeoNextClient from '../../AsgardeoNextClient';
  * @returns Promise that resolves when sign-in is complete
  */
 const signUpAction = async (
-  payload?: EmbeddedFlowExecuteRequestPayload,
   instanceId: number = 0,
+  payload?: EmbeddedFlowExecuteRequestPayload,
 ): Promise<{
   data?:
     | {

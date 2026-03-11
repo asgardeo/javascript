@@ -41,9 +41,9 @@ import SessionManager, {SessionTokenPayload} from '../../utils/SessionManager';
  * @returns Promise that resolves when sign-in is complete
  */
 const signInAction = async (
+  instanceId: number = 0,
   payload?: EmbeddedSignInFlowHandleRequestPayload,
   request?: EmbeddedFlowExecuteRequestConfig,
-  instanceId: number = 0,
 ): Promise<{
   data?:
     | {

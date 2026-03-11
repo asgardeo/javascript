@@ -25,13 +25,15 @@ import {
   getSessionIdFromRequest,
 } from '../../utils/sessionUtils';
 
-export type AsgardeoMiddlewareOptions = Partial<AsgardeoNextConfig>;
+export type AsgardeoMiddlewareOptions = Partial<AsgardeoNextConfig> & {instanceId?: number};
 
 export type AsgardeoMiddlewareContext = {
   /** Get the session payload from JWT session if available */
   getSession: () => Promise<SessionTokenPayload | undefined>;
   /** Get the session ID from the current request */
   getSessionId: () => string | undefined;
+  /** The instance ID for this middleware context */
+  instanceId: number;
   /** Check if the current request has a valid Asgardeo session */
   isSignedIn: () => boolean;
   /**
@@ -57,9 +59,9 @@ type AsgardeoMiddlewareHandler = (
  * @param request - The Next.js request object
  * @returns True if a valid session exists, false otherwise
  */
-const hasValidSession = async (request: NextRequest): Promise<boolean> => {
+const hasValidSession = async (request: NextRequest, instanceId: number = 0): Promise<boolean> => {
   try {
-    return await hasValidJWTSession(request);
+    return await hasValidJWTSession(request, instanceId);
   } catch {
     return Promise.resolve(false);
   }
@@ -72,8 +74,8 @@ const hasValidSession = async (request: NextRequest): Promise<boolean> => {
  * @param request - The Next.js request object
  * @returns The session ID if it exists, undefined otherwise
  */
-const getSessionIdFromRequestMiddleware = async (request: NextRequest): Promise<string | undefined> =>
-  getSessionIdFromRequest(request);
+const getSessionIdFromRequestMiddleware = async (request: NextRequest, instanceId: number = 0): Promise<string | undefined> =>
+  getSessionIdFromRequest(request, instanceId);
 
 /**
  * Asgardeo middleware that integrates authentication into your Next.js application.
@@ -138,6 +140,7 @@ const asgardeoMiddleware =
   ): ((request: NextRequest) => Promise<NextResponse>) =>
   async (request: NextRequest): Promise<NextResponse> => {
     const resolvedOptions: AsgardeoMiddlewareOptions = typeof options === 'function' ? options(request) : options || {};
+    const instanceId: number = resolvedOptions.instanceId ?? 0;
 
     const url: URL = new URL(request.url);
     const hasCallbackParams: boolean = url.searchParams.has('code') && url.searchParams.has('state');
@@ -150,7 +153,7 @@ const asgardeoMiddleware =
       if (!hasError) {
         // Validate that there's a temporary session that initiated this OAuth flow
         const tempSessionToken: string | undefined = request.cookies.get(
-          SessionManager.getTempSessionCookieName(),
+          SessionManager.getTempSessionCookieName(instanceId),
         )?.value;
         if (tempSessionToken) {
           try {
@@ -165,18 +168,19 @@ const asgardeoMiddleware =
       }
     }
 
-    const sessionId: string | undefined = await getSessionIdFromRequestMiddleware(request);
-    const isAuthenticated: boolean = await hasValidSession(request);
+    const sessionId: string | undefined = await getSessionIdFromRequestMiddleware(request, instanceId);
+    const isAuthenticated: boolean = await hasValidSession(request, instanceId);
 
     const asgardeo: AsgardeoMiddlewareContext = {
       getSession: async (): Promise<SessionTokenPayload | undefined> => {
         try {
-          return await getSessionFromRequest(request);
+          return await getSessionFromRequest(request, instanceId);
         } catch {
           return undefined;
         }
       },
       getSessionId: (): string | undefined => sessionId,
+      instanceId,
       isSignedIn: (): boolean => isAuthenticated,
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       protectRoute: async (routeOptions?: {redirect?: string}): Promise<NextResponse | void> => {

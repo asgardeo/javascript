@@ -18,7 +18,14 @@
 
 'use server';
 
-import {BrandingPreference, AsgardeoRuntimeError, IdToken, Organization, User, UserProfile} from '@asgardeo/node';
+import {
+  BrandingPreference,
+  AsgardeoRuntimeError,
+  IdToken,
+  Organization,
+  User,
+  UserProfile,
+} from '@asgardeo/node';
 import {AsgardeoProviderProps} from '@asgardeo/react';
 import {FC, PropsWithChildren, ReactElement} from 'react';
 import createOrganization from './actions/createOrganization';
@@ -70,9 +77,10 @@ const AsgardeoServerProvider: FC<PropsWithChildren<AsgardeoServerProviderProps>>
   children,
   afterSignInUrl,
   afterSignOutUrl,
+  instanceId = 0,
   ..._config
 }: PropsWithChildren<AsgardeoServerProviderProps>): Promise<ReactElement> => {
-  const asgardeoClient: AsgardeoNextClient = AsgardeoNextClient.getInstance();
+  const asgardeoClient: AsgardeoNextClient = AsgardeoNextClient.getInstance(instanceId);
   let config: Partial<AsgardeoNextConfig> = {};
 
   try {
@@ -97,9 +105,9 @@ const AsgardeoServerProvider: FC<PropsWithChildren<AsgardeoServerProviderProps>>
   }
 
   // Try to get session information from JWT first, then fall back to legacy
-  const sessionPayload: SessionTokenPayload | undefined = await getSessionPayload();
-  const sessionId: string = sessionPayload?.sessionId || (await getSessionId()) || '';
-  const signedIn: boolean = sessionPayload ? true : await isSignedIn(sessionId);
+  const sessionPayload: SessionTokenPayload | undefined = await getSessionPayload(instanceId);
+  const sessionId: string = sessionPayload?.sessionId || (await getSessionId(instanceId)) || '';
+  const signedIn: boolean = sessionPayload ? true : await isSignedIn(sessionId, instanceId);
 
   let user: User = {};
   let userProfile: UserProfile = {
@@ -138,20 +146,20 @@ const AsgardeoServerProvider: FC<PropsWithChildren<AsgardeoServerProviderProps>>
         data: {user: User | null};
         error: string | null;
         success: boolean;
-      } = await getUserAction(sessionId);
+      } = await getUserAction(sessionId, instanceId);
       const userProfileResponse: {
         data: {userProfile: UserProfile};
         error: string | null;
         success: boolean;
-      } = await getUserProfileAction(sessionId);
+      } = await getUserProfileAction(sessionId, instanceId);
       const currentOrganizationResponse: {
         data: {organization?: Organization; user?: Record<string, unknown>};
         error: string | null;
         success: boolean;
-      } = await getCurrentOrganizationAction(sessionId);
+      } = await getCurrentOrganizationAction(sessionId, instanceId);
 
       if (sessionId) {
-        myOrganizations = await getMyOrganizations({}, sessionId);
+        myOrganizations = await getMyOrganizations({}, sessionId, instanceId);
       } else {
         // eslint-disable-next-line no-console
         console.warn('[AsgardeoServerProvider] No session ID available, skipping organization fetch');
@@ -186,15 +194,26 @@ const AsgardeoServerProvider: FC<PropsWithChildren<AsgardeoServerProviderProps>>
     }
   }
 
+  // Create instance-bound server actions using .bind() so React can serialize them
+  // as proper server action references when passed to Client Components.
+  const boundSignIn = signInAction.bind(null, instanceId);
+  const boundSignOut = signOutAction.bind(null, instanceId);
+  const boundSignUp = signUpAction.bind(null, instanceId);
+  const boundHandleOAuthCallback = handleOAuthCallbackAction.bind(null, instanceId);
+  const boundSwitchOrganization = switchOrganization.bind(null, instanceId);
+  const boundGetAllOrganizations = getAllOrganizations.bind(null, instanceId);
+  const boundCreateOrganization = createOrganization.bind(null, instanceId);
+  const boundUpdateUserProfile = updateUserProfileAction.bind(null, instanceId);
+
   return (
     <AsgardeoClientProvider
       organizationHandle={config?.organizationHandle}
       applicationId={config?.applicationId}
       baseUrl={config?.baseUrl}
-      signIn={signInAction}
-      signOut={signOutAction}
-      signUp={signUpAction}
-      handleOAuthCallback={handleOAuthCallbackAction}
+      signIn={boundSignIn}
+      signOut={boundSignOut}
+      signUp={boundSignUp}
+      handleOAuthCallback={boundHandleOAuthCallback}
       signInUrl={config?.signInUrl}
       signUpUrl={config?.signUpUrl}
       preferences={config?.preferences}
@@ -202,13 +221,13 @@ const AsgardeoServerProvider: FC<PropsWithChildren<AsgardeoServerProviderProps>>
       user={user}
       currentOrganization={currentOrganization}
       userProfile={userProfile}
-      updateProfile={updateUserProfileAction}
+      updateProfile={boundUpdateUserProfile}
       isSignedIn={signedIn}
       myOrganizations={myOrganizations}
-      getAllOrganizations={getAllOrganizations}
-      switchOrganization={switchOrganization}
+      getAllOrganizations={boundGetAllOrganizations}
+      switchOrganization={boundSwitchOrganization}
       brandingPreference={brandingPreference}
-      createOrganization={createOrganization}
+      createOrganization={boundCreateOrganization}
     >
       {children}
     </AsgardeoClientProvider>

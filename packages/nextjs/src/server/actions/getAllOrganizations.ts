@@ -26,9 +26,9 @@ import AsgardeoNextClient from '../../AsgardeoNextClient';
  * Server action to get organizations.
  */
 const getAllOrganizations = async (
+  instanceId: number = 0,
   options?: any,
   sessionId?: string | undefined,
-  instanceId: number = 0,
 ): Promise<AllOrganizationsApiResponse> => {
   try {
     const client: AsgardeoNextClient = AsgardeoNextClient.getInstance(instanceId);

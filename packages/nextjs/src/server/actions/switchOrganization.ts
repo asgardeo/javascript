@@ -30,9 +30,9 @@ import SessionManager from '../../utils/SessionManager';
  * Server action to switch organization.
  */
 const switchOrganization = async (
+  instanceId: number = 0,
   organization: Organization,
   sessionId: string | undefined,
-  instanceId: number = 0,
 ): Promise<TokenResponse | Response> => {
   try {
     const cookieStore: ReadonlyRequestCookies = await cookies();

@@ -21,29 +21,29 @@ import getSessionIdAction from './actions/getSessionId';
 import AsgardeoNextClient from '../AsgardeoNextClient';
 import {AsgardeoNextConfig} from '../models/config';
 
-const asgardeo = async (): Promise<{
+const asgardeo = async (instanceId: number = 0): Promise<{
   exchangeToken: (config: TokenExchangeRequestConfig, sessionId: string) => Promise<TokenResponse | Response>;
   getAccessToken: (sessionId: string) => Promise<string>;
   getSessionId: () => Promise<string | undefined>;
   reInitialize: (config: Partial<AsgardeoNextConfig>) => Promise<boolean>;
 }> => {
   const getAccessToken = async (sessionId: string): Promise<string> => {
-    const client: AsgardeoNextClient = AsgardeoNextClient.getInstance();
+    const client: AsgardeoNextClient = AsgardeoNextClient.getInstance(instanceId);
     return client.getAccessToken(sessionId);
   };
 
-  const getSessionId = async (): Promise<string | undefined> => getSessionIdAction();
+  const getSessionId = async (): Promise<string | undefined> => getSessionIdAction(instanceId);
 
   const exchangeToken = async (
     config: TokenExchangeRequestConfig,
     sessionId: string,
   ): Promise<TokenResponse | Response> => {
-    const client: AsgardeoNextClient = AsgardeoNextClient.getInstance();
+    const client: AsgardeoNextClient = AsgardeoNextClient.getInstance(instanceId);
     return client.exchangeToken(config, sessionId);
   };
 
   const reInitialize = async (config: Partial<AsgardeoNextConfig>): Promise<boolean> => {
-    const client: AsgardeoNextClient = AsgardeoNextClient.getInstance();
+    const client: AsgardeoNextClient = AsgardeoNextClient.getInstance(instanceId);
     return client.reInitialize(config);
   };
 
