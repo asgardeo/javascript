@@ -498,8 +498,7 @@ const createAuthComponentFromFlow = (
     }
 
     case EmbeddedFlowComponentType.Timer: {
-      const timerConfig: {text?: string} = (component as any).config || {};
-      const textTemplate: string = timerConfig.text || 'Time remaining: {time}';
+      const textTemplate: string = resolve((component as any).label) || 'Time remaining: {time}';
       const timeoutMs: number = Number(options.additionalData?.['stepTimeout']) || 0;
       const expiresIn: number = timeoutMs > 0 ? Math.max(0, Math.floor((timeoutMs - Date.now()) / 1000)) : 0;
 
