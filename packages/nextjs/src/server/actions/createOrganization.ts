@@ -25,7 +25,7 @@ import AsgardeoNextClient from '../../AsgardeoNextClient';
 /**
  * Server action to create an organization.
  */
-const createOrganization = async (payload: CreateOrganizationPayload, sessionId: string, instanceId: number = 0): Promise<Organization> => {
+const createOrganization = async (instanceId: number = 0, payload: CreateOrganizationPayload, sessionId: string): Promise<Organization> => {
   try {
     const client: AsgardeoNextClient = AsgardeoNextClient.getInstance(instanceId);
     return await client.createOrganization(payload, sessionId ?? ((await getSessionId(instanceId)) as string));
