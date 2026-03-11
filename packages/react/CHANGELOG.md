@@ -1,5 +1,13 @@
 # @asgardeo/react
 
+## 0.14.3
+
+### Patch Changes
+
+- [#395](https://github.com/asgardeo/javascript/pull/395)
+  [`c1c4f36`](https://github.com/asgardeo/javascript/commit/c1c4f36b45f57605c71bcfb485d3d315f03359df) Thanks
+  [@ThaminduDilshan](https://github.com/ThaminduDilshan)! - Modify timer text to use the label field
+
 ## 0.14.2
 
 ### Patch Changes
