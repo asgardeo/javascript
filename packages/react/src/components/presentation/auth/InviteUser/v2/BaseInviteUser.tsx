@@ -104,14 +104,14 @@ export interface BaseInviteUserRenderProps {
   inviteLinkCopied: boolean;
 
   /**
-   * Whether the invite link has been generated (admin flow complete).
-   */
-  isInviteGenerated: boolean;
-
-  /**
    * Whether the invite email was sent successfully.
    */
   isEmailSent: boolean;
+
+  /**
+   * Whether the invite link has been generated (admin flow complete).
+   */
+  isInviteGenerated: boolean;
 
   /**
    * Loading state.
