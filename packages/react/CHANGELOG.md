@@ -1,5 +1,14 @@
 # @asgardeo/react
 
+## 0.14.4
+
+### Patch Changes
+
+- [#397](https://github.com/asgardeo/javascript/pull/397)
+  [`fa14d22`](https://github.com/asgardeo/javascript/commit/fa14d22e2fb59059c30d2771d1e5c923226d4e96) Thanks
+  [@RandithaK](https://github.com/RandithaK)! - Support sending invite links via email, with direct link sharing as a
+  fallback.
+
 ## 0.14.3
 
 ### Patch Changes
