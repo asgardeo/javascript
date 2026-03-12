@@ -1,39 +1,36 @@
 {
+  "extends": "../../tsconfig.json",
   "compileOnSave": false,
   "compilerOptions": {
-    "jsx": "preserve",
-    "target": "es2016",
-    "module": "ESNext",
+    "declaration": false,
     "emitDecoratorMetadata": true,
     "esModuleInterop": true,
     "experimentalDecorators": true,
-    "forceConsistentCasingInFileNames": true,
-    "strict": false,
+    "importHelpers": true,
+    "jsx": "preserve",
+    "lib": ["ESNext", "DOM"],
+    "module": "ESNext",
+    "moduleResolution": "node",
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
-    "allowJs": true,
-    "allowSyntheticDefaultImports": true,
-    "declaration": true,
-    "declarationDir": "dist/types",
-    "outDir": "dist",
-    "moduleResolution": "node",
-    "importHelpers": true,
-    "resolveJsonModule": true,
+    "sourceMap": true,
+    "target": "ESNext",
+    "forceConsistentCasingInFileNames": true,
+    "strict": false,
     "noImplicitOverride": true,
     "noPropertyAccessFromIndexSignature": true,
     "noImplicitReturns": true,
-    "noFallthroughCasesInSwitch": true,
-    "types": ["vite/client", "vitest"],
-    "paths": {
-      "@/*": ["./src/*"]
-    }
+    "noFallthroughCasesInSwitch": true
   },
-  "include": [],
+  "exclude": ["node_modules", "tmp", "dist"],
   "files": [],
-  "exclude": ["node_modules", "tmp"],
+  "include": [],
   "references": [
     {
       "path": "./tsconfig.lib.json"
+    },
+    {
+      "path": "./tsconfig.spec.json"
     }
   ]
 }

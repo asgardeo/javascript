@@ -16,7 +16,42 @@
  * under the License.
  */
 
-export * from './public-api';
-export * from './types';
+// ── Plugin ──
+export {default as AsgardeoPlugin} from './plugins/AsgardeoPlugin';
 
-export * from '@asgardeo/auth-spa';
+// ── Components ──
+export {default as AsgardeoProvider} from './components/AsgardeoProvider';
+
+// ── Composables ──
+export {default as useAsgardeo} from './composables/useAsgardeo';
+
+// ── Client ──
+export {default as AsgardeoVueClient} from './AsgardeoVueClient';
+
+// ── Keys ──
+export {ASGARDEO_KEY} from './keys';
+
+// ── Models / Types ──
+export type {AsgardeoVueConfig} from './models/config';
+export type {AsgardeoContext} from './models/contexts';
+
+// ── Re-exports from @asgardeo/browser ──
+export {
+  type AllOrganizationsApiResponse,
+  type Config,
+  type EmbeddedFlowExecuteRequestConfig,
+  type EmbeddedFlowExecuteRequestPayload,
+  type EmbeddedFlowExecuteResponse,
+  type EmbeddedSignInFlowHandleRequestPayload,
+  type HttpRequestConfig,
+  type HttpResponse,
+  type IdToken,
+  type Organization,
+  type SignInOptions,
+  type SignOutOptions,
+  type SignUpOptions,
+  type TokenExchangeRequestConfig,
+  type TokenResponse,
+  type User,
+  type UserProfile,
+} from '@asgardeo/browser';

@@ -16,15 +16,49 @@
  * under the License.
  */
 
-import {useAsgardeoContext} from './useAsgardeoContext';
-import {AuthContextInterface} from '../types';
+import {inject} from 'vue';
+import {ASGARDEO_KEY} from '../keys';
+import type {AsgardeoContext} from '../models/contexts';
 
 /**
- * Hook to access the Asgardeo authentication context.
+ * Primary composable for Asgardeo authentication.
  *
- * @returns {AuthContextInterface} The authentication context containing authentication methods and state.
+ * Must be called inside a component that is a descendant of `<AsgardeoProvider>`.
+ * Returns all auth-related reactive state and action methods.
+ *
+ * @throws Error if called outside of `<AsgardeoProvider>`.
+ *
+ * @example
+ * ```vue
+ * <script setup>
+ * import { useAsgardeo } from '@asgardeo/vue';
+ *
+ * const { isSignedIn, isLoading, user, signIn, signOut } = useAsgardeo();
+ * </script>
+ *
+ * <template>
+ *   <div v-if="isLoading">Loading...</div>
+ *   <div v-else-if="isSignedIn">
+ *     <p>Welcome, {{ user?.name }}</p>
+ *     <button @click="signOut()">Sign Out</button>
+ *   </div>
+ *   <div v-else>
+ *     <button @click="signIn()">Sign In</button>
+ *   </div>
+ * </template>
+ * ```
  */
-export function useAsgardeo(): AuthContextInterface {
-  const asgardeo: AuthContextInterface = useAsgardeoContext();
-  return asgardeo;
-}
+const useAsgardeo = (): AsgardeoContext => {
+  const context = inject(ASGARDEO_KEY);
+
+  if (!context) {
+    throw new Error(
+      '[Asgardeo] useAsgardeo() was called outside of <AsgardeoProvider>. ' +
+        'Make sure to install the AsgardeoPlugin or wrap your app with <AsgardeoProvider>.',
+    );
+  }
+
+  return context;
+};
+
+export default useAsgardeo;

@@ -3,21 +3,19 @@
   "compilerOptions": {
     "declaration": true,
     "outDir": "dist",
-    "declarationDir": "types",
-    "types": ["node"],
-    "emitDeclarationOnly": true
+    "declarationDir": "dist",
+    "types": ["node"]
   },
   "exclude": [
-    "test-configs",
-    "vitest.config.ts",
+    "src/__legacy__/**",
     "**/*.spec.ts",
     "**/*.test.ts",
+    "**/*.spec.tsx",
+    "**/*.test.tsx",
     "**/*.spec.js",
     "**/*.test.js",
-    "**/*.spec.vue",
-    "**/*.test.vue",
-    "scripts",
-    "dist"
+    "**/*.spec.jsx",
+    "**/*.test.jsx"
   ],
-  "include": ["**/*.js", "**/*.ts", "**/*.vue", "rollup.config.cjs", "declarations.d.ts"]
+  "include": ["src/**/*.js", "src/**/*.ts", "src/**/*.jsx", "src/**/*.tsx"]
 }
