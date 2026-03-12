@@ -18,14 +18,24 @@
 
 import type {Ref} from 'vue';
 import type {
+  AllOrganizationsApiResponse,
+  BrandingPreference,
+  CreateOrganizationPayload,
+  FlowMetadataResponse,
   HttpRequestConfig,
   HttpResponse,
   IdToken,
   Organization,
+  Schema,
   SignInOptions,
+  Theme,
   TokenExchangeRequestConfig,
   TokenResponse,
+  UpdateMeProfileConfig,
+  User,
+  UserProfile,
 } from '@asgardeo/browser';
+import type {I18nBundle} from '@asgardeo/i18n';
 import type {AsgardeoVueConfig} from './config';
 import type AsgardeoVueClient from '../AsgardeoVueClient';
 
@@ -98,4 +108,206 @@ export interface AsgardeoContext {
   organizationHandle: string | undefined;
   storage: AsgardeoVueConfig['storage'] | undefined;
   platform: AsgardeoVueConfig['platform'] | undefined;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// User Context
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Shape of the User context exposed by `useUser()`.
+ */
+export interface UserContextValue {
+  /** The flattened user profile (top-level attribute map). */
+  flattenedProfile: Readonly<Ref<User | null>>;
+  /** The raw nested user profile from the SCIM2/ME endpoint. */
+  profile: Readonly<Ref<UserProfile | null>>;
+  /** Refetch the user profile from the server. */
+  revalidateProfile: () => Promise<void>;
+  /** The SCIM2 schemas describing the user profile attributes. */
+  schemas: Readonly<Ref<Schema[] | null>>;
+  /**
+   * Update the user profile. Accepts the standard SCIM2 patch request config.
+   */
+  updateProfile: (
+    requestConfig: UpdateMeProfileConfig,
+    sessionId?: string,
+  ) => Promise<{data: {user: User}; error: string; success: boolean}>;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Organization Context
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Shape of the Organization context exposed by `useOrganization()`.
+ */
+export interface OrganizationContextValue {
+  /** Optional function to create a new sub-organization. */
+  createOrganization?: (payload: CreateOrganizationPayload, sessionId: string) => Promise<Organization>;
+  /** The organization the user is currently operating in. */
+  currentOrganization: Readonly<Ref<Organization | null>>;
+  /** Last error message from an organization operation, if any. */
+  error: Readonly<Ref<string | null>>;
+  /** Fetch all organizations (paginated). */
+  getAllOrganizations: () => Promise<AllOrganizationsApiResponse>;
+  /** Whether an organization operation is in-flight. */
+  isLoading: Readonly<Ref<boolean>>;
+  /** The list of organizations the signed-in user is a member of. */
+  myOrganizations: Readonly<Ref<Organization[]>>;
+  /** Re-fetch the user's organization list from the server. */
+  revalidateMyOrganizations: () => Promise<Organization[]>;
+  /** Switch to the given organization (performs token exchange). */
+  switchOrganization: (organization: Organization) => Promise<void>;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Flow Context
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Types of authentication flow steps that can be displayed.
+ */
+export type FlowStep = {
+  canGoBack?: boolean;
+  id: string;
+  metadata?: Record<string, any>;
+  subtitle?: string;
+  title: string;
+  type: 'signin' | 'signup' | 'organization-signin' | 'forgot-password' | 'reset-password' | 'verify-email' | 'mfa';
+} | null;
+
+/**
+ * A message that can be displayed inside an authentication flow UI.
+ */
+export interface FlowMessage {
+  dismissible?: boolean;
+  id?: string;
+  message: string;
+  type: 'success' | 'error' | 'warning' | 'info';
+}
+
+/**
+ * Shape of the Flow context exposed by `useFlow()`.
+ */
+export interface FlowContextValue {
+  addMessage: (message: FlowMessage) => void;
+  clearMessages: () => void;
+  currentStep: Readonly<Ref<FlowStep>>;
+  error: Readonly<Ref<string | null>>;
+  isLoading: Readonly<Ref<boolean>>;
+  messages: Readonly<Ref<FlowMessage[]>>;
+  navigateToFlow: (
+    flowType: NonNullable<FlowStep>['type'],
+    options?: {metadata?: Record<string, any>; subtitle?: string; title?: string},
+  ) => void;
+  onGoBack: Readonly<Ref<(() => void) | undefined>>;
+  removeMessage: (messageId: string) => void;
+  reset: () => void;
+  setCurrentStep: (step: FlowStep) => void;
+  setError: (error: string | null) => void;
+  setIsLoading: (loading: boolean) => void;
+  setOnGoBack: (callback?: () => void) => void;
+  setShowBackButton: (show: boolean) => void;
+  setSubtitle: (subtitle?: string) => void;
+  setTitle: (title: string) => void;
+  showBackButton: Readonly<Ref<boolean>>;
+  subtitle: Readonly<Ref<string | undefined>>;
+  title: Readonly<Ref<string>>;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// FlowMeta Context
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Shape of the FlowMeta context exposed by `useFlowMeta()`.
+ */
+export interface FlowMetaContextValue {
+  /** Error from the flow metadata fetch, if any. */
+  error: Readonly<Ref<Error | null>>;
+  /** Manually re-fetch flow metadata from the server. */
+  fetchFlowMeta: () => Promise<void>;
+  /** Whether the flow metadata is currently being fetched. */
+  isLoading: Readonly<Ref<boolean>>;
+  /** The fetched `FlowMetadataResponse`, or `null` while loading or on error. */
+  meta: Readonly<Ref<FlowMetadataResponse | null>>;
+  /**
+   * Fetch flow metadata for the given language and activate it in the i18n system.
+   * Use this to switch the UI language at runtime.
+   */
+  switchLanguage: (language: string) => Promise<void>;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Theme Context
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Shape of the Theme context exposed by `useTheme()`.
+ */
+export interface ThemeContextValue {
+  /** Error from the branding theme fetch, if any. */
+  brandingError: Readonly<Ref<Error | null>>;
+  /** The current color scheme ('light' | 'dark'). */
+  colorScheme: Readonly<Ref<'light' | 'dark'>>;
+  /** The text direction for the UI. */
+  direction: Readonly<Ref<'ltr' | 'rtl'>>;
+  /** Whether the theme inherits from Asgardeo branding preferences. */
+  inheritFromBranding: boolean;
+  /** Whether the branding theme is currently loading. */
+  isBrandingLoading: Readonly<Ref<boolean>>;
+  /** The resolved Theme object used by all styled components. */
+  theme: Readonly<Ref<Theme>>;
+  /** Toggle between light and dark mode. */
+  toggleTheme: () => void;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Branding Context
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Shape of the Branding context exposed by `useBranding()`.
+ */
+export interface BrandingContextValue {
+  /** The active theme from the branding preference ('light' | 'dark'), or null. */
+  activeTheme: Readonly<Ref<'light' | 'dark' | null>>;
+  /** The raw branding preference data from the server. */
+  brandingPreference: Readonly<Ref<BrandingPreference | null>>;
+  /** Error from the branding fetch, if any. */
+  error: Readonly<Ref<Error | null>>;
+  /** Trigger a branding preference fetch (deduplicated). */
+  fetchBranding: () => Promise<void>;
+  /** Whether the branding preference is currently loading. */
+  isLoading: Readonly<Ref<boolean>>;
+  /** Force a fresh branding preference fetch (bypasses dedup). */
+  refetch: () => Promise<void>;
+  /** The transformed `Theme` object derived from the branding preference. */
+  theme: Readonly<Ref<Theme | null>>;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// I18n Context
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Shape of the I18n context exposed by `useI18n()`.
+ */
+export interface I18nContextValue {
+  /** All available i18n bundles (default + injected + user-provided). */
+  bundles: Readonly<Ref<Record<string, I18nBundle>>>;
+  /** The current language code (e.g., 'en-US'). */
+  currentLanguage: Readonly<Ref<string>>;
+  /** The fallback language code. */
+  fallbackLanguage: string;
+  /**
+   * Inject additional bundles into the i18n system (e.g., from flow metadata).
+   * Injected bundles take precedence over defaults but are overridden by prop-provided bundles.
+   */
+  injectBundles: (bundles: Record<string, I18nBundle>) => void;
+  /** Change the current language. */
+  setLanguage: (language: string) => void;
+  /** Translate a key with optional named parameters. */
+  t: (key: string, params?: Record<string, string | number>) => string;
 }

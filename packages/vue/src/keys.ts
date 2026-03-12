@@ -17,9 +17,53 @@
  */
 
 import type {InjectionKey} from 'vue';
-import type {AsgardeoContext} from './models/contexts';
+import type {
+  AsgardeoContext,
+  BrandingContextValue,
+  FlowContextValue,
+  FlowMetaContextValue,
+  I18nContextValue,
+  OrganizationContextValue,
+  ThemeContextValue,
+  UserContextValue,
+} from './models/contexts';
 
 /**
  * Injection key for the core Asgardeo authentication context.
  */
 export const ASGARDEO_KEY: InjectionKey<AsgardeoContext> = Symbol('asgardeo');
+
+/**
+ * Injection key for the User context (profile, schemas, update operations).
+ */
+export const USER_KEY: InjectionKey<UserContextValue> = Symbol('asgardeo-user');
+
+/**
+ * Injection key for the Organization context (list, current org, switching).
+ */
+export const ORGANIZATION_KEY: InjectionKey<OrganizationContextValue> = Symbol('asgardeo-organization');
+
+/**
+ * Injection key for the Flow context (embedded flow UI state).
+ */
+export const FLOW_KEY: InjectionKey<FlowContextValue> = Symbol('asgardeo-flow');
+
+/**
+ * Injection key for the FlowMeta context (server-driven flow metadata).
+ */
+export const FLOW_META_KEY: InjectionKey<FlowMetaContextValue> = Symbol('asgardeo-flow-meta');
+
+/**
+ * Injection key for the Theme context (color scheme, CSS variables, toggle).
+ */
+export const THEME_KEY: InjectionKey<ThemeContextValue> = Symbol('asgardeo-theme');
+
+/**
+ * Injection key for the Branding context (branding preferences from server).
+ */
+export const BRANDING_KEY: InjectionKey<BrandingContextValue> = Symbol('asgardeo-branding');
+
+/**
+ * Injection key for the I18n context (translation function, language switching).
+ */
+export const I18N_KEY: InjectionKey<I18nContextValue> = Symbol('asgardeo-i18n');
