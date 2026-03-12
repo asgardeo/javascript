@@ -71,6 +71,93 @@ export type {
   UserContextValue,
 } from './models/contexts';
 
+// ── UI Components — Primitives ──
+export {default as Button} from './components/primitives/Button';
+export {default as Card} from './components/primitives/Card';
+export {default as Alert} from './components/primitives/Alert';
+export {default as TextField} from './components/primitives/TextField';
+export {default as PasswordField} from './components/primitives/PasswordField';
+export {default as Select} from './components/primitives/Select';
+export type {SelectOption} from './components/primitives/Select';
+export {default as Checkbox} from './components/primitives/Checkbox';
+export {default as DatePicker} from './components/primitives/DatePicker';
+export {default as OtpField} from './components/primitives/OtpField';
+export {default as Typography} from './components/primitives/Typography';
+export {default as Divider} from './components/primitives/Divider';
+export {default as Logo} from './components/primitives/Logo';
+export {default as Spinner} from './components/primitives/Spinner';
+export {
+  UserIcon,
+  EyeIcon,
+  EyeOffIcon,
+  ChevronDownIcon,
+  CheckIcon,
+  CircleAlertIcon,
+  CircleCheckIcon,
+  InfoIcon,
+  TriangleAlertIcon,
+  XIcon,
+  PlusIcon,
+  LogOutIcon,
+  ArrowLeftRightIcon,
+  BuildingIcon,
+  GlobeIcon,
+} from './components/primitives/Icons';
+
+// ── UI Components — Actions ──
+export {default as SignInButton} from './components/actions/SignInButton';
+export {default as BaseSignInButton} from './components/actions/BaseSignInButton';
+export {default as SignOutButton} from './components/actions/SignOutButton';
+export {default as BaseSignOutButton} from './components/actions/BaseSignOutButton';
+export {default as SignUpButton} from './components/actions/SignUpButton';
+export {default as BaseSignUpButton} from './components/actions/BaseSignUpButton';
+
+// ── UI Components — Auth Flow ──
+export {default as Callback} from './components/auth/Callback';
+
+// ── UI Components — Control ──
+export {default as SignedIn} from './components/control/SignedIn';
+export {default as SignedOut} from './components/control/SignedOut';
+export {default as Loading} from './components/control/Loading';
+
+// ── UI Components — Presentation ──
+export {default as SignIn} from './components/presentation/SignIn';
+export {default as BaseSignIn} from './components/presentation/BaseSignIn';
+export {default as SignUp} from './components/presentation/SignUp';
+export {default as BaseSignUp} from './components/presentation/BaseSignUp';
+export {default as UserComponent} from './components/presentation/User';
+export {default as BaseUser} from './components/presentation/BaseUser';
+export {default as UserProfileComponent} from './components/presentation/UserProfile';
+export {default as BaseUserProfile} from './components/presentation/BaseUserProfile';
+export {default as UserDropdown} from './components/presentation/UserDropdown';
+export {default as BaseUserDropdown} from './components/presentation/BaseUserDropdown';
+export {default as AcceptInvite} from './components/presentation/AcceptInvite';
+export {default as BaseAcceptInvite} from './components/presentation/BaseAcceptInvite';
+export {default as InviteUser} from './components/presentation/InviteUser';
+export {default as BaseInviteUser} from './components/presentation/BaseInviteUser';
+export {default as OrganizationComponent} from './components/presentation/Organization';
+export {default as BaseOrganization} from './components/presentation/BaseOrganization';
+export {default as OrganizationList} from './components/presentation/OrganizationList';
+export {default as BaseOrganizationList} from './components/presentation/BaseOrganizationList';
+export {default as OrganizationProfile} from './components/presentation/OrganizationProfile';
+export {default as BaseOrganizationProfile} from './components/presentation/BaseOrganizationProfile';
+export {default as OrganizationSwitcher} from './components/presentation/OrganizationSwitcher';
+export {default as BaseOrganizationSwitcher} from './components/presentation/BaseOrganizationSwitcher';
+export {default as CreateOrganization} from './components/presentation/CreateOrganization';
+export {default as BaseCreateOrganization} from './components/presentation/BaseCreateOrganization';
+export {default as LanguageSwitcher} from './components/presentation/LanguageSwitcher';
+export {default as BaseLanguageSwitcher} from './components/presentation/BaseLanguageSwitcher';
+
+// ── UI Components — Adapters ──
+export {default as GoogleButton} from './components/adapters/GoogleButton';
+export {default as GitHubButton} from './components/adapters/GitHubButton';
+export {default as MicrosoftButton} from './components/adapters/MicrosoftButton';
+export {default as FacebookButton} from './components/adapters/FacebookButton';
+
+// ── Factories ──
+export {default as FieldFactory, createField, validateFieldValue} from './components/factories/FieldFactory';
+export type {FieldConfig} from './components/factories/FieldFactory';
+
 // ── Re-exports from @asgardeo/browser ──
 export {
   type AllOrganizationsApiResponse,

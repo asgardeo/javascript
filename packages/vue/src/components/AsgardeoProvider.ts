@@ -43,6 +43,13 @@ import AsgardeoVueClient from '../AsgardeoVueClient';
 import {ASGARDEO_KEY} from '../keys';
 import type {AsgardeoContext} from '../models/contexts';
 import type {AsgardeoVueConfig} from '../models/config';
+import I18nProvider from '../providers/I18nProvider';
+import UserProvider from '../providers/UserProvider';
+import OrganizationProvider from '../providers/OrganizationProvider';
+import ThemeProvider from '../providers/ThemeProvider';
+import BrandingProvider from '../providers/BrandingProvider';
+import FlowProvider from '../providers/FlowProvider';
+import FlowMetaProvider from '../providers/FlowMetaProvider';
 
 /**
  * Checks if the current URL contains authentication parameters.
@@ -426,7 +433,28 @@ const AsgardeoProvider = defineComponent({
     });
 
     // ── Render ──
-    return () => (slots['default'] ? slots['default']() : undefined);
+    return () =>
+      h(I18nProvider, null, {
+        default: () =>
+          h(UserProvider, null, {
+            default: () =>
+              h(OrganizationProvider, null, {
+                default: () =>
+                  h(ThemeProvider, null, {
+                    default: () =>
+                      h(BrandingProvider, null, {
+                        default: () =>
+                          h(FlowMetaProvider, null, {
+                            default: () =>
+                              h(FlowProvider, null, {
+                                default: () => slots['default']?.(),
+                              }),
+                          }),
+                      }),
+                  }),
+              }),
+          }),
+      });
   },
 });
 
