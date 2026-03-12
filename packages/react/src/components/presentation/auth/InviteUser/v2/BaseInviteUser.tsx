@@ -104,6 +104,11 @@ export interface BaseInviteUserRenderProps {
   inviteLinkCopied: boolean;
 
   /**
+   * Whether the invite email was sent successfully.
+   */
+  isEmailSent: boolean;
+
+  /**
    * Whether the invite link has been generated (admin flow complete).
    */
   isInviteGenerated: boolean;
@@ -267,6 +272,7 @@ const BaseInviteUser: FC<BaseInviteUserProps> = ({
   const [touchedFields, setTouchedFields] = useState<Record<string, boolean>>({});
   const [inviteLink, setInviteLink] = useState<string | undefined>();
   const [inviteLinkCopied, setInviteLinkCopied] = useState(false);
+  const [emailSent, setEmailSent] = useState(false);
   const [isFormValid, setIsFormValid] = useState(true);
 
   const initializationAttemptedRef: any = useRef(false);
@@ -437,6 +443,11 @@ const BaseInviteUser: FC<BaseInviteUserProps> = ({
           onInviteLinkGenerated?.(inviteLinkValue, response.flowId);
         }
 
+        // Check if email was sent successfully
+        if (response.data?.additionalData?.['emailSent'] === 'true') {
+          setEmailSent(true);
+        }
+
         // Check for error status
         if (response.flowStatus === 'ERROR') {
           handleError(response);
@@ -501,6 +512,7 @@ const BaseInviteUser: FC<BaseInviteUserProps> = ({
     setTouchedFields({});
     setInviteLink(undefined);
     setInviteLinkCopied(false);
+    setEmailSent(false);
     initializationAttemptedRef.current = false;
   }, []);
 
@@ -624,6 +636,7 @@ const BaseInviteUser: FC<BaseInviteUserProps> = ({
   const {title, subtitle} = extractHeadings(components);
   const componentsWithoutHeadings: any = filterHeadings(components);
   const isInviteGenerated: any = !!inviteLink;
+  const isEmailSent: boolean = emailSent;
 
   // Render props
   const renderProps: BaseInviteUserRenderProps = {
@@ -637,6 +650,7 @@ const BaseInviteUser: FC<BaseInviteUserProps> = ({
     handleSubmit,
     inviteLink,
     inviteLinkCopied,
+    isEmailSent,
     isInviteGenerated,
     isLoading,
     isValid: isFormValid,
@@ -695,7 +709,33 @@ const BaseInviteUser: FC<BaseInviteUserProps> = ({
     );
   }
 
-  // Invite link generated - success state
+  // Invite email sent successfully - show email sent confirmation
+  if (isInviteGenerated && isEmailSent) {
+    return (
+      <CardPrimitive className={cx(className, styles.card)} variant={variant}>
+        <CardPrimitive.Header className={styles.header}>
+          <CardPrimitive.Title level={2} className={styles.title}>
+            Invite Email Sent!
+          </CardPrimitive.Title>
+        </CardPrimitive.Header>
+        <CardPrimitive.Content>
+          <AlertPrimitive variant="success">
+            <AlertPrimitive.Description>
+              An invitation email has been sent successfully. The user can complete their registration using the link in
+              the email.
+            </AlertPrimitive.Description>
+          </AlertPrimitive>
+          <div style={{display: 'flex', gap: '0.5rem', marginTop: '1.5rem'}}>
+            <Button variant="outline" onClick={resetFlow}>
+              Invite Another User
+            </Button>
+          </div>
+        </CardPrimitive.Content>
+      </CardPrimitive>
+    );
+  }
+
+  // Invite link generated but email not sent - show copy link fallback
   if (isInviteGenerated && inviteLink) {
     return (
       <CardPrimitive className={cx(className, styles.card)} variant={variant}>
