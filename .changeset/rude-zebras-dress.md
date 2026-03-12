@@ -2,4 +2,4 @@
 '@asgardeo/react': patch
 ---
 
-Support for Invite Link to be sent via email and direct share
+Support sending invite links via email, with direct link sharing as a fallback.
