@@ -19,6 +19,7 @@
 import type {Plugin} from 'vue';
 import AsgardeoProvider from '../components/AsgardeoProvider';
 import type {AsgardeoVueConfig} from '../models/config';
+import {injectStyles} from '../styles/injectStyles';
 
 /**
  * Vue plugin for Asgardeo authentication.
@@ -48,6 +49,7 @@ import type {AsgardeoVueConfig} from '../models/config';
  */
 const AsgardeoPlugin: Plugin<AsgardeoVueConfig[]> = {
   install(app) {
+    injectStyles();
     app.component('AsgardeoProvider', AsgardeoProvider);
   },
 };

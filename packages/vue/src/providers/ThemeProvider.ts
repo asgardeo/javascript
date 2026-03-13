@@ -166,27 +166,11 @@ const ThemeProvider = defineComponent({
     const applyToDom = (theme: Theme) => {
       if (typeof document === 'undefined') return;
       const root = document.documentElement;
-      const flat = flattenTheme(theme);
-      Object.entries(flat).forEach(([key, value]) => {
+      // Use the pre-computed cssVariables map from createTheme() which contains
+      // correctly-named CSS variables (e.g. --asgardeo-color-primary-main).
+      Object.entries(theme.cssVariables).forEach(([key, value]) => {
         root.style.setProperty(key, value);
       });
-    };
-
-    const flattenTheme = (theme: Theme, prefix = '--asgardeo'): Record<string, string> => {
-      const result: Record<string, string> = {};
-      const traverse = (obj: any, path: string) => {
-        if (typeof obj !== 'object' || obj === null) return;
-        Object.entries(obj).forEach(([k, v]) => {
-          const newPath = `${path}-${k}`;
-          if (typeof v === 'string' || typeof v === 'number') {
-            result[newPath] = String(v);
-          } else if (typeof v === 'object') {
-            traverse(v, newPath);
-          }
-        });
-      };
-      traverse(theme, prefix);
-      return result;
     };
 
     watch(resolvedTheme, (theme) => applyToDom(theme), {immediate: true});
