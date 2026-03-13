@@ -3,11 +3,12 @@
  */
 
 import {test as base} from '@playwright/test';
-import {TEST_USER, SAMPLE_APP} from '../setup/constants';
+import {TEST_USER, getSampleApp, getSampleAppTarget, type SampleAppTarget} from '../setup/constants';
 
 export type E2EFixtures = {
   testUser: typeof TEST_USER;
-  sampleApp: typeof SAMPLE_APP;
+  sampleApp: ReturnType<typeof getSampleApp>;
+  sampleAppTarget: SampleAppTarget;
 };
 
 export const test = base.extend<E2EFixtures>({
@@ -15,7 +16,10 @@ export const test = base.extend<E2EFixtures>({
     await use(TEST_USER);
   },
   sampleApp: async ({}, use) => {
-    await use(SAMPLE_APP);
+    await use(getSampleApp());
+  },
+  sampleAppTarget: async ({}, use) => {
+    await use(getSampleAppTarget());
   },
 });
 
