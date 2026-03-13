@@ -22,6 +22,7 @@ import {defineComponent, h, type PropType} from 'vue';
 export interface SelectOption {
   label: string;
   value: string;
+  disabled?: boolean;
 }
 
 const Select = defineComponent({

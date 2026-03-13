@@ -18,7 +18,6 @@
 
 import type {Plugin} from 'vue';
 import AsgardeoProvider from '../components/AsgardeoProvider';
-import type {AsgardeoVueConfig} from '../models/config';
 import {injectStyles} from '../styles/injectStyles';
 
 /**
@@ -47,7 +46,7 @@ import {injectStyles} from '../styles/injectStyles';
  * </template>
  * ```
  */
-const AsgardeoPlugin: Plugin<AsgardeoVueConfig[]> = {
+const AsgardeoPlugin: Plugin = {
   install(app) {
     injectStyles();
     app.component('AsgardeoProvider', AsgardeoProvider);
