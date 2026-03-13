@@ -72,20 +72,20 @@ export type {
 } from './models/contexts';
 
 // ── UI Components — Primitives ──
-export {default as Button} from './components/primitives/Button';
-export {default as Card} from './components/primitives/Card';
-export {default as Alert} from './components/primitives/Alert';
-export {default as TextField} from './components/primitives/TextField';
-export {default as PasswordField} from './components/primitives/PasswordField';
-export {default as Select} from './components/primitives/Select';
-export type {SelectOption} from './components/primitives/Select';
-export {default as Checkbox} from './components/primitives/Checkbox';
-export {default as DatePicker} from './components/primitives/DatePicker';
-export {default as OtpField} from './components/primitives/OtpField';
-export {default as Typography} from './components/primitives/Typography';
-export {default as Divider} from './components/primitives/Divider';
-export {default as Logo} from './components/primitives/Logo';
-export {default as Spinner} from './components/primitives/Spinner';
+export {default as Button} from './components/primitives/Button/Button';
+export {default as Card} from './components/primitives/Card/Card';
+export {default as Alert} from './components/primitives/Alert/Alert';
+export {default as TextField} from './components/primitives/TextField/TextField';
+export {default as PasswordField} from './components/primitives/PasswordField/PasswordField';
+export {default as Select} from './components/primitives/Select/Select';
+export type {SelectOption} from './components/primitives/Select/Select';
+export {default as Checkbox} from './components/primitives/Checkbox/Checkbox';
+export {default as DatePicker} from './components/primitives/DatePicker/DatePicker';
+export {default as OtpField} from './components/primitives/OtpField/OtpField';
+export {default as Typography} from './components/primitives/Typography/Typography';
+export {default as Divider} from './components/primitives/Divider/Divider';
+export {default as Logo} from './components/primitives/Logo/Logo';
+export {default as Spinner} from './components/primitives/Spinner/Spinner';
 export {
   UserIcon,
   EyeIcon,

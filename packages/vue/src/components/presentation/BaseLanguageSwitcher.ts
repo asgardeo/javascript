@@ -21,7 +21,7 @@ import type {PropType} from 'vue';
 import {defineComponent, h, ref} from 'vue';
 import Card from '../primitives/Card';
 import {ChevronDownIcon, GlobeIcon} from '../primitives/Icons';
-import type {SelectOption} from '../primitives/Select';
+import type {SelectOption} from '../primitives/Select/Select';
 import Typography from '../primitives/Typography';
 
 const cls = (name: string): string => withVendorCSSClassPrefix(`language-switcher${name}`);

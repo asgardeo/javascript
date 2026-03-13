@@ -20,7 +20,7 @@ import {withVendorCSSClassPrefix} from '@asgardeo/browser';
 import type {PropType} from 'vue';
 import {defineComponent, h} from 'vue';
 import useI18n from '../../composables/useI18n';
-import type {SelectOption} from '../primitives/Select';
+import type {SelectOption} from '../primitives/Select/Select';
 import BaseLanguageSwitcher from './BaseLanguageSwitcher';
 
 /**

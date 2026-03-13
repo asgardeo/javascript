@@ -22,7 +22,7 @@ import Checkbox from '../primitives/Checkbox';
 import DatePicker from '../primitives/DatePicker';
 import OtpField from '../primitives/OtpField';
 import PasswordField from '../primitives/PasswordField';
-import Select, {type SelectOption} from '../primitives/Select';
+import Select, {type SelectOption} from '../primitives/Select/Select';
 import TextField from '../primitives/TextField';
 
 /**
