@@ -51,8 +51,12 @@ const SignOutButton = defineComponent({
       }
     };
 
-    return () =>
-      h(
+    return () => {
+      const slotContent = slots['default']
+        ? () => slots['default']!({isLoading: isLoading.value})
+        : undefined;
+
+      return h(
         BaseSignOutButton,
         {
           class: attrs['class'],
@@ -60,8 +64,9 @@ const SignOutButton = defineComponent({
           isLoading: isLoading.value,
           onClick: handleSignOut,
         },
-        slots['default'] ? () => slots['default']!({isLoading: isLoading.value}) : () => t('elements.buttons.signout.text'),
+        slotContent,
       );
+    };
   },
 });
 

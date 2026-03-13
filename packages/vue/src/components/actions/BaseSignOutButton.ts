@@ -21,28 +21,55 @@ import {defineComponent, h} from 'vue';
 import Button from '../primitives/Button';
 
 /**
- * BaseSignOutButton — unstyled sign-out button.
+ * BaseSignOutButton — styled sign-out button with customization support.
  *
- * Uses the default slot for custom content. When no slot is provided,
- * renders a default Button primitive.
+ * By default, renders a styled Button primitive with contents from the slot or fallback text.
+ * Set `unstyled={true}` to render a plain <button> for full customization control.
+ *
+ * @example
+ * <!-- Default styled button with custom text -->
+ * <BaseSignOutButton>Custom Text</BaseSignOutButton>
+ *
+ * @example
+ * <!-- Unstyled button for full customization -->
+ * <BaseSignOutButton unstyled class="my-custom-styles">Custom Content</BaseSignOutButton>
  */
 const BaseSignOutButton = defineComponent({
   name: 'BaseSignOutButton',
   props: {
     isLoading: {type: Boolean, default: false},
     disabled: {type: Boolean, default: false},
+    /**
+     * When true, renders a plain <button> with no default styling.
+     * When false (default), renders a styled Button component.
+     */
+    unstyled: {type: Boolean, default: false},
   },
   emits: ['click'],
   setup(props, {slots, emit, attrs}) {
+    const handleClick = (e: MouseEvent) => {
+      if (!props.disabled && !props.isLoading) {
+        emit('click', e);
+      }
+    };
+
     return () => {
-      if (slots['default']) {
+      // Unstyled mode: plain button for full customization
+      if (props.unstyled) {
         return h(
-          'span',
-          {class: withVendorCSSClassPrefix('sign-out-button-wrapper')},
-          slots['default']({isLoading: props.isLoading}),
+          'button',
+          {
+            type: 'button' as const,
+            class: [withVendorCSSClassPrefix('sign-out-button-wrapper'), (attrs['class'] as string) || ''].filter(Boolean).join(' '),
+            style: attrs['style'],
+            disabled: props.disabled || props.isLoading,
+            onClick: handleClick,
+          },
+          slots['default'] ? slots['default']({isLoading: props.isLoading}) : 'Sign Out',
         );
       }
 
+      // Styled mode (default): always render the styled Button with slot/fallback content
       return h(
         Button,
         {
@@ -51,9 +78,9 @@ const BaseSignOutButton = defineComponent({
           disabled: props.disabled || props.isLoading,
           loading: props.isLoading,
           type: 'button' as const,
-          onClick: (e: MouseEvent) => emit('click', e),
+          onClick: handleClick,
         },
-        () => 'Sign Out',
+        slots['default'] ? () => slots['default']({isLoading: props.isLoading}) : () => 'Sign Out',
       );
     };
   },

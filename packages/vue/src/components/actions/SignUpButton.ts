@@ -16,71 +16,62 @@
  * under the License.
  */
 
-import {AsgardeoRuntimeError, navigate, withVendorCSSClassPrefix} from '@asgardeo/browser';
+import {AsgardeoRuntimeError, navigate} from '@asgardeo/browser';
 import {defineComponent, h, ref} from 'vue';
+import BaseSignUpButton from './BaseSignUpButton';
 import useAsgardeo from '../../composables/useAsgardeo';
 import useI18n from '../../composables/useI18n';
-import Button from '../primitives/Button';
 
 /**
- * SignUpButton — styled sign-up button.
+ * SignUpButton — triggers `signUp()` from the Asgardeo context.
  *
- * When clicked, invokes `signUp()` from the Asgardeo context.
- * If a `signUpUrl` is available, navigates to it instead.
+ * If a custom `signUpUrl` is configured, navigates to it instead.
+ * Falls back to i18n translation for the button text.
  */
 const SignUpButton = defineComponent({
   name: 'SignUpButton',
-  setup(_props, {slots}) {
+  emits: ['click', 'error'],
+  setup(_, {slots, emit, attrs}) {
     const {signUp, signUpUrl} = useAsgardeo();
     const {t} = useI18n();
+    const isLoading = ref(false);
 
-    const loading = ref(false);
-
-    const handleClick = async () => {
-      if (signUpUrl) {
-        navigate(signUpUrl);
-
-        return;
-      }
-
-      loading.value = true;
+    const handleSignUp = async (e?: MouseEvent) => {
       try {
-        await signUp();
-      } catch (error: unknown) {
+        isLoading.value = true;
+        if (signUpUrl) {
+          navigate(signUpUrl);
+        } else {
+          await signUp();
+        }
+        if (e) emit('click', e);
+      } catch (error) {
+        emit('error', error);
         throw new AsgardeoRuntimeError(
-          'vue-sign-up-button-error',
-          'SignUpButton',
-          `Failed to initiate sign-up: ${error instanceof Error ? error.message : String(error)}`,
+          `Sign up failed: ${error instanceof Error ? error.message : String(error)}`,
+          'SignUpButton-handleSignUp-RuntimeError-001',
+          'vue',
+          'Something went wrong while trying to sign up. Please try again later.',
         );
       } finally {
-        loading.value = false;
+        isLoading.value = false;
       }
     };
 
     return () => {
-      if (slots['default']) {
-        return h(
-          'span',
-          {
-            class: withVendorCSSClassPrefix('sign-up-button-wrapper'),
-            onClick: handleClick,
-          },
-          slots['default']({isLoading: loading.value}),
-        );
-      }
+      const slotContent = slots['default']
+        ? () => slots['default']!({isLoading: isLoading.value})
+        : undefined;
 
       return h(
-        Button,
+        BaseSignUpButton,
         {
-          class: withVendorCSSClassPrefix('sign-up-button'),
-          disabled: loading.value,
-          loading: loading.value,
-          type: 'button' as const,
-          color: 'primary' as const,
-          variant: 'solid' as const,
-          onClick: handleClick,
+          class: attrs['class'],
+          style: attrs['style'],
+          isLoading: isLoading.value,
+          onClick: handleSignUp,
         },
-        () => t('common.sign-up') || 'Sign Up',
+        slotContent,
       );
     };
   },

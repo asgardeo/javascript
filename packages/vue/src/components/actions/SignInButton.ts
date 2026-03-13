@@ -61,8 +61,12 @@ const SignInButton = defineComponent({
       }
     };
 
-    return () =>
-      h(
+    return () => {
+      const slotContent = slots['default']
+        ? () => slots['default']!({isLoading: isLoading.value})
+        : undefined;
+
+      return h(
         BaseSignInButton,
         {
           class: attrs['class'],
@@ -70,8 +74,9 @@ const SignInButton = defineComponent({
           isLoading: isLoading.value,
           onClick: handleSignIn,
         },
-        slots['default'] ? () => slots['default']!({isLoading: isLoading.value}) : () => t('elements.buttons.signin.text'),
+        slotContent,
       );
+    };
   },
 });
 

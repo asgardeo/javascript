@@ -21,16 +21,29 @@ import {defineComponent, h, type PropType} from 'vue';
 import Button from '../primitives/Button';
 
 /**
- * BaseSignInButton — unstyled sign-in button.
+ * BaseSignInButton — styled sign-in button with customization support.
  *
- * Uses the default slot for custom content. When no slot is provided,
- * renders a default Button primitive.
+ * By default, renders a styled Button primitive with contents from the slot or fallback text.
+ * Set `unstyled={true}` to render a plain <button> for full customization control.
+ *
+ * @example
+ * <!-- Default styled button with custom text -->
+ * <BaseSignInButton>Custom Text</BaseSignInButton>
+ *
+ * @example
+ * <!-- Unstyled button for full customization -->
+ * <BaseSignInButton unstyled class="my-custom-styles">Custom Content</BaseSignInButton>
  */
 const BaseSignInButton = defineComponent({
   name: 'BaseSignInButton',
   props: {
     isLoading: {type: Boolean, default: false},
     disabled: {type: Boolean, default: false},
+    /**
+     * When true, renders a plain <button> with no default styling.
+     * When false (default), renders a styled Button component.
+     */
+    unstyled: {type: Boolean, default: false},
   },
   emits: ['click'],
   setup(props, {slots, emit, attrs}) {
@@ -41,7 +54,8 @@ const BaseSignInButton = defineComponent({
     };
 
     return () => {
-      if (slots['default']) {
+      // Unstyled mode: plain button for full customization
+      if (props.unstyled) {
         return h(
           'button',
           {
@@ -54,10 +68,11 @@ const BaseSignInButton = defineComponent({
             disabled: props.disabled || props.isLoading,
             onClick: handleClick,
           },
-          slots['default']({isLoading: props.isLoading}),
+          slots['default'] ? slots['default']({isLoading: props.isLoading}) : 'Sign In',
         );
       }
 
+      // Styled mode (default): always render the styled Button with slot/fallback content
       return h(
         Button,
         {
@@ -68,7 +83,7 @@ const BaseSignInButton = defineComponent({
           type: 'button' as const,
           onClick: handleClick,
         },
-        () => 'Sign In',
+        slots['default'] ? () => slots['default']({isLoading: props.isLoading}) : () => 'Sign In',
       );
     };
   },
