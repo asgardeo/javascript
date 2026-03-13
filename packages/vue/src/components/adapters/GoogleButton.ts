@@ -76,7 +76,7 @@ const GoogleButton = defineComponent({
           startIcon: googleIcon(),
           onClick: (e: MouseEvent) => emit('click', e),
         },
-        () => slots['default']?.() ?? (t('elements.buttons.google.text') || 'Sign in with Google'),
+        () => slots['default']?.({isLoading: props.isLoading}) ?? (t('elements.buttons.google.text') || 'Sign in with Google'),
       );
   },
 });

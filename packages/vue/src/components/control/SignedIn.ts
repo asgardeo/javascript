@@ -39,11 +39,11 @@ const SignedIn = defineComponent({
 
     return (): VNode | VNode[] | null => {
       if (!isSignedIn.value) {
-        const fallbackContent = slots.fallback?.();
+        const fallbackContent = slots['fallback']?.();
         return fallbackContent ? h(Fragment, {}, fallbackContent) : null;
       }
 
-      const defaultContent = slots.default?.();
+      const defaultContent = slots['default']?.();
       return defaultContent ? h(Fragment, {}, defaultContent) : null;
     };
   },

@@ -57,6 +57,12 @@ const Callback = defineComponent({
         const oauthError = urlParams.get('error');
         const errorDescription = urlParams.get('error_description');
 
+        // If no OAuth parameters are present, this component is not on a real callback
+        // route — do nothing and return early.
+        if (!code && !state && !oauthError) {
+          return;
+        }
+
         // 2. Validate and retrieve OAuth state from sessionStorage
         if (!state) {
           throw new Error('Missing OAuth state parameter - possible security issue');

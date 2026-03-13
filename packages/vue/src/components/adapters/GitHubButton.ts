@@ -60,7 +60,7 @@ const GitHubButton = defineComponent({
           startIcon: gitHubIcon(),
           onClick: (e: MouseEvent) => emit('click', e),
         },
-        () => slots['default']?.() ?? (t('elements.buttons.github.text') || 'Sign in with GitHub'),
+        () => slots['default']?.({isLoading: props.isLoading}) ?? (t('elements.buttons.github.text') || 'Sign in with GitHub'),
       );
   },
 });
