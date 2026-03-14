@@ -56,10 +56,10 @@ export interface FlowTemplateLiteralResult {
    * e.g. `"signin:heading"` from `"{{ t(signin:heading) }}"`.
    */
   key?: string;
-  /** The type of flow template literal that was detected */
-  type: FlowTemplateLiteralType;
   /** The original template literal content before parsing */
   originalValue: string;
+  /** The type of flow template literal that was detected */
+  type: FlowTemplateLiteralType;
 }
 
 /**
@@ -103,7 +103,7 @@ export default function parseFlowTemplateLiteral(content: string): FlowTemplateL
   const match: RegExpExecArray | null = FLOW_TEMPLATE_FUNCTION_REGEX.exec(content);
 
   if (!match) {
-    return {type: FlowTemplateLiteralType.UNKNOWN, originalValue};
+    return {originalValue, type: FlowTemplateLiteralType.UNKNOWN};
   }
 
   const [, functionName, rawKey] = match;
@@ -111,10 +111,10 @@ export default function parseFlowTemplateLiteral(content: string): FlowTemplateL
 
   switch (functionName as FlowTemplateLiteralType) {
     case FlowTemplateLiteralType.TRANSLATION:
-      return {type: FlowTemplateLiteralType.TRANSLATION, key, originalValue};
+      return {key, originalValue, type: FlowTemplateLiteralType.TRANSLATION};
     case FlowTemplateLiteralType.META:
-      return {type: FlowTemplateLiteralType.META, key, originalValue};
+      return {key, originalValue, type: FlowTemplateLiteralType.META};
     default:
-      return {type: FlowTemplateLiteralType.UNKNOWN, originalValue};
+      return {originalValue, type: FlowTemplateLiteralType.UNKNOWN};
   }
 }
