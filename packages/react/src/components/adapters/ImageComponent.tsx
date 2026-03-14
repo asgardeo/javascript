@@ -16,12 +16,12 @@
  * under the License.
  */
 
-import {CSSProperties, FC, SyntheticEvent} from 'react';
 import {extractEmojiFromUri, isEmojiUri} from '@asgardeo/browser';
+import {CSSProperties, FC, SyntheticEvent} from 'react';
 import useTheme from '../../contexts/Theme/useTheme';
 import {AdapterProps} from '../../models/adapters';
 
-const DEFAULT_EMOJI_CONTAINER_HEIGHT = '4em';
+const DEFAULT_EMOJI_CONTAINER_HEIGHT: string = '4em';
 
 /**
  * Image component for sign-up forms.
@@ -56,11 +56,14 @@ const ImageComponent: FC<AdapterProps> = ({component}: AdapterProps) => {
     // 'auto' values both collapse to 0 when the parent has no defined height.
     // Priority: explicit height → explicit width (square) → fallback constant.
     const isConcrete = (v: string): boolean => v !== 'auto' && !v.endsWith('%');
-    const containerHeight: string = isConcrete(cssHeight)
-      ? cssHeight
-      : isConcrete(cssWidth)
-      ? cssWidth
-      : DEFAULT_EMOJI_CONTAINER_HEIGHT;
+    let containerHeight: string;
+    if (isConcrete(cssHeight)) {
+      containerHeight = cssHeight;
+    } else if (isConcrete(cssWidth)) {
+      containerHeight = cssWidth;
+    } else {
+      containerHeight = DEFAULT_EMOJI_CONTAINER_HEIGHT;
+    }
 
     return (
       <div key={component.id} style={{textAlign: 'center'}}>

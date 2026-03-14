@@ -82,9 +82,9 @@ const resolveEmojiUrisInHtml = (html: string): string => {
       return `<span role="img" aria-label="${label}">${emoji}</span>`;
     },
   );
-  return withEmojiImages.replace(/emoji:([^\s"<>&]+)/g, (_: string, rest: string): string => {
-    return isEmojiUri(`emoji:${rest}`) ? rest : `emoji:${rest}`;
-  });
+  return withEmojiImages.replace(/emoji:([^\s"<>&]+)/g, (_: string, rest: string): string =>
+    isEmojiUri(`emoji:${rest}`) ? rest : `emoji:${rest}`,
+  );
 };
 
 /** Ensures rich-text content (including all inner elements from the server) always word-wraps. */
@@ -374,11 +374,11 @@ const createAuthComponentFromFlow = (
           key={key}
           variant={variant}
           style={{
+            marginBottom: 2,
             textAlign:
               typeof component?.['align'] === 'string'
                 ? (component['align'] as React.CSSProperties['textAlign'])
                 : 'left',
-            marginBottom: 2,
           }}
         >
           {resolve(component.label)}

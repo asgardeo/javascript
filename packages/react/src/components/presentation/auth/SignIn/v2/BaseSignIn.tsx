@@ -617,9 +617,6 @@ const BaseSignInContent: FC<BaseSignInProps> = ({
  * ```
  */
 const BaseSignIn: FC<BaseSignInProps> = ({preferences, ...rest}: BaseSignInProps): ReactElement => {
-  const {theme} = useTheme();
-  const styles: any = useStyles(theme, theme.vars.colors.text.primary);
-
   const content: ReactElement = (
     <FlowProvider>
       <BaseSignInContent {...rest} />

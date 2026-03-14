@@ -39,10 +39,10 @@ export const FLOW_TEMPLATE_FUNCTION_REGEX: RegExp = /^(\w+)\(([^)]+)\)$/;
  * as a handler map.
  */
 export enum FlowTemplateLiteralType {
-  /** Translation template literal — `{{ t(key) }}` */
-  TRANSLATION = 't',
   /** Meta template literal — `{{ meta(path) }}` — resolves against flow/page metadata */
   META = 'meta',
+  /** Translation template literal — `{{ t(key) }}` */
+  TRANSLATION = 't',
   /** Unknown or unsupported template literal format */
   UNKNOWN = 'unknown',
 }
@@ -51,13 +51,13 @@ export enum FlowTemplateLiteralType {
  * Result of parsing a flow template literal.
  */
 export interface FlowTemplateLiteralResult {
-  /** The type of flow template literal that was detected */
-  type: FlowTemplateLiteralType;
   /**
    * The extracted key or path from the template literal.
    * e.g. `"signin:heading"` from `"{{ t(signin:heading) }}"`.
    */
   key?: string;
+  /** The type of flow template literal that was detected */
+  type: FlowTemplateLiteralType;
   /** The original template literal content before parsing */
   originalValue: string;
 }

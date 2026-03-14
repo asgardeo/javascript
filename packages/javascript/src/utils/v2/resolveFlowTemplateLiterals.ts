@@ -16,12 +16,12 @@
  * under the License.
  */
 
-import resolveMeta from './resolveMeta';
 import parseFlowTemplateLiteral, {
   FLOW_TEMPLATE_LITERAL_REGEX,
   FlowTemplateLiteralResult,
   FlowTemplateLiteralType,
 } from './parseFlowTemplateLiteral';
+import resolveMeta from './resolveMeta';
 import {TranslationFn} from '../../models/v2/translation';
 import {ResolveFlowTemplateLiteralsOptions} from '../../models/v2/vars';
 

@@ -16,7 +16,7 @@
  * under the License.
  */
 
-export const EMOJI_URI_SCHEME = 'emoji:';
+export const EMOJI_URI_SCHEME: string = 'emoji:';
 
 /**
  * Checks whether a given URI uses the `emoji:` scheme (e.g. `"emoji:🐯"`).
@@ -31,8 +31,6 @@ export const EMOJI_URI_SCHEME = 'emoji:';
  * isEmojiUri("");                  // false
  * ```
  */
-const isEmojiUri = (uri: string): boolean => {
-  return typeof uri === 'string' && uri.startsWith(EMOJI_URI_SCHEME);
-};
+const isEmojiUri = (uri: string): boolean => typeof uri === 'string' && uri.startsWith(EMOJI_URI_SCHEME);
 
 export default isEmojiUri;
