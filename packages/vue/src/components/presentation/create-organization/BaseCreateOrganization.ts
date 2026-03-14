@@ -86,7 +86,7 @@ const BaseCreateOrganization = defineComponent({
             ? h(Typography, {variant: 'body2', class: cls('__description')}, () => props.description)
             : null,
           error.value
-            ? h(Alert, {type: 'error', class: cls('__error')}, () => error.value)
+            ? h(Alert, {severity: 'error', class: cls('__error')}, () => error.value)
             : null,
           h(TextField, {
             label: 'Organization Name',

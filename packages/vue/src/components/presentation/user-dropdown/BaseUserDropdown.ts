@@ -20,12 +20,15 @@ import {type User, withVendorCSSClassPrefix} from '@asgardeo/browser';
 import {type PropType, type VNode, defineComponent, h, ref} from 'vue';
 import Button from '../../primitives/Button';
 import Typography from '../../primitives/Typography';
-import {ChevronDownIcon, LogOutIcon, UserIcon} from '../../primitives/Icons';
+import {ChevronDownIcon, LogOutIcon, UserIcon, XIcon} from '../../primitives/Icons';
 
 export interface BaseUserDropdownProps {
   className?: string;
+  isProfileModalOpen?: boolean;
   onProfileClick?: () => void;
+  onProfileModalClose?: () => void;
   onSignOut?: () => void;
+  profileContent?: VNode | null;
   user?: User | null;
 }
 
@@ -36,9 +39,12 @@ const BaseUserDropdown = defineComponent({
   name: 'BaseUserDropdown',
   props: {
     className: {type: String, default: ''},
+    isProfileModalOpen: {type: Boolean, default: false},
+    profileContent: {type: Object as PropType<VNode | null>, default: null},
     user: {type: Object as PropType<User | null>, default: null},
-    onSignOut: {type: Function as PropType<() => void>, default: undefined},
     onProfileClick: {type: Function as PropType<() => void>, default: undefined},
+    onProfileModalClose: {type: Function as PropType<() => void>, default: undefined},
+    onSignOut: {type: Function as PropType<() => void>, default: undefined},
   },
   setup(props, {slots}) {
     const isOpen = ref(false);
@@ -120,11 +126,36 @@ const BaseUserDropdown = defineComponent({
         children.push(h('div', {class: prefix('user-dropdown__menu')}, menuItems));
       }
 
-      return h(
+      const container = h(
         'div',
         {class: [prefix('user-dropdown'), props.className].filter(Boolean).join(' ')},
         children,
       );
+
+      // If profile modal is open, render modal overlay
+      if (props.isProfileModalOpen) {
+        return h('div', [container, h(
+          'div',
+          {class: prefix('user-dropdown__modal-overlay')},
+          [
+            h('div', {class: prefix('user-dropdown__modal-content')}, [
+              h(
+                'button',
+                {
+                  type: 'button',
+                  class: prefix('user-dropdown__modal-close'),
+                  'aria-label': 'Close profile modal',
+                  onClick: props.onProfileModalClose,
+                },
+                [h(XIcon, {size: 24})],
+              ),
+              props.profileContent,
+            ]),
+          ],
+        )]);
+      }
+
+      return container;
     };
   },
 });

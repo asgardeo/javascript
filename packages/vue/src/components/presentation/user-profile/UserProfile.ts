@@ -32,7 +32,7 @@ const UserProfile = defineComponent({
     className: {type: String, default: ''},
     editable: {type: Boolean, default: true},
     cardLayout: {type: Boolean, default: true},
-    title: {type: String, default: 'My Profile'},
+    title: {type: String, default: 'Profile'},
     showFields: {type: Array as PropType<string[]>, default: () => []},
     hideFields: {type: Array as PropType<string[]>, default: () => []},
   },

@@ -102,6 +102,7 @@ export {
   ArrowLeftRightIcon,
   BuildingIcon,
   GlobeIcon,
+  PencilIcon,
 } from './components/primitives/Icons';
 
 // ── UI Components — Actions ──

@@ -19,7 +19,7 @@
 /**
  * Style injection orchestrator for the Asgardeo Vue SDK.
  *
- * Each primitive component owns its CSS in a co-located `*.css.ts` file.
+ * Each component owns its CSS in a co-located `*.css.ts` file.
  * This module assembles those CSS strings in a deterministic order and
  * injects them as a single `<style>` tag into `document.head` once per page —
  * subsequent calls are no-ops (idempotent).
@@ -27,7 +27,8 @@
  * Architecture:
  *  - `styles/defaults.css.ts`   — `:root` CSS variable fallback values
  *  - `styles/animations.css.ts` — shared `@keyframes` used by multiple components
- *  - `components/primitives/{Component}/{Component}.css.ts` — per-component BEM rules
+ *  - `components/primitives/{Component}/{Component}.css.ts` — per-component BEM rules (primitives)
+ *  - `components/presentation/{component}/{Component}.css.ts` — composition/layout rules (presentation)
  *
  * ThemeProvider overrides CSS variables at runtime via inline styles on
  * `document.documentElement`, which wins over the `:root` stylesheet rule.
@@ -35,6 +36,8 @@
 
 import DEFAULTS_CSS from './defaults.css';
 import ANIMATIONS_CSS from './animations.css';
+
+// Primitives
 import ALERT_CSS from '../components/primitives/Alert/Alert.css';
 import BUTTON_CSS from '../components/primitives/Button/Button.css';
 import CARD_CSS from '../components/primitives/Card/Card.css';
@@ -49,15 +52,30 @@ import SPINNER_CSS from '../components/primitives/Spinner/Spinner.css';
 import TEXT_FIELD_CSS from '../components/primitives/TextField/TextField.css';
 import TYPOGRAPHY_CSS from '../components/primitives/Typography/Typography.css';
 
+// Presentation
+import ORGANIZATION_CSS from '../components/presentation/organization/Organization.css';
+import ORGANIZATION_LIST_CSS from '../components/presentation/organization-list/OrganizationList.css';
+import ORGANIZATION_SWITCHER_CSS from '../components/presentation/organization-switcher/OrganizationSwitcher.css';
+import ORGANIZATION_PROFILE_CSS from '../components/presentation/organization-profile/OrganizationProfile.css';
+import CREATE_ORGANIZATION_CSS from '../components/presentation/create-organization/CreateOrganization.css';
+import LANGUAGE_SWITCHER_CSS from '../components/presentation/language-switcher/LanguageSwitcher.css';
+import USER_DROPDOWN_CSS from '../components/presentation/user-dropdown/UserDropdown.css';
+import USER_PROFILE_CSS from '../components/presentation/user-profile/UserProfile.css';
+
 const STYLE_ID = 'asgardeo-vue-styles';
 
 /**
- * Assembled CSS for all Asgardeo Vue primitive components.
- * Order is intentional: defaults and animations must precede component rules.
+ * Assembled CSS for all Asgardeo Vue components.
+ * Order is intentional:
+ *   1. CSS variable defaults + keyframes
+ *   2. Primitives (lowest level, no dependencies on higher layers)
+ *   3. Presentation (composed from primitives; may override primitive classes in context)
  */
 const STYLES = [
+  // Foundations
   DEFAULTS_CSS,
   ANIMATIONS_CSS,
+  // Primitives
   BUTTON_CSS,
   CARD_CSS,
   TYPOGRAPHY_CSS,
@@ -71,6 +89,15 @@ const STYLES = [
   DIVIDER_CSS,
   LOGO_CSS,
   SPINNER_CSS,
+  // Presentation
+  ORGANIZATION_CSS,
+  ORGANIZATION_LIST_CSS,
+  ORGANIZATION_SWITCHER_CSS,
+  ORGANIZATION_PROFILE_CSS,
+  CREATE_ORGANIZATION_CSS,
+  LANGUAGE_SWITCHER_CSS,
+  USER_DROPDOWN_CSS,
+  USER_PROFILE_CSS,
 ].join('\n');
 
 /**

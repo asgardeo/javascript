@@ -17,9 +17,11 @@
  */
 
 import {withVendorCSSClassPrefix} from '@asgardeo/browser';
-import {defineComponent, h} from 'vue';
+import {defineComponent, h, ref} from 'vue';
 import useAsgardeo from '../../../composables/useAsgardeo';
+import useUser from '../../../composables/useUser';
 import BaseUserDropdown from './BaseUserDropdown';
+import UserProfileComponent from '../user-profile/UserProfile';
 
 /**
  * UserDropdown — styled user dropdown component.
@@ -34,6 +36,8 @@ const UserDropdown = defineComponent({
   emits: ['profileClick'],
   setup(props, {slots, emit}) {
     const {user, signOut} = useAsgardeo();
+    const {flattenedProfile, schemas, updateProfile} = useUser();
+    const isProfileModalOpen = ref(false);
 
     return () =>
       h(
@@ -42,8 +46,19 @@ const UserDropdown = defineComponent({
           class: withVendorCSSClassPrefix('user-dropdown--styled'),
           className: props.className,
           user: user.value,
+          isProfileModalOpen: isProfileModalOpen.value,
+          profileContent: isProfileModalOpen.value ? h(UserProfileComponent, {
+            editable: true,
+            cardLayout: false,
+          }) : null,
           onSignOut: () => signOut(),
-          onProfileClick: () => emit('profileClick'),
+          onProfileClick: () => {
+            isProfileModalOpen.value = true;
+            emit('profileClick');
+          },
+          onProfileModalClose: () => {
+            isProfileModalOpen.value = false;
+          },
         },
         slots,
       );

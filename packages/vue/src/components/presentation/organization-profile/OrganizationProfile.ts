@@ -17,7 +17,7 @@
  */
 
 import {withVendorCSSClassPrefix} from '@asgardeo/browser';
-import {defineComponent, h} from 'vue';
+import {type PropType, defineComponent, h} from 'vue';
 import useOrganization from '../../../composables/useOrganization';
 import BaseOrganizationProfile from './BaseOrganizationProfile';
 
@@ -31,6 +31,11 @@ const OrganizationProfile = defineComponent({
   props: {
     className: {type: String, default: ''},
     editable: {type: Boolean, default: false},
+    title: {type: String, default: 'Organization Profile'},
+    onUpdate: {
+      type: Function as PropType<(payload: Record<string, unknown>) => Promise<void>>,
+      default: undefined,
+    },
   },
   setup(props, {slots}) {
     const {currentOrganization} = useOrganization();
@@ -43,6 +48,8 @@ const OrganizationProfile = defineComponent({
           className: props.className,
           organization: currentOrganization?.value ?? null,
           editable: props.editable,
+          title: props.title,
+          onUpdate: props.onUpdate,
         },
         slots,
       );
