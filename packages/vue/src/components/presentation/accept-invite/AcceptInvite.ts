@@ -17,50 +17,33 @@
  */
 
 import {withVendorCSSClassPrefix} from '@asgardeo/browser';
-import {type PropType, defineComponent, h} from 'vue';
-import useAsgardeo from '../../../composables/useAsgardeo';
-import useI18n from '../../../composables/useI18n';
-import BaseAcceptInvite from './BaseAcceptInvite';
+import {defineComponent, h} from 'vue';
+import Card from '../../primitives/Card';
+import Typography from '../../primitives/Typography';
 
 /**
- * AcceptInvite — styled invitation acceptance component.
+ * AcceptInvite — embedded invitation acceptance component.
  *
- * Connects to Asgardeo context for invitation acceptance flow.
+ * This component requires the app-native authentication flow which is not yet
+ * supported in the Vue SDK. It will be implemented in a future release.
  */
 const AcceptInvite = defineComponent({
   name: 'AcceptInvite',
-  props: {
-    className: {type: String, default: ''},
-    invitationCode: {type: String, default: ''},
-    size: {type: String as PropType<'small' | 'medium' | 'large'>, default: 'medium'},
-    variant: {type: String as PropType<'elevated' | 'outlined' | 'flat'>, default: 'elevated'},
-    onSuccess: {type: Function as PropType<() => void>, default: undefined},
-    onError: {type: Function as PropType<(error: Error) => void>, default: undefined},
-  },
-  setup(props, {slots}) {
-    const {signIn, isLoading} = useAsgardeo();
-    const {t} = useI18n();
+  setup(_props, {slots}) {
+    return () => {
+      if (slots['default']) {
+        return slots['default']();
+      }
 
-    const handleAccept = async (invitationCode: string) => {
-      await signIn({invitation_code: invitationCode, response_mode: 'direct'});
-    };
-
-    return () =>
-      h(
-        BaseAcceptInvite,
-        {
-          class: withVendorCSSClassPrefix('accept-invite--styled'),
-          className: props.className,
-          invitationCode: props.invitationCode,
-          isLoading: isLoading.value,
-          size: props.size,
-          variant: props.variant,
-          onAccept: handleAccept,
-          onSuccess: props.onSuccess,
-          onError: props.onError,
-        },
-        slots,
+      return h(
+        Card,
+        {class: withVendorCSSClassPrefix('accept-invite--coming-soon')},
+        () => [
+          h(Typography, {variant: 'h5'}, () => 'Accept Invite'),
+          h('p', {style: 'color: #666; margin-top: 8px; font-size: 14px;'}, 'Coming Soon — This embedded invitation acceptance component will be available when app-native authentication flow is implemented in the Vue SDK.'),
+        ],
       );
+    };
   },
 });
 

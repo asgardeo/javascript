@@ -23,7 +23,7 @@ import {
   Organization,
   TokenResponse,
 } from '@asgardeo/browser';
-import {defineComponent, h, provide, readonly, ref, type PropType, type Ref} from 'vue';
+import {computed, defineComponent, h, provide, readonly, ref, type PropType, type Ref} from 'vue';
 import {ORGANIZATION_KEY} from '../keys';
 import type {OrganizationContextValue} from '../models/contexts';
 
@@ -101,13 +101,17 @@ const OrganizationProvider = defineComponent({
       return {organizations: []};
     };
 
+    // Use computed refs so context stays in sync when props change
+    const currentOrganizationRef = computed(() => props.currentOrganization);
+    const myOrganizationsRef = computed(() => props.myOrganizations);
+
     const context: OrganizationContextValue = {
       createOrganization: props.createOrganization,
-      currentOrganization: readonly(ref(props.currentOrganization)) as Readonly<Ref<Organization | null>>,
+      currentOrganization: currentOrganizationRef as unknown as Readonly<Ref<Organization | null>>,
       error: readonly(error),
       getAllOrganizations: getAllOrgs,
       isLoading: readonly(isLoading),
-      myOrganizations: readonly(ref(props.myOrganizations)) as Readonly<Ref<Organization[]>>,
+      myOrganizations: myOrganizationsRef as unknown as Readonly<Ref<Organization[]>>,
       revalidateMyOrganizations: props.revalidateMyOrganizations,
       switchOrganization,
     };

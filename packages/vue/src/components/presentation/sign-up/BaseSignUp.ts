@@ -17,109 +17,39 @@
  */
 
 import {withVendorCSSClassPrefix} from '@asgardeo/browser';
-import {type PropType, type VNode, defineComponent, h, ref} from 'vue';
-import Alert from '../../primitives/Alert';
-import Card from '../../primitives/Card';
-import Divider from '../../primitives/Divider';
-import Logo from '../../primitives/Logo';
-import Spinner from '../../primitives/Spinner';
-import Typography from '../../primitives/Typography';
+import {defineComponent, h} from 'vue';
 
 export interface BaseSignUpProps {
-  afterSignUpUrl?: string;
   className?: string;
-  isLoading?: boolean;
-  onComplete?: (redirectUrl: string) => void;
-  onError?: (error: Error) => void;
-  onInitialize?: () => Promise<unknown>;
-  onSubmit?: (payload: unknown) => Promise<unknown>;
-  onSuccess?: (response: Record<string, unknown>) => void;
-  showLogo?: boolean;
-  showSubtitle?: boolean;
-  showTitle?: boolean;
-  size?: 'small' | 'medium' | 'large';
-  variant?: 'elevated' | 'outlined' | 'flat';
 }
 
 /**
  * BaseSignUp — unstyled sign-up presentation component.
  *
- * Provides slot-based customization for the sign-up form.
+ * This component requires the app-native authentication flow which is not yet
+ * supported in the Vue SDK. It will be implemented in a future release.
  */
 const BaseSignUp = defineComponent({
   name: 'BaseSignUp',
   props: {
     className: {type: String, default: ''},
-    isLoading: {type: Boolean, default: false},
-    showLogo: {type: Boolean, default: true},
-    showTitle: {type: Boolean, default: true},
-    showSubtitle: {type: Boolean, default: true},
-    size: {type: String as PropType<'small' | 'medium' | 'large'>, default: 'medium'},
-    variant: {type: String as PropType<'elevated' | 'outlined' | 'flat'>, default: 'elevated'},
-    afterSignUpUrl: {type: String, default: undefined},
-    onInitialize: {type: Function as PropType<() => Promise<unknown>>, default: undefined},
-    onSubmit: {type: Function as PropType<(payload: unknown) => Promise<unknown>>, default: undefined},
-    onSuccess: {type: Function as PropType<(response: Record<string, unknown>) => void>, default: undefined},
-    onComplete: {type: Function as PropType<(redirectUrl: string) => void>, default: undefined},
-    onError: {type: Function as PropType<(error: Error) => void>, default: undefined},
   },
   setup(props, {slots}) {
-    const loading = ref(props.isLoading);
-    const error = ref<string | null>(null);
-
     return () => {
       if (slots['default']) {
-        return slots['default']({isLoading: loading.value, error: error.value});
-      }
-
-      const prefix = withVendorCSSClassPrefix;
-      const children: VNode[] = [];
-
-      if (props.showLogo) {
-        children.push(h('div', {class: prefix('sign-up__logo')}, [h(Logo)]));
-      }
-
-      if (props.showTitle) {
-        children.push(h(Typography, {variant: 'h5', class: prefix('sign-up__title')}, () => 'Create Account'));
-      }
-
-      if (props.showSubtitle) {
-        children.push(
-          h(Typography, {variant: 'body2', class: prefix('sign-up__subtitle')}, () => 'Sign up for a new account'),
-        );
-      }
-
-      children.push(h(Divider, {class: prefix('sign-up__divider')}));
-
-      if (error.value) {
-        children.push(
-          h(Alert, {severity: 'error' as const, class: prefix('sign-up__error'), dismissible: true}, () => error.value),
-        );
-      }
-
-      if (loading.value) {
-        children.push(h('div', {class: prefix('sign-up__loading')}, [h(Spinner)]));
-      }
-
-      if (slots['content']) {
-        children.push(h('div', {class: prefix('sign-up__content')}, slots['content']()));
-      }
-
-      if (slots['actions']) {
-        children.push(h('div', {class: prefix('sign-up__actions')}, slots['actions']()));
-      }
-
-      if (slots['footer']) {
-        children.push(h('div', {class: prefix('sign-up__footer')}, slots['footer']()));
+        return slots['default']();
       }
 
       return h(
-        Card,
+        'div',
         {
-          class: [prefix('sign-up'), prefix(`sign-up--${props.size}`), props.className].filter(Boolean).join(' '),
-          variant: props.variant,
+          class: [withVendorCSSClassPrefix('sign-up--coming-soon'), props.className].filter(Boolean).join(' '),
+          style: 'padding: 24px; border: 1px dashed #ccc; border-radius: 8px; text-align: center;',
         },
-        () => children,
+        [
+          h('h3', {style: 'margin: 0 0 8px 0;'}, 'Sign Up'),
+          h('p', {style: 'color: #666; margin: 0; font-size: 14px;'}, 'Coming Soon — This embedded sign-up component will be available when app-native authentication flow is implemented.'),
+        ],
       );
     };
   },

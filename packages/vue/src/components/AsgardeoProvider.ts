@@ -25,6 +25,8 @@ import {
   Organization,
   Platform,
   User,
+  UserProfile,
+  Schema,
   SignInOptions,
   TokenResponse,
   EmbeddedSignInFlowResponseV2,
@@ -120,6 +122,10 @@ const AsgardeoProvider = defineComponent({
     const isLoading = ref(true);
     const user = shallowRef<any | null>(null);
     const currentOrganization = shallowRef<Organization | null>(null);
+    const myOrganizations = shallowRef<Organization[]>([]);
+    const userProfile = shallowRef<UserProfile | null>(null);
+    const flattenedProfile = shallowRef<User | null>(null);
+    const schemas = shallowRef<Schema[]>([]);
     const resolvedBaseUrl = ref(props.baseUrl);
 
     let isUpdatingSession = false;
@@ -176,6 +182,24 @@ const AsgardeoProvider = defineComponent({
           try {
             const fetchedOrg: Organization = await asgardeo.getCurrentOrganization();
             currentOrganization.value = fetchedOrg;
+          } catch {
+            // silent
+          }
+
+          // Fetch user's organizations for organization components
+          try {
+            const orgs: Organization[] = await asgardeo.getMyOrganizations({baseUrl});
+            myOrganizations.value = orgs || [];
+          } catch {
+            // silent
+          }
+
+          // Fetch user profile details for profile components
+          try {
+            const profileData: UserProfile = await asgardeo.getUserProfile({baseUrl});
+            userProfile.value = profileData;
+            flattenedProfile.value = profileData.flattenedProfile || null;
+            schemas.value = profileData.schemas || [];
           } catch {
             // silent
           }
@@ -436,9 +460,39 @@ const AsgardeoProvider = defineComponent({
     return () =>
       h(I18nProvider, null, {
         default: () =>
-          h(UserProvider, null, {
+          h(UserProvider, {
+            profile: userProfile.value,
+            flattenedProfile: flattenedProfile.value,
+            schemas: schemas.value,
+            revalidateProfile: async () => {
+              const baseUrl = resolvedBaseUrl.value;
+              try {
+                const profileData: UserProfile = await asgardeo.getUserProfile({baseUrl});
+                userProfile.value = profileData;
+                flattenedProfile.value = profileData.flattenedProfile || null;
+                schemas.value = profileData.schemas || [];
+              } catch {
+                // silent
+              }
+            },
+          }, {
             default: () =>
-              h(OrganizationProvider, null, {
+              h(OrganizationProvider, {
+                currentOrganization: currentOrganization.value,
+                myOrganizations: myOrganizations.value,
+                onOrganizationSwitch: switchOrganization,
+                getAllOrganizations: () => asgardeo.getAllOrganizations({baseUrl: resolvedBaseUrl.value}),
+                revalidateMyOrganizations: async () => {
+                  const baseUrl = resolvedBaseUrl.value;
+                  try {
+                    const orgs: Organization[] = await asgardeo.getMyOrganizations({baseUrl});
+                    myOrganizations.value = orgs || [];
+                    return orgs || [];
+                  } catch {
+                    return [];
+                  }
+                },
+              }, {
                 default: () =>
                   h(ThemeProvider, null, {
                     default: () =>

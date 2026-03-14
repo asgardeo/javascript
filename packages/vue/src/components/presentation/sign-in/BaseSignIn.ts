@@ -17,113 +17,39 @@
  */
 
 import {withVendorCSSClassPrefix} from '@asgardeo/browser';
-import {type PropType, type VNode, defineComponent, h, ref} from 'vue';
-import Alert from '../../primitives/Alert';
-import Button from '../../primitives/Button';
-import Card from '../../primitives/Card';
-import Divider from '../../primitives/Divider';
-import Logo from '../../primitives/Logo';
-import Spinner from '../../primitives/Spinner';
-import Typography from '../../primitives/Typography';
+import {defineComponent, h} from 'vue';
 
 export interface BaseSignInProps {
-  afterSignInUrl?: string;
   className?: string;
-  isLoading?: boolean;
-  onError?: (error: Error) => void;
-  onInitialize?: () => Promise<unknown>;
-  onSubmit?: (payload: unknown, request?: unknown) => Promise<unknown>;
-  onSuccess?: (authData: Record<string, unknown>) => void;
-  showLogo?: boolean;
-  showSubtitle?: boolean;
-  showTitle?: boolean;
-  size?: 'small' | 'medium' | 'large';
-  variant?: 'elevated' | 'outlined' | 'flat';
 }
 
 /**
  * BaseSignIn — unstyled sign-in presentation component.
  *
- * Provides default slot for full customization, or renders a default
- * sign-in card UI with flow support.
+ * This component requires the app-native authentication flow which is not yet
+ * supported in the Vue SDK. It will be implemented in a future release.
  */
 const BaseSignIn = defineComponent({
   name: 'BaseSignIn',
   props: {
     className: {type: String, default: ''},
-    isLoading: {type: Boolean, default: false},
-    showLogo: {type: Boolean, default: true},
-    showTitle: {type: Boolean, default: true},
-    showSubtitle: {type: Boolean, default: true},
-    size: {type: String as PropType<'small' | 'medium' | 'large'>, default: 'medium'},
-    variant: {type: String as PropType<'elevated' | 'outlined' | 'flat'>, default: 'elevated'},
-    afterSignInUrl: {type: String, default: undefined},
-    onInitialize: {type: Function as PropType<() => Promise<unknown>>, default: undefined},
-    onSubmit: {type: Function as PropType<(payload: unknown, request?: unknown) => Promise<unknown>>, default: undefined},
-    onSuccess: {type: Function as PropType<(authData: Record<string, unknown>) => void>, default: undefined},
-    onError: {type: Function as PropType<(error: Error) => void>, default: undefined},
   },
   setup(props, {slots}) {
-    const loading = ref(props.isLoading);
-    const error = ref<string | null>(null);
-
     return () => {
       if (slots['default']) {
-        return slots['default']({isLoading: loading.value, error: error.value});
-      }
-
-      const prefix = withVendorCSSClassPrefix;
-
-      const children: VNode[] = [];
-
-      if (props.showLogo) {
-        children.push(h('div', {class: prefix('sign-in__logo')}, [h(Logo)]));
-      }
-
-      if (props.showTitle) {
-        children.push(h(Typography, {variant: 'h5', class: prefix('sign-in__title')}, () => 'Sign In'));
-      }
-
-      if (props.showSubtitle) {
-        children.push(
-          h(Typography, {variant: 'body2', class: prefix('sign-in__subtitle')}, () => 'Sign in to your account'),
-        );
-      }
-
-      children.push(h(Divider, {class: prefix('sign-in__divider')}));
-
-      if (error.value) {
-        children.push(
-          h(Alert, {severity: 'error' as const, class: prefix('sign-in__error'), dismissible: true}, () => error.value),
-        );
-      }
-
-      if (loading.value) {
-        children.push(h('div', {class: prefix('sign-in__loading')}, [h(Spinner)]));
-      }
-
-      // Slot for flow content (form fields, social buttons, etc.)
-      if (slots['content']) {
-        children.push(h('div', {class: prefix('sign-in__content')}, slots['content']()));
-      }
-
-      // Slot for actions
-      if (slots['actions']) {
-        children.push(h('div', {class: prefix('sign-in__actions')}, slots['actions']()));
-      }
-
-      // Slot for footer content
-      if (slots['footer']) {
-        children.push(h('div', {class: prefix('sign-in__footer')}, slots['footer']()));
+        return slots['default']();
       }
 
       return h(
-        Card,
+        'div',
         {
-          class: [prefix('sign-in'), prefix(`sign-in--${props.size}`), props.className].filter(Boolean).join(' '),
-          variant: props.variant,
+          class: [withVendorCSSClassPrefix('sign-in--coming-soon'), props.className].filter(Boolean).join(' '),
+          style: 'padding: 24px; border: 1px dashed #ccc; border-radius: 8px; text-align: center;',
         },
-        () => children,
+        [
+          h('h3', {style: 'margin: 0 0 8px 0;'}, 'Sign In'),
+          h('p', {style: 'color: #666; margin: 0; font-size: 14px;'}, 'Coming Soon — This embedded sign-in component will be available when app-native authentication flow is implemented.'),
+        ],
       );
     };
   },

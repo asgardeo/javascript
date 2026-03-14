@@ -49,10 +49,22 @@ const BaseUserDropdown = defineComponent({
         return slots['default']({user: props.user, isOpen: isOpen.value, toggle: () => (isOpen.value = !isOpen.value)});
       }
 
-      const displayName: string | undefined =
-        (props.user as Record<string, unknown>)?.['displayName'] as string | undefined ??
-        (props.user as Record<string, unknown>)?.['name'] as string | undefined ??
-        (props.user as Record<string, unknown>)?.['email'] as string | undefined;
+      const resolveDisplayName = (): string | undefined => {
+        if (!props.user) return undefined;
+        const record = props.user as Record<string, unknown>;
+        if (typeof record['displayName'] === 'string') return record['displayName'];
+        const name = record['name'];
+        if (typeof name === 'string') return name;
+        if (typeof name === 'object' && name) {
+          const parts = [(name as any).givenName, (name as any).familyName].filter(Boolean);
+          if (parts.length > 0) return parts.join(' ');
+        }
+        if (typeof record['email'] === 'string') return record['email'];
+        if (typeof record['username'] === 'string') return record['username'];
+        if (typeof record['sub'] === 'string') return record['sub'];
+        return undefined;
+      };
+      const displayName = resolveDisplayName();
 
       const children: VNode[] = [];
 

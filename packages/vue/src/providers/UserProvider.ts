@@ -17,7 +17,7 @@
  */
 
 import {Schema, UpdateMeProfileConfig, User, UserProfile} from '@asgardeo/browser';
-import {defineComponent, h, provide, readonly, ref, type PropType, type Ref} from 'vue';
+import {computed, defineComponent, h, provide, readonly, ref, type PropType, type Ref} from 'vue';
 import {USER_KEY} from '../keys';
 import type {UserContextValue} from '../models/contexts';
 
@@ -54,11 +54,16 @@ const UserProvider = defineComponent({
     schemas: {type: Array as PropType<Schema[] | null>, default: null},
   },
   setup(props, {slots}) {
+    // Use computed refs so context stays in sync when props change
+    const flattenedProfileRef = computed(() => props.flattenedProfile);
+    const profileRef = computed(() => props.profile);
+    const schemasRef = computed(() => props.schemas);
+
     const context: UserContextValue = {
-      flattenedProfile: readonly(ref(props.flattenedProfile)) as Readonly<Ref<User | null>>,
-      profile: readonly(ref(props.profile)) as Readonly<Ref<UserProfile | null>>,
+      flattenedProfile: flattenedProfileRef as unknown as Readonly<Ref<User | null>>,
+      profile: profileRef as unknown as Readonly<Ref<UserProfile | null>>,
       revalidateProfile: props.revalidateProfile,
-      schemas: readonly(ref(props.schemas)) as Readonly<Ref<Schema[] | null>>,
+      schemas: schemasRef as unknown as Readonly<Ref<Schema[] | null>>,
       updateProfile:
         props.updateProfile ??
         (() =>

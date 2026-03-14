@@ -17,66 +17,33 @@
  */
 
 import {withVendorCSSClassPrefix} from '@asgardeo/browser';
-import {type PropType, defineComponent, h} from 'vue';
-import useAsgardeo from '../../../composables/useAsgardeo';
-import useI18n from '../../../composables/useI18n';
-import BaseSignIn from './BaseSignIn';
+import {defineComponent, h} from 'vue';
+import Card from '../../primitives/Card';
+import Typography from '../../primitives/Typography';
 
 /**
- * SignIn — styled sign-in presentation component.
+ * SignIn — embedded sign-in presentation component.
  *
- * Connects to Asgardeo context for authentication flow handling.
- * Wraps BaseSignIn with composable-provided data.
+ * This component requires the app-native authentication flow which is not yet
+ * supported in the Vue SDK. It will be implemented in a future release.
  */
 const SignIn = defineComponent({
   name: 'SignIn',
-  props: {
-    className: {type: String, default: ''},
-    size: {type: String as PropType<'small' | 'medium' | 'large'>, default: 'medium'},
-    variant: {type: String as PropType<'elevated' | 'outlined' | 'flat'>, default: 'elevated'},
-    onSuccess: {type: Function as PropType<(authData: Record<string, unknown>) => void>, default: undefined},
-    onError: {type: Function as PropType<(error: Error) => void>, default: undefined},
-  },
-  setup(props, {slots}) {
-    const {signIn, afterSignInUrl, isLoading} = useAsgardeo();
-    const {t} = useI18n();
-
-    const handleInitialize = async () => signIn({response_mode: 'direct'});
-
-    const handleSuccess = (authData: Record<string, unknown>) => {
-      if (authData && afterSignInUrl) {
-        const url = new URL(afterSignInUrl, window.location.origin);
-
-        Object.entries(authData).forEach(([key, value]) => {
-          if (value !== undefined && value !== null) {
-            url.searchParams.append(key, String(value));
-          }
-        });
-
-        window.location.href = url.toString();
+  setup(_props, {slots}) {
+    return () => {
+      if (slots['default']) {
+        return slots['default']();
       }
 
-      props.onSuccess?.(authData);
-    };
-
-    return () =>
-      h(
-        BaseSignIn,
-        {
-          class: withVendorCSSClassPrefix('sign-in--styled'),
-          className: props.className,
-          isLoading: isLoading.value,
-          size: props.size,
-          variant: props.variant,
-          showLogo: true,
-          showTitle: true,
-          showSubtitle: true,
-          onInitialize: handleInitialize,
-          onSuccess: handleSuccess,
-          onError: props.onError,
-        },
-        slots,
+      return h(
+        Card,
+        {class: withVendorCSSClassPrefix('sign-in--coming-soon')},
+        () => [
+          h(Typography, {variant: 'h5'}, () => 'Sign In'),
+          h('p', {style: 'color: #666; margin-top: 8px; font-size: 14px;'}, 'Coming Soon — This embedded sign-in component will be available when app-native authentication flow is implemented in the Vue SDK. For now, use the redirect-based SignInButton component.'),
+        ],
       );
+    };
   },
 });
 

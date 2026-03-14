@@ -17,39 +17,33 @@
  */
 
 import {withVendorCSSClassPrefix} from '@asgardeo/browser';
-import {type PropType, defineComponent, h} from 'vue';
-import BaseInviteUser from './BaseInviteUser';
+import {defineComponent, h} from 'vue';
+import Card from '../../primitives/Card';
+import Typography from '../../primitives/Typography';
 
 /**
- * InviteUser — styled admin invite component.
+ * InviteUser — embedded admin invite component.
  *
- * Provides a form for inviting users to an organization.
+ * This component requires the app-native authentication flow which is not yet
+ * supported in the Vue SDK. It will be implemented in a future release.
  */
 const InviteUser = defineComponent({
   name: 'InviteUser',
-  props: {
-    className: {type: String, default: ''},
-    size: {type: String as PropType<'small' | 'medium' | 'large'>, default: 'medium'},
-    variant: {type: String as PropType<'elevated' | 'outlined' | 'flat'>, default: 'elevated'},
-    onInvite: {type: Function as PropType<(email: string, roles?: string[]) => Promise<void>>, default: undefined},
-    onSuccess: {type: Function as PropType<() => void>, default: undefined},
-    onError: {type: Function as PropType<(error: Error) => void>, default: undefined},
-  },
-  setup(props, {slots}) {
-    return () =>
-      h(
-        BaseInviteUser,
-        {
-          class: withVendorCSSClassPrefix('invite-user--styled'),
-          className: props.className,
-          size: props.size,
-          variant: props.variant,
-          onInvite: props.onInvite,
-          onSuccess: props.onSuccess,
-          onError: props.onError,
-        },
-        slots,
+  setup(_props, {slots}) {
+    return () => {
+      if (slots['default']) {
+        return slots['default']();
+      }
+
+      return h(
+        Card,
+        {class: withVendorCSSClassPrefix('invite-user--coming-soon')},
+        () => [
+          h(Typography, {variant: 'h5'}, () => 'Invite User'),
+          h('p', {style: 'color: #666; margin-top: 8px; font-size: 14px;'}, 'Coming Soon — This embedded user invitation component will be available when app-native authentication flow is implemented in the Vue SDK.'),
+        ],
       );
+    };
   },
 });
 

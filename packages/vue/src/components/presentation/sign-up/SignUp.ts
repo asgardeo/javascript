@@ -17,53 +17,33 @@
  */
 
 import {withVendorCSSClassPrefix} from '@asgardeo/browser';
-import {type PropType, defineComponent, h} from 'vue';
-import useAsgardeo from '../../../composables/useAsgardeo';
-import useI18n from '../../../composables/useI18n';
-import BaseSignUp from './BaseSignUp';
+import {defineComponent, h} from 'vue';
+import Card from '../../primitives/Card';
+import Typography from '../../primitives/Typography';
 
 /**
- * SignUp — styled sign-up presentation component.
+ * SignUp — embedded sign-up presentation component.
  *
- * Connects to Asgardeo context for registration flow handling.
+ * This component requires the app-native authentication flow which is not yet
+ * supported in the Vue SDK. It will be implemented in a future release.
  */
 const SignUp = defineComponent({
   name: 'SignUp',
-  props: {
-    className: {type: String, default: ''},
-    size: {type: String as PropType<'small' | 'medium' | 'large'>, default: 'medium'},
-    variant: {type: String as PropType<'elevated' | 'outlined' | 'flat'>, default: 'elevated'},
-    afterSignUpUrl: {type: String, default: undefined},
-    onSuccess: {type: Function as PropType<(response: Record<string, unknown>) => void>, default: undefined},
-    onComplete: {type: Function as PropType<(redirectUrl: string) => void>, default: undefined},
-    onError: {type: Function as PropType<(error: Error) => void>, default: undefined},
-  },
-  setup(props, {slots}) {
-    const {signUp, isLoading} = useAsgardeo();
-    const {t} = useI18n();
+  setup(_props, {slots}) {
+    return () => {
+      if (slots['default']) {
+        return slots['default']();
+      }
 
-    const handleInitialize = async () => signUp({response_mode: 'direct'});
-
-    return () =>
-      h(
-        BaseSignUp,
-        {
-          class: withVendorCSSClassPrefix('sign-up--styled'),
-          className: props.className,
-          isLoading: isLoading.value,
-          size: props.size,
-          variant: props.variant,
-          showLogo: true,
-          showTitle: true,
-          showSubtitle: true,
-          afterSignUpUrl: props.afterSignUpUrl,
-          onInitialize: handleInitialize,
-          onSuccess: props.onSuccess,
-          onComplete: props.onComplete,
-          onError: props.onError,
-        },
-        slots,
+      return h(
+        Card,
+        {class: withVendorCSSClassPrefix('sign-up--coming-soon')},
+        () => [
+          h(Typography, {variant: 'h5'}, () => 'Sign Up'),
+          h('p', {style: 'color: #666; margin-top: 8px; font-size: 14px;'}, 'Coming Soon — This embedded sign-up component will be available when app-native authentication flow is implemented in the Vue SDK.'),
+        ],
       );
+    };
   },
 });
 
