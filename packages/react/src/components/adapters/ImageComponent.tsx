@@ -76,7 +76,7 @@ const ImageComponent: FC<AdapterProps> = ({component}: AdapterProps) => {
             display: 'inline-grid',
             height: containerHeight,
             placeItems: 'center',
-            width,
+            width: cssWidth,
           }}
         >
           <span aria-label={alt} role="img" style={{fontSize: '100cqmin', lineHeight: 1}}>
