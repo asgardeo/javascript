@@ -370,7 +370,17 @@ const createAuthComponentFromFlow = (
     case EmbeddedFlowComponentType.Text: {
       const variant: any = getTypographyVariant(component.variant);
       return (
-        <Typography key={key} variant={variant}>
+        <Typography
+          key={key}
+          variant={variant}
+          style={{
+            textAlign:
+              typeof component?.['align'] === 'string'
+                ? (component['align'] as React.CSSProperties['textAlign'])
+                : 'left',
+            marginBottom: 2,
+          }}
+        >
           {resolve(component.label)}
         </Typography>
       );
