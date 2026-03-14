@@ -66,6 +66,22 @@ const richTextClass: string = css`
     overflow-wrap: anywhere;
     word-break: break-word;
   }
+  & .rich-text-align-left {
+    text-align: left;
+  }
+  & .rich-text-align-center {
+    text-align: center;
+  }
+  & .rich-text-align-right {
+    text-align: right;
+  }
+  & .rich-text-align-justify {
+    text-align: justify;
+  }
+  & a,
+  & .rich-text-link {
+    text-decoration: underline;
+  }
 `;
 
 export type AuthType = 'signin' | 'signup';
