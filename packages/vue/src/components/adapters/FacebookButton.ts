@@ -55,7 +55,7 @@ const FacebookButton = defineComponent({
           color: 'primary' as const,
           variant: 'solid' as const,
           disabled: props.isLoading,
-          startIcon: facebookIcon(),
+          ...(slots['default'] ? {} : {startIcon: facebookIcon()}),
           onClick: (e: MouseEvent) => emit('click', e),
         },
         () => slots['default']?.({isLoading: props.isLoading}) ?? (t('elements.buttons.facebook.text') || 'Sign in with Facebook'),

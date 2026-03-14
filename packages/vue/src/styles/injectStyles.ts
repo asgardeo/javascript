@@ -53,7 +53,6 @@ import TEXT_FIELD_CSS from '../components/primitives/TextField/TextField.css';
 import TYPOGRAPHY_CSS from '../components/primitives/Typography/Typography.css';
 
 // Presentation
-import ORGANIZATION_CSS from '../components/presentation/organization/Organization.css';
 import ORGANIZATION_LIST_CSS from '../components/presentation/organization-list/OrganizationList.css';
 import ORGANIZATION_SWITCHER_CSS from '../components/presentation/organization-switcher/OrganizationSwitcher.css';
 import ORGANIZATION_PROFILE_CSS from '../components/presentation/organization-profile/OrganizationProfile.css';
@@ -90,7 +89,6 @@ const STYLES = [
   LOGO_CSS,
   SPINNER_CSS,
   // Presentation
-  ORGANIZATION_CSS,
   ORGANIZATION_LIST_CSS,
   ORGANIZATION_SWITCHER_CSS,
   ORGANIZATION_PROFILE_CSS,

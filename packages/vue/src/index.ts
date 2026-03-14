@@ -120,14 +120,14 @@ export {default as Callback} from './components/auth/Callback';
 export {default as SignedIn} from './components/control/SignedIn';
 export {default as SignedOut} from './components/control/SignedOut';
 export {default as Loading} from './components/control/Loading';
+export {default as UserComponent} from './components/control/user/User';
+export {default as OrganizationComponent} from './components/control/organization/Organization';
 
 // ── UI Components — Presentation ──
 export {default as SignIn} from './components/presentation/sign-in/SignIn';
 export {default as BaseSignIn} from './components/presentation/sign-in/BaseSignIn';
 export {default as SignUp} from './components/presentation/sign-up/SignUp';
 export {default as BaseSignUp} from './components/presentation/sign-up/BaseSignUp';
-export {default as UserComponent} from './components/presentation/user/User';
-export {default as BaseUser} from './components/presentation/user/BaseUser';
 export {default as UserProfileComponent} from './components/presentation/user-profile/UserProfile';
 export {default as BaseUserProfile} from './components/presentation/user-profile/BaseUserProfile';
 export {default as UserDropdown} from './components/presentation/user-dropdown/UserDropdown';
@@ -136,8 +136,6 @@ export {default as AcceptInvite} from './components/presentation/accept-invite/A
 export {default as BaseAcceptInvite} from './components/presentation/accept-invite/BaseAcceptInvite';
 export {default as InviteUser} from './components/presentation/invite-user/InviteUser';
 export {default as BaseInviteUser} from './components/presentation/invite-user/BaseInviteUser';
-export {default as OrganizationComponent} from './components/presentation/organization/Organization';
-export {default as BaseOrganization} from './components/presentation/organization/BaseOrganization';
 export {default as OrganizationList} from './components/presentation/organization-list/OrganizationList';
 export {default as BaseOrganizationList} from './components/presentation/organization-list/BaseOrganizationList';
 export {default as OrganizationProfile} from './components/presentation/organization-profile/OrganizationProfile';

@@ -57,7 +57,7 @@ const GitHubButton = defineComponent({
           color: 'secondary' as const,
           variant: 'solid' as const,
           disabled: props.isLoading,
-          startIcon: gitHubIcon(),
+          ...(slots['default'] ? {} : {startIcon: gitHubIcon()}),
           onClick: (e: MouseEvent) => emit('click', e),
         },
         () => slots['default']?.({isLoading: props.isLoading}) ?? (t('elements.buttons.github.text') || 'Sign in with GitHub'),
