@@ -20,12 +20,12 @@ import {withVendorCSSClassPrefix} from '@asgardeo/browser';
 import type {Organization} from '@asgardeo/browser';
 import type {PropType, VNode} from 'vue';
 import {defineComponent, h, ref} from 'vue';
-import Button from '../primitives/Button';
-import Card from '../primitives/Card';
-import Divider from '../primitives/Divider';
-import {BuildingIcon, ChevronDownIcon} from '../primitives/Icons';
-import Spinner from '../primitives/Spinner';
-import Typography from '../primitives/Typography';
+import Button from '../../primitives/Button';
+import Card from '../../primitives/Card';
+import Divider from '../../primitives/Divider';
+import {BuildingIcon, ChevronDownIcon} from '../../primitives/Icons';
+import Spinner from '../../primitives/Spinner';
+import Typography from '../../primitives/Typography';
 
 const cls = (name: string): string => withVendorCSSClassPrefix(`organization-switcher${name}`);
 

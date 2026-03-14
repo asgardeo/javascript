@@ -17,7 +17,7 @@
  */
 
 import {type VNode, defineComponent, h} from 'vue';
-import useAsgardeo from '../../composables/useAsgardeo';
+import useAsgardeo from '../../../composables/useAsgardeo';
 import BaseUser from './BaseUser';
 
 /**

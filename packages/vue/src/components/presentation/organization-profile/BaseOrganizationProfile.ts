@@ -19,12 +19,12 @@
 import {withVendorCSSClassPrefix} from '@asgardeo/browser';
 import type {Organization} from '@asgardeo/browser';
 import {type PropType, type VNode, defineComponent, h, ref} from 'vue';
-import Button from '../primitives/Button';
-import Card from '../primitives/Card';
-import Divider from '../primitives/Divider';
-import TextField from '../primitives/TextField';
-import Typography from '../primitives/Typography';
-import {BuildingIcon} from '../primitives/Icons';
+import Button from '../../primitives/Button';
+import Card from '../../primitives/Card';
+import Divider from '../../primitives/Divider';
+import TextField from '../../primitives/TextField';
+import Typography from '../../primitives/Typography';
+import {BuildingIcon} from '../../primitives/Icons';
 
 /**
  * BaseOrganizationProfile — unstyled organization details view/edit component.

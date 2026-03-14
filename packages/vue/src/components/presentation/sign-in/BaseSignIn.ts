@@ -18,22 +18,22 @@
 
 import {withVendorCSSClassPrefix} from '@asgardeo/browser';
 import {type PropType, type VNode, defineComponent, h, ref} from 'vue';
-import Alert from '../primitives/Alert';
-import Card from '../primitives/Card';
-import Divider from '../primitives/Divider';
-import Logo from '../primitives/Logo';
-import Spinner from '../primitives/Spinner';
-import Typography from '../primitives/Typography';
+import Alert from '../../primitives/Alert';
+import Button from '../../primitives/Button';
+import Card from '../../primitives/Card';
+import Divider from '../../primitives/Divider';
+import Logo from '../../primitives/Logo';
+import Spinner from '../../primitives/Spinner';
+import Typography from '../../primitives/Typography';
 
-export interface BaseSignUpProps {
-  afterSignUpUrl?: string;
+export interface BaseSignInProps {
+  afterSignInUrl?: string;
   className?: string;
   isLoading?: boolean;
-  onComplete?: (redirectUrl: string) => void;
   onError?: (error: Error) => void;
   onInitialize?: () => Promise<unknown>;
-  onSubmit?: (payload: unknown) => Promise<unknown>;
-  onSuccess?: (response: Record<string, unknown>) => void;
+  onSubmit?: (payload: unknown, request?: unknown) => Promise<unknown>;
+  onSuccess?: (authData: Record<string, unknown>) => void;
   showLogo?: boolean;
   showSubtitle?: boolean;
   showTitle?: boolean;
@@ -42,12 +42,13 @@ export interface BaseSignUpProps {
 }
 
 /**
- * BaseSignUp — unstyled sign-up presentation component.
+ * BaseSignIn — unstyled sign-in presentation component.
  *
- * Provides slot-based customization for the sign-up form.
+ * Provides default slot for full customization, or renders a default
+ * sign-in card UI with flow support.
  */
-const BaseSignUp = defineComponent({
-  name: 'BaseSignUp',
+const BaseSignIn = defineComponent({
+  name: 'BaseSignIn',
   props: {
     className: {type: String, default: ''},
     isLoading: {type: Boolean, default: false},
@@ -56,11 +57,10 @@ const BaseSignUp = defineComponent({
     showSubtitle: {type: Boolean, default: true},
     size: {type: String as PropType<'small' | 'medium' | 'large'>, default: 'medium'},
     variant: {type: String as PropType<'elevated' | 'outlined' | 'flat'>, default: 'elevated'},
-    afterSignUpUrl: {type: String, default: undefined},
+    afterSignInUrl: {type: String, default: undefined},
     onInitialize: {type: Function as PropType<() => Promise<unknown>>, default: undefined},
-    onSubmit: {type: Function as PropType<(payload: unknown) => Promise<unknown>>, default: undefined},
-    onSuccess: {type: Function as PropType<(response: Record<string, unknown>) => void>, default: undefined},
-    onComplete: {type: Function as PropType<(redirectUrl: string) => void>, default: undefined},
+    onSubmit: {type: Function as PropType<(payload: unknown, request?: unknown) => Promise<unknown>>, default: undefined},
+    onSuccess: {type: Function as PropType<(authData: Record<string, unknown>) => void>, default: undefined},
     onError: {type: Function as PropType<(error: Error) => void>, default: undefined},
   },
   setup(props, {slots}) {
@@ -73,50 +73,54 @@ const BaseSignUp = defineComponent({
       }
 
       const prefix = withVendorCSSClassPrefix;
+
       const children: VNode[] = [];
 
       if (props.showLogo) {
-        children.push(h('div', {class: prefix('sign-up__logo')}, [h(Logo)]));
+        children.push(h('div', {class: prefix('sign-in__logo')}, [h(Logo)]));
       }
 
       if (props.showTitle) {
-        children.push(h(Typography, {variant: 'h5', class: prefix('sign-up__title')}, () => 'Create Account'));
+        children.push(h(Typography, {variant: 'h5', class: prefix('sign-in__title')}, () => 'Sign In'));
       }
 
       if (props.showSubtitle) {
         children.push(
-          h(Typography, {variant: 'body2', class: prefix('sign-up__subtitle')}, () => 'Sign up for a new account'),
+          h(Typography, {variant: 'body2', class: prefix('sign-in__subtitle')}, () => 'Sign in to your account'),
         );
       }
 
-      children.push(h(Divider, {class: prefix('sign-up__divider')}));
+      children.push(h(Divider, {class: prefix('sign-in__divider')}));
 
       if (error.value) {
         children.push(
-          h(Alert, {severity: 'error' as const, class: prefix('sign-up__error'), dismissible: true}, () => error.value),
+          h(Alert, {severity: 'error' as const, class: prefix('sign-in__error'), dismissible: true}, () => error.value),
         );
       }
 
       if (loading.value) {
-        children.push(h('div', {class: prefix('sign-up__loading')}, [h(Spinner)]));
+        children.push(h('div', {class: prefix('sign-in__loading')}, [h(Spinner)]));
       }
 
+      // Slot for flow content (form fields, social buttons, etc.)
       if (slots['content']) {
-        children.push(h('div', {class: prefix('sign-up__content')}, slots['content']()));
+        children.push(h('div', {class: prefix('sign-in__content')}, slots['content']()));
       }
 
+      // Slot for actions
       if (slots['actions']) {
-        children.push(h('div', {class: prefix('sign-up__actions')}, slots['actions']()));
+        children.push(h('div', {class: prefix('sign-in__actions')}, slots['actions']()));
       }
 
+      // Slot for footer content
       if (slots['footer']) {
-        children.push(h('div', {class: prefix('sign-up__footer')}, slots['footer']()));
+        children.push(h('div', {class: prefix('sign-in__footer')}, slots['footer']()));
       }
 
       return h(
         Card,
         {
-          class: [prefix('sign-up'), prefix(`sign-up--${props.size}`), props.className].filter(Boolean).join(' '),
+          class: [prefix('sign-in'), prefix(`sign-in--${props.size}`), props.className].filter(Boolean).join(' '),
           variant: props.variant,
         },
         () => children,
@@ -125,4 +129,4 @@ const BaseSignUp = defineComponent({
   },
 });
 
-export default BaseSignUp;
+export default BaseSignIn;

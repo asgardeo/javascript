@@ -18,8 +18,8 @@
 
 import {withVendorCSSClassPrefix} from '@asgardeo/browser';
 import {type PropType, defineComponent, h} from 'vue';
-import useAsgardeo from '../../composables/useAsgardeo';
-import useI18n from '../../composables/useI18n';
+import useAsgardeo from '../../../composables/useAsgardeo';
+import useI18n from '../../../composables/useI18n';
 import BaseSignIn from './BaseSignIn';
 
 /**

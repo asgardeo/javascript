@@ -19,11 +19,11 @@
 import {withVendorCSSClassPrefix} from '@asgardeo/browser';
 import type {PropType} from 'vue';
 import {defineComponent, h, ref} from 'vue';
-import Alert from '../primitives/Alert';
-import Button from '../primitives/Button';
-import Card from '../primitives/Card';
-import TextField from '../primitives/TextField';
-import Typography from '../primitives/Typography';
+import Alert from '../../primitives/Alert';
+import Button from '../../primitives/Button';
+import Card from '../../primitives/Card';
+import TextField from '../../primitives/TextField';
+import Typography from '../../primitives/Typography';
 
 const cls = (name: string): string => withVendorCSSClassPrefix(`create-organization${name}`);
 

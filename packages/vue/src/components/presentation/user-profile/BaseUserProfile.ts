@@ -18,13 +18,13 @@
 
 import {type User, type Schema, type UpdateMeProfileConfig, withVendorCSSClassPrefix} from '@asgardeo/browser';
 import {type PropType, type VNode, defineComponent, h, ref} from 'vue';
-import Alert from '../primitives/Alert';
-import Button from '../primitives/Button';
-import Card from '../primitives/Card';
-import Divider from '../primitives/Divider';
-import Spinner from '../primitives/Spinner';
-import TextField from '../primitives/TextField';
-import Typography from '../primitives/Typography';
+import Alert from '../../primitives/Alert';
+import Button from '../../primitives/Button';
+import Card from '../../primitives/Card';
+import Divider from '../../primitives/Divider';
+import Spinner from '../../primitives/Spinner';
+import TextField from '../../primitives/TextField';
+import Typography from '../../primitives/Typography';
 
 export interface BaseUserProfileProps {
   cardLayout?: boolean;

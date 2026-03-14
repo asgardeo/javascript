@@ -16,43 +16,38 @@
  * under the License.
  */
 
-import {type Organization as IOrganization, withVendorCSSClassPrefix} from '@asgardeo/browser';
+import {withVendorCSSClassPrefix} from '@asgardeo/browser';
 import {defineComponent, h} from 'vue';
-import useOrganization from '../../composables/useOrganization';
-import BaseOrganizationList from './BaseOrganizationList';
+import useAsgardeo from '../../../composables/useAsgardeo';
+import BaseUserDropdown from './BaseUserDropdown';
 
 /**
- * OrganizationList — styled organization list component.
+ * UserDropdown — styled user dropdown component.
  *
- * Retrieves organization list from context and delegates to BaseOrganizationList.
+ * Retrieves user and signOut from context and delegates to BaseUserDropdown.
  */
-const OrganizationList = defineComponent({
-  name: 'OrganizationList',
+const UserDropdown = defineComponent({
+  name: 'UserDropdown',
   props: {
     className: {type: String, default: ''},
   },
-  emits: ['select'],
+  emits: ['profileClick'],
   setup(props, {slots, emit}) {
-    const {myOrganizations, isLoading, switchOrganization} = useOrganization();
-
-    const handleSelect = async (org: IOrganization) => {
-      emit('select', org);
-      await switchOrganization(org);
-    };
+    const {user, signOut} = useAsgardeo();
 
     return () =>
       h(
-        BaseOrganizationList,
+        BaseUserDropdown,
         {
-          class: withVendorCSSClassPrefix('organization-list--styled'),
+          class: withVendorCSSClassPrefix('user-dropdown--styled'),
           className: props.className,
-          organizations: myOrganizations.value,
-          isLoading: isLoading.value,
-          onSelect: handleSelect,
+          user: user.value,
+          onSignOut: () => signOut(),
+          onProfileClick: () => emit('profileClick'),
         },
         slots,
       );
   },
 });
 
-export default OrganizationList;
+export default UserDropdown;

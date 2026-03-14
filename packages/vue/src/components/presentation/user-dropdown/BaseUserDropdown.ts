@@ -18,9 +18,9 @@
 
 import {type User, withVendorCSSClassPrefix} from '@asgardeo/browser';
 import {type PropType, type VNode, defineComponent, h, ref} from 'vue';
-import Button from '../primitives/Button';
-import Typography from '../primitives/Typography';
-import {ChevronDownIcon, LogOutIcon, UserIcon} from '../primitives/Icons';
+import Button from '../../primitives/Button';
+import Typography from '../../primitives/Typography';
+import {ChevronDownIcon, LogOutIcon, UserIcon} from '../../primitives/Icons';
 
 export interface BaseUserDropdownProps {
   className?: string;

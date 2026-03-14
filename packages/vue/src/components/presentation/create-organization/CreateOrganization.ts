@@ -18,7 +18,7 @@
 
 import {withVendorCSSClassPrefix} from '@asgardeo/browser';
 import {defineComponent, h} from 'vue';
-import useOrganization from '../../composables/useOrganization';
+import useOrganization from '../../../composables/useOrganization';
 import BaseCreateOrganization from './BaseCreateOrganization';
 
 /**

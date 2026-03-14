@@ -19,8 +19,8 @@
 import {withVendorCSSClassPrefix} from '@asgardeo/browser';
 import type {Organization} from '@asgardeo/browser';
 import {type PropType, type VNode, defineComponent, h} from 'vue';
-import Typography from '../primitives/Typography';
-import {BuildingIcon} from '../primitives/Icons';
+import Typography from '../../primitives/Typography';
+import {BuildingIcon} from '../../primitives/Icons';
 
 /**
  * BaseOrganization — unstyled organization display component (read-only).

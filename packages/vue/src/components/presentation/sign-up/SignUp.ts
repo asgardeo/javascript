@@ -18,45 +18,48 @@
 
 import {withVendorCSSClassPrefix} from '@asgardeo/browser';
 import {type PropType, defineComponent, h} from 'vue';
-import useAsgardeo from '../../composables/useAsgardeo';
-import useI18n from '../../composables/useI18n';
-import BaseAcceptInvite from './BaseAcceptInvite';
+import useAsgardeo from '../../../composables/useAsgardeo';
+import useI18n from '../../../composables/useI18n';
+import BaseSignUp from './BaseSignUp';
 
 /**
- * AcceptInvite — styled invitation acceptance component.
+ * SignUp — styled sign-up presentation component.
  *
- * Connects to Asgardeo context for invitation acceptance flow.
+ * Connects to Asgardeo context for registration flow handling.
  */
-const AcceptInvite = defineComponent({
-  name: 'AcceptInvite',
+const SignUp = defineComponent({
+  name: 'SignUp',
   props: {
     className: {type: String, default: ''},
-    invitationCode: {type: String, default: ''},
     size: {type: String as PropType<'small' | 'medium' | 'large'>, default: 'medium'},
     variant: {type: String as PropType<'elevated' | 'outlined' | 'flat'>, default: 'elevated'},
-    onSuccess: {type: Function as PropType<() => void>, default: undefined},
+    afterSignUpUrl: {type: String, default: undefined},
+    onSuccess: {type: Function as PropType<(response: Record<string, unknown>) => void>, default: undefined},
+    onComplete: {type: Function as PropType<(redirectUrl: string) => void>, default: undefined},
     onError: {type: Function as PropType<(error: Error) => void>, default: undefined},
   },
   setup(props, {slots}) {
-    const {signIn, isLoading} = useAsgardeo();
+    const {signUp, isLoading} = useAsgardeo();
     const {t} = useI18n();
 
-    const handleAccept = async (invitationCode: string) => {
-      await signIn({invitation_code: invitationCode, response_mode: 'direct'});
-    };
+    const handleInitialize = async () => signUp({response_mode: 'direct'});
 
     return () =>
       h(
-        BaseAcceptInvite,
+        BaseSignUp,
         {
-          class: withVendorCSSClassPrefix('accept-invite--styled'),
+          class: withVendorCSSClassPrefix('sign-up--styled'),
           className: props.className,
-          invitationCode: props.invitationCode,
           isLoading: isLoading.value,
           size: props.size,
           variant: props.variant,
-          onAccept: handleAccept,
+          showLogo: true,
+          showTitle: true,
+          showSubtitle: true,
+          afterSignUpUrl: props.afterSignUpUrl,
+          onInitialize: handleInitialize,
           onSuccess: props.onSuccess,
+          onComplete: props.onComplete,
           onError: props.onError,
         },
         slots,
@@ -64,4 +67,4 @@ const AcceptInvite = defineComponent({
   },
 });
 
-export default AcceptInvite;
+export default SignUp;

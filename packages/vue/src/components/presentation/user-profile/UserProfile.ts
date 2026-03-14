@@ -18,7 +18,7 @@
 
 import {withVendorCSSClassPrefix} from '@asgardeo/browser';
 import {type PropType, defineComponent, h} from 'vue';
-import useUser from '../../composables/useUser';
+import useUser from '../../../composables/useUser';
 import BaseUserProfile from './BaseUserProfile';
 
 /**

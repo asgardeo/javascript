@@ -18,33 +18,35 @@
 
 import {withVendorCSSClassPrefix} from '@asgardeo/browser';
 import {defineComponent, h} from 'vue';
-import useOrganization from '../../composables/useOrganization';
-import BaseOrganization from './BaseOrganization';
+import useOrganization from '../../../composables/useOrganization';
+import BaseOrganizationProfile from './BaseOrganizationProfile';
 
 /**
- * Organization — styled organization display component.
+ * OrganizationProfile — styled organisation details component.
  *
- * Retrieves current organization from context and delegates to BaseOrganization.
+ * Retrieves current organization from context and delegates to BaseOrganizationProfile.
  */
-const Organization = defineComponent({
-  name: 'Organization',
+const OrganizationProfile = defineComponent({
+  name: 'OrganizationProfile',
   props: {
     className: {type: String, default: ''},
+    editable: {type: Boolean, default: false},
   },
   setup(props, {slots}) {
     const {currentOrganization} = useOrganization();
 
     return () =>
       h(
-        BaseOrganization,
+        BaseOrganizationProfile,
         {
-          class: withVendorCSSClassPrefix('organization--styled'),
+          class: withVendorCSSClassPrefix('organization-profile--styled'),
           className: props.className,
           organization: currentOrganization?.value ?? null,
+          editable: props.editable,
         },
         slots,
       );
   },
 });
 
-export default Organization;
+export default OrganizationProfile;

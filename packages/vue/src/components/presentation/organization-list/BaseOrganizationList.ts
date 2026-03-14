@@ -18,9 +18,9 @@
 
 import {type Organization as IOrganization, withVendorCSSClassPrefix} from '@asgardeo/browser';
 import {type PropType, type VNode, defineComponent, h} from 'vue';
-import Spinner from '../primitives/Spinner';
-import Typography from '../primitives/Typography';
-import {BuildingIcon} from '../primitives/Icons';
+import Spinner from '../../primitives/Spinner';
+import Typography from '../../primitives/Typography';
+import {BuildingIcon} from '../../primitives/Icons';
 
 /**
  * BaseOrganizationList — unstyled list of organizations.

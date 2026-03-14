@@ -18,36 +18,33 @@
 
 import {withVendorCSSClassPrefix} from '@asgardeo/browser';
 import {defineComponent, h} from 'vue';
-import useAsgardeo from '../../composables/useAsgardeo';
-import BaseUserDropdown from './BaseUserDropdown';
+import useOrganization from '../../../composables/useOrganization';
+import BaseOrganization from './BaseOrganization';
 
 /**
- * UserDropdown — styled user dropdown component.
+ * Organization — styled organization display component.
  *
- * Retrieves user and signOut from context and delegates to BaseUserDropdown.
+ * Retrieves current organization from context and delegates to BaseOrganization.
  */
-const UserDropdown = defineComponent({
-  name: 'UserDropdown',
+const Organization = defineComponent({
+  name: 'Organization',
   props: {
     className: {type: String, default: ''},
   },
-  emits: ['profileClick'],
-  setup(props, {slots, emit}) {
-    const {user, signOut} = useAsgardeo();
+  setup(props, {slots}) {
+    const {currentOrganization} = useOrganization();
 
     return () =>
       h(
-        BaseUserDropdown,
+        BaseOrganization,
         {
-          class: withVendorCSSClassPrefix('user-dropdown--styled'),
+          class: withVendorCSSClassPrefix('organization--styled'),
           className: props.className,
-          user: user.value,
-          onSignOut: () => signOut(),
-          onProfileClick: () => emit('profileClick'),
+          organization: currentOrganization?.value ?? null,
         },
         slots,
       );
   },
 });
 
-export default UserDropdown;
+export default Organization;
