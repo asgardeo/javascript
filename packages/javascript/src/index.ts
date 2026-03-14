@@ -209,6 +209,8 @@ export {default as generateFlattenedUserProfile} from './utils/generateFlattened
 export {default as getRedirectBasedSignUpUrl} from './utils/getRedirectBasedSignUpUrl';
 export {default as identifyPlatform} from './utils/identifyPlatform';
 export {default as isEmpty} from './utils/isEmpty';
+export {default as isEmojiUri, EMOJI_URI_SCHEME} from './utils/v2/isEmojiUri';
+export {default as extractEmojiFromUri} from './utils/v2/extractEmojiFromUri';
 export {default as set} from './utils/set';
 export {default as get} from './utils/get';
 export {default as removeTrailingSlash} from './utils/removeTrailingSlash';

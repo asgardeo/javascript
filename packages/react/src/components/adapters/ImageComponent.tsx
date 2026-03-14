@@ -17,8 +17,11 @@
  */
 
 import {CSSProperties, FC, SyntheticEvent} from 'react';
+import {extractEmojiFromUri, isEmojiUri} from '@asgardeo/browser';
 import useTheme from '../../contexts/Theme/useTheme';
 import {AdapterProps} from '../../models/adapters';
+
+const DEFAULT_EMOJI_CONTAINER_HEIGHT = '4em';
 
 /**
  * Image component for sign-up forms.
@@ -40,6 +43,48 @@ const ImageComponent: FC<AdapterProps> = ({component}: AdapterProps) => {
 
   if (!src) {
     return null;
+  }
+
+  if (isEmojiUri(src)) {
+    // Bare numbers (e.g. "48") are valid for <img> width/height attributes but
+    // are unit-less and ignored as CSS properties — normalize them to px.
+    const toCSSLength = (value: string): string => (/^\d+(\.\d+)?$/.test(value) ? `${value}px` : value);
+    const cssWidth: string = toCSSLength(width);
+    const cssHeight: string = toCSSLength(height);
+
+    // container-type: size needs a concrete block dimension — percentage and
+    // 'auto' values both collapse to 0 when the parent has no defined height.
+    // Priority: explicit height → explicit width (square) → fallback constant.
+    const isConcrete = (v: string): boolean => v !== 'auto' && !v.endsWith('%');
+    const containerHeight: string = isConcrete(cssHeight)
+      ? cssHeight
+      : isConcrete(cssWidth)
+      ? cssWidth
+      : DEFAULT_EMOJI_CONTAINER_HEIGHT;
+
+    return (
+      <div key={component.id} style={{textAlign: 'center'}}>
+        {/*
+         * container-type: size lets the inner span use cqmin (= min(cqw, cqh))
+         * so the emoji font-size tracks the rendered container dimensions
+         * rather than the parent's font-size.
+         */}
+        <span
+          style={{
+            ...imageStyle,
+            containerType: 'size',
+            display: 'inline-grid',
+            height: containerHeight,
+            placeItems: 'center',
+            width,
+          }}
+        >
+          <span aria-label={alt} role="img" style={{fontSize: '100cqmin', lineHeight: 1}}>
+            {extractEmojiFromUri(src)}
+          </span>
+        </span>
+      </div>
+    );
   }
 
   return (
