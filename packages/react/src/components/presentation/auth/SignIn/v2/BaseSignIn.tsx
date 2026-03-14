@@ -22,7 +22,6 @@ import {
   EmbeddedFlowComponentV2 as EmbeddedFlowComponent,
   FlowMetadataResponse,
   Preferences,
-  resolveVars,
 } from '@asgardeo/browser';
 import {cx} from '@emotion/css';
 import {FC, useState, useCallback, ReactElement, ReactNode} from 'react';
@@ -34,11 +33,9 @@ import useTheme from '../../../../../contexts/Theme/useTheme';
 import {FormField, useForm} from '../../../../../hooks/useForm';
 import useTranslation from '../../../../../hooks/useTranslation';
 import {extractErrorMessage} from '../../../../../utils/v2/flowTransformer';
-import getAuthComponentHeadings from '../../../../../utils/v2/getAuthComponentHeadings';
 import AlertPrimitive from '../../../../primitives/Alert/Alert';
 // eslint-disable-next-line import/no-named-as-default
 import CardPrimitive, {CardProps} from '../../../../primitives/Card/Card';
-import Logo from '../../../../primitives/Logo/Logo';
 import Spinner from '../../../../primitives/Spinner/Spinner';
 import Typography from '../../../../primitives/Typography/Typography';
 import {renderSignInComponents} from '../../AuthOptionFactory';
@@ -210,21 +207,6 @@ export interface BaseSignInProps {
   preferences?: Preferences;
 
   /**
-   * Whether to show the logo.
-   */
-  showLogo?: boolean;
-
-  /**
-   * Whether to show the subtitle.
-   */
-  showSubtitle?: boolean;
-
-  /**
-   * Whether to show the title.
-   */
-  showTitle?: boolean;
-
-  /**
    * Size variant for the component.
    */
   size?: 'small' | 'medium' | 'large';
@@ -251,8 +233,6 @@ const BaseSignInContent: FC<BaseSignInProps> = ({
   variant = 'outlined',
   isLoading: externalIsLoading,
   children,
-  showTitle = true,
-  showSubtitle = true,
   additionalData = {},
   isTimeoutDisabled = false,
 }: BaseSignInProps): ReactElement => {
@@ -558,32 +538,8 @@ const BaseSignInContent: FC<BaseSignInProps> = ({
     );
   }
 
-  // Extract heading and subheading components and filter them from the main components
-  const {
-    title: rawTitle,
-    subtitle: rawSubtitle,
-    componentsWithoutHeadings,
-  } = getAuthComponentHeadings(components as any, flowTitle, flowSubtitle, undefined, undefined);
-  // Resolve any remaining {{meta()}} or {{t()}} expressions in the title/subtitle at render time
-  const title: string = resolveVars(rawTitle, {meta, t});
-  const subtitle: string = resolveVars(rawSubtitle, {meta, t});
-
   return (
     <CardPrimitive className={cx(containerClasses, styles.card)} data-testid="asgardeo-signin" variant={variant}>
-      {(showTitle || showSubtitle) && (
-        <CardPrimitive.Header className={styles.header}>
-          {showTitle && (
-            <CardPrimitive.Title level={2} className={styles.title}>
-              {title}
-            </CardPrimitive.Title>
-          )}
-          {showSubtitle && (
-            <Typography variant="body1" className={styles.subtitle}>
-              {subtitle}
-            </Typography>
-          )}
-        </CardPrimitive.Header>
-      )}
       <CardPrimitive.Content>
         {externalError && (
           <div className={styles.flowMessagesContainer}>
@@ -605,9 +561,7 @@ const BaseSignInContent: FC<BaseSignInProps> = ({
             ))}
           </div>
         )}
-        <div className={styles.contentContainer}>
-          {componentsWithoutHeadings && renderComponents(componentsWithoutHeadings)}
-        </div>
+        <div className={styles.contentContainer}>{renderComponents(components)}</div>
       </CardPrimitive.Content>
     </CardPrimitive>
   );
@@ -662,21 +616,14 @@ const BaseSignInContent: FC<BaseSignInProps> = ({
  * </BaseSignIn>
  * ```
  */
-const BaseSignIn: FC<BaseSignInProps> = ({preferences, showLogo = true, ...rest}: BaseSignInProps): ReactElement => {
+const BaseSignIn: FC<BaseSignInProps> = ({preferences, ...rest}: BaseSignInProps): ReactElement => {
   const {theme} = useTheme();
   const styles: any = useStyles(theme, theme.vars.colors.text.primary);
 
   const content: ReactElement = (
-    <div>
-      {showLogo && (
-        <div className={styles.logoContainer}>
-          <Logo size="large" />
-        </div>
-      )}
-      <FlowProvider>
-        <BaseSignInContent showLogo={showLogo} {...rest} />
-      </FlowProvider>
-    </div>
+    <FlowProvider>
+      <BaseSignInContent {...rest} />
+    </FlowProvider>
   );
 
   if (!preferences) return content;
