@@ -20,12 +20,12 @@ import {FlowMetadataResponse} from './flow-meta-v2';
 import {TranslationFn} from './translation';
 
 /**
- * Options for the resolveVars function.
+ * Options for the resolveFlowTemplateLiterals function.
  *
  * @template TFn - The concrete translation function type.
  *   Defaults to the SDK-native {@link TranslationFn} signature.
  */
-export interface ResolveVarsOptions<TFn extends TranslationFn = TranslationFn> {
+export interface ResolveFlowTemplateLiteralsOptions<TFn extends TranslationFn = TranslationFn> {
   /**
    * Optional flow metadata for resolving `{{ meta(path) }}` expressions.
    */

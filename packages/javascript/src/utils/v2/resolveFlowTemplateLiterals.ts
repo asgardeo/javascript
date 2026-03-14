@@ -17,11 +17,21 @@
  */
 
 import resolveMeta from './resolveMeta';
+import parseFlowTemplateLiteral, {
+  FLOW_TEMPLATE_LITERAL_REGEX,
+  FlowTemplateLiteralResult,
+  FlowTemplateLiteralType,
+} from './parseFlowTemplateLiteral';
 import {TranslationFn} from '../../models/v2/translation';
-import {ResolveVarsOptions} from '../../models/v2/vars';
+import {ResolveFlowTemplateLiteralsOptions} from '../../models/v2/vars';
 
 /**
- * Resolves all template expressions in a string.
+ * Global version of {@link FLOW_TEMPLATE_LITERAL_REGEX} for use with `String.prototype.replace`.
+ */
+const FLOW_TEMPLATE_LITERAL_REGEX_GLOBAL: RegExp = new RegExp(FLOW_TEMPLATE_LITERAL_REGEX.source, 'g');
+
+/**
+ * Resolves all flow template literal expressions in a string.
  *
  * Supported patterns:
  *   - `{{ t(key) }}`       — resolved via the i18n translation function.
@@ -30,51 +40,36 @@ import {ResolveVarsOptions} from '../../models/v2/vars';
  *   - `{{ meta(path) }}`   — resolved via a dot-path lookup on FlowMetadataResponse.
  *                            `{{ meta(application.name) }}` → `meta.application?.name`
  *
- * Template expressions can be embedded inside larger strings:
+ * Flow template literals can be embedded inside larger strings:
  *   `"Login using {{ meta(application.name) }}"` → `"Login using My App"`
  *
- * Unrecognised expressions are left unchanged.
+ * Unrecognized expressions are left unchanged.
  *
  * @template TFn - The concrete translation function type.
  *
- * @param text - The string to resolve (may contain zero or more template expressions)
+ * @param text - The string to resolve (may contain zero or more flow template literals)
  * @param options - Resolution context: translation function and optional flow metadata
  * @returns The resolved string
  */
-export default function resolveVars<TFn extends TranslationFn = TranslationFn>(
+export default function resolveFlowTemplateLiterals<TFn extends TranslationFn = TranslationFn>(
   text: string | undefined,
-  {t, meta}: ResolveVarsOptions<TFn>,
+  {t, meta}: ResolveFlowTemplateLiteralsOptions<TFn>,
 ): string {
   if (!text) {
     return '';
   }
 
-  return text.replace(/\{\{(.+?)\}\}/g, (match: string, content: string): string => {
-    const trimmed: string = content.trim();
+  return text.replace(FLOW_TEMPLATE_LITERAL_REGEX_GLOBAL, (match: string, content: string): string => {
+    const parsed: FlowTemplateLiteralResult = parseFlowTemplateLiteral(content.trim());
 
-    const tMatch: RegExpMatchArray | null = trimmed.match(/^t\((.+)\)$/);
-    if (tMatch) {
-      let key: string = tMatch[1].trim();
-      // Strip surrounding quotes if present
-      if ((key.startsWith('"') && key.endsWith('"')) || (key.startsWith("'") && key.endsWith("'"))) {
-        key = key.slice(1, -1);
-      }
-
+    if (parsed.type === FlowTemplateLiteralType.TRANSLATION && parsed.key) {
       // Convert colon-separated namespace to dot-separated key
       // e.g. "signin:fields.password.label" → "signin.fields.password.label"
-      return t(key.replace(/:/g, '.'));
+      return t(parsed.key.replace(/:/g, '.'));
     }
 
-    if (meta) {
-      const metaMatch: RegExpMatchArray | null = trimmed.match(/^meta\((.+)\)$/);
-      if (metaMatch) {
-        let path: string = metaMatch[1].trim();
-        // Strip surrounding quotes if present
-        if ((path.startsWith('"') && path.endsWith('"')) || (path.startsWith("'") && path.endsWith("'"))) {
-          path = path.slice(1, -1);
-        }
-        return resolveMeta(path, meta);
-      }
+    if (parsed.type === FlowTemplateLiteralType.META && parsed.key && meta) {
+      return resolveMeta(parsed.key, meta);
     }
 
     return match;

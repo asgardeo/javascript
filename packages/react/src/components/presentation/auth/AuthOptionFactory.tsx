@@ -24,7 +24,7 @@ import {
   EmbeddedFlowTextVariantV2 as EmbeddedFlowTextVariant,
   EmbeddedFlowEventTypeV2 as EmbeddedFlowEventType,
   createPackageComponentLogger,
-  resolveVars,
+  resolveFlowTemplateLiterals,
   ConsentPurposeDataV2 as ConsentPurposeData,
   ConsentPromptDataV2 as ConsentPromptData,
   ConsentDecisionsV2 as ConsentDecisions,
@@ -193,7 +193,7 @@ const createAuthComponentFromFlow = (
     if (!text || (!options.t && !options.meta)) {
       return text || '';
     }
-    return resolveVars(text, {meta: options.meta, t: options.t || ((k: string): string => k)});
+    return resolveFlowTemplateLiterals(text, {meta: options.meta, t: options.t || ((k: string): string => k)});
   };
 
   switch (component.type) {
