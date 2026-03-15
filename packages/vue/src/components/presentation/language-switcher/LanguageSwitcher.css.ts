@@ -50,15 +50,16 @@ const LANGUAGE_SWITCHER_CSS = `
 .asgardeo-language-switcher__trigger {
   display: inline-flex;
   align-items: center;
-  gap: calc(var(--asgardeo-spacing-unit) * 0.75);
-  padding: calc(var(--asgardeo-spacing-unit) * 1) calc(var(--asgardeo-spacing-unit) * 1.5);
+  gap: calc(var(--asgardeo-spacing-unit) * 0.5);
+  padding: var(--asgardeo-dropdown-itemPaddingY) var(--asgardeo-dropdown-itemPaddingX);
   background: none;
   border: none;
   cursor: pointer;
   color: var(--asgardeo-color-text-primary);
   font-family: var(--asgardeo-typography-fontFamily);
-  border-radius: var(--asgardeo-border-radius-medium);
-  transition: background-color 0.15s ease;
+  font-size: var(--asgardeo-typography-fontSize-md);
+  border-radius: var(--asgardeo-dropdown-borderRadius);
+  transition: background-color var(--asgardeo-transition-fast);
   white-space: nowrap;
   box-sizing: border-box;
 }
@@ -68,9 +69,9 @@ const LANGUAGE_SWITCHER_CSS = `
 }
 
 .asgardeo-language-switcher__trigger:focus-visible {
-  outline: 2px solid var(--asgardeo-color-primary-main);
-  outline-offset: -2px;
-  border-radius: var(--asgardeo-border-radius-medium);
+  outline: none;
+  box-shadow: inset 0 0 0 var(--asgardeo-focus-ring-width) var(--asgardeo-focus-ring-color);
+  border-radius: var(--asgardeo-dropdown-borderRadius);
 }
 
 .asgardeo-language-switcher__trigger-label {
@@ -86,12 +87,13 @@ const LANGUAGE_SWITCHER_CSS = `
   z-index: 1000;
   background-color: var(--asgardeo-color-background-surface);
   border: 1px solid var(--asgardeo-color-border);
-  border-radius: var(--asgardeo-border-radius-medium);
-  box-shadow: var(--asgardeo-shadow-medium);
+  border-radius: var(--asgardeo-dropdown-borderRadius);
+  box-shadow: var(--asgardeo-dropdown-shadow);
   overflow: hidden;
-  min-width: 140px;
+  min-width: 130px;
   display: flex;
   flex-direction: column;
+  padding: calc(var(--asgardeo-spacing-unit) * 0.5) 0;
 }
 
 /* Items ----------------------------------------------------- */
@@ -100,20 +102,16 @@ const LANGUAGE_SWITCHER_CSS = `
   display: flex;
   align-items: center;
   width: 100%;
-  padding: calc(var(--asgardeo-spacing-unit) * 1.25) calc(var(--asgardeo-spacing-unit) * 1.5);
+  padding: var(--asgardeo-dropdown-itemPaddingY) var(--asgardeo-dropdown-itemPaddingX);
   background: none;
   border: none;
-  border-top: 1px solid transparent;
   cursor: pointer;
   text-align: left;
   font-family: var(--asgardeo-typography-fontFamily);
+  font-size: var(--asgardeo-typography-fontSize-md);
   color: var(--asgardeo-color-text-primary);
-  transition: background-color 0.15s ease;
+  transition: background-color var(--asgardeo-transition-fast);
   box-sizing: border-box;
-}
-
-.asgardeo-language-switcher__item:not(:first-child) {
-  border-top-color: var(--asgardeo-color-border);
 }
 
 .asgardeo-language-switcher__item:hover {

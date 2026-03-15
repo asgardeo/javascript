@@ -37,23 +37,28 @@ const TYPOGRAPHY_CSS = `
   color: var(--asgardeo-color-text-primary);
   margin: 0;
   line-height: var(--asgardeo-typography-lineHeight-normal);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .asgardeo-typography--h1 {
   font-size: var(--asgardeo-typography-fontSize-3xl);
   font-weight: var(--asgardeo-typography-fontWeight-bold);
   line-height: var(--asgardeo-typography-lineHeight-tight);
+  letter-spacing: var(--asgardeo-typography-letterSpacing-tight);
 }
 
 .asgardeo-typography--h2 {
   font-size: var(--asgardeo-typography-fontSize-2xl);
   font-weight: var(--asgardeo-typography-fontWeight-bold);
   line-height: var(--asgardeo-typography-lineHeight-tight);
+  letter-spacing: var(--asgardeo-typography-letterSpacing-tight);
 }
 
 .asgardeo-typography--h3 {
   font-size: var(--asgardeo-typography-fontSize-xl);
   font-weight: var(--asgardeo-typography-fontWeight-semibold);
+  line-height: var(--asgardeo-typography-lineHeight-tight);
 }
 
 .asgardeo-typography--h4 {
@@ -70,7 +75,7 @@ const TYPOGRAPHY_CSS = `
   font-size: var(--asgardeo-typography-fontSize-sm);
   font-weight: var(--asgardeo-typography-fontWeight-semibold);
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: var(--asgardeo-typography-letterSpacing-wide);
 }
 
 .asgardeo-typography--subtitle1 {
@@ -107,7 +112,7 @@ const TYPOGRAPHY_CSS = `
   font-size: var(--asgardeo-typography-fontSize-xs);
   font-weight: var(--asgardeo-typography-fontWeight-medium);
   text-transform: uppercase;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.08em;
   color: var(--asgardeo-color-text-secondary);
 }
 `;

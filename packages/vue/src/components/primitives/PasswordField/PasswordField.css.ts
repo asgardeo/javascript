@@ -46,6 +46,7 @@ const PASSWORD_FIELD_CSS = `
   font-weight: var(--asgardeo-typography-fontWeight-medium);
   color: var(--asgardeo-color-text-primary);
   display: block;
+  line-height: var(--asgardeo-typography-lineHeight-normal);
 }
 
 .asgardeo-password-field__required {
@@ -56,30 +57,38 @@ const PASSWORD_FIELD_CSS = `
 .asgardeo-password-field__wrapper {
   display: flex;
   align-items: center;
-  border: 1px solid var(--asgardeo-color-border);
-  border-radius: var(--asgardeo-border-radius-small);
+  height: var(--asgardeo-input-height);
+  border: 1px solid var(--asgardeo-input-borderColor);
+  border-radius: var(--asgardeo-input-borderRadius);
   background-color: var(--asgardeo-color-background-surface);
-  transition: border-color 0.2s, box-shadow 0.2s;
+  transition:
+    border-color var(--asgardeo-transition-fast),
+    box-shadow var(--asgardeo-transition-fast);
   overflow: hidden;
+  box-sizing: border-box;
 }
 .asgardeo-password-field__wrapper:focus-within {
-  border-color: var(--asgardeo-color-primary-main);
-  box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.15);
+  border-color: var(--asgardeo-input-focusBorderColor);
+  box-shadow: var(--asgardeo-input-focusRing);
 }
 .asgardeo-password-field--error .asgardeo-password-field__wrapper {
   border-color: var(--asgardeo-color-error-main);
 }
+.asgardeo-password-field--error .asgardeo-password-field__wrapper:focus-within {
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15);
+}
 
 .asgardeo-password-field__input {
   flex: 1;
-  padding: calc(var(--asgardeo-spacing-unit) * 1) calc(var(--asgardeo-spacing-unit) * 1.5);
+  padding: 0 var(--asgardeo-input-paddingX);
   border: none;
   outline: none;
   font-family: var(--asgardeo-typography-fontFamily);
-  font-size: var(--asgardeo-typography-fontSize-md);
+  font-size: var(--asgardeo-input-fontSize);
   color: var(--asgardeo-color-text-primary);
   background: transparent;
   width: 100%;
+  height: 100%;
   box-sizing: border-box;
   min-width: 0;
 }
@@ -94,7 +103,7 @@ const PASSWORD_FIELD_CSS = `
   background: none;
   border: none;
   cursor: pointer;
-  padding: 0 calc(var(--asgardeo-spacing-unit) * 1.5);
+  padding: 0 var(--asgardeo-input-paddingX);
   color: var(--asgardeo-color-text-secondary);
   font-size: var(--asgardeo-typography-fontSize-md);
   display: flex;
@@ -102,7 +111,7 @@ const PASSWORD_FIELD_CSS = `
   justify-content: center;
   flex-shrink: 0;
   height: 100%;
-  min-height: calc(var(--asgardeo-spacing-unit) * 4);
+  transition: color var(--asgardeo-transition-fast);
 }
 .asgardeo-password-field__toggle:hover {
   color: var(--asgardeo-color-text-primary);
@@ -111,6 +120,7 @@ const PASSWORD_FIELD_CSS = `
 .asgardeo-password-field__error {
   font-size: var(--asgardeo-typography-fontSize-xs);
   color: var(--asgardeo-color-error-contrastText);
+  line-height: var(--asgardeo-typography-lineHeight-normal);
 }
 `;
 

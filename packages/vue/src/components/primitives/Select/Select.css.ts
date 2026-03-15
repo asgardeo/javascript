@@ -46,6 +46,7 @@ const SELECT_CSS = `
   font-weight: var(--asgardeo-typography-fontWeight-medium);
   color: var(--asgardeo-color-text-primary);
   display: block;
+  line-height: var(--asgardeo-typography-lineHeight-normal);
 }
 
 .asgardeo-select__required {
@@ -55,45 +56,54 @@ const SELECT_CSS = `
 
 .asgardeo-select__input {
   width: 100%;
-  padding: calc(var(--asgardeo-spacing-unit) * 1) calc(var(--asgardeo-spacing-unit) * 4) calc(var(--asgardeo-spacing-unit) * 1) calc(var(--asgardeo-spacing-unit) * 1.5);
-  border: 1px solid var(--asgardeo-color-border);
-  border-radius: var(--asgardeo-border-radius-small);
+  height: var(--asgardeo-input-height);
+  padding: 0 calc(var(--asgardeo-spacing-unit) * 4) 0 var(--asgardeo-input-paddingX);
+  border: 1px solid var(--asgardeo-input-borderColor);
+  border-radius: var(--asgardeo-input-borderRadius);
   font-family: var(--asgardeo-typography-fontFamily);
-  font-size: var(--asgardeo-typography-fontSize-md);
+  font-size: var(--asgardeo-input-fontSize);
   color: var(--asgardeo-color-text-primary);
   background-color: var(--asgardeo-color-background-surface);
   appearance: none;
   -webkit-appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23666666' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
   background-repeat: no-repeat;
-  background-position: right calc(var(--asgardeo-spacing-unit) * 1.5) center;
+  background-position: right var(--asgardeo-input-paddingX) center;
   cursor: pointer;
   box-sizing: border-box;
-  transition: border-color 0.2s, box-shadow 0.2s;
+  transition:
+    border-color var(--asgardeo-transition-fast),
+    box-shadow var(--asgardeo-transition-fast);
   outline: none;
   line-height: var(--asgardeo-typography-lineHeight-normal);
 }
 .asgardeo-select__input:focus {
-  border-color: var(--asgardeo-color-primary-main);
-  box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.15);
+  border-color: var(--asgardeo-input-focusBorderColor);
+  box-shadow: var(--asgardeo-input-focusRing);
 }
 .asgardeo-select__input:disabled {
   background-color: var(--asgardeo-color-background-disabled);
+  color: var(--asgardeo-color-action-disabled);
   cursor: not-allowed;
 }
 
 .asgardeo-select--error .asgardeo-select__input {
   border-color: var(--asgardeo-color-error-main);
 }
+.asgardeo-select--error .asgardeo-select__input:focus {
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15);
+}
 
 .asgardeo-select__error {
   font-size: var(--asgardeo-typography-fontSize-xs);
   color: var(--asgardeo-color-error-contrastText);
+  line-height: var(--asgardeo-typography-lineHeight-normal);
 }
 
 .asgardeo-select__helper {
   font-size: var(--asgardeo-typography-fontSize-xs);
   color: var(--asgardeo-color-text-secondary);
+  line-height: var(--asgardeo-typography-lineHeight-normal);
 }
 `;
 

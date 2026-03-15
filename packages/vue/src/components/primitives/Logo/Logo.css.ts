@@ -33,6 +33,11 @@ const LOGO_CSS = `
   display: inline-flex;
   align-items: center;
   text-decoration: none;
+  transition: opacity var(--asgardeo-transition-fast);
+}
+
+.asgardeo-logo:hover {
+  opacity: 0.85;
 }
 
 .asgardeo-logo__image {

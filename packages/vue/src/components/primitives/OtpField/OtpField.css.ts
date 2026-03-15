@@ -32,7 +32,7 @@ const OTP_FIELD_CSS = `
 .asgardeo-otp-field {
   display: flex;
   flex-direction: column;
-  gap: calc(var(--asgardeo-spacing-unit) * 1);
+  gap: calc(var(--asgardeo-spacing-unit) * 0.75);
   font-family: var(--asgardeo-typography-fontFamily);
 }
 
@@ -41,6 +41,7 @@ const OTP_FIELD_CSS = `
   font-weight: var(--asgardeo-typography-fontWeight-medium);
   color: var(--asgardeo-color-text-primary);
   display: block;
+  line-height: var(--asgardeo-typography-lineHeight-normal);
 }
 
 .asgardeo-otp-field__required {
@@ -50,15 +51,15 @@ const OTP_FIELD_CSS = `
 
 .asgardeo-otp-field__inputs {
   display: flex;
-  gap: calc(var(--asgardeo-spacing-unit) * 1);
+  gap: calc(var(--asgardeo-spacing-unit) * 0.75);
 }
 
 .asgardeo-otp-field__digit {
-  width: calc(var(--asgardeo-spacing-unit) * 5);
-  height: calc(var(--asgardeo-spacing-unit) * 5);
+  width: var(--asgardeo-input-height);
+  height: var(--asgardeo-input-height);
   text-align: center;
-  border: 1px solid var(--asgardeo-color-border);
-  border-radius: var(--asgardeo-border-radius-small);
+  border: 1px solid var(--asgardeo-input-borderColor);
+  border-radius: var(--asgardeo-input-borderRadius);
   font-family: var(--asgardeo-typography-fontFamily);
   font-size: var(--asgardeo-typography-fontSize-lg);
   font-weight: var(--asgardeo-typography-fontWeight-semibold);
@@ -66,20 +67,24 @@ const OTP_FIELD_CSS = `
   background-color: var(--asgardeo-color-background-surface);
   box-sizing: border-box;
   outline: none;
-  transition: border-color 0.2s, box-shadow 0.2s;
+  transition:
+    border-color var(--asgardeo-transition-fast),
+    box-shadow var(--asgardeo-transition-fast);
 }
 .asgardeo-otp-field__digit:focus {
-  border-color: var(--asgardeo-color-primary-main);
-  box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.15);
+  border-color: var(--asgardeo-input-focusBorderColor);
+  box-shadow: var(--asgardeo-input-focusRing);
 }
 .asgardeo-otp-field__digit:disabled {
   background-color: var(--asgardeo-color-background-disabled);
+  color: var(--asgardeo-color-action-disabled);
   cursor: not-allowed;
 }
 
 .asgardeo-otp-field__error {
   font-size: var(--asgardeo-typography-fontSize-xs);
   color: var(--asgardeo-color-error-contrastText);
+  line-height: var(--asgardeo-typography-lineHeight-normal);
 }
 `;
 

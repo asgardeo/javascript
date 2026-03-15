@@ -48,13 +48,13 @@ const SPINNER_CSS = `
 }
 
 .asgardeo-spinner--medium {
-  width: calc(var(--asgardeo-spacing-unit) * 3);
-  height: calc(var(--asgardeo-spacing-unit) * 3);
+  width: calc(var(--asgardeo-spacing-unit) * 2.5);
+  height: calc(var(--asgardeo-spacing-unit) * 2.5);
 }
 
 .asgardeo-spinner--large {
-  width: calc(var(--asgardeo-spacing-unit) * 4);
-  height: calc(var(--asgardeo-spacing-unit) * 4);
+  width: calc(var(--asgardeo-spacing-unit) * 3.5);
+  height: calc(var(--asgardeo-spacing-unit) * 3.5);
 }
 
 .asgardeo-spinner__svg {

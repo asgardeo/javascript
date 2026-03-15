@@ -39,15 +39,15 @@ const CREATE_ORGANIZATION_CSS = `
 .asgardeo-create-organization {
   display: flex;
   flex-direction: column;
-  gap: calc(var(--asgardeo-spacing-unit) * 2);
-  max-width: 480px;
+  gap: calc(var(--asgardeo-spacing-unit) * 1.75);
+  max-width: 440px;
   width: 100%;
 }
 
 /* Title & description --------------------------------------- */
 
 .asgardeo-create-organization__description {
-  margin-top: calc(var(--asgardeo-spacing-unit) * -1);
+  margin-top: calc(var(--asgardeo-spacing-unit) * -0.75);
   color: var(--asgardeo-color-text-secondary);
 }
 

@@ -40,31 +40,40 @@ const CHECKBOX_CSS = `
 }
 
 .asgardeo-checkbox__wrapper {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: calc(var(--asgardeo-spacing-unit) * 1);
+  gap: calc(var(--asgardeo-spacing-unit) * 0.75);
   cursor: pointer;
+  user-select: none;
 }
 
 .asgardeo-checkbox__input {
-  width: 16px;
-  height: 16px;
+  width: var(--asgardeo-checkbox-size);
+  height: var(--asgardeo-checkbox-size);
   cursor: pointer;
   accent-color: var(--asgardeo-color-primary-main);
   flex-shrink: 0;
+  border-radius: var(--asgardeo-border-radius-xs);
+}
+.asgardeo-checkbox__input:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 var(--asgardeo-focus-ring-width) var(--asgardeo-focus-ring-color);
 }
 .asgardeo-checkbox__input:disabled {
   cursor: not-allowed;
+  opacity: 0.5;
 }
 
 .asgardeo-checkbox__label {
   font-size: var(--asgardeo-typography-fontSize-md);
   color: var(--asgardeo-color-text-primary);
+  line-height: var(--asgardeo-typography-lineHeight-normal);
 }
 
 .asgardeo-checkbox__error {
   font-size: var(--asgardeo-typography-fontSize-xs);
   color: var(--asgardeo-color-error-contrastText);
+  line-height: var(--asgardeo-typography-lineHeight-normal);
 }
 `;
 

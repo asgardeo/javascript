@@ -37,8 +37,8 @@ const ALERT_CSS = `
   align-items: flex-start;
   justify-content: space-between;
   gap: calc(var(--asgardeo-spacing-unit) * 1);
-  padding: calc(var(--asgardeo-spacing-unit) * 1.5) calc(var(--asgardeo-spacing-unit) * 2);
-  border-radius: var(--asgardeo-border-radius-small);
+  padding: var(--asgardeo-alert-paddingY) var(--asgardeo-alert-paddingX);
+  border-radius: var(--asgardeo-alert-borderRadius);
   border: 1px solid transparent;
   font-family: var(--asgardeo-typography-fontFamily);
   font-size: var(--asgardeo-typography-fontSize-sm);
@@ -52,25 +52,25 @@ const ALERT_CSS = `
 }
 
 .asgardeo-alert--info {
-  background-color: #e3f2fd;
-  border-color: var(--asgardeo-color-info-contrastText);
+  background-color: var(--asgardeo-color-info-light);
+  border-color: var(--asgardeo-color-info-main);
   color: var(--asgardeo-color-info-contrastText);
 }
 
 .asgardeo-alert--success {
-  background-color: #e8f5e9;
-  border-color: #388e3c;
+  background-color: var(--asgardeo-color-success-light);
+  border-color: var(--asgardeo-color-success-main);
   color: var(--asgardeo-color-success-contrastText);
 }
 
 .asgardeo-alert--warning {
-  background-color: #fff8e1;
-  border-color: #f57c00;
+  background-color: var(--asgardeo-color-warning-light);
+  border-color: var(--asgardeo-color-warning-main);
   color: var(--asgardeo-color-warning-contrastText);
 }
 
 .asgardeo-alert--error {
-  background-color: #ffebee;
+  background-color: var(--asgardeo-color-error-light);
   border-color: var(--asgardeo-color-error-main);
   color: var(--asgardeo-color-error-contrastText);
 }
@@ -79,15 +79,18 @@ const ALERT_CSS = `
   background: none;
   border: none;
   cursor: pointer;
-  font-size: 1.2em;
-  line-height: 1;
-  padding: 0;
+  font-size: 1em;
+  line-height: 0;
+  padding: calc(var(--asgardeo-spacing-unit) * 0.25);
+  border-radius: var(--asgardeo-border-radius-xs);
   color: inherit;
-  opacity: 0.7;
+  opacity: 0.6;
   flex-shrink: 0;
+  transition: opacity var(--asgardeo-transition-fast), background-color var(--asgardeo-transition-fast);
 }
 .asgardeo-alert__dismiss:hover {
   opacity: 1;
+  background-color: rgba(0, 0, 0, 0.06);
 }
 `;
 

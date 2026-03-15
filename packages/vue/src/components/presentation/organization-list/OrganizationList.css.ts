@@ -37,7 +37,7 @@ const ORGANIZATION_LIST_CSS = `
 .asgardeo-organization-list {
   display: flex;
   flex-direction: column;
-  gap: calc(var(--asgardeo-spacing-unit) * 0.75);
+  gap: calc(var(--asgardeo-spacing-unit) * 0.5);
   font-family: var(--asgardeo-typography-fontFamily);
 }
 
@@ -48,7 +48,7 @@ const ORGANIZATION_LIST_CSS = `
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: calc(var(--asgardeo-spacing-unit) * 4);
+  padding: calc(var(--asgardeo-spacing-unit) * 3);
   color: var(--asgardeo-color-text-secondary);
 }
 
@@ -57,29 +57,32 @@ const ORGANIZATION_LIST_CSS = `
 .asgardeo-organization-list__item {
   display: flex;
   align-items: center;
-  gap: calc(var(--asgardeo-spacing-unit) * 1.5);
+  gap: calc(var(--asgardeo-spacing-unit) * 1.25);
   width: 100%;
-  padding: calc(var(--asgardeo-spacing-unit) * 1.5) calc(var(--asgardeo-spacing-unit) * 2);
+  padding: calc(var(--asgardeo-spacing-unit) * 1.25) calc(var(--asgardeo-spacing-unit) * 1.5);
   background: var(--asgardeo-color-background-surface);
   border: 1px solid var(--asgardeo-color-border);
   border-radius: var(--asgardeo-border-radius-small);
   cursor: pointer;
   text-align: left;
   font-family: var(--asgardeo-typography-fontFamily);
+  font-size: var(--asgardeo-typography-fontSize-md);
   color: var(--asgardeo-color-text-primary);
-  transition: background-color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+  transition:
+    background-color var(--asgardeo-transition-fast),
+    border-color var(--asgardeo-transition-fast),
+    box-shadow var(--asgardeo-transition-fast);
   box-sizing: border-box;
 }
 
 .asgardeo-organization-list__item:hover {
-  background-color: var(--asgardeo-color-action-hover);
+  background-color: var(--asgardeo-color-primary-light);
   border-color: var(--asgardeo-color-primary-main);
-  box-shadow: var(--asgardeo-shadow-small);
 }
 
 .asgardeo-organization-list__item:focus-visible {
-  outline: 2px solid var(--asgardeo-color-primary-main);
-  outline-offset: 2px;
+  outline: none;
+  box-shadow: 0 0 0 var(--asgardeo-focus-ring-width) var(--asgardeo-focus-ring-color);
 }
 `;
 

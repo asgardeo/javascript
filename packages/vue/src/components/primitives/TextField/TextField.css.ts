@@ -46,6 +46,7 @@ const TEXT_FIELD_CSS = `
   font-weight: var(--asgardeo-typography-fontWeight-medium);
   color: var(--asgardeo-color-text-primary);
   display: block;
+  line-height: var(--asgardeo-typography-lineHeight-normal);
 }
 
 .asgardeo-text-field__required {
@@ -55,26 +56,30 @@ const TEXT_FIELD_CSS = `
 
 .asgardeo-text-field__input {
   width: 100%;
-  padding: calc(var(--asgardeo-spacing-unit) * 1) calc(var(--asgardeo-spacing-unit) * 1.5);
-  border: 1px solid var(--asgardeo-color-border);
-  border-radius: var(--asgardeo-border-radius-small);
+  height: var(--asgardeo-input-height);
+  padding: 0 var(--asgardeo-input-paddingX);
+  border: 1px solid var(--asgardeo-input-borderColor);
+  border-radius: var(--asgardeo-input-borderRadius);
   font-family: var(--asgardeo-typography-fontFamily);
-  font-size: var(--asgardeo-typography-fontSize-md);
+  font-size: var(--asgardeo-input-fontSize);
   color: var(--asgardeo-color-text-primary);
   background-color: var(--asgardeo-color-background-surface);
   box-sizing: border-box;
-  transition: border-color 0.2s, box-shadow 0.2s;
+  transition:
+    border-color var(--asgardeo-transition-fast),
+    box-shadow var(--asgardeo-transition-fast);
   outline: none;
 }
 .asgardeo-text-field__input:focus {
-  border-color: var(--asgardeo-color-primary-main);
-  box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.15);
+  border-color: var(--asgardeo-input-focusBorderColor);
+  box-shadow: var(--asgardeo-input-focusRing);
 }
 .asgardeo-text-field__input::placeholder {
   color: var(--asgardeo-color-text-secondary);
 }
 .asgardeo-text-field__input:disabled {
   background-color: var(--asgardeo-color-background-disabled);
+  color: var(--asgardeo-color-action-disabled);
   cursor: not-allowed;
 }
 
@@ -82,17 +87,19 @@ const TEXT_FIELD_CSS = `
   border-color: var(--asgardeo-color-error-main);
 }
 .asgardeo-text-field--error .asgardeo-text-field__input:focus {
-  box-shadow: 0 0 0 2px rgba(211, 47, 47, 0.15);
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15);
 }
 
 .asgardeo-text-field__error {
   font-size: var(--asgardeo-typography-fontSize-xs);
   color: var(--asgardeo-color-error-contrastText);
+  line-height: var(--asgardeo-typography-lineHeight-normal);
 }
 
 .asgardeo-text-field__helper {
   font-size: var(--asgardeo-typography-fontSize-xs);
   color: var(--asgardeo-color-text-secondary);
+  line-height: var(--asgardeo-typography-lineHeight-normal);
 }
 `;
 

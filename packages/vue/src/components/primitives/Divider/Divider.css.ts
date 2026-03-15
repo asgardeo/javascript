@@ -75,6 +75,10 @@ const DIVIDER_CSS = `
   font-size: var(--asgardeo-typography-fontSize-xs);
   color: var(--asgardeo-color-text-secondary);
   padding: 0 calc(var(--asgardeo-spacing-unit) * 0.5);
+  font-family: var(--asgardeo-typography-fontFamily);
+  text-transform: uppercase;
+  letter-spacing: var(--asgardeo-typography-letterSpacing-wide);
+  font-weight: var(--asgardeo-typography-fontWeight-medium);
 }
 `;
 

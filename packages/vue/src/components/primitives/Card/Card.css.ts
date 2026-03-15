@@ -33,17 +33,18 @@ const CARD_CSS = `
 
 .asgardeo-card {
   background-color: var(--asgardeo-color-background-surface);
-  border-radius: var(--asgardeo-border-radius-medium);
-  padding: calc(var(--asgardeo-spacing-unit) * 3);
+  border-radius: var(--asgardeo-card-borderRadius);
+  padding: var(--asgardeo-card-padding);
   box-sizing: border-box;
+  transition: box-shadow var(--asgardeo-transition-normal);
 }
 
 .asgardeo-card--elevated {
-  box-shadow: var(--asgardeo-shadow-medium);
+  box-shadow: var(--asgardeo-card-shadow);
 }
 
 .asgardeo-card--outlined {
-  border: 1px solid var(--asgardeo-color-border);
+  border: 1px solid var(--asgardeo-card-borderColor);
 }
 
 /* .asgardeo-card--flat: no shadow or border */

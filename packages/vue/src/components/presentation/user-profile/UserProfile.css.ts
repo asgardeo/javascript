@@ -29,7 +29,7 @@ const USER_PROFILE_CSS = `
 .asgardeo-user-profile {
   display: flex;
   flex-direction: column;
-  min-width: 340px;
+  min-width: 320px;
   padding: 0;
   overflow: hidden;
 }
@@ -37,8 +37,8 @@ const USER_PROFILE_CSS = `
 /* Header ---------------------------------------------------- */
 
 .asgardeo-user-profile__header {
-  padding: calc(var(--asgardeo-spacing-unit) * 2.5) calc(var(--asgardeo-spacing-unit) * 3);
-  padding-bottom: calc(var(--asgardeo-spacing-unit) * 2);
+  padding: calc(var(--asgardeo-spacing-unit) * 2) calc(var(--asgardeo-spacing-unit) * 2.5);
+  padding-bottom: calc(var(--asgardeo-spacing-unit) * 1.5);
 }
 
 .asgardeo-user-profile__title {
@@ -54,12 +54,12 @@ const USER_PROFILE_CSS = `
 .asgardeo-user-profile__avatar-section {
   display: flex;
   justify-content: center;
-  padding: calc(var(--asgardeo-spacing-unit) * 2.5) 0 calc(var(--asgardeo-spacing-unit) * 1.5);
+  padding: calc(var(--asgardeo-spacing-unit) * 2) 0 calc(var(--asgardeo-spacing-unit) * 1.25);
 }
 
 .asgardeo-user-profile__avatar {
-  width: 72px;
-  height: 72px;
+  width: var(--asgardeo-avatar-size);
+  height: var(--asgardeo-avatar-size);
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -69,7 +69,7 @@ const USER_PROFILE_CSS = `
 
 .asgardeo-user-profile__avatar-initials {
   color: #ffffff;
-  font-size: 1.625rem;
+  font-size: var(--asgardeo-avatar-fontSize);
   font-weight: 600;
   line-height: 1;
   letter-spacing: 0.02em;
@@ -80,14 +80,14 @@ const USER_PROFILE_CSS = `
 /* Alerts & loading ------------------------------------------ */
 
 .asgardeo-user-profile__error {
-  margin: 0 calc(var(--asgardeo-spacing-unit) * 3) calc(var(--asgardeo-spacing-unit) * 1.5);
+  margin: 0 calc(var(--asgardeo-spacing-unit) * 2.5) calc(var(--asgardeo-spacing-unit) * 1.25);
 }
 
 .asgardeo-user-profile__loading {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: calc(var(--asgardeo-spacing-unit) * 4) 0;
+  padding: calc(var(--asgardeo-spacing-unit) * 3) 0;
 }
 
 /* Fields ---------------------------------------------------- */
@@ -99,11 +99,16 @@ const USER_PROFILE_CSS = `
 
 .asgardeo-user-profile__field {
   display: grid;
-  grid-template-columns: 38% 62%;
+  grid-template-columns: 36% 64%;
   align-items: center;
-  padding: calc(var(--asgardeo-spacing-unit) * 1.5) calc(var(--asgardeo-spacing-unit) * 3);
-  gap: calc(var(--asgardeo-spacing-unit) * 1);
+  padding: calc(var(--asgardeo-spacing-unit) * 1.25) calc(var(--asgardeo-spacing-unit) * 2.5);
+  gap: calc(var(--asgardeo-spacing-unit) * 0.75);
   box-sizing: border-box;
+  transition: background-color var(--asgardeo-transition-fast);
+}
+
+.asgardeo-user-profile__field:hover {
+  background-color: var(--asgardeo-color-action-hover);
 }
 
 .asgardeo-user-profile__field + .asgardeo-user-profile__field {
@@ -127,8 +132,8 @@ const USER_PROFILE_CSS = `
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: calc(var(--asgardeo-spacing-unit) * 0.75);
-  min-height: 1.75rem;
+  gap: calc(var(--asgardeo-spacing-unit) * 0.5);
+  min-height: 1.5rem;
 }
 
 .asgardeo-user-profile__field-value {
@@ -162,7 +167,10 @@ const USER_PROFILE_CSS = `
   flex-shrink: 0;
   padding: calc(var(--asgardeo-spacing-unit) * 0.375);
   border-radius: var(--asgardeo-border-radius-small);
-  transition: color 0.15s ease, background-color 0.15s ease;
+  transition:
+    color var(--asgardeo-transition-fast),
+    background-color var(--asgardeo-transition-fast),
+    opacity var(--asgardeo-transition-fast);
   opacity: 0;
   line-height: 0;
 }
@@ -173,13 +181,13 @@ const USER_PROFILE_CSS = `
 
 .asgardeo-user-profile__field-edit-btn:hover {
   color: var(--asgardeo-color-primary-main);
-  background-color: var(--asgardeo-color-action-hover);
+  background-color: var(--asgardeo-color-primary-light);
 }
 
 .asgardeo-user-profile__field-edit-btn:focus-visible {
   opacity: 1;
-  outline: 2px solid var(--asgardeo-color-primary-main);
-  outline-offset: 1px;
+  outline: none;
+  box-shadow: 0 0 0 var(--asgardeo-focus-ring-width) var(--asgardeo-focus-ring-color);
 }
 
 /* Edit mode ------------------------------------------------- */
@@ -187,19 +195,19 @@ const USER_PROFILE_CSS = `
 .asgardeo-user-profile__field-edit {
   display: flex;
   flex-direction: column;
-  gap: calc(var(--asgardeo-spacing-unit) * 1);
+  gap: calc(var(--asgardeo-spacing-unit) * 0.75);
 }
 
 .asgardeo-user-profile__field-edit-actions {
   display: flex;
   align-items: center;
-  gap: calc(var(--asgardeo-spacing-unit) * 1);
+  gap: calc(var(--asgardeo-spacing-unit) * 0.75);
 }
 
 /* Footer slot ----------------------------------------------- */
 
 .asgardeo-user-profile__footer {
-  padding: calc(var(--asgardeo-spacing-unit) * 2) calc(var(--asgardeo-spacing-unit) * 3);
+  padding: calc(var(--asgardeo-spacing-unit) * 1.5) calc(var(--asgardeo-spacing-unit) * 2.5);
   border-top: 1px solid var(--asgardeo-color-border);
 }
 `;
