@@ -1,5 +1,13 @@
 # @asgardeo/javascript
 
+## 0.10.0
+
+### Minor Changes
+
+- [#399](https://github.com/asgardeo/javascript/pull/399)
+  [`4b03cf0`](https://github.com/asgardeo/javascript/commit/4b03cf00312cbbd8cb22f4b9e6da48eb67e974b3) Thanks
+  [@brionmario](https://github.com/brionmario)! - Add Emoji support for Image + Fix issues in component generation
+
 ## 0.9.2
 
 ### Patch Changes
