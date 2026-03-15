@@ -1,5 +1,14 @@
 # @asgardeo/react
 
+## 0.15.1
+
+### Patch Changes
+
+- [#403](https://github.com/asgardeo/javascript/pull/403)
+  [`4001204`](https://github.com/asgardeo/javascript/commit/400120477881a2a616929626866fae06f9298013) Thanks
+  [@brionmario](https://github.com/brionmario)! - Update dependency versions for @types/react and @types/react-dom in
+  pnpm-workspace.yaml
+
 ## 0.15.0
 
 ### Minor Changes
