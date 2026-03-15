@@ -7,8 +7,8 @@ packages:
 
 catalog:
   '@eslint/js': '9.25.0'
-  '@types/react': '19.2.4'
-  '@types/react-dom': '19.2.4'
+  '@types/react': '19.2.14'
+  '@types/react-dom': '19.2.3'
   '@wso2/eslint-plugin': 'git+https://github.com/brionmario/wso2-ui-configs.git#d3041825a4f8f235c8f9fa36b55cf29d54e791c8&path:packages/eslint-plugin'
   '@wso2/prettier-config': 'git+https://github.com/brionmario/wso2-ui-configs.git#d3041825a4f8f235c8f9fa36b55cf29d54e791c8&path:packages/prettier-config'
   '@wso2/stylelint-config': 'git+https://github.com/brionmario/wso2-ui-configs.git#d3041825a4f8f235c8f9fa36b55cf29d54e791c8&path:packages/stylelint-config'
