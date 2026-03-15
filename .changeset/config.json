@@ -20,5 +20,6 @@
     "packageDir": "."
   },
   "tagFormat": "@<scope>/<package>@${version}",
-  "updateInternalDependencies": "patch"
+  "updateInternalDependencies": "patch",
+  "bumpVersionsWithWorkspaceProtocolOnly": true
 }
