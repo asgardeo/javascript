@@ -16,22 +16,21 @@
  * under the License.
  */
 
-import {FlowMetadataResponse} from './flow-meta-v2';
-import {TranslationFn} from './translation';
+export const EMOJI_URI_SCHEME: string = 'emoji:';
 
 /**
- * Options for the resolveFlowTemplateLiterals function.
+ * Checks whether a given URI uses the `emoji:` scheme (e.g. `"emoji:🐯"`).
  *
- * @template TFn - The concrete translation function type.
- *   Defaults to the SDK-native {@link TranslationFn} signature.
+ * @param uri - The URI string to check.
+ * @returns `true` if the URI starts with `"emoji:"`, `false` otherwise.
+ *
+ * @example
+ * ```typescript
+ * isEmojiUri("emoji:🐯");          // true
+ * isEmojiUri("https://example.com/logo.png"); // false
+ * isEmojiUri("");                  // false
+ * ```
  */
-export interface ResolveFlowTemplateLiteralsOptions<TFn extends TranslationFn = TranslationFn> {
-  /**
-   * Optional flow metadata for resolving `{{ meta(path) }}` expressions.
-   */
-  meta?: FlowMetadataResponse | null;
-  /**
-   * i18n translation function for resolving `{{ t(key) }}` expressions.
-   */
-  t: TFn;
-}
+const isEmojiUri = (uri: string): boolean => typeof uri === 'string' && uri.startsWith(EMOJI_URI_SCHEME);
+
+export default isEmojiUri;

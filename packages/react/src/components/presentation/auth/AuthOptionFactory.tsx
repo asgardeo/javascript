@@ -24,7 +24,9 @@ import {
   EmbeddedFlowTextVariantV2 as EmbeddedFlowTextVariant,
   EmbeddedFlowEventTypeV2 as EmbeddedFlowEventType,
   createPackageComponentLogger,
-  resolveVars,
+  resolveFlowTemplateLiterals,
+  extractEmojiFromUri,
+  isEmojiUri,
   ConsentPurposeDataV2 as ConsentPurposeData,
   ConsentPromptDataV2 as ConsentPromptData,
   ConsentDecisionsV2 as ConsentDecisions,
@@ -59,12 +61,57 @@ const logger: ReturnType<typeof createPackageComponentLogger> = createPackageCom
   'AuthOptionFactory',
 );
 
+/**
+ * Replaces `emoji:` URIs embedded in HTML before DOMPurify sanitization.
+ *
+ * DOMPurify strips unknown URI schemes from attributes (e.g. `src="emoji:🦊"` → `src=""`).
+ * This function converts:
+ *   - `<img src="emoji:X" alt="Y">` → `<span role="img" aria-label="Y">X</span>`
+ *   - Any remaining `emoji:X` text occurrences → `X`
+ */
+const resolveEmojiUrisInHtml = (html: string): string => {
+  const withEmojiImages: string = html.replace(
+    /<img([^>]*)src="(emoji:[^"]+)"([^>]*)\/?>/gi,
+    (_match: string, pre: string, src: string, post: string): string => {
+      const emoji: string = extractEmojiFromUri(src);
+      if (!emoji) {
+        return _match;
+      }
+      const altMatch: RegExpMatchArray | null = (pre + post).match(/alt="([^"]*)"/i);
+      const label: string = altMatch ? altMatch[1] : emoji;
+      return `<span role="img" aria-label="${label}">${emoji}</span>`;
+    },
+  );
+  return withEmojiImages.replace(/emoji:([^\s"<>&]+)/g, (_: string, rest: string): string =>
+    isEmojiUri(`emoji:${rest}`) ? rest : `emoji:${rest}`,
+  );
+};
+
 /** Ensures rich-text content (including all inner elements from the server) always word-wraps. */
 const richTextClass: string = css`
   overflow-wrap: anywhere;
   & * {
     overflow-wrap: anywhere;
     word-break: break-word;
+  }
+  & .rich-text-align-left {
+    text-align: left;
+  }
+  & .rich-text-align-center {
+    text-align: center;
+  }
+  & .rich-text-align-right {
+    text-align: right;
+  }
+  & .rich-text-align-justify {
+    text-align: justify;
+  }
+  & a,
+  & .rich-text-link {
+    text-decoration: underline;
+  }
+  & span[role='img'] {
+    display: inline-block;
   }
 `;
 
@@ -177,7 +224,7 @@ const createAuthComponentFromFlow = (
     if (!text || (!options.t && !options.meta)) {
       return text || '';
     }
-    return resolveVars(text, {meta: options.meta, t: options.t || ((k: string): string => k)});
+    return resolveFlowTemplateLiterals(text, {meta: options.meta, t: options.t || ((k: string): string => k)});
   };
 
   switch (component.type) {
@@ -323,7 +370,17 @@ const createAuthComponentFromFlow = (
     case EmbeddedFlowComponentType.Text: {
       const variant: any = getTypographyVariant(component.variant);
       return (
-        <Typography key={key} variant={variant}>
+        <Typography
+          key={key}
+          variant={variant}
+          style={{
+            marginBottom: 2,
+            textAlign:
+              typeof component?.['align'] === 'string'
+                ? (component['align'] as React.CSSProperties['textAlign'])
+                : 'left',
+          }}
+        >
           {resolve(component.label)}
         </Typography>
       );
@@ -399,7 +456,7 @@ const createAuthComponentFromFlow = (
           className={richTextClass}
           // Manually sanitizes with `DOMPurify`.
           // IMPORTANT: DO NOT REMOVE OR MODIFY THIS SANITIZATION STEP.
-          dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(resolve(component.label))}}
+          dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(resolveEmojiUrisInHtml(resolve(component.label)))}}
         />
       );
     }

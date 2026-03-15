@@ -127,7 +127,6 @@ const SignUp: FC<SignUpProps> = ({
       size={size}
       isInitialized={isInitialized}
       children={children}
-      showLogo={true}
       showTitle={true}
       showSubtitle={true}
       {...rest}

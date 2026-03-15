@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import {resolveVars as resolveVarsUtil} from '@asgardeo/browser';
+import {resolveFlowTemplateLiterals} from '@asgardeo/browser';
 import {useContext} from 'react';
 import AsgardeoContext, {AsgardeoContextProps} from './AsgardeoContext';
 import FlowMetaContext, {FlowMetaContextValue} from '../FlowMeta/FlowMetaContext';
@@ -43,8 +43,8 @@ const useAsgardeo = (): AsgardeoContextProps => {
   return {
     ...context,
     meta,
-    resolveVars: (text: string | undefined): string =>
-      resolveVarsUtil(text, {
+    resolveFlowTemplateLiterals: (text: string | undefined): string =>
+      resolveFlowTemplateLiterals(text, {
         meta,
         t: i18nContext?.t ?? ((key: string): string => key),
       }),

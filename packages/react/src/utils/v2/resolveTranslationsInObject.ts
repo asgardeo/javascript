@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import {FlowMetadataResponse, resolveVars} from '@asgardeo/browser';
+import {FlowMetadataResponse, resolveFlowTemplateLiterals} from '@asgardeo/browser';
 import {UseTranslation} from '../../hooks/useTranslation';
 
 /**
@@ -37,7 +37,7 @@ export const resolveTranslationsInObject = <T extends Record<string, any>>(
 
   properties.forEach((prop: string) => {
     if (resolved[prop] && typeof resolved[prop] === 'string') {
-      (resolved as any)[prop] = resolveVars(resolved[prop], {meta, t});
+      (resolved as any)[prop] = resolveFlowTemplateLiterals(resolved[prop], {meta, t});
     }
   });
 

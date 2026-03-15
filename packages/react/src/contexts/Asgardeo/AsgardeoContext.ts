@@ -128,11 +128,11 @@ export type AsgardeoContextProps = {
    * that come from the server (e.g. component labels, placeholders, headings).
    *
    * @example
-   * const {resolveVars} = useAsgardeo();
-   * resolveVars('{{ t(signin.heading.label) }}') // → 'Sign In'
-   * resolveVars('Login to {{ meta(application.name) }}') // → 'Login to My App'
+   * const {resolveFlowTemplateLiterals} = useAsgardeo();
+   * resolveFlowTemplateLiterals('{{ t(signin.heading.label) }}') // → 'Sign In'
+   * resolveFlowTemplateLiterals('Login to {{ meta(application.name) }}') // → 'Login to My App'
    */
-  resolveVars: (text: string | undefined) => string;
+  resolveFlowTemplateLiterals: (text: string | undefined) => string;
 
   /**
    * Sign-in function to initiate the authentication process.
@@ -203,7 +203,7 @@ const AsgardeoContext: Context<AsgardeoContextProps | null> = createContext<null
   organizationHandle: undefined,
   platform: undefined,
   reInitialize: null,
-  resolveVars: (text: string | undefined) => text ?? '',
+  resolveFlowTemplateLiterals: (text: string | undefined) => text ?? '',
   signIn: () => Promise.resolve({} as any),
   signInOptions: {},
   signInSilently: () => Promise.resolve({} as any),

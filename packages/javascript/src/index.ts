@@ -170,7 +170,7 @@ export {User, UserProfile} from './models/user';
 export {SessionData} from './models/session';
 export {Organization} from './models/organization';
 export {TranslationFn} from './models/v2/translation';
-export {ResolveVarsOptions} from './models/v2/vars';
+export {ResolveFlowTemplateLiteralsOptions} from './models/v2/vars';
 export {
   BrandingPreference,
   BrandingPreferenceConfig,
@@ -209,13 +209,15 @@ export {default as generateFlattenedUserProfile} from './utils/generateFlattened
 export {default as getRedirectBasedSignUpUrl} from './utils/getRedirectBasedSignUpUrl';
 export {default as identifyPlatform} from './utils/identifyPlatform';
 export {default as isEmpty} from './utils/isEmpty';
+export {default as isEmojiUri, EMOJI_URI_SCHEME} from './utils/v2/isEmojiUri';
+export {default as extractEmojiFromUri} from './utils/v2/extractEmojiFromUri';
 export {default as set} from './utils/set';
 export {default as get} from './utils/get';
 export {default as removeTrailingSlash} from './utils/removeTrailingSlash';
 export {default as resolveFieldType} from './utils/resolveFieldType';
 export {default as resolveFieldName} from './utils/resolveFieldName';
 export {default as resolveMeta} from './utils/v2/resolveMeta';
-export {default as resolveVars} from './utils/v2/resolveVars';
+export {default as resolveFlowTemplateLiterals} from './utils/v2/resolveFlowTemplateLiterals';
 export {default as countryCodeToFlagEmoji} from './utils/v2/countryCodeToFlagEmoji';
 export {default as resolveLocaleDisplayName} from './utils/v2/resolveLocaleDisplayName';
 export {default as resolveLocaleEmoji} from './utils/v2/resolveLocaleEmoji';

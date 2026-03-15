@@ -16,22 +16,26 @@
  * under the License.
  */
 
-import {FlowMetadataResponse} from './flow-meta-v2';
-import {TranslationFn} from './translation';
+import isEmojiUri, {EMOJI_URI_SCHEME} from './isEmojiUri';
 
 /**
- * Options for the resolveFlowTemplateLiterals function.
+ * Extracts the emoji character from an `emoji:` URI.
  *
- * @template TFn - The concrete translation function type.
- *   Defaults to the SDK-native {@link TranslationFn} signature.
+ * @param uri - A URI string in the form `"emoji:<emoji>"`.
+ * @returns The emoji character, or an empty string if the URI is not a valid emoji URI.
+ *
+ * @example
+ * ```typescript
+ * extractEmojiFromUri("emoji:🐯"); // "🐯"
+ * extractEmojiFromUri("https://example.com"); // ""
+ * ```
  */
-export interface ResolveFlowTemplateLiteralsOptions<TFn extends TranslationFn = TranslationFn> {
-  /**
-   * Optional flow metadata for resolving `{{ meta(path) }}` expressions.
-   */
-  meta?: FlowMetadataResponse | null;
-  /**
-   * i18n translation function for resolving `{{ t(key) }}` expressions.
-   */
-  t: TFn;
-}
+const extractEmojiFromUri = (uri: string): string => {
+  if (!isEmojiUri(uri)) {
+    return '';
+  }
+
+  return uri.slice(EMOJI_URI_SCHEME.length);
+};
+
+export default extractEmojiFromUri;
