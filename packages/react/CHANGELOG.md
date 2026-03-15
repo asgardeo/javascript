@@ -1,5 +1,18 @@
 # @asgardeo/react
 
+## 0.15.0
+
+### Minor Changes
+
+- [#399](https://github.com/asgardeo/javascript/pull/399)
+  [`4b03cf0`](https://github.com/asgardeo/javascript/commit/4b03cf00312cbbd8cb22f4b9e6da48eb67e974b3) Thanks
+  [@brionmario](https://github.com/brionmario)! - Add Emoji support for Image + Fix issues in component generation
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @asgardeo/browser@0.5.3
+
 ## 0.14.4
 
 ### Patch Changes
