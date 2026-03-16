@@ -230,6 +230,22 @@ export interface BaseInviteUserProps {
 }
 
 /**
+ * Build a map of empty strings for all form field refs in the given components.
+ * Used to clear controlled inputs on step transitions without making them uncontrolled.
+ */
+const buildClearedFormValues = (components: any[]): Record<string, string> => {
+  const result: Record<string, string> = {};
+  const collect = (comps: any[]): void =>
+    comps.forEach((c: any) => {
+      if ((c.type === 'TEXT_INPUT' || c.type === 'EMAIL_INPUT' || c.type === 'SELECT') && c.ref)
+        result[c.ref as string] = '';
+      if (c.components) collect(c.components);
+    });
+  collect(components);
+  return result;
+};
+
+/**
  * Base component for invite user flow.
  * Handles the flow logic for creating a user and generating an invite link.
  *
@@ -454,9 +470,10 @@ const BaseInviteUser: FC<BaseInviteUserProps> = ({
           return;
         }
 
-        // Update current flow and reset form for next step
+        // Update current flow and clear form values.
+        const nextComponents: any[] = response.data?.components || response.data?.meta?.components || [];
         setCurrentFlow(response);
-        setFormValues({});
+        setFormValues(buildClearedFormValues(nextComponents));
         setFormErrors({});
         setTouchedFields({});
       } catch (err) {
