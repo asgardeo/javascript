@@ -46,7 +46,7 @@ import {
   type Ref,
 } from 'vue';
 import {BRANDING_KEY, THEME_KEY} from '../keys';
-import type {ThemeContextValue} from '../models/contexts';
+import type {BrandingContextValue, ThemeContextValue} from '../models/contexts';
 
 const logger: ReturnType<typeof createPackageComponentLogger> = createPackageComponentLogger(
   '@asgardeo/vue',
@@ -94,7 +94,7 @@ const ThemeProvider: ReturnType<typeof defineComponent> = defineComponent({
   },
   setup(props: any, {slots}: {slots: any}): any {
     // Try to consume branding context – it is optional (BrandingProvider may not be mounted)
-    const brandingContext = inject(BRANDING_KEY, null);
+    const brandingContext: BrandingContextValue | null = inject(BRANDING_KEY, null);
 
     const initColorScheme = (): 'light' | 'dark' => {
       if (props.mode === 'light' || props.mode === 'dark') return props.mode;

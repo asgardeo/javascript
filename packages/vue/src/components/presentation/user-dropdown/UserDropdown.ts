@@ -54,7 +54,9 @@ const UserDropdown: ReturnType<typeof defineComponent> = defineComponent({
           onProfileModalClose: (): void => {
             isProfileModalOpen.value = false;
           },
-          onSignOut: (): void => { signOut(); },
+          onSignOut: (): void => {
+            signOut();
+          },
           profileContent: isProfileModalOpen.value
             ? h(UserProfileComponent, {
                 cardLayout: false,

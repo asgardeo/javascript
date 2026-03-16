@@ -20,7 +20,7 @@ import {FlowMetadataResponse, FlowMetaType, getFlowMetaV2} from '@asgardeo/brows
 import {I18nBundle, TranslationBundleConstants} from '@asgardeo/i18n';
 import {defineComponent, h, inject, onMounted, provide, readonly, shallowReadonly, ref, watch, type Ref} from 'vue';
 import {ASGARDEO_KEY, FLOW_META_KEY, I18N_KEY} from '../keys';
-import type {FlowMetaContextValue} from '../models/contexts';
+import type {AsgardeoContext, FlowMetaContextValue, I18nContextValue} from '../models/contexts';
 
 /**
  * FlowMetaProvider fetches flow metadata from the `GET /flow/meta` endpoint
@@ -41,8 +41,8 @@ const FlowMetaProvider: ReturnType<typeof defineComponent> = defineComponent({
     enabled: {default: true, type: Boolean},
   },
   setup(props: any, {slots}: {slots: any}): any {
-    const asgardeoContext = inject(ASGARDEO_KEY);
-    const i18nContext = inject(I18N_KEY, null);
+    const asgardeoContext: AsgardeoContext | undefined = inject(ASGARDEO_KEY);
+    const i18nContext: I18nContextValue | null = inject(I18N_KEY, null);
 
     const meta: Ref<FlowMetadataResponse | null> = ref(null);
     const isLoading: Ref<boolean> = ref(false);
