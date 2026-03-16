@@ -60,7 +60,9 @@ const BaseSignUpButton = defineComponent({
           'button',
           {
             type: 'button' as const,
-            class: [withVendorCSSClassPrefix('sign-up-button-wrapper'), (attrs['class'] as string) || ''].filter(Boolean).join(' '),
+            class: [withVendorCSSClassPrefix('sign-up-button-wrapper'), (attrs['class'] as string) || '']
+              .filter(Boolean)
+              .join(' '),
             style: attrs['style'],
             disabled: props.disabled || props.isLoading,
             onClick: handleClick,
@@ -73,7 +75,9 @@ const BaseSignUpButton = defineComponent({
       return h(
         Button,
         {
-          class: [withVendorCSSClassPrefix('sign-up-button'), (attrs['class'] as string) || ''].filter(Boolean).join(' '),
+          class: [withVendorCSSClassPrefix('sign-up-button'), (attrs['class'] as string) || '']
+            .filter(Boolean)
+            .join(' '),
           style: attrs['style'],
           disabled: props.disabled || props.isLoading,
           loading: props.isLoading,

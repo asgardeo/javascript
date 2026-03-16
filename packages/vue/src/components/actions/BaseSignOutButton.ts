@@ -60,7 +60,9 @@ const BaseSignOutButton = defineComponent({
           'button',
           {
             type: 'button' as const,
-            class: [withVendorCSSClassPrefix('sign-out-button-wrapper'), (attrs['class'] as string) || ''].filter(Boolean).join(' '),
+            class: [withVendorCSSClassPrefix('sign-out-button-wrapper'), (attrs['class'] as string) || '']
+              .filter(Boolean)
+              .join(' '),
             style: attrs['style'],
             disabled: props.disabled || props.isLoading,
             onClick: handleClick,
@@ -73,7 +75,9 @@ const BaseSignOutButton = defineComponent({
       return h(
         Button,
         {
-          class: [withVendorCSSClassPrefix('sign-out-button'), (attrs['class'] as string) || ''].filter(Boolean).join(' '),
+          class: [withVendorCSSClassPrefix('sign-out-button'), (attrs['class'] as string) || '']
+            .filter(Boolean)
+            .join(' '),
           style: attrs['style'],
           disabled: props.disabled || props.isLoading,
           loading: props.isLoading,

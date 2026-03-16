@@ -77,40 +77,34 @@ const BaseCreateOrganization = defineComponent({
         });
       }
 
-      return h(
-        Card,
-        {class: [cls(''), props.className].filter(Boolean).join(' ')},
-        () => [
-          h(Typography, {variant: 'h6', class: cls('__title')}, () => props.title),
-          props.description
-            ? h(Typography, {variant: 'body2', class: cls('__description')}, () => props.description)
-            : null,
-          error.value
-            ? h(Alert, {severity: 'error', class: cls('__error')}, () => error.value)
-            : null,
-          h(TextField, {
-            label: 'Organization Name',
-            modelValue: orgName.value,
-            'onUpdate:modelValue': (v: string) => {
-              orgName.value = v;
-            },
-            placeholder: 'Enter organization name',
-            class: cls('__input'),
-          }),
-          h(
-            Button,
-            {
-              variant: 'solid',
-              color: 'primary',
-              loading: isSubmitting.value,
-              disabled: isSubmitting.value,
-              onClick: handleSubmit,
-              class: cls('__submit'),
-            },
-            () => 'Create',
-          ),
-        ],
-      );
+      return h(Card, {class: [cls(''), props.className].filter(Boolean).join(' ')}, () => [
+        h(Typography, {variant: 'h6', class: cls('__title')}, () => props.title),
+        props.description
+          ? h(Typography, {variant: 'body2', class: cls('__description')}, () => props.description)
+          : null,
+        error.value ? h(Alert, {severity: 'error', class: cls('__error')}, () => error.value) : null,
+        h(TextField, {
+          label: 'Organization Name',
+          modelValue: orgName.value,
+          'onUpdate:modelValue': (v: string) => {
+            orgName.value = v;
+          },
+          placeholder: 'Enter organization name',
+          class: cls('__input'),
+        }),
+        h(
+          Button,
+          {
+            variant: 'solid',
+            color: 'primary',
+            loading: isSubmitting.value,
+            disabled: isSubmitting.value,
+            onClick: handleSubmit,
+            class: cls('__submit'),
+          },
+          () => 'Create',
+        ),
+      ]);
     };
   },
 });

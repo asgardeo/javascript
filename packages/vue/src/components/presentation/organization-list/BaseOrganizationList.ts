@@ -18,9 +18,9 @@
 
 import {type Organization as IOrganization, withVendorCSSClassPrefix} from '@asgardeo/browser';
 import {type PropType, type VNode, defineComponent, h} from 'vue';
+import {BuildingIcon} from '../../primitives/Icons';
 import Spinner from '../../primitives/Spinner';
 import Typography from '../../primitives/Typography';
-import {BuildingIcon} from '../../primitives/Icons';
 
 /**
  * BaseOrganizationList — unstyled list of organizations.
@@ -49,7 +49,7 @@ const BaseOrganizationList = defineComponent({
           h(Typography, {variant: 'body2', class: prefix('organization-list__empty')}, () => 'No organizations found'),
         );
       } else {
-        props.organizations.forEach((org) => {
+        props.organizations.forEach(org => {
           children.push(
             h(
               'button',
@@ -59,20 +59,13 @@ const BaseOrganizationList = defineComponent({
                 class: prefix('organization-list__item'),
                 onClick: () => props.onSelect?.(org),
               },
-              [
-                h(BuildingIcon, {size: 16}),
-                h(Typography, {variant: 'body1'}, () => org['name'] || org['id']),
-              ],
+              [h(BuildingIcon, {size: 16}), h(Typography, {variant: 'body1'}, () => org['name'] || org['id'])],
             ),
           );
         });
       }
 
-      return h(
-        'div',
-        {class: [prefix('organization-list'), props.className].filter(Boolean).join(' ')},
-        children,
-      );
+      return h('div', {class: [prefix('organization-list'), props.className].filter(Boolean).join(' ')}, children);
     };
   },
 });

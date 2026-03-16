@@ -42,9 +42,7 @@ const deriveRootDomain = (hostname: string): string => {
 
 const getCookie = (name: string): string | null => {
   if (typeof document === 'undefined') return null;
-  const match = document.cookie.match(
-    new RegExp(`(?:^|; )${name.replace(/([.*+?^${}()|[\]\\])/g, '\\$1')}=([^;]*)`),
-  );
+  const match = document.cookie.match(new RegExp(`(?:^|; )${name.replace(/([.*+?^${}()|[\]\\])/g, '\\$1')}=([^;]*)`));
   return match ? decodeURIComponent(match[1]) : null;
 };
 
@@ -226,9 +224,7 @@ const I18nProvider = defineComponent({
           if (merged[key]) {
             merged[key] = {
               ...merged[key],
-              metadata: userBundle.metadata
-                ? {...merged[key].metadata, ...userBundle.metadata}
-                : merged[key].metadata,
+              metadata: userBundle.metadata ? {...merged[key].metadata, ...userBundle.metadata} : merged[key].metadata,
               translations: deepMerge(merged[key].translations, normalizedTranslations),
             };
           } else {
@@ -240,8 +236,7 @@ const I18nProvider = defineComponent({
       return merged;
     });
 
-    const fallbackLanguage: string =
-      props.preferences?.fallbackLanguage || TranslationBundleConstants.FALLBACK_LOCALE;
+    const fallbackLanguage: string = props.preferences?.fallbackLanguage || TranslationBundleConstants.FALLBACK_LOCALE;
 
     // Persist language changes to storage
     watch(currentLanguage, (lang: string) => {
@@ -282,7 +277,9 @@ const I18nProvider = defineComponent({
         currentLanguage.value = language;
       } else {
         logger.warn(
-          `Language '${language}' is not available. Available languages: ${Object.keys(mergedBundles.value).join(', ')}`,
+          `Language '${language}' is not available. Available languages: ${Object.keys(mergedBundles.value).join(
+            ', ',
+          )}`,
         );
       }
     };

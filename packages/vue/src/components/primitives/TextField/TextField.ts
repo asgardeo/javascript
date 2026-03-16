@@ -56,7 +56,10 @@ const TextField = defineComponent({
                 class: withVendorCSSClassPrefix('text-field__label'),
                 for: props.name,
               },
-              [props.label, props.required ? h('span', {class: withVendorCSSClassPrefix('text-field__required')}, ' *') : null],
+              [
+                props.label,
+                props.required ? h('span', {class: withVendorCSSClassPrefix('text-field__required')}, ' *') : null,
+              ],
             )
           : null,
         h('input', {
@@ -76,8 +79,8 @@ const TextField = defineComponent({
         hasError
           ? h('span', {class: withVendorCSSClassPrefix('text-field__error')}, props.error)
           : props.helperText
-            ? h('span', {class: withVendorCSSClassPrefix('text-field__helper')}, props.helperText)
-            : null,
+          ? h('span', {class: withVendorCSSClassPrefix('text-field__helper')}, props.helperText)
+          : null,
       ]);
     };
   },

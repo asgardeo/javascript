@@ -88,9 +88,7 @@ const BaseOrganizationSwitcher = defineComponent({
       const dropdownChildren: VNode[] = [];
 
       if (props.isLoading) {
-        dropdownChildren.push(
-          h('div', {class: cls('__loading')}, [h(Spinner, {size: 'small'})]),
-        );
+        dropdownChildren.push(h('div', {class: cls('__loading')}, [h(Spinner, {size: 'small'})]));
       } else if (props.organizations.length === 0) {
         dropdownChildren.push(
           h(Typography, {variant: 'body2', class: cls('__empty')}, () => 'No organizations available'),
@@ -108,24 +106,15 @@ const BaseOrganizationSwitcher = defineComponent({
                 role: 'option',
                 'aria-selected': isActive,
               },
-              [
-                h(BuildingIcon, {size: 14}),
-                h(Typography, {variant: 'body2'}, () => org['name']),
-              ],
+              [h(BuildingIcon, {size: 14}), h(Typography, {variant: 'body2'}, () => org['name'])],
             ),
           );
         }
       }
 
-      const dropdown = isOpen.value
-        ? h('div', {class: cls('__dropdown'), role: 'listbox'}, dropdownChildren)
-        : null;
+      const dropdown = isOpen.value ? h('div', {class: cls('__dropdown'), role: 'listbox'}, dropdownChildren) : null;
 
-      return h(
-        Card,
-        {class: [cls(''), props.className].filter(Boolean).join(' ')},
-        () => [triggerButton, dropdown],
-      );
+      return h(Card, {class: [cls(''), props.className].filter(Boolean).join(' ')}, () => [triggerButton, dropdown]);
     };
   },
 });

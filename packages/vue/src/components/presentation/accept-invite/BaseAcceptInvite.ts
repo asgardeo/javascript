@@ -48,7 +48,11 @@ const BaseAcceptInvite = defineComponent({
         },
         [
           h('h3', {style: 'margin: 0 0 8px 0;'}, 'Accept Invite'),
-          h('p', {style: 'color: #666; margin: 0; font-size: 14px;'}, 'Coming Soon — This embedded invitation acceptance component will be available when app-native authentication flow is implemented.'),
+          h(
+            'p',
+            {style: 'color: #666; margin: 0; font-size: 14px;'},
+            'Coming Soon — This embedded invitation acceptance component will be available when app-native authentication flow is implemented.',
+          ),
         ],
       );
     };

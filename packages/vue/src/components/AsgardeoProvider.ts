@@ -31,27 +31,18 @@ import {
   TokenResponse,
   EmbeddedSignInFlowResponseV2,
 } from '@asgardeo/browser';
-import {
-  defineComponent,
-  h,
-  onMounted,
-  onUnmounted,
-  provide,
-  ref,
-  shallowRef,
-  type PropType,
-} from 'vue';
+import {defineComponent, h, onMounted, onUnmounted, provide, ref, shallowRef, type PropType} from 'vue';
 import AsgardeoVueClient from '../AsgardeoVueClient';
 import {ASGARDEO_KEY} from '../keys';
-import type {AsgardeoContext} from '../models/contexts';
 import type {AsgardeoVueConfig} from '../models/config';
+import type {AsgardeoContext} from '../models/contexts';
+import BrandingProvider from '../providers/BrandingProvider';
+import FlowMetaProvider from '../providers/FlowMetaProvider';
+import FlowProvider from '../providers/FlowProvider';
 import I18nProvider from '../providers/I18nProvider';
-import UserProvider from '../providers/UserProvider';
 import OrganizationProvider from '../providers/OrganizationProvider';
 import ThemeProvider from '../providers/ThemeProvider';
-import BrandingProvider from '../providers/BrandingProvider';
-import FlowProvider from '../providers/FlowProvider';
-import FlowMetaProvider from '../providers/FlowMetaProvider';
+import UserProvider from '../providers/UserProvider';
 
 /**
  * Checks if the current URL contains authentication parameters.
@@ -324,13 +315,13 @@ const AsgardeoProvider = defineComponent({
       baseUrl: props.baseUrl,
       clientId: props.clientId,
       clearSession: (...args: any[]) => asgardeo.clearSession(...args),
-      exchangeToken: (config) => asgardeo.exchangeToken(config),
+      exchangeToken: config => asgardeo.exchangeToken(config),
       getAccessToken: () => asgardeo.getAccessToken(),
       getDecodedIdToken: () => asgardeo.getDecodedIdToken(),
       getIdToken: () => asgardeo.getIdToken(),
       http: {
-        request: (requestConfig) => asgardeo.request(requestConfig),
-        requestAll: (requestConfigs) => asgardeo.requestAll(requestConfigs),
+        request: requestConfig => asgardeo.request(requestConfig),
+        requestAll: requestConfigs => asgardeo.requestAll(requestConfigs),
       },
       instanceId: props.instanceId,
       isInitialized,
@@ -339,7 +330,7 @@ const AsgardeoProvider = defineComponent({
       organization: currentOrganization,
       organizationHandle: props.organizationHandle,
       platform: props.platform as AsgardeoVueConfig['platform'],
-      reInitialize: (config) => asgardeo.reInitialize(config),
+      reInitialize: config => asgardeo.reInitialize(config),
       signIn,
       signInOptions: props.signInOptions,
       signInSilently,
@@ -460,54 +451,62 @@ const AsgardeoProvider = defineComponent({
     return () =>
       h(I18nProvider, null, {
         default: () =>
-          h(UserProvider, {
-            profile: userProfile.value,
-            flattenedProfile: flattenedProfile.value,
-            schemas: schemas.value,
-            revalidateProfile: async () => {
-              const baseUrl = resolvedBaseUrl.value;
-              try {
-                const profileData: UserProfile = await asgardeo.getUserProfile({baseUrl});
-                userProfile.value = profileData;
-                flattenedProfile.value = profileData.flattenedProfile || null;
-                schemas.value = profileData.schemas || [];
-              } catch {
-                // silent
-              }
+          h(
+            UserProvider,
+            {
+              profile: userProfile.value,
+              flattenedProfile: flattenedProfile.value,
+              schemas: schemas.value,
+              revalidateProfile: async () => {
+                const baseUrl = resolvedBaseUrl.value;
+                try {
+                  const profileData: UserProfile = await asgardeo.getUserProfile({baseUrl});
+                  userProfile.value = profileData;
+                  flattenedProfile.value = profileData.flattenedProfile || null;
+                  schemas.value = profileData.schemas || [];
+                } catch {
+                  // silent
+                }
+              },
             },
-          }, {
-            default: () =>
-              h(OrganizationProvider, {
-                currentOrganization: currentOrganization.value,
-                myOrganizations: myOrganizations.value,
-                onOrganizationSwitch: switchOrganization,
-                getAllOrganizations: () => asgardeo.getAllOrganizations({baseUrl: resolvedBaseUrl.value}),
-                revalidateMyOrganizations: async () => {
-                  const baseUrl = resolvedBaseUrl.value;
-                  try {
-                    const orgs: Organization[] = await asgardeo.getMyOrganizations({baseUrl});
-                    myOrganizations.value = orgs || [];
-                    return orgs || [];
-                  } catch {
-                    return [];
-                  }
-                },
-              }, {
-                default: () =>
-                  h(ThemeProvider, null, {
+            {
+              default: () =>
+                h(
+                  OrganizationProvider,
+                  {
+                    currentOrganization: currentOrganization.value,
+                    myOrganizations: myOrganizations.value,
+                    onOrganizationSwitch: switchOrganization,
+                    getAllOrganizations: () => asgardeo.getAllOrganizations({baseUrl: resolvedBaseUrl.value}),
+                    revalidateMyOrganizations: async () => {
+                      const baseUrl = resolvedBaseUrl.value;
+                      try {
+                        const orgs: Organization[] = await asgardeo.getMyOrganizations({baseUrl});
+                        myOrganizations.value = orgs || [];
+                        return orgs || [];
+                      } catch {
+                        return [];
+                      }
+                    },
+                  },
+                  {
                     default: () =>
-                      h(BrandingProvider, null, {
+                      h(ThemeProvider, null, {
                         default: () =>
-                          h(FlowMetaProvider, null, {
+                          h(BrandingProvider, null, {
                             default: () =>
-                              h(FlowProvider, null, {
-                                default: () => slots['default']?.(),
+                              h(FlowMetaProvider, null, {
+                                default: () =>
+                                  h(FlowProvider, null, {
+                                    default: () => slots['default']?.(),
+                                  }),
                               }),
                           }),
                       }),
-                  }),
-              }),
-          }),
+                  },
+                ),
+            },
+          ),
       });
   },
 });

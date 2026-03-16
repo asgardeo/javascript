@@ -23,7 +23,9 @@ const Typography = defineComponent({
   name: 'Typography',
   props: {
     variant: {
-      type: String as PropType<'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'subtitle1' | 'subtitle2' | 'body1' | 'body2' | 'caption' | 'overline'>,
+      type: String as PropType<
+        'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'subtitle1' | 'subtitle2' | 'body1' | 'body2' | 'caption' | 'overline'
+      >,
       default: 'body1',
     },
     component: {
@@ -53,7 +55,11 @@ const Typography = defineComponent({
       return h(
         tag,
         {
-          class: [withVendorCSSClassPrefix('typography'), withVendorCSSClassPrefix(`typography--${props.variant}`), (attrs['class'] as string) || '']
+          class: [
+            withVendorCSSClassPrefix('typography'),
+            withVendorCSSClassPrefix(`typography--${props.variant}`),
+            (attrs['class'] as string) || '',
+          ]
             .filter(Boolean)
             .join(' '),
           style: attrs['style'],

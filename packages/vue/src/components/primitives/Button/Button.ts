@@ -69,12 +69,12 @@ const Button = defineComponent({
           onClick: (e: MouseEvent) => emit('click', e),
         },
         [
-          props.startIcon ? h('span', {class: withVendorCSSClassPrefix('button__start-icon')}, [props.startIcon]) : null,
+          props.startIcon
+            ? h('span', {class: withVendorCSSClassPrefix('button__start-icon')}, [props.startIcon])
+            : null,
           h('span', {class: withVendorCSSClassPrefix('button__content')}, slots['default']?.()),
           props.endIcon ? h('span', {class: withVendorCSSClassPrefix('button__end-icon')}, [props.endIcon]) : null,
-          props.loading
-            ? h('span', {class: withVendorCSSClassPrefix('button__spinner'), 'aria-hidden': 'true'})
-            : null,
+          props.loading ? h('span', {class: withVendorCSSClassPrefix('button__spinner'), 'aria-hidden': 'true'}) : null,
         ],
       );
     };

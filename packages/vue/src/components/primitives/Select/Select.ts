@@ -20,9 +20,9 @@ import {withVendorCSSClassPrefix} from '@asgardeo/browser';
 import {defineComponent, h, type PropType} from 'vue';
 
 export interface SelectOption {
+  disabled?: boolean;
   label: string;
   value: string;
-  disabled?: boolean;
 }
 
 const Select = defineComponent({
@@ -52,11 +52,10 @@ const Select = defineComponent({
 
       return h('div', {class: wrapperClass, style: attrs['style']}, [
         props.label
-          ? h(
-              'label',
-              {class: withVendorCSSClassPrefix('select__label'), for: props.name},
-              [props.label, props.required ? h('span', {class: withVendorCSSClassPrefix('select__required')}, ' *') : null],
-            )
+          ? h('label', {class: withVendorCSSClassPrefix('select__label'), for: props.name}, [
+              props.label,
+              props.required ? h('span', {class: withVendorCSSClassPrefix('select__required')}, ' *') : null,
+            ])
           : null,
         h(
           'select',
@@ -72,14 +71,14 @@ const Select = defineComponent({
           },
           [
             props.placeholder ? h('option', {value: '', disabled: true}, props.placeholder) : null,
-            ...props.options.map((opt) => h('option', {value: opt.value, key: opt.value}, opt.label)),
+            ...props.options.map(opt => h('option', {value: opt.value, key: opt.value}, opt.label)),
           ],
         ),
         hasError
           ? h('span', {class: withVendorCSSClassPrefix('select__error')}, props.error)
           : props.helperText
-            ? h('span', {class: withVendorCSSClassPrefix('select__helper')}, props.helperText)
-            : null,
+          ? h('span', {class: withVendorCSSClassPrefix('select__helper')}, props.helperText)
+          : null,
       ]);
     };
   },

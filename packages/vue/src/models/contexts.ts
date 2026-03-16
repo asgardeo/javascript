@@ -16,7 +16,6 @@
  * under the License.
  */
 
-import type {Ref} from 'vue';
 import type {
   AllOrganizationsApiResponse,
   BrandingPreference,
@@ -36,6 +35,7 @@ import type {
   UserProfile,
 } from '@asgardeo/browser';
 import type {I18nBundle} from '@asgardeo/i18n';
+import type {Ref} from 'vue';
 import type {AsgardeoVueConfig} from './config';
 import type AsgardeoVueClient from '../AsgardeoVueClient';
 
@@ -52,62 +52,55 @@ export interface AsgardeoContext {
   applicationId: string | undefined;
   /** The base URL of the Asgardeo tenant. */
   baseUrl: string | undefined;
+  clearSession: (...args: any[]) => void;
   /** The OAuth2 client ID. */
   clientId: string | undefined;
+
+  exchangeToken: (config: TokenExchangeRequestConfig) => Promise<TokenResponse | Response>;
+  // ── Token ──
+  getAccessToken: () => Promise<string>;
+  getDecodedIdToken: () => Promise<IdToken>;
+  getIdToken: () => Promise<string>;
+  // ── HTTP ──
+  http: {
+    request: (requestConfig?: HttpRequestConfig) => Promise<HttpResponse<any>>;
+    requestAll: (requestConfigs?: HttpRequestConfig[]) => Promise<HttpResponse<any>[]>;
+  };
+
   /** The instance ID for multi-instance support. */
   instanceId: number;
-
   // ── Reactive Auth State ──
-
   /** Whether the SDK has finished initializing. */
   isInitialized: Readonly<Ref<boolean>>;
   /** Whether the SDK is performing a background operation. */
   isLoading: Readonly<Ref<boolean>>;
   /** Whether the user is currently signed in. */
   isSignedIn: Readonly<Ref<boolean>>;
-  /** The current user object, or `null` if not signed in. */
-  user: Readonly<Ref<any | null>>;
+
   /** The current organization, or `null`. */
   organization: Readonly<Ref<Organization | null>>;
+  organizationHandle: string | undefined;
+  platform: AsgardeoVueConfig['platform'] | undefined;
+  // ── Lifecycle ──
+  reInitialize: (config: Partial<AsgardeoVueConfig>) => Promise<boolean>;
 
   // ── Auth Actions ──
-
   signIn: (...args: any[]) => Promise<any>;
-  signOut: (...args: any[]) => Promise<any>;
-  signUp: (...args: any[]) => Promise<any>;
-  signInSilently: (options?: SignInOptions) => Promise<any>;
-
-  // ── Token ──
-
-  getAccessToken: () => Promise<string>;
-  getDecodedIdToken: () => Promise<IdToken>;
-  getIdToken: () => Promise<string>;
-  exchangeToken: (config: TokenExchangeRequestConfig) => Promise<TokenResponse | Response>;
-
-  // ── HTTP ──
-
-  http: {
-    request: (requestConfig?: HttpRequestConfig) => Promise<HttpResponse<any>>;
-    requestAll: (requestConfigs?: HttpRequestConfig[]) => Promise<HttpResponse<any>[]>;
-  };
-
-  // ── Organization ──
-
-  switchOrganization: AsgardeoVueClient['switchOrganization'];
-
-  // ── Lifecycle ──
-
-  reInitialize: (config: Partial<AsgardeoVueConfig>) => Promise<boolean>;
-  clearSession: (...args: any[]) => void;
 
   // ── Config ──
-
   signInOptions: SignInOptions | undefined;
+
+  signInSilently: (options?: SignInOptions) => Promise<any>;
   signInUrl: string | undefined;
+
+  signOut: (...args: any[]) => Promise<any>;
+  signUp: (...args: any[]) => Promise<any>;
   signUpUrl: string | undefined;
-  organizationHandle: string | undefined;
   storage: AsgardeoVueConfig['storage'] | undefined;
-  platform: AsgardeoVueConfig['platform'] | undefined;
+  // ── Organization ──
+  switchOrganization: AsgardeoVueClient['switchOrganization'];
+  /** The current user object, or `null` if not signed in. */
+  user: Readonly<Ref<any | null>>;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

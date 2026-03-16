@@ -104,7 +104,7 @@ const ThemeProvider = defineComponent({
     // Update color scheme when branding's active theme is available
     watch(
       () => brandingContext?.activeTheme.value,
-      (brandingActiveTheme) => {
+      brandingActiveTheme => {
         if (!props.inheritFromBranding || !brandingActiveTheme) return;
         if (props.mode === 'branding') {
           colorScheme.value = brandingActiveTheme;
@@ -150,9 +150,7 @@ const ThemeProvider = defineComponent({
       };
     });
 
-    const resolvedTheme = computed<Theme>(() =>
-      createTheme(finalThemeConfig.value, colorScheme.value === 'dark'),
-    );
+    const resolvedTheme = computed<Theme>(() => createTheme(finalThemeConfig.value, colorScheme.value === 'dark'));
 
     const direction = computed<'ltr' | 'rtl'>(
       () => ((finalThemeConfig.value as any)?.direction as 'ltr' | 'rtl') || 'ltr',
@@ -173,12 +171,12 @@ const ThemeProvider = defineComponent({
       });
     };
 
-    watch(resolvedTheme, (theme) => applyToDom(theme), {immediate: true});
+    watch(resolvedTheme, theme => applyToDom(theme), {immediate: true});
 
     // Apply direction to document
     watch(
       direction,
-      (dir) => {
+      dir => {
         if (typeof document !== 'undefined') {
           document.documentElement.dir = dir;
         }

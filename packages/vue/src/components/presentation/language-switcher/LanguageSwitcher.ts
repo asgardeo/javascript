@@ -19,9 +19,9 @@
 import {withVendorCSSClassPrefix} from '@asgardeo/browser';
 import type {PropType} from 'vue';
 import {defineComponent, h} from 'vue';
+import BaseLanguageSwitcher from './BaseLanguageSwitcher';
 import useI18n from '../../../composables/useI18n';
 import type {SelectOption} from '../../primitives/Select/Select';
-import BaseLanguageSwitcher from './BaseLanguageSwitcher';
 
 /**
  * LanguageSwitcher — styled language selection component.

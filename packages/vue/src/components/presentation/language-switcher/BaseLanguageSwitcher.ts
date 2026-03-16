@@ -62,8 +62,7 @@ const BaseLanguageSwitcher = defineComponent({
         });
       }
 
-      const currentLabel =
-        props.languages.find((l) => l.value === props.currentLanguage)?.label ?? props.currentLanguage;
+      const currentLabel = props.languages.find(l => l.value === props.currentLanguage)?.label ?? props.currentLanguage;
 
       const triggerButton = h(
         'button',
@@ -81,7 +80,7 @@ const BaseLanguageSwitcher = defineComponent({
         ],
       );
 
-      const dropdownItems = props.languages.map((lang) => {
+      const dropdownItems = props.languages.map(lang => {
         const isActive = lang.value === props.currentLanguage;
         return h(
           'button',
@@ -96,15 +95,9 @@ const BaseLanguageSwitcher = defineComponent({
         );
       });
 
-      const dropdown = isOpen.value
-        ? h('div', {class: cls('__dropdown'), role: 'listbox'}, dropdownItems)
-        : null;
+      const dropdown = isOpen.value ? h('div', {class: cls('__dropdown'), role: 'listbox'}, dropdownItems) : null;
 
-      return h(
-        Card,
-        {class: [cls(''), props.className].filter(Boolean).join(' ')},
-        () => [triggerButton, dropdown],
-      );
+      return h(Card, {class: [cls(''), props.className].filter(Boolean).join(' ')}, () => [triggerButton, dropdown]);
     };
   },
 });

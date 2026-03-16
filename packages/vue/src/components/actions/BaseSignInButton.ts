@@ -60,10 +60,9 @@ const BaseSignInButton = defineComponent({
           'button',
           {
             type: 'button' as const,
-            class: [
-              withVendorCSSClassPrefix('sign-in-button-wrapper'),
-              (attrs['class'] as string) || '',
-            ].filter(Boolean).join(' '),
+            class: [withVendorCSSClassPrefix('sign-in-button-wrapper'), (attrs['class'] as string) || '']
+              .filter(Boolean)
+              .join(' '),
             style: attrs['style'],
             disabled: props.disabled || props.isLoading,
             onClick: handleClick,
@@ -76,7 +75,9 @@ const BaseSignInButton = defineComponent({
       return h(
         Button,
         {
-          class: [withVendorCSSClassPrefix('sign-in-button'), (attrs['class'] as string) || ''].filter(Boolean).join(' '),
+          class: [withVendorCSSClassPrefix('sign-in-button'), (attrs['class'] as string) || '']
+            .filter(Boolean)
+            .join(' '),
           style: attrs['style'],
           disabled: props.disabled || props.isLoading,
           loading: props.isLoading,

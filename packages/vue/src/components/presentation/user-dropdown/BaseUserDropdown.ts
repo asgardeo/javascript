@@ -19,8 +19,8 @@
 import {type User, withVendorCSSClassPrefix} from '@asgardeo/browser';
 import {type PropType, type VNode, defineComponent, h, ref} from 'vue';
 import Button from '../../primitives/Button';
-import Typography from '../../primitives/Typography';
 import {ChevronDownIcon, LogOutIcon, UserIcon, XIcon} from '../../primitives/Icons';
+import Typography from '../../primitives/Typography';
 
 export interface BaseUserDropdownProps {
   className?: string;
@@ -84,9 +84,7 @@ const BaseUserDropdown = defineComponent({
             onClick: () => (isOpen.value = !isOpen.value),
           },
           [
-            h('span', {class: prefix('user-dropdown__avatar')}, [
-              h(UserIcon, {size: 20}),
-            ]),
+            h('span', {class: prefix('user-dropdown__avatar')}, [h(UserIcon, {size: 20})]),
             displayName
               ? h(Typography, {variant: 'body2', class: prefix('user-dropdown__name')}, () => displayName)
               : null,
@@ -101,11 +99,10 @@ const BaseUserDropdown = defineComponent({
 
         if (props.onProfileClick) {
           menuItems.push(
-            h(
-              'button',
-              {type: 'button', class: prefix('user-dropdown__item'), onClick: props.onProfileClick},
-              [h(UserIcon, {size: 16}), h('span', null, 'Profile')],
-            ),
+            h('button', {type: 'button', class: prefix('user-dropdown__item'), onClick: props.onProfileClick}, [
+              h(UserIcon, {size: 16}),
+              h('span', null, 'Profile'),
+            ]),
           );
         }
 
@@ -115,11 +112,10 @@ const BaseUserDropdown = defineComponent({
 
         if (props.onSignOut) {
           menuItems.push(
-            h(
-              'button',
-              {type: 'button', class: prefix('user-dropdown__item'), onClick: props.onSignOut},
-              [h(LogOutIcon, {size: 16}), h('span', null, 'Sign Out')],
-            ),
+            h('button', {type: 'button', class: prefix('user-dropdown__item'), onClick: props.onSignOut}, [
+              h(LogOutIcon, {size: 16}),
+              h('span', null, 'Sign Out'),
+            ]),
           );
         }
 
@@ -134,10 +130,9 @@ const BaseUserDropdown = defineComponent({
 
       // If profile modal is open, render modal overlay
       if (props.isProfileModalOpen) {
-        return h('div', [container, h(
-          'div',
-          {class: prefix('user-dropdown__modal-overlay')},
-          [
+        return h('div', [
+          container,
+          h('div', {class: prefix('user-dropdown__modal-overlay')}, [
             h('div', {class: prefix('user-dropdown__modal-content')}, [
               h(
                 'button',
@@ -151,8 +146,8 @@ const BaseUserDropdown = defineComponent({
               ),
               props.profileContent,
             ]),
-          ],
-        )]);
+          ]),
+        ]);
       }
 
       return container;

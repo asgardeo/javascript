@@ -63,34 +63,41 @@ const OtpField = defineComponent({
       const digits = (props.modelValue || '').split('');
       while (digits.length < props.length) digits.push('');
 
-      return h('div', {class: [withVendorCSSClassPrefix('otp-field'), (attrs['class'] as string) || ''].filter(Boolean).join(' '), style: attrs['style']}, [
-        props.label
-          ? h('label', {class: withVendorCSSClassPrefix('otp-field__label')}, [
-              props.label,
-              props.required ? h('span', {class: withVendorCSSClassPrefix('otp-field__required')}, ' *') : null,
-            ])
-          : null,
-        h(
-          'div',
-          {class: withVendorCSSClassPrefix('otp-field__inputs')},
-          Array.from({length: props.length}, (_, i) =>
-            h('input', {
-              ref: (el: any) => setRef(el, i),
-              key: i,
-              class: withVendorCSSClassPrefix('otp-field__digit'),
-              type: 'text',
-              inputmode: 'numeric',
-              maxlength: 1,
-              value: digits[i],
-              disabled: props.disabled,
-              'aria-label': `Digit ${i + 1}`,
-              onInput: (e: Event) => handleInput(i, e),
-              onKeydown: (e: KeyboardEvent) => handleKeydown(i, e),
-            }),
+      return h(
+        'div',
+        {
+          class: [withVendorCSSClassPrefix('otp-field'), (attrs['class'] as string) || ''].filter(Boolean).join(' '),
+          style: attrs['style'],
+        },
+        [
+          props.label
+            ? h('label', {class: withVendorCSSClassPrefix('otp-field__label')}, [
+                props.label,
+                props.required ? h('span', {class: withVendorCSSClassPrefix('otp-field__required')}, ' *') : null,
+              ])
+            : null,
+          h(
+            'div',
+            {class: withVendorCSSClassPrefix('otp-field__inputs')},
+            Array.from({length: props.length}, (_, i) =>
+              h('input', {
+                ref: (el: any) => setRef(el, i),
+                key: i,
+                class: withVendorCSSClassPrefix('otp-field__digit'),
+                type: 'text',
+                inputmode: 'numeric',
+                maxlength: 1,
+                value: digits[i],
+                disabled: props.disabled,
+                'aria-label': `Digit ${i + 1}`,
+                onInput: (e: Event) => handleInput(i, e),
+                onKeydown: (e: KeyboardEvent) => handleKeydown(i, e),
+              }),
+            ),
           ),
-        ),
-        props.error ? h('span', {class: withVendorCSSClassPrefix('otp-field__error')}, props.error) : null,
-      ]);
+          props.error ? h('span', {class: withVendorCSSClassPrefix('otp-field__error')}, props.error) : null,
+        ],
+      );
     };
   },
 });

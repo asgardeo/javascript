@@ -22,10 +22,10 @@ import Alert from '../../primitives/Alert';
 import Button from '../../primitives/Button';
 import Card from '../../primitives/Card';
 import Divider from '../../primitives/Divider';
+import {PencilIcon} from '../../primitives/Icons';
 import Spinner from '../../primitives/Spinner';
 import TextField from '../../primitives/TextField';
 import Typography from '../../primitives/Typography';
-import {PencilIcon} from '../../primitives/Icons';
 
 export interface BaseUserProfileProps {
   cardLayout?: boolean;
@@ -35,7 +35,10 @@ export interface BaseUserProfileProps {
   flattenedProfile?: User;
   hideFields?: string[];
   isLoading?: boolean;
-  onUpdate?: (requestConfig: UpdateMeProfileConfig, sessionId?: string) => Promise<{data: {user: User}; error: string; success: boolean}>;
+  onUpdate?: (
+    requestConfig: UpdateMeProfileConfig,
+    sessionId?: string,
+  ) => Promise<{data: {user: User}; error: string; success: boolean}>;
   profile?: User;
   schemas?: Schema[];
   showFields?: string[];
@@ -105,7 +108,15 @@ const BaseUserProfile = defineComponent({
     isLoading: {type: Boolean, default: false},
     error: {type: String as PropType<string | null>, default: null},
     title: {type: String, default: 'Profile'},
-    onUpdate: {type: Function as PropType<(requestConfig: UpdateMeProfileConfig, sessionId?: string) => Promise<{data: {user: User}; error: string; success: boolean}>>, default: undefined},
+    onUpdate: {
+      type: Function as PropType<
+        (
+          requestConfig: UpdateMeProfileConfig,
+          sessionId?: string,
+        ) => Promise<{data: {user: User}; error: string; success: boolean}>
+      >,
+      default: undefined,
+    },
     showFields: {type: Array as PropType<string[]>, default: () => []},
     hideFields: {type: Array as PropType<string[]>, default: () => []},
   },
@@ -127,7 +138,9 @@ const BaseUserProfile = defineComponent({
       const dataRecord = data as Record<string, unknown> | null;
       const initials = getUserInitials(dataRecord);
       const avatarSeed = String(
-        (dataRecord && (dataRecord['username'] || dataRecord['userName'] || dataRecord['email'] || dataRecord['sub'])) ?? initials,
+        (dataRecord &&
+          (dataRecord['username'] || dataRecord['userName'] || dataRecord['email'] || dataRecord['sub'])) ??
+          initials,
       );
       const avatarGradient = getAvatarGradient(avatarSeed);
 
@@ -166,23 +179,23 @@ const BaseUserProfile = defineComponent({
         const dataRecord = data as Record<string, unknown>;
 
         // Always show all defined profile fields; honour hideFields/showFields overrides
-        const descriptors = PROFILE_FIELD_DESCRIPTORS.filter((d) => {
-          const activeKey = d.keys.find((k) => k in dataRecord);
+        const descriptors = PROFILE_FIELD_DESCRIPTORS.filter(d => {
+          const activeKey = d.keys.find(k => k in dataRecord);
           const matchKey = activeKey ?? d.keys[0];
           if (props.hideFields.length > 0 && props.hideFields.includes(matchKey)) return false;
-          if (props.showFields.length > 0 && !props.showFields.some((f) => d.keys.includes(f))) return false;
+          if (props.showFields.length > 0 && !props.showFields.some(f => d.keys.includes(f))) return false;
           return true;
         });
 
         const fieldRows: VNode[] = [];
 
-        descriptors.forEach((descriptor) => {
-          const key = descriptor.keys.find((k) => k in dataRecord) ?? descriptor.keys[0];
+        descriptors.forEach(descriptor => {
+          const key = descriptor.keys.find(k => k in dataRecord) ?? descriptor.keys[0];
           const value = dataRecord[key];
           const isReadonly = descriptor.readonly;
           const isEditing = editingFields.value[key];
           const isEmpty = value == null || value === '';
-          const label = descriptor.label;
+          const {label} = descriptor;
 
           fieldRows.push(
             h('div', {class: prefix('user-profile__field'), key}, [
@@ -208,7 +221,9 @@ const BaseUserProfile = defineComponent({
                             size: 'small' as const,
                             onClick: async () => {
                               if (props.onUpdate) {
-                                await props.onUpdate({payload: {[key]: editedValues.value[key]}} as UpdateMeProfileConfig);
+                                await props.onUpdate({
+                                  payload: {[key]: editedValues.value[key]},
+                                } as UpdateMeProfileConfig);
                               }
                               editingFields.value = {...editingFields.value, [key]: false};
                             },
@@ -234,19 +249,18 @@ const BaseUserProfile = defineComponent({
                             'span',
                             {
                               class: prefix('user-profile__field-placeholder'),
-                              onClick: props.editable && !isReadonly
-                                ? () => {
-                                    editingFields.value = {...editingFields.value, [key]: true};
-                                    editedValues.value = {...editedValues.value, [key]: ''};
-                                  }
-                                : undefined,
+                              onClick:
+                                props.editable && !isReadonly
+                                  ? () => {
+                                      editingFields.value = {...editingFields.value, [key]: true};
+                                      editedValues.value = {...editedValues.value, [key]: ''};
+                                    }
+                                  : undefined,
                             },
                             `Enter your ${label.toLowerCase()}`,
                           )
-                        : h(
-                            Typography,
-                            {variant: 'body1', class: prefix('user-profile__field-value')},
-                            () => String(value),
+                        : h(Typography, {variant: 'body1', class: prefix('user-profile__field-value')}, () =>
+                            String(value),
                           ),
                       props.editable && !isReadonly
                         ? h(
@@ -277,11 +291,7 @@ const BaseUserProfile = defineComponent({
       }
 
       if (props.cardLayout) {
-        return h(
-          Card,
-          {class: [prefix('user-profile'), props.className].filter(Boolean).join(' ')},
-          () => children,
-        );
+        return h(Card, {class: [prefix('user-profile'), props.className].filter(Boolean).join(' ')}, () => children);
       }
 
       return h('div', {class: [prefix('user-profile'), props.className].filter(Boolean).join(' ')}, children);

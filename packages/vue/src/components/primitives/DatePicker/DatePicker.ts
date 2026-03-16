@@ -44,11 +44,10 @@ const DatePicker = defineComponent({
 
       return h('div', {class: wrapperClass, style: attrs['style']}, [
         props.label
-          ? h(
-              'label',
-              {class: withVendorCSSClassPrefix('date-picker__label'), for: props.name},
-              [props.label, props.required ? h('span', {class: withVendorCSSClassPrefix('date-picker__required')}, ' *') : null],
-            )
+          ? h('label', {class: withVendorCSSClassPrefix('date-picker__label'), for: props.name}, [
+              props.label,
+              props.required ? h('span', {class: withVendorCSSClassPrefix('date-picker__required')}, ' *') : null,
+            ])
           : null,
         h('input', {
           class: withVendorCSSClassPrefix('date-picker__input'),

@@ -62,9 +62,7 @@ const SignInButton = defineComponent({
     };
 
     return () => {
-      const slotContent = slots['default']
-        ? () => slots['default']!({isLoading: isLoading.value})
-        : undefined;
+      const slotContent = slots['default'] ? () => slots['default']!({isLoading: isLoading.value}) : undefined;
 
       return h(
         BaseSignInButton,

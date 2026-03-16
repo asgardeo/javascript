@@ -48,13 +48,21 @@ export const EyeOffIcon = (): VNode =>
   ]);
 
 export const CircleAlertIcon = (): VNode =>
-  icon([h('circle', {cx: '12', cy: '12', r: '10'}), h('line', {x1: '12', y1: '8', x2: '12', y2: '12'}), h('line', {x1: '12', y1: '16', x2: '12.01', y2: '16'})]);
+  icon([
+    h('circle', {cx: '12', cy: '12', r: '10'}),
+    h('line', {x1: '12', y1: '8', x2: '12', y2: '12'}),
+    h('line', {x1: '12', y1: '16', x2: '12.01', y2: '16'}),
+  ]);
 
 export const CircleCheckIcon = (): VNode =>
   icon([h('path', {d: 'M22 11.08V12a10 10 0 1 1-5.93-9.14'}), h('polyline', {points: '22 4 12 14.01 9 11.01'})]);
 
 export const InfoIcon = (): VNode =>
-  icon([h('circle', {cx: '12', cy: '12', r: '10'}), h('line', {x1: '12', y1: '16', x2: '12', y2: '12'}), h('line', {x1: '12', y1: '8', x2: '12.01', y2: '8'})]);
+  icon([
+    h('circle', {cx: '12', cy: '12', r: '10'}),
+    h('line', {x1: '12', y1: '16', x2: '12', y2: '12'}),
+    h('line', {x1: '12', y1: '8', x2: '12.01', y2: '8'}),
+  ]);
 
 export const TriangleAlertIcon = (): VNode =>
   icon([
@@ -63,16 +71,25 @@ export const TriangleAlertIcon = (): VNode =>
     h('line', {x1: '12', y1: '17', x2: '12.01', y2: '17'}),
   ]);
 
-export const PlusIcon = (): VNode => icon([h('line', {x1: '12', y1: '5', x2: '12', y2: '19'}), h('line', {x1: '5', y1: '12', x2: '19', y2: '12'})]);
+export const PlusIcon = (): VNode =>
+  icon([h('line', {x1: '12', y1: '5', x2: '12', y2: '19'}), h('line', {x1: '5', y1: '12', x2: '19', y2: '12'})]);
 
 export const LogOutIcon = (): VNode =>
-  icon([h('path', {d: 'M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4'}), h('polyline', {points: '16 17 21 12 16 7'}), h('line', {x1: '21', y1: '12', x2: '9', y2: '12'})]);
+  icon([
+    h('path', {d: 'M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4'}),
+    h('polyline', {points: '16 17 21 12 16 7'}),
+    h('line', {x1: '21', y1: '12', x2: '9', y2: '12'}),
+  ]);
 
 export const UserIcon = (): VNode =>
   icon([h('path', {d: 'M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2'}), h('circle', {cx: '12', cy: '7', r: '4'})]);
 
 export const ArrowLeftRightIcon = (): VNode =>
-  icon([h('polyline', {points: '7 16 3 12 7 8'}), h('line', {x1: '21', y1: '12', x2: '3', y2: '12'}), h('polyline', {points: '17 8 21 12 17 16'})]);
+  icon([
+    h('polyline', {points: '7 16 3 12 7 8'}),
+    h('line', {x1: '21', y1: '12', x2: '3', y2: '12'}),
+    h('polyline', {points: '17 8 21 12 17 16'}),
+  ]);
 
 export const BuildingIcon = (): VNode =>
   icon([
@@ -89,7 +106,11 @@ export const BuildingIcon = (): VNode =>
 export const ChevronDownIcon = (): VNode => icon([h('polyline', {points: '6 9 12 15 18 9'})]);
 
 export const GlobeIcon = (): VNode =>
-  icon([h('circle', {cx: '12', cy: '12', r: '10'}), h('line', {x1: '2', y1: '12', x2: '22', y2: '12'}), h('path', {d: 'M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z'})]);
+  icon([
+    h('circle', {cx: '12', cy: '12', r: '10'}),
+    h('line', {x1: '2', y1: '12', x2: '22', y2: '12'}),
+    h('path', {d: 'M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z'}),
+  ]);
 
 export const PencilIcon = (): VNode =>
   icon([h('path', {d: 'M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z'})]);

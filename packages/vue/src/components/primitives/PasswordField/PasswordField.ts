@@ -52,7 +52,10 @@ const PasswordField = defineComponent({
                 class: withVendorCSSClassPrefix('password-field__label'),
                 for: props.name,
               },
-              [props.label, props.required ? h('span', {class: withVendorCSSClassPrefix('password-field__required')}, ' *') : null],
+              [
+                props.label,
+                props.required ? h('span', {class: withVendorCSSClassPrefix('password-field__required')}, ' *') : null,
+              ],
             )
           : null,
         h('div', {class: withVendorCSSClassPrefix('password-field__wrapper')}, [

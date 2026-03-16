@@ -18,8 +18,8 @@
 
 import {withVendorCSSClassPrefix} from '@asgardeo/browser';
 import {defineComponent, h} from 'vue';
-import useOrganization from '../../../composables/useOrganization';
 import BaseOrganizationSwitcher from './BaseOrganizationSwitcher';
+import useOrganization from '../../../composables/useOrganization';
 
 /**
  * OrganizationSwitcher — styled organisation switcher component.

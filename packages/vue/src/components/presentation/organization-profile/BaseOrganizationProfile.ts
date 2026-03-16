@@ -22,9 +22,9 @@ import {type PropType, type VNode, defineComponent, h, ref} from 'vue';
 import Button from '../../primitives/Button';
 import Card from '../../primitives/Card';
 import Divider from '../../primitives/Divider';
+import {PencilIcon} from '../../primitives/Icons';
 import TextField from '../../primitives/TextField';
 import Typography from '../../primitives/Typography';
-import {PencilIcon} from '../../primitives/Icons';
 
 const ORG_AVATAR_GRADIENTS = [
   'linear-gradient(135deg, #22d3ee 0%, #2dd4bf 100%)',
@@ -216,11 +216,7 @@ const BaseOrganizationProfile = defineComponent({
                   ]),
                 ])
               : h('div', {class: prefix('organization-profile__field-display')}, [
-                  h(
-                    Typography,
-                    {variant: 'body1', class: prefix('organization-profile__field-value')},
-                    () => orgName,
-                  ),
+                  h(Typography, {variant: 'body1', class: prefix('organization-profile__field-value')}, () => orgName),
                   props.editable
                     ? h(
                         'button',
@@ -326,11 +322,7 @@ const BaseOrganizationProfile = defineComponent({
       fieldRows.push(
         h('div', {class: prefix('organization-profile__field'), key: 'created'}, [
           h('div', {class: prefix('organization-profile__field-label-col')}, [
-            h(
-              Typography,
-              {variant: 'body2', class: prefix('organization-profile__field-label')},
-              () => 'Created Date',
-            ),
+            h(Typography, {variant: 'body2', class: prefix('organization-profile__field-label')}, () => 'Created Date'),
           ]),
           h('div', {class: prefix('organization-profile__field-value-col')}, [
             h('div', {class: prefix('organization-profile__field-display')}, [
@@ -383,11 +375,7 @@ const BaseOrganizationProfile = defineComponent({
           h('div', {class: prefix('organization-profile__field-value-col')}, [
             h('div', {class: prefix('organization-profile__field-display')}, [
               orgHandle
-                ? h(
-                    Typography,
-                    {variant: 'body1', class: prefix('organization-profile__field-value')},
-                    () => orgHandle,
-                  )
+                ? h(Typography, {variant: 'body1', class: prefix('organization-profile__field-value')}, () => orgHandle)
                 : h('span', {class: prefix('organization-profile__field-placeholder')}, 'Not available'),
             ]),
           ]),

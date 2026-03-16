@@ -35,14 +35,14 @@ const SignUp = defineComponent({
         return slots['default']();
       }
 
-      return h(
-        Card,
-        {class: withVendorCSSClassPrefix('sign-up--coming-soon')},
-        () => [
-          h(Typography, {variant: 'h5'}, () => 'Sign Up'),
-          h('p', {style: 'color: #666; margin-top: 8px; font-size: 14px;'}, 'Coming Soon — This embedded sign-up component will be available when app-native authentication flow is implemented in the Vue SDK.'),
-        ],
-      );
+      return h(Card, {class: withVendorCSSClassPrefix('sign-up--coming-soon')}, () => [
+        h(Typography, {variant: 'h5'}, () => 'Sign Up'),
+        h(
+          'p',
+          {style: 'color: #666; margin-top: 8px; font-size: 14px;'},
+          'Coming Soon — This embedded sign-up component will be available when app-native authentication flow is implemented in the Vue SDK.',
+        ),
+      ]);
     };
   },
 });

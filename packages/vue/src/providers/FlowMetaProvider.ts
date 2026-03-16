@@ -112,7 +112,7 @@ const FlowMetaProvider = defineComponent({
     };
 
     // After injectBundles + pendingLanguage are committed, call setLanguage
-    watch(pendingLanguage, (lang) => {
+    watch(pendingLanguage, lang => {
       if (lang && i18nContext?.setLanguage) {
         i18nContext.setLanguage(lang);
         pendingLanguage.value = null;
@@ -122,11 +122,10 @@ const FlowMetaProvider = defineComponent({
     // When meta loads with i18n translations, inject them into the i18n system
     watch(
       () => meta.value?.i18n?.translations,
-      (translations) => {
+      translations => {
         if (!translations || !i18nContext?.injectBundles) return;
 
-        const metaLanguage: string =
-          (meta.value?.i18n as any)?.language || TranslationBundleConstants.FALLBACK_LOCALE;
+        const metaLanguage: string = (meta.value?.i18n as any)?.language || TranslationBundleConstants.FALLBACK_LOCALE;
 
         const flatTranslations: Record<string, string> = {};
         Object.entries(translations).forEach(([namespace, keys]) => {

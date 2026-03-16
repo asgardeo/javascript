@@ -18,8 +18,8 @@
 
 import {type Organization as IOrganization, withVendorCSSClassPrefix} from '@asgardeo/browser';
 import {defineComponent, h} from 'vue';
-import useOrganization from '../../../composables/useOrganization';
 import BaseOrganizationList from './BaseOrganizationList';
+import useOrganization from '../../../composables/useOrganization';
 
 /**
  * OrganizationList — styled organization list component.

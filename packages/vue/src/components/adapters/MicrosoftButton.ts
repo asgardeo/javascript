@@ -55,7 +55,9 @@ const MicrosoftButton = defineComponent({
           ...(slots['default'] ? {} : {startIcon: microsoftIcon()}),
           onClick: (e: MouseEvent) => emit('click', e),
         },
-        () => slots['default']?.({isLoading: props.isLoading}) ?? (t('elements.buttons.microsoft.text') || 'Sign in with Microsoft'),
+        () =>
+          slots['default']?.({isLoading: props.isLoading}) ??
+          (t('elements.buttons.microsoft.text') || 'Sign in with Microsoft'),
       );
   },
 });

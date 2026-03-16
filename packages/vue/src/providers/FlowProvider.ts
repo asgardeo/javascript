@@ -94,7 +94,7 @@ const FlowProvider = defineComponent({
     };
 
     const removeMessage = (messageId: string): void => {
-      messages.value = messages.value.filter((msg) => msg.id !== messageId);
+      messages.value = messages.value.filter(msg => msg.id !== messageId);
     };
 
     const clearMessages = (): void => {
