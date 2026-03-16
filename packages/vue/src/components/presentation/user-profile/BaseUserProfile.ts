@@ -78,7 +78,8 @@ const getAvatarGradient = (seed: string): string => {
   let hash: number = 0;
   for (let i: number = 0; i < seed.length; i += 1) {
     const char: number = seed.charCodeAt(i);
-    hash = ((hash * 31) + char) >>> 0;
+    // eslint-disable-next-line no-bitwise
+    hash = (hash * 31 + char) >>> 0;
   }
   return AVATAR_GRADIENTS[Math.abs(hash) % AVATAR_GRADIENTS.length];
 };
@@ -185,7 +186,12 @@ const BaseUserProfile: Component = defineComponent({
           const activeKey: string | undefined = d.keys.find((k: string) => k in fieldDataRecord);
           const matchKey: string = activeKey ?? d.keys[0];
           if (props.hideFields && props.hideFields.length > 0 && props.hideFields.includes(matchKey)) return false;
-          if (props.showFields && props.showFields.length > 0 && !props.showFields.some((f: string) => d.keys.includes(f))) return false;
+          if (
+            props.showFields &&
+            props.showFields.length > 0 &&
+            !props.showFields.some((f: string) => d.keys.includes(f))
+          )
+            return false;
           return true;
         });
 

@@ -46,7 +46,7 @@ const LanguageSwitcher: ReturnType<typeof defineComponent> = defineComponent({
       type: Array as PropType<SelectOption[]>,
     },
   },
-  setup(props: LanguageSwitcherSetupProps, {slots}) {
+  setup(props: LanguageSwitcherSetupProps, {slots}: {slots: any}): () => VNode {
     const {currentLanguage, setLanguage} = useI18n();
 
     return (): VNode =>

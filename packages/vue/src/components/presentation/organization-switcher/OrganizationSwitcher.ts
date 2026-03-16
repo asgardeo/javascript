@@ -17,7 +17,7 @@
  */
 
 import {withVendorCSSClassPrefix} from '@asgardeo/browser';
-import {type SetupContext, type VNode, defineComponent, h} from 'vue';
+import {type VNode, defineComponent, h} from 'vue';
 import BaseOrganizationSwitcher from './BaseOrganizationSwitcher';
 import useOrganization from '../../../composables/useOrganization';
 
@@ -31,7 +31,7 @@ const OrganizationSwitcher: ReturnType<typeof defineComponent> = defineComponent
   props: {
     className: {default: '', type: String},
   },
-  setup(props: {className: string}, {slots}: SetupContext): () => VNode | VNode[] | null {
+  setup(props: {className: string}, {slots}: {slots: any}): () => VNode | VNode[] | null {
     const {currentOrganization, myOrganizations, isLoading, switchOrganization} = useOrganization();
 
     return (): VNode | VNode[] | null =>
@@ -42,8 +42,8 @@ const OrganizationSwitcher: ReturnType<typeof defineComponent> = defineComponent
           className: props.className,
           currentOrganization: currentOrganization?.value ?? null,
           isLoading: isLoading?.value ?? false,
-          organizations: myOrganizations?.value ?? [],
           onSwitch: switchOrganization,
+          organizations: myOrganizations?.value ?? [],
         },
         slots,
       );

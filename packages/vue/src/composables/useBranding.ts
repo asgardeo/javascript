@@ -44,7 +44,7 @@ import type {BrandingContextValue} from '../models/contexts';
  * ```
  */
 const useBranding = (): BrandingContextValue => {
-  const context = inject(BRANDING_KEY);
+  const context: unknown = inject(BRANDING_KEY);
 
   if (!context) {
     throw new Error(
@@ -53,7 +53,7 @@ const useBranding = (): BrandingContextValue => {
     );
   }
 
-  return context;
+  return context as BrandingContextValue;
 };
 
 export default useBranding;

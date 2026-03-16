@@ -17,7 +17,7 @@
  */
 
 import {Schema, UpdateMeProfileConfig, User, UserProfile} from '@asgardeo/browser';
-import {computed, defineComponent, h, provide, readonly, ref, type PropType, type Ref} from 'vue';
+import {computed, defineComponent, h, provide, type PropType, type Ref} from 'vue';
 import {USER_KEY} from '../keys';
 import type {UserContextValue} from '../models/contexts';
 
@@ -29,35 +29,35 @@ import type {UserContextValue} from '../models/contexts';
  *
  * @internal — This provider is mounted automatically by `<AsgardeoProvider>`.
  */
-const UserProvider = defineComponent({
+const UserProvider: ReturnType<typeof defineComponent> = defineComponent({
   name: 'UserProvider',
   props: {
+    /** The flattened profile (top-level attribute map). */
+    flattenedProfile: {default: null, type: Object as PropType<User | null>},
     /** Optional callback run after the profile is updated locally. */
-    onUpdateProfile: {type: Function as PropType<(payload: User) => void>, default: undefined},
+    onUpdateProfile: {default: undefined, type: Function as PropType<(payload: User) => void>},
     /** The full user profile data (nested + flat + schemas). */
-    profile: {type: Object as PropType<UserProfile | null>, default: null},
+    profile: {default: null, type: Object as PropType<UserProfile | null>},
     /** Re-fetch the user profile from the server. */
-    revalidateProfile: {type: Function as PropType<() => Promise<void>>, default: async () => {}},
+    revalidateProfile: {default: async () => {}, type: Function as PropType<() => Promise<void>>},
+    /** The SCIM2 schemas describing user profile attributes. */
+    schemas: {default: null, type: Array as PropType<Schema[] | null>},
     /** Update the user profile via SCIM2 PATCH. */
     updateProfile: {
+      default: undefined,
       type: Function as PropType<
         (
           requestConfig: UpdateMeProfileConfig,
           sessionId?: string,
         ) => Promise<{data: {user: User}; error: string; success: boolean}>
       >,
-      default: undefined,
     },
-    /** The flattened profile (top-level attribute map). */
-    flattenedProfile: {type: Object as PropType<User | null>, default: null},
-    /** The SCIM2 schemas describing user profile attributes. */
-    schemas: {type: Array as PropType<Schema[] | null>, default: null},
   },
-  setup(props, {slots}) {
+  setup(props: any, {slots}: {slots: any}): any {
     // Use computed refs so context stays in sync when props change
-    const flattenedProfileRef = computed(() => props.flattenedProfile);
-    const profileRef = computed(() => props.profile);
-    const schemasRef = computed(() => props.schemas);
+    const flattenedProfileRef: Ref<User | null> = computed(() => props.flattenedProfile);
+    const profileRef: Ref<UserProfile | null> = computed(() => props.profile);
+    const schemasRef: Ref<Schema[] | null> = computed(() => props.schemas);
 
     const context: UserContextValue = {
       flattenedProfile: flattenedProfileRef as unknown as Readonly<Ref<User | null>>,
@@ -66,17 +66,16 @@ const UserProvider = defineComponent({
       schemas: schemasRef as unknown as Readonly<Ref<Schema[] | null>>,
       updateProfile:
         props.updateProfile ??
-        (() =>
-          Promise.resolve({
-            data: {user: {} as User},
-            error: 'updateProfile callback not provided',
-            success: false,
-          })),
+        (async (): Promise<{data: {user: User}; error: string; success: boolean}> => ({
+          data: {user: {} as User},
+          error: 'updateProfile callback not provided',
+          success: false,
+        })),
     };
 
     provide(USER_KEY, context);
 
-    return () => h('div', {style: 'display:contents'}, slots['default']?.());
+    return (): any => h('div', {style: 'display:contents'}, slots['default']?.());
   },
 });
 

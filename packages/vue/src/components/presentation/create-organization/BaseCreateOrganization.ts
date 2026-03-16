@@ -46,7 +46,7 @@ const BaseCreateOrganization: ReturnType<typeof defineComponent> = defineCompone
     onCreate: {default: undefined, type: Function as PropType<(name: string) => Promise<void> | void>},
     title: {default: 'Create Organization', type: String},
   },
-  setup(props: BaseCreateOrganizationSetupProps, {slots}) {
+  setup(props: BaseCreateOrganizationSetupProps, {slots}: {slots: any}): () => VNode | VNode[] {
     const orgName: Ref<string> = ref('');
     const isSubmitting: Ref<boolean> = ref(false);
     const error: Ref<string | null> = ref<string | null>(null);

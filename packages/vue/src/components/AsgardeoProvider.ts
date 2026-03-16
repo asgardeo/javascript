@@ -17,10 +17,12 @@
  */
 
 import {
+  AllOrganizationsApiResponse,
   AsgardeoRuntimeError,
   extractUserClaimsFromIdToken,
   hasAuthParamsInUrl,
   hasCalledForThisInstanceInUrl,
+  HttpResponse,
   IdToken,
   Organization,
   Platform,
@@ -31,7 +33,18 @@ import {
   TokenResponse,
   EmbeddedSignInFlowResponseV2,
 } from '@asgardeo/browser';
-import {defineComponent, h, onMounted, onUnmounted, provide, ref, shallowRef, type PropType} from 'vue';
+import {
+  defineComponent,
+  h,
+  onMounted,
+  onUnmounted,
+  provide,
+  type Ref,
+  ref,
+  type ShallowRef,
+  shallowRef,
+  type PropType,
+} from 'vue';
 import AsgardeoVueClient from '../AsgardeoVueClient';
 import {ASGARDEO_KEY} from '../keys';
 import type {AsgardeoVueConfig} from '../models/config';
@@ -69,57 +82,102 @@ function hasAuthParams(url: URL, afterSignInUrl: string): boolean {
  * </template>
  * ```
  */
-const AsgardeoProvider = defineComponent({
+const AsgardeoProvider: ReturnType<typeof defineComponent> = defineComponent({
   name: 'AsgardeoProvider',
   props: {
-    /** The base URL of the Asgardeo tenant. */
-    baseUrl: {type: String, required: true},
-    /** The OAuth2 client ID. */
-    clientId: {type: String, required: true},
     /** The URL to redirect to after sign in. Defaults to `window.location.origin`. */
-    afterSignInUrl: {type: String, default: () => window.location.origin},
+    afterSignInUrl: {
+      default: () => window.location.origin,
+      type: String,
+    },
     /** The URL to redirect to after sign out. Defaults to `window.location.origin`. */
-    afterSignOutUrl: {type: String, default: () => window.location.origin},
-    /** The scopes to request. */
-    scopes: {type: Array as PropType<string[]>, default: undefined},
-    /** The sign-in URL. */
-    signInUrl: {type: String, default: undefined},
-    /** The sign-up URL. */
-    signUpUrl: {type: String, default: undefined},
-    /** The organization handle. */
-    organizationHandle: {type: String, default: undefined},
+    afterSignOutUrl: {
+      default: () => window.location.origin,
+      type: String,
+    },
     /** The Asgardeo application ID. */
-    applicationId: {type: String, default: undefined},
-    /** Additional sign-in options. */
-    signInOptions: {type: Object as PropType<SignInOptions>, default: undefined},
-    /** Whether to sync sessions across tabs. */
-    syncSession: {type: Boolean, default: undefined},
+    applicationId: {
+      default: undefined,
+      type: String,
+    },
+    /** The base URL of the Asgardeo tenant. */
+    baseUrl: {
+      required: true,
+      type: String,
+    },
+    /** The OAuth2 client ID. */
+    clientId: {
+      required: true,
+      type: String,
+    },
     /** Instance ID for multi-instance support. */
-    instanceId: {type: Number, default: 0},
+    instanceId: {
+      default: 0,
+      type: Number,
+    },
     /** Organization chain config. */
-    organizationChain: {type: Object, default: undefined},
-    /** Storage type. */
-    storage: {type: String, default: undefined},
+    organizationChain: {
+      default: undefined,
+      type: Object,
+    },
+    /** The organization handle. */
+    organizationHandle: {
+      default: undefined,
+      type: String,
+    },
     /** Platform type. */
-    platform: {type: String, default: undefined},
+    platform: {
+      default: undefined,
+      type: String,
+    },
+    /** The scopes to request. */
+    scopes: {
+      default: undefined,
+      type: Array as PropType<string[]>,
+    },
+    /** Additional sign-in options. */
+    signInOptions: {
+      default: undefined,
+      type: Object as PropType<SignInOptions>,
+    },
+    /** The sign-in URL. */
+    signInUrl: {
+      default: undefined,
+      type: String,
+    },
+    /** The sign-up URL. */
+    signUpUrl: {
+      default: undefined,
+      type: String,
+    },
+    /** Storage type. */
+    storage: {
+      default: undefined,
+      type: String,
+    },
+    /** Whether to sync sessions across tabs. */
+    syncSession: {
+      default: undefined,
+      type: Boolean,
+    },
   },
-  setup(props, {slots}) {
+  setup(props: any, {slots}: any): any {
     // ── Client ──
-    const asgardeo = new AsgardeoVueClient(props.instanceId);
+    const asgardeo: AsgardeoVueClient = new AsgardeoVueClient(props.instanceId);
 
     // ── Reactive State ──
-    const isSignedIn = ref(false);
-    const isInitialized = ref(false);
-    const isLoading = ref(true);
-    const user = shallowRef<any | null>(null);
-    const currentOrganization = shallowRef<Organization | null>(null);
-    const myOrganizations = shallowRef<Organization[]>([]);
-    const userProfile = shallowRef<UserProfile | null>(null);
-    const flattenedProfile = shallowRef<User | null>(null);
-    const schemas = shallowRef<Schema[]>([]);
-    const resolvedBaseUrl = ref(props.baseUrl);
+    const isSignedIn: Ref<boolean> = ref<boolean>(false);
+    const isInitialized: Ref<boolean> = ref<boolean>(false);
+    const isLoading: Ref<boolean> = ref<boolean>(true);
+    const user: ShallowRef<any | null> = shallowRef<any | null>(null);
+    const currentOrganization: ShallowRef<Organization | null> = shallowRef<Organization | null>(null);
+    const myOrganizations: ShallowRef<Organization[]> = shallowRef<Organization[]>([]);
+    const userProfile: ShallowRef<UserProfile | null> = shallowRef<UserProfile | null>(null);
+    const flattenedProfile: ShallowRef<User | null> = shallowRef<User | null>(null);
+    const schemas: ShallowRef<Schema[]> = shallowRef<Schema[]>([]);
+    const resolvedBaseUrl: Ref<string> = ref<string>(props.baseUrl);
 
-    let isUpdatingSession = false;
+    let isUpdatingSession: boolean = false;
     let signInCheckInterval: ReturnType<typeof setInterval> | undefined;
     let loadingCheckInterval: ReturnType<typeof setInterval> | undefined;
 
@@ -133,13 +191,13 @@ const AsgardeoProvider = defineComponent({
         clientId: props.clientId,
         organizationChain: props.organizationChain,
         organizationHandle: props.organizationHandle,
+        platform: props.platform,
         scopes: props.scopes,
         signInOptions: props.signInOptions,
         signInUrl: props.signInUrl,
         signUpUrl: props.signUpUrl,
         storage: props.storage,
         syncSession: props.syncSession,
-        platform: props.platform,
       } as AsgardeoVueConfig;
     }
 
@@ -148,7 +206,7 @@ const AsgardeoProvider = defineComponent({
       try {
         isUpdatingSession = true;
         isLoading.value = true;
-        let baseUrl = resolvedBaseUrl.value;
+        let baseUrl: string = resolvedBaseUrl.value;
 
         const decodedToken: IdToken = await asgardeo.getDecodedIdToken();
 
@@ -157,10 +215,10 @@ const AsgardeoProvider = defineComponent({
           resolvedBaseUrl.value = baseUrl;
         }
 
-        const config = buildConfig();
+        const config: AsgardeoVueConfig = buildConfig();
 
         if (config.platform === Platform.AsgardeoV2) {
-          const claims = extractUserClaimsFromIdToken(decodedToken);
+          const claims: User = extractUserClaimsFromIdToken(decodedToken);
           user.value = claims;
         } else {
           try {
@@ -196,7 +254,7 @@ const AsgardeoProvider = defineComponent({
           }
         }
 
-        const currentSignInStatus = await asgardeo.isSignedIn();
+        const currentSignInStatus: boolean = await asgardeo.isSignedIn();
         isSignedIn.value = currentSignInStatus;
       } catch {
         // silent
@@ -208,9 +266,9 @@ const AsgardeoProvider = defineComponent({
 
     // ── Sign In (wrapper) ──
     async function signIn(...args: any[]): Promise<User | EmbeddedSignInFlowResponseV2> {
-      const arg1 = args[0];
-      const config = buildConfig();
-      const isV2FlowRequest =
+      const arg1: any = args[0];
+      const config: AsgardeoVueConfig = buildConfig();
+      const isV2FlowRequest: boolean =
         config.platform === Platform.AsgardeoV2 &&
         typeof arg1 === 'object' &&
         arg1 !== null &&
@@ -222,7 +280,7 @@ const AsgardeoProvider = defineComponent({
           isLoading.value = true;
         }
 
-        const response = await asgardeo.signIn(...args);
+        const response: User | EmbeddedSignInFlowResponseV2 = await asgardeo.signIn(...args);
 
         if (isV2FlowRequest || (response && typeof response === 'object' && 'flowStatus' in response)) {
           return response;
@@ -263,7 +321,7 @@ const AsgardeoProvider = defineComponent({
       try {
         isUpdatingSession = true;
         isLoading.value = true;
-        const response = await asgardeo.signInSilently(options);
+        const response: User | boolean = await asgardeo.signInSilently(options);
 
         if (await asgardeo.isSignedIn()) {
           await updateSession();
@@ -288,7 +346,7 @@ const AsgardeoProvider = defineComponent({
       try {
         isUpdatingSession = true;
         isLoading.value = true;
-        const response = await asgardeo.switchOrganization(organization);
+        const response: TokenResponse | Response = await asgardeo.switchOrganization(organization);
 
         if (await asgardeo.isSignedIn()) {
           await updateSession();
@@ -313,15 +371,17 @@ const AsgardeoProvider = defineComponent({
       afterSignInUrl: props.afterSignInUrl,
       applicationId: props.applicationId,
       baseUrl: props.baseUrl,
+      clearSession: async (...args: any[]): Promise<void> => {
+        await asgardeo.clearSession(...args);
+      },
       clientId: props.clientId,
-      clearSession: (...args: any[]) => asgardeo.clearSession(...args),
-      exchangeToken: config => asgardeo.exchangeToken(config),
-      getAccessToken: () => asgardeo.getAccessToken(),
-      getDecodedIdToken: () => asgardeo.getDecodedIdToken(),
-      getIdToken: () => asgardeo.getIdToken(),
+      exchangeToken: (config: any): Promise<TokenResponse | Response> => asgardeo.exchangeToken(config),
+      getAccessToken: (): Promise<string> => asgardeo.getAccessToken(),
+      getDecodedIdToken: (): Promise<IdToken> => asgardeo.getDecodedIdToken(),
+      getIdToken: (): Promise<string> => asgardeo.getIdToken(),
       http: {
-        request: requestConfig => asgardeo.request(requestConfig),
-        requestAll: requestConfigs => asgardeo.requestAll(requestConfigs),
+        request: (requestConfig?: any): Promise<HttpResponse<any>> => asgardeo.request(requestConfig),
+        requestAll: (requestConfigs?: any[]): Promise<HttpResponse<any>[]> => asgardeo.requestAll(requestConfigs),
       },
       instanceId: props.instanceId,
       isInitialized,
@@ -330,7 +390,10 @@ const AsgardeoProvider = defineComponent({
       organization: currentOrganization,
       organizationHandle: props.organizationHandle,
       platform: props.platform as AsgardeoVueConfig['platform'],
-      reInitialize: config => asgardeo.reInitialize(config),
+      reInitialize: async (config: any): Promise<boolean> => {
+        const result: boolean = await asgardeo.reInitialize(config);
+        return typeof result === 'boolean' ? result : true;
+      },
       signIn,
       signInOptions: props.signInOptions,
       signInSilently,
@@ -346,12 +409,12 @@ const AsgardeoProvider = defineComponent({
     provide(ASGARDEO_KEY, context);
 
     // ── Lifecycle ──
-    onMounted(async () => {
+    onMounted(async (): Promise<void> => {
       // 1. Initialize the client
-      const config = buildConfig();
+      const config: AsgardeoVueConfig = buildConfig();
       await asgardeo.initialize(config);
 
-      const initializedConfig = asgardeo.getConfiguration();
+      const initializedConfig: any = asgardeo.getConfiguration();
 
       if (initializedConfig?.platform) {
         sessionStorage.setItem('asgardeo_platform', initializedConfig.platform);
@@ -362,32 +425,32 @@ const AsgardeoProvider = defineComponent({
 
       // 2. Check initialization status
       try {
-        const status = await asgardeo.isInitialized();
+        const status: boolean = await asgardeo.isInitialized();
         isInitialized.value = status;
       } catch {
         isInitialized.value = false;
       }
 
       // 3. Try to sign in if already authenticated or if URL has auth params
-      const alreadySignedIn = await asgardeo.isSignedIn();
+      const alreadySignedIn: boolean = await asgardeo.isSignedIn();
 
       if (alreadySignedIn) {
         await updateSession();
       } else {
-        const currentUrl = new URL(window.location.href);
-        const hasParams =
+        const currentUrl: URL = new URL(window.location.href);
+        const hasParams: boolean =
           hasAuthParams(currentUrl, props.afterSignInUrl) &&
           hasCalledForThisInstanceInUrl(props.instanceId ?? 0, currentUrl.search);
 
         if (hasParams) {
           try {
-            const isV2Platform = config.platform === Platform.AsgardeoV2;
+            const isV2Platform: boolean = config.platform === Platform.AsgardeoV2;
 
             if (isV2Platform) {
-              const urlParams = currentUrl.searchParams;
-              const code = urlParams.get('code');
-              const flowIdFromUrl = urlParams.get('flowId');
-              const storedFlowId = sessionStorage.getItem('asgardeo_flow_id');
+              const urlParams: URLSearchParams = currentUrl.searchParams;
+              const code: string | null = urlParams.get('code');
+              const flowIdFromUrl: string | null = urlParams.get('flowId');
+              const storedFlowId: string | null = sessionStorage.getItem('asgardeo_flow_id');
 
               if (code && !flowIdFromUrl && !storedFlowId) {
                 await signIn();
@@ -408,12 +471,12 @@ const AsgardeoProvider = defineComponent({
 
       // 4. Set up polling for sign-in status
       try {
-        const status = await asgardeo.isSignedIn();
+        const status: boolean = await asgardeo.isSignedIn();
         isSignedIn.value = status;
 
         if (!status) {
-          signInCheckInterval = setInterval(async () => {
-            const newStatus = await asgardeo.isSignedIn();
+          signInCheckInterval = setInterval(async (): Promise<void> => {
+            const newStatus: boolean = await asgardeo.isSignedIn();
             if (newStatus) {
               isSignedIn.value = true;
               if (signInCheckInterval) {
@@ -428,17 +491,17 @@ const AsgardeoProvider = defineComponent({
       }
 
       // 5. Set up polling for loading state
-      loadingCheckInterval = setInterval(() => {
+      loadingCheckInterval = setInterval((): void => {
         if (isUpdatingSession) return;
 
-        const currentUrl = new URL(window.location.href);
+        const currentUrl: URL = new URL(window.location.href);
         if (!isSignedIn.value && hasAuthParams(currentUrl, props.afterSignInUrl)) return;
 
         isLoading.value = asgardeo.isLoading();
       }, 100);
     });
 
-    onUnmounted(() => {
+    onUnmounted((): void => {
       if (signInCheckInterval) {
         clearInterval(signInCheckInterval);
       }
@@ -448,17 +511,16 @@ const AsgardeoProvider = defineComponent({
     });
 
     // ── Render ──
-    return () =>
+    return (): any =>
       h(I18nProvider, null, {
-        default: () =>
+        default: (): any =>
           h(
             UserProvider,
             {
-              profile: userProfile.value,
               flattenedProfile: flattenedProfile.value,
-              schemas: schemas.value,
-              revalidateProfile: async () => {
-                const baseUrl = resolvedBaseUrl.value;
+              profile: userProfile.value,
+              revalidateProfile: async (): Promise<void> => {
+                const baseUrl: string = resolvedBaseUrl.value;
                 try {
                   const profileData: UserProfile = await asgardeo.getUserProfile({baseUrl});
                   userProfile.value = profileData;
@@ -468,18 +530,20 @@ const AsgardeoProvider = defineComponent({
                   // silent
                 }
               },
+              schemas: schemas.value,
             },
             {
-              default: () =>
+              default: (): any =>
                 h(
                   OrganizationProvider,
                   {
                     currentOrganization: currentOrganization.value,
+                    getAllOrganizations: async (): Promise<AllOrganizationsApiResponse> =>
+                      asgardeo.getAllOrganizations({baseUrl: resolvedBaseUrl.value}),
                     myOrganizations: myOrganizations.value,
                     onOrganizationSwitch: switchOrganization,
-                    getAllOrganizations: () => asgardeo.getAllOrganizations({baseUrl: resolvedBaseUrl.value}),
-                    revalidateMyOrganizations: async () => {
-                      const baseUrl = resolvedBaseUrl.value;
+                    revalidateMyOrganizations: async (): Promise<Organization[]> => {
+                      const baseUrl: string = resolvedBaseUrl.value;
                       try {
                         const orgs: Organization[] = await asgardeo.getMyOrganizations({baseUrl});
                         myOrganizations.value = orgs || [];
@@ -490,15 +554,15 @@ const AsgardeoProvider = defineComponent({
                     },
                   },
                   {
-                    default: () =>
+                    default: (): any =>
                       h(ThemeProvider, null, {
-                        default: () =>
+                        default: (): any =>
                           h(BrandingProvider, null, {
-                            default: () =>
+                            default: (): any =>
                               h(FlowMetaProvider, null, {
-                                default: () =>
+                                default: (): any =>
                                   h(FlowProvider, null, {
-                                    default: () => slots['default']?.(),
+                                    default: (): any => slots['default']?.(),
                                   }),
                               }),
                           }),

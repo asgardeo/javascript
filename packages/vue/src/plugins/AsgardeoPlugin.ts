@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import type {Plugin} from 'vue';
+import type {App, Plugin} from 'vue';
 import AsgardeoProvider from '../components/AsgardeoProvider';
 import {injectStyles} from '../styles/injectStyles';
 
@@ -47,7 +47,7 @@ import {injectStyles} from '../styles/injectStyles';
  * ```
  */
 const AsgardeoPlugin: Plugin = {
-  install(app) {
+  install(app: App): void {
     injectStyles();
     app.component('AsgardeoProvider', AsgardeoProvider);
   },

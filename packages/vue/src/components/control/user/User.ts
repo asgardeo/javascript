@@ -39,7 +39,7 @@ import useAsgardeo from '../../../composables/useAsgardeo';
  */
 const User: ReturnType<typeof defineComponent> = defineComponent({
   name: 'User',
-  setup(_props: Record<string, unknown>, {slots}) {
+  setup(_props: Record<string, unknown>, {slots}: {slots: any}): () => VNode | VNode[] | null {
     const {user} = useAsgardeo();
 
     return (): VNode | VNode[] | null => {

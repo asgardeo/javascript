@@ -31,16 +31,16 @@ import type {FlowMetaContextValue} from '../models/contexts';
  *
  * @internal — This provider is mounted automatically by `<AsgardeoProvider>`.
  */
-const FlowMetaProvider = defineComponent({
+const FlowMetaProvider: ReturnType<typeof defineComponent> = defineComponent({
   name: 'FlowMetaProvider',
   props: {
     /**
      * When false the provider skips fetching and provides null meta.
      * @default true
      */
-    enabled: {type: Boolean, default: true},
+    enabled: {default: true, type: Boolean},
   },
-  setup(props, {slots}) {
+  setup(props: any, {slots}: {slots: any}): any {
     const asgardeoContext = inject(ASGARDEO_KEY);
     const i18nContext = inject(I18N_KEY, null);
 
@@ -49,8 +49,8 @@ const FlowMetaProvider = defineComponent({
     const error: Ref<Error | null> = ref(null);
     const pendingLanguage: Ref<string | null> = ref(null);
 
-    const baseUrl = asgardeoContext?.baseUrl;
-    const applicationId = asgardeoContext?.applicationId;
+    const baseUrl: string | undefined = asgardeoContext?.baseUrl;
+    const applicationId: string | undefined = asgardeoContext?.applicationId;
 
     const fetchFlowMeta = async (): Promise<void> => {
       if (!props.enabled) {
@@ -92,8 +92,8 @@ const FlowMetaProvider = defineComponent({
         // Inject translations before switching language so the i18n state is updated
         if (result.i18n?.translations && i18nContext?.injectBundles) {
           const flatTranslations: Record<string, string> = {};
-          Object.entries(result.i18n.translations).forEach(([namespace, keys]) => {
-            Object.entries(keys as Record<string, string>).forEach(([key, value]) => {
+          Object.entries(result.i18n.translations).forEach(([namespace, keys]: [string, Record<string, string>]) => {
+            Object.entries(keys).forEach(([key, value]: [string, string]) => {
               flatTranslations[`${namespace}.${key}`] = value;
             });
           });
@@ -112,7 +112,7 @@ const FlowMetaProvider = defineComponent({
     };
 
     // After injectBundles + pendingLanguage are committed, call setLanguage
-    watch(pendingLanguage, lang => {
+    watch(pendingLanguage, (lang: string | null) => {
       if (lang && i18nContext?.setLanguage) {
         i18nContext.setLanguage(lang);
         pendingLanguage.value = null;
@@ -122,14 +122,14 @@ const FlowMetaProvider = defineComponent({
     // When meta loads with i18n translations, inject them into the i18n system
     watch(
       () => meta.value?.i18n?.translations,
-      translations => {
+      (translations: Record<string, Record<string, string>> | undefined) => {
         if (!translations || !i18nContext?.injectBundles) return;
 
         const metaLanguage: string = (meta.value?.i18n as any)?.language || TranslationBundleConstants.FALLBACK_LOCALE;
 
         const flatTranslations: Record<string, string> = {};
-        Object.entries(translations).forEach(([namespace, keys]) => {
-          Object.entries(keys as Record<string, string>).forEach(([key, value]) => {
+        Object.entries(translations).forEach(([namespace, keys]: [string, Record<string, string>]) => {
+          Object.entries(keys).forEach(([key, value]: [string, string]) => {
             flatTranslations[`${namespace}.${key}`] = value;
           });
         });
@@ -137,8 +137,8 @@ const FlowMetaProvider = defineComponent({
         const bundle: I18nBundle = {translations: flatTranslations} as unknown as I18nBundle;
         const bundlesToInject: Record<string, I18nBundle> = {[metaLanguage]: bundle};
 
-        const currentLang = i18nContext.currentLanguage.value;
-        const fallbackLang = i18nContext.fallbackLanguage;
+        const currentLang: string = i18nContext.currentLanguage.value;
+        const fallbackLang: string = i18nContext.fallbackLanguage;
 
         if (currentLang && currentLang !== metaLanguage) {
           bundlesToInject[currentLang] = bundle;

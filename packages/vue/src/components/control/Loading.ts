@@ -34,7 +34,7 @@ import useAsgardeo from '../../composables/useAsgardeo';
  */
 const Loading: ReturnType<typeof defineComponent> = defineComponent({
   name: 'Loading',
-  setup(_props: Record<string, unknown>, {slots}) {
+  setup(_props: Record<string, unknown>, {slots}: {slots: any}): () => VNode | VNode[] | null {
     const {isLoading} = useAsgardeo();
 
     return (): VNode | VNode[] | null => {

@@ -20,7 +20,6 @@ import {AsgardeoRuntimeError, navigate} from '@asgardeo/browser';
 import {defineComponent, h, ref, type Ref, type SetupContext, type VNode} from 'vue';
 import BaseSignUpButton from './BaseSignUpButton';
 import useAsgardeo from '../../composables/useAsgardeo';
-import useI18n from '../../composables/useI18n';
 
 /**
  * SignUpButton — triggers `signUp()` from the Asgardeo context.
@@ -33,7 +32,6 @@ const SignUpButton: ReturnType<typeof defineComponent> = defineComponent({
   name: 'SignUpButton',
   setup(_: {}, {slots, emit, attrs}: SetupContext): () => VNode {
     const {signUp, signUpUrl} = useAsgardeo();
-    const {t: _t} = useI18n();
     const isLoading: Ref<boolean> = ref(false);
 
     const handleSignUp = async (e?: MouseEvent): Promise<void> => {

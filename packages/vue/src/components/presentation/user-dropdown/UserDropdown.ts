@@ -17,7 +17,7 @@
  */
 
 import {withVendorCSSClassPrefix} from '@asgardeo/browser';
-import {type Ref, type SetupContext, type VNode, defineComponent, h, ref} from 'vue';
+import {type Ref, type VNode, defineComponent, h, ref} from 'vue';
 import BaseUserDropdown from './BaseUserDropdown';
 import useAsgardeo from '../../../composables/useAsgardeo';
 import UserProfileComponent from '../user-profile/UserProfile';
@@ -28,12 +28,15 @@ import UserProfileComponent from '../user-profile/UserProfile';
  * Retrieves user and signOut from context and delegates to BaseUserDropdown.
  */
 const UserDropdown: ReturnType<typeof defineComponent> = defineComponent({
-  name: 'UserDropdown',
   emits: ['profileClick'],
+  name: 'UserDropdown',
   props: {
-    className: {default: '', type: String},
+    className: {
+      default: '',
+      type: String,
+    },
   },
-  setup(props: {className: string}, {slots, emit}: SetupContext): () => VNode | VNode[] | null {
+  setup(props: {className: string}, {slots, emit}: {emit: any; slots: any}): () => VNode | VNode[] | null {
     const {user, signOut} = useAsgardeo();
     const isProfileModalOpen: Ref<boolean> = ref(false);
 
@@ -44,14 +47,14 @@ const UserDropdown: ReturnType<typeof defineComponent> = defineComponent({
           class: withVendorCSSClassPrefix('user-dropdown--styled'),
           className: props.className,
           isProfileModalOpen: isProfileModalOpen.value,
-          onProfileClick: () => {
+          onProfileClick: (): void => {
             isProfileModalOpen.value = true;
             emit('profileClick');
           },
-          onProfileModalClose: () => {
+          onProfileModalClose: (): void => {
             isProfileModalOpen.value = false;
           },
-          onSignOut: () => signOut(),
+          onSignOut: (): void => { signOut(); },
           profileContent: isProfileModalOpen.value
             ? h(UserProfileComponent, {
                 cardLayout: false,

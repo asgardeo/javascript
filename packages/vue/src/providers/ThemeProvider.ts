@@ -48,7 +48,10 @@ import {
 import {BRANDING_KEY, THEME_KEY} from '../keys';
 import type {ThemeContextValue} from '../models/contexts';
 
-const logger = createPackageComponentLogger('@asgardeo/vue', 'ThemeProvider');
+const logger: ReturnType<typeof createPackageComponentLogger> = createPackageComponentLogger(
+  '@asgardeo/vue',
+  'ThemeProvider',
+);
 
 /**
  * ThemeProvider manages theme state and provides it to child components via `useTheme()`.
@@ -68,13 +71,13 @@ const logger = createPackageComponentLogger('@asgardeo/vue', 'ThemeProvider');
  * </ThemeProvider>
  * ```
  */
-const ThemeProvider = defineComponent({
+const ThemeProvider: ReturnType<typeof defineComponent> = defineComponent({
   name: 'ThemeProvider',
   props: {
     /** Theme detection configuration (for 'class' or 'system' mode). */
-    detection: {type: Object as PropType<BrowserThemeDetection>, default: () => ({})},
+    detection: {default: () => ({}), type: Object as PropType<BrowserThemeDetection>},
     /** Whether to inherit theme from Asgardeo branding preference. */
-    inheritFromBranding: {type: Boolean, default: true as ThemePreferences['inheritFromBranding']},
+    inheritFromBranding: {default: true as ThemePreferences['inheritFromBranding'], type: Boolean},
     /**
      * The theme mode:
      * - `'light'` | `'dark'`: Fixed color scheme.
@@ -83,13 +86,13 @@ const ThemeProvider = defineComponent({
      * - `'branding'`: Follows the active theme from branding preference.
      */
     mode: {
-      type: String as PropType<ThemeMode | 'branding'>,
       default: DEFAULT_THEME as ThemeMode | 'branding',
+      type: String as PropType<ThemeMode | 'branding'>,
     },
     /** Optional partial theme overrides applied on top of the resolved theme. */
-    theme: {type: Object as PropType<RecursivePartial<ThemeConfig>>, default: undefined},
+    theme: {default: undefined, type: Object as PropType<RecursivePartial<ThemeConfig>>},
   },
-  setup(props, {slots}) {
+  setup(props: any, {slots}: {slots: any}): any {
     // Try to consume branding context – it is optional (BrandingProvider may not be mounted)
     const brandingContext = inject(BRANDING_KEY, null);
 
@@ -103,13 +106,13 @@ const ThemeProvider = defineComponent({
 
     // Update color scheme when branding's active theme is available
     watch(
-      () => brandingContext?.activeTheme.value,
-      brandingActiveTheme => {
+      () => (brandingContext as any)?.activeTheme.value,
+      (brandingActiveTheme: string | 'light' | 'dark' | undefined): void => {
         if (!props.inheritFromBranding || !brandingActiveTheme) return;
         if (props.mode === 'branding') {
-          colorScheme.value = brandingActiveTheme;
-        } else if (props.mode === 'system' && !brandingContext?.isLoading.value) {
-          colorScheme.value = brandingActiveTheme;
+          colorScheme.value = brandingActiveTheme as 'light' | 'dark';
+        } else if (props.mode === 'system' && !(brandingContext as any)?.isLoading.value) {
+          colorScheme.value = brandingActiveTheme as 'light' | 'dark';
         }
       },
     );
@@ -123,9 +126,13 @@ const ThemeProvider = defineComponent({
     }
 
     // Merge branding theme with user-provided overrides
-    const finalThemeConfig = computed<RecursivePartial<ThemeConfig> | undefined>(() => {
-      const themeConfig = props.theme;
-      const brandingTheme = props.inheritFromBranding ? brandingContext?.theme.value : null;
+    const finalThemeConfig: Ref<RecursivePartial<ThemeConfig> | undefined> = computed<
+      RecursivePartial<ThemeConfig> | undefined
+    >(() => {
+      const themeConfig: RecursivePartial<ThemeConfig> | undefined = props.theme;
+      const brandingTheme: RecursivePartial<ThemeConfig> | null | undefined = props.inheritFromBranding
+        ? (brandingContext as any)?.theme.value
+        : null;
 
       if (!brandingTheme) return themeConfig;
 
@@ -150,9 +157,11 @@ const ThemeProvider = defineComponent({
       };
     });
 
-    const resolvedTheme = computed<Theme>(() => createTheme(finalThemeConfig.value, colorScheme.value === 'dark'));
+    const resolvedTheme: Ref<Theme> = computed<Theme>(() =>
+      createTheme(finalThemeConfig.value, colorScheme.value === 'dark'),
+    );
 
-    const direction = computed<'ltr' | 'rtl'>(
+    const direction: Ref<'ltr' | 'rtl'> = computed<'ltr' | 'rtl'>(
       () => ((finalThemeConfig.value as any)?.direction as 'ltr' | 'rtl') || 'ltr',
     );
 
@@ -161,22 +170,22 @@ const ThemeProvider = defineComponent({
     };
 
     // Apply CSS variables to DOM
-    const applyToDom = (theme: Theme) => {
+    const applyToDom = (theme: Theme): void => {
       if (typeof document === 'undefined') return;
-      const root = document.documentElement;
+      const root: HTMLElement = document.documentElement;
       // Use the pre-computed cssVariables map from createTheme() which contains
       // correctly-named CSS variables (e.g. --asgardeo-color-primary-main).
-      Object.entries(theme.cssVariables).forEach(([key, value]) => {
+      Object.entries(theme.cssVariables).forEach(([key, value]: [key: string, value: string]): void => {
         root.style.setProperty(key, value);
       });
     };
 
-    watch(resolvedTheme, theme => applyToDom(theme), {immediate: true});
+    watch(resolvedTheme, (theme: Theme): void => applyToDom(theme), {immediate: true});
 
     // Apply direction to document
     watch(
       direction,
-      dir => {
+      (dir: 'ltr' | 'rtl'): void => {
         if (typeof document !== 'undefined') {
           document.documentElement.dir = dir;
         }
@@ -192,22 +201,22 @@ const ThemeProvider = defineComponent({
       colorScheme.value = isDark ? 'dark' : 'light';
     };
 
-    onMounted(() => {
+    onMounted((): void => {
       if (props.mode === 'branding') return;
 
       if (props.mode === 'class') {
-        const targetElement = (props.detection as any).targetElement || document.documentElement;
+        const targetElement: HTMLElement = (props.detection as any).targetElement || document.documentElement;
         if (targetElement) {
           classObserver = createClassObserver(targetElement, handleThemeChange, props.detection);
         }
       } else if (props.mode === 'system') {
-        if (!props.inheritFromBranding || !brandingContext?.activeTheme.value) {
+        if (!props.inheritFromBranding || !(brandingContext as any)?.activeTheme.value) {
           mediaQuery = createMediaQueryListener(handleThemeChange);
         }
       }
     });
 
-    onBeforeUnmount(() => {
+    onBeforeUnmount((): void => {
       if (classObserver) classObserver.disconnect();
       if (mediaQuery?.removeEventListener) {
         mediaQuery.removeEventListener('change', handleThemeChange as any);

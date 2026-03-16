@@ -34,7 +34,7 @@ import useAsgardeo from '../../composables/useAsgardeo';
  */
 const SignedOut: ReturnType<typeof defineComponent> = defineComponent({
   name: 'SignedOut',
-  setup(_props: Record<string, unknown>, {slots}) {
+  setup(_props: Record<string, unknown>, {slots}: {slots: any}): () => VNode | VNode[] | null {
     const {isSignedIn} = useAsgardeo();
 
     return (): VNode | VNode[] | null => {

@@ -42,7 +42,7 @@ import type {OrganizationContextValue} from '../models/contexts';
  * ```
  */
 const useOrganization = (): OrganizationContextValue => {
-  const context = inject(ORGANIZATION_KEY);
+  const context: unknown = inject(ORGANIZATION_KEY);
 
   if (!context) {
     throw new Error(
@@ -51,7 +51,7 @@ const useOrganization = (): OrganizationContextValue => {
     );
   }
 
-  return context;
+  return context as OrganizationContextValue;
 };
 
 export default useOrganization;

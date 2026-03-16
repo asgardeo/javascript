@@ -18,7 +18,7 @@
 
 import {withVendorCSSClassPrefix} from '@asgardeo/browser';
 import type {Organization} from '@asgardeo/browser';
-import {type PropType, type Ref, type SetupContext, type VNode, defineComponent, h, ref} from 'vue';
+import {type PropType, type Ref, type VNode, defineComponent, h, ref} from 'vue';
 import Card from '../../primitives/Card';
 import {BuildingIcon, ChevronDownIcon} from '../../primitives/Icons';
 import Spinner from '../../primitives/Spinner';
@@ -40,7 +40,16 @@ const BaseOrganizationSwitcher: ReturnType<typeof defineComponent> = defineCompo
     onSwitch: {default: undefined, type: Function as PropType<(org: Organization) => void>},
     organizations: {default: () => [], type: Array as PropType<Organization[]>},
   },
-  setup(props: {className: string; currentOrganization: Organization | null; isLoading: boolean; onSwitch?: (org: Organization) => void; organizations: Organization[]}, {slots}: SetupContext): () => VNode | VNode[] | null {
+  setup(
+    props: {
+      className: string;
+      currentOrganization: Organization | null;
+      isLoading: boolean;
+      onSwitch?: (org: Organization) => void;
+      organizations: Organization[];
+    },
+    {slots}: {slots: any},
+  ): () => VNode | VNode[] | null {
     const isOpen: Ref<boolean> = ref(false);
 
     const toggle = (): void => {

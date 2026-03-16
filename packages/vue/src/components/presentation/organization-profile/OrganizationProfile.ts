@@ -17,7 +17,7 @@
  */
 
 import {withVendorCSSClassPrefix} from '@asgardeo/browser';
-import {type PropType, type SetupContext, type VNode, defineComponent, h} from 'vue';
+import {type PropType, type VNode, defineComponent, h} from 'vue';
 import BaseOrganizationProfile from './BaseOrganizationProfile';
 import useOrganization from '../../../composables/useOrganization';
 
@@ -37,7 +37,15 @@ const OrganizationProfile: ReturnType<typeof defineComponent> = defineComponent(
     },
     title: {default: 'Organization Profile', type: String},
   },
-  setup(props: {className: string; editable: boolean; onUpdate?: (payload: Record<string, unknown>) => Promise<void>; title: string}, {slots}: SetupContext): () => VNode | VNode[] | null {
+  setup(
+    props: {
+      className: string;
+      editable: boolean;
+      onUpdate?: (payload: Record<string, unknown>) => Promise<void>;
+      title: string;
+    },
+    {slots}: {slots: any},
+  ): () => VNode | VNode[] | null {
     const {currentOrganization} = useOrganization();
 
     return (): VNode | VNode[] | null =>

@@ -45,7 +45,7 @@ const BaseLanguageSwitcher: ReturnType<typeof defineComponent> = defineComponent
     languages: {default: () => [{label: 'English', value: 'en'}], type: Array as PropType<SelectOption[]>},
     onLanguageChange: {default: undefined, type: Function as PropType<(lang: string) => void>},
   },
-  setup(props: BaseLanguageSwitcherSetupProps, {slots}) {
+  setup(props: BaseLanguageSwitcherSetupProps, {slots}: {slots: any}): () => VNode | VNode[] {
     const isOpen: Ref<boolean> = ref(false);
 
     const toggle = (): void => {
@@ -69,7 +69,7 @@ const BaseLanguageSwitcher: ReturnType<typeof defineComponent> = defineComponent
       }
 
       const currentLabel: string =
-        props.languages.find(l => l.value === props.currentLanguage)?.label ?? props.currentLanguage;
+        props.languages.find((l: SelectOption) => l.value === props.currentLanguage)?.label ?? props.currentLanguage;
 
       const triggerButton: VNode = h(
         'button',
@@ -82,12 +82,12 @@ const BaseLanguageSwitcher: ReturnType<typeof defineComponent> = defineComponent
         },
         [
           h(GlobeIcon, {size: 16}),
-          h(Typography, {variant: 'body2', class: cls('__trigger-label')}, () => currentLabel),
+          h(Typography, {class: cls('__trigger-label'), variant: 'body2'}, () => currentLabel),
           h(ChevronDownIcon, {size: 12}),
         ],
       );
 
-      const dropdownItems: VNode[] = props.languages.map(lang => {
+      const dropdownItems: VNode[] = props.languages.map((lang: SelectOption) => {
         const isActive: boolean = lang.value === props.currentLanguage;
         return h(
           'button',

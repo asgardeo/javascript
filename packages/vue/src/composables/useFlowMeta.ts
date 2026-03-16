@@ -42,7 +42,7 @@ import type {FlowMetaContextValue} from '../models/contexts';
  * ```
  */
 const useFlowMeta = (): FlowMetaContextValue => {
-  const context = inject(FLOW_META_KEY);
+  const context: unknown = inject(FLOW_META_KEY);
 
   if (!context) {
     throw new Error(
@@ -51,7 +51,7 @@ const useFlowMeta = (): FlowMetaContextValue => {
     );
   }
 
-  return context;
+  return context as FlowMetaContextValue;
 };
 
 export default useFlowMeta;

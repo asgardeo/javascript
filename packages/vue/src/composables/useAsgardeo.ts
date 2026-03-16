@@ -49,7 +49,7 @@ import type {AsgardeoContext} from '../models/contexts';
  * ```
  */
 const useAsgardeo = (): AsgardeoContext => {
-  const context = inject(ASGARDEO_KEY);
+  const context: unknown = inject(ASGARDEO_KEY);
 
   if (!context) {
     throw new Error(
@@ -58,7 +58,7 @@ const useAsgardeo = (): AsgardeoContext => {
     );
   }
 
-  return context;
+  return context as AsgardeoContext;
 };
 
 export default useAsgardeo;

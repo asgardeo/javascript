@@ -29,7 +29,7 @@ import Typography from '../../primitives/Typography';
  */
 const InviteUser: ReturnType<typeof defineComponent> = defineComponent({
   name: 'InviteUser',
-  setup(_props: Record<string, unknown>, {slots}) {
+  setup(_props: Record<string, unknown>, {slots}: {slots: any}): () => VNode | VNode[] {
     return (): VNode | VNode[] => {
       if (slots['default']) {
         return slots['default']();

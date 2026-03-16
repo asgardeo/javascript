@@ -33,37 +33,37 @@ import type {OrganizationContextValue} from '../models/contexts';
  *
  * @internal — This provider is mounted automatically by `<AsgardeoProvider>`.
  */
-const OrganizationProvider = defineComponent({
+const OrganizationProvider: ReturnType<typeof defineComponent> = defineComponent({
   name: 'OrganizationProvider',
   props: {
     /** Optional factory for creating a new sub-organization. */
     createOrganization: {
-      type: Function as PropType<(payload: CreateOrganizationPayload, sessionId: string) => Promise<Organization>>,
       default: undefined,
+      type: Function as PropType<(payload: CreateOrganizationPayload, sessionId: string) => Promise<Organization>>,
     },
     /** The organization the user is currently operating in. */
-    currentOrganization: {type: Object as PropType<Organization | null>, default: null},
+    currentOrganization: {default: null, type: Object as PropType<Organization | null>},
     /** Callback to fetch all organizations (paginated). */
     getAllOrganizations: {
-      type: Function as PropType<() => Promise<AllOrganizationsApiResponse>>,
       default: undefined,
+      type: Function as PropType<() => Promise<AllOrganizationsApiResponse>>,
     },
     /** The list of organizations the user is a member of. */
-    myOrganizations: {type: Array as PropType<Organization[]>, default: () => []},
+    myOrganizations: {default: () => [], type: Array as PropType<Organization[]>},
     /** Callback when an error occurs. */
-    onError: {type: Function as PropType<(error: string) => void>, default: undefined},
+    onError: {default: undefined, type: Function as PropType<(error: string) => void>},
     /** Callback that performs the actual organization switch (token exchange). */
     onOrganizationSwitch: {
-      type: Function as PropType<(organization: Organization) => Promise<TokenResponse | Response>>,
       default: undefined,
+      type: Function as PropType<(organization: Organization) => Promise<TokenResponse | Response>>,
     },
     /** Callback to re-fetch the user's organization list. */
     revalidateMyOrganizations: {
-      type: Function as PropType<() => Promise<Organization[]>>,
       default: async () => [],
+      type: Function as PropType<() => Promise<Organization[]>>,
     },
   },
-  setup(props, {slots}) {
+  setup(props: any, {slots}: {slots: any}): any {
     const isLoading: Ref<boolean> = ref(false);
     const error: Ref<string | null> = ref(null);
 
@@ -82,8 +82,9 @@ const OrganizationProvider = defineComponent({
 
       try {
         await props.onOrganizationSwitch(organization);
-      } catch (switchError) {
-        const errorMessage = switchError instanceof Error ? switchError.message : 'Failed to switch organization';
+      } catch (switchError: unknown) {
+        const errorMessage: string =
+          switchError instanceof Error ? switchError.message : 'Failed to switch organization';
         error.value = errorMessage;
         if (props.onError) {
           props.onError(errorMessage);
@@ -102,8 +103,8 @@ const OrganizationProvider = defineComponent({
     };
 
     // Use computed refs so context stays in sync when props change
-    const currentOrganizationRef = computed(() => props.currentOrganization);
-    const myOrganizationsRef = computed(() => props.myOrganizations);
+    const currentOrganizationRef: Ref<Organization | null> = computed(() => props.currentOrganization);
+    const myOrganizationsRef: Ref<Organization[]> = computed(() => props.myOrganizations);
 
     const context: OrganizationContextValue = {
       createOrganization: props.createOrganization,

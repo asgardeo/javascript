@@ -17,7 +17,7 @@
  */
 
 import {type Organization as IOrganization, withVendorCSSClassPrefix} from '@asgardeo/browser';
-import {type PropType, type SetupContext, type VNode, defineComponent, h} from 'vue';
+import {type PropType, type VNode, defineComponent, h} from 'vue';
 import {BuildingIcon} from '../../primitives/Icons';
 import Spinner from '../../primitives/Spinner';
 import Typography from '../../primitives/Typography';
@@ -33,7 +33,15 @@ const BaseOrganizationList: ReturnType<typeof defineComponent> = defineComponent
     onSelect: {default: undefined, type: Function as PropType<(org: IOrganization) => void>},
     organizations: {default: () => [], type: Array as PropType<IOrganization[]>},
   },
-  setup(props: {className: string; isLoading: boolean; onSelect?: (org: IOrganization) => void; organizations: IOrganization[]}, {slots}: SetupContext): () => VNode | VNode[] | null {
+  setup(
+    props: {
+      className: string;
+      isLoading: boolean;
+      onSelect?: (org: IOrganization) => void;
+      organizations: IOrganization[];
+    },
+    {slots}: {slots: any},
+  ): () => VNode | VNode[] | null {
     return (): VNode | VNode[] | null => {
       if (slots['default']) {
         return slots['default']({isLoading: props.isLoading, organizations: props.organizations});

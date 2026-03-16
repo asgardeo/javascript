@@ -25,7 +25,7 @@
  * Defined once here rather than in each component's CSS file to avoid
  * duplicate `@keyframes` blocks in the injected stylesheet.
  */
-const ANIMATIONS_CSS = `
+const ANIMATIONS_CSS: string = `
 /* ============================================================
    Asgardeo Vue SDK – shared keyframe animations
    ============================================================ */

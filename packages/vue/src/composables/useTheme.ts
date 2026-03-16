@@ -44,7 +44,7 @@ import type {ThemeContextValue} from '../models/contexts';
  * ```
  */
 const useTheme = (): ThemeContextValue => {
-  const context = inject(THEME_KEY);
+  const context: unknown = inject(THEME_KEY);
 
   if (!context) {
     throw new Error(
@@ -53,7 +53,7 @@ const useTheme = (): ThemeContextValue => {
     );
   }
 
-  return context;
+  return context as ThemeContextValue;
 };
 
 export default useTheme;

@@ -46,7 +46,7 @@ import type {FlowContextValue} from '../models/contexts';
  * ```
  */
 const useFlow = (): FlowContextValue => {
-  const context = inject(FLOW_KEY);
+  const context: unknown = inject(FLOW_KEY);
 
   if (!context) {
     throw new Error(
@@ -55,7 +55,7 @@ const useFlow = (): FlowContextValue => {
     );
   }
 
-  return context;
+  return context as FlowContextValue;
 };
 
 export default useFlow;

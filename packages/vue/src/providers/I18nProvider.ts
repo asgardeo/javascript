@@ -28,28 +28,33 @@ import {computed, defineComponent, h, provide, readonly, ref, watch, type PropTy
 import {I18N_KEY} from '../keys';
 import type {I18nContextValue} from '../models/contexts';
 
-const logger = createPackageComponentLogger('@asgardeo/vue', 'I18nProvider');
+const logger: ReturnType<typeof createPackageComponentLogger> = createPackageComponentLogger(
+  '@asgardeo/vue',
+  'I18nProvider',
+);
 
-const DEFAULT_STORAGE_KEY = 'asgardeo-i18n-language';
-const DEFAULT_URL_PARAM = 'lang';
+const DEFAULT_STORAGE_KEY: string = 'asgardeo-i18n-language';
+const DEFAULT_URL_PARAM: string = 'lang';
 
 // ── Storage helpers ──────────────────────────────────────────────────────────
 
 const deriveRootDomain = (hostname: string): string => {
-  const parts = hostname.split('.');
+  const parts: string[] = hostname.split('.');
   return parts.length > 1 ? parts.slice(-2).join('.') : hostname;
 };
 
 const getCookie = (name: string): string | null => {
   if (typeof document === 'undefined') return null;
-  const match = document.cookie.match(new RegExp(`(?:^|; )${name.replace(/([.*+?^${}()|[\]\\])/g, '\\$1')}=([^;]*)`));
+  const match: RegExpMatchArray | null = document.cookie.match(
+    new RegExp(`(?:^|; )${name.replace(/([.*+?^${}()|[\]\\])/g, '\\$1')}=([^;]*)`),
+  );
   return match ? decodeURIComponent(match[1]) : null;
 };
 
 const setCookie = (name: string, value: string, domain: string): void => {
   if (typeof document === 'undefined') return;
-  const maxAge = 365 * 24 * 60 * 60;
-  const secure = typeof window !== 'undefined' && window.location.protocol === 'https:' ? '; Secure' : '';
+  const maxAge: number = 365 * 24 * 60 * 60;
+  const secure: string = typeof window !== 'undefined' && window.location.protocol === 'https:' ? '; Secure' : '';
   document.cookie =
     `${encodeURIComponent(name)}=${encodeURIComponent(value)}` +
     `; Max-Age=${maxAge}` +
@@ -67,16 +72,16 @@ const createStorageAdapter = (strategy: I18nStorageStrategy, key: string, cookie
   switch (strategy) {
     case 'cookie':
       return {
-        read: () => getCookie(key),
-        write: (language: string) => {
-          const domain =
+        read: (): string | null => getCookie(key),
+        write: (language: string): void => {
+          const domain: string =
             cookieDomain ?? (typeof window !== 'undefined' ? deriveRootDomain(window.location.hostname) : '');
           if (domain) setCookie(key, language, domain);
         },
       };
     case 'localStorage':
       return {
-        read: () => {
+        read: (): string | null => {
           if (typeof window === 'undefined' || !window.localStorage) return null;
           try {
             return window.localStorage.getItem(key);
@@ -84,7 +89,7 @@ const createStorageAdapter = (strategy: I18nStorageStrategy, key: string, cookie
             return null;
           }
         },
-        write: (language: string) => {
+        write: (language: string): void => {
           if (typeof window === 'undefined' || !window.localStorage) return;
           try {
             window.localStorage.setItem(key, language);
@@ -95,7 +100,7 @@ const createStorageAdapter = (strategy: I18nStorageStrategy, key: string, cookie
       };
     case 'none':
     default:
-      return {read: () => null, write: () => {}};
+      return {read: (): null => null, write: (): void => {}};
   }
 };
 
@@ -126,13 +131,13 @@ const detectBrowserLanguage = (): string => {
  *
  * @internal — This provider is mounted automatically by `<AsgardeoProvider>`.
  */
-const I18nProvider = defineComponent({
+const I18nProvider: ReturnType<typeof defineComponent> = defineComponent({
   name: 'I18nProvider',
   props: {
     /** i18n preferences passed down from the AsgardeoProvider config. */
-    preferences: {type: Object as PropType<I18nPreferences>, default: undefined},
+    preferences: {default: undefined, type: Object as PropType<I18nPreferences>},
   },
-  setup(props, {slots}) {
+  setup(props: any, {slots}: {slots: any}): any {
     const defaultBundles: Record<string, I18nBundle> = getDefaultI18nBundles();
 
     const storageStrategy: I18nStorageStrategy = props.preferences?.storageStrategy ?? 'cookie';
@@ -146,62 +151,63 @@ const I18nProvider = defineComponent({
           (typeof window !== 'undefined' ? deriveRootDomain(window.location.hostname) : undefined)
         : undefined;
 
-    const storage = createStorageAdapter(storageStrategy, storageKey, resolvedCookieDomain);
+    const storage: StorageAdapter = createStorageAdapter(storageStrategy, storageKey, resolvedCookieDomain);
 
     // Determine initial language
     const determineInitialLanguage = (): string => {
       if (props.preferences?.language) return props.preferences.language;
       if (urlParamConfig !== false) {
-        const urlLanguage = detectUrlParamLanguage(urlParamConfig);
+        const urlLanguage: string | null = detectUrlParamLanguage(urlParamConfig);
         if (urlLanguage) {
           storage.write(urlLanguage);
           return urlLanguage;
         }
       }
-      const storedLanguage = storage.read();
+      const storedLanguage: string | null = storage.read();
       if (storedLanguage) return storedLanguage;
-      const browserLanguage = detectBrowserLanguage();
+      const browserLanguage: string = detectBrowserLanguage();
       if (browserLanguage) return browserLanguage;
       return props.preferences?.fallbackLanguage || TranslationBundleConstants.FALLBACK_LOCALE;
     };
 
     const currentLanguage: Ref<string> = ref(determineInitialLanguage());
+    const fallbackLanguage: string = props.preferences?.fallbackLanguage || TranslationBundleConstants.FALLBACK_LOCALE;
 
     // Bundles injected at runtime (e.g., from flow metadata translations).
     const injectedBundles: Ref<Record<string, I18nBundle>> = ref({});
 
     const injectBundles = (newBundles: Record<string, I18nBundle>): void => {
-      const merged: Record<string, I18nBundle> = {...injectedBundles.value};
-      Object.entries(newBundles).forEach(([key, bundle]) => {
+      const mergedBundles: Record<string, I18nBundle> = {...injectedBundles.value};
+      Object.entries(newBundles).forEach(([languageKey, bundle]: [key: string, bundle: I18nBundle]): void => {
         const normalizedTranslations: I18nTranslations = normalizeTranslations(
           bundle.translations as unknown as Record<string, string | Record<string, string>>,
         );
-        if (merged[key]) {
-          merged[key] = {
-            ...merged[key],
-            translations: deepMerge(merged[key].translations, normalizedTranslations),
+        if (mergedBundles[languageKey]) {
+          mergedBundles[languageKey] = {
+            ...mergedBundles[languageKey],
+            translations: deepMerge(mergedBundles[languageKey].translations, normalizedTranslations),
           };
         } else {
-          merged[key] = {...bundle, translations: normalizedTranslations};
+          mergedBundles[languageKey] = {...bundle, translations: normalizedTranslations};
         }
       });
-      injectedBundles.value = merged;
+      injectedBundles.value = mergedBundles;
     };
 
     /**
      * Merge bundles: defaults → injected (meta) → prop-provided (highest priority)
      */
-    const mergedBundles = computed<Record<string, I18nBundle>>(() => {
+    const mergedBundlesComputed: Ref<Record<string, I18nBundle>> = computed<Record<string, I18nBundle>>(() => {
       const merged: Record<string, I18nBundle> = {};
 
       // 1. Default bundles
-      Object.entries(defaultBundles).forEach(([key, bundle]) => {
-        const languageKey = key.replace('_', '-');
+      Object.entries(defaultBundles).forEach(([key, bundle]: [key: string, bundle: I18nBundle]): void => {
+        const languageKey: string = key.replace('_', '-');
         merged[languageKey] = bundle;
       });
 
       // 2. Injected bundles (from flow metadata)
-      Object.entries(injectedBundles.value).forEach(([key, bundle]) => {
+      Object.entries(injectedBundles.value).forEach(([key, bundle]: [key: string, bundle: I18nBundle]): void => {
         const normalizedTranslations: I18nTranslations = normalizeTranslations(
           bundle.translations as unknown as Record<string, string | Record<string, string>>,
         );
@@ -217,42 +223,44 @@ const I18nProvider = defineComponent({
 
       // 3. User-provided bundles (highest priority)
       if (props.preferences?.bundles) {
-        Object.entries(props.preferences.bundles).forEach(([key, userBundle]) => {
-          const normalizedTranslations: I18nTranslations = normalizeTranslations(
-            userBundle.translations as unknown as Record<string, string | Record<string, string>>,
-          );
-          if (merged[key]) {
-            merged[key] = {
-              ...merged[key],
-              metadata: userBundle.metadata ? {...merged[key].metadata, ...userBundle.metadata} : merged[key].metadata,
-              translations: deepMerge(merged[key].translations, normalizedTranslations),
-            };
-          } else {
-            merged[key] = {...userBundle, translations: normalizedTranslations};
-          }
-        });
+        Object.entries(props.preferences.bundles).forEach(
+          ([key, userBundle]: [key: string, userBundle: I18nBundle]): void => {
+            const normalizedTranslations: I18nTranslations = normalizeTranslations(
+              userBundle.translations as unknown as Record<string, string | Record<string, string>>,
+            );
+            if (merged[key]) {
+              merged[key] = {
+                ...merged[key],
+                metadata: userBundle.metadata
+                  ? {...merged[key].metadata, ...userBundle.metadata}
+                  : merged[key].metadata,
+                translations: deepMerge(merged[key].translations, normalizedTranslations),
+              };
+            } else {
+              merged[key] = {...userBundle, translations: normalizedTranslations};
+            }
+          },
+        );
       }
 
       return merged;
     });
 
-    const fallbackLanguage: string = props.preferences?.fallbackLanguage || TranslationBundleConstants.FALLBACK_LOCALE;
-
     // Persist language changes to storage
-    watch(currentLanguage, (lang: string) => {
+    watch(currentLanguage, (lang: string): void => {
       storage.write(lang);
     });
 
     const t = (key: string, params?: Record<string, string | number>): string => {
       let translation: string | undefined;
 
-      const currentBundle = mergedBundles.value[currentLanguage.value];
+      const currentBundle: I18nBundle | undefined = mergedBundlesComputed.value[currentLanguage.value];
       if (currentBundle?.translations[key]) {
         translation = currentBundle.translations[key];
       }
 
       if (!translation && currentLanguage.value !== fallbackLanguage) {
-        const fallbackBundle = mergedBundles.value[fallbackLanguage];
+        const fallbackBundle: I18nBundle | undefined = mergedBundlesComputed.value[fallbackLanguage];
         if (fallbackBundle?.translations[key]) {
           translation = fallbackBundle.translations[key];
         }
@@ -264,7 +272,8 @@ const I18nProvider = defineComponent({
 
       if (params && Object.keys(params).length > 0) {
         return Object.entries(params).reduce(
-          (acc, [paramKey, paramValue]) => acc.replace(new RegExp(`\\{${paramKey}\\}`, 'g'), String(paramValue)),
+          (acc: string, [paramKey, paramValue]: [key: string, value: string | number]): string =>
+            acc.replace(new RegExp(`\\{${paramKey}\\}`, 'g'), String(paramValue)),
           translation,
         );
       }
@@ -273,19 +282,19 @@ const I18nProvider = defineComponent({
     };
 
     const setLanguage = (language: string): void => {
-      if (mergedBundles.value[language]) {
+      if (mergedBundlesComputed.value[language]) {
         currentLanguage.value = language;
       } else {
         logger.warn(
-          `Language '${language}' is not available. Available languages: ${Object.keys(mergedBundles.value).join(
-            ', ',
-          )}`,
+          `Language '${language}' is not available. Available languages: ${Object.keys(
+            mergedBundlesComputed.value,
+          ).join(', ')}`,
         );
       }
     };
 
     const context: I18nContextValue = {
-      bundles: readonly(mergedBundles),
+      bundles: readonly(mergedBundlesComputed),
       currentLanguage: readonly(currentLanguage),
       fallbackLanguage,
       injectBundles,

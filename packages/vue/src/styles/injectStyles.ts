@@ -61,7 +61,7 @@ import TYPOGRAPHY_CSS from '../components/primitives/Typography/Typography.css';
 
 // Presentation
 
-const STYLE_ID = 'asgardeo-vue-styles';
+const STYLE_ID: string = 'asgardeo-vue-styles';
 
 /**
  * Assembled CSS for all Asgardeo Vue components.
@@ -70,7 +70,7 @@ const STYLE_ID = 'asgardeo-vue-styles';
  *   2. Primitives (lowest level, no dependencies on higher layers)
  *   3. Presentation (composed from primitives; may override primitive classes in context)
  */
-const STYLES = [
+const STYLES: string = [
   // Foundations
   DEFAULTS_CSS,
   ANIMATIONS_CSS,
@@ -106,7 +106,7 @@ export function injectStyles(): void {
   if (typeof document === 'undefined') return;
   if (document.getElementById(STYLE_ID)) return;
 
-  const style = document.createElement('style');
+  const style: HTMLStyleElement = document.createElement('style');
   style.id = STYLE_ID;
   style.textContent = STYLES;
   document.head.appendChild(style);

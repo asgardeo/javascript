@@ -18,7 +18,7 @@
 
 import {withVendorCSSClassPrefix} from '@asgardeo/browser';
 import type {Organization} from '@asgardeo/browser';
-import {type PropType, type Ref, type SetupContext, type VNode, defineComponent, h, ref} from 'vue';
+import {type PropType, type Ref, type VNode, defineComponent, h, ref} from 'vue';
 import Button from '../../primitives/Button';
 import Card from '../../primitives/Card';
 import Divider from '../../primitives/Divider';
@@ -79,7 +79,16 @@ const BaseOrganizationProfile: ReturnType<typeof defineComponent> = defineCompon
     organization: {default: null, type: Object as PropType<Organization | null>},
     title: {default: 'Organization Profile', type: String},
   },
-  setup(props: {className: string; editable: boolean; onUpdate?: (payload: Record<string, unknown>) => Promise<void>; organization: Organization | null; title: string}, {slots}: SetupContext): () => VNode | VNode[] | null {
+  setup(
+    props: {
+      className: string;
+      editable: boolean;
+      onUpdate?: (payload: Record<string, unknown>) => Promise<void>;
+      organization: Organization | null;
+      title: string;
+    },
+    {slots}: {slots: any},
+  ): () => VNode | VNode[] | null {
     const editingName: Ref<boolean> = ref(false);
     const editingDescription: Ref<boolean> = ref(false);
     const editedName: Ref<string> = ref('');
@@ -188,7 +197,9 @@ const BaseOrganizationProfile: ReturnType<typeof defineComponent> = defineCompon
               ? h('div', {class: prefix('organization-profile__field-edit')}, [
                   h(TextField, {
                     modelValue: editedName.value,
-                    'onUpdate:modelValue': (v: string) => { editedName.value = v; },
+                    'onUpdate:modelValue': (v: string) => {
+                      editedName.value = v;
+                    },
                   }),
                   h('div', {class: prefix('organization-profile__field-edit-actions')}, [
                     h(
@@ -206,7 +217,9 @@ const BaseOrganizationProfile: ReturnType<typeof defineComponent> = defineCompon
                     h(
                       Button,
                       {
-                        onClick: () => { editingName.value = false; },
+                        onClick: () => {
+                          editingName.value = false;
+                        },
                         size: 'small' as const,
                         variant: 'text' as const,
                       },
@@ -251,7 +264,9 @@ const BaseOrganizationProfile: ReturnType<typeof defineComponent> = defineCompon
               ? h('div', {class: prefix('organization-profile__field-edit')}, [
                   h(TextField, {
                     modelValue: editedDescription.value,
-                    'onUpdate:modelValue': (v: string) => { editedDescription.value = v; },
+                    'onUpdate:modelValue': (v: string) => {
+                      editedDescription.value = v;
+                    },
                   }),
                   h('div', {class: prefix('organization-profile__field-edit-actions')}, [
                     h(
@@ -269,7 +284,9 @@ const BaseOrganizationProfile: ReturnType<typeof defineComponent> = defineCompon
                     h(
                       Button,
                       {
-                        onClick: () => { editingDescription.value = false; },
+                        onClick: () => {
+                          editingDescription.value = false;
+                        },
                         size: 'small' as const,
                         variant: 'text' as const,
                       },
@@ -289,7 +306,7 @@ const BaseOrganizationProfile: ReturnType<typeof defineComponent> = defineCompon
                         {
                           class: prefix('organization-profile__field-placeholder'),
                           onClick: props.editable
-                            ? () => {
+                            ? (): void => {
                                 editedDescription.value = '';
                                 editingDescription.value = true;
                               }

@@ -46,7 +46,7 @@ import type {I18nContextValue} from '../models/contexts';
  * ```
  */
 const useI18n = (): I18nContextValue => {
-  const context = inject(I18N_KEY);
+  const context: unknown = inject(I18N_KEY);
 
   if (!context) {
     throw new Error(
@@ -55,7 +55,7 @@ const useI18n = (): I18nContextValue => {
     );
   }
 
-  return context;
+  return context as I18nContextValue;
 };
 
 export default useI18n;

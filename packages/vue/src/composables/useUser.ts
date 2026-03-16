@@ -45,7 +45,7 @@ import type {UserContextValue} from '../models/contexts';
  * ```
  */
 const useUser = (): UserContextValue => {
-  const context = inject(USER_KEY);
+  const context: unknown = inject(USER_KEY);
 
   if (!context) {
     throw new Error(
@@ -54,7 +54,7 @@ const useUser = (): UserContextValue => {
     );
   }
 
-  return context;
+  return context as UserContextValue;
 };
 
 export default useUser;

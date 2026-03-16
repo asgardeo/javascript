@@ -30,45 +30,63 @@ import type {BrandingContextValue} from '../models/contexts';
  *
  * @internal — This provider is mounted automatically by `<AsgardeoProvider>`.
  */
-const BrandingProvider = defineComponent({
+const BrandingProvider: ReturnType<typeof defineComponent> = defineComponent({
   name: 'BrandingProvider',
   props: {
     /** Whether branding is enabled. When false the context provides null. */
-    enabled: {type: Boolean, default: true},
-    /** Force a specific theme mode, overriding the one declared in branding. */
-    forceTheme: {type: String as PropType<'light' | 'dark'>, default: undefined},
-    /** Raw branding preference received from the parent. */
-    brandingPreference: {type: Object as PropType<BrandingPreference | null>, default: null},
+    brandingPreference: {
+      default: null,
+      type: Object as PropType<BrandingPreference | null>,
+    },
     /** Loading state from the parent. */
-    isLoading: {type: Boolean, default: false},
-    /** Error state from the parent. */
-    error: {type: Object as PropType<Error | null>, default: null},
+    enabled: {
+      default: true,
+      type: Boolean,
+    },
+    error: {
+      default: null,
+      type: Object as PropType<Error | null>,
+    },
+    /** Force a specific theme mode, overriding the one declared in branding. */
+    forceTheme: {
+      default: undefined,
+      type: String as PropType<'light' | 'dark'>,
+    },
     /** Re-fetch callback from the parent (bypasses dedup). */
-    refetch: {type: Function as PropType<() => Promise<void>>, default: undefined},
+    isLoading: {
+      default: false,
+      type: Boolean,
+    },
+    refetch: {
+      default: undefined,
+      type: Function as PropType<() => Promise<void>>,
+    },
   },
-  setup(props, {slots}) {
+  setup(props: any, {slots}: {slots: any}): any {
     const theme: Ref<Theme | null> = ref(null);
     const activeTheme: Ref<'light' | 'dark' | null> = ref(null);
 
     // Process branding preference whenever it changes
-    const processBranding = () => {
+    const processBranding = (): void => {
       if (!props.enabled || !props.brandingPreference) {
         theme.value = null;
         activeTheme.value = null;
         return;
       }
 
-      const activeThemeFromBranding = (props.brandingPreference as any)?.preference?.theme?.activeTheme as
-        | string
-        | undefined;
+      const activeThemeFromBranding: string | undefined = (props.brandingPreference as any)?.preference?.theme
+        ?.activeTheme;
       if (activeThemeFromBranding) {
-        const mode = activeThemeFromBranding.toLowerCase();
+        const mode: string = activeThemeFromBranding.toLowerCase();
         activeTheme.value = mode === 'light' || mode === 'dark' ? mode : null;
       } else {
         activeTheme.value = null;
       }
 
-      const transformedTheme = transformBrandingPreferenceToTheme(props.brandingPreference, props.forceTheme);
+      const transformedTheme: Theme | null = transformBrandingPreferenceToTheme(
+        props.brandingPreference,
+        props.forceTheme,
+      );
       theme.value = transformedTheme;
     };
 
@@ -92,7 +110,7 @@ const BrandingProvider = defineComponent({
 
     provide(BRANDING_KEY, context);
 
-    return () => h('div', {style: 'display:contents'}, slots['default']?.());
+    return (): any => h('div', {style: 'display:contents'}, slots['default']?.());
   },
 });
 

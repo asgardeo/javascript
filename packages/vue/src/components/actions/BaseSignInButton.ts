@@ -17,7 +17,7 @@
  */
 
 import {withVendorCSSClassPrefix} from '@asgardeo/browser';
-import {defineComponent, h, type PropType} from 'vue';
+import {type VNode, defineComponent, h} from 'vue';
 import Button from '../primitives/Button';
 
 /**
@@ -34,38 +34,47 @@ import Button from '../primitives/Button';
  * <!-- Unstyled button for full customization -->
  * <BaseSignInButton unstyled class="my-custom-styles">Custom Content</BaseSignInButton>
  */
-const BaseSignInButton = defineComponent({
+const BaseSignInButton: ReturnType<typeof defineComponent> = defineComponent({
+  emits: ['click'],
   name: 'BaseSignInButton',
   props: {
-    isLoading: {type: Boolean, default: false},
-    disabled: {type: Boolean, default: false},
+    disabled: {
+      default: false,
+      type: Boolean,
+    },
+    isLoading: {
+      default: false,
+      type: Boolean,
+    },
     /**
      * When true, renders a plain <button> with no default styling.
      * When false (default), renders a styled Button component.
      */
-    unstyled: {type: Boolean, default: false},
+    unstyled: {
+      default: false,
+      type: Boolean,
+    },
   },
-  emits: ['click'],
-  setup(props, {slots, emit, attrs}) {
-    const handleClick = (e: MouseEvent) => {
+  setup(props: any, {slots, emit, attrs}: any): any {
+    const handleClick = (e: MouseEvent): void => {
       if (!props.disabled && !props.isLoading) {
         emit('click', e);
       }
     };
 
-    return () => {
+    return (): any => {
       // Unstyled mode: plain button for full customization
       if (props.unstyled) {
         return h(
           'button',
           {
-            type: 'button' as const,
             class: [withVendorCSSClassPrefix('sign-in-button-wrapper'), (attrs['class'] as string) || '']
               .filter(Boolean)
               .join(' '),
-            style: attrs['style'],
             disabled: props.disabled || props.isLoading,
             onClick: handleClick,
+            style: attrs['style'],
+            type: 'button' as const,
           },
           slots['default'] ? slots['default']({isLoading: props.isLoading}) : 'Sign In',
         );
@@ -78,13 +87,15 @@ const BaseSignInButton = defineComponent({
           class: [withVendorCSSClassPrefix('sign-in-button'), (attrs['class'] as string) || '']
             .filter(Boolean)
             .join(' '),
-          style: attrs['style'],
           disabled: props.disabled || props.isLoading,
           loading: props.isLoading,
-          type: 'button' as const,
           onClick: handleClick,
+          style: attrs['style'],
+          type: 'button' as const,
         },
-        slots['default'] ? () => slots['default']({isLoading: props.isLoading}) : () => 'Sign In',
+        slots['default']
+          ? (): VNode | VNode[] => slots['default']({isLoading: props.isLoading})
+          : (): string => 'Sign In',
       );
     };
   },

@@ -28,7 +28,7 @@
  * Design token naming follows the pattern:
  *   --asgardeo-{category}-{sub}-{scale?}
  */
-const DEFAULTS_CSS = `
+const DEFAULTS_CSS: string = `
 /* ============================================================
    Asgardeo Vue SDK – CSS variable defaults
    (ThemeProvider overrides these at runtime via inline styles)

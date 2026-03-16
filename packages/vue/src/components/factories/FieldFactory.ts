@@ -213,6 +213,7 @@ export const createField = (config: FieldConfig): VNode => {
  * FieldFactory — Vue component wrapper for the field factory.
  */
 const FieldFactory: ReturnType<typeof defineComponent> = defineComponent({
+  emits: ['change', 'blur'],
   name: 'FieldFactory',
   props: {
     className: {default: undefined, type: String},
@@ -227,8 +228,7 @@ const FieldFactory: ReturnType<typeof defineComponent> = defineComponent({
     type: {required: true, type: String as PropType<FieldType>},
     value: {default: '', type: String},
   },
-  emits: ['change', 'blur'],
-  setup(props: FieldFactorySetupProps, {emit}) {
+  setup(props: FieldFactorySetupProps, {emit}: {emit: any}): any {
     return () =>
       createField({
         className: props.className,

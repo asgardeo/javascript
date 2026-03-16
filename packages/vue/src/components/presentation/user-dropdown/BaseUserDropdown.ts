@@ -17,7 +17,7 @@
  */
 
 import {type User, withVendorCSSClassPrefix} from '@asgardeo/browser';
-import {type PropType, type Ref, type SetupContext, type VNode, defineComponent, h, ref} from 'vue';
+import {type PropType, type Ref, type VNode, defineComponent, h, ref} from 'vue';
 import {ChevronDownIcon, LogOutIcon, UserIcon, XIcon} from '../../primitives/Icons';
 import Typography from '../../primitives/Typography';
 
@@ -45,28 +45,44 @@ const BaseUserDropdown: ReturnType<typeof defineComponent> = defineComponent({
     profileContent: {default: null, type: Object as PropType<VNode | null>},
     user: {default: null, type: Object as PropType<User | null>},
   },
-  setup(props: {className: string; isProfileModalOpen: boolean; onProfileClick?: () => void; onProfileModalClose?: () => void; onSignOut?: () => void; profileContent: VNode | null; user: User | null}, {slots}: SetupContext): () => VNode | VNode[] | null {
+  setup(
+    props: {
+      className: string;
+      isProfileModalOpen: boolean;
+      onProfileClick?: () => void;
+      onProfileModalClose?: () => void;
+      onSignOut?: () => void;
+      profileContent: VNode | null;
+      user: User | null;
+    },
+    {slots}: {slots: any},
+  ): () => VNode | VNode[] | null {
     const isOpen: Ref<boolean> = ref(false);
     const prefix: typeof withVendorCSSClassPrefix = withVendorCSSClassPrefix;
 
     return (): VNode | VNode[] | null => {
       if (slots['default']) {
-        return slots['default']({isOpen: isOpen.value, toggle: () => { isOpen.value = !isOpen.value; }, user: props.user});
+        return slots['default']({
+          isOpen: isOpen.value,
+          toggle: () => {
+            isOpen.value = !isOpen.value;
+          },
+          user: props.user,
+        });
       }
 
       const resolveDisplayName = (): string | undefined => {
         if (!props.user) return undefined;
-        const record: Record<string, unknown> = props.user as Record<string, unknown>;
-        if (typeof record['displayName'] === 'string') return record['displayName'];
-        const name: unknown = record['name'];
+        const {displayName, name, email, username, sub} = props.user as Record<string, unknown>;
+        if (typeof displayName === 'string') return displayName;
         if (typeof name === 'string') return name;
         if (typeof name === 'object' && name) {
           const parts: string[] = [(name as any).givenName, (name as any).familyName].filter(Boolean);
           if (parts.length > 0) return parts.join(' ');
         }
-        if (typeof record['email'] === 'string') return record['email'];
-        if (typeof record['username'] === 'string') return record['username'];
-        if (typeof record['sub'] === 'string') return record['sub'];
+        if (typeof email === 'string') return email;
+        if (typeof username === 'string') return username;
+        if (typeof sub === 'string') return sub;
         return undefined;
       };
       const displayName: string | undefined = resolveDisplayName();
@@ -79,7 +95,9 @@ const BaseUserDropdown: ReturnType<typeof defineComponent> = defineComponent({
           'button',
           {
             class: prefix('user-dropdown__trigger'),
-            onClick: () => { isOpen.value = !isOpen.value; },
+            onClick: () => {
+              isOpen.value = !isOpen.value;
+            },
             type: 'button',
           },
           [

@@ -34,7 +34,7 @@ const BaseInviteUser: ReturnType<typeof defineComponent> = defineComponent({
   props: {
     className: {default: '', type: String},
   },
-  setup(props: {className: string}, {slots}) {
+  setup(props: {className: string}, {slots}: {slots: any}): () => VNode | VNode[] {
     return (): VNode | VNode[] => {
       if (slots['default']) {
         return slots['default']();

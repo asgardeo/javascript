@@ -39,7 +39,7 @@ const CreateOrganization: ReturnType<typeof defineComponent> = defineComponent({
     description: {default: 'Create a new sub-organization.', type: String},
     title: {default: 'Create Organization', type: String},
   },
-  setup(props: CreateOrganizationSetupProps, {slots}) {
+  setup(props: CreateOrganizationSetupProps, {slots}: {slots: any}): () => VNode {
     const {createOrganization} = useOrganization();
 
     return (): VNode =>

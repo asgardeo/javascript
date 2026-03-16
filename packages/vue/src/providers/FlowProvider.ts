@@ -29,19 +29,19 @@ import type {FlowContextValue, FlowMessage, FlowStep} from '../models/contexts';
  *
  * @internal — This provider is mounted automatically by `<AsgardeoProvider>`.
  */
-const FlowProvider = defineComponent({
+const FlowProvider: ReturnType<typeof defineComponent> = defineComponent({
   name: 'FlowProvider',
   props: {
     /** Initial step to start with. */
-    initialStep: {type: Object as PropType<FlowStep>, default: null},
-    /** Initial title. */
-    initialTitle: {type: String, default: ''},
+    initialStep: {default: null, type: Object as PropType<FlowStep>},
     /** Initial subtitle. */
-    initialSubtitle: {type: String, default: undefined},
+    initialSubtitle: {default: undefined, type: String},
+    /** Initial title. */
+    initialTitle: {default: '', type: String},
     /** Callback when the flow step changes. */
-    onFlowChange: {type: Function as PropType<(step: FlowStep) => void>, default: undefined},
+    onFlowChange: {default: undefined, type: Function as PropType<(step: FlowStep) => void>},
   },
-  setup(props, {slots}) {
+  setup(props: any, {slots}: {slots: any}): any {
     const currentStep: Ref<FlowStep> = ref(props.initialStep ?? null);
     const title: Ref<string> = ref(props.initialTitle ?? '');
     const subtitle: Ref<string | undefined> = ref(props.initialSubtitle);
@@ -94,7 +94,7 @@ const FlowProvider = defineComponent({
     };
 
     const removeMessage = (messageId: string): void => {
-      messages.value = messages.value.filter(msg => msg.id !== messageId);
+      messages.value = messages.value.filter((msg: FlowMessage): boolean => msg.id !== messageId);
     };
 
     const clearMessages = (): void => {
@@ -116,7 +116,7 @@ const FlowProvider = defineComponent({
       flowType: NonNullable<FlowStep>['type'],
       options?: {metadata?: Record<string, any>; subtitle?: string; title?: string},
     ): void => {
-      const stepId = `${flowType}-${Date.now()}`;
+      const stepId: string = `${flowType}-${Date.now()}`;
       const step: NonNullable<FlowStep> = {
         canGoBack: flowType !== 'signin',
         id: stepId,
