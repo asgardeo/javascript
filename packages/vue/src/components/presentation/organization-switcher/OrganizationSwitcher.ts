@@ -17,7 +17,7 @@
  */
 
 import {withVendorCSSClassPrefix} from '@asgardeo/browser';
-import {defineComponent, h} from 'vue';
+import {type SetupContext, type VNode, defineComponent, h} from 'vue';
 import BaseOrganizationSwitcher from './BaseOrganizationSwitcher';
 import useOrganization from '../../../composables/useOrganization';
 
@@ -26,23 +26,23 @@ import useOrganization from '../../../composables/useOrganization';
  *
  * Retrieves organisations from context and delegates to BaseOrganizationSwitcher.
  */
-const OrganizationSwitcher = defineComponent({
+const OrganizationSwitcher: ReturnType<typeof defineComponent> = defineComponent({
   name: 'OrganizationSwitcher',
   props: {
-    className: {type: String, default: ''},
+    className: {default: '', type: String},
   },
-  setup(props, {slots}) {
+  setup(props: {className: string}, {slots}: SetupContext): () => VNode | VNode[] | null {
     const {currentOrganization, myOrganizations, isLoading, switchOrganization} = useOrganization();
 
-    return () =>
+    return (): VNode | VNode[] | null =>
       h(
         BaseOrganizationSwitcher,
         {
           class: withVendorCSSClassPrefix('organization-switcher--styled'),
           className: props.className,
           currentOrganization: currentOrganization?.value ?? null,
-          organizations: myOrganizations?.value ?? [],
           isLoading: isLoading?.value ?? false,
+          organizations: myOrganizations?.value ?? [],
           onSwitch: switchOrganization,
         },
         slots,

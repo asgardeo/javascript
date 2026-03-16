@@ -17,24 +17,34 @@
  */
 
 import {withVendorCSSClassPrefix} from '@asgardeo/browser';
-import {defineComponent, h} from 'vue';
+import {type Component, type SetupContext, type VNode, defineComponent, h} from 'vue';
 
-const DatePicker = defineComponent({
+type DatePickerProps = Readonly<{
+  disabled: boolean;
+  error: string | undefined;
+  label: string | undefined;
+  modelValue: string;
+  name: string | undefined;
+  placeholder: string | undefined;
+  required: boolean;
+}>;
+
+const DatePicker: Component = defineComponent({
+  emits: ['update:modelValue'],
   name: 'AsgardeoDatePicker',
   props: {
-    modelValue: {type: String, default: ''},
-    label: {type: String, default: undefined},
-    name: {type: String, default: undefined},
-    placeholder: {type: String, default: undefined},
-    error: {type: String, default: undefined},
-    required: {type: Boolean, default: false},
-    disabled: {type: Boolean, default: false},
+    disabled: {default: false, type: Boolean},
+    error: {default: undefined, type: String},
+    label: {default: undefined, type: String},
+    modelValue: {default: '', type: String},
+    name: {default: undefined, type: String},
+    placeholder: {default: undefined, type: String},
+    required: {default: false, type: Boolean},
   },
-  emits: ['update:modelValue'],
-  setup(props, {emit, attrs}) {
-    return () => {
-      const hasError = !!props.error;
-      const wrapperClass = [
+  setup(props: DatePickerProps, {emit, attrs}: SetupContext): () => VNode {
+    return (): VNode => {
+      const hasError: boolean = !!props.error;
+      const wrapperClass: string = [
         withVendorCSSClassPrefix('date-picker'),
         hasError ? withVendorCSSClassPrefix('date-picker--error') : '',
         (attrs['class'] as string) || '',
@@ -51,15 +61,15 @@ const DatePicker = defineComponent({
           : null,
         h('input', {
           class: withVendorCSSClassPrefix('date-picker__input'),
-          type: 'date',
-          name: props.name,
+          'data-testid': attrs['data-testid'],
+          disabled: props.disabled,
           id: props.name,
-          value: props.modelValue,
+          name: props.name,
+          onInput: (e: Event) => emit('update:modelValue', (e.target as HTMLInputElement).value),
           placeholder: props.placeholder,
           required: props.required,
-          disabled: props.disabled,
-          'data-testid': attrs['data-testid'],
-          onInput: (e: Event) => emit('update:modelValue', (e.target as HTMLInputElement).value),
+          type: 'date',
+          value: props.modelValue,
         }),
         hasError ? h('span', {class: withVendorCSSClassPrefix('date-picker__error')}, props.error) : null,
       ]);

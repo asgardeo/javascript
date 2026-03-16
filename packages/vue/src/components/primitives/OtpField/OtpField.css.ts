@@ -24,7 +24,7 @@
  * Elements:
  *   __label | __required | __inputs | __digit | __error
  */
-const OTP_FIELD_CSS = `
+const OTP_FIELD_CSS: string = `
 /* ============================================================
    OtpField
    ============================================================ */

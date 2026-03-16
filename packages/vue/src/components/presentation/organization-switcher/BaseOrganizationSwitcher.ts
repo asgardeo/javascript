@@ -18,11 +18,8 @@
 
 import {withVendorCSSClassPrefix} from '@asgardeo/browser';
 import type {Organization} from '@asgardeo/browser';
-import type {PropType, VNode} from 'vue';
-import {defineComponent, h, ref} from 'vue';
-import Button from '../../primitives/Button';
+import {type PropType, type Ref, type SetupContext, type VNode, defineComponent, h, ref} from 'vue';
 import Card from '../../primitives/Card';
-import Divider from '../../primitives/Divider';
 import {BuildingIcon, ChevronDownIcon} from '../../primitives/Icons';
 import Spinner from '../../primitives/Spinner';
 import Typography from '../../primitives/Typography';
@@ -34,17 +31,17 @@ const cls = (name: string): string => withVendorCSSClassPrefix(`organization-swi
  *
  * Shows the current organization name and a dropdown list to switch.
  */
-const BaseOrganizationSwitcher = defineComponent({
+const BaseOrganizationSwitcher: ReturnType<typeof defineComponent> = defineComponent({
   name: 'BaseOrganizationSwitcher',
   props: {
-    className: {type: String, default: ''},
-    currentOrganization: {type: Object as PropType<Organization | null>, default: null},
-    organizations: {type: Array as PropType<Organization[]>, default: () => []},
-    isLoading: {type: Boolean, default: false},
-    onSwitch: {type: Function as PropType<(org: Organization) => void>, default: undefined},
+    className: {default: '', type: String},
+    currentOrganization: {default: null, type: Object as PropType<Organization | null>},
+    isLoading: {default: false, type: Boolean},
+    onSwitch: {default: undefined, type: Function as PropType<(org: Organization) => void>},
+    organizations: {default: () => [], type: Array as PropType<Organization[]>},
   },
-  setup(props, {slots}) {
-    const isOpen = ref(false);
+  setup(props: {className: string; currentOrganization: Organization | null; isLoading: boolean; onSwitch?: (org: Organization) => void; organizations: Organization[]}, {slots}: SetupContext): () => VNode | VNode[] | null {
+    const isOpen: Ref<boolean> = ref(false);
 
     const toggle = (): void => {
       isOpen.value = !isOpen.value;
@@ -55,32 +52,32 @@ const BaseOrganizationSwitcher = defineComponent({
       props.onSwitch?.(org);
     };
 
-    return () => {
+    return (): VNode | VNode[] | null => {
       if (slots['default']) {
         return slots['default']({
           currentOrganization: props.currentOrganization,
-          organizations: props.organizations,
+          handleSelect,
           isLoading: props.isLoading,
           isOpen: isOpen.value,
+          organizations: props.organizations,
           toggle,
-          handleSelect,
         });
       }
 
-      const currentName = props.currentOrganization?.name ?? 'No Organization';
+      const currentName: string = props.currentOrganization?.name ?? 'No Organization';
 
-      const triggerButton = h(
+      const triggerButton: VNode = h(
         'button',
         {
-          type: 'button',
+          'aria-expanded': isOpen.value,
+          'aria-haspopup': 'listbox',
           class: cls('__trigger'),
           onClick: toggle,
-          'aria-haspopup': 'listbox',
-          'aria-expanded': isOpen.value,
+          type: 'button',
         },
         [
           h(BuildingIcon, {size: 16}),
-          h(Typography, {variant: 'body2', class: cls('__trigger-label')}, () => currentName),
+          h(Typography, {class: cls('__trigger-label'), variant: 'body2'}, () => currentName),
           h(ChevronDownIcon, {size: 12}),
         ],
       );
@@ -91,28 +88,30 @@ const BaseOrganizationSwitcher = defineComponent({
         dropdownChildren.push(h('div', {class: cls('__loading')}, [h(Spinner, {size: 'small'})]));
       } else if (props.organizations.length === 0) {
         dropdownChildren.push(
-          h(Typography, {variant: 'body2', class: cls('__empty')}, () => 'No organizations available'),
+          h(Typography, {class: cls('__empty'), variant: 'body2'}, () => 'No organizations available'),
         );
       } else {
-        for (const org of props.organizations) {
-          const isActive = org['id'] === props.currentOrganization?.id;
+        props.organizations.forEach((org: Organization) => {
+          const isActive: boolean = org['id'] === props.currentOrganization?.id;
           dropdownChildren.push(
             h(
               'button',
               {
-                type: 'button',
+                'aria-selected': isActive,
                 class: [cls('__item'), isActive ? cls('__item--active') : ''],
                 onClick: () => handleSelect(org),
                 role: 'option',
-                'aria-selected': isActive,
+                type: 'button',
               },
               [h(BuildingIcon, {size: 14}), h(Typography, {variant: 'body2'}, () => org['name'])],
             ),
           );
-        }
+        });
       }
 
-      const dropdown = isOpen.value ? h('div', {class: cls('__dropdown'), role: 'listbox'}, dropdownChildren) : null;
+      const dropdown: VNode | null = isOpen.value
+        ? h('div', {class: cls('__dropdown'), role: 'listbox'}, dropdownChildren)
+        : null;
 
       return h(Card, {class: [cls(''), props.className].filter(Boolean).join(' ')}, () => [triggerButton, dropdown]);
     };

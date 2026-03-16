@@ -27,7 +27,7 @@
  * Elements:
  *   __wrapper | __input | __label | __error
  */
-const CHECKBOX_CSS = `
+const CHECKBOX_CSS: string = `
 /* ============================================================
    Checkbox
    ============================================================ */

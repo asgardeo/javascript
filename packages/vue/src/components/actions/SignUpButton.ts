@@ -17,7 +17,7 @@
  */
 
 import {AsgardeoRuntimeError, navigate} from '@asgardeo/browser';
-import {defineComponent, h, ref} from 'vue';
+import {defineComponent, h, ref, type Ref, type SetupContext, type VNode} from 'vue';
 import BaseSignUpButton from './BaseSignUpButton';
 import useAsgardeo from '../../composables/useAsgardeo';
 import useI18n from '../../composables/useI18n';
@@ -28,15 +28,15 @@ import useI18n from '../../composables/useI18n';
  * If a custom `signUpUrl` is configured, navigates to it instead.
  * Falls back to i18n translation for the button text.
  */
-const SignUpButton = defineComponent({
-  name: 'SignUpButton',
+const SignUpButton: ReturnType<typeof defineComponent> = defineComponent({
   emits: ['click', 'error'],
-  setup(_, {slots, emit, attrs}) {
+  name: 'SignUpButton',
+  setup(_: {}, {slots, emit, attrs}: SetupContext): () => VNode {
     const {signUp, signUpUrl} = useAsgardeo();
-    const {t} = useI18n();
-    const isLoading = ref(false);
+    const {t: _t} = useI18n();
+    const isLoading: Ref<boolean> = ref(false);
 
-    const handleSignUp = async (e?: MouseEvent) => {
+    const handleSignUp = async (e?: MouseEvent): Promise<void> => {
       try {
         isLoading.value = true;
         if (signUpUrl) {
@@ -58,16 +58,18 @@ const SignUpButton = defineComponent({
       }
     };
 
-    return () => {
-      const slotContent = slots['default'] ? () => slots['default']!({isLoading: isLoading.value}) : undefined;
+    return (): VNode => {
+      const slotContent: (() => VNode[]) | undefined = slots['default']
+        ? (): VNode[] => slots['default']!({isLoading: isLoading.value})
+        : undefined;
 
       return h(
         BaseSignUpButton,
         {
           class: attrs['class'],
-          style: attrs['style'],
           isLoading: isLoading.value,
           onClick: handleSignUp,
+          style: attrs['style'],
         },
         slotContent,
       );

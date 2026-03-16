@@ -17,38 +17,44 @@
  */
 
 import {withVendorCSSClassPrefix} from '@asgardeo/browser';
-import {defineComponent, h} from 'vue';
+import {type VNode, defineComponent, h} from 'vue';
 import BaseCreateOrganization from './BaseCreateOrganization';
 import useOrganization from '../../../composables/useOrganization';
+
+interface CreateOrganizationSetupProps {
+  className: string;
+  description: string;
+  title: string;
+}
 
 /**
  * CreateOrganization — styled sub-organisation creation component.
  *
  * Retrieves createOrganization from context and delegates to BaseCreateOrganization.
  */
-const CreateOrganization = defineComponent({
+const CreateOrganization: ReturnType<typeof defineComponent> = defineComponent({
   name: 'CreateOrganization',
   props: {
-    className: {type: String, default: ''},
-    title: {type: String, default: 'Create Organization'},
-    description: {type: String, default: 'Create a new sub-organization.'},
+    className: {default: '', type: String},
+    description: {default: 'Create a new sub-organization.', type: String},
+    title: {default: 'Create Organization', type: String},
   },
-  setup(props, {slots}) {
+  setup(props: CreateOrganizationSetupProps, {slots}) {
     const {createOrganization} = useOrganization();
 
-    return () =>
+    return (): VNode =>
       h(
         BaseCreateOrganization,
         {
           class: withVendorCSSClassPrefix('create-organization--styled'),
           className: props.className,
-          title: props.title,
           description: props.description,
           onCreate: createOrganization
-            ? async (name: string) => {
-                await createOrganization({name, description: '', parentId: '', type: 'TENANT'}, '');
+            ? async (name: string): Promise<void> => {
+                await createOrganization({description: '', name, parentId: '', type: 'TENANT'}, '');
               }
             : undefined,
+          title: props.title,
         },
         slots,
       );

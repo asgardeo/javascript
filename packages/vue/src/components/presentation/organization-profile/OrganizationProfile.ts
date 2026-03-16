@@ -17,7 +17,7 @@
  */
 
 import {withVendorCSSClassPrefix} from '@asgardeo/browser';
-import {type PropType, defineComponent, h} from 'vue';
+import {type PropType, type SetupContext, type VNode, defineComponent, h} from 'vue';
 import BaseOrganizationProfile from './BaseOrganizationProfile';
 import useOrganization from '../../../composables/useOrganization';
 
@@ -26,30 +26,30 @@ import useOrganization from '../../../composables/useOrganization';
  *
  * Retrieves current organization from context and delegates to BaseOrganizationProfile.
  */
-const OrganizationProfile = defineComponent({
+const OrganizationProfile: ReturnType<typeof defineComponent> = defineComponent({
   name: 'OrganizationProfile',
   props: {
-    className: {type: String, default: ''},
-    editable: {type: Boolean, default: false},
-    title: {type: String, default: 'Organization Profile'},
+    className: {default: '', type: String},
+    editable: {default: false, type: Boolean},
     onUpdate: {
-      type: Function as PropType<(payload: Record<string, unknown>) => Promise<void>>,
       default: undefined,
+      type: Function as PropType<(payload: Record<string, unknown>) => Promise<void>>,
     },
+    title: {default: 'Organization Profile', type: String},
   },
-  setup(props, {slots}) {
+  setup(props: {className: string; editable: boolean; onUpdate?: (payload: Record<string, unknown>) => Promise<void>; title: string}, {slots}: SetupContext): () => VNode | VNode[] | null {
     const {currentOrganization} = useOrganization();
 
-    return () =>
+    return (): VNode | VNode[] | null =>
       h(
         BaseOrganizationProfile,
         {
           class: withVendorCSSClassPrefix('organization-profile--styled'),
           className: props.className,
-          organization: currentOrganization?.value ?? null,
           editable: props.editable,
-          title: props.title,
           onUpdate: props.onUpdate,
+          organization: currentOrganization?.value ?? null,
+          title: props.title,
         },
         slots,
       );

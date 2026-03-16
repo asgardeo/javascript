@@ -17,7 +17,7 @@
  */
 
 import {type Organization as IOrganization, withVendorCSSClassPrefix} from '@asgardeo/browser';
-import {defineComponent, h} from 'vue';
+import {type SetupContext, type VNode, defineComponent, h} from 'vue';
 import BaseOrganizationList from './BaseOrganizationList';
 import useOrganization from '../../../composables/useOrganization';
 
@@ -26,28 +26,28 @@ import useOrganization from '../../../composables/useOrganization';
  *
  * Retrieves organization list from context and delegates to BaseOrganizationList.
  */
-const OrganizationList = defineComponent({
+const OrganizationList: ReturnType<typeof defineComponent> = defineComponent({
   name: 'OrganizationList',
-  props: {
-    className: {type: String, default: ''},
-  },
   emits: ['select'],
-  setup(props, {slots, emit}) {
+  props: {
+    className: {default: '', type: String},
+  },
+  setup(props: {className: string}, {slots, emit}: SetupContext): () => VNode | VNode[] | null {
     const {myOrganizations, isLoading, switchOrganization} = useOrganization();
 
-    const handleSelect = async (org: IOrganization) => {
+    const handleSelect = async (org: IOrganization): Promise<void> => {
       emit('select', org);
       await switchOrganization(org);
     };
 
-    return () =>
+    return (): VNode | VNode[] | null =>
       h(
         BaseOrganizationList,
         {
           class: withVendorCSSClassPrefix('organization-list--styled'),
           className: props.className,
-          organizations: myOrganizations.value,
           isLoading: isLoading.value,
+          organizations: myOrganizations.value,
           onSelect: handleSelect,
         },
         slots,

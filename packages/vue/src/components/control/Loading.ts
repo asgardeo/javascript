@@ -32,18 +32,18 @@ import useAsgardeo from '../../composables/useAsgardeo';
  * </Loading>
  * ```
  */
-const Loading = defineComponent({
+const Loading: ReturnType<typeof defineComponent> = defineComponent({
   name: 'Loading',
-  setup(_props, {slots}) {
+  setup(_props: Record<string, unknown>, {slots}) {
     const {isLoading} = useAsgardeo();
 
     return (): VNode | VNode[] | null => {
       if (!isLoading.value) {
-        const fallbackContent = slots['fallback']?.();
+        const fallbackContent: VNode[] | undefined = slots['fallback']?.();
         return fallbackContent ? h(Fragment, {}, fallbackContent) : null;
       }
 
-      const defaultContent = slots['default']?.();
+      const defaultContent: VNode[] | undefined = slots['default']?.();
       return defaultContent ? h(Fragment, {}, defaultContent) : null;
     };
   },

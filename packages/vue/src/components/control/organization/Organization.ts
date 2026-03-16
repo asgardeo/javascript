@@ -37,18 +37,18 @@ import useOrganization from '../../../composables/useOrganization';
  * </Organization>
  * ```
  */
-const Organization = defineComponent({
+const Organization: ReturnType<typeof defineComponent> = defineComponent({
   name: 'Organization',
-  setup(_props, {slots}) {
+  setup(_props: Record<string, unknown>, {slots}) {
     const {currentOrganization} = useOrganization();
 
     return (): VNode | VNode[] | null => {
       if (!currentOrganization?.value) {
-        const fallbackContent = slots['fallback']?.();
+        const fallbackContent: VNode[] | undefined = slots['fallback']?.();
         return fallbackContent ? h(Fragment, {}, fallbackContent) : null;
       }
 
-      const defaultContent = slots['default']?.({organization: currentOrganization.value});
+      const defaultContent: VNode[] | undefined = slots['default']?.({organization: currentOrganization.value});
       return defaultContent ? h(Fragment, {}, defaultContent) : null;
     };
   },

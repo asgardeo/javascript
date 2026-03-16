@@ -27,7 +27,7 @@
  * Elements:
  *   __label | __required | __input | __error | __helper
  */
-const SELECT_CSS = `
+const SELECT_CSS: string = `
 /* ============================================================
    Select
    ============================================================ */

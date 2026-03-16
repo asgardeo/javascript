@@ -32,7 +32,7 @@
  *   __menu     – absolute-positioned dropdown panel
  *   __item     – each action row inside the menu
  */
-const USER_DROPDOWN_CSS = `
+const USER_DROPDOWN_CSS: string = `
 /* ============================================================
    UserDropdown
    ============================================================ */

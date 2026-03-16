@@ -21,7 +21,7 @@
  *
  * BEM block: `.asgardeo-organization-profile`
  */
-const ORGANIZATION_PROFILE_CSS = `
+const ORGANIZATION_PROFILE_CSS: string = `
 /* ============================================================
    OrganizationProfile
    ============================================================ */

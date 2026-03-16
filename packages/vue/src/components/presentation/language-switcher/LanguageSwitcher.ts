@@ -17,35 +17,39 @@
  */
 
 import {withVendorCSSClassPrefix} from '@asgardeo/browser';
-import type {PropType} from 'vue';
-import {defineComponent, h} from 'vue';
+import {type PropType, type VNode, defineComponent, h} from 'vue';
 import BaseLanguageSwitcher from './BaseLanguageSwitcher';
 import useI18n from '../../../composables/useI18n';
 import type {SelectOption} from '../../primitives/Select/Select';
+
+interface LanguageSwitcherSetupProps {
+  className: string;
+  languages: SelectOption[];
+}
 
 /**
  * LanguageSwitcher — styled language selection component.
  *
  * Retrieves current language and setLanguage from i18n context.
  */
-const LanguageSwitcher = defineComponent({
+const LanguageSwitcher: ReturnType<typeof defineComponent> = defineComponent({
   name: 'LanguageSwitcher',
   props: {
-    className: {type: String, default: ''},
+    className: {default: '', type: String},
     languages: {
-      type: Array as PropType<SelectOption[]>,
       default: () => [
         {label: 'English', value: 'en'},
         {label: 'French', value: 'fr'},
         {label: 'Spanish', value: 'es'},
         {label: 'Portuguese', value: 'pt'},
       ],
+      type: Array as PropType<SelectOption[]>,
     },
   },
-  setup(props, {slots}) {
+  setup(props: LanguageSwitcherSetupProps, {slots}) {
     const {currentLanguage, setLanguage} = useI18n();
 
-    return () =>
+    return (): VNode =>
       h(
         BaseLanguageSwitcher,
         {

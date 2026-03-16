@@ -17,7 +17,7 @@
  */
 
 import {type Organization as IOrganization, withVendorCSSClassPrefix} from '@asgardeo/browser';
-import {type PropType, type VNode, defineComponent, h} from 'vue';
+import {type PropType, type SetupContext, type VNode, defineComponent, h} from 'vue';
 import {BuildingIcon} from '../../primitives/Icons';
 import Spinner from '../../primitives/Spinner';
 import Typography from '../../primitives/Typography';
@@ -25,39 +25,39 @@ import Typography from '../../primitives/Typography';
 /**
  * BaseOrganizationList — unstyled list of organizations.
  */
-const BaseOrganizationList = defineComponent({
+const BaseOrganizationList: ReturnType<typeof defineComponent> = defineComponent({
   name: 'BaseOrganizationList',
   props: {
-    className: {type: String, default: ''},
-    organizations: {type: Array as PropType<IOrganization[]>, default: () => []},
-    isLoading: {type: Boolean, default: false},
-    onSelect: {type: Function as PropType<(org: IOrganization) => void>, default: undefined},
+    className: {default: '', type: String},
+    isLoading: {default: false, type: Boolean},
+    onSelect: {default: undefined, type: Function as PropType<(org: IOrganization) => void>},
+    organizations: {default: () => [], type: Array as PropType<IOrganization[]>},
   },
-  setup(props, {slots}) {
-    return () => {
+  setup(props: {className: string; isLoading: boolean; onSelect?: (org: IOrganization) => void; organizations: IOrganization[]}, {slots}: SetupContext): () => VNode | VNode[] | null {
+    return (): VNode | VNode[] | null => {
       if (slots['default']) {
-        return slots['default']({organizations: props.organizations, isLoading: props.isLoading});
+        return slots['default']({isLoading: props.isLoading, organizations: props.organizations});
       }
 
-      const prefix = withVendorCSSClassPrefix;
+      const prefix: typeof withVendorCSSClassPrefix = withVendorCSSClassPrefix;
       const children: VNode[] = [];
 
       if (props.isLoading) {
         children.push(h('div', {class: prefix('organization-list__loading')}, [h(Spinner)]));
       } else if (props.organizations.length === 0) {
         children.push(
-          h(Typography, {variant: 'body2', class: prefix('organization-list__empty')}, () => 'No organizations found'),
+          h(Typography, {class: prefix('organization-list__empty'), variant: 'body2'}, () => 'No organizations found'),
         );
       } else {
-        props.organizations.forEach(org => {
+        props.organizations.forEach((org: IOrganization) => {
           children.push(
             h(
               'button',
               {
-                type: 'button',
-                key: org['id'],
                 class: prefix('organization-list__item'),
+                key: org['id'],
                 onClick: () => props.onSelect?.(org),
+                type: 'button',
               },
               [h(BuildingIcon, {size: 16}), h(Typography, {variant: 'body1'}, () => org['name'] || org['id'])],
             ),

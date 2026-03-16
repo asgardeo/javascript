@@ -17,22 +17,31 @@
  */
 
 import {withVendorCSSClassPrefix} from '@asgardeo/browser';
-import {defineComponent, h} from 'vue';
+import {type Component, type SetupContext, type VNode, defineComponent, h} from 'vue';
 
-const Checkbox = defineComponent({
+type CheckboxProps = Readonly<{
+  disabled: boolean;
+  error: string | undefined;
+  label: string | undefined;
+  modelValue: boolean;
+  name: string | undefined;
+  required: boolean;
+}>;
+
+const Checkbox: Component = defineComponent({
+  emits: ['update:modelValue'],
   name: 'AsgardeoCheckbox',
   props: {
-    modelValue: {type: Boolean, default: false},
-    label: {type: String, default: undefined},
-    name: {type: String, default: undefined},
-    error: {type: String, default: undefined},
-    required: {type: Boolean, default: false},
-    disabled: {type: Boolean, default: false},
+    disabled: {default: false, type: Boolean},
+    error: {default: undefined, type: String},
+    label: {default: undefined, type: String},
+    modelValue: {default: false, type: Boolean},
+    name: {default: undefined, type: String},
+    required: {default: false, type: Boolean},
   },
-  emits: ['update:modelValue'],
-  setup(props, {emit, attrs}) {
-    return () => {
-      const wrapperClass = [
+  setup(props: CheckboxProps, {emit, attrs}: SetupContext): () => VNode {
+    return (): VNode => {
+      const wrapperClass: string = [
         withVendorCSSClassPrefix('checkbox'),
         props.error ? withVendorCSSClassPrefix('checkbox--error') : '',
         (attrs['class'] as string) || '',
@@ -43,15 +52,15 @@ const Checkbox = defineComponent({
       return h('div', {class: wrapperClass, style: attrs['style']}, [
         h('label', {class: withVendorCSSClassPrefix('checkbox__wrapper')}, [
           h('input', {
-            class: withVendorCSSClassPrefix('checkbox__input'),
-            type: 'checkbox',
-            name: props.name,
-            id: props.name,
             checked: props.modelValue,
-            required: props.required,
-            disabled: props.disabled,
+            class: withVendorCSSClassPrefix('checkbox__input'),
             'data-testid': attrs['data-testid'],
+            disabled: props.disabled,
+            id: props.name,
+            name: props.name,
             onChange: (e: Event) => emit('update:modelValue', (e.target as HTMLInputElement).checked),
+            required: props.required,
+            type: 'checkbox',
           }),
           props.label ? h('span', {class: withVendorCSSClassPrefix('checkbox__label')}, props.label) : null,
         ]),

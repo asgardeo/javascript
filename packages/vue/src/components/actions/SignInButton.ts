@@ -17,7 +17,7 @@
  */
 
 import {AsgardeoRuntimeError, navigate} from '@asgardeo/browser';
-import {defineComponent, h, ref, type PropType} from 'vue';
+import {defineComponent, h, ref, type PropType, type Ref, type SetupContext, type VNode} from 'vue';
 import BaseSignInButton from './BaseSignInButton';
 import useAsgardeo from '../../composables/useAsgardeo';
 import useI18n from '../../composables/useI18n';
@@ -28,18 +28,18 @@ import useI18n from '../../composables/useI18n';
  * If a custom `signInUrl` is configured, navigates to it instead.
  * Falls back to i18n translation for the button text.
  */
-const SignInButton = defineComponent({
+const SignInButton: ReturnType<typeof defineComponent> = defineComponent({
+  emits: ['click', 'error'],
   name: 'SignInButton',
   props: {
-    signInOptions: {type: Object as PropType<Record<string, any>>, default: undefined},
+    signInOptions: {default: undefined, type: Object as PropType<Record<string, any>>},
   },
-  emits: ['click', 'error'],
-  setup(props, {slots, emit, attrs}) {
+  setup(props: {signInOptions?: Record<string, any>}, {slots, emit, attrs}: SetupContext): () => VNode {
     const {signIn, signInUrl, signInOptions: contextSignInOptions} = useAsgardeo();
-    const {t} = useI18n();
-    const isLoading = ref(false);
+    const {t: _t} = useI18n();
+    const isLoading: Ref<boolean> = ref(false);
 
-    const handleSignIn = async (e?: MouseEvent) => {
+    const handleSignIn = async (e?: MouseEvent): Promise<void> => {
       try {
         isLoading.value = true;
         if (signInUrl) {
@@ -61,16 +61,18 @@ const SignInButton = defineComponent({
       }
     };
 
-    return () => {
-      const slotContent = slots['default'] ? () => slots['default']!({isLoading: isLoading.value}) : undefined;
+    return (): VNode => {
+      const slotContent: (() => VNode[]) | undefined = slots['default']
+        ? (): VNode[] => slots['default']!({isLoading: isLoading.value})
+        : undefined;
 
       return h(
         BaseSignInButton,
         {
           class: attrs['class'],
-          style: attrs['style'],
           isLoading: isLoading.value,
           onClick: handleSignIn,
+          style: attrs['style'],
         },
         slotContent,
       );

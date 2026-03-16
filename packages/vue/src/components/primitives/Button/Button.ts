@@ -17,37 +17,49 @@
  */
 
 import {withVendorCSSClassPrefix} from '@asgardeo/browser';
-import {defineComponent, h, type PropType, type VNode} from 'vue';
+import {type Component, type SetupContext, type VNode, defineComponent, h, type PropType} from 'vue';
 
-const Button = defineComponent({
+type ButtonProps = Readonly<{
+  color: 'primary' | 'secondary' | 'danger';
+  disabled: boolean;
+  endIcon: VNode | undefined;
+  fullWidth: boolean;
+  loading: boolean;
+  size: 'small' | 'medium' | 'large';
+  startIcon: VNode | undefined;
+  type: 'button' | 'submit' | 'reset';
+  variant: 'solid' | 'outline' | 'ghost' | 'text';
+}>;
+
+const Button: Component = defineComponent({
+  emits: ['click'],
   name: 'Button',
   props: {
-    variant: {
-      type: String as PropType<'solid' | 'outline' | 'ghost' | 'text'>,
-      default: 'solid',
-    },
     color: {
-      type: String as PropType<'primary' | 'secondary' | 'danger'>,
       default: 'primary',
+      type: String as PropType<'primary' | 'secondary' | 'danger'>,
     },
+    disabled: {default: false, type: Boolean},
+    endIcon: {default: undefined, type: Object as PropType<VNode>},
+    fullWidth: {default: false, type: Boolean},
+    loading: {default: false, type: Boolean},
     size: {
-      type: String as PropType<'small' | 'medium' | 'large'>,
       default: 'medium',
+      type: String as PropType<'small' | 'medium' | 'large'>,
     },
-    disabled: {type: Boolean, default: false},
-    loading: {type: Boolean, default: false},
-    fullWidth: {type: Boolean, default: false},
+    startIcon: {default: undefined, type: Object as PropType<VNode>},
     type: {
-      type: String as PropType<'button' | 'submit' | 'reset'>,
       default: 'button',
+      type: String as PropType<'button' | 'submit' | 'reset'>,
     },
-    startIcon: {type: Object as PropType<VNode>, default: undefined},
-    endIcon: {type: Object as PropType<VNode>, default: undefined},
+    variant: {
+      default: 'solid',
+      type: String as PropType<'solid' | 'outline' | 'ghost' | 'text'>,
+    },
   },
-  emits: ['click'],
-  setup(props, {slots, emit, attrs}) {
-    return () => {
-      const cssClass = [
+  setup(props: ButtonProps, {slots, emit, attrs}: SetupContext): () => VNode {
+    return (): VNode => {
+      const cssClass: string = [
         withVendorCSSClassPrefix('button'),
         withVendorCSSClassPrefix(`button--${props.variant}`),
         withVendorCSSClassPrefix(`button--${props.color}`),
@@ -63,10 +75,10 @@ const Button = defineComponent({
         'button',
         {
           class: cssClass,
-          style: attrs['style'],
-          type: props.type,
           disabled: props.disabled || props.loading,
           onClick: (e: MouseEvent) => emit('click', e),
+          style: attrs['style'],
+          type: props.type,
         },
         [
           props.startIcon
@@ -74,7 +86,7 @@ const Button = defineComponent({
             : null,
           h('span', {class: withVendorCSSClassPrefix('button__content')}, slots['default']?.()),
           props.endIcon ? h('span', {class: withVendorCSSClassPrefix('button__end-icon')}, [props.endIcon]) : null,
-          props.loading ? h('span', {class: withVendorCSSClassPrefix('button__spinner'), 'aria-hidden': 'true'}) : null,
+          props.loading ? h('span', {'aria-hidden': 'true', class: withVendorCSSClassPrefix('button__spinner')}) : null,
         ],
       );
     };

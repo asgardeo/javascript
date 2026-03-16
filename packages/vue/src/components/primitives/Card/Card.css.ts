@@ -26,7 +26,7 @@
  *   --outlined  – 1px border, no shadow
  *   --flat      – neither shadow nor border (default)
  */
-const CARD_CSS = `
+const CARD_CSS: string = `
 /* ============================================================
    Card
    ============================================================ */

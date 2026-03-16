@@ -17,7 +17,7 @@
  */
 
 import {withVendorCSSClassPrefix} from '@asgardeo/browser';
-import {type PropType, defineComponent, h} from 'vue';
+import {type Component, type PropType, type SetupContext, type VNode, defineComponent, h} from 'vue';
 import BaseUserProfile from './BaseUserProfile';
 import useUser from '../../../composables/useUser';
 
@@ -26,33 +26,43 @@ import useUser from '../../../composables/useUser';
  *
  * Retrieves user profile data from context and delegates to BaseUserProfile.
  */
-const UserProfile = defineComponent({
+
+type UserProfileProps = Readonly<{
+  cardLayout: boolean;
+  className: string;
+  editable: boolean;
+  hideFields: string[];
+  showFields: string[];
+  title: string;
+}>;
+
+const UserProfile: Component = defineComponent({
   name: 'UserProfile',
   props: {
-    className: {type: String, default: ''},
-    editable: {type: Boolean, default: true},
-    cardLayout: {type: Boolean, default: true},
-    title: {type: String, default: 'Profile'},
-    showFields: {type: Array as PropType<string[]>, default: () => []},
-    hideFields: {type: Array as PropType<string[]>, default: () => []},
+    cardLayout: {default: true, type: Boolean},
+    className: {default: '', type: String},
+    editable: {default: true, type: Boolean},
+    hideFields: {default: () => [], type: Array as PropType<string[]>},
+    showFields: {default: () => [], type: Array as PropType<string[]>},
+    title: {default: 'Profile', type: String},
   },
-  setup(props, {slots}) {
+  setup(props: UserProfileProps, {slots}: SetupContext): () => VNode {
     const {flattenedProfile, schemas, updateProfile} = useUser();
 
-    return () =>
+    return (): VNode =>
       h(
         BaseUserProfile,
         {
+          cardLayout: props.cardLayout,
           class: withVendorCSSClassPrefix('user-profile--styled'),
           className: props.className,
-          flattenedProfile: flattenedProfile?.value,
-          schemas: schemas?.value,
           editable: props.editable,
-          cardLayout: props.cardLayout,
-          title: props.title,
-          showFields: props.showFields,
+          flattenedProfile: flattenedProfile?.value,
           hideFields: props.hideFields,
           onUpdate: updateProfile,
+          schemas: schemas?.value,
+          showFields: props.showFields,
+          title: props.title,
         },
         slots,
       );

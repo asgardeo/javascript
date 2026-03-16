@@ -17,7 +17,7 @@
  */
 
 import {withVendorCSSClassPrefix} from '@asgardeo/browser';
-import {defineComponent, h, type PropType} from 'vue';
+import {type Component, type SetupContext, type VNode, defineComponent, h, type PropType} from 'vue';
 
 export interface SelectOption {
   disabled?: boolean;
@@ -25,30 +25,51 @@ export interface SelectOption {
   value: string;
 }
 
-const Select = defineComponent({
+type SelectProps = Readonly<{
+  disabled: boolean;
+  error: string | undefined;
+  helperText: string | undefined;
+  label: string | undefined;
+  modelValue: string;
+  name: string | undefined;
+  options: SelectOption[];
+  placeholder: string | undefined;
+  required: boolean;
+}>;
+
+const Select: Component = defineComponent({
+  emits: ['update:modelValue'],
   name: 'AsgardeoSelect',
   props: {
-    modelValue: {type: String, default: ''},
-    label: {type: String, default: undefined},
-    name: {type: String, default: undefined},
-    options: {type: Array as PropType<SelectOption[]>, default: () => []},
-    placeholder: {type: String, default: undefined},
-    error: {type: String, default: undefined},
-    helperText: {type: String, default: undefined},
-    required: {type: Boolean, default: false},
-    disabled: {type: Boolean, default: false},
+    disabled: {default: false, type: Boolean},
+    error: {default: undefined, type: String},
+    helperText: {default: undefined, type: String},
+    label: {default: undefined, type: String},
+    modelValue: {default: '', type: String},
+    name: {default: undefined, type: String},
+    options: {default: () => [], type: Array as PropType<SelectOption[]>},
+    placeholder: {default: undefined, type: String},
+    required: {default: false, type: Boolean},
   },
-  emits: ['update:modelValue'],
-  setup(props, {emit, attrs}) {
-    return () => {
-      const hasError = !!props.error;
-      const wrapperClass = [
+  setup(props: SelectProps, {emit, attrs}: SetupContext): () => VNode {
+    return (): VNode => {
+      const hasError: boolean = !!props.error;
+      const wrapperClass: string = [
         withVendorCSSClassPrefix('select'),
         hasError ? withVendorCSSClassPrefix('select--error') : '',
         (attrs['class'] as string) || '',
       ]
         .filter(Boolean)
         .join(' ');
+
+      let helperContent: VNode | null;
+      if (hasError) {
+        helperContent = h('span', {class: withVendorCSSClassPrefix('select__error')}, props.error);
+      } else if (props.helperText) {
+        helperContent = h('span', {class: withVendorCSSClassPrefix('select__helper')}, props.helperText);
+      } else {
+        helperContent = null;
+      }
 
       return h('div', {class: wrapperClass, style: attrs['style']}, [
         props.label
@@ -61,24 +82,20 @@ const Select = defineComponent({
           'select',
           {
             class: withVendorCSSClassPrefix('select__input'),
-            name: props.name,
-            id: props.name,
-            value: props.modelValue,
-            required: props.required,
-            disabled: props.disabled,
             'data-testid': attrs['data-testid'],
+            disabled: props.disabled,
+            id: props.name,
+            name: props.name,
             onChange: (e: Event) => emit('update:modelValue', (e.target as HTMLSelectElement).value),
+            required: props.required,
+            value: props.modelValue,
           },
           [
-            props.placeholder ? h('option', {value: '', disabled: true}, props.placeholder) : null,
-            ...props.options.map(opt => h('option', {value: opt.value, key: opt.value}, opt.label)),
+            props.placeholder ? h('option', {disabled: true, value: ''}, props.placeholder) : null,
+            ...props.options.map((opt: SelectOption) => h('option', {key: opt.value, value: opt.value}, opt.label)),
           ],
         ),
-        hasError
-          ? h('span', {class: withVendorCSSClassPrefix('select__error')}, props.error)
-          : props.helperText
-          ? h('span', {class: withVendorCSSClassPrefix('select__helper')}, props.helperText)
-          : null,
+        helperContent,
       ]);
     };
   },

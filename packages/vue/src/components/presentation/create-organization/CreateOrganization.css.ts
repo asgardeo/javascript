@@ -31,7 +31,7 @@
  *   __input        – the org-name TextField
  *   __submit       – the submit Button
  */
-const CREATE_ORGANIZATION_CSS = `
+const CREATE_ORGANIZATION_CSS: string = `
 /* ============================================================
    CreateOrganization
    ============================================================ */

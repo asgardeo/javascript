@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Copyright (c) {{year}}, WSO2 LLC. (https://www.wso2.com).
  *
  * WSO2 LLC. licenses this file to you under the Apache License,
@@ -15,43 +15,5 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 export {default} from './Select';

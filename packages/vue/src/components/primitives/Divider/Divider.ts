@@ -17,20 +17,24 @@
  */
 
 import {withVendorCSSClassPrefix} from '@asgardeo/browser';
-import {defineComponent, h, type PropType} from 'vue';
+import {type Component, type SetupContext, type VNode, defineComponent, h, type PropType} from 'vue';
 
-const Divider = defineComponent({
+type DividerProps = Readonly<{
+  orientation: 'horizontal' | 'vertical';
+}>;
+
+const Divider: Component = defineComponent({
   name: 'Divider',
   props: {
     orientation: {
-      type: String as PropType<'horizontal' | 'vertical'>,
       default: 'horizontal',
+      type: String as PropType<'horizontal' | 'vertical'>,
     },
   },
-  setup(props, {slots, attrs}) {
-    return () => {
-      const hasContent = !!slots['default'];
-      const cssClass = [
+  setup(props: DividerProps, {slots, attrs}: SetupContext): () => VNode {
+    return (): VNode => {
+      const hasContent: boolean = !!slots['default'];
+      const cssClass: string = [
         withVendorCSSClassPrefix('divider'),
         withVendorCSSClassPrefix(`divider--${props.orientation}`),
         hasContent ? withVendorCSSClassPrefix('divider--with-content') : '',
@@ -40,14 +44,14 @@ const Divider = defineComponent({
         .join(' ');
 
       if (hasContent) {
-        return h('div', {class: cssClass, style: attrs['style'], role: 'separator'}, [
+        return h('div', {class: cssClass, role: 'separator', style: attrs['style']}, [
           h('span', {class: withVendorCSSClassPrefix('divider__line')}),
           h('span', {class: withVendorCSSClassPrefix('divider__content')}, slots['default']?.()),
           h('span', {class: withVendorCSSClassPrefix('divider__line')}),
         ]);
       }
 
-      return h('hr', {class: cssClass, style: attrs['style'], role: 'separator'});
+      return h('hr', {class: cssClass, role: 'separator', style: attrs['style']});
     };
   },
 });

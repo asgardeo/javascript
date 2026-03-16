@@ -17,8 +17,7 @@
  */
 
 import {withVendorCSSClassPrefix} from '@asgardeo/browser';
-import type {PropType} from 'vue';
-import {defineComponent, h, ref} from 'vue';
+import {type PropType, type Ref, type VNode, defineComponent, h, ref} from 'vue';
 import Card from '../../primitives/Card';
 import {ChevronDownIcon, GlobeIcon} from '../../primitives/Icons';
 import type {SelectOption} from '../../primitives/Select/Select';
@@ -26,21 +25,28 @@ import Typography from '../../primitives/Typography';
 
 const cls = (name: string): string => withVendorCSSClassPrefix(`language-switcher${name}`);
 
+interface BaseLanguageSwitcherSetupProps {
+  className: string;
+  currentLanguage: string;
+  languages: SelectOption[];
+  onLanguageChange?: (lang: string) => void;
+}
+
 /**
  * BaseLanguageSwitcher — unstyled language selection component.
  *
  * Shows the current language and a dropdown to select another.
  */
-const BaseLanguageSwitcher = defineComponent({
+const BaseLanguageSwitcher: ReturnType<typeof defineComponent> = defineComponent({
   name: 'BaseLanguageSwitcher',
   props: {
-    className: {type: String, default: ''},
-    currentLanguage: {type: String, default: 'en'},
-    languages: {type: Array as PropType<SelectOption[]>, default: () => [{label: 'English', value: 'en'}]},
-    onLanguageChange: {type: Function as PropType<(lang: string) => void>, default: undefined},
+    className: {default: '', type: String},
+    currentLanguage: {default: 'en', type: String},
+    languages: {default: () => [{label: 'English', value: 'en'}], type: Array as PropType<SelectOption[]>},
+    onLanguageChange: {default: undefined, type: Function as PropType<(lang: string) => void>},
   },
-  setup(props, {slots}) {
-    const isOpen = ref(false);
+  setup(props: BaseLanguageSwitcherSetupProps, {slots}) {
+    const isOpen: Ref<boolean> = ref(false);
 
     const toggle = (): void => {
       isOpen.value = !isOpen.value;
@@ -51,27 +57,28 @@ const BaseLanguageSwitcher = defineComponent({
       props.onLanguageChange?.(lang);
     };
 
-    return () => {
+    return (): VNode | VNode[] => {
       if (slots['default']) {
         return slots['default']({
           currentLanguage: props.currentLanguage,
-          languages: props.languages,
-          isOpen: isOpen.value,
-          toggle,
           handleSelect,
+          isOpen: isOpen.value,
+          languages: props.languages,
+          toggle,
         });
       }
 
-      const currentLabel = props.languages.find(l => l.value === props.currentLanguage)?.label ?? props.currentLanguage;
+      const currentLabel: string =
+        props.languages.find(l => l.value === props.currentLanguage)?.label ?? props.currentLanguage;
 
-      const triggerButton = h(
+      const triggerButton: VNode = h(
         'button',
         {
-          type: 'button',
+          'aria-expanded': isOpen.value,
+          'aria-haspopup': 'listbox',
           class: cls('__trigger'),
           onClick: toggle,
-          'aria-haspopup': 'listbox',
-          'aria-expanded': isOpen.value,
+          type: 'button',
         },
         [
           h(GlobeIcon, {size: 16}),
@@ -80,22 +87,24 @@ const BaseLanguageSwitcher = defineComponent({
         ],
       );
 
-      const dropdownItems = props.languages.map(lang => {
-        const isActive = lang.value === props.currentLanguage;
+      const dropdownItems: VNode[] = props.languages.map(lang => {
+        const isActive: boolean = lang.value === props.currentLanguage;
         return h(
           'button',
           {
-            type: 'button',
+            'aria-selected': isActive,
             class: [cls('__item'), isActive ? cls('__item--active') : ''],
             onClick: () => handleSelect(lang.value),
             role: 'option',
-            'aria-selected': isActive,
+            type: 'button',
           },
           [h(Typography, {variant: 'body2'}, () => lang.label)],
         );
       });
 
-      const dropdown = isOpen.value ? h('div', {class: cls('__dropdown'), role: 'listbox'}, dropdownItems) : null;
+      const dropdown: VNode | null = isOpen.value
+        ? h('div', {class: cls('__dropdown'), role: 'listbox'}, dropdownItems)
+        : null;
 
       return h(Card, {class: [cls(''), props.className].filter(Boolean).join(' ')}, () => [triggerButton, dropdown]);
     };

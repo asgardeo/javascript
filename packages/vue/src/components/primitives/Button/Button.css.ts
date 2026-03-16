@@ -33,7 +33,7 @@
  * Note: The `asgardeo-spin` keyframe animation is defined in
  * `styles/animations.css.ts` and shared with the Spinner component.
  */
-const BUTTON_CSS = `
+const BUTTON_CSS: string = `
 /* ============================================================
    Button
    ============================================================ */

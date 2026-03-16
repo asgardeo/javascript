@@ -33,7 +33,7 @@
  *   __item           – each selectable language row
  *   __item--active   – the currently selected language
  */
-const LANGUAGE_SWITCHER_CSS = `
+const LANGUAGE_SWITCHER_CSS: string = `
 /* ============================================================
    LanguageSwitcher
    ============================================================ */

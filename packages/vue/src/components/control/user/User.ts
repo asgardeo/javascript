@@ -37,18 +37,18 @@ import useAsgardeo from '../../../composables/useAsgardeo';
  * </User>
  * ```
  */
-const User = defineComponent({
+const User: ReturnType<typeof defineComponent> = defineComponent({
   name: 'User',
-  setup(_props, {slots}) {
+  setup(_props: Record<string, unknown>, {slots}) {
     const {user} = useAsgardeo();
 
     return (): VNode | VNode[] | null => {
       if (!user.value) {
-        const fallbackContent = slots['fallback']?.();
+        const fallbackContent: VNode[] | undefined = slots['fallback']?.();
         return fallbackContent ? h(Fragment, {}, fallbackContent) : null;
       }
 
-      const defaultContent = slots['default']?.({user: user.value});
+      const defaultContent: VNode[] | undefined = slots['default']?.({user: user.value});
       return defaultContent ? h(Fragment, {}, defaultContent) : null;
     };
   },

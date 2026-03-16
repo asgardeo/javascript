@@ -17,7 +17,7 @@
  */
 
 import {withVendorCSSClassPrefix} from '@asgardeo/browser';
-import {defineComponent, h} from 'vue';
+import {type SetupContext, type VNode, defineComponent, h} from 'vue';
 
 export interface BaseSignInProps {
   className?: string;
@@ -29,13 +29,13 @@ export interface BaseSignInProps {
  * This component requires the app-native authentication flow which is not yet
  * supported in the Vue SDK. It will be implemented in a future release.
  */
-const BaseSignIn = defineComponent({
+const BaseSignIn: ReturnType<typeof defineComponent> = defineComponent({
   name: 'BaseSignIn',
   props: {
-    className: {type: String, default: ''},
+    className: {default: '', type: String},
   },
-  setup(props, {slots}) {
-    return () => {
+  setup(props: {className: string}, {slots}: SetupContext): () => VNode | VNode[] | null {
+    return (): VNode | VNode[] | null => {
       if (slots['default']) {
         return slots['default']();
       }

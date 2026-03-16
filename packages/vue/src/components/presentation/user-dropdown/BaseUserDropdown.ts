@@ -17,8 +17,7 @@
  */
 
 import {type User, withVendorCSSClassPrefix} from '@asgardeo/browser';
-import {type PropType, type VNode, defineComponent, h, ref} from 'vue';
-import Button from '../../primitives/Button';
+import {type PropType, type Ref, type SetupContext, type VNode, defineComponent, h, ref} from 'vue';
 import {ChevronDownIcon, LogOutIcon, UserIcon, XIcon} from '../../primitives/Icons';
 import Typography from '../../primitives/Typography';
 
@@ -35,34 +34,34 @@ export interface BaseUserDropdownProps {
 /**
  * BaseUserDropdown — unstyled user dropdown with avatar, profile link, sign-out.
  */
-const BaseUserDropdown = defineComponent({
+const BaseUserDropdown: ReturnType<typeof defineComponent> = defineComponent({
   name: 'BaseUserDropdown',
   props: {
-    className: {type: String, default: ''},
-    isProfileModalOpen: {type: Boolean, default: false},
-    profileContent: {type: Object as PropType<VNode | null>, default: null},
-    user: {type: Object as PropType<User | null>, default: null},
-    onProfileClick: {type: Function as PropType<() => void>, default: undefined},
-    onProfileModalClose: {type: Function as PropType<() => void>, default: undefined},
-    onSignOut: {type: Function as PropType<() => void>, default: undefined},
+    className: {default: '', type: String},
+    isProfileModalOpen: {default: false, type: Boolean},
+    onProfileClick: {default: undefined, type: Function as PropType<() => void>},
+    onProfileModalClose: {default: undefined, type: Function as PropType<() => void>},
+    onSignOut: {default: undefined, type: Function as PropType<() => void>},
+    profileContent: {default: null, type: Object as PropType<VNode | null>},
+    user: {default: null, type: Object as PropType<User | null>},
   },
-  setup(props, {slots}) {
-    const isOpen = ref(false);
-    const prefix = withVendorCSSClassPrefix;
+  setup(props: {className: string; isProfileModalOpen: boolean; onProfileClick?: () => void; onProfileModalClose?: () => void; onSignOut?: () => void; profileContent: VNode | null; user: User | null}, {slots}: SetupContext): () => VNode | VNode[] | null {
+    const isOpen: Ref<boolean> = ref(false);
+    const prefix: typeof withVendorCSSClassPrefix = withVendorCSSClassPrefix;
 
-    return () => {
+    return (): VNode | VNode[] | null => {
       if (slots['default']) {
-        return slots['default']({user: props.user, isOpen: isOpen.value, toggle: () => (isOpen.value = !isOpen.value)});
+        return slots['default']({isOpen: isOpen.value, toggle: () => { isOpen.value = !isOpen.value; }, user: props.user});
       }
 
       const resolveDisplayName = (): string | undefined => {
         if (!props.user) return undefined;
-        const record = props.user as Record<string, unknown>;
+        const record: Record<string, unknown> = props.user as Record<string, unknown>;
         if (typeof record['displayName'] === 'string') return record['displayName'];
-        const name = record['name'];
+        const name: unknown = record['name'];
         if (typeof name === 'string') return name;
         if (typeof name === 'object' && name) {
-          const parts = [(name as any).givenName, (name as any).familyName].filter(Boolean);
+          const parts: string[] = [(name as any).givenName, (name as any).familyName].filter(Boolean);
           if (parts.length > 0) return parts.join(' ');
         }
         if (typeof record['email'] === 'string') return record['email'];
@@ -70,7 +69,7 @@ const BaseUserDropdown = defineComponent({
         if (typeof record['sub'] === 'string') return record['sub'];
         return undefined;
       };
-      const displayName = resolveDisplayName();
+      const displayName: string | undefined = resolveDisplayName();
 
       const children: VNode[] = [];
 
@@ -79,14 +78,14 @@ const BaseUserDropdown = defineComponent({
         h(
           'button',
           {
-            type: 'button',
             class: prefix('user-dropdown__trigger'),
-            onClick: () => (isOpen.value = !isOpen.value),
+            onClick: () => { isOpen.value = !isOpen.value; },
+            type: 'button',
           },
           [
             h('span', {class: prefix('user-dropdown__avatar')}, [h(UserIcon, {size: 20})]),
             displayName
-              ? h(Typography, {variant: 'body2', class: prefix('user-dropdown__name')}, () => displayName)
+              ? h(Typography, {class: prefix('user-dropdown__name'), variant: 'body2'}, () => displayName)
               : null,
             h(ChevronDownIcon, {size: 16}),
           ],
@@ -99,7 +98,7 @@ const BaseUserDropdown = defineComponent({
 
         if (props.onProfileClick) {
           menuItems.push(
-            h('button', {type: 'button', class: prefix('user-dropdown__item'), onClick: props.onProfileClick}, [
+            h('button', {class: prefix('user-dropdown__item'), onClick: props.onProfileClick, type: 'button'}, [
               h(UserIcon, {size: 16}),
               h('span', null, 'Profile'),
             ]),
@@ -112,7 +111,7 @@ const BaseUserDropdown = defineComponent({
 
         if (props.onSignOut) {
           menuItems.push(
-            h('button', {type: 'button', class: prefix('user-dropdown__item'), onClick: props.onSignOut}, [
+            h('button', {class: prefix('user-dropdown__item'), onClick: props.onSignOut, type: 'button'}, [
               h(LogOutIcon, {size: 16}),
               h('span', null, 'Sign Out'),
             ]),
@@ -122,7 +121,7 @@ const BaseUserDropdown = defineComponent({
         children.push(h('div', {class: prefix('user-dropdown__menu')}, menuItems));
       }
 
-      const container = h(
+      const container: VNode = h(
         'div',
         {class: [prefix('user-dropdown'), props.className].filter(Boolean).join(' ')},
         children,
@@ -137,10 +136,10 @@ const BaseUserDropdown = defineComponent({
               h(
                 'button',
                 {
-                  type: 'button',
-                  class: prefix('user-dropdown__modal-close'),
                   'aria-label': 'Close profile modal',
+                  class: prefix('user-dropdown__modal-close'),
                   onClick: props.onProfileModalClose,
+                  type: 'button',
                 },
                 [h(XIcon, {size: 24})],
               ),

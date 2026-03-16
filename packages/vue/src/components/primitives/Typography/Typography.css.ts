@@ -27,7 +27,7 @@
  *   --body1 | --body2
  *   --caption | --overline
  */
-const TYPOGRAPHY_CSS = `
+const TYPOGRAPHY_CSS: string = `
 /* ============================================================
    Typography
    ============================================================ */

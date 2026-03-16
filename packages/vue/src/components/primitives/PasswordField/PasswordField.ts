@@ -17,26 +17,36 @@
  */
 
 import {withVendorCSSClassPrefix} from '@asgardeo/browser';
-import {defineComponent, h, ref} from 'vue';
+import {type Component, type Ref, type SetupContext, type VNode, defineComponent, h, ref} from 'vue';
 
-const PasswordField = defineComponent({
+type PasswordFieldProps = Readonly<{
+  disabled: boolean;
+  error: string | undefined;
+  label: string | undefined;
+  modelValue: string;
+  name: string | undefined;
+  placeholder: string | undefined;
+  required: boolean;
+}>;
+
+const PasswordField: Component = defineComponent({
+  emits: ['update:modelValue', 'blur'],
   name: 'PasswordField',
   props: {
-    modelValue: {type: String, default: ''},
-    label: {type: String, default: undefined},
-    name: {type: String, default: undefined},
-    placeholder: {type: String, default: undefined},
-    error: {type: String, default: undefined},
-    required: {type: Boolean, default: false},
-    disabled: {type: Boolean, default: false},
+    disabled: {default: false, type: Boolean},
+    error: {default: undefined, type: String},
+    label: {default: undefined, type: String},
+    modelValue: {default: '', type: String},
+    name: {default: undefined, type: String},
+    placeholder: {default: undefined, type: String},
+    required: {default: false, type: Boolean},
   },
-  emits: ['update:modelValue', 'blur'],
-  setup(props, {emit, attrs}) {
-    const visible = ref(false);
+  setup(props: PasswordFieldProps, {emit, attrs}: SetupContext): () => VNode {
+    const visible: Ref<boolean> = ref(false);
 
-    return () => {
-      const hasError = !!props.error;
-      const wrapperClass = [
+    return (): VNode => {
+      const hasError: boolean = !!props.error;
+      const wrapperClass: string = [
         withVendorCSSClassPrefix('password-field'),
         hasError ? withVendorCSSClassPrefix('password-field--error') : '',
         (attrs['class'] as string) || '',
@@ -61,27 +71,27 @@ const PasswordField = defineComponent({
         h('div', {class: withVendorCSSClassPrefix('password-field__wrapper')}, [
           h('input', {
             class: withVendorCSSClassPrefix('password-field__input'),
-            type: visible.value ? 'text' : 'password',
-            name: props.name,
+            'data-testid': attrs['data-testid'],
+            disabled: props.disabled,
             id: props.name,
-            value: props.modelValue,
+            name: props.name,
+            onBlur: () => emit('blur'),
+            onInput: (e: Event) => emit('update:modelValue', (e.target as HTMLInputElement).value),
             placeholder: props.placeholder,
             required: props.required,
-            disabled: props.disabled,
-            'data-testid': attrs['data-testid'],
-            onInput: (e: Event) => emit('update:modelValue', (e.target as HTMLInputElement).value),
-            onBlur: () => emit('blur'),
+            type: visible.value ? 'text' : 'password',
+            value: props.modelValue,
           }),
           h(
             'button',
             {
-              type: 'button',
-              class: withVendorCSSClassPrefix('password-field__toggle'),
               'aria-label': visible.value ? 'Hide password' : 'Show password',
-              tabindex: -1,
+              class: withVendorCSSClassPrefix('password-field__toggle'),
               onClick: () => {
                 visible.value = !visible.value;
               },
+              tabindex: -1,
+              type: 'button',
             },
             visible.value ? '\u25CF' : '\u25CB',
           ),

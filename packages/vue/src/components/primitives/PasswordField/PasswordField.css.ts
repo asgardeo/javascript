@@ -27,7 +27,7 @@
  * Elements:
  *   __label | __required | __wrapper | __input | __toggle | __error
  */
-const PASSWORD_FIELD_CSS = `
+const PASSWORD_FIELD_CSS: string = `
 /* ============================================================
    PasswordField
    ============================================================ */

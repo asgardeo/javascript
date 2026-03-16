@@ -17,25 +17,33 @@
  */
 
 import {withVendorCSSClassPrefix} from '@asgardeo/browser';
-import {defineComponent, h} from 'vue';
+import {type Component, type SetupContext, type VNode, defineComponent, h} from 'vue';
 
-const Logo = defineComponent({
+type LogoProps = Readonly<{
+  alt: string;
+  height: string | number | undefined;
+  href: string | undefined;
+  src: string | undefined;
+  width: string | number | undefined;
+}>;
+
+const Logo: Component = defineComponent({
   name: 'Logo',
   props: {
-    src: {type: String, default: undefined},
-    alt: {type: String, default: 'Logo'},
-    href: {type: String, default: undefined},
-    width: {type: [String, Number], default: undefined},
-    height: {type: [String, Number], default: undefined},
+    alt: {default: 'Logo', type: String},
+    height: {default: undefined, type: [String, Number]},
+    href: {default: undefined, type: String},
+    src: {default: undefined, type: String},
+    width: {default: undefined, type: [String, Number]},
   },
-  setup(props, {attrs}) {
-    return () => {
-      const img = h('img', {
-        class: withVendorCSSClassPrefix('logo__image'),
-        src: props.src,
+  setup(props: LogoProps, {attrs}: SetupContext): () => VNode {
+    return (): VNode => {
+      const img: VNode = h('img', {
         alt: props.alt,
-        width: props.width,
+        class: withVendorCSSClassPrefix('logo__image'),
         height: props.height,
+        src: props.src,
+        width: props.width,
       });
 
       if (props.href) {
@@ -43,8 +51,8 @@ const Logo = defineComponent({
           'a',
           {
             class: [withVendorCSSClassPrefix('logo'), (attrs['class'] as string) || ''].filter(Boolean).join(' '),
-            style: attrs['style'],
             href: props.href,
+            style: attrs['style'],
           },
           [img],
         );

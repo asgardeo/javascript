@@ -36,7 +36,7 @@
  *   __item           – each selectable organization row
  *   __item--active   – currently selected organization
  */
-const ORGANIZATION_SWITCHER_CSS = `
+const ORGANIZATION_SWITCHER_CSS: string = `
 /* ============================================================
    OrganizationSwitcher
    ============================================================ */

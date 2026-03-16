@@ -27,7 +27,7 @@
  * Elements:
  *   __label | __required | __input | __error | __helper
  */
-const TEXT_FIELD_CSS = `
+const TEXT_FIELD_CSS: string = `
 /* ============================================================
    TextField
    ============================================================ */

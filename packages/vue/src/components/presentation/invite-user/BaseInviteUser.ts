@@ -17,7 +17,7 @@
  */
 
 import {withVendorCSSClassPrefix} from '@asgardeo/browser';
-import {defineComponent, h} from 'vue';
+import {type VNode, defineComponent, h} from 'vue';
 
 export interface BaseInviteUserProps {
   className?: string;
@@ -29,13 +29,13 @@ export interface BaseInviteUserProps {
  * This component requires the app-native authentication flow which is not yet
  * supported in the Vue SDK. It will be implemented in a future release.
  */
-const BaseInviteUser = defineComponent({
+const BaseInviteUser: ReturnType<typeof defineComponent> = defineComponent({
   name: 'BaseInviteUser',
   props: {
-    className: {type: String, default: ''},
+    className: {default: '', type: String},
   },
-  setup(props, {slots}) {
-    return () => {
+  setup(props: {className: string}, {slots}) {
+    return (): VNode | VNode[] => {
       if (slots['default']) {
         return slots['default']();
       }

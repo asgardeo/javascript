@@ -27,7 +27,7 @@
  * Elements:
  *   __label | __required | __input | __error
  */
-const DATE_PICKER_CSS = `
+const DATE_PICKER_CSS: string = `
 /* ============================================================
    DatePicker
    ============================================================ */

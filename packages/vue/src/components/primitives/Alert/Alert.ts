@@ -17,24 +17,28 @@
  */
 
 import {withVendorCSSClassPrefix} from '@asgardeo/browser';
-import {defineComponent, h, type PropType} from 'vue';
+import {type Component, type SetupContext, type VNode, defineComponent, h, type PropType} from 'vue';
 
-const Alert = defineComponent({
+type AlertProps = Readonly<{
+  dismissible: boolean;
+  severity: 'success' | 'error' | 'warning' | 'info';
+}>;
+
+const Alert: Component = defineComponent({
+  emits: ['dismiss'],
   name: 'Alert',
   props: {
+    dismissible: {default: false, type: Boolean},
     severity: {
-      type: String as PropType<'success' | 'error' | 'warning' | 'info'>,
       default: 'info',
+      type: String as PropType<'success' | 'error' | 'warning' | 'info'>,
     },
-    dismissible: {type: Boolean, default: false},
   },
-  emits: ['dismiss'],
-  setup(props, {slots, emit, attrs}) {
-    return () =>
+  setup(props: AlertProps, {slots, emit, attrs}: SetupContext): () => VNode {
+    return (): VNode =>
       h(
         'div',
         {
-          role: 'alert',
           class: [
             withVendorCSSClassPrefix('alert'),
             withVendorCSSClassPrefix(`alert--${props.severity}`),
@@ -42,6 +46,7 @@ const Alert = defineComponent({
           ]
             .filter(Boolean)
             .join(' '),
+          role: 'alert',
           style: attrs['style'],
         },
         [
@@ -50,10 +55,10 @@ const Alert = defineComponent({
             ? h(
                 'button',
                 {
-                  type: 'button',
-                  class: withVendorCSSClassPrefix('alert__dismiss'),
                   'aria-label': 'Dismiss',
+                  class: withVendorCSSClassPrefix('alert__dismiss'),
                   onClick: () => emit('dismiss'),
+                  type: 'button',
                 },
                 '\u00d7',
               )

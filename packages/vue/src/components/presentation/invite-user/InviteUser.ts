@@ -17,7 +17,7 @@
  */
 
 import {withVendorCSSClassPrefix} from '@asgardeo/browser';
-import {defineComponent, h} from 'vue';
+import {type VNode, defineComponent, h} from 'vue';
 import Card from '../../primitives/Card';
 import Typography from '../../primitives/Typography';
 
@@ -27,10 +27,10 @@ import Typography from '../../primitives/Typography';
  * This component requires the app-native authentication flow which is not yet
  * supported in the Vue SDK. It will be implemented in a future release.
  */
-const InviteUser = defineComponent({
+const InviteUser: ReturnType<typeof defineComponent> = defineComponent({
   name: 'InviteUser',
-  setup(_props, {slots}) {
-    return () => {
+  setup(_props: Record<string, unknown>, {slots}) {
+    return (): VNode | VNode[] => {
       if (slots['default']) {
         return slots['default']();
       }

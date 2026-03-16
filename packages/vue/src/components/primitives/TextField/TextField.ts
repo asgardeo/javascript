@@ -17,36 +17,58 @@
  */
 
 import {withVendorCSSClassPrefix} from '@asgardeo/browser';
-import {defineComponent, h, type PropType} from 'vue';
+import {type Component, type SetupContext, type VNode, defineComponent, h, type PropType} from 'vue';
 
-const TextField = defineComponent({
+type TextFieldProps = Readonly<{
+  autoComplete: string | undefined;
+  disabled: boolean;
+  error: string | undefined;
+  helperText: string | undefined;
+  label: string | undefined;
+  modelValue: string;
+  name: string | undefined;
+  placeholder: string | undefined;
+  required: boolean;
+  type: 'text' | 'email' | 'number' | 'tel' | 'url';
+}>;
+
+const TextField: Component = defineComponent({
+  emits: ['update:modelValue', 'blur'],
   name: 'TextField',
   props: {
-    modelValue: {type: String, default: ''},
+    autoComplete: {default: undefined, type: String},
+    disabled: {default: false, type: Boolean},
+    error: {default: undefined, type: String},
+    helperText: {default: undefined, type: String},
+    label: {default: undefined, type: String},
+    modelValue: {default: '', type: String},
+    name: {default: undefined, type: String},
+    placeholder: {default: undefined, type: String},
+    required: {default: false, type: Boolean},
     type: {
-      type: String as PropType<'text' | 'email' | 'number' | 'tel' | 'url'>,
       default: 'text',
+      type: String as PropType<'text' | 'email' | 'number' | 'tel' | 'url'>,
     },
-    label: {type: String, default: undefined},
-    name: {type: String, default: undefined},
-    placeholder: {type: String, default: undefined},
-    error: {type: String, default: undefined},
-    helperText: {type: String, default: undefined},
-    required: {type: Boolean, default: false},
-    disabled: {type: Boolean, default: false},
-    autoComplete: {type: String, default: undefined},
   },
-  emits: ['update:modelValue', 'blur'],
-  setup(props, {emit, attrs}) {
-    return () => {
-      const hasError = !!props.error;
-      const wrapperClass = [
+  setup(props: TextFieldProps, {emit, attrs}: SetupContext): () => VNode {
+    return (): VNode => {
+      const hasError: boolean = !!props.error;
+      const wrapperClass: string = [
         withVendorCSSClassPrefix('text-field'),
         hasError ? withVendorCSSClassPrefix('text-field--error') : '',
         (attrs['class'] as string) || '',
       ]
         .filter(Boolean)
         .join(' ');
+
+      let helperContent: VNode | null;
+      if (hasError) {
+        helperContent = h('span', {class: withVendorCSSClassPrefix('text-field__error')}, props.error);
+      } else if (props.helperText) {
+        helperContent = h('span', {class: withVendorCSSClassPrefix('text-field__helper')}, props.helperText);
+      } else {
+        helperContent = null;
+      }
 
       return h('div', {class: wrapperClass, style: attrs['style']}, [
         props.label
@@ -63,24 +85,20 @@ const TextField = defineComponent({
             )
           : null,
         h('input', {
+          autocomplete: props.autoComplete,
           class: withVendorCSSClassPrefix('text-field__input'),
-          type: props.type,
-          name: props.name,
+          'data-testid': attrs['data-testid'],
+          disabled: props.disabled,
           id: props.name,
-          value: props.modelValue,
+          name: props.name,
+          onBlur: () => emit('blur'),
+          onInput: (e: Event) => emit('update:modelValue', (e.target as HTMLInputElement).value),
           placeholder: props.placeholder,
           required: props.required,
-          disabled: props.disabled,
-          autocomplete: props.autoComplete,
-          'data-testid': attrs['data-testid'],
-          onInput: (e: Event) => emit('update:modelValue', (e.target as HTMLInputElement).value),
-          onBlur: () => emit('blur'),
+          type: props.type,
+          value: props.modelValue,
         }),
-        hasError
-          ? h('span', {class: withVendorCSSClassPrefix('text-field__error')}, props.error)
-          : props.helperText
-          ? h('span', {class: withVendorCSSClassPrefix('text-field__helper')}, props.helperText)
-          : null,
+        helperContent,
       ]);
     };
   },

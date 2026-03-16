@@ -44,6 +44,20 @@ export interface FieldConfig {
   value: string;
 }
 
+interface FieldFactorySetupProps {
+  className?: string;
+  disabled: boolean;
+  error?: string;
+  label: string;
+  name: string;
+  options: SelectOption[];
+  placeholder?: string;
+  required: boolean;
+  touched: boolean;
+  type: FieldType;
+  value: string;
+}
+
 /**
  * Utility function to validate field values based on type.
  */
@@ -63,7 +77,7 @@ export const validateFieldValue = (
 
   switch (type) {
     case FieldType.Number: {
-      const numValue = parseInt(value, 10);
+      const numValue: number = parseInt(value, 10);
       if (Number.isNaN(numValue)) {
         return 'Please enter a valid number';
       }
@@ -96,7 +110,7 @@ export const createField = (config: FieldConfig): VNode => {
     placeholder,
   } = config;
 
-  const validationError = error || validateFieldValue(value, type, required, touched);
+  const validationError: string | null | undefined = error || validateFieldValue(value, type, required, touched);
 
   const commonProps: Record<string, unknown> = {
     class: className,
@@ -104,11 +118,11 @@ export const createField = (config: FieldConfig): VNode => {
     disabled,
     error: validationError,
     label,
+    modelValue: value,
     name,
     onBlur,
     placeholder,
     required,
-    modelValue: value,
   };
 
   switch (type) {
@@ -121,17 +135,17 @@ export const createField = (config: FieldConfig): VNode => {
     case FieldType.Text:
       return h(TextField, {
         ...commonProps,
-        type: 'text',
         autocomplete: 'off',
         'onUpdate:modelValue': onChange,
+        type: 'text',
       } as Record<string, unknown>);
 
     case FieldType.Email:
       return h(TextField, {
         ...commonProps,
-        type: 'email',
         autocomplete: 'email',
         'onUpdate:modelValue': onChange,
+        type: 'email',
       } as Record<string, unknown>);
 
     case FieldType.Date:
@@ -141,7 +155,7 @@ export const createField = (config: FieldConfig): VNode => {
       } as Record<string, unknown>);
 
     case FieldType.Checkbox: {
-      const isChecked = value === 'true' || (value as unknown) === true;
+      const isChecked: boolean = value === 'true' || (value as unknown) === true;
 
       return h(Checkbox, {
         ...commonProps,
@@ -159,9 +173,9 @@ export const createField = (config: FieldConfig): VNode => {
     case FieldType.Number:
       return h(TextField, {
         ...commonProps,
-        type: 'number',
         helperText: 'Enter a numeric value',
         'onUpdate:modelValue': onChange,
+        type: 'number',
       } as Record<string, unknown>);
 
     case FieldType.Select: {
@@ -170,27 +184,27 @@ export const createField = (config: FieldConfig): VNode => {
       if (fieldOptions.length > 0) {
         return h(Select, {
           ...commonProps,
-          options: fieldOptions,
           helperText: 'Select from available options',
           'onUpdate:modelValue': onChange,
+          options: fieldOptions,
         } as Record<string, unknown>);
       }
 
       return h(TextField, {
         ...commonProps,
-        type: 'text',
         helperText: 'Enter multiple values separated by commas (e.g., value1, value2, value3)',
-        placeholder: 'value1, value2, value3',
         'onUpdate:modelValue': onChange,
+        placeholder: 'value1, value2, value3',
+        type: 'text',
       } as Record<string, unknown>);
     }
 
     default:
       return h(TextField, {
         ...commonProps,
-        type: 'text',
         helperText: 'Unknown field type, treating as text',
         'onUpdate:modelValue': onChange,
+        type: 'text',
       } as Record<string, unknown>);
   }
 };
@@ -198,23 +212,23 @@ export const createField = (config: FieldConfig): VNode => {
 /**
  * FieldFactory — Vue component wrapper for the field factory.
  */
-const FieldFactory = defineComponent({
+const FieldFactory: ReturnType<typeof defineComponent> = defineComponent({
   name: 'FieldFactory',
   props: {
-    name: {type: String, required: true},
-    type: {type: String as PropType<FieldType>, required: true},
-    label: {type: String, required: true},
-    required: {type: Boolean, default: false},
-    value: {type: String, default: ''},
-    disabled: {type: Boolean, default: false},
-    error: {type: String, default: undefined},
-    className: {type: String, default: undefined},
-    options: {type: Array as PropType<SelectOption[]>, default: () => []},
-    touched: {type: Boolean, default: false},
-    placeholder: {type: String, default: undefined},
+    className: {default: undefined, type: String},
+    disabled: {default: false, type: Boolean},
+    error: {default: undefined, type: String},
+    label: {required: true, type: String},
+    name: {required: true, type: String},
+    options: {default: () => [], type: Array as PropType<SelectOption[]>},
+    placeholder: {default: undefined, type: String},
+    required: {default: false, type: Boolean},
+    touched: {default: false, type: Boolean},
+    type: {required: true, type: String as PropType<FieldType>},
+    value: {default: '', type: String},
   },
   emits: ['change', 'blur'],
-  setup(props, {emit}) {
+  setup(props: FieldFactorySetupProps, {emit}) {
     return () =>
       createField({
         className: props.className,

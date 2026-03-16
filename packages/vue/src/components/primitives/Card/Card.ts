@@ -17,18 +17,22 @@
  */
 
 import {withVendorCSSClassPrefix} from '@asgardeo/browser';
-import {defineComponent, h, type PropType} from 'vue';
+import {type Component, type SetupContext, type VNode, defineComponent, h, type PropType} from 'vue';
 
-const Card = defineComponent({
+type CardProps = Readonly<{
+  variant: 'elevated' | 'outlined' | 'flat';
+}>;
+
+const Card: Component = defineComponent({
   name: 'Card',
   props: {
     variant: {
-      type: String as PropType<'elevated' | 'outlined' | 'flat'>,
       default: 'elevated',
+      type: String as PropType<'elevated' | 'outlined' | 'flat'>,
     },
   },
-  setup(props, {slots, attrs}) {
-    return () =>
+  setup(props: CardProps, {slots, attrs}: SetupContext): () => VNode {
+    return (): VNode =>
       h(
         'div',
         {

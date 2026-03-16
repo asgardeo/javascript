@@ -19,6 +19,11 @@
 import {navigate as browserNavigate} from '@asgardeo/browser';
 import {defineComponent, onMounted} from 'vue';
 
+interface CallbackSetupProps {
+  onError: ((error: Error) => void) | undefined;
+  onNavigate: ((path: string) => void) | undefined;
+}
+
 /**
  * Callback — headless component that handles OAuth callback parameter forwarding.
  *
@@ -30,13 +35,13 @@ import {defineComponent, onMounted} from 'vue';
  *
  * Flow: Extract OAuth parameters from URL -> Parse state parameter -> Redirect to original path with parameters
  */
-const Callback = defineComponent({
+const Callback: ReturnType<typeof defineComponent> = defineComponent({
   name: 'Callback',
   props: {
-    onNavigate: {type: Function as unknown as () => (path: string) => void, default: undefined},
-    onError: {type: Function as unknown as () => (error: Error) => void, default: undefined},
+    onError: {default: undefined, type: Function as unknown as () => (error: Error) => void},
+    onNavigate: {default: undefined, type: Function as unknown as () => (path: string) => void},
   },
-  setup(props) {
+  setup(props: CallbackSetupProps) {
     const navigate = (path: string): void => {
       if (props.onNavigate) {
         props.onNavigate(path);
@@ -46,16 +51,16 @@ const Callback = defineComponent({
     };
 
     onMounted(() => {
-      let returnPath = '/';
+      let returnPath: string = '/';
 
       try {
         // 1. Extract OAuth parameters from URL
-        const urlParams = new URLSearchParams(window.location.search);
-        const code = urlParams.get('code');
-        const state = urlParams.get('state');
-        const nonce = urlParams.get('nonce');
-        const oauthError = urlParams.get('error');
-        const errorDescription = urlParams.get('error_description');
+        const urlParams: URLSearchParams = new URLSearchParams(window.location.search);
+        const code: string | null = urlParams.get('code');
+        const state: string | null = urlParams.get('state');
+        const nonce: string | null = urlParams.get('nonce');
+        const oauthError: string | null = urlParams.get('error');
+        const errorDescription: string | null = urlParams.get('error_description');
 
         // If no OAuth parameters are present, this component is not on a real callback
         // route — do nothing and return early.
@@ -68,14 +73,14 @@ const Callback = defineComponent({
           throw new Error('Missing OAuth state parameter - possible security issue');
         }
 
-        const storedData = sessionStorage.getItem(`asgardeo_oauth_${state}`);
+        const storedData: string | null = sessionStorage.getItem(`asgardeo_oauth_${state}`);
         if (!storedData) {
           if (oauthError) {
-            const errorMsg = errorDescription || oauthError || 'OAuth authentication failed';
-            const err = new Error(errorMsg);
+            const errorMsg: string = errorDescription || oauthError || 'OAuth authentication failed';
+            const err: Error = new Error(errorMsg);
             props.onError?.(err);
 
-            const params = new URLSearchParams();
+            const params: URLSearchParams = new URLSearchParams();
             params.set('error', oauthError);
             if (errorDescription) {
               params.set('error_description', errorDescription);
@@ -92,7 +97,7 @@ const Callback = defineComponent({
         returnPath = path || '/';
 
         // 3. Validate state freshness
-        const MAX_STATE_AGE = 600000; // 10 minutes
+        const MAX_STATE_AGE: number = 600000; // 10 minutes
         if (Date.now() - timestamp > MAX_STATE_AGE) {
           sessionStorage.removeItem(`asgardeo_oauth_${state}`);
           throw new Error('OAuth state expired - please try again');
@@ -103,11 +108,11 @@ const Callback = defineComponent({
 
         // 5. Handle OAuth error response
         if (oauthError) {
-          const errorMsg = errorDescription || oauthError || 'OAuth authentication failed';
-          const err = new Error(errorMsg);
+          const errorMsg: string = errorDescription || oauthError || 'OAuth authentication failed';
+          const err: Error = new Error(errorMsg);
           props.onError?.(err);
 
-          const params = new URLSearchParams();
+          const params: URLSearchParams = new URLSearchParams();
           params.set('error', oauthError);
           if (errorDescription) {
             params.set('error_description', errorDescription);
@@ -124,7 +129,7 @@ const Callback = defineComponent({
         }
 
         // 7. Forward OAuth code to original component
-        const params = new URLSearchParams();
+        const params: URLSearchParams = new URLSearchParams();
         params.set('code', code);
         if (nonce) {
           params.set('nonce', nonce);
@@ -132,13 +137,13 @@ const Callback = defineComponent({
 
         navigate(`${returnPath}?${params.toString()}`);
       } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : 'OAuth callback processing failed';
+        const errorMessage: string = err instanceof Error ? err.message : 'OAuth callback processing failed';
         // eslint-disable-next-line no-console
         console.error('OAuth callback error:', err);
 
         props.onError?.(err instanceof Error ? err : new Error(errorMessage));
 
-        const params = new URLSearchParams();
+        const params: URLSearchParams = new URLSearchParams();
         params.set('error', 'callback_error');
         params.set('error_description', errorMessage);
 
@@ -147,7 +152,7 @@ const Callback = defineComponent({
     });
 
     // Headless component — renders nothing
-    return () => null;
+    return (): null => null;
   },
 });
 

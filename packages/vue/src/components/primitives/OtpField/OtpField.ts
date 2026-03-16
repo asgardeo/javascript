@@ -17,33 +17,43 @@
  */
 
 import {withVendorCSSClassPrefix} from '@asgardeo/browser';
-import {defineComponent, h, ref, nextTick} from 'vue';
+import {type Component, type Ref, type SetupContext, type VNode, defineComponent, h, nextTick, ref} from 'vue';
 
-const OtpField = defineComponent({
+type OtpFieldProps = Readonly<{
+  disabled: boolean;
+  error: string | undefined;
+  label: string | undefined;
+  length: number;
+  modelValue: string;
+  name: string | undefined;
+  required: boolean;
+}>;
+
+const OtpField: Component = defineComponent({
+  emits: ['update:modelValue'],
   name: 'OtpField',
   props: {
-    modelValue: {type: String, default: ''},
-    length: {type: Number, default: 6},
-    label: {type: String, default: undefined},
-    name: {type: String, default: undefined},
-    error: {type: String, default: undefined},
-    required: {type: Boolean, default: false},
-    disabled: {type: Boolean, default: false},
+    disabled: {default: false, type: Boolean},
+    error: {default: undefined, type: String},
+    label: {default: undefined, type: String},
+    length: {default: 6, type: Number},
+    modelValue: {default: '', type: String},
+    name: {default: undefined, type: String},
+    required: {default: false, type: Boolean},
   },
-  emits: ['update:modelValue'],
-  setup(props, {emit, attrs}) {
-    const inputRefs = ref<HTMLInputElement[]>([]);
+  setup(props: OtpFieldProps, {emit, attrs}: SetupContext): () => VNode {
+    const inputRefs: Ref<HTMLInputElement[]> = ref<HTMLInputElement[]>([]);
 
-    const setRef = (el: any, index: number) => {
+    const setRef = (el: unknown, index: number): void => {
       if (el) inputRefs.value[index] = el as HTMLInputElement;
     };
 
-    const handleInput = (index: number, e: Event) => {
-      const target = e.target as HTMLInputElement;
-      const val = target.value.replace(/\D/g, '').slice(0, 1);
+    const handleInput = (index: number, e: Event): void => {
+      const target: HTMLInputElement = e.target as HTMLInputElement;
+      const val: string = target.value.replace(/\D/g, '').slice(0, 1);
       target.value = val;
 
-      const current = (props.modelValue || '').split('');
+      const current: string[] = (props.modelValue || '').split('');
       while (current.length < props.length) current.push('');
       current[index] = val;
       emit('update:modelValue', current.join(''));
@@ -53,14 +63,14 @@ const OtpField = defineComponent({
       }
     };
 
-    const handleKeydown = (index: number, e: KeyboardEvent) => {
+    const handleKeydown = (index: number, e: KeyboardEvent): void => {
       if (e.key === 'Backspace' && !(e.target as HTMLInputElement).value && index > 0) {
         nextTick(() => inputRefs.value[index - 1]?.focus());
       }
     };
 
-    return () => {
-      const digits = (props.modelValue || '').split('');
+    return (): VNode => {
+      const digits: string[] = (props.modelValue || '').split('');
       while (digits.length < props.length) digits.push('');
 
       return h(
@@ -79,19 +89,19 @@ const OtpField = defineComponent({
           h(
             'div',
             {class: withVendorCSSClassPrefix('otp-field__inputs')},
-            Array.from({length: props.length}, (_, i) =>
+            Array.from({length: props.length}, (_: unknown, i: number) =>
               h('input', {
-                ref: (el: any) => setRef(el, i),
-                key: i,
-                class: withVendorCSSClassPrefix('otp-field__digit'),
-                type: 'text',
-                inputmode: 'numeric',
-                maxlength: 1,
-                value: digits[i],
-                disabled: props.disabled,
                 'aria-label': `Digit ${i + 1}`,
+                class: withVendorCSSClassPrefix('otp-field__digit'),
+                disabled: props.disabled,
+                inputmode: 'numeric',
+                key: i,
+                maxlength: 1,
                 onInput: (e: Event) => handleInput(i, e),
                 onKeydown: (e: KeyboardEvent) => handleKeydown(i, e),
+                ref: (el: unknown) => setRef(el, i),
+                type: 'text',
+                value: digits[i],
               }),
             ),
           ),

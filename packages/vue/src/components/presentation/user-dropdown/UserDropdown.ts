@@ -17,10 +17,9 @@
  */
 
 import {withVendorCSSClassPrefix} from '@asgardeo/browser';
-import {defineComponent, h, ref} from 'vue';
+import {type Ref, type SetupContext, type VNode, defineComponent, h, ref} from 'vue';
 import BaseUserDropdown from './BaseUserDropdown';
 import useAsgardeo from '../../../composables/useAsgardeo';
-import useUser from '../../../composables/useUser';
 import UserProfileComponent from '../user-profile/UserProfile';
 
 /**
@@ -28,32 +27,23 @@ import UserProfileComponent from '../user-profile/UserProfile';
  *
  * Retrieves user and signOut from context and delegates to BaseUserDropdown.
  */
-const UserDropdown = defineComponent({
+const UserDropdown: ReturnType<typeof defineComponent> = defineComponent({
   name: 'UserDropdown',
-  props: {
-    className: {type: String, default: ''},
-  },
   emits: ['profileClick'],
-  setup(props, {slots, emit}) {
+  props: {
+    className: {default: '', type: String},
+  },
+  setup(props: {className: string}, {slots, emit}: SetupContext): () => VNode | VNode[] | null {
     const {user, signOut} = useAsgardeo();
-    const {flattenedProfile, schemas, updateProfile} = useUser();
-    const isProfileModalOpen = ref(false);
+    const isProfileModalOpen: Ref<boolean> = ref(false);
 
-    return () =>
+    return (): VNode | VNode[] | null =>
       h(
         BaseUserDropdown,
         {
           class: withVendorCSSClassPrefix('user-dropdown--styled'),
           className: props.className,
-          user: user.value,
           isProfileModalOpen: isProfileModalOpen.value,
-          profileContent: isProfileModalOpen.value
-            ? h(UserProfileComponent, {
-                editable: true,
-                cardLayout: false,
-              })
-            : null,
-          onSignOut: () => signOut(),
           onProfileClick: () => {
             isProfileModalOpen.value = true;
             emit('profileClick');
@@ -61,6 +51,14 @@ const UserDropdown = defineComponent({
           onProfileModalClose: () => {
             isProfileModalOpen.value = false;
           },
+          onSignOut: () => signOut(),
+          profileContent: isProfileModalOpen.value
+            ? h(UserProfileComponent, {
+                cardLayout: false,
+                editable: true,
+              })
+            : null,
+          user: user.value,
         },
         slots,
       );

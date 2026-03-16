@@ -21,7 +21,7 @@
  *
  * BEM block: `.asgardeo-user-profile`
  */
-const USER_PROFILE_CSS = `
+const USER_PROFILE_CSS: string = `
 /* ============================================================
    UserProfile
    ============================================================ */

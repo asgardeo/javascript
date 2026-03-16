@@ -17,21 +17,26 @@
  */
 
 import {withVendorCSSClassPrefix} from '@asgardeo/browser';
-import {defineComponent, h, type PropType} from 'vue';
+import {type Component, type SetupContext, type VNode, defineComponent, h, type PropType} from 'vue';
 
-const Spinner = defineComponent({
+type SpinnerProps = Readonly<{
+  size: 'small' | 'medium' | 'large';
+}>;
+
+const Spinner: Component = defineComponent({
   name: 'Spinner',
   props: {
     size: {
-      type: String as PropType<'small' | 'medium' | 'large'>,
       default: 'medium',
+      type: String as PropType<'small' | 'medium' | 'large'>,
     },
   },
-  setup(props, {attrs}) {
-    return () =>
+  setup(props: SpinnerProps, {attrs}: SetupContext): () => VNode {
+    return (): VNode =>
       h(
         'div',
         {
+          'aria-label': 'Loading',
           class: [
             withVendorCSSClassPrefix('spinner'),
             withVendorCSSClassPrefix(`spinner--${props.size}`),
@@ -39,18 +44,17 @@ const Spinner = defineComponent({
           ]
             .filter(Boolean)
             .join(' '),
-          style: attrs['style'],
           role: 'status',
-          'aria-label': 'Loading',
+          style: attrs['style'],
         },
         [
           h(
             'svg',
             {
               class: withVendorCSSClassPrefix('spinner__svg'),
+              fill: 'none',
               viewBox: '0 0 24 24',
               xmlns: 'http://www.w3.org/2000/svg',
-              fill: 'none',
             },
             [
               h('circle', {
@@ -59,9 +63,9 @@ const Spinner = defineComponent({
                 cy: '12',
                 r: '10',
                 stroke: 'currentColor',
-                'stroke-width': '3',
-                'stroke-linecap': 'round',
                 'stroke-dasharray': '31.4 31.4',
+                'stroke-linecap': 'round',
+                'stroke-width': '3',
               }),
             ],
           ),

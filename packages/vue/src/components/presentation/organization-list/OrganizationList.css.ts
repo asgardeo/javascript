@@ -29,7 +29,7 @@
  *   __empty    – empty state message (Typography body2)
  *   __item     – each selectable organization row button
  */
-const ORGANIZATION_LIST_CSS = `
+const ORGANIZATION_LIST_CSS: string = `
 /* ============================================================
    OrganizationList
    ============================================================ */

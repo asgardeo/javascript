@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import {defineComponent, h} from 'vue';
+import {defineComponent, h, type SetupContext, type VNode} from 'vue';
 import useI18n from '../../composables/useI18n';
 import Button from '../primitives/Button';
 
@@ -24,34 +24,34 @@ import Button from '../primitives/Button';
  * Microsoft Sign-In Button Component.
  * Handles authentication with Microsoft identity provider.
  */
-const MicrosoftButton = defineComponent({
+const MicrosoftButton: ReturnType<typeof defineComponent> = defineComponent({
+  emits: ['click'],
   name: 'MicrosoftButton',
   props: {
-    isLoading: {type: Boolean, default: false},
+    isLoading: {default: false, type: Boolean},
   },
-  emits: ['click'],
-  setup(props, {slots, emit, attrs}) {
+  setup(props: {isLoading: boolean}, {slots, emit, attrs}: SetupContext): () => VNode {
     const {t} = useI18n();
 
-    const microsoftIcon = () =>
-      h('svg', {width: '14', height: '14', viewBox: '0 0 23 23', xmlns: 'http://www.w3.org/2000/svg'}, [
-        h('path', {fill: '#f3f3f3', d: 'M0 0h23v23H0z'}),
-        h('path', {fill: '#f35325', d: 'M1 1h10v10H1z'}),
-        h('path', {fill: '#81bc06', d: 'M12 1h10v10H12z'}),
-        h('path', {fill: '#05a6f0', d: 'M1 12h10v10H1z'}),
-        h('path', {fill: '#ffba08', d: 'M12 12h10v10H12z'}),
+    const microsoftIcon = (): VNode =>
+      h('svg', {height: '14', viewBox: '0 0 23 23', width: '14', xmlns: 'http://www.w3.org/2000/svg'}, [
+        h('path', {d: 'M0 0h23v23H0z', fill: '#f3f3f3'}),
+        h('path', {d: 'M1 1h10v10H1z', fill: '#f35325'}),
+        h('path', {d: 'M12 1h10v10H12z', fill: '#81bc06'}),
+        h('path', {d: 'M1 12h10v10H1z', fill: '#05a6f0'}),
+        h('path', {d: 'M12 12h10v10H12z', fill: '#ffba08'}),
       ]);
 
-    return () =>
+    return (): VNode =>
       h(
         Button,
         {
           ...attrs,
+          color: 'secondary' as const,
+          disabled: props.isLoading,
           fullWidth: true,
           type: 'button' as const,
-          color: 'secondary' as const,
           variant: 'solid' as const,
-          disabled: props.isLoading,
           ...(slots['default'] ? {} : {startIcon: microsoftIcon()}),
           onClick: (e: MouseEvent) => emit('click', e),
         },
