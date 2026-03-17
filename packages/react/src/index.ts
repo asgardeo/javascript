@@ -289,6 +289,7 @@ export {
   http,
   getActiveTheme,
   navigate,
+  resolveEmojiUrisInHtml,
   // Export `v2` models and types as first class citizens since they are
   // going to be the primary way to interact with embedded flows moving forward.
   EmbeddedFlowComponentTypeV2 as EmbeddedFlowComponentType,

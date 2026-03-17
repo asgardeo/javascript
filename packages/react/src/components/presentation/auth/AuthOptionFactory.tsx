@@ -25,8 +25,7 @@ import {
   EmbeddedFlowEventTypeV2 as EmbeddedFlowEventType,
   createPackageComponentLogger,
   resolveFlowTemplateLiterals,
-  extractEmojiFromUri,
-  isEmojiUri,
+  resolveEmojiUrisInHtml,
   ConsentPurposeDataV2 as ConsentPurposeData,
   ConsentPromptDataV2 as ConsentPromptData,
   ConsentDecisionsV2 as ConsentDecisions,
@@ -69,23 +68,6 @@ const logger: ReturnType<typeof createPackageComponentLogger> = createPackageCom
  *   - `<img src="emoji:X" alt="Y">` → `<span role="img" aria-label="Y">X</span>`
  *   - Any remaining `emoji:X` text occurrences → `X`
  */
-const resolveEmojiUrisInHtml = (html: string): string => {
-  const withEmojiImages: string = html.replace(
-    /<img([^>]*)src="(emoji:[^"]+)"([^>]*)\/?>/gi,
-    (_match: string, pre: string, src: string, post: string): string => {
-      const emoji: string = extractEmojiFromUri(src);
-      if (!emoji) {
-        return _match;
-      }
-      const altMatch: RegExpMatchArray | null = (pre + post).match(/alt="([^"]*)"/i);
-      const label: string = altMatch ? altMatch[1] : emoji;
-      return `<span role="img" aria-label="${label}">${emoji}</span>`;
-    },
-  );
-  return withEmojiImages.replace(/emoji:([^\s"<>&]+)/g, (_: string, rest: string): string =>
-    isEmojiUri(`emoji:${rest}`) ? rest : `emoji:${rest}`,
-  );
-};
 
 /** Ensures rich-text content (including all inner elements from the server) always word-wraps. */
 const richTextClass: string = css`
