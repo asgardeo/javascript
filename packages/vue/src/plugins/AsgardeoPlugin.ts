@@ -17,7 +17,7 @@
  */
 
 import type {App, Plugin} from 'vue';
-import AsgardeoProvider from '../components/AsgardeoProvider';
+import AsgardeoProvider from '../providers/AsgardeoProvider';
 import {injectStyles} from '../styles/injectStyles';
 
 /**

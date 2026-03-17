@@ -49,13 +49,13 @@ import AsgardeoVueClient from '../AsgardeoVueClient';
 import {ASGARDEO_KEY} from '../keys';
 import type {AsgardeoVueConfig} from '../models/config';
 import type {AsgardeoContext} from '../models/contexts';
-import BrandingProvider from '../providers/BrandingProvider';
-import FlowMetaProvider from '../providers/FlowMetaProvider';
-import FlowProvider from '../providers/FlowProvider';
-import I18nProvider from '../providers/I18nProvider';
-import OrganizationProvider from '../providers/OrganizationProvider';
-import ThemeProvider from '../providers/ThemeProvider';
-import UserProvider from '../providers/UserProvider';
+import BrandingProvider from './BrandingProvider';
+import FlowMetaProvider from './FlowMetaProvider';
+import FlowProvider from './FlowProvider';
+import I18nProvider from './I18nProvider';
+import OrganizationProvider from './OrganizationProvider';
+import ThemeProvider from './ThemeProvider';
+import UserProvider from './UserProvider';
 
 /**
  * Checks if the current URL contains authentication parameters.

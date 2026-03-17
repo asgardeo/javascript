@@ -20,7 +20,7 @@
 export {default as AsgardeoPlugin} from './plugins/AsgardeoPlugin';
 
 // ── Components ──
-export {default as AsgardeoProvider} from './components/AsgardeoProvider';
+export {default as AsgardeoProvider} from './providers/AsgardeoProvider';
 
 // ── Providers ──
 export {default as BrandingProvider} from './providers/BrandingProvider';
