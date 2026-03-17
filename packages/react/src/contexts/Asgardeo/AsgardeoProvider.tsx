@@ -476,8 +476,8 @@ const AsgardeoProvider: FC<PropsWithChildren<AsgardeoProviderProps>> = ({
       return;
     }
 
-    // Enable branding by default or when explicitly enabled
-    const shouldFetchBranding: boolean = preferences?.theme?.inheritFromBranding !== false;
+    // Only fetch branding when explicitly enabled via preferences.theme.inheritFromBranding
+    const shouldFetchBranding: boolean = preferences?.theme?.inheritFromBranding === true;
 
     if (shouldFetchBranding && isInitializedSync && baseUrl && !hasFetchedBranding && !isBrandingLoading) {
       fetchBranding();
@@ -675,7 +675,7 @@ const AsgardeoProvider: FC<PropsWithChildren<AsgardeoProviderProps>> = ({
             brandingPreference={brandingPreference}
             isLoading={isBrandingLoading}
             error={brandingError}
-            enabled={preferences?.theme?.inheritFromBranding !== false}
+            enabled={preferences?.theme?.inheritFromBranding === true}
             refetch={refetchBranding}
           >
             <ThemeProvider
