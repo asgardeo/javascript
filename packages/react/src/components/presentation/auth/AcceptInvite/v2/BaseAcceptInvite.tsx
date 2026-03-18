@@ -389,6 +389,7 @@ const BaseAcceptInvite: FC<BaseAcceptInviteProps> = ({
       delete newErrors[name];
       return newErrors;
     });
+    setIsFormValid(true);
   }, []);
 
   /**
@@ -414,7 +415,7 @@ const BaseAcceptInvite: FC<BaseAcceptInviteProps> = ({
           ) {
             const value: any = formValues[comp.ref];
             if (!value || value.trim() === '') {
-              errors[comp.ref] = `${comp.label || comp.ref} is required`;
+              errors[comp.ref] = t('validations.required.field.error');
             }
           }
           if (comp.components && Array.isArray(comp.components)) {
@@ -427,7 +428,7 @@ const BaseAcceptInvite: FC<BaseAcceptInviteProps> = ({
 
       return {errors, isValid: Object.keys(errors).length === 0};
     },
-    [formValues],
+    [formValues, t],
   );
 
   /**
@@ -444,8 +445,8 @@ const BaseAcceptInvite: FC<BaseAcceptInviteProps> = ({
       const validation: any = validateForm(components);
 
       if (!validation.isValid) {
-        setFormErrors(validation.errors);
         setIsFormValid(false);
+        setFormErrors(validation.errors);
         // Mark all fields as touched
         const touched: Record<string, boolean> = {};
         Object.keys(validation.errors).forEach((key: any) => {
@@ -457,7 +458,6 @@ const BaseAcceptInvite: FC<BaseAcceptInviteProps> = ({
 
       setIsLoading(true);
       setApiError(null);
-      setIsFormValid(true);
 
       try {
         // Build payload with form values
@@ -512,9 +512,8 @@ const BaseAcceptInvite: FC<BaseAcceptInviteProps> = ({
           return;
         }
 
-        // Update current flow and reset form for next step
+        // Update current flow and reset form state for next step, preserving input values
         setCurrentFlow(response);
-        setFormValues({});
         setFormErrors({});
         setTouchedFields({});
       } catch (err) {
@@ -624,40 +623,6 @@ const BaseAcceptInvite: FC<BaseAcceptInviteProps> = ({
         (comp: any) => !(comp.type === 'TEXT' && (comp.variant === 'HEADING_1' || comp.variant === 'HEADING_2')),
       ),
     [],
-  );
-
-  /**
-   * Render form components using the factory.
-   */
-  const renderComponents: any = useCallback(
-    (components: any[]): ReactElement[] =>
-      renderInviteUserComponents(
-        components,
-        formValues,
-        touchedFields,
-        formErrors,
-        isLoading,
-        isFormValid,
-        handleInputChange,
-        {
-          onInputBlur: handleInputBlur,
-          onSubmit: handleSubmit,
-          size,
-          variant,
-        },
-      ),
-    [
-      formValues,
-      touchedFields,
-      formErrors,
-      isLoading,
-      isFormValid,
-      handleInputChange,
-      handleInputBlur,
-      handleSubmit,
-      size,
-      variant,
-    ],
   );
 
   // Get components from normalized response, with fallback to meta.components
@@ -793,7 +758,21 @@ const BaseAcceptInvite: FC<BaseAcceptInviteProps> = ({
         )}
         <div>
           {componentsWithoutHeadings && componentsWithoutHeadings.length > 0
-            ? renderComponents(componentsWithoutHeadings)
+            ? renderInviteUserComponents(
+                componentsWithoutHeadings,
+                formValues,
+                touchedFields,
+                formErrors,
+                isLoading,
+                isFormValid,
+                handleInputChange,
+                {
+                  onInputBlur: handleInputBlur,
+                  onSubmit: handleSubmit,
+                  size,
+                  variant,
+                },
+              )
             : !isLoading && (
                 <AlertPrimitive variant="warning">
                   <Typography variant="body1">No form components available</Typography>
