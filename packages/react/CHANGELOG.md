@@ -1,5 +1,13 @@
 # @asgardeo/react
 
+## 0.15.2
+
+### Patch Changes
+
+- [#407](https://github.com/asgardeo/javascript/pull/407)
+  [`0ce3c3b`](https://github.com/asgardeo/javascript/commit/0ce3c3bfd33f5e3436124236586416946929305e) Thanks
+  [@thiva-k](https://github.com/thiva-k)! - Fix validation errors
+
 ## 0.15.1
 
 ### Patch Changes
