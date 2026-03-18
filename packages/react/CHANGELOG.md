@@ -1,5 +1,17 @@
 # @asgardeo/react
 
+## 0.15.3
+
+### Patch Changes
+
+- [#409](https://github.com/asgardeo/javascript/pull/409)
+  [`0adb9bc`](https://github.com/asgardeo/javascript/commit/0adb9bc633d932802b2829c79e7aa6c06229daf3) Thanks
+  [@brionmario](https://github.com/brionmario)! - Fix issues in Language Dropdown & expose emoji resolving utils
+
+- Updated dependencies
+  [[`0adb9bc`](https://github.com/asgardeo/javascript/commit/0adb9bc633d932802b2829c79e7aa6c06229daf3)]:
+  - @asgardeo/browser@0.5.4
+
 ## 0.15.2
 
 ### Patch Changes
