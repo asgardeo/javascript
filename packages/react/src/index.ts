@@ -290,6 +290,14 @@ export {
   getActiveTheme,
   navigate,
   resolveEmojiUrisInHtml,
+  isEmojiUri,
+  EMOJI_URI_SCHEME,
+  extractEmojiFromUri,
+  resolveMeta,
+  resolveFlowTemplateLiterals,
+  countryCodeToFlagEmoji,
+  resolveLocaleDisplayName,
+  resolveLocaleEmoji,
   // Export `v2` models and types as first class citizens since they are
   // going to be the primary way to interact with embedded flows moving forward.
   EmbeddedFlowComponentTypeV2 as EmbeddedFlowComponentType,
