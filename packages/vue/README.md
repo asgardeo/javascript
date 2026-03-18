@@ -74,26 +74,56 @@ For complete API documentation including all components, composables, and custom
 - `useFlowMeta()` - Flow metadata access
 
 ### Components
+
+#### Control
 - `SignedIn` - Renders children only when user is authenticated
 - `SignedOut` - Renders children only when user is not authenticated
-- `SignInButton` - Pre-styled sign-in button
-- `SignOutButton` - Pre-styled sign-out button
-- `SignUpButton` - Pre-styled sign-up button
-- `User` - Access user information with render prop pattern
-- `UserProfile` - Display user profile information
-- `Organization` - Manage organization/workspace selection
+- `Loading` - Renders children while authentication state is loading
+- `UserComponent` - Access user information with scoped slot pattern
+- `OrganizationComponent` - Access organization context with scoped slot pattern
+
+#### Actions
+- `SignInButton` / `BaseSignInButton` - Sign-in button (styled and unstyled)
+- `SignOutButton` / `BaseSignOutButton` - Sign-out button (styled and unstyled)
+- `SignUpButton` / `BaseSignUpButton` - Sign-up button (styled and unstyled)
+
+#### Presentation
+- `SignIn` / `BaseSignIn` - Embedded sign-in form
+- `SignUp` / `BaseSignUp` - Embedded sign-up form
+- `UserProfileComponent` / `BaseUserProfile` - User profile display
+- `UserDropdown` / `BaseUserDropdown` - User menu dropdown
+- `OrganizationList` / `BaseOrganizationList` - Organization listing
+- `OrganizationSwitcher` / `BaseOrganizationSwitcher` - Organization switcher
+- `OrganizationProfile` / `BaseOrganizationProfile` - Organization profile
+- `CreateOrganization` / `BaseCreateOrganization` - Organization creation form
+- `AcceptInvite` / `BaseAcceptInvite` - Invitation acceptance
+- `InviteUser` / `BaseInviteUser` - User invitation form
+- `LanguageSwitcher` / `BaseLanguageSwitcher` - Language selection
+
+#### Auth Flow
 - `Callback` - Handle OAuth callback redirect
 
-### Social Login Adapters
-- Google
-- Facebook
-- GitHub
-- Microsoft
+#### Social Login Adapters
+- `GoogleButton` - Sign in with Google
+- `FacebookButton` - Sign in with Facebook
+- `GitHubButton` - Sign in with GitHub
+- `MicrosoftButton` - Sign in with Microsoft
+
+#### Primitives
+- `Button`, `Card`, `Alert`, `TextField`, `PasswordField`, `Select`, `Checkbox`, `DatePicker`, `OtpField`, `Typography`, `Divider`, `Logo`, `Spinner`
+
+### Utilities
+- `createAsgardeoGuard` - Vue Router navigation guard for protected routes
+- `createCallbackRoute` - Generate a callback route record for Vue Router
+- `handleWebAuthnAuthentication` - WebAuthn/passkey support
+- `hasAuthParamsInUrl` - Detect OAuth parameters in URL
+- `navigate` - Programmatic navigation helper
+- `http` - HTTP client with token management
 
 ## Examples
 
 Check out our [example applications](../../samples/) to see the Vue SDK in action:
-- [Test Vue SDK](../../samples/test-vue-sdk/) - Basic example application
+- [Vue SDK Playground](../../samples/vue-sdk-playground/) - Example application
 
 ## Documentation
 
@@ -116,9 +146,3 @@ We welcome contributions! Please see our [Contributing Guidelines](./CONTRIBUTIN
 ## License
 
 Licenses this source under the Apache License, Version 2.0 [LICENSE](./LICENSE), You may not use this file except in compliance with the License.
-
-
-
-
-
-Write a readme and QUICKSTART md files for vuejs sdk similar to the react sdk properly. But these should be specific to the Vue.js SDK.
