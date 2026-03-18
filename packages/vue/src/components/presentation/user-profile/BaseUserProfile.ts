@@ -100,6 +100,7 @@ const getUserInitials = (user: Record<string, unknown> | null): string => {
  * that support inline editing via a pencil-icon button.
  */
 const BaseUserProfile: Component = defineComponent({
+  inheritAttrs: false,
   name: 'BaseUserProfile',
   props: {
     cardLayout: {default: true, type: Boolean},

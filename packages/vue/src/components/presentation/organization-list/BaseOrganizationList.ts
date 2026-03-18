@@ -26,6 +26,7 @@ import Typography from '../../primitives/Typography';
  * BaseOrganizationList — unstyled list of organizations.
  */
 const BaseOrganizationList: ReturnType<typeof defineComponent> = defineComponent({
+  inheritAttrs: false,
   name: 'BaseOrganizationList',
   props: {
     className: {default: '', type: String},
