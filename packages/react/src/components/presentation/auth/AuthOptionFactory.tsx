@@ -35,6 +35,7 @@ import {
 import {css} from '@emotion/css';
 import DOMPurify from 'dompurify';
 import {cloneElement, CSSProperties, ReactElement} from 'react';
+import useTheme from '../../../contexts/Theme/useTheme';
 import {UseTranslation} from '../../../hooks/useTranslation';
 import Consent from '../../adapters/Consent';
 import {getConsentOptionalKey} from '../../adapters/ConsentCheckboxList';
@@ -54,7 +55,6 @@ import flowIconRegistry from '../../primitives/Icons/flowIconRegistry';
 import Select from '../../primitives/Select/Select';
 import Typography from '../../primitives/Typography/Typography';
 import {TypographyVariant} from '../../primitives/Typography/Typography.styles';
-import useTheme from '../../../contexts/Theme/useTheme';
 
 const logger: ReturnType<typeof createPackageComponentLogger> = createPackageComponentLogger(
   '@asgardeo/react',

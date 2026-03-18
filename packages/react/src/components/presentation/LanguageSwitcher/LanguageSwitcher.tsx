@@ -85,12 +85,13 @@ const LanguageSwitcher: FC<LanguageSwitcherProps> = ({children, className}: Lang
   const {currentLanguage} = useTranslation();
 
   const availableLanguageCodes: string[] = meta?.i18n?.languages ?? [];
-  const effectiveLanguageCodes: string[] = useMemo(() => {
-    // Only fall back to the detected browser language when the server returns no configured languages.
-    // Do NOT inject currentLanguage unconditionally — a browser locale like "en-GB" must not appear
-    // in the picker when the server only supports "en-US".
-    return availableLanguageCodes.length > 0 ? availableLanguageCodes : [currentLanguage];
-  }, [availableLanguageCodes, currentLanguage]);
+  // Only fall back to the detected browser language when the server returns no configured languages.
+  // Do NOT inject currentLanguage unconditionally — a browser locale like "en-GB" must not appear
+  // in the picker when the server only supports "en-US".
+  const effectiveLanguageCodes: string[] = useMemo(
+    () => (availableLanguageCodes.length > 0 ? availableLanguageCodes : [currentLanguage]),
+    [availableLanguageCodes, currentLanguage],
+  );
 
   const languages: LanguageOption[] = useMemo(
     () =>

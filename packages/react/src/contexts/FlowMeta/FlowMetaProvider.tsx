@@ -21,8 +21,8 @@ import {I18nBundle, TranslationBundleConstants} from '@asgardeo/i18n';
 import {FC, PropsWithChildren, ReactElement, RefObject, useCallback, useEffect, useRef, useState} from 'react';
 import FlowMetaContext from './FlowMetaContext';
 import useAsgardeo from '../Asgardeo/useAsgardeo';
-import useI18n from '../I18n/useI18n';
 import {I18nContextValue} from '../I18n/I18nContext';
+import useI18n from '../I18n/useI18n';
 
 export interface FlowMetaProviderProps {
   /**
