@@ -17,7 +17,7 @@
  */
 
 import {resolveLocaleDisplayName, resolveLocaleEmoji} from '@asgardeo/browser';
-import {FC, ReactElement, ReactNode, useMemo} from 'react';
+import {FC, ReactElement, ReactNode, useEffect, useMemo} from 'react';
 import BaseLanguageSwitcher, {LanguageOption, LanguageSwitcherRenderProps} from './BaseLanguageSwitcher';
 import useFlowMeta from '../../../contexts/FlowMeta/useFlowMeta';
 import useTranslation from '../../../hooks/useTranslation';
@@ -85,12 +85,13 @@ const LanguageSwitcher: FC<LanguageSwitcherProps> = ({children, className}: Lang
   const {currentLanguage} = useTranslation();
 
   const availableLanguageCodes: string[] = meta?.i18n?.languages ?? [];
-  const effectiveLanguageCodes: string[] = useMemo(() => {
-    const fallbackCodes: string[] = availableLanguageCodes.length > 0 ? availableLanguageCodes : [currentLanguage];
-
-    // Ensure the current language is always resolvable for display label and emoji.
-    return Array.from(new Set([currentLanguage, ...fallbackCodes]));
-  }, [availableLanguageCodes, currentLanguage]);
+  // Only fall back to the detected browser language when the server returns no configured languages.
+  // Do NOT inject currentLanguage unconditionally — a browser locale like "en-GB" must not appear
+  // in the picker when the server only supports "en-US".
+  const effectiveLanguageCodes: string[] = useMemo(
+    () => (availableLanguageCodes.length > 0 ? availableLanguageCodes : [currentLanguage]),
+    [availableLanguageCodes, currentLanguage],
+  );
 
   const languages: LanguageOption[] = useMemo(
     () =>
@@ -102,6 +103,13 @@ const LanguageSwitcher: FC<LanguageSwitcherProps> = ({children, className}: Lang
       })),
     [effectiveLanguageCodes],
   );
+
+  // If the detected language isn't supported by the server, fall back to the first available language.
+  useEffect(() => {
+    if (availableLanguageCodes.length > 0 && !availableLanguageCodes.includes(currentLanguage)) {
+      switchLanguage(availableLanguageCodes[0]);
+    }
+  }, [availableLanguageCodes, currentLanguage, switchLanguage]);
 
   const handleLanguageChange = (language: string): void => {
     if (language !== currentLanguage) {

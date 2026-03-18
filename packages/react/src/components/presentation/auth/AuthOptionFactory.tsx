@@ -25,8 +25,7 @@ import {
   EmbeddedFlowEventTypeV2 as EmbeddedFlowEventType,
   createPackageComponentLogger,
   resolveFlowTemplateLiterals,
-  extractEmojiFromUri,
-  isEmojiUri,
+  resolveEmojiUrisInHtml,
   ConsentPurposeDataV2 as ConsentPurposeData,
   ConsentPromptDataV2 as ConsentPromptData,
   ConsentDecisionsV2 as ConsentDecisions,
@@ -36,6 +35,7 @@ import {
 import {css} from '@emotion/css';
 import DOMPurify from 'dompurify';
 import {cloneElement, CSSProperties, ReactElement} from 'react';
+import useTheme from '../../../contexts/Theme/useTheme';
 import {UseTranslation} from '../../../hooks/useTranslation';
 import Consent from '../../adapters/Consent';
 import {getConsentOptionalKey} from '../../adapters/ConsentCheckboxList';
@@ -69,23 +69,6 @@ const logger: ReturnType<typeof createPackageComponentLogger> = createPackageCom
  *   - `<img src="emoji:X" alt="Y">` → `<span role="img" aria-label="Y">X</span>`
  *   - Any remaining `emoji:X` text occurrences → `X`
  */
-const resolveEmojiUrisInHtml = (html: string): string => {
-  const withEmojiImages: string = html.replace(
-    /<img([^>]*)src="(emoji:[^"]+)"([^>]*)\/?>/gi,
-    (_match: string, pre: string, src: string, post: string): string => {
-      const emoji: string = extractEmojiFromUri(src);
-      if (!emoji) {
-        return _match;
-      }
-      const altMatch: RegExpMatchArray | null = (pre + post).match(/alt="([^"]*)"/i);
-      const label: string = altMatch ? altMatch[1] : emoji;
-      return `<span role="img" aria-label="${label}">${emoji}</span>`;
-    },
-  );
-  return withEmojiImages.replace(/emoji:([^\s"<>&]+)/g, (_: string, rest: string): string =>
-    isEmojiUri(`emoji:${rest}`) ? rest : `emoji:${rest}`,
-  );
-};
 
 /** Ensures rich-text content (including all inner elements from the server) always word-wraps. */
 const richTextClass: string = css`
@@ -217,6 +200,8 @@ const createAuthComponentFromFlow = (
     variant?: any;
   } = {},
 ): ReactElement | null => {
+  const {theme} = useTheme();
+
   const key: string | number = options.key || component.id;
 
   /** Resolve any remaining {{t()}} or {{meta()}} template expressions in a string at render time. */
@@ -421,6 +406,12 @@ const createAuthComponentFromFlow = (
 
     case EmbeddedFlowComponentType.Block: {
       if (component.components && component.components.length > 0) {
+        const formStyles: CSSProperties = {
+          display: 'flex',
+          flexDirection: 'column',
+          gap: `calc(${theme.vars.spacing.unit} * 2)`,
+        };
+
         const blockComponents: any = component.components
           .map((childComponent: any, index: any) =>
             createAuthComponentFromFlow(
@@ -441,7 +432,7 @@ const createAuthComponentFromFlow = (
           .filter(Boolean);
 
         return (
-          <form id={component.id} key={key}>
+          <form id={component.id} key={key} style={formStyles}>
             {blockComponents}
           </form>
         );
