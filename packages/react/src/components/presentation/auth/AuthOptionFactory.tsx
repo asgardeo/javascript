@@ -54,6 +54,7 @@ import flowIconRegistry from '../../primitives/Icons/flowIconRegistry';
 import Select from '../../primitives/Select/Select';
 import Typography from '../../primitives/Typography/Typography';
 import {TypographyVariant} from '../../primitives/Typography/Typography.styles';
+import useTheme from '../../../contexts/Theme/useTheme';
 
 const logger: ReturnType<typeof createPackageComponentLogger> = createPackageComponentLogger(
   '@asgardeo/react',
@@ -199,6 +200,8 @@ const createAuthComponentFromFlow = (
     variant?: any;
   } = {},
 ): ReactElement | null => {
+  const {theme} = useTheme();
+
   const key: string | number = options.key || component.id;
 
   /** Resolve any remaining {{t()}} or {{meta()}} template expressions in a string at render time. */
@@ -403,6 +406,12 @@ const createAuthComponentFromFlow = (
 
     case EmbeddedFlowComponentType.Block: {
       if (component.components && component.components.length > 0) {
+        const formStyles: CSSProperties = {
+          display: 'flex',
+          flexDirection: 'column',
+          gap: `calc(${theme.vars.spacing.unit} * 2)`,
+        };
+
         const blockComponents: any = component.components
           .map((childComponent: any, index: any) =>
             createAuthComponentFromFlow(
@@ -423,7 +432,7 @@ const createAuthComponentFromFlow = (
           .filter(Boolean);
 
         return (
-          <form id={component.id} key={key}>
+          <form id={component.id} key={key} style={formStyles}>
             {blockComponents}
           </form>
         );
