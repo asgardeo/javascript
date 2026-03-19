@@ -122,10 +122,6 @@ const AsgardeoProvider: FC<PropsWithChildren<AsgardeoProviderProps>> = ({
       await asgardeo.initialize(config);
       const initializedConfig: AsgardeoReactConfig = await asgardeo.getConfiguration();
       setConfig(initializedConfig);
-
-      if (initializedConfig?.baseUrl) {
-        sessionStorage.setItem('asgardeo_base_url', initializedConfig.baseUrl);
-      }
     })();
   }, []);
 

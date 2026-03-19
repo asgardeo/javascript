@@ -372,8 +372,7 @@ class AsgardeoReactClient<T extends AsgardeoReactConfig = AsgardeoReactConfig> e
         const authIdFromUrl: string = new URL(window.location.href).searchParams.get('authId');
         const authIdFromStorage: string = sessionStorage.getItem('asgardeo_auth_id');
         const authId: string = authIdFromUrl || authIdFromStorage;
-        const baseUrlFromStorage: string = sessionStorage.getItem('asgardeo_base_url');
-        const baseUrl: string = config?.baseUrl || baseUrlFromStorage;
+        const baseUrl: string = config?.baseUrl;
 
         const response: EmbeddedSignInFlowResponseV2 = await executeEmbeddedSignInFlowV2({
           authId,
