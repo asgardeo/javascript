@@ -1,5 +1,16 @@
 # @asgardeo/react
 
+## 0.15.4
+
+### Patch Changes
+
+- [#413](https://github.com/asgardeo/javascript/pull/413)
+  [`0dca4b4`](https://github.com/asgardeo/javascript/commit/0dca4b405afe75d6e5baf0a2de2f3f204780dcf9) Thanks
+  [@brionmario](https://github.com/brionmario)! - Fix refresh issues in Asgardeo V2
+
+- Updated dependencies []:
+  - @asgardeo/browser@0.5.5
+
 ## 0.15.3
 
 ### Patch Changes
