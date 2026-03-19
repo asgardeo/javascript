@@ -67,6 +67,10 @@ export interface DefaultAuthClientConfig {
       validateIssuer?: boolean;
     };
   };
+  /**
+   * Application UUID for the client.
+   */
+  applicationId?: string;
 }
 
 export interface WellKnownAuthClientConfig extends DefaultAuthClientConfig {
