@@ -86,4 +86,9 @@ export enum Stores {
    * Store for temporary data that needs to persist only for a short duration.
    */
   TemporaryData = 'temporary_data',
+
+  /**
+   * Store for persisted data that needs to be retained across sessions and application restarts.
+   */
+  PersistedData = 'persisted_data'
 }

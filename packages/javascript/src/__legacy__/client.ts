@@ -149,10 +149,25 @@ export class AsgardeoAuthClient<T> {
     // Ref: https://github.com/asgardeo/asgardeo-auth-js-core/pull/205
     AsgardeoAuthClient.authHelperInstance = this.authHelper;
 
+    let applicationId = config['applicationId'];
+
+    if (applicationId) {
+      await this.storageManager.setPersistedData({
+        applicationId,
+      });
+    } else {
+      const persistedData: TemporaryStore = await this.storageManager.getPersistedData();
+
+      if (persistedData['applicationId']) {
+        applicationId = persistedData['applicationId'] as string;
+      }
+    }
+
     await this.storageManager.setConfigData({
       ...DefaultConfig,
       ...config,
       scope: processOpenIDScopes(config.scopes),
+      applicationId,
     });
   }
 

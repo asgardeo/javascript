@@ -562,7 +562,7 @@ const AsgardeoProvider: FC<PropsWithChildren<AsgardeoProviderProps>> = ({
   const value: any = useMemo(
     () => ({
       afterSignInUrl,
-      applicationId,
+      applicationId: config.applicationId,
       baseUrl,
       clearSession,
       clientId,
