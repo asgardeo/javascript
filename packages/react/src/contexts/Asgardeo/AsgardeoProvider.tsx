@@ -152,32 +152,42 @@ const AsgardeoProvider: FC<PropsWithChildren<AsgardeoProviderProps>> = ({
           schemas: [],
         });
       } else {
-        try {
-          const fetchedUser: User = await asgardeo.getUser({baseUrl: resolvedBaseUrl});
-          setUser(fetchedUser);
-        } catch (error) {
-          // TODO: Add an error log.
+        // Check if user profile fetching is enabled (default: true)
+        const shouldFetchUserProfile: boolean = preferences?.user?.fetchUserProfile !== false;
+
+        if (shouldFetchUserProfile) {
+          try {
+            const fetchedUser: User = await asgardeo.getUser({baseUrl: resolvedBaseUrl});
+            setUser(fetchedUser);
+          } catch (error) {
+            // TODO: Add an error log.
+          }
+
+          try {
+            const fetchedUserProfile: UserProfile = await asgardeo.getUserProfile({baseUrl: resolvedBaseUrl});
+            setUserProfile(fetchedUserProfile);
+          } catch (error) {
+            // TODO: Add an error log.
+          }
         }
 
-        try {
-          const fetchedUserProfile: UserProfile = await asgardeo.getUserProfile({baseUrl: resolvedBaseUrl});
-          setUserProfile(fetchedUserProfile);
-        } catch (error) {
-          // TODO: Add an error log.
-        }
+        // Check if organization fetching is enabled (default: true)
+        const shouldFetchOrganizations: boolean = preferences?.user?.fetchOrganizations !== false;
 
-        try {
-          const fetchedOrganization: Organization = await asgardeo.getCurrentOrganization();
-          setCurrentOrganization(fetchedOrganization);
-        } catch (error) {
-          // TODO: Add an error log.
-        }
+        if (shouldFetchOrganizations) {
+          try {
+            const fetchedOrganization: Organization = await asgardeo.getCurrentOrganization();
+            setCurrentOrganization(fetchedOrganization);
+          } catch (error) {
+            // TODO: Add an error log.
+          }
 
-        try {
-          const fetchedMyOrganizations: Organization[] = await asgardeo.getMyOrganizations();
-          setMyOrganizations(fetchedMyOrganizations);
-        } catch (error) {
-          // TODO: Add an error log.
+          try {
+            const fetchedMyOrganizations: Organization[] = await asgardeo.getMyOrganizations();
+            setMyOrganizations(fetchedMyOrganizations);
+          } catch (error) {
+            // TODO: Add an error log.
+          }
         }
       }
 
