@@ -16,9 +16,14 @@
  * under the License.
  */
 
-import {type ConsentPurposeDataV2 as ConsentPurposeData} from '@asgardeo/browser';
+import {type ConsentPurposeDataV2 as ConsentPurposeData, withVendorCSSClassPrefix, bem} from '@asgardeo/browser';
+import {cx} from '@emotion/css';
 import {type ChangeEvent, FC, ReactNode} from 'react';
-import Checkbox from '../primitives/Checkbox/Checkbox';
+import useStyles from './ConsentCheckboxList.styles';
+import useTheme from '../../contexts/Theme/useTheme';
+import Divider from '../primitives/Divider/Divider';
+import Toggle from '../primitives/Toggle/Toggle';
+import Typography from '../primitives/Typography/Typography';
 
 /**
  * Computes the form value key for tracking an optional attribute's consent state.
@@ -105,6 +110,9 @@ const ConsentCheckboxList: FC<ConsentCheckboxListProps> = ({
   onInputChange,
   children,
 }: ConsentCheckboxListProps) => {
+  const {theme, colorScheme}: ReturnType<typeof useTheme> = useTheme();
+  const styles: Record<string, string> = useStyles(theme, colorScheme);
+
   const attributes: string[] = variant === 'ESSENTIAL' ? purpose.essential : purpose.optional;
 
   if (!attributes || attributes.length === 0) {
@@ -132,29 +140,51 @@ const ConsentCheckboxList: FC<ConsentCheckboxListProps> = ({
   }
 
   return (
-    <div
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '0.25rem',
-        margin: '0.25rem 0 0.5rem',
-      }}
-    >
+    <div className={cx(withVendorCSSClassPrefix(bem('consent-checkbox-list')), styles['listContainer'])}>
       {attributes.map((attr: string) => {
         const inputId: string = `consent_${isEssential ? 'ess' : 'opt'}_${purpose.purpose_id}_${attr}`;
         const checked: boolean = isChecked(attr);
 
         return (
-          <Checkbox
+          <div
             key={attr}
-            id={inputId}
-            checked={checked}
-            disabled={isEssential}
-            label={attr}
-            onChange={
-              isEssential ? undefined : (e: ChangeEvent<HTMLInputElement>): void => handleChange(attr, e.target.checked)
-            }
-          />
+            className={cx(withVendorCSSClassPrefix(bem('consent-checkbox-list', 'item')), styles['listItem'])}
+          >
+            <div className={cx(withVendorCSSClassPrefix(bem('consent-checkbox-list', 'row')), styles['listRow'])}>
+              <div
+                className={cx(
+                  withVendorCSSClassPrefix(bem('consent-checkbox-list', 'label-container')),
+                  styles['labelContainer'],
+                )}
+              >
+                <div
+                  className={cx(withVendorCSSClassPrefix(bem('consent-checkbox-list', 'bullet')), styles['bullet'])}
+                />
+                <Typography
+                  variant="body2"
+                  className={cx(
+                    withVendorCSSClassPrefix(bem('consent-checkbox-list', 'typography')),
+                    styles['typography'],
+                  )}
+                >
+                  {attr}
+                </Typography>
+              </div>
+              <Toggle
+                id={inputId}
+                checked={checked}
+                disabled={isEssential}
+                onChange={
+                  isEssential
+                    ? undefined
+                    : (e: ChangeEvent<HTMLInputElement>): void => handleChange(attr, e.target.checked)
+                }
+              />
+            </div>
+            <Divider
+              className={cx(withVendorCSSClassPrefix(bem('consent-checkbox-list', 'divider')), styles['divider'])}
+            />
+          </div>
         );
       })}
     </div>
