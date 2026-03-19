@@ -122,13 +122,6 @@ const AsgardeoProvider: FC<PropsWithChildren<AsgardeoProviderProps>> = ({
       await asgardeo.initialize(config);
       const initializedConfig: AsgardeoReactConfig = await asgardeo.getConfiguration();
       setConfig(initializedConfig);
-
-      if (initializedConfig?.platform) {
-        sessionStorage.setItem('asgardeo_platform', initializedConfig.platform);
-      }
-      if (initializedConfig?.baseUrl) {
-        sessionStorage.setItem('asgardeo_base_url', initializedConfig.baseUrl);
-      }
     })();
   }, []);
 
@@ -562,7 +555,7 @@ const AsgardeoProvider: FC<PropsWithChildren<AsgardeoProviderProps>> = ({
   const value: any = useMemo(
     () => ({
       afterSignInUrl,
-      applicationId,
+      applicationId: config.applicationId,
       baseUrl,
       clearSession,
       clientId,

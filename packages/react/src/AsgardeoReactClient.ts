@@ -356,9 +356,7 @@ class AsgardeoReactClient<T extends AsgardeoReactConfig = AsgardeoReactConfig> e
         | AsgardeoReactConfig
         | undefined;
 
-      const platformFromStorage: string | null = sessionStorage.getItem('asgardeo_platform');
-      const isV2Platform: boolean =
-        (config && config.platform === Platform.AsgardeoV2) || platformFromStorage === 'AsgardeoV2';
+      const isV2Platform: boolean = config && config.platform === Platform.AsgardeoV2;
 
       if (isV2Platform && typeof arg1 === 'object' && arg1 !== null && (arg1 as any).callOnlyOnRedirect === true) {
         return undefined as any;
@@ -374,8 +372,7 @@ class AsgardeoReactClient<T extends AsgardeoReactConfig = AsgardeoReactConfig> e
         const authIdFromUrl: string = new URL(window.location.href).searchParams.get('authId');
         const authIdFromStorage: string = sessionStorage.getItem('asgardeo_auth_id');
         const authId: string = authIdFromUrl || authIdFromStorage;
-        const baseUrlFromStorage: string = sessionStorage.getItem('asgardeo_base_url');
-        const baseUrl: string = config?.baseUrl || baseUrlFromStorage;
+        const baseUrl: string = config?.baseUrl;
 
         const response: EmbeddedSignInFlowResponseV2 = await executeEmbeddedSignInFlowV2({
           authId,
