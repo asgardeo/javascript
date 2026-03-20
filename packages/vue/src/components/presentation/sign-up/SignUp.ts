@@ -16,34 +16,112 @@
  * under the License.
  */
 
-import {withVendorCSSClassPrefix} from '@asgardeo/browser';
-import {type SetupContext, type VNode, defineComponent, h} from 'vue';
-import Card from '../../primitives/Card';
-import Typography from '../../primitives/Typography';
+import {
+  EmbeddedFlowExecuteRequestPayload,
+  EmbeddedFlowExecuteResponse,
+  EmbeddedFlowResponseType,
+  EmbeddedFlowType,
+} from '@asgardeo/browser';
+import {type Component, type PropType, type SetupContext, type VNode, defineComponent, h} from 'vue';
+import BaseSignUp from './BaseSignUp';
+import type {BaseSignUpRenderProps} from './BaseSignUp';
+import useAsgardeo from '../../../composables/useAsgardeo';
+
+export type SignUpRenderProps = BaseSignUpRenderProps;
 
 /**
- * SignUp — embedded sign-up presentation component.
- *
- * This component requires the app-native authentication flow which is not yet
- * supported in the Vue SDK. It will be implemented in a future release.
+ * SignUp — embedded sign-up component that handles API calls and delegates UI to BaseSignUp.
  */
-const SignUp: ReturnType<typeof defineComponent> = defineComponent({
+const SignUp: Component = defineComponent({
   name: 'SignUp',
-  setup(_props: {}, {slots}: SetupContext): () => VNode | VNode[] | null {
-    return (): VNode | VNode[] | null => {
-      if (slots['default']) {
-        return slots['default']();
+  props: {
+    afterSignUpUrl: {default: undefined, type: String},
+    buttonClassName: {default: '', type: String},
+    className: {default: '', type: String},
+    errorClassName: {default: '', type: String},
+    inputClassName: {default: '', type: String},
+    messageClassName: {default: '', type: String},
+    onComplete: {default: undefined, type: Function as PropType<(response: EmbeddedFlowExecuteResponse) => void>},
+    onError: {default: undefined, type: Function as PropType<(error: Error) => void>},
+    shouldRedirectAfterSignUp: {default: true, type: Boolean},
+    showSubtitle: {default: true, type: Boolean},
+    showTitle: {default: true, type: Boolean},
+    size: {default: 'medium', type: String as PropType<'small' | 'medium' | 'large'>},
+    variant: {default: 'outlined', type: String as PropType<'elevated' | 'outlined' | 'flat'>},
+  },
+  setup(props: any, {slots}: SetupContext): () => VNode | null {
+    const {signUp, isInitialized, applicationId} = useAsgardeo();
+
+    const handleInitialize = async (
+      payload?: EmbeddedFlowExecuteRequestPayload,
+    ): Promise<EmbeddedFlowExecuteResponse> => {
+      const urlParams: URLSearchParams = new URL(window.location.href).searchParams;
+      const applicationIdFromUrl: string | null = urlParams.get('applicationId');
+      const effectiveApplicationId: string | undefined = applicationId || applicationIdFromUrl || undefined;
+
+      const initialPayload: any = payload || {
+        flowType: EmbeddedFlowType.Registration,
+        ...(effectiveApplicationId && {applicationId: effectiveApplicationId}),
+      };
+
+      return (await signUp(initialPayload)) as EmbeddedFlowExecuteResponse;
+    };
+
+    const handleOnSubmit = async (
+      payload: EmbeddedFlowExecuteRequestPayload,
+    ): Promise<EmbeddedFlowExecuteResponse> =>
+      (await signUp(payload)) as EmbeddedFlowExecuteResponse;
+
+    const handleComplete = (response: EmbeddedFlowExecuteResponse): void => {
+      props.onComplete?.(response);
+
+      const oauthRedirectUrl: string | undefined = (response as any)?.redirectUrl;
+      if (props.shouldRedirectAfterSignUp && oauthRedirectUrl) {
+        window.location.href = oauthRedirectUrl;
+        return;
       }
 
-      return h(Card, {class: withVendorCSSClassPrefix('sign-up--coming-soon')}, () => [
-        h(Typography, {variant: 'h5'}, () => 'Sign Up'),
-        h(
-          'p',
-          {style: 'color: #666; margin-top: 8px; font-size: 14px;'},
-          'Coming Soon — This embedded sign-up component will be available when app-native authentication flow is implemented in the Vue SDK.',
-        ),
-      ]);
+      if (
+        props.shouldRedirectAfterSignUp &&
+        response?.type !== EmbeddedFlowResponseType.Redirection &&
+        props.afterSignUpUrl
+      ) {
+        window.location.href = props.afterSignUpUrl;
+      }
+
+      if (
+        props.shouldRedirectAfterSignUp &&
+        response?.type === EmbeddedFlowResponseType.Redirection &&
+        response?.data?.redirectURL &&
+        !response.data.redirectURL.includes('oauth') &&
+        !response.data.redirectURL.includes('auth')
+      ) {
+        window.location.href = response.data.redirectURL;
+      }
     };
+
+    return (): VNode | null =>
+      h(
+        BaseSignUp,
+        {
+          afterSignUpUrl: props.afterSignUpUrl,
+          buttonClassName: props.buttonClassName,
+          className: props.className,
+          errorClassName: props.errorClassName,
+          inputClassName: props.inputClassName,
+          isInitialized: isInitialized?.value ?? false,
+          messageClassName: props.messageClassName,
+          onComplete: handleComplete,
+          onError: props.onError,
+          onInitialize: handleInitialize,
+          onSubmit: handleOnSubmit,
+          showSubtitle: props.showSubtitle,
+          showTitle: props.showTitle,
+          size: props.size,
+          variant: props.variant,
+        },
+        slots['default'] ? {default: (renderProps: any) => slots['default']!(renderProps)} : undefined,
+      );
   },
 });
 

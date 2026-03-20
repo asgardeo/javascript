@@ -16,9 +16,10 @@
  * under the License.
  */
 
-import {inject} from 'vue';
-import {ASGARDEO_KEY} from '../keys';
-import type {AsgardeoContext} from '../models/contexts';
+import {resolveFlowTemplateLiterals, type FlowMetadataResponse} from '@asgardeo/browser';
+import {inject, ref, type Ref} from 'vue';
+import {ASGARDEO_KEY, FLOW_META_KEY, I18N_KEY} from '../keys';
+import type {AsgardeoContext, FlowMetaContextValue, I18nContextValue} from '../models/contexts';
 
 /**
  * Primary composable for Asgardeo authentication.
@@ -58,7 +59,25 @@ const useAsgardeo = (): AsgardeoContext => {
     );
   }
 
-  return context as AsgardeoContext;
+  // FlowMetaContext lives inside AsgardeoProvider, so it is always present in
+  // normal usage. Optional chaining keeps the composable safe in unit tests that
+  // don't render FlowMetaProvider.
+  const flowMetaContext = inject(FLOW_META_KEY, null) as FlowMetaContextValue | null;
+
+  // I18nContext provides the translation function.
+  const i18nContext = inject(I18N_KEY, null) as I18nContextValue | null;
+
+  const meta = flowMetaContext?.meta ?? ref(null);
+
+  return {
+    ...(context as AsgardeoContext),
+    meta: meta as Readonly<Ref<FlowMetadataResponse | null>>,
+    resolveFlowTemplateLiterals: (text: string | undefined): string =>
+      resolveFlowTemplateLiterals(text, {
+        meta: meta.value,
+        t: i18nContext?.t ?? ((key: string): string => key),
+      }),
+  };
 };
 
 export default useAsgardeo;

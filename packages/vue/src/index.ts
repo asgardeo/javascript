@@ -40,6 +40,8 @@ export {default as useI18n} from './composables/useI18n';
 export {default as useOrganization} from './composables/useOrganization';
 export {default as useTheme} from './composables/useTheme';
 export {default as useUser} from './composables/useUser';
+export {useOAuthCallback} from './composables/useOAuthCallback';
+export type {UseOAuthCallbackOptions, OAuthCallbackPayload} from './composables/useOAuthCallback';
 
 // ── Client ──
 export {default as AsgardeoVueClient} from './AsgardeoVueClient';
@@ -129,15 +131,21 @@ export type {SignInRenderProps} from './components/presentation/sign-in/SignIn';
 export {default as BaseSignIn} from './components/presentation/sign-in/BaseSignIn';
 export type {BaseSignInRenderProps, BaseSignInProps} from './components/presentation/sign-in/BaseSignIn';
 export {default as SignUp} from './components/presentation/sign-up/SignUp';
+export type {SignUpRenderProps} from './components/presentation/sign-up/SignUp';
 export {default as BaseSignUp} from './components/presentation/sign-up/BaseSignUp';
+export type {BaseSignUpRenderProps, BaseSignUpProps} from './components/presentation/sign-up/BaseSignUp';
 export {default as UserProfile} from './components/presentation/user-profile/UserProfile';
 export {default as BaseUserProfile} from './components/presentation/user-profile/BaseUserProfile';
 export {default as UserDropdown} from './components/presentation/user-dropdown/UserDropdown';
 export {default as BaseUserDropdown} from './components/presentation/user-dropdown/BaseUserDropdown';
 export {default as AcceptInvite} from './components/presentation/accept-invite/AcceptInvite';
+export type {AcceptInviteRenderProps} from './components/presentation/accept-invite/AcceptInvite';
 export {default as BaseAcceptInvite} from './components/presentation/accept-invite/BaseAcceptInvite';
+export type {BaseAcceptInviteRenderProps, BaseAcceptInviteProps} from './components/presentation/accept-invite/BaseAcceptInvite';
 export {default as InviteUser} from './components/presentation/invite-user/InviteUser';
+export type {InviteUserRenderProps} from './components/presentation/invite-user/InviteUser';
 export {default as BaseInviteUser} from './components/presentation/invite-user/BaseInviteUser';
+export type {BaseInviteUserRenderProps, BaseInviteUserProps} from './components/presentation/invite-user/BaseInviteUser';
 export {default as OrganizationList} from './components/presentation/organization-list/OrganizationList';
 export {default as BaseOrganizationList} from './components/presentation/organization-list/BaseOrganizationList';
 export {default as OrganizationProfile} from './components/presentation/organization-profile/OrganizationProfile';
@@ -158,6 +166,11 @@ export {default as FacebookButton} from './components/adapters/FacebookButton';
 // ── Factories ──
 export {default as FieldFactory, createField, validateFieldValue} from './components/factories/FieldFactory';
 export type {FieldConfig} from './components/factories/FieldFactory';
+
+// ── Utilities ──
+export {default as buildThemeConfigFromFlowMeta} from './utils/v2/buildThemeConfigFromFlowMeta';
+export {default as getAuthComponentHeadings} from './utils/v2/getAuthComponentHeadings';
+export type {HeadingExtractionResult, AuthComponentHeadingsResult} from './utils/v2/getAuthComponentHeadings';
 
 // ── Re-exports from @asgardeo/browser ──
 export {

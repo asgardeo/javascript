@@ -101,6 +101,13 @@ export interface AsgardeoContext {
   switchOrganization: AsgardeoVueClient['switchOrganization'];
   /** The current user object, or `null` if not signed in. */
   user: Readonly<Ref<any | null>>;
+
+  // ── FlowMeta (injected by useAsgardeo) ──
+  /** Flow metadata from the FlowMeta context, or `null` while loading/unavailable. */
+  meta?: Readonly<Ref<FlowMetadataResponse | null>>;
+
+  /** Resolve `{{t(...)}}` and `{{meta(...)}}` template literals inside a string. */
+  resolveFlowTemplateLiterals?: (text: string | undefined) => string;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

@@ -16,34 +16,76 @@
  * under the License.
  */
 
-import {withVendorCSSClassPrefix} from '@asgardeo/browser';
-import {type VNode, defineComponent, h} from 'vue';
-import Card from '../../primitives/Card';
-import Typography from '../../primitives/Typography';
+import {EmbeddedFlowType} from '@asgardeo/browser';
+import {type Component, type PropType, type SetupContext, type VNode, defineComponent, h} from 'vue';
+import BaseInviteUser from './BaseInviteUser';
+import type {BaseInviteUserRenderProps, InviteUserFlowResponse} from './BaseInviteUser';
+import useAsgardeo from '../../../composables/useAsgardeo';
+
+export type InviteUserRenderProps = BaseInviteUserRenderProps;
 
 /**
- * InviteUser — embedded admin invite component.
- *
- * This component requires the app-native authentication flow which is not yet
- * supported in the Vue SDK. It will be implemented in a future release.
+ * InviteUser — admin invite component using authenticated Asgardeo SDK context.
  */
-const InviteUser: ReturnType<typeof defineComponent> = defineComponent({
+const InviteUser: Component = defineComponent({
   name: 'InviteUser',
-  setup(_props: Record<string, unknown>, {slots}: {slots: any}): () => VNode | VNode[] {
-    return (): VNode | VNode[] => {
-      if (slots['default']) {
-        return slots['default']();
-      }
+  props: {
+    className: {default: '', type: String},
+    onError: {default: undefined, type: Function as PropType<(error: Error) => void>},
+    onFlowChange: {
+      default: undefined,
+      type: Function as PropType<(response: InviteUserFlowResponse) => void>,
+    },
+    onInviteLinkGenerated: {
+      default: undefined,
+      type: Function as PropType<(inviteLink: string, flowId: string) => void>,
+    },
+    showSubtitle: {default: true, type: Boolean},
+    showTitle: {default: true, type: Boolean},
+    size: {default: 'medium', type: String as PropType<'small' | 'medium' | 'large'>},
+    variant: {default: 'outlined', type: String as PropType<'outlined' | 'elevated'>},
+  },
+  setup(props: any, {slots}: SetupContext): () => VNode | null {
+    const {http, baseUrl, isInitialized} = useAsgardeo();
 
-      return h(Card, {class: withVendorCSSClassPrefix('invite-user--coming-soon')}, () => [
-        h(Typography, {variant: 'h5'}, () => 'Invite User'),
-        h(
-          'p',
-          {style: 'color: #666; margin-top: 8px; font-size: 14px;'},
-          'Coming Soon — This embedded user invitation component will be available when app-native authentication flow is implemented in the Vue SDK.',
-        ),
-      ]);
+    const handleInitialize = async (payload: Record<string, any>): Promise<InviteUserFlowResponse> => {
+      const response: any = await http.request({
+        data: {...payload, flowType: EmbeddedFlowType.UserOnboarding, verbose: true},
+        headers: {Accept: 'application/json', 'Content-Type': 'application/json'},
+        method: 'POST',
+        url: `${baseUrl}/flow/execute`,
+      } as any);
+      return response.data as InviteUserFlowResponse;
     };
+
+    const handleSubmit = async (payload: Record<string, any>): Promise<InviteUserFlowResponse> => {
+      const response: any = await http.request({
+        data: {...payload, verbose: true},
+        headers: {Accept: 'application/json', 'Content-Type': 'application/json'},
+        method: 'POST',
+        url: `${baseUrl}/flow/execute`,
+      } as any);
+      return response.data as InviteUserFlowResponse;
+    };
+
+    return (): VNode | null =>
+      h(
+        BaseInviteUser,
+        {
+          className: props.className,
+          isInitialized: isInitialized?.value ?? false,
+          onError: props.onError,
+          onFlowChange: props.onFlowChange,
+          onInitialize: handleInitialize,
+          onInviteLinkGenerated: props.onInviteLinkGenerated,
+          onSubmit: handleSubmit,
+          showSubtitle: props.showSubtitle,
+          showTitle: props.showTitle,
+          size: props.size,
+          variant: props.variant,
+        },
+        slots['default'] ? {default: (renderProps: any) => slots['default']!(renderProps)} : undefined,
+      );
   },
 });
 

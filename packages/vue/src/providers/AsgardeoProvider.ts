@@ -514,63 +514,63 @@ const AsgardeoProvider: ReturnType<typeof defineComponent> = defineComponent({
     return (): any =>
       h(I18nProvider, null, {
         default: (): any =>
-          h(
-            UserProvider,
-            {
-              flattenedProfile: flattenedProfile.value,
-              profile: userProfile.value,
-              revalidateProfile: async (): Promise<void> => {
-                const baseUrl: string = resolvedBaseUrl.value;
-                try {
-                  const profileData: UserProfile = await asgardeo.getUserProfile({baseUrl});
-                  userProfile.value = profileData;
-                  flattenedProfile.value = profileData.flattenedProfile || null;
-                  schemas.value = profileData.schemas || [];
-                } catch {
-                  // silent
-                }
-              },
-              schemas: schemas.value,
-            },
-            {
-              default: (): any =>
-                h(
-                  OrganizationProvider,
-                  {
-                    currentOrganization: currentOrganization.value,
-                    getAllOrganizations: async (): Promise<AllOrganizationsApiResponse> =>
-                      asgardeo.getAllOrganizations({baseUrl: resolvedBaseUrl.value}),
-                    myOrganizations: myOrganizations.value,
-                    onOrganizationSwitch: switchOrganization,
-                    revalidateMyOrganizations: async (): Promise<Organization[]> => {
-                      const baseUrl: string = resolvedBaseUrl.value;
-                      try {
-                        const orgs: Organization[] = await asgardeo.getMyOrganizations({baseUrl});
-                        myOrganizations.value = orgs || [];
-                        return orgs || [];
-                      } catch {
-                        return [];
-                      }
-                    },
-                  },
-                  {
+          h(FlowMetaProvider, {enabled: props.platform === Platform.AsgardeoV2}, {
+            default: (): any =>
+              h(BrandingProvider, null, {
+                default: (): any =>
+                  h(ThemeProvider, null, {
                     default: (): any =>
-                      h(ThemeProvider, null, {
+                      h(FlowProvider, null, {
                         default: (): any =>
-                          h(BrandingProvider, null, {
-                            default: (): any =>
-                              h(FlowMetaProvider, null, {
-                                default: (): any =>
-                                  h(FlowProvider, null, {
+                          h(
+                            UserProvider,
+                            {
+                              flattenedProfile: flattenedProfile.value,
+                              profile: userProfile.value,
+                              revalidateProfile: async (): Promise<void> => {
+                                const baseUrl: string = resolvedBaseUrl.value;
+                                try {
+                                  const profileData: UserProfile = await asgardeo.getUserProfile({baseUrl});
+                                  userProfile.value = profileData;
+                                  flattenedProfile.value = profileData.flattenedProfile || null;
+                                  schemas.value = profileData.schemas || [];
+                                } catch {
+                                  // silent
+                                }
+                              },
+                              schemas: schemas.value,
+                            },
+                            {
+                              default: (): any =>
+                                h(
+                                  OrganizationProvider,
+                                  {
+                                    currentOrganization: currentOrganization.value,
+                                    getAllOrganizations: async (): Promise<AllOrganizationsApiResponse> =>
+                                      asgardeo.getAllOrganizations({baseUrl: resolvedBaseUrl.value}),
+                                    myOrganizations: myOrganizations.value,
+                                    onOrganizationSwitch: switchOrganization,
+                                    revalidateMyOrganizations: async (): Promise<Organization[]> => {
+                                      const baseUrl: string = resolvedBaseUrl.value;
+                                      try {
+                                        const orgs: Organization[] = await asgardeo.getMyOrganizations({baseUrl});
+                                        myOrganizations.value = orgs || [];
+                                        return orgs || [];
+                                      } catch {
+                                        return [];
+                                      }
+                                    },
+                                  },
+                                  {
                                     default: (): any => slots['default']?.(),
-                                  }),
-                              }),
-                          }),
+                                  },
+                                ),
+                            },
+                          ),
                       }),
-                  },
-                ),
-            },
-          ),
+                  }),
+              }),
+          }),
       });
   },
 });

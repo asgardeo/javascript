@@ -34,15 +34,15 @@ import {
   ConsentAttributeElementV2 as ConsentAttributeElement,
 } from '@asgardeo/browser';
 import {h, type VNode} from 'vue';
-import {createField} from '../../factories/FieldFactory';
-import FacebookButton from '../../adapters/FacebookButton';
-import GitHubButton from '../../adapters/GitHubButton';
-import GoogleButton from '../../adapters/GoogleButton';
-import MicrosoftButton from '../../adapters/MicrosoftButton';
-import Button from '../../primitives/Button';
-import Divider from '../../primitives/Divider';
-import Select from '../../primitives/Select/Select';
-import Typography from '../../primitives/Typography';
+import {createField} from '../../../factories/FieldFactory';
+import FacebookButton from '../../../adapters/FacebookButton';
+import GitHubButton from '../../../adapters/GitHubButton';
+import GoogleButton from '../../../adapters/GoogleButton';
+import MicrosoftButton from '../../../adapters/MicrosoftButton';
+import Button from '../../../primitives/Button';
+import Divider from '../../../primitives/Divider';
+import Select from '../../../primitives/Select/Select';
+import Typography from '../../../primitives/Typography';
 
 const logger: ReturnType<typeof createPackageComponentLogger> = createPackageComponentLogger(
   '@asgardeo/vue',
