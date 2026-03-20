@@ -83,9 +83,8 @@ const FlowMetaProvider: FC<PropsWithChildren<FlowMetaProviderProps>> = ({
     try {
       const result: FlowMetadataResponse = await getFlowMetaV2({
         baseUrl,
-        id: applicationId,
+        ...(applicationId ? {id: applicationId, type: FlowMetaType.App} : {}),
         language: i18nContext?.currentLanguage,
-        type: FlowMetaType.App,
       });
       setMeta(result);
     } catch (err: unknown) {
@@ -105,9 +104,8 @@ const FlowMetaProvider: FC<PropsWithChildren<FlowMetaProviderProps>> = ({
       try {
         const result: FlowMetadataResponse = await getFlowMetaV2({
           baseUrl,
-          id: applicationId,
+          ...(applicationId ? {id: applicationId, type: FlowMetaType.App} : {}),
           language,
-          type: FlowMetaType.App,
         });
 
         // Inject translations for the new language before switching
