@@ -1,5 +1,23 @@
 # @asgardeo/react
 
+## 0.16.0
+
+### Minor Changes
+
+- [#415](https://github.com/asgardeo/javascript/pull/415)
+  [`d5ce823`](https://github.com/asgardeo/javascript/commit/d5ce823f09dca42ef01fc8c2e3c5d4292598fbba) Thanks
+  [@ThaminduDilshan](https://github.com/ThaminduDilshan)! - Add toggle component and improve consent form with toggles
+
+### Patch Changes
+
+- [#418](https://github.com/asgardeo/javascript/pull/418)
+  [`f380a3a`](https://github.com/asgardeo/javascript/commit/f380a3a137d2a08a921373c5a9ca1ac4d588ad45) Thanks
+  [@brionmario](https://github.com/brionmario)! - Refactor getFlowMetaV2 parameters to make 'id' and 'type' optional for
+  i18n-only metadata retrieval
+
+- Updated dependencies []:
+  - @asgardeo/browser@0.5.6
+
 ## 0.15.4
 
 ### Patch Changes

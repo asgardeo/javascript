@@ -1,5 +1,14 @@
 # @asgardeo/javascript
 
+## 0.10.2
+
+### Patch Changes
+
+- [#418](https://github.com/asgardeo/javascript/pull/418)
+  [`f380a3a`](https://github.com/asgardeo/javascript/commit/f380a3a137d2a08a921373c5a9ca1ac4d588ad45) Thanks
+  [@brionmario](https://github.com/brionmario)! - Refactor getFlowMetaV2 parameters to make 'id' and 'type' optional for
+  i18n-only metadata retrieval
+
 ## 0.10.1
 
 ### Patch Changes
