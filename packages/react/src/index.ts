@@ -240,6 +240,9 @@ export * from './components/primitives/DatePicker/DatePicker';
 export {default as Checkbox} from './components/primitives/Checkbox/Checkbox';
 export * from './components/primitives/Checkbox/Checkbox';
 
+export {default as Toggle} from './components/primitives/Toggle/Toggle';
+export * from './components/primitives/Toggle/Toggle';
+
 export {default as FormControl} from './components/primitives/FormControl/FormControl';
 export * from './components/primitives/FormControl/FormControl';
 
