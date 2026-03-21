@@ -27,9 +27,10 @@ import AsgardeoNextClient from '../../AsgardeoNextClient';
  */
 const getUserProfileAction = async (
   sessionId: string,
+  instanceId: number = 0,
 ): Promise<{data: {userProfile: UserProfile}; error: string | null; success: boolean}> => {
   try {
-    const client: AsgardeoNextClient = AsgardeoNextClient.getInstance();
+    const client: AsgardeoNextClient = AsgardeoNextClient.getInstance(instanceId);
     const updatedProfile: UserProfile = await client.getUserProfile(sessionId);
     return {data: {userProfile: updatedProfile}, error: null, success: true};
   } catch (error) {

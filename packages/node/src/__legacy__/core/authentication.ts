@@ -44,7 +44,7 @@ export class AsgardeoNodeCore<T> {
 
   private storageManager: StorageManager<T>;
 
-  constructor(config: AuthClientConfig<T>, store?: Storage) {
+  constructor(config: AuthClientConfig<T>, store?: Storage, instanceId?: number) {
     // Initialize the default memory cache store if an external store is not passed.
     if (!store) {
       this.store = new MemoryCacheStore();
@@ -53,7 +53,7 @@ export class AsgardeoNodeCore<T> {
     }
     this.cryptoUtils = new NodeCryptoUtils();
     this.auth = new AsgardeoAuthClient();
-    this.auth.initialize(config, this.store, this.cryptoUtils);
+    this.auth.initialize(config, this.store, this.cryptoUtils, instanceId);
     this.storageManager = this.auth.getStorageManager();
     Logger.debug('Initialized AsgardeoAuthClient successfully');
   }

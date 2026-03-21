@@ -77,7 +77,7 @@ describe('createOrganization (Next.js server action)', () => {
   it('should create an organization successfully when a sessionId is provided', async () => {
     mockClient.createOrganization.mockResolvedValueOnce(mockOrg);
 
-    const result: Organization = await createOrganization(basePayload, 'sess-123');
+    const result: Organization = await createOrganization(0, basePayload, 'sess-123');
 
     expect(AsgardeoNextClient.getInstance).toHaveBeenCalledTimes(1);
     expect(getSessionId).not.toHaveBeenCalled();
@@ -88,7 +88,7 @@ describe('createOrganization (Next.js server action)', () => {
   it('should fall back to getSessionId when sessionId is undefined', async () => {
     mockClient.createOrganization.mockResolvedValueOnce(mockOrg);
 
-    const result: Organization = await createOrganization(basePayload, undefined as unknown as string);
+    const result: Organization = await createOrganization(0, basePayload, undefined as unknown as string);
 
     expect(getSessionId).toHaveBeenCalledTimes(1);
     expect(mockClient.createOrganization).toHaveBeenCalledWith(basePayload, 'sess-abc');
@@ -98,7 +98,7 @@ describe('createOrganization (Next.js server action)', () => {
   it('should fall back to getSessionId when sessionId is null', async () => {
     mockClient.createOrganization.mockResolvedValueOnce(mockOrg);
 
-    const result: Organization = await createOrganization(basePayload, null as unknown as string);
+    const result: Organization = await createOrganization(0, basePayload, null as unknown as string);
 
     expect(getSessionId).toHaveBeenCalledTimes(1);
     expect(mockClient.createOrganization).toHaveBeenCalledWith(basePayload, 'sess-abc');
@@ -108,7 +108,7 @@ describe('createOrganization (Next.js server action)', () => {
   it('should not call getSessionId when an empty string is passed (empty string is not nullish)', async () => {
     mockClient.createOrganization.mockResolvedValueOnce(mockOrg);
 
-    const result: Organization = await createOrganization(basePayload, '');
+    const result: Organization = await createOrganization(0, basePayload, '');
 
     expect(getSessionId).not.toHaveBeenCalled();
     expect(mockClient.createOrganization).toHaveBeenCalledWith(basePayload, '');
@@ -124,7 +124,7 @@ describe('createOrganization (Next.js server action)', () => {
     );
     mockClient.createOrganization.mockRejectedValueOnce(original);
 
-    await expect(createOrganization(basePayload, 'sess-1')).rejects.toMatchObject({
+    await expect(createOrganization(0, basePayload, 'sess-1')).rejects.toMatchObject({
       constructor: AsgardeoAPIError,
       message: expect.stringContaining('Failed to create the organization: Upstream validation failed'),
       statusCode: 400,

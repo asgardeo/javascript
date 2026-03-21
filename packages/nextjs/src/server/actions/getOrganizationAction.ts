@@ -27,13 +27,14 @@ import AsgardeoNextClient from '../../AsgardeoNextClient';
 const getOrganizationAction = async (
   organizationId: string,
   sessionId: string,
+  instanceId: number = 0,
 ): Promise<{
   data: {organization?: OrganizationDetails; user?: Record<string, unknown>};
   error: string | null;
   success: boolean;
 }> => {
   try {
-    const client: AsgardeoNextClient = AsgardeoNextClient.getInstance();
+    const client: AsgardeoNextClient = AsgardeoNextClient.getInstance(instanceId);
     const organization: OrganizationDetails = await client.getOrganization(organizationId, sessionId);
     return {data: {organization}, error: null, success: true};
   } catch (error) {

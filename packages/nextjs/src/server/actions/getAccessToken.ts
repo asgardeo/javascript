@@ -27,10 +27,10 @@ import SessionManager, {SessionTokenPayload} from '../../utils/SessionManager';
  *
  * @returns The access token if it exists, undefined otherwise
  */
-const getAccessToken = async (): Promise<string | undefined> => {
+const getAccessToken = async (instanceId: number = 0): Promise<string | undefined> => {
   const cookieStore: ReadonlyRequestCookies = await cookies();
 
-  const sessionToken: string | undefined = cookieStore.get(SessionManager.getSessionCookieName())?.value;
+  const sessionToken: string | undefined = cookieStore.get(SessionManager.getSessionCookieName(instanceId))?.value;
 
   if (sessionToken) {
     try {

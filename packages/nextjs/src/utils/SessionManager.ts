@@ -198,15 +198,21 @@ class SessionManager {
   /**
    * Get session cookie name
    */
-  static getSessionCookieName(): string {
-    return CookieConfig.SESSION_COOKIE_NAME;
+  static getSessionCookieName(instanceId: number = 0): string {
+    if (instanceId === 0) {
+      return CookieConfig.SESSION_COOKIE_NAME;
+    }
+    return `${CookieConfig.SESSION_COOKIE_NAME}.${instanceId}`;
   }
 
   /**
    * Get temporary session cookie name
    */
-  static getTempSessionCookieName(): string {
-    return CookieConfig.TEMP_SESSION_COOKIE_NAME;
+  static getTempSessionCookieName(instanceId: number = 0): string {
+    if (instanceId === 0) {
+      return CookieConfig.TEMP_SESSION_COOKIE_NAME;
+    }
+    return `${CookieConfig.TEMP_SESSION_COOKIE_NAME}.${instanceId}`;
   }
 }
 

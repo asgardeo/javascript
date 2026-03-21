@@ -26,11 +26,12 @@ import AsgardeoNextClient from '../../AsgardeoNextClient';
  * Returns the user profile if signed in.
  */
 const updateUserProfileAction = async (
+  instanceId: number = 0,
   payload: UpdateMeProfileConfig,
   sessionId?: string,
 ): Promise<{data: {user: User}; error: string; success: boolean}> => {
   try {
-    const client: AsgardeoNextClient = AsgardeoNextClient.getInstance();
+    const client: AsgardeoNextClient = AsgardeoNextClient.getInstance(instanceId);
     const user: User = await client.updateUserProfile(payload, sessionId);
     return {data: {user}, error: '', success: true};
   } catch (error) {

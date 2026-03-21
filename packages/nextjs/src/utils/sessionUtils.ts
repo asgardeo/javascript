@@ -26,9 +26,9 @@ import SessionManager, {SessionTokenPayload} from './SessionManager';
  * @param request - The Next.js request object
  * @returns True if a valid session exists, false otherwise
  */
-export const hasValidSession = async (request: NextRequest): Promise<boolean> => {
+export const hasValidSession = async (request: NextRequest, instanceId: number = 0): Promise<boolean> => {
   try {
-    const sessionToken: string | undefined = request.cookies.get(SessionManager.getSessionCookieName())?.value;
+    const sessionToken: string | undefined = request.cookies.get(SessionManager.getSessionCookieName(instanceId))?.value;
     if (!sessionToken) {
       return false;
     }
@@ -47,9 +47,9 @@ export const hasValidSession = async (request: NextRequest): Promise<boolean> =>
  * @param request - The Next.js request object
  * @returns The session payload if valid, undefined otherwise
  */
-export const getSessionFromRequest = async (request: NextRequest): Promise<SessionTokenPayload | undefined> => {
+export const getSessionFromRequest = async (request: NextRequest, instanceId: number = 0): Promise<SessionTokenPayload | undefined> => {
   try {
-    const sessionToken: string | undefined = request.cookies.get(SessionManager.getSessionCookieName())?.value;
+    const sessionToken: string | undefined = request.cookies.get(SessionManager.getSessionCookieName(instanceId))?.value;
     if (!sessionToken) {
       return undefined;
     }
@@ -67,9 +67,9 @@ export const getSessionFromRequest = async (request: NextRequest): Promise<Sessi
  * @param request - The Next.js request object
  * @returns The session ID if it exists, undefined otherwise
  */
-export const getSessionIdFromRequest = async (request: NextRequest): Promise<string | undefined> => {
+export const getSessionIdFromRequest = async (request: NextRequest, instanceId: number = 0): Promise<string | undefined> => {
   try {
-    const sessionPayload: SessionTokenPayload | undefined = await getSessionFromRequest(request);
+    const sessionPayload: SessionTokenPayload | undefined = await getSessionFromRequest(request, instanceId);
 
     if (sessionPayload) {
       return sessionPayload.sessionId;
@@ -87,9 +87,9 @@ export const getSessionIdFromRequest = async (request: NextRequest): Promise<str
  * @param request - The Next.js request object
  * @returns The temporary session ID if valid, undefined otherwise
  */
-export const getTempSessionFromRequest = async (request: NextRequest): Promise<string | undefined> => {
+export const getTempSessionFromRequest = async (request: NextRequest, instanceId: number = 0): Promise<string | undefined> => {
   try {
-    const tempToken: string | undefined = request.cookies.get(SessionManager.getTempSessionCookieName())?.value;
+    const tempToken: string | undefined = request.cookies.get(SessionManager.getTempSessionCookieName(instanceId))?.value;
     if (!tempToken) {
       return undefined;
     }

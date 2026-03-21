@@ -28,10 +28,10 @@ import SessionManager, {SessionTokenPayload} from '../../utils/SessionManager';
  *
  * @returns The session payload if valid JWT session exists, undefined otherwise
  */
-const getSessionPayload = async (): Promise<SessionTokenPayload | undefined> => {
+const getSessionPayload = async (instanceId: number = 0): Promise<SessionTokenPayload | undefined> => {
   const cookieStore: ReadonlyRequestCookies = await cookies();
 
-  const sessionToken: string | undefined = cookieStore.get(SessionManager.getSessionCookieName())?.value;
+  const sessionToken: string | undefined = cookieStore.get(SessionManager.getSessionCookieName(instanceId))?.value;
   if (!sessionToken) {
     return undefined;
   }

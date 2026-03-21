@@ -26,13 +26,14 @@ import AsgardeoNextClient from '../../AsgardeoNextClient';
  */
 const getCurrentOrganizationAction = async (
   sessionId: string,
+  instanceId: number = 0,
 ): Promise<{
   data: {organization?: Organization; user?: Record<string, unknown>};
   error: string | null;
   success: boolean;
 }> => {
   try {
-    const client: AsgardeoNextClient = AsgardeoNextClient.getInstance();
+    const client: AsgardeoNextClient = AsgardeoNextClient.getInstance(instanceId);
     const organization: Organization = (await client.getCurrentOrganization(sessionId)) as Organization;
     return {data: {organization}, error: null, success: true};
   } catch (error) {

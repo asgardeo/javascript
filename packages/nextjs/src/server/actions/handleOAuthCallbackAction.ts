@@ -37,6 +37,7 @@ import SessionManager from '../../utils/SessionManager';
  * @returns Promise that resolves with success status and optional error message
  */
 const handleOAuthCallbackAction = async (
+  instanceId: number = 0,
   code: string,
   state: string,
   sessionState?: string,
@@ -53,7 +54,7 @@ const handleOAuthCallbackAction = async (
       };
     }
 
-    const asgardeoClient: AsgardeoNextClient = AsgardeoNextClient.getInstance();
+    const asgardeoClient: AsgardeoNextClient = AsgardeoNextClient.getInstance(instanceId);
 
     if (!asgardeoClient.isInitialized) {
       return {
@@ -65,7 +66,7 @@ const handleOAuthCallbackAction = async (
     const cookieStore: ReadonlyRequestCookies = await cookies();
     let sessionId: string | undefined;
 
-    const tempSessionToken: string | undefined = cookieStore.get(SessionManager.getTempSessionCookieName())?.value;
+    const tempSessionToken: string | undefined = cookieStore.get(SessionManager.getTempSessionCookieName(instanceId))?.value;
 
     if (tempSessionToken) {
       try {
@@ -119,9 +120,9 @@ const handleOAuthCallbackAction = async (
           organizationId,
         );
 
-        cookieStore.set(SessionManager.getSessionCookieName(), sessionToken, SessionManager.getSessionCookieOptions());
+        cookieStore.set(SessionManager.getSessionCookieName(instanceId), sessionToken, SessionManager.getSessionCookieOptions());
 
-        cookieStore.delete(SessionManager.getTempSessionCookieName());
+        cookieStore.delete(SessionManager.getTempSessionCookieName(instanceId));
       } catch (error) {
         logger.error(
           `[handleOAuthCallbackAction] Failed to create JWT session, continuing with legacy session:

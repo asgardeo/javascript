@@ -63,8 +63,8 @@ export class AsgardeoNodeClient<T> {
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   constructor() {}
 
-  public async initialize(config: AuthClientConfig<T>, store?: Storage): Promise<boolean> {
-    this.authCore = new AsgardeoNodeCore(config, store);
+  public async initialize(config: AuthClientConfig<T>, store?: Storage, instanceId?: number): Promise<boolean> {
+    this.authCore = new AsgardeoNodeCore(config, store, instanceId);
 
     return Promise.resolve(true);
   }

@@ -66,31 +66,54 @@ import decorateConfigWithNextEnv from './utils/decorateConfigWithNextEnv';
  * Client for mplementing Asgardeo in Next.js applications.
  * This class provides the core functionality for managing user authentication and sessions.
  *
- * This class is implemented as a singleton to ensure a single instance across the application.
+ * This class is implemented as a multiton to support multiple independent instances across the application.
  *
  * @typeParam T - Configuration type that extends AsgardeoNextConfig.
  */
 class AsgardeoNextClient<T extends AsgardeoNextConfig = AsgardeoNextConfig> extends AsgardeoNodeClient<T> {
-  private static instance: AsgardeoNextClient<any>;
+  private static instances: Map<number, AsgardeoNextClient<any>> = new Map();
+
+  private instanceId: number;
 
   private asgardeo: LegacyAsgardeoNodeClient<T>;
 
   public isInitialized: boolean = false;
 
-  private constructor() {
+  private constructor(instanceId: number = 0) {
     super();
-
+    this.instanceId = instanceId;
     this.asgardeo = new LegacyAsgardeoNodeClient();
   }
 
   /**
-   * Get the singleton instance of AsgardeoNextClient
+   * Get the instance of AsgardeoNextClient for the given instanceId.
    */
-  public static getInstance<T extends AsgardeoNextConfig = AsgardeoNextConfig>(): AsgardeoNextClient<T> {
-    if (!AsgardeoNextClient.instance) {
-      AsgardeoNextClient.instance = new AsgardeoNextClient<T>();
+  public static getInstance<T extends AsgardeoNextConfig = AsgardeoNextConfig>(instanceId: number = 0): AsgardeoNextClient<T> {
+    if (!AsgardeoNextClient.instances.has(instanceId)) {
+      AsgardeoNextClient.instances.set(instanceId, new AsgardeoNextClient<T>(instanceId));
     }
-    return AsgardeoNextClient.instance as AsgardeoNextClient<T>;
+    return AsgardeoNextClient.instances.get(instanceId) as AsgardeoNextClient<T>;
+  }
+
+  /**
+   * Returns the instanceId of this client instance.
+   */
+  public getInstanceId(): number {
+    return this.instanceId;
+  }
+
+  /**
+   * Returns whether an instance with the given instanceId exists.
+   */
+  public static hasInstance(instanceId: number = 0): boolean {
+    return AsgardeoNextClient.instances.has(instanceId);
+  }
+
+  /**
+   * Destroys the instance with the given instanceId.
+   */
+  public static destroyInstance(instanceId: number = 0): boolean {
+    return AsgardeoNextClient.instances.delete(instanceId);
   }
 
   /**
@@ -146,6 +169,7 @@ class AsgardeoNextClient<T extends AsgardeoNextConfig = AsgardeoNextConfig> exte
         ...rest,
       } as any,
       storage,
+      this.instanceId,
     );
   }
 

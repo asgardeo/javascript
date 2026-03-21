@@ -30,6 +30,7 @@ import AsgardeoNextClient from '../../AsgardeoNextClient';
  * @returns Promise that resolves when sign-in is complete
  */
 const signUpAction = async (
+  instanceId: number = 0,
   payload?: EmbeddedFlowExecuteRequestPayload,
 ): Promise<{
   data?:
@@ -42,7 +43,7 @@ const signUpAction = async (
   success: boolean;
 }> => {
   try {
-    const client: AsgardeoNextClient = AsgardeoNextClient.getInstance();
+    const client: AsgardeoNextClient = AsgardeoNextClient.getInstance(instanceId);
 
     // If no payload provided, redirect to sign-in URL for redirect-based sign-in.
     // If there's a payload, handle the embedded sign-in flow.

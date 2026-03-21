@@ -41,6 +41,7 @@ import SessionManager, {SessionTokenPayload} from '../../utils/SessionManager';
  * @returns Promise that resolves when sign-in is complete
  */
 const signInAction = async (
+  instanceId: number = 0,
   payload?: EmbeddedSignInFlowHandleRequestPayload,
   request?: EmbeddedFlowExecuteRequestConfig,
 ): Promise<{
@@ -54,12 +55,12 @@ const signInAction = async (
   success: boolean;
 }> => {
   try {
-    const client: AsgardeoNextClient = AsgardeoNextClient.getInstance();
+    const client: AsgardeoNextClient = AsgardeoNextClient.getInstance(instanceId);
     const cookieStore: ReadonlyRequestCookies = await cookies();
 
     let sessionId: string | undefined;
 
-    const existingSessionToken: string | undefined = cookieStore.get(SessionManager.getSessionCookieName())?.value;
+    const existingSessionToken: string | undefined = cookieStore.get(SessionManager.getSessionCookieName(instanceId))?.value;
 
     if (existingSessionToken) {
       try {
@@ -71,7 +72,7 @@ const signInAction = async (
     }
 
     if (!sessionId) {
-      const tempSessionToken: string | undefined = cookieStore.get(SessionManager.getTempSessionCookieName())?.value;
+      const tempSessionToken: string | undefined = cookieStore.get(SessionManager.getTempSessionCookieName(instanceId))?.value;
 
       if (tempSessionToken) {
         try {
@@ -89,7 +90,7 @@ const signInAction = async (
       const tempSessionToken: string = await SessionManager.createTempSession(sessionId);
 
       cookieStore.set(
-        SessionManager.getTempSessionCookieName(),
+        SessionManager.getTempSessionCookieName(instanceId),
         tempSessionToken,
         SessionManager.getTempSessionCookieOptions(),
       );
@@ -132,9 +133,9 @@ const signInAction = async (
           organizationId,
         );
 
-        cookieStore.set(SessionManager.getSessionCookieName(), sessionToken, SessionManager.getSessionCookieOptions());
+        cookieStore.set(SessionManager.getSessionCookieName(instanceId), sessionToken, SessionManager.getSessionCookieOptions());
 
-        cookieStore.delete(SessionManager.getTempSessionCookieName());
+        cookieStore.delete(SessionManager.getTempSessionCookieName(instanceId));
       }
 
       const afterSignInUrl: string = await (await client.getStorageManager()).getConfigDataParameter('afterSignInUrl');

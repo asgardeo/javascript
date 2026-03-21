@@ -104,6 +104,7 @@ const AsgardeoClientProvider: FC<PropsWithChildren<AsgardeoClientProviderProps>>
   getAllOrganizations,
   switchOrganization,
   brandingPreference,
+  instanceId = 0,
 }: PropsWithChildren<AsgardeoClientProviderProps>) => {
   const reRenderCheckRef: RefObject<boolean> = useRef(false);
   const router: AppRouterInstance = useRouter();
@@ -151,8 +152,11 @@ const AsgardeoClientProvider: FC<PropsWithChildren<AsgardeoClientProviderProps>>
           return;
         }
 
+        // Check for what instance the callback is for
+        const callbackInstanceId: string | null = state ? state.split('_')[1] : null;
+
         // Handle OAuth callback if code and state are present
-        if (code && state) {
+        if (code && state && callbackInstanceId === instanceId.toString()) {
           setIsLoading(true);
 
           const result: {error?: string; redirectUrl?: string; success: boolean} = await handleOAuthCallback(

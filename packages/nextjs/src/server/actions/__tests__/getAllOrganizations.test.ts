@@ -71,7 +71,7 @@ describe('getAllOrganizations (Next.js server action)', () => {
   it('returns organizations when a sessionId is provided (no getSessionId fallback)', async () => {
     mockClient.getAllOrganizations.mockResolvedValueOnce(mockResponse);
 
-    const result: AllOrganizationsApiResponse = await getAllOrganizations(baseOptions, 'sess-123');
+    const result: AllOrganizationsApiResponse = await getAllOrganizations(0, baseOptions, 'sess-123');
 
     expect(AsgardeoNextClient.getInstance).toHaveBeenCalledTimes(1);
     expect(getSessionId).not.toHaveBeenCalled();
@@ -82,7 +82,7 @@ describe('getAllOrganizations (Next.js server action)', () => {
   it('falls back to getSessionId when sessionId is undefined', async () => {
     mockClient.getAllOrganizations.mockResolvedValueOnce(mockResponse);
 
-    const result: AllOrganizationsApiResponse = await getAllOrganizations(baseOptions, undefined);
+    const result: AllOrganizationsApiResponse = await getAllOrganizations(0, baseOptions, undefined);
 
     expect(getSessionId).toHaveBeenCalledTimes(1);
     expect(mockClient.getAllOrganizations).toHaveBeenCalledWith(baseOptions, 'sess-abc');
@@ -92,7 +92,7 @@ describe('getAllOrganizations (Next.js server action)', () => {
   it('falls back to getSessionId when sessionId is null', async () => {
     mockClient.getAllOrganizations.mockResolvedValueOnce(mockResponse);
 
-    const result: AllOrganizationsApiResponse = await getAllOrganizations(baseOptions, null as unknown as string);
+    const result: AllOrganizationsApiResponse = await getAllOrganizations(0, baseOptions, null as unknown as string);
 
     expect(getSessionId).toHaveBeenCalledTimes(1);
     expect(mockClient.getAllOrganizations).toHaveBeenCalledWith(baseOptions, 'sess-abc');
@@ -102,7 +102,7 @@ describe('getAllOrganizations (Next.js server action)', () => {
   it('does not call getSessionId for an empty string sessionId (empty string is not nullish)', async () => {
     mockClient.getAllOrganizations.mockResolvedValueOnce(mockResponse);
 
-    const result: AllOrganizationsApiResponse = await getAllOrganizations(baseOptions, '');
+    const result: AllOrganizationsApiResponse = await getAllOrganizations(0, baseOptions, '');
 
     expect(getSessionId).not.toHaveBeenCalled();
     expect(mockClient.getAllOrganizations).toHaveBeenCalledWith(baseOptions, '');
@@ -113,7 +113,7 @@ describe('getAllOrganizations (Next.js server action)', () => {
     const upstream: AsgardeoAPIError = new AsgardeoAPIError('Upstream failed', 'ORG_LIST_500', 'server', 503);
     mockClient.getAllOrganizations.mockRejectedValueOnce(upstream);
 
-    await expect(getAllOrganizations(baseOptions, 'sess-x')).rejects.toMatchObject({
+    await expect(getAllOrganizations(0, baseOptions, 'sess-x')).rejects.toMatchObject({
       constructor: AsgardeoAPIError,
       message: expect.stringContaining('Failed to get all the organizations for the user: Upstream failed'),
       statusCode: 503,

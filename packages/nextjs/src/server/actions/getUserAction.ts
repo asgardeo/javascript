@@ -27,9 +27,10 @@ import AsgardeoNextClient from '../../AsgardeoNextClient';
  */
 const getUserAction = async (
   sessionId: string,
+  instanceId: number = 0,
 ): Promise<{data: {user: User | null}; error: string | null; success: boolean}> => {
   try {
-    const client: AsgardeoNextClient = AsgardeoNextClient.getInstance();
+    const client: AsgardeoNextClient = AsgardeoNextClient.getInstance(instanceId);
     const user: User = await client.getUser(sessionId);
     return {data: {user}, error: null, success: true};
   } catch (error) {
