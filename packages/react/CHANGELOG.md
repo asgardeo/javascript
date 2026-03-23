@@ -1,5 +1,14 @@
 # @asgardeo/react
 
+## 0.16.2
+
+### Patch Changes
+
+- [#422](https://github.com/asgardeo/javascript/pull/422)
+  [`f1e0225`](https://github.com/asgardeo/javascript/commit/f1e0225144815c9b08a0d8812f4fd8f9bdb8f438) Thanks
+  [@brionmario](https://github.com/brionmario)! - Refactor FlowMetaProvider to include platform check for metadata
+  fetching
+
 ## 0.16.1
 
 ### Patch Changes
