@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import {FlowMetadataResponse, FlowMetaType, getFlowMetaV2} from '@asgardeo/browser';
+import {FlowMetadataResponse, FlowMetaType, getFlowMetaV2, Platform} from '@asgardeo/browser';
 import {I18nBundle, TranslationBundleConstants} from '@asgardeo/i18n';
 import {FC, PropsWithChildren, ReactElement, RefObject, useCallback, useEffect, useRef, useState} from 'react';
 import FlowMetaContext from './FlowMetaContext';
@@ -59,7 +59,7 @@ const FlowMetaProvider: FC<PropsWithChildren<FlowMetaProviderProps>> = ({
   children,
   enabled = true,
 }: PropsWithChildren<FlowMetaProviderProps>): ReactElement => {
-  const {baseUrl, applicationId} = useAsgardeo();
+  const {baseUrl, applicationId, platform} = useAsgardeo();
   const i18nContext: I18nContextValue = useI18n();
 
   const [meta, setMeta] = useState<FlowMetadataResponse | null>(null);
@@ -72,7 +72,7 @@ const FlowMetaProvider: FC<PropsWithChildren<FlowMetaProviderProps>> = ({
   const hasFetchedRef: RefObject<boolean> = useRef<boolean>(false);
 
   const fetchFlowMeta: () => Promise<void> = useCallback(async (): Promise<void> => {
-    if (!enabled) {
+    if (!enabled || platform !== Platform.AsgardeoV2) {
       setMeta(null);
       return;
     }
@@ -92,11 +92,11 @@ const FlowMetaProvider: FC<PropsWithChildren<FlowMetaProviderProps>> = ({
     } finally {
       setIsLoading(false);
     }
-  }, [enabled, baseUrl, applicationId, i18nContext?.currentLanguage]);
+  }, [enabled, platform, baseUrl, applicationId, i18nContext?.currentLanguage]);
 
   const switchLanguage: (language: string) => Promise<void> = useCallback(
     async (language: string): Promise<void> => {
-      if (!enabled) return;
+      if (!enabled || platform !== Platform.AsgardeoV2) return;
 
       setIsLoading(true);
       setError(null);
@@ -130,7 +130,7 @@ const FlowMetaProvider: FC<PropsWithChildren<FlowMetaProviderProps>> = ({
         setIsLoading(false);
       }
     },
-    [enabled, baseUrl, applicationId, i18nContext],
+    [enabled, platform, baseUrl, applicationId, i18nContext],
   );
 
   // After injectBundles + setPendingLanguage are batched and committed, this
