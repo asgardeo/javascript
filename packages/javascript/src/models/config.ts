@@ -124,6 +124,86 @@ export interface BaseConfig<T = unknown> extends WithPreferences {
   clientSecret?: string | undefined;
 
   /**
+   * OpenID Connect discovery configuration.
+   * Controls how the SDK resolves endpoint URLs from the authorization server.
+   * Each discovery mechanism is independently configurable.
+   *
+   * @example
+   * // Use a custom well-known discovery document URL
+   * discovery: { wellKnown: { endpoint: "https://custom.example.com/.well-known/openid-configuration" } }
+   *
+   * @example
+   * // Disable well-known discovery entirely
+   * discovery: { wellKnown: { enabled: false } }
+   */
+  discovery?: {
+    /**
+     * Configuration for OpenID Connect Discovery via the well-known endpoint (RFC 8414).
+     * The SDK fetches `{baseUrl}/oauth2/token/.well-known/openid-configuration` by default.
+     */
+    wellKnown?: {
+      /**
+       * Whether to fetch and use the well-known discovery document to resolve endpoint URLs.
+       * @default true
+       */
+      enabled?: boolean;
+    };
+  };
+
+  /**
+   * Optional overrides for the OIDC protocol endpoints.
+   * By default, the SDK derives all endpoint URLs from the well-known discovery document
+   * located at `{baseUrl}/oauth2/token/.well-known/openid-configuration`.
+   * Use this when your authorization server exposes endpoints at non-standard paths,
+   * or when a custom domain differs from `baseUrl`.
+   *
+   * Individual overrides take precedence over values resolved from the discovery document.
+   *
+   * @example
+   * endpoints: {
+   *   wellKnown: "https://custom-domain.example.com/.well-known/openid-configuration",
+   *   authorization: "https://custom-domain.example.com/oauth2/authorize",
+   * }
+   */
+  endpoints?: {
+    /**
+     * The authorization endpoint URL.
+     * If not provided, resolved from the well-known discovery document.
+     */
+    authorization?: string;
+    /**
+     * The end-session (logout) endpoint URL.
+     * If not provided, resolved from the well-known discovery document.
+     */
+    endSession?: string;
+    /**
+     * The introspection endpoint URL.
+     * If not provided, resolved from the well-known discovery document.
+     */
+    introspection?: string;
+    /**
+     * The JSON Web Key Set (JWKS) endpoint URL used to fetch public keys for token verification.
+     * If not provided, resolved from the well-known discovery document.
+     */
+    jwks?: string;
+    /**
+     * The token endpoint URL.
+     * If not provided, resolved from the well-known discovery document.
+     */
+    token?: string;
+    /**
+     * The userinfo endpoint URL.
+     * If not provided, resolved from the well-known discovery document.
+     */
+    userInfo?: string;
+    /**
+     * The OpenID Connect discovery document URL.
+     * Defaults to `{baseUrl}/oauth2/token/.well-known/openid-configuration`.
+     */
+    wellKnown?: string;
+  };
+
+  /**
    * Optional instance ID for multi-auth context support.
    * Use this when you need multiple authentication contexts in the same application.
    */
@@ -226,6 +306,7 @@ export interface BaseConfig<T = unknown> extends WithPreferences {
    * @see {@link https://openid.net/specs/openid-connect-session-management-1_0.html#IframeBasedSessionManagement}
    */
   syncSession?: boolean;
+
   /**
    * Token validation configuration.
    * This allows you to configure how the SDK validates tokens received from the authorization server.

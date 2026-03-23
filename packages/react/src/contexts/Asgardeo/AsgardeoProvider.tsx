@@ -20,6 +20,7 @@ import {
   AllOrganizationsApiResponse,
   AsgardeoRuntimeError,
   generateFlattenedUserProfile,
+  OIDCDiscoveryApiResponse,
   Organization,
   SignInOptions,
   User,
@@ -100,6 +101,7 @@ const AsgardeoProvider: FC<PropsWithChildren<AsgardeoProviderProps>> = ({
   });
 
   const [isUpdatingSession, setIsUpdatingSession] = useState<boolean>(false);
+  const [wellKnown, setWellKnown] = useState<OIDCDiscoveryApiResponse | null>(null);
 
   // Branding state
   const [brandingPreference, setBrandingPreference] = useState<BrandingPreference | null>(null);
@@ -122,6 +124,7 @@ const AsgardeoProvider: FC<PropsWithChildren<AsgardeoProviderProps>> = ({
       await asgardeo.initialize(config);
       const initializedConfig: AsgardeoReactConfig = await asgardeo.getConfiguration();
       setConfig(initializedConfig);
+      setWellKnown(await asgardeo.getDiscoveryResponse());
     })();
   }, []);
 
@@ -559,6 +562,9 @@ const AsgardeoProvider: FC<PropsWithChildren<AsgardeoProviderProps>> = ({
       baseUrl,
       clearSession,
       clientId,
+      discovery: {
+        wellKnown,
+      },
       exchangeToken,
       getAccessToken,
       getDecodedIdToken,
@@ -595,6 +601,7 @@ const AsgardeoProvider: FC<PropsWithChildren<AsgardeoProviderProps>> = ({
       afterSignInUrl,
       baseUrl,
       clientId,
+      wellKnown,
       isInitializedSync,
       isLoadingSync,
       isSignedInSync,

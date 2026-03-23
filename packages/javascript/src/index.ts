@@ -165,6 +165,7 @@ export {
   ExtendedAuthorizeRequestUrlParams,
 } from './models/oauth-request';
 export {OIDCEndpoints} from './models/oidc-endpoints';
+export {OIDCDiscoveryApiResponse} from './models/oidc-discovery';
 export {Storage, TemporaryStore} from './models/store';
 export {User, UserProfile} from './models/user';
 export {SessionData} from './models/session';
