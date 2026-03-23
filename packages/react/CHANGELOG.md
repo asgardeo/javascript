@@ -1,5 +1,18 @@
 # @asgardeo/react
 
+## 0.18.0
+
+### Minor Changes
+
+- [#421](https://github.com/asgardeo/javascript/pull/421)
+  [`f53ef78`](https://github.com/asgardeo/javascript/commit/f53ef78da1fc6972675eef013df5f53f39a0a764) Thanks
+  [@brionmario](https://github.com/brionmario)! - Expose OIDC discovery response from `useAsgardeo`
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @asgardeo/browser@0.5.8
+
 ## 0.17.0
 
 ### Minor Changes
