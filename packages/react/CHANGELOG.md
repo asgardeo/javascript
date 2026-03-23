@@ -1,5 +1,19 @@
 # @asgardeo/react
 
+## 0.17.0
+
+### Minor Changes
+
+- [#416](https://github.com/asgardeo/javascript/pull/416)
+  [`db123a8`](https://github.com/asgardeo/javascript/commit/db123a85e6dcd4406d61cb67972269412eccb92d) Thanks
+  [@dileepapeiris](https://github.com/dileepapeiris)! - Add user preferences to control automatic API calls for user
+  profile and organizations.
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @asgardeo/browser@0.5.7
+
 ## 0.16.2
 
 ### Patch Changes
