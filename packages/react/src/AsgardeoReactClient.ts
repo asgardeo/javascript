@@ -72,6 +72,8 @@ class AsgardeoReactClient<T extends AsgardeoReactConfig = AsgardeoReactConfig> e
 
   private clientInstanceId: number;
 
+  private initializeConfig: AsgardeoReactConfig | undefined;
+
   /**
    * Creates a new AsgardeoReactClient instance.
    * @param instanceId - Optional instance ID for multi-auth context support. Defaults to 0 for backward compatibility.
@@ -355,6 +357,14 @@ class AsgardeoReactClient<T extends AsgardeoReactConfig = AsgardeoReactConfig> e
       const config: AsgardeoReactConfig | undefined = (await this.asgardeo.getConfigData()) as
         | AsgardeoReactConfig
         | undefined;
+
+      // NOTE: With React 19 strict mode, the initialization logic runs twice, and there's an intermittent
+      // issue where the config object is not getting stored in the storage layer with Vite scaffolding.
+      // Hence, we need to check if the client is initialized but the config object is empty, and reinitialize.
+      // Tracker: https://github.com/asgardeo/asgardeo-auth-react-sdk/issues/240
+      if (!config || Object.keys(config).length === 0) {
+        await this.initialize(this.initializeConfig);
+      }
 
       const isV2Platform: boolean = config && config.platform === Platform.AsgardeoV2;
 
