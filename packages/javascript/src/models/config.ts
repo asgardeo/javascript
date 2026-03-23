@@ -380,7 +380,9 @@ export interface Preferences {
    */
   theme?: ThemePreferences;
   /**
-   * User profile preferences for controlling user data fetching behavior
+   * User profile preferences for controlling user data fetching behavior.
+   * TEMPORARY CONFIG
+   * TODO: Remove this once https://github.com/asgardeo/javascript/issues/412 is properly fixed.
    */
   user?: UserPreferences;
 }
