@@ -51,6 +51,7 @@ import {
   EmbeddedSignInFlowResponseV2,
   executeEmbeddedSignUpFlowV2,
   EmbeddedSignInFlowStatusV2,
+  OIDCDiscoveryApiResponse,
 } from '@asgardeo/browser';
 import AuthAPI from './__temp__/api';
 import getAllOrganizations from './api/getAllOrganizations';
@@ -124,9 +125,11 @@ class AsgardeoReactClient<T extends AsgardeoReactConfig = AsgardeoReactConfig> e
       resolvedOrganizationHandle = deriveOrganizationHandleFromBaseUrl(config?.baseUrl);
     }
 
-    return this.withLoading(async () =>
-      this.asgardeo.init({...config, organizationHandle: resolvedOrganizationHandle} as any),
-    );
+    return this.withLoading(async () => {
+      this.initializeConfig = {...config, organizationHandle: resolvedOrganizationHandle};
+
+      return this.asgardeo.init(this.initializeConfig as any);
+    });
   }
 
   override reInitialize(config: Partial<AsgardeoReactConfig>): Promise<boolean> {
@@ -134,7 +137,7 @@ class AsgardeoReactClient<T extends AsgardeoReactConfig = AsgardeoReactConfig> e
       let isInitialized: boolean;
 
       try {
-        await this.asgardeo.reInitialize(config);
+        await this.asgardeo.reInitialize(config as any);
 
         isInitialized = true;
       } catch (error) {
@@ -520,6 +523,12 @@ class AsgardeoReactClient<T extends AsgardeoReactConfig = AsgardeoReactConfig> e
 
     navigate(getRedirectBasedSignUpUrl(config as Config));
     return undefined;
+  }
+
+  override async getDiscoveryResponse(): Promise<OIDCDiscoveryApiResponse | null> {
+    const storageManager: any = await this.asgardeo.getStorageManager();
+
+    return storageManager.loadOpenIDProviderConfiguration();
   }
 
   async request(requestConfig?: HttpRequestConfig): Promise<HttpResponse<any>> {

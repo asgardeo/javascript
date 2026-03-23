@@ -21,6 +21,7 @@ import {
   HttpRequestConfig,
   HttpResponse,
   IdToken,
+  OIDCDiscoveryApiResponse,
   Organization,
   SignInOptions,
   TokenExchangeRequestConfig,
@@ -38,6 +39,17 @@ export type AsgardeoContextProps = {
   applicationId: string | undefined;
   baseUrl: string | undefined;
   clientId: string | undefined;
+  /**
+   * OIDC discovery data.
+   */
+  discovery: {
+    /**
+     * The response from the `.well-known/openid-configuration` endpoint.
+     * Contains server capabilities, supported endpoints, and metadata.
+     * `null` while loading or when discovery has not been fetched.
+     */
+    wellKnown: OIDCDiscoveryApiResponse | null;
+  };
   /**
    * Swaps the current access token with a new one based on the provided configuration (with a grant type).
    * @param config - Configuration for the token exchange request.
@@ -186,6 +198,9 @@ const AsgardeoContext: Context<AsgardeoContextProps | null> = createContext<null
   baseUrl: undefined,
   clearSession: () => {},
   clientId: undefined,
+  discovery: {
+    wellKnown: null,
+  },
   exchangeToken: null,
   getAccessToken: null,
   getDecodedIdToken: null,

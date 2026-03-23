@@ -18,6 +18,7 @@
 
 import {OAuthResponseMode} from '../../models/oauth-response';
 import {OIDCEndpoints} from '../../models/oidc-endpoints';
+import {Platform} from '../../models/platforms';
 
 export interface DefaultAuthClientConfig {
   afterSignInUrl: string;
@@ -42,6 +43,12 @@ export interface DefaultAuthClientConfig {
      */
     targetOrganizationId?: string;
   };
+  /**
+   * Optional platform where the application is running.
+   * This helps the SDK to optimize its behavior based on the platform.
+   * If not provided, the SDK will attempt to auto-detect the platform.
+   */
+  platform?: keyof typeof Platform;
   prompt?: string;
   responseMode?: OAuthResponseMode;
   scopes?: string | string[] | undefined;
