@@ -1,5 +1,13 @@
 # @asgardeo/browser
 
+## 0.5.7
+
+### Patch Changes
+
+- Updated dependencies
+  [[`db123a8`](https://github.com/asgardeo/javascript/commit/db123a85e6dcd4406d61cb67972269412eccb92d)]:
+  - @asgardeo/javascript@0.11.0
+
 ## 0.5.6
 
 ### Patch Changes

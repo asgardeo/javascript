@@ -1,5 +1,14 @@
 # @asgardeo/javascript
 
+## 0.11.0
+
+### Minor Changes
+
+- [#416](https://github.com/asgardeo/javascript/pull/416)
+  [`db123a8`](https://github.com/asgardeo/javascript/commit/db123a85e6dcd4406d61cb67972269412eccb92d) Thanks
+  [@dileepapeiris](https://github.com/dileepapeiris)! - Add user preferences to control automatic API calls for user
+  profile and organizations.
+
 ## 0.10.2
 
 ### Patch Changes
