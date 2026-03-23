@@ -1,5 +1,13 @@
 # @asgardeo/react
 
+## 0.16.1
+
+### Patch Changes
+
+- [#419](https://github.com/asgardeo/javascript/pull/419)
+  [`2be8430`](https://github.com/asgardeo/javascript/commit/2be84302130f33c9278abcbf14df6ce7540c6729) Thanks
+  [@brionmario](https://github.com/brionmario)! - Fix the sign-in issues in Vite apps due to `initialization`
+
 ## 0.16.0
 
 ### Minor Changes
