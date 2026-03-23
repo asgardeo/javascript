@@ -17,7 +17,12 @@ createRoot(document.getElementById('root')!).render(
       platform={import.meta.env.VITE_ASGARDEO_PLATFORM || undefined}
       scopes="openid address email profile user:email read:user internal_organization_create internal_organization_view internal_organization_update internal_organization_delete internal_org_organization_update internal_org_organization_create internal_org_organization_view internal_org_organization_delete"
       preferences={{
+        // Theme Configuration
         theme: {
+          // Disable automatic branding fetch from Asgardeo (default: true)
+          // When false, no API call to /api/server/v1/branding-preference/resolve
+          // inheritFromBranding: false,
+
           // overrides: {
           //   colors: {
           //     primary: {
@@ -47,6 +52,24 @@ createRoot(document.getElementById('root')!).render(
           //   },
           // },
         },
+
+        // User Profile and Organization Configuration
+        user: {
+          // Control automatic user profile fetching (default: true)
+          // When false, no API calls to /scim2/Me and /scim2/Schemas
+          // Only ID token claims (email, name, sub) will be available
+          // fetchUserProfile: false,
+
+          // Control automatic organization fetching (default: true)
+          // When false, no API call to /api/users/v1/me/organizations
+          // fetchOrganizations: false,
+
+          // Example: Disable all automatic API calls for maximum performance
+          // fetchUserProfile: false,
+          // fetchOrganizations: false,
+        },
+
+        // Internationalization (i18n) Configuration
         // Import the locale file and add it here to enable i18n
         // ex: import fr_FR from './i18n/fr-FR.json';
         // i18n: {

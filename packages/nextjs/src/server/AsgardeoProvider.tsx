@@ -133,38 +133,49 @@ const AsgardeoServerProvider: FC<PropsWithChildren<AsgardeoServerProviderProps>>
       }
     }
 
-    try {
-      const userResponse: {
-        data: {user: User | null};
-        error: string | null;
-        success: boolean;
-      } = await getUserAction(sessionId);
-      const userProfileResponse: {
-        data: {userProfile: UserProfile};
-        error: string | null;
-        success: boolean;
-      } = await getUserProfileAction(sessionId);
-      const currentOrganizationResponse: {
-        data: {organization?: Organization; user?: Record<string, unknown>};
-        error: string | null;
-        success: boolean;
-      } = await getCurrentOrganizationAction(sessionId);
+    // Check if user profile fetching is enabled (default: true)
+    const shouldFetchUserProfile: boolean = config?.preferences?.user?.fetchUserProfile !== false;
+    // Check if organization fetching is enabled (default: true)
+    const shouldFetchOrganizations: boolean = config?.preferences?.user?.fetchOrganizations !== false;
 
-      if (sessionId) {
-        myOrganizations = await getMyOrganizations({}, sessionId);
-      } else {
-        // eslint-disable-next-line no-console
-        console.warn('[AsgardeoServerProvider] No session ID available, skipping organization fetch');
+    if (shouldFetchUserProfile) {
+      try {
+        const userResponse: {
+          data: {user: User | null};
+          error: string | null;
+          success: boolean;
+        } = await getUserAction(sessionId);
+        const userProfileResponse: {
+          data: {userProfile: UserProfile};
+          error: string | null;
+          success: boolean;
+        } = await getUserProfileAction(sessionId);
+
+        user = userResponse.data?.user || {};
+        userProfile = userProfileResponse.data?.userProfile ?? userProfile;
+      } catch (error) {
+        logger.warn('[AsgardeoServerProvider] Failed to fetch user profile from SCIM2:', error?.toString());
       }
+    }
 
-      user = userResponse.data?.user || {};
-      userProfile = userProfileResponse.data?.userProfile ?? userProfile;
-      currentOrganization = currentOrganizationResponse?.data?.organization as Organization;
-    } catch (error) {
-      user = {};
-      userProfile = {flattenedProfile: {}, profile: {}, schemas: []};
-      currentOrganization = {id: '', name: '', orgHandle: ''};
-      myOrganizations = [];
+    if (shouldFetchOrganizations) {
+      try {
+        const currentOrganizationResponse: {
+          data: {organization?: Organization; user?: Record<string, unknown>};
+          error: string | null;
+          success: boolean;
+        } = await getCurrentOrganizationAction(sessionId);
+
+        if (sessionId) {
+          myOrganizations = await getMyOrganizations({}, sessionId);
+        } else {
+          logger.warn('[AsgardeoServerProvider] No session ID available, skipping organization fetch');
+        }
+
+        currentOrganization = currentOrganizationResponse?.data?.organization as Organization;
+      } catch (error) {
+        logger.warn('[AsgardeoServerProvider] Failed to fetch organization info:', error?.toString());
+      }
     }
   }
 

@@ -343,6 +343,28 @@ export interface I18nPreferences {
   urlParam?: string | false;
 }
 
+export interface UserPreferences {
+  /**
+   * Whether to automatically fetch the user's associated organizations after sign-in.
+   * When set to false, the SDK will not make API calls to `/api/users/v1/me/organizations`.
+   * @default true
+   * @remarks Disabling this will improve performance if you don't need organization information.
+   * You can manually call `getMyOrganizations()` when needed if this is disabled.
+   */
+  fetchOrganizations?: boolean;
+  /**
+   * Whether to automatically fetch the user profile from SCIM2 endpoints after sign-in.
+   * When set to false, the SDK will not make API calls to `/scim2/Me` and `/scim2/Schemas`.
+   * Instead, it will extract basic user claims from the ID token.
+   * @default true
+   * @remarks Disabling this will improve performance but provide limited user profile information.
+   * Only the claims present in the ID token will be available (e.g., sub, email, name).
+   * For full user profile attributes (custom claims, enterprise attributes, etc.),
+   * keep this enabled or manually call `getUserProfile()` when needed.
+   */
+  fetchUserProfile?: boolean;
+}
+
 export interface Preferences {
   /**
    * Internationalization preferences for the Asgardeo UI components
@@ -357,4 +379,10 @@ export interface Preferences {
    * Theme preferences for the Asgardeo UI components
    */
   theme?: ThemePreferences;
+  /**
+   * User profile preferences for controlling user data fetching behavior.
+   * TEMPORARY CONFIG
+   * TODO: Remove this once https://github.com/asgardeo/javascript/issues/412 is properly fixed.
+   */
+  user?: UserPreferences;
 }
