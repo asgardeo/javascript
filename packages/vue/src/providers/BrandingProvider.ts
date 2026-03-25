@@ -30,7 +30,7 @@ import type {BrandingContextValue} from '../models/contexts';
  *
  * @internal — This provider is mounted automatically by `<AsgardeoProvider>`.
  */
-const BrandingProvider: ReturnType<typeof defineComponent> = defineComponent({
+const BrandingProvider = defineComponent({
   name: 'BrandingProvider',
   props: {
     /** Whether branding is enabled. When false the context provides null. */

@@ -35,7 +35,7 @@ interface CallbackSetupProps {
  *
  * Flow: Extract OAuth parameters from URL -> Parse state parameter -> Redirect to original path with parameters
  */
-const Callback: ReturnType<typeof defineComponent> = defineComponent({
+const Callback = defineComponent({
   name: 'Callback',
   props: {
     onError: {default: undefined, type: Function as unknown as () => (error: Error) => void},

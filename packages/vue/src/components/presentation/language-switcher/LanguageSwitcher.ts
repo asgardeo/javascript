@@ -32,7 +32,7 @@ interface LanguageSwitcherSetupProps {
  *
  * Retrieves current language and setLanguage from i18n context.
  */
-const LanguageSwitcher: ReturnType<typeof defineComponent> = defineComponent({
+const LanguageSwitcher = defineComponent({
   name: 'LanguageSwitcher',
   props: {
     className: {default: '', type: String},

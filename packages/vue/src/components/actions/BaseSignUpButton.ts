@@ -34,7 +34,7 @@ import Button from '../primitives/Button';
  * <!-- Unstyled button for full customization -->
  * <BaseSignUpButton unstyled class="my-custom-styles">Custom Content</BaseSignUpButton>
  */
-const BaseSignUpButton: ReturnType<typeof defineComponent> = defineComponent({
+const BaseSignUpButton = defineComponent({
   emits: ['click'],
   name: 'BaseSignUpButton',
   props: {

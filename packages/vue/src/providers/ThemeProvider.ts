@@ -71,7 +71,7 @@ const logger: ReturnType<typeof createPackageComponentLogger> = createPackageCom
  * </ThemeProvider>
  * ```
  */
-const ThemeProvider: ReturnType<typeof defineComponent> = defineComponent({
+const ThemeProvider = defineComponent({
   name: 'ThemeProvider',
   props: {
     /** Theme detection configuration (for 'class' or 'system' mode). */

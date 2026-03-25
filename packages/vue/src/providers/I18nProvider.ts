@@ -131,7 +131,7 @@ const detectBrowserLanguage = (): string => {
  *
  * @internal — This provider is mounted automatically by `<AsgardeoProvider>`.
  */
-const I18nProvider: ReturnType<typeof defineComponent> = defineComponent({
+const I18nProvider = defineComponent({
   name: 'I18nProvider',
   props: {
     /** i18n preferences passed down from the AsgardeoProvider config. */

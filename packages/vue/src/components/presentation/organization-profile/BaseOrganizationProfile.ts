@@ -67,7 +67,7 @@ const formatDate = (dateStr: string): string => {
  * Renders a profile card with avatar, org name, handle, and two-column field rows
  * for Organization ID, Name, Description, Created Date, and Last Modified Date.
  */
-const BaseOrganizationProfile: ReturnType<typeof defineComponent> = defineComponent({
+const BaseOrganizationProfile = defineComponent({
   name: 'BaseOrganizationProfile',
   props: {
     className: {default: '', type: String},

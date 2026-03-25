@@ -32,7 +32,7 @@ interface CreateOrganizationSetupProps {
  *
  * Retrieves createOrganization from context and delegates to BaseCreateOrganization.
  */
-const CreateOrganization: ReturnType<typeof defineComponent> = defineComponent({
+const CreateOrganization = defineComponent({
   name: 'CreateOrganization',
   props: {
     className: {default: '', type: String},

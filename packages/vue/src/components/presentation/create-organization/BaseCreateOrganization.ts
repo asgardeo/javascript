@@ -38,7 +38,7 @@ interface BaseCreateOrganizationSetupProps {
  *
  * Provides a form with an org name input and create button.
  */
-const BaseCreateOrganization: ReturnType<typeof defineComponent> = defineComponent({
+const BaseCreateOrganization = defineComponent({
   name: 'BaseCreateOrganization',
   props: {
     className: {default: '', type: String},

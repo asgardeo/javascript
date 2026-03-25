@@ -29,7 +29,7 @@ import type {FlowContextValue, FlowMessage, FlowStep} from '../models/contexts';
  *
  * @internal — This provider is mounted automatically by `<AsgardeoProvider>`.
  */
-const FlowProvider: ReturnType<typeof defineComponent> = defineComponent({
+const FlowProvider = defineComponent({
   name: 'FlowProvider',
   props: {
     /** Initial step to start with. */

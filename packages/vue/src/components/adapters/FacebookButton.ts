@@ -24,7 +24,7 @@ import Button from '../primitives/Button';
  * Facebook Sign-In Button Component.
  * Handles authentication with Facebook identity provider.
  */
-const FacebookButton: ReturnType<typeof defineComponent> = defineComponent({
+const FacebookButton = defineComponent({
   emits: ['click'],
   name: 'FacebookButton',
   props: {

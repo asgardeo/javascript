@@ -24,7 +24,7 @@ import Button from '../primitives/Button';
  * Google Sign-In Button Component.
  * Handles authentication with Google identity provider.
  */
-const GoogleButton: ReturnType<typeof defineComponent> = defineComponent({
+const GoogleButton = defineComponent({
   emits: ['click'],
   name: 'GoogleButton',
   props: {

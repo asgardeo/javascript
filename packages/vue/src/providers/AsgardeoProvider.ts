@@ -82,7 +82,7 @@ function hasAuthParams(url: URL, afterSignInUrl: string): boolean {
  * </template>
  * ```
  */
-const AsgardeoProvider: ReturnType<typeof defineComponent> = defineComponent({
+const AsgardeoProvider = defineComponent({
   name: 'AsgardeoProvider',
   props: {
     /** The URL to redirect to after sign in. Defaults to `window.location.origin`. */

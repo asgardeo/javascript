@@ -26,7 +26,7 @@ import useOrganization from '../../../composables/useOrganization';
  *
  * Retrieves organisations from context and delegates to BaseOrganizationSwitcher.
  */
-const OrganizationSwitcher: ReturnType<typeof defineComponent> = defineComponent({
+const OrganizationSwitcher = defineComponent({
   name: 'OrganizationSwitcher',
   props: {
     className: {default: '', type: String},

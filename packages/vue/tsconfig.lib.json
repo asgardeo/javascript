@@ -17,5 +17,5 @@
     "**/*.spec.jsx",
     "**/*.test.jsx"
   ],
-  "include": ["src/**/*.js", "src/**/*.ts", "src/**/*.jsx", "src/**/*.tsx"]
+  "include": ["src/**/*.js", "src/**/*.ts", "src/**/*.jsx", "src/**/*.tsx", "src/**/*.vue"]
 }

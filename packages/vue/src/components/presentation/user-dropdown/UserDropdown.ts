@@ -27,7 +27,7 @@ import UserProfileComponent from '../user-profile/UserProfile';
  *
  * Retrieves user and signOut from context and delegates to BaseUserDropdown.
  */
-const UserDropdown: ReturnType<typeof defineComponent> = defineComponent({
+const UserDropdown = defineComponent({
   emits: ['profileClick'],
   name: 'UserDropdown',
   props: {

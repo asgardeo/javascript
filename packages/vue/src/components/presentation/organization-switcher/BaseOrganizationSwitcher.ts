@@ -31,7 +31,7 @@ const cls = (name: string): string => withVendorCSSClassPrefix(`organization-swi
  *
  * Shows the current organization name and a dropdown list to switch.
  */
-const BaseOrganizationSwitcher: ReturnType<typeof defineComponent> = defineComponent({
+const BaseOrganizationSwitcher = defineComponent({
   inheritAttrs: false,
   name: 'BaseOrganizationSwitcher',
   props: {

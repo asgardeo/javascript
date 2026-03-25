@@ -34,7 +34,7 @@ export interface BaseUserDropdownProps {
 /**
  * BaseUserDropdown — unstyled user dropdown with avatar, profile link, sign-out.
  */
-const BaseUserDropdown: ReturnType<typeof defineComponent> = defineComponent({
+const BaseUserDropdown = defineComponent({
   inheritAttrs: false,
   name: 'BaseUserDropdown',
   props: {

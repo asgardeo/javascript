@@ -24,7 +24,7 @@ import useAsgardeo from '../../composables/useAsgardeo';
 /**
  * SignOutButton — triggers `signOut()` from the Asgardeo context.
  */
-const SignOutButton: ReturnType<typeof defineComponent> = defineComponent({
+const SignOutButton = defineComponent({
   emits: ['click', 'error'],
   name: 'SignOutButton',
   setup(_: {}, {slots, emit, attrs}: SetupContext): () => VNode {

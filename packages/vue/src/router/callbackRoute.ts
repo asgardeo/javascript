@@ -93,7 +93,7 @@ export interface AsgardeoRouteRecord {
 export const createCallbackRoute = (options: CallbackRouteOptions = {}): AsgardeoRouteRecord => {
   const {path = '/callback', name, onError} = options;
 
-  const CallbackWrapper: ReturnType<typeof defineComponent> = defineComponent({
+  const CallbackWrapper = defineComponent({
     name: 'AsgardeoCallbackRoute',
     setup() {
       return (): ReturnType<typeof h> =>

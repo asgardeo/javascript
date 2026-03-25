@@ -37,7 +37,7 @@ interface BaseLanguageSwitcherSetupProps {
  *
  * Shows the current language and a dropdown to select another.
  */
-const BaseLanguageSwitcher: ReturnType<typeof defineComponent> = defineComponent({
+const BaseLanguageSwitcher = defineComponent({
   name: 'BaseLanguageSwitcher',
   props: {
     className: {default: '', type: String},

@@ -27,7 +27,7 @@ import useAsgardeo from '../../composables/useAsgardeo';
  * If a custom `signUpUrl` is configured, navigates to it instead.
  * Falls back to i18n translation for the button text.
  */
-const SignUpButton: ReturnType<typeof defineComponent> = defineComponent({
+const SignUpButton = defineComponent({
   emits: ['click', 'error'],
   name: 'SignUpButton',
   setup(_: {}, {slots, emit, attrs}: SetupContext): () => VNode {

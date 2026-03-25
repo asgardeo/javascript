@@ -24,7 +24,7 @@ import Button from '../primitives/Button';
  * Microsoft Sign-In Button Component.
  * Handles authentication with Microsoft identity provider.
  */
-const MicrosoftButton: ReturnType<typeof defineComponent> = defineComponent({
+const MicrosoftButton = defineComponent({
   emits: ['click'],
   name: 'MicrosoftButton',
   props: {

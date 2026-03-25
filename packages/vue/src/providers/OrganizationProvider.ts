@@ -33,7 +33,7 @@ import type {OrganizationContextValue} from '../models/contexts';
  *
  * @internal — This provider is mounted automatically by `<AsgardeoProvider>`.
  */
-const OrganizationProvider: ReturnType<typeof defineComponent> = defineComponent({
+const OrganizationProvider = defineComponent({
   name: 'OrganizationProvider',
   props: {
     /** Optional factory for creating a new sub-organization. */

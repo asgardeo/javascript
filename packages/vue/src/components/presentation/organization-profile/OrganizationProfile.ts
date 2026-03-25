@@ -26,7 +26,7 @@ import useOrganization from '../../../composables/useOrganization';
  *
  * Retrieves current organization from context and delegates to BaseOrganizationProfile.
  */
-const OrganizationProfile: ReturnType<typeof defineComponent> = defineComponent({
+const OrganizationProfile = defineComponent({
   name: 'OrganizationProfile',
   props: {
     className: {default: '', type: String},

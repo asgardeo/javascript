@@ -26,7 +26,7 @@ import useOrganization from '../../../composables/useOrganization';
  *
  * Retrieves organization list from context and delegates to BaseOrganizationList.
  */
-const OrganizationList: ReturnType<typeof defineComponent> = defineComponent({
+const OrganizationList = defineComponent({
   emits: ['select'],
   name: 'OrganizationList',
   props: {

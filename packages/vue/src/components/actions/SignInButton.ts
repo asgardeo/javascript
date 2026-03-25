@@ -27,7 +27,7 @@ import useAsgardeo from '../../composables/useAsgardeo';
  * If a custom `signInUrl` is configured, navigates to it instead.
  * Falls back to i18n translation for the button text.
  */
-const SignInButton: ReturnType<typeof defineComponent> = defineComponent({
+const SignInButton = defineComponent({
   emits: ['click', 'error'],
   name: 'SignInButton',
   props: {

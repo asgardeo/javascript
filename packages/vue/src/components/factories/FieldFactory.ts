@@ -212,7 +212,7 @@ export const createField = (config: FieldConfig): VNode => {
 /**
  * FieldFactory — Vue component wrapper for the field factory.
  */
-const FieldFactory: ReturnType<typeof defineComponent> = defineComponent({
+const FieldFactory = defineComponent({
   emits: ['change', 'blur'],
   name: 'FieldFactory',
   props: {

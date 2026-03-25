@@ -24,7 +24,7 @@ import Button from '../primitives/Button';
  * GitHub Sign-In Button Component.
  * Handles authentication with GitHub identity provider.
  */
-const GitHubButton: ReturnType<typeof defineComponent> = defineComponent({
+const GitHubButton = defineComponent({
   emits: ['click'],
   name: 'GitHubButton',
   props: {

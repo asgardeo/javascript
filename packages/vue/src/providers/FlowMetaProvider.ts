@@ -31,7 +31,7 @@ import type {AsgardeoContext, FlowMetaContextValue, I18nContextValue} from '../m
  *
  * @internal — This provider is mounted automatically by `<AsgardeoProvider>`.
  */
-const FlowMetaProvider: ReturnType<typeof defineComponent> = defineComponent({
+const FlowMetaProvider = defineComponent({
   name: 'FlowMetaProvider',
   props: {
     /**

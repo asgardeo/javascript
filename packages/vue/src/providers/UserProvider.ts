@@ -29,7 +29,7 @@ import type {UserContextValue} from '../models/contexts';
  *
  * @internal — This provider is mounted automatically by `<AsgardeoProvider>`.
  */
-const UserProvider: ReturnType<typeof defineComponent> = defineComponent({
+const UserProvider = defineComponent({
   name: 'UserProvider',
   props: {
     /** The flattened profile (top-level attribute map). */

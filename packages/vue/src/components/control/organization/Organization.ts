@@ -37,7 +37,7 @@ import useOrganization from '../../../composables/useOrganization';
  * </Organization>
  * ```
  */
-const Organization: ReturnType<typeof defineComponent> = defineComponent({
+const Organization = defineComponent({
   name: 'Organization',
   setup(_props: Record<string, unknown>, {slots}: {slots: any}): () => VNode | VNode[] | null {
     const {currentOrganization} = useOrganization();
