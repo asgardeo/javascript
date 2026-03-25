@@ -276,7 +276,7 @@ const createAuthComponentFromFlow = (
                       }),
                     ),
                   ],
-                  purpose_name: p.purpose_name,
+                  purposeName: (p as any).purposeName ?? (p as any).purpose_name,
                 }),
               ),
             };
