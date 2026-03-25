@@ -181,7 +181,7 @@ const getBrandingPreference = async ({
       }
 
       logger.warn(
-        `[BrandingError] ${errorDescription} To resolve this issue, please ${platformConsoleGuidance}. If you want to suppress this warning and stop fetching branding preferences, set \`<AsgardeoProvider>\` -> \`preferences\` -> \`theme\` -> \`inheritFromBranding\` to false.`
+        `[BrandingError] ${errorDescription} To resolve this issue, please ${platformConsoleGuidance}. If you want to suppress this warning and stop fetching branding preferences, set \`<AsgardeoProvider>\` -> \`preferences\` -> \`theme\` -> \`inheritFromBranding\` to false.`,
       );
 
       throw new AsgardeoAPIError(
