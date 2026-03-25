@@ -174,6 +174,7 @@ export type {HeadingExtractionResult, AuthComponentHeadingsResult} from './utils
 
 // ── Re-exports from @asgardeo/browser ──
 export {
+  FieldType,
   type AllOrganizationsApiResponse,
   type Config,
   type EmbeddedFlowExecuteRequestPayload,
