@@ -18,6 +18,9 @@
 
 import AsgardeoAPIError from '../errors/AsgardeoAPIError';
 import {BrandingPreference} from '../models/branding-preference';
+import {Platform} from '../models/platforms';
+import identifyPlatform from '../utils/identifyPlatform';
+import logger from '../utils/logger';
 
 /**
  * Configuration for the getBrandingPreference request
@@ -154,6 +157,32 @@ const getBrandingPreference = async ({
 
     if (!response?.ok) {
       const errorText: string = await response.text();
+
+      const platform: Platform = identifyPlatform({baseUrl} as any);
+
+      let errorDescription: string;
+      try {
+        const errorBody: {description?: string; message?: string} = JSON.parse(errorText) as {
+          description?: string;
+          message?: string;
+        };
+        errorDescription = errorBody?.description || errorBody?.message || errorText;
+      } catch {
+        errorDescription = errorText;
+      }
+
+      let platformConsoleGuidance: string;
+      if (platform === Platform.Asgardeo || platform === Platform.AsgardeoV2) {
+        platformConsoleGuidance = 'configure branding preferences in the Asgardeo console';
+      } else if (platform === Platform.IdentityServer) {
+        platformConsoleGuidance = 'configure branding preferences in the WSO2 Identity Server console';
+      } else {
+        platformConsoleGuidance = 'configure branding preferences in the platform console';
+      }
+
+      logger.warn(
+        `[BrandingError] ${errorDescription} To resolve this issue, please ${platformConsoleGuidance}. If you want to suppress this warning and stop fetching branding preferences, set \`<AsgardeoProvider>\` -> \`preferences\` -> \`theme\` -> \`inheritFromBranding\` to false.`
+      );
 
       throw new AsgardeoAPIError(
         `Failed to get branding preference: ${errorText}`,
