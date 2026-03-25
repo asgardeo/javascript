@@ -1,5 +1,14 @@
 # @asgardeo/browser
 
+## 0.5.9
+
+### Patch Changes
+
+- [#426](https://github.com/asgardeo/javascript/pull/426)
+  [`29463c4`](https://github.com/asgardeo/javascript/commit/29463c4be6ba7bd612ada83ccbe8179a2cd374f6) Thanks
+  [@kavindadimuthu](https://github.com/kavindadimuthu)! - Remove esbuild-plugin-polyfill-node &
+  esbuild-plugins-node-modules-polyfill dependencies
+
 ## 0.5.8
 
 ### Patch Changes
