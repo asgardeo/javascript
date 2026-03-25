@@ -571,7 +571,7 @@ const SignIn: FC<SignInProps> = ({
                 };
               }),
             ],
-            purpose_name: p.purpose_name,
+            purposeName: (p as any).purposeName ?? (p as any).purpose_name,
           })),
         };
         processedInputs['consent_decisions'] = JSON.stringify(decisions);

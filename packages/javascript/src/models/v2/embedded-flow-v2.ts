@@ -479,7 +479,7 @@ export interface ConsentPurposeDecision {
   /** Per-attribute decisions for this purpose */
   elements: ConsentAttributeElement[];
   /** The name of the consent purpose */
-  purpose_name: string;
+  purposeName: string;
 }
 
 /**
@@ -504,10 +504,10 @@ export interface ConsentPurposeData {
   essential: string[];
   /** Attributes that the user can optionally decline */
   optional: string[];
+  /** Human-readable purpose name */
+  purposeName?: string;
   /** Unique identifier for the purpose */
   purpose_id: string;
-  /** Human-readable purpose name */
-  purpose_name: string;
 }
 
 /**

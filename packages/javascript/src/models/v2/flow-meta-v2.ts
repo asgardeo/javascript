@@ -48,16 +48,16 @@ export interface ApplicationMetadata {
   id: string;
 
   /** URL of the application logo */
-  logo_url?: string;
+  logoUrl?: string;
 
   /** Human-readable application name */
   name: string;
 
   /** Privacy Policy URI */
-  policy_uri?: string;
+  policyUri?: string;
 
   /** Terms of Service URI */
-  tos_uri?: string;
+  tosUri?: string;
 
   /** Application home URL */
   url?: string;
@@ -73,7 +73,7 @@ export interface ApplicationMetadata {
  */
 export interface OUMetadata {
   /** Cookie Policy URI */
-  cookie_policy_uri?: string;
+  cookiePolicyUri?: string;
 
   /** Optional description of the organization unit */
   description?: string;
@@ -85,16 +85,16 @@ export interface OUMetadata {
   id: string;
 
   /** URL of the organization unit logo */
-  logo_url?: string;
+  logoUrl?: string;
 
   /** Human-readable organization unit name */
   name: string;
 
   /** Privacy Policy URI */
-  policy_uri?: string;
+  policyUri?: string;
 
   /** Terms of Service URI */
-  tos_uri?: string;
+  tosUri?: string;
 }
 
 /**
@@ -280,7 +280,7 @@ export interface FlowMetadataResponse {
   i18n: I18nMetadata;
 
   /** Indicates whether the registration flow is enabled for the entity */
-  is_registration_flow_enabled: boolean;
+  isRegistrationFlowEnabled: boolean;
 
   /**
    * Organization unit metadata.

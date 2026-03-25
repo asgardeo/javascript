@@ -22,22 +22,11 @@ import ConsentCheckboxList from './ConsentCheckboxList';
 import Typography from '../primitives/Typography/Typography';
 
 /**
- * Consent purpose structure as expected from the backend.
- * The `essential` and `optional` arrays contain the list of attribute names that fall under
- * each category for the given purpose.
+ * Backward-compatible consent purpose type exported by @asgardeo/react.
+ *
+ * Some consumers import this name directly; keep it as an alias to the v2 model.
  */
-export interface ConsentPurpose {
-  /** Optional human-readable description of the purpose */
-  description?: string;
-  /** Attributes that are always required and cannot be declined */
-  essential?: string[];
-  /** Attributes that the user can optionally decline */
-  optional?: string[];
-  /** Unique identifier for the purpose */
-  purpose_id: string;
-  /** Name of the purpose to display in the UI */
-  purpose_name: string;
-}
+export type ConsentPurpose = ConsentPurposeData;
 
 /**
  * Render props exposed by Consent when using the render-prop pattern.
@@ -75,7 +64,7 @@ export interface ConsentProps {
   /**
    * The raw JSON string returned by the backend in `additionalData.consentPrompt`.
    */
-  consentData?: string | ConsentPurpose[] | {purposes: ConsentPurpose[]};
+  consentData?: string | ConsentPurposeData[] | {purposes: ConsentPurposeData[]};
   /**
    * Current form values - used to read optional checkbox state.
    */
@@ -94,10 +83,10 @@ export interface ConsentProps {
 const Consent: FC<ConsentProps> = ({consentData, formValues, onInputChange, children}: ConsentProps) => {
   if (!consentData) return null;
 
-  let purposes: ConsentPurpose[] = [];
+  let purposes: ConsentPurposeData[] = [];
 
   try {
-    const parsed: ConsentPurposeData[] | {purposes: ConsentPurpose[]} =
+    const parsed: ConsentPurposeData[] | {purposes: ConsentPurposeData[]} =
       typeof consentData === 'string' ? JSON.parse(consentData) : consentData;
 
     purposes = Array.isArray(parsed) ? parsed : parsed.purposes || [];
@@ -114,7 +103,7 @@ const Consent: FC<ConsentProps> = ({consentData, formValues, onInputChange, chil
 
   return (
     <div style={{display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '0.25rem'}}>
-      {purposes.map((purpose: ConsentPurpose, purposeIndex: number) => (
+      {purposes.map((purpose: ConsentPurposeData, purposeIndex: number) => (
         <div key={purpose.purpose_id || purposeIndex} style={{paddingBottom: '1rem'}}>
           {/* TODO: Uncomment when the backend supports multiple purposes for a application */}
           {/* <Typography variant="h6" fontWeight={600} gutterBottom color="inherit">
@@ -131,7 +120,7 @@ const Consent: FC<ConsentProps> = ({consentData, formValues, onInputChange, chil
               </Typography>
               <ConsentCheckboxList
                 variant="ESSENTIAL"
-                purpose={purpose as ConsentPurposeData}
+                purpose={purpose}
                 formValues={formValues}
                 onInputChange={onInputChange}
               />
@@ -145,7 +134,7 @@ const Consent: FC<ConsentProps> = ({consentData, formValues, onInputChange, chil
               </Typography>
               <ConsentCheckboxList
                 variant="OPTIONAL"
-                purpose={purpose as ConsentPurposeData}
+                purpose={purpose}
                 formValues={formValues}
                 onInputChange={onInputChange}
               />
