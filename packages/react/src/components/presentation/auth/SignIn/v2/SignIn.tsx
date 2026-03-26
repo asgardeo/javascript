@@ -564,14 +564,14 @@ const SignIn: FC<SignInProps> = ({
                 name: attr,
               })),
               ...(p.optional || []).map((attr: string) => {
-                const key: string = `__consent_opt__${p.purpose_id}__${attr}`;
+                const key: string = `__consent_opt__${p.purposeId}__${attr}`;
                 return {
                   approved: isDeny ? false : processedInputs[key] !== 'false',
                   name: attr,
                 };
               }),
             ],
-            purposeName: (p as any).purposeName ?? (p as any).purpose_name,
+            purposeName: p.purposeName,
           })),
         };
         processedInputs['consent_decisions'] = JSON.stringify(decisions);
