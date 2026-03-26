@@ -125,13 +125,13 @@ const ConsentCheckboxList: FC<ConsentCheckboxListProps> = ({
     if (isEssential) {
       return true;
     }
-    const key: string = getConsentOptionalKey(purpose.purpose_id, attrName);
+    const key: string = getConsentOptionalKey(purpose.purposeId, attrName);
     // Default to opted-in (true) when there's no explicit form value
     return formValues[key] !== 'false';
   };
 
   const handleChange = (attrName: string, checked: boolean): void => {
-    const key: string = getConsentOptionalKey(purpose.purpose_id, attrName);
+    const key: string = getConsentOptionalKey(purpose.purposeId, attrName);
     onInputChange(key, checked ? 'true' : 'false');
   };
 
@@ -142,7 +142,7 @@ const ConsentCheckboxList: FC<ConsentCheckboxListProps> = ({
   return (
     <div className={cx(withVendorCSSClassPrefix(bem('consent-checkbox-list')), styles['listContainer'])}>
       {attributes.map((attr: string) => {
-        const inputId: string = `consent_${isEssential ? 'ess' : 'opt'}_${purpose.purpose_id}_${attr}`;
+        const inputId: string = `consent_${isEssential ? 'ess' : 'opt'}_${purpose.purposeId}_${attr}`;
         const checked: boolean = isChecked(attr);
 
         return (
