@@ -1,5 +1,18 @@
 # @asgardeo/react
 
+## 0.20.0
+
+### Minor Changes
+
+- [#428](https://github.com/asgardeo/javascript/pull/428)
+  [`4037b23`](https://github.com/asgardeo/javascript/commit/4037b2386cafba02b713cbaa95fe72244d8bee92) Thanks
+  [@DonOmalVindula](https://github.com/DonOmalVindula)! - Add OU APIs, tree picker component, and OU_SELECT flow support
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @asgardeo/browser@0.5.11
+
 ## 0.19.0
 
 ### Minor Changes
