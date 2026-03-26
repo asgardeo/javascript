@@ -59,6 +59,9 @@ export enum EmbeddedFlowComponentType {
   /** Image display component for logos and illustrations */
   Image = 'IMAGE',
 
+  /** Organization unit tree picker for selecting an OU */
+  OuSelect = 'OU_SELECT',
+
   /** One-time password input field for multi-factor authentication */
   OtpInput = 'OTP_INPUT',
 

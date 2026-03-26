@@ -52,6 +52,7 @@ export {
   EmbeddedUserOnboardingFlowResponse,
 } from './api/v2/executeEmbeddedUserOnboardingFlowV2';
 export {default as getFlowMetaV2} from './api/v2/getFlowMetaV2';
+export {default as getOrganizationUnitChildren} from './api/v2/getOrganizationUnitChildren';
 
 export {default as ApplicationNativeAuthenticationConstants} from './constants/ApplicationNativeAuthenticationConstants';
 export {default as TokenConstants} from './constants/TokenConstants';
@@ -111,6 +112,11 @@ export {
   EmbeddedSignUpFlowRequest as EmbeddedSignUpFlowRequestV2,
   EmbeddedSignUpFlowErrorResponse as EmbeddedSignUpFlowErrorResponseV2,
 } from './models/v2/embedded-signup-flow-v2';
+export {
+  OrganizationUnit,
+  OrganizationUnitListResponse,
+  GetOrganizationUnitChildrenConfig,
+} from './models/v2/organization-unit';
 export {
   FlowMetaType,
   ApplicationMetadata,
