@@ -172,7 +172,7 @@ const getBrandingPreference = async ({
       }
 
       let platformConsoleGuidance: string;
-      if (platform === Platform.Asgardeo || platform === Platform.AsgardeoV2) {
+      if (platform === Platform.Asgardeo) {
         platformConsoleGuidance = 'configure branding preferences in the Asgardeo console';
       } else if (platform === Platform.IdentityServer) {
         platformConsoleGuidance = 'configure branding preferences in the WSO2 Identity Server console';
