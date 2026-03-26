@@ -1,5 +1,22 @@
 # @asgardeo/react
 
+## 0.19.0
+
+### Minor Changes
+
+- [#432](https://github.com/asgardeo/javascript/pull/432)
+  [`7206f0d`](https://github.com/asgardeo/javascript/commit/7206f0d1129caaae536eb2d0117bd7f561aa0343) Thanks
+  [@rajithacharith](https://github.com/rajithacharith)! - Change purpose_id attribute to camelCase
+
+- [#429](https://github.com/asgardeo/javascript/pull/429)
+  [`acac66c`](https://github.com/asgardeo/javascript/commit/acac66c4b086a13754fea768a19ac7008054a887) Thanks
+  [@rajithacharith](https://github.com/rajithacharith)! - Support camel case api request/response payloads
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @asgardeo/browser@0.5.10
+
 ## 0.18.1
 
 ### Patch Changes
