@@ -54,7 +54,7 @@ export interface ConsentProps {
    * <Consent consentData={raw} formValues={formInputs} onInputChange={onChange} t={t}>
    *   {({ purposes, formValues, onInputChange, t }) => (
    *     <div>
-   *       {purposes.map(p => <MyConsentSection key={p.purpose_id} purpose={p} />)}
+   *       {purposes.map(p => <MyConsentSection key={p.purposeId} purpose={p} />)}
    *     </div>
    *   )}
    * </Consent>
@@ -104,10 +104,10 @@ const Consent: FC<ConsentProps> = ({consentData, formValues, onInputChange, chil
   return (
     <div style={{display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '0.25rem'}}>
       {purposes.map((purpose: ConsentPurposeData, purposeIndex: number) => (
-        <div key={purpose.purpose_id || purposeIndex} style={{paddingBottom: '1rem'}}>
+        <div key={purpose.purposeId || purposeIndex} style={{paddingBottom: '1rem'}}>
           {/* TODO: Uncomment when the backend supports multiple purposes for a application */}
           {/* <Typography variant="h6" fontWeight={600} gutterBottom color="inherit">
-            {purpose.purpose_name}
+            {purpose.purposeName}
           </Typography>
           <Typography variant="body2" color="inherit" style={{marginBottom: '1rem', opacity: 0.85}}>
             {purpose.description}
