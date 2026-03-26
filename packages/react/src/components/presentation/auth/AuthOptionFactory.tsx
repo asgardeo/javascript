@@ -19,6 +19,7 @@
 import {
   FieldType,
   FlowMetadataResponse,
+  OrganizationUnitListResponse,
   EmbeddedFlowComponentV2 as EmbeddedFlowComponent,
   EmbeddedFlowComponentTypeV2 as EmbeddedFlowComponentType,
   EmbeddedFlowTextVariantV2 as EmbeddedFlowTextVariant,
@@ -35,6 +36,7 @@ import {
 import {css} from '@emotion/css';
 import DOMPurify from 'dompurify';
 import {cloneElement, CSSProperties, ReactElement} from 'react';
+import {OrganizationUnitPicker} from './OrganizationUnitPicker';
 import useTheme from '../../../contexts/Theme/useTheme';
 import {UseTranslation} from '../../../hooks/useTranslation';
 import Consent from '../../adapters/Consent';
@@ -185,6 +187,12 @@ const createAuthComponentFromFlow = (
     buttonClassName?: string;
     /** Current consent purpose being rendered. Set by CONSENT_PURPOSE block iteration. */
     currentConsentPurpose?: ConsentPurposeData;
+    /** Function to fetch child organization units. Used by OU_SELECT component type. */
+    fetchOrganizationUnitChildren?: (
+      parentId: string,
+      limit: number,
+      offset: number,
+    ) => Promise<OrganizationUnitListResponse>;
     inStack?: boolean;
     inputClassName?: string;
     /** Flag to determine if the step timeline has expired */
@@ -400,6 +408,26 @@ const createAuthComponentFromFlow = (
           onChange={(e: any): void => onInputChange(identifier, e.target.value)}
           onBlur={(): any => options.onInputBlur?.(identifier)}
           className={options.inputClassName}
+        />
+      );
+    }
+
+    case EmbeddedFlowComponentType.OuSelect: {
+      const identifier: string = component.ref ?? component.id;
+      const rootOuId: string | undefined = options.additionalData?.['rootOuId'] as string | undefined;
+
+      if (!rootOuId || !options.fetchOrganizationUnitChildren) {
+        logger.warn('OU_SELECT requires additionalData.rootOuId and fetchOrganizationUnitChildren. Skipping render.');
+        return null;
+      }
+
+      return (
+        <OrganizationUnitPicker
+          key={key}
+          rootOuId={rootOuId}
+          selectedOuId={formValues[identifier] || null}
+          onSelect={(ouId: string) => onInputChange(identifier, ouId)}
+          fetchChildren={options.fetchOrganizationUnitChildren}
         />
       );
     }
@@ -668,6 +696,12 @@ export const renderInviteUserComponents = (
     /** Additional data from the flow response */
     additionalData?: Record<string, any>;
     buttonClassName?: string;
+    /** Function to fetch child organization units. Used by OU_SELECT component type. */
+    fetchOrganizationUnitChildren?: (
+      parentId: string,
+      limit: number,
+      offset: number,
+    ) => Promise<OrganizationUnitListResponse>;
     inputClassName?: string;
     /** Flow metadata for resolving {{meta(...)}} expressions at render time */
     meta?: FlowMetadataResponse | null;

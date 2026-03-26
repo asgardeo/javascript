@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import {EmbeddedFlowType, FlowMetadataResponse, Preferences} from '@asgardeo/browser';
+import {EmbeddedFlowType, FlowMetadataResponse, OrganizationUnitListResponse, Preferences} from '@asgardeo/browser';
 import {cx} from '@emotion/css';
 import {FC, ReactElement, ReactNode, useCallback, useEffect, useRef, useState} from 'react';
 import useStyles from './BaseInviteUser.styles';
@@ -37,7 +37,7 @@ import {renderInviteUserComponents} from '../../AuthOptionFactory';
  */
 export interface InviteUserFlowResponse {
   data?: {
-    additionalData?: Record<string, string>;
+    additionalData?: Record<string, any>;
     components?: any[];
     meta?: {
       components?: any[];
@@ -53,6 +53,11 @@ export interface InviteUserFlowResponse {
  * Render props for custom UI rendering of InviteUser.
  */
 export interface BaseInviteUserRenderProps {
+  /**
+   * Additional data from the current flow response (e.g. rootOuId, inviteLink).
+   */
+  additionalData?: Record<string, any>;
+
   /**
    * Flow components from the current step.
    */
@@ -170,6 +175,16 @@ export interface BaseInviteUserProps {
   className?: string;
 
   /**
+   * Function to fetch child organization units.
+   * When provided, enables the OU tree picker for OU_SELECT components.
+   */
+  fetchOrganizationUnitChildren?: (
+    parentId: string,
+    limit: number,
+    offset: number,
+  ) => Promise<OrganizationUnitListResponse>;
+
+  /**
    * Whether the SDK is initialized.
    */
   isInitialized?: boolean;
@@ -252,6 +267,7 @@ const BaseInviteUser: FC<BaseInviteUserProps> = ({
   onInviteLinkGenerated,
   className = '',
   children,
+  fetchOrganizationUnitChildren,
   isInitialized = true,
   preferences,
   size = 'medium',
@@ -611,6 +627,8 @@ const BaseInviteUser: FC<BaseInviteUserProps> = ({
         isFormValid,
         handleInputChange,
         {
+          additionalData: currentFlow?.data?.additionalData,
+          fetchOrganizationUnitChildren,
           onInputBlur: handleInputBlur,
           onSubmit: handleSubmit,
           size,
@@ -618,6 +636,8 @@ const BaseInviteUser: FC<BaseInviteUserProps> = ({
         },
       ),
     [
+      currentFlow?.data?.additionalData,
+      fetchOrganizationUnitChildren,
       formValues,
       touchedFields,
       formErrors,
@@ -640,6 +660,7 @@ const BaseInviteUser: FC<BaseInviteUserProps> = ({
 
   // Render props
   const renderProps: BaseInviteUserRenderProps = {
+    additionalData: currentFlow?.data?.additionalData,
     components,
     copyInviteLink,
     error: apiError,

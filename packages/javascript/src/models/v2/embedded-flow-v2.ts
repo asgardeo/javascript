@@ -62,6 +62,9 @@ export enum EmbeddedFlowComponentType {
   /** One-time password input field for multi-factor authentication */
   OtpInput = 'OTP_INPUT',
 
+  /** Organization unit tree picker for selecting an OU */
+  OuSelect = 'OU_SELECT',
+
   /** Password input field with masking for sensitive data */
   PasswordInput = 'PASSWORD_INPUT',
 

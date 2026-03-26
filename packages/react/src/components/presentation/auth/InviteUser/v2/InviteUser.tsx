@@ -16,8 +16,8 @@
  * under the License.
  */
 
-import {EmbeddedFlowType} from '@asgardeo/browser';
-import {FC, ReactElement, ReactNode} from 'react';
+import {EmbeddedFlowType, getOrganizationUnitChildren, OrganizationUnitListResponse} from '@asgardeo/browser';
+import {FC, ReactElement, ReactNode, useCallback} from 'react';
 // eslint-disable-next-line import/no-named-as-default
 import BaseInviteUser, {BaseInviteUserRenderProps, InviteUserFlowResponse} from './BaseInviteUser';
 import useAsgardeo from '../../../../../contexts/Asgardeo/useAsgardeo';
@@ -129,7 +129,7 @@ const InviteUser: FC<InviteUserProps> = ({
   showTitle = true,
   showSubtitle = true,
 }: InviteUserProps): ReactElement => {
-  const {http, baseUrl, isInitialized} = useAsgardeo();
+  const {http, baseUrl, getAccessToken, isInitialized} = useAsgardeo();
 
   /**
    * Initialize the invite user flow.
@@ -174,6 +174,25 @@ const InviteUser: FC<InviteUserProps> = ({
     return response.data as InviteUserFlowResponse;
   };
 
+  const fetchOrganizationUnitChildren: (
+    parentId: string,
+    limit: number,
+    offset: number,
+  ) => Promise<OrganizationUnitListResponse> = useCallback(
+    async (parentId: string, limit: number, offset: number): Promise<OrganizationUnitListResponse> => {
+      const accessToken: string = await getAccessToken();
+
+      return getOrganizationUnitChildren({
+        baseUrl,
+        headers: {Authorization: `Bearer ${accessToken}`},
+        limit,
+        offset,
+        organizationUnitId: parentId,
+      });
+    },
+    [baseUrl, getAccessToken],
+  );
+
   return (
     <BaseInviteUser
       onInitialize={handleInitialize}
@@ -182,6 +201,7 @@ const InviteUser: FC<InviteUserProps> = ({
       onError={onError}
       onFlowChange={onFlowChange}
       className={className}
+      fetchOrganizationUnitChildren={fetchOrganizationUnitChildren}
       isInitialized={isInitialized}
       size={size}
       variant={variant}
