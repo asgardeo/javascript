@@ -16,11 +16,7 @@
  * under the License.
  */
 
-import {
-  EmbeddedFlowType,
-  FlowMetadataResponse,
-  withVendorCSSClassPrefix,
-} from '@asgardeo/browser';
+import {EmbeddedFlowType, FlowMetadataResponse, withVendorCSSClassPrefix} from '@asgardeo/browser';
 import {
   type Component,
   type PropType,
@@ -34,7 +30,7 @@ import {
 } from 'vue';
 import useFlowMeta from '../../../composables/useFlowMeta';
 import useI18n from '../../../composables/useI18n';
-import {normalizeFlowResponse, extractErrorMessage} from '../../../utils/v2/flowTransformer';
+import {extractErrorMessage, normalizeFlowResponse} from '../../../utils/v2/flowTransformer';
 import Alert from '../../primitives/Alert';
 import Button from '../../primitives/Button';
 import Card from '../../primitives/Card';
@@ -152,7 +148,7 @@ const BaseInviteUser: Component = defineComponent({
     const inviteLinkCopied: Ref<boolean> = ref(false);
     const emailSent: Ref<boolean> = ref(false);
 
-    let initializationAttempted = false;
+    let initializationAttempted: boolean = false;
 
     // ── Helpers ──
 
@@ -225,7 +221,7 @@ const BaseInviteUser: Component = defineComponent({
       if (!currentFlow.value) return;
 
       const components: any[] = currentFlow.value.data?.components || [];
-      const validation = validateForm(components);
+      const validation: {errors: Record<string, string>; isValid: boolean} = validateForm(components);
       if (!validation.isValid) {
         formErrors.value = validation.errors;
         isFormValid.value = false;
@@ -362,8 +358,7 @@ const BaseInviteUser: Component = defineComponent({
       components.forEach((comp: any) => {
         if (comp.type === 'TEXT') {
           if (comp.variant === 'HEADING_1' && !title) title = comp.label;
-          else if ((comp.variant === 'HEADING_2' || comp.variant === 'SUBTITLE_1') && !subtitle)
-            subtitle = comp.label;
+          else if ((comp.variant === 'HEADING_2' || comp.variant === 'SUBTITLE_1') && !subtitle) subtitle = comp.label;
         }
       });
       return {subtitle, title};
@@ -377,15 +372,11 @@ const BaseInviteUser: Component = defineComponent({
     // ── Render ──
 
     return (): VNode | null => {
-      const containerClass: string = [
-        withVendorCSSClassPrefix('invite-user'),
-        props.className,
-      ]
+      const containerClass: string = [withVendorCSSClassPrefix('invite-user'), props.className]
         .filter(Boolean)
         .join(' ');
 
-      const components: any[] =
-        currentFlow.value?.data?.components || currentFlow.value?.data?.meta?.components || [];
+      const components: any[] = currentFlow.value?.data?.components || currentFlow.value?.data?.meta?.components || [];
       const {title, subtitle} = extractHeadings(components);
       const componentsWithoutHeadings: any[] = filterHeadings(components);
       const isInviteGenerated: boolean = !!inviteLink.value;
@@ -439,11 +430,14 @@ const BaseInviteUser: Component = defineComponent({
         return h(Card, {class: containerClass, variant: props.variant}, () => [
           h('div', {style: 'padding:1rem'}, [
             h(Typography, {variant: 'h5'}, () => 'Invite Email Sent!'),
-            h(Alert, {variant: 'success', style: 'margin-top:1rem'}, () =>
-              'An invitation email has been sent successfully. The user can complete their registration using the link in the email.',
+            h(
+              Alert,
+              {style: 'margin-top:1rem', variant: 'success'},
+              () =>
+                'An invitation email has been sent successfully. The user can complete their registration using the link in the email.',
             ),
             h('div', {style: 'display:flex;gap:0.5rem;margin-top:1.5rem'}, [
-              h(Button, {variant: 'outline', onClick: resetFlow}, () => 'Invite Another User'),
+              h(Button, {onClick: resetFlow, variant: 'outline'}, () => 'Invite Another User'),
             ]),
           ]),
         ]);
@@ -454,11 +448,13 @@ const BaseInviteUser: Component = defineComponent({
         return h(Card, {class: containerClass, variant: props.variant}, () => [
           h('div', {style: 'padding:1rem'}, [
             h(Typography, {variant: 'h5'}, () => 'Invite Link Generated!'),
-            h(Alert, {variant: 'success', style: 'margin-top:1rem'}, () =>
-              'Share this link with the user to complete their registration.',
+            h(
+              Alert,
+              {style: 'margin-top:1rem', variant: 'success'},
+              () => 'Share this link with the user to complete their registration.',
             ),
             h('div', {style: 'margin-top:1rem'}, [
-              h(Typography, {variant: 'body2', style: 'margin-bottom:0.5rem'}, () => 'Invite Link'),
+              h(Typography, {style: 'margin-bottom:0.5rem', variant: 'body2'}, () => 'Invite Link'),
               h(
                 'div',
                 {
@@ -466,17 +462,15 @@ const BaseInviteUser: Component = defineComponent({
                     'display:flex;align-items:center;gap:0.5rem;padding:0.75rem;background:var(--asgardeo-color-background-secondary,#f5f5f5);border-radius:4px;word-break:break-all',
                 },
                 [
-                  h(Typography, {variant: 'body2', style: 'flex:1'}, () => inviteLink.value),
-                  h(
-                    Button,
-                    {variant: 'outline', size: 'small', onClick: copyInviteLink},
-                    () => (inviteLinkCopied.value ? 'Copied!' : 'Copy'),
+                  h(Typography, {style: 'flex:1', variant: 'body2'}, () => inviteLink.value),
+                  h(Button, {onClick: copyInviteLink, size: 'small', variant: 'outline'}, () =>
+                    inviteLinkCopied.value ? 'Copied!' : 'Copy',
                   ),
                 ],
               ),
             ]),
             h('div', {style: 'display:flex;gap:0.5rem;margin-top:1.5rem'}, [
-              h(Button, {variant: 'outline', onClick: resetFlow}, () => 'Invite Another User'),
+              h(Button, {onClick: resetFlow, variant: 'outline'}, () => 'Invite Another User'),
             ]),
           ]),
         ]);
@@ -507,27 +501,38 @@ const BaseInviteUser: Component = defineComponent({
       return h(Card, {class: containerClass, variant: props.variant}, () => [
         (props.showTitle || props.showSubtitle) && (title || subtitle)
           ? h('div', {style: 'padding:1rem 1rem 0'}, [
-              props.showTitle && title
-                ? h(Typography, {variant: 'h5'}, () => title)
-                : null,
+              props.showTitle && title ? h(Typography, {variant: 'h5'}, () => title) : null,
               props.showSubtitle && subtitle
-                ? h(Typography, {variant: 'body1', style: 'margin-top:0.25rem'}, () => subtitle)
+                ? h(Typography, {style: 'margin-top:0.25rem', variant: 'body1'}, () => subtitle)
                 : null,
             ])
           : null,
         apiError.value
-          ? h('div', {style: 'padding:0 1rem;margin-bottom:1rem'}, h(Alert, {variant: 'error'}, () => apiError.value!.message))
+          ? h(
+              'div',
+              {style: 'padding:0 1rem;margin-bottom:1rem'},
+              h(Alert, {variant: 'error'}, () => apiError.value!.message),
+            )
           : null,
-        h('div', {style: 'padding:1rem'}, [
-          renderedComponents.length > 0
-            ? renderedComponents
-            : !isLoading.value
-              ? h(Alert, {variant: 'warning'}, () => 'No form components available')
-              : null,
-          isLoading.value
-            ? h('div', {style: 'display:flex;justify-content:center;padding:1rem'}, h(Spinner))
-            : null,
-        ]),
+        h(
+          'div',
+          {style: 'padding:1rem'},
+          ((): Array<VNode | VNode[] | null> => {
+            const formContent: Array<VNode | VNode[] | null> = [];
+
+            if (renderedComponents.length > 0) {
+              formContent.push(renderedComponents);
+            } else if (!isLoading.value) {
+              formContent.push(h(Alert, {variant: 'warning'}, () => 'No form components available'));
+            }
+
+            if (isLoading.value) {
+              formContent.push(h('div', {style: 'display:flex;justify-content:center;padding:1rem'}, h(Spinner)));
+            }
+
+            return formContent;
+          })(),
+        ),
       ]);
     };
   },

@@ -17,7 +17,7 @@
  */
 
 import {withVendorCSSClassPrefix} from '@asgardeo/browser';
-import {type VNode, defineComponent, h} from 'vue';
+import {type Component, type VNode, defineComponent, h} from 'vue';
 import Button from '../primitives/Button';
 
 /**
@@ -34,7 +34,7 @@ import Button from '../primitives/Button';
  * <!-- Unstyled button for full customization -->
  * <BaseSignInButton unstyled class="my-custom-styles">Custom Content</BaseSignInButton>
  */
-const BaseSignInButton = defineComponent({
+const BaseSignInButton: Component = defineComponent({
   emits: ['click'],
   name: 'BaseSignInButton',
   props: {

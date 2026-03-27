@@ -17,7 +17,18 @@
  */
 
 import {BrandingPreference, Theme, transformBrandingPreferenceToTheme} from '@asgardeo/browser';
-import {defineComponent, h, provide, readonly, shallowReadonly, ref, watch, type PropType, type Ref} from 'vue';
+import {
+  defineComponent,
+  h,
+  provide,
+  readonly,
+  shallowReadonly,
+  ref,
+  watch,
+  type Component,
+  type PropType,
+  type Ref,
+} from 'vue';
 import {BRANDING_KEY} from '../keys';
 import type {BrandingContextValue} from '../models/contexts';
 
@@ -30,7 +41,7 @@ import type {BrandingContextValue} from '../models/contexts';
  *
  * @internal — This provider is mounted automatically by `<AsgardeoProvider>`.
  */
-const BrandingProvider = defineComponent({
+const BrandingProvider: Component = defineComponent({
   name: 'BrandingProvider',
   props: {
     /** Whether branding is enabled. When false the context provides null. */

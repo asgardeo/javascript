@@ -17,7 +17,7 @@
  */
 
 import {withVendorCSSClassPrefix} from '@asgardeo/browser';
-import {type VNode, defineComponent, h} from 'vue';
+import {type Component, type VNode, defineComponent, h} from 'vue';
 import BaseCreateOrganization from './BaseCreateOrganization';
 import useOrganization from '../../../composables/useOrganization';
 
@@ -32,7 +32,7 @@ interface CreateOrganizationSetupProps {
  *
  * Retrieves createOrganization from context and delegates to BaseCreateOrganization.
  */
-const CreateOrganization = defineComponent({
+const CreateOrganization: Component = defineComponent({
   name: 'CreateOrganization',
   props: {
     className: {default: '', type: String},

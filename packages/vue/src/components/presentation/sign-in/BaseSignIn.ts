@@ -18,9 +18,9 @@
 
 import {Platform} from '@asgardeo/browser';
 import {type Component, type SetupContext, type VNode, defineComponent, h} from 'vue';
-import useAsgardeo from '../../../composables/useAsgardeo';
 import BaseSignInV1 from './v1/BaseSignIn';
 import BaseSignInV2 from './v2/BaseSignIn';
+import useAsgardeo from '../../../composables/useAsgardeo';
 
 export type {BaseSignInRenderProps, BaseSignInProps} from './v2/BaseSignIn';
 
@@ -31,8 +31,8 @@ export type {BaseSignInRenderProps, BaseSignInProps} from './v2/BaseSignIn';
  * based on the configured `platform`.
  */
 const BaseSignIn: Component = defineComponent({
-  name: 'BaseSignIn',
   inheritAttrs: false,
+  name: 'BaseSignIn',
   setup(_props: Record<string, unknown>, {attrs, slots}: SetupContext): () => VNode {
     const {platform} = useAsgardeo();
 

@@ -16,9 +16,10 @@
  * under the License.
  */
 
-import {describe, expect, it, vi} from 'vitest';
-import {defineComponent, h, ref, shallowRef} from 'vue';
+/* eslint-disable sort-keys, @typescript-eslint/typedef, @typescript-eslint/explicit-function-return-type */
 import {mount} from '@vue/test-utils';
+import {describe, expect, it, vi} from 'vitest';
+import {defineComponent, h, shallowRef} from 'vue';
 import useUser from '../../composables/useUser';
 import {USER_KEY} from '../../keys';
 import type {UserContextValue} from '../../models/contexts';

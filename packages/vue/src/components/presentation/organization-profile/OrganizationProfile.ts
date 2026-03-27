@@ -17,7 +17,7 @@
  */
 
 import {withVendorCSSClassPrefix} from '@asgardeo/browser';
-import {type PropType, type VNode, defineComponent, h} from 'vue';
+import {type Component, type PropType, type VNode, defineComponent, h} from 'vue';
 import BaseOrganizationProfile from './BaseOrganizationProfile';
 import useOrganization from '../../../composables/useOrganization';
 
@@ -26,7 +26,7 @@ import useOrganization from '../../../composables/useOrganization';
  *
  * Retrieves current organization from context and delegates to BaseOrganizationProfile.
  */
-const OrganizationProfile = defineComponent({
+const OrganizationProfile: Component = defineComponent({
   name: 'OrganizationProfile',
   props: {
     className: {default: '', type: String},

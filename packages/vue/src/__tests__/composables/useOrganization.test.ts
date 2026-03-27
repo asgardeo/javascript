@@ -16,16 +16,15 @@
  * under the License.
  */
 
+/* eslint-disable sort-keys, @typescript-eslint/typedef, @typescript-eslint/explicit-function-return-type */
+import {mount} from '@vue/test-utils';
 import {describe, expect, it, vi} from 'vitest';
 import {defineComponent, h, ref, shallowRef} from 'vue';
-import {mount} from '@vue/test-utils';
 import useOrganization from '../../composables/useOrganization';
 import {ORGANIZATION_KEY} from '../../keys';
 import type {OrganizationContextValue} from '../../models/contexts';
 
-function createMockOrganizationContext(
-  overrides: Partial<OrganizationContextValue> = {},
-): OrganizationContextValue {
+function createMockOrganizationContext(overrides: Partial<OrganizationContextValue> = {}): OrganizationContextValue {
   return {
     myOrganizations: shallowRef([]),
     currentOrganization: shallowRef(null),

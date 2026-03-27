@@ -24,12 +24,12 @@ import {
   FieldType,
 } from '@asgardeo/browser';
 import {type VNode, h} from 'vue';
+import FacebookButton from '../../../../adapters/FacebookButton';
+import GitHubButton from '../../../../adapters/GitHubButton';
+import GoogleButton from '../../../../adapters/GoogleButton';
+import MicrosoftButton from '../../../../adapters/MicrosoftButton';
 import {createField} from '../../../../factories/FieldFactory';
 import Button from '../../../../primitives/Button';
-import GoogleButton from '../../../../adapters/GoogleButton';
-import GitHubButton from '../../../../adapters/GitHubButton';
-import MicrosoftButton from '../../../../adapters/MicrosoftButton';
-import FacebookButton from '../../../../adapters/FacebookButton';
 
 /**
  * Props shared by sign-in option rendering functions.
@@ -54,7 +54,7 @@ const renderFormFields = (props: BaseSignInOptionProps): VNode[] => {
   const {authenticator, formValues, touchedFields, isLoading, onInputChange, inputClassName, buttonClassName, t} =
     props;
 
-  const formFields =
+  const formFields: any[] =
     authenticator.metadata?.params
       ?.sort((a: any, b: any) => a.order - b.order)
       ?.filter((param: any) => param.param !== 'totp') || [];
@@ -84,16 +84,20 @@ const renderFormFields = (props: BaseSignInOptionProps): VNode[] => {
   );
 
   fieldNodes.push(
-    h(Button, {
-      color: 'primary',
-      'data-testid': 'asgardeo-signin-submit',
-      disabled: isLoading,
-      fullWidth: true,
-      loading: isLoading,
-      class: buttonClassName,
-      type: 'submit',
-      variant: 'solid',
-    }, {default: () => t('username.password.buttons.submit.text')}),
+    h(
+      Button,
+      {
+        class: buttonClassName,
+        color: 'primary',
+        'data-testid': 'asgardeo-signin-submit',
+        disabled: isLoading,
+        fullWidth: true,
+        loading: isLoading,
+        type: 'submit',
+        variant: 'solid',
+      },
+      {default: () => t('username.password.buttons.submit.text')},
+    ),
   );
 
   return fieldNodes;
@@ -126,17 +130,15 @@ const renderMultiOptionButton = (props: BaseSignInOptionProps): VNode => {
     iconPathMap[authenticator.authenticatorId] ||
     'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10s10-4.48 10-10S17.52 2 12 2m-2 15l-5-5l1.41-1.41L10 14.17l7.59-7.59L19 8z';
 
-  const icon: VNode = h(
-    'svg',
-    {width: '18', height: '18', viewBox: '0 0 24 24', xmlns: 'http://www.w3.org/2000/svg'},
-    [h('path', {fill: 'currentColor', d: iconPath})],
-  );
+  const icon: VNode = h('svg', {height: '18', viewBox: '0 0 24 24', width: '18', xmlns: 'http://www.w3.org/2000/svg'}, [
+    h('path', {d: iconPath, fill: 'currentColor'}),
+  ]);
 
   return h(
     Button,
     {
-      color: 'secondary',
       class: buttonClassName,
+      color: 'secondary',
       disabled: isLoading,
       fullWidth: true,
       onClick: () => onSubmit(authenticator),
@@ -156,11 +158,11 @@ const renderSocialButton = (props: BaseSignInOptionProps): VNode => {
 
   const socialIcon: VNode = h(
     'svg',
-    {width: '18', height: '18', viewBox: '0 0 24 24', xmlns: 'http://www.w3.org/2000/svg'},
+    {height: '18', viewBox: '0 0 24 24', width: '18', xmlns: 'http://www.w3.org/2000/svg'},
     [
       h('path', {
-        fill: 'currentColor',
         d: 'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z',
+        fill: 'currentColor',
       }),
     ],
   );
@@ -168,8 +170,8 @@ const renderSocialButton = (props: BaseSignInOptionProps): VNode => {
   return h(
     Button,
     {
-      color: 'secondary',
       class: buttonClassName,
+      color: 'secondary',
       disabled: isLoading,
       fullWidth: true,
       onClick: () => onSubmit(authenticator),

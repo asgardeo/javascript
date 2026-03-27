@@ -16,7 +16,17 @@
  * under the License.
  */
 
-import {defineComponent, h, provide, readonly, shallowReadonly, ref, type PropType, type Ref} from 'vue';
+import {
+  defineComponent,
+  h,
+  provide,
+  readonly,
+  shallowReadonly,
+  ref,
+  type Component,
+  type PropType,
+  type Ref,
+} from 'vue';
 import {FLOW_KEY} from '../keys';
 import type {FlowContextValue, FlowMessage, FlowStep} from '../models/contexts';
 
@@ -29,7 +39,7 @@ import type {FlowContextValue, FlowMessage, FlowStep} from '../models/contexts';
  *
  * @internal — This provider is mounted automatically by `<AsgardeoProvider>`.
  */
-const FlowProvider = defineComponent({
+const FlowProvider: Component = defineComponent({
   name: 'FlowProvider',
   props: {
     /** Initial step to start with. */

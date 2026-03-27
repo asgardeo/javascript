@@ -17,7 +17,7 @@
  */
 
 import {FieldType} from '@asgardeo/browser';
-import {type PropType, type VNode, defineComponent, h} from 'vue';
+import {type Component, type PropType, type VNode, defineComponent, h} from 'vue';
 import Checkbox from '../primitives/Checkbox';
 import DatePicker from '../primitives/DatePicker';
 import OtpField from '../primitives/OtpField';
@@ -212,7 +212,7 @@ export const createField = (config: FieldConfig): VNode => {
 /**
  * FieldFactory — Vue component wrapper for the field factory.
  */
-const FieldFactory = defineComponent({
+const FieldFactory: Component = defineComponent({
   emits: ['change', 'blur'],
   name: 'FieldFactory',
   props: {

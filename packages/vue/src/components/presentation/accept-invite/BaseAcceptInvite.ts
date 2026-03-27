@@ -16,10 +16,7 @@
  * under the License.
  */
 
-import {
-  FlowMetadataResponse,
-  withVendorCSSClassPrefix,
-} from '@asgardeo/browser';
+import {FlowMetadataResponse, withVendorCSSClassPrefix} from '@asgardeo/browser';
 import {
   type Component,
   type PropType,
@@ -31,12 +28,11 @@ import {
   ref,
   watch,
 } from 'vue';
-import useAsgardeo from '../../../composables/useAsgardeo';
-import useI18n from '../../../composables/useI18n';
 import useFlowMeta from '../../../composables/useFlowMeta';
+import useI18n from '../../../composables/useI18n';
 import {useOAuthCallback} from '../../../composables/useOAuthCallback';
-import {normalizeFlowResponse, extractErrorMessage} from '../../../utils/v2/flowTransformer';
 import {initiateOAuthRedirect} from '../../../utils/oauth';
+import {extractErrorMessage, normalizeFlowResponse} from '../../../utils/v2/flowTransformer';
 import Alert from '../../primitives/Alert';
 import Button from '../../primitives/Button';
 import Card from '../../primitives/Card';
@@ -149,7 +145,7 @@ const BaseAcceptInvite: Component = defineComponent({
     const touchedFields: Ref<Record<string, boolean>> = ref({});
     const isFormValid: Ref<boolean> = ref(true);
 
-    let tokenValidationAttempted = false;
+    let tokenValidationAttempted: boolean = false;
 
     // ── Helpers ──
 
@@ -253,7 +249,7 @@ const BaseAcceptInvite: Component = defineComponent({
       if (!currentFlow.value) return;
 
       const components: any[] = currentFlow.value.data?.components || [];
-      const validation = validateForm(components);
+      const validation: {errors: Record<string, string>; isValid: boolean} = validateForm(components);
       if (!validation.isValid) {
         formErrors.value = validation.errors;
         isFormValid.value = false;
@@ -284,8 +280,7 @@ const BaseAcceptInvite: Component = defineComponent({
 
         // Handle OAuth redirect
         if (response.type === 'REDIRECTION') {
-          const redirectURL: string | undefined =
-            response.data?.redirectURL || (response as any)?.redirectURL;
+          const redirectURL: string | undefined = response.data?.redirectURL || (response as any)?.redirectURL;
           if (redirectURL) {
             initiateOAuthRedirect(redirectURL);
             return;
@@ -378,8 +373,7 @@ const BaseAcceptInvite: Component = defineComponent({
       components.forEach((comp: any) => {
         if (comp.type === 'TEXT') {
           if (comp.variant === 'HEADING_1' && !title) title = comp.label;
-          else if ((comp.variant === 'HEADING_2' || comp.variant === 'SUBTITLE_1') && !subtitle)
-            subtitle = comp.label;
+          else if ((comp.variant === 'HEADING_2' || comp.variant === 'SUBTITLE_1') && !subtitle) subtitle = comp.label;
         }
       });
       return {subtitle, title};
@@ -393,15 +387,11 @@ const BaseAcceptInvite: Component = defineComponent({
     // ── Render ──
 
     return (): VNode | null => {
-      const containerClass: string = [
-        withVendorCSSClassPrefix('accept-invite'),
-        props.className,
-      ]
+      const containerClass: string = [withVendorCSSClassPrefix('accept-invite'), props.className]
         .filter(Boolean)
         .join(' ');
 
-      const components: any[] =
-        currentFlow.value?.data?.components || currentFlow.value?.data?.meta?.components || [];
+      const components: any[] = currentFlow.value?.data?.components || currentFlow.value?.data?.meta?.components || [];
       const {title, subtitle} = extractHeadings(components);
       const componentsWithoutHeadings: any[] = filterHeadings(components);
 
@@ -449,13 +439,16 @@ const BaseAcceptInvite: Component = defineComponent({
         return h(Card, {class: containerClass, variant: props.variant}, () => [
           h('div', {style: 'padding:1rem'}, [
             h(Typography, {variant: 'h5'}, () => 'Invalid Invite Link'),
-            h(Alert, {variant: 'error', style: 'margin-top:1rem'}, () =>
-              apiError.value?.message ||
-              'This invite link is invalid or has expired. Please contact your administrator for a new invite.',
+            h(
+              Alert,
+              {style: 'margin-top:1rem', variant: 'error'},
+              () =>
+                apiError.value?.message ||
+                'This invite link is invalid or has expired. Please contact your administrator for a new invite.',
             ),
             props.onGoToSignIn
               ? h('div', {style: 'display:flex;justify-content:center;margin-top:1.5rem'}, [
-                  h(Button, {variant: 'outline', onClick: props.onGoToSignIn}, () => 'Go to Sign In'),
+                  h(Button, {onClick: props.onGoToSignIn, variant: 'outline'}, () => 'Go to Sign In'),
                 ])
               : null,
           ]),
@@ -467,12 +460,14 @@ const BaseAcceptInvite: Component = defineComponent({
         return h(Card, {class: containerClass, variant: props.variant}, () => [
           h('div', {style: 'padding:1rem'}, [
             h(Typography, {variant: 'h5'}, () => 'Account Setup Complete!'),
-            h(Alert, {variant: 'success', style: 'margin-top:1rem'}, () =>
-              'Your account has been successfully set up. You can now sign in with your credentials.',
+            h(
+              Alert,
+              {style: 'margin-top:1rem', variant: 'success'},
+              () => 'Your account has been successfully set up. You can now sign in with your credentials.',
             ),
             props.onGoToSignIn
               ? h('div', {style: 'display:flex;justify-content:center;margin-top:1.5rem'}, [
-                  h(Button, {variant: 'solid', onClick: props.onGoToSignIn}, () => 'Sign In'),
+                  h(Button, {onClick: props.onGoToSignIn, variant: 'solid'}, () => 'Sign In'),
                 ])
               : null,
           ]),
@@ -504,32 +499,47 @@ const BaseAcceptInvite: Component = defineComponent({
       return h(Card, {class: containerClass, variant: props.variant}, () => [
         (props.showTitle || props.showSubtitle) && (title || subtitle)
           ? h('div', {style: 'padding:1rem 1rem 0'}, [
-              props.showTitle && title
-                ? h(Typography, {variant: 'h5'}, () => title)
-                : null,
+              props.showTitle && title ? h(Typography, {variant: 'h5'}, () => title) : null,
               props.showSubtitle && subtitle
-                ? h(Typography, {variant: 'body1', style: 'margin-top:0.25rem'}, () => subtitle)
+                ? h(Typography, {style: 'margin-top:0.25rem', variant: 'body1'}, () => subtitle)
                 : null,
             ])
           : null,
         apiError.value
-          ? h('div', {style: 'padding:0 1rem;margin-bottom:1rem'}, h(Alert, {variant: 'error'}, () => apiError.value!.message))
+          ? h(
+              'div',
+              {style: 'padding:0 1rem;margin-bottom:1rem'},
+              h(Alert, {variant: 'error'}, () => apiError.value!.message),
+            )
           : null,
-        h('div', {style: 'padding:1rem'}, [
-          renderedComponents.length > 0
-            ? renderedComponents
-            : !isLoading.value
-              ? h(Alert, {variant: 'warning'}, () => 'No form components available')
-              : null,
-          isLoading.value
-            ? h('div', {style: 'display:flex;justify-content:center;padding:1rem'}, h(Spinner))
-            : null,
-        ]),
+        h(
+          'div',
+          {style: 'padding:1rem'},
+          ((): Array<VNode | VNode[] | null> => {
+            const formContent: Array<VNode | VNode[] | null> = [];
+
+            if (renderedComponents.length > 0) {
+              formContent.push(renderedComponents);
+            } else if (!isLoading.value) {
+              formContent.push(h(Alert, {variant: 'warning'}, () => 'No form components available'));
+            }
+
+            if (isLoading.value) {
+              formContent.push(h('div', {style: 'display:flex;justify-content:center;padding:1rem'}, h(Spinner)));
+            }
+
+            return formContent;
+          })(),
+        ),
         props.onGoToSignIn
           ? h('div', {style: 'margin-top:1.5rem;text-align:center;padding:0 1rem 1rem'}, [
               h(Typography, {variant: 'body2'}, () => [
                 'Already have an account? ',
-                h(Button, {variant: 'text', onClick: props.onGoToSignIn, style: 'min-width:auto;padding:0'}, () => 'Sign In'),
+                h(
+                  Button,
+                  {onClick: props.onGoToSignIn, style: 'min-width:auto;padding:0', variant: 'text'},
+                  () => 'Sign In',
+                ),
               ]),
             ])
           : null,

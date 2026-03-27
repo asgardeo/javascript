@@ -16,14 +16,15 @@
  * under the License.
  */
 
+import {mount} from '@vue/test-utils';
+/* eslint-disable sort-keys, @typescript-eslint/typedef, @typescript-eslint/explicit-function-return-type */
 import {describe, expect, it, vi} from 'vitest';
 import {defineComponent, h, ref} from 'vue';
-import {mount} from '@vue/test-utils';
+import useBranding from '../../composables/useBranding';
 import useFlow from '../../composables/useFlow';
 import useFlowMeta from '../../composables/useFlowMeta';
-import useTheme from '../../composables/useTheme';
-import useBranding from '../../composables/useBranding';
 import useI18n from '../../composables/useI18n';
+import useTheme from '../../composables/useTheme';
 import {FLOW_KEY, FLOW_META_KEY, THEME_KEY, BRANDING_KEY, I18N_KEY} from '../../keys';
 import type {
   FlowContextValue,

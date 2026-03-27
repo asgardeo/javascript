@@ -17,7 +17,6 @@
  */
 
 import {
-  EmbeddedFlowComponentV2 as EmbeddedFlowComponent,
   EmbeddedFlowComponentTypeV2 as EmbeddedFlowComponentType,
   EmbeddedFlowExecuteRequestPayload,
   EmbeddedFlowExecuteResponse,
@@ -38,7 +37,6 @@ import {
   ref,
   watch,
 } from 'vue';
-import useAsgardeo from '../../../composables/useAsgardeo';
 import useFlowMeta from '../../../composables/useFlowMeta';
 import useI18n from '../../../composables/useI18n';
 import {normalizeFlowResponse, extractErrorMessage} from '../../../utils/v2/flowTransformer';
@@ -161,15 +159,11 @@ const BaseSignUp: Component = defineComponent({
     },
     onInitialize: {
       default: undefined,
-      type: Function as PropType<
-        (payload?: EmbeddedFlowExecuteRequestPayload) => Promise<EmbeddedFlowExecuteResponse>
-      >,
+      type: Function as PropType<(payload?: EmbeddedFlowExecuteRequestPayload) => Promise<EmbeddedFlowExecuteResponse>>,
     },
     onSubmit: {
       default: undefined,
-      type: Function as PropType<
-        (payload: EmbeddedFlowExecuteRequestPayload) => Promise<EmbeddedFlowExecuteResponse>
-      >,
+      type: Function as PropType<(payload: EmbeddedFlowExecuteRequestPayload) => Promise<EmbeddedFlowExecuteResponse>>,
     },
     showSubtitle: {default: true, type: Boolean},
     showTitle: {default: true, type: Boolean},
@@ -182,10 +176,9 @@ const BaseSignUp: Component = defineComponent({
       type: String as PropType<'elevated' | 'outlined' | 'flat'>,
     },
   },
-  setup(props: any, {slots, emit}: SetupContext): () => VNode | null {
+  setup(props: any, {slots}: SetupContext): () => VNode | null {
     const {meta: flowMetaRef} = useFlowMeta();
     const {t} = useI18n();
-    const {resolveFlowTemplateLiterals: resolve} = useAsgardeo();
 
     // ── State ──
     const isLoading: Ref<boolean> = ref(false);
@@ -208,8 +201,8 @@ const BaseSignUp: Component = defineComponent({
     const isFormValid: Ref<boolean> = ref(true);
 
     // One-time flags (plain mutable, not reactive)
-    let initializationAttempted = false;
-    let passkeyProcessed = false;
+    let initializationAttempted: boolean = false;
+    let passkeyProcessed: boolean = false;
 
     // ── Helpers ──
 
@@ -314,7 +307,7 @@ const BaseSignUp: Component = defineComponent({
         return false;
       }
 
-      let hasProcessedCallback = false;
+      let hasProcessedCallback: boolean = false;
       let popupMonitor: ReturnType<typeof setInterval> | null = null;
       let messageHandler: ((event: MessageEvent) => Promise<void>) | null = null;
 
@@ -404,11 +397,15 @@ const BaseSignUp: Component = defineComponent({
 
     // ── Submit handler ──
 
-    const handleSubmit = async (component: any, data?: Record<string, any>, skipValidation?: boolean): Promise<void> => {
+    const handleSubmit = async (
+      component: any,
+      data?: Record<string, any>,
+      skipValidation?: boolean,
+    ): Promise<void> => {
       if (!currentFlow.value) return;
 
       if (!skipValidation) {
-        const validation = validateForm();
+        const validation: {fieldErrors: Record<string, string>; isValid: boolean} = validateForm();
         if (!validation.isValid) return;
       }
 
@@ -587,7 +584,7 @@ const BaseSignUp: Component = defineComponent({
           title: t('signup.heading') || 'Sign Up',
           touched: touchedFields.value,
           validateForm: (): {fieldErrors: Record<string, string>; isValid: boolean} => {
-            const result = validateForm();
+            const result: {fieldErrors: Record<string, string>; isValid: boolean} = validateForm();
             return {fieldErrors: result.fieldErrors, isValid: result.isValid};
           },
           values: formValues.value,
@@ -605,7 +602,11 @@ const BaseSignUp: Component = defineComponent({
       // No flow available
       if (!currentFlow.value) {
         return h(Card, {class: containerClass, variant: props.variant}, () =>
-          h(Alert, {variant: 'error'}, () => t('errors.signup.flow.initialization.failure') || 'Failed to initialize sign-up flow'),
+          h(
+            Alert,
+            {variant: 'error'},
+            () => t('errors.signup.flow.initialization.failure') || 'Failed to initialize sign-up flow',
+          ),
         );
       }
 
@@ -621,39 +622,46 @@ const BaseSignUp: Component = defineComponent({
 
       const meta: FlowMetadataResponse | null = (flowMetaRef as Ref<FlowMetadataResponse | null>).value;
 
-      const renderedComponents: VNode[] = componentsWithoutHeadings.length > 0
-        ? renderSignUpComponents(
-            componentsWithoutHeadings,
-            formValues.value,
-            touchedFields.value,
-            formErrors.value,
-            isLoading.value,
-            isFormValid.value,
-            handleInputChange,
-            {
-              buttonClassName: props.buttonClassName,
-              inputClassName: props.inputClassName,
-              meta,
-              onInputBlur: handleInputBlur,
-              onSubmit: handleSubmit,
-              size: props.size,
-              t,
-              variant: props.variant,
-            },
-          )
-        : [];
+      const renderedComponents: VNode[] =
+        componentsWithoutHeadings.length > 0
+          ? renderSignUpComponents(
+              componentsWithoutHeadings,
+              formValues.value,
+              touchedFields.value,
+              formErrors.value,
+              isLoading.value,
+              isFormValid.value,
+              handleInputChange,
+              {
+                buttonClassName: props.buttonClassName,
+                inputClassName: props.inputClassName,
+                meta,
+                onInputBlur: handleInputBlur,
+                onSubmit: handleSubmit,
+                size: props.size,
+                t,
+                variant: props.variant,
+              },
+            )
+          : [];
 
       return h(Card, {class: containerClass, variant: props.variant}, () => [
         // Header with title/subtitle
-        (props.showTitle || props.showSubtitle)
+        props.showTitle || props.showSubtitle
           ? h('div', {style: 'padding: 1rem 1rem 0'}, [
               props.showTitle ? h(Typography, {variant: 'h5'}, () => title) : null,
-              props.showSubtitle ? h(Typography, {variant: 'body1', style: 'margin-top: 0.25rem'}, () => subtitle) : null,
+              props.showSubtitle
+                ? h(Typography, {style: 'margin-top: 0.25rem', variant: 'body1'}, () => subtitle)
+                : null,
             ])
           : null,
         // External error
         props.error
-          ? h('div', {style: 'padding: 0 1rem'}, h(Alert, {variant: 'error'}, () => props.error.message))
+          ? h(
+              'div',
+              {style: 'padding: 0 1rem'},
+              h(Alert, {variant: 'error'}, () => props.error.message),
+            )
           : null,
         // Flow messages
         flowMessages.value.length > 0
@@ -671,7 +679,13 @@ const BaseSignUp: Component = defineComponent({
           {style: 'padding: 1rem'},
           renderedComponents.length > 0
             ? renderedComponents
-            : [h(Alert, {variant: 'warning'}, () => t('errors.signup.components.not.available') || 'No components available')],
+            : [
+                h(
+                  Alert,
+                  {variant: 'warning'},
+                  () => t('errors.signup.components.not.available') || 'No components available',
+                ),
+              ],
         ),
       ]);
     };

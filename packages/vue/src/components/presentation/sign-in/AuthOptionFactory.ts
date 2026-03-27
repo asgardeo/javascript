@@ -34,11 +34,11 @@ import {
   ConsentAttributeElementV2 as ConsentAttributeElement,
 } from '@asgardeo/browser';
 import {h, type VNode} from 'vue';
-import {createField} from '../../factories/FieldFactory';
 import FacebookButton from '../../adapters/FacebookButton';
 import GitHubButton from '../../adapters/GitHubButton';
 import GoogleButton from '../../adapters/GoogleButton';
 import MicrosoftButton from '../../adapters/MicrosoftButton';
+import {createField} from '../../factories/FieldFactory';
 import Button from '../../primitives/Button';
 import Divider from '../../primitives/Divider';
 import Select from '../../primitives/Select/Select';
@@ -52,8 +52,7 @@ const logger: ReturnType<typeof createPackageComponentLogger> = createPackageCom
 /**
  * Inline helper for consent optional attribute key (mirrors ConsentCheckboxList.getConsentOptionalKey).
  */
-const getConsentOptionalKey = (purposeId: string | number, attr: string): string =>
-  `consent_${purposeId}_${attr}`;
+const getConsentOptionalKey = (purposeId: string | number, attr: string): string => `consent_${purposeId}_${attr}`;
 
 /**
  * Replaces `emoji:` URIs embedded in HTML before setting innerHTML.
@@ -123,12 +122,7 @@ const getTypographyVariant = (variant: string): any => {
 /**
  * Check if a button text or action matches a social provider.
  */
-const matchesSocialProvider = (
-  actionId: string,
-  eventType: string,
-  buttonText: string,
-  provider: string,
-): boolean => {
+const matchesSocialProvider = (actionId: string, eventType: string, buttonText: string, provider: string): boolean => {
   const providerId: string = `${provider}_auth`;
   const providerMatches: boolean = actionId === providerId || eventType === providerId;
 
@@ -245,16 +239,16 @@ const createAuthComponentFromFlow = (
 
       // Render branded social login buttons for known action IDs
       if (matchesSocialProvider(actionId, eventType, buttonText, 'google')) {
-        return h(GoogleButton, {key, class: options.buttonClassName, onClick: handleClick});
+        return h(GoogleButton, {class: options.buttonClassName, key, onClick: handleClick});
       }
       if (matchesSocialProvider(actionId, eventType, buttonText, 'github')) {
-        return h(GitHubButton, {key, class: options.buttonClassName, onClick: handleClick});
+        return h(GitHubButton, {class: options.buttonClassName, key, onClick: handleClick});
       }
       if (matchesSocialProvider(actionId, eventType, buttonText, 'facebook')) {
-        return h(FacebookButton, {key, class: options.buttonClassName, onClick: handleClick});
+        return h(FacebookButton, {class: options.buttonClassName, key, onClick: handleClick});
       }
       if (matchesSocialProvider(actionId, eventType, buttonText, 'microsoft')) {
-        return h(MicrosoftButton, {key, class: options.buttonClassName, onClick: handleClick});
+        return h(MicrosoftButton, {class: options.buttonClassName, key, onClick: handleClick});
       }
 
       // Generic button for other providers / actions
@@ -300,8 +294,7 @@ const createAuthComponentFromFlow = (
 
     case EmbeddedFlowComponentType.Text: {
       const variant: any = getTypographyVariant(component.variant as string);
-      const align: string =
-        typeof (component as any)['align'] === 'string' ? (component as any)['align'] : 'left';
+      const align: string = typeof (component as any)['align'] === 'string' ? (component as any)['align'] : 'left';
 
       return h(
         Typography,

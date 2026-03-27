@@ -141,11 +141,17 @@ export {default as BaseUserDropdown} from './components/presentation/user-dropdo
 export {default as AcceptInvite} from './components/presentation/accept-invite/AcceptInvite';
 export type {AcceptInviteRenderProps} from './components/presentation/accept-invite/AcceptInvite';
 export {default as BaseAcceptInvite} from './components/presentation/accept-invite/BaseAcceptInvite';
-export type {BaseAcceptInviteRenderProps, BaseAcceptInviteProps} from './components/presentation/accept-invite/BaseAcceptInvite';
+export type {
+  BaseAcceptInviteRenderProps,
+  BaseAcceptInviteProps,
+} from './components/presentation/accept-invite/BaseAcceptInvite';
 export {default as InviteUser} from './components/presentation/invite-user/InviteUser';
 export type {InviteUserRenderProps} from './components/presentation/invite-user/InviteUser';
 export {default as BaseInviteUser} from './components/presentation/invite-user/BaseInviteUser';
-export type {BaseInviteUserRenderProps, BaseInviteUserProps} from './components/presentation/invite-user/BaseInviteUser';
+export type {
+  BaseInviteUserRenderProps,
+  BaseInviteUserProps,
+} from './components/presentation/invite-user/BaseInviteUser';
 export {default as OrganizationList} from './components/presentation/organization-list/OrganizationList';
 export {default as BaseOrganizationList} from './components/presentation/organization-list/BaseOrganizationList';
 export {default as OrganizationProfile} from './components/presentation/organization-profile/OrganizationProfile';
@@ -189,8 +195,7 @@ export {
   type SignUpOptions,
   type TokenExchangeRequestConfig,
   type TokenResponse,
-  type User,
-  // type UserProfile,
+  type User, // type UserProfile,
 } from '@asgardeo/browser';
 
 // ── Phase 4 — Utilities ──

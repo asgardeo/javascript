@@ -39,6 +39,7 @@ import {
   ref,
   watch,
 } from 'vue';
+import BaseSignIn from './BaseSignIn';
 import useAsgardeo from '../../../../composables/useAsgardeo';
 import useFlowMeta from '../../../../composables/useFlowMeta';
 import useI18n from '../../../../composables/useI18n';
@@ -46,10 +47,9 @@ import {useOAuthCallback} from '../../../../composables/useOAuthCallback';
 import {initiateOAuthRedirect} from '../../../../utils/oauth';
 import {normalizeFlowResponse} from '../../../../utils/v2/flowTransformer';
 import {handlePasskeyAuthentication, handlePasskeyRegistration} from '../../../../utils/v2/passkey';
-import BaseSignIn from './BaseSignIn';
 
-const FLOW_ID_STORAGE_KEY = 'asgardeo_flow_id';
-const AUTH_ID_STORAGE_KEY = 'asgardeo_auth_id';
+const FLOW_ID_STORAGE_KEY: string = 'asgardeo_flow_id';
+const AUTH_ID_STORAGE_KEY: string = 'asgardeo_auth_id';
 
 interface PasskeyState {
   actionId: string | null;
@@ -135,9 +135,9 @@ const SignIn: Component = defineComponent({
     });
 
     // Track one-time initialization and OAuth processing
-    let initializationAttempted = false;
-    const oauthCodeProcessedFlag = { value: false };
-    let passkeyProcessed = false;
+    let initializationAttempted: boolean = false;
+    const oauthCodeProcessedFlag: {value: boolean} = {value: false};
+    let passkeyProcessed: boolean = false;
 
     // ── Helpers ──────────────────────────────────────────────────────────
 
@@ -170,7 +170,7 @@ const SignIn: Component = defineComponent({
     }
 
     const getUrlParams = (): UrlParams => {
-      const params = new URLSearchParams(window?.location?.search ?? '');
+      const params: URLSearchParams = new URLSearchParams(window?.location?.search ?? '');
       return {
         applicationId: params.get('applicationId'),
         authId: params.get('authId'),
@@ -185,15 +185,15 @@ const SignIn: Component = defineComponent({
 
     const cleanupOAuthUrlParams = (): void => {
       if (!window?.location?.href) return;
-      const url = new URL(window.location.href);
-      ['error', 'error_description', 'code', 'state', 'nonce'].forEach((p) => url.searchParams.delete(p));
+      const url: URL = new URL(window.location.href);
+      ['error', 'error_description', 'code', 'state', 'nonce'].forEach((p: string) => url.searchParams.delete(p));
       window.history.replaceState({}, '', url.toString());
     };
 
     const cleanupFlowUrlParams = (): void => {
       if (!window?.location?.href) return;
-      const url = new URL(window.location.href);
-      ['flowId', 'authId', 'applicationId'].forEach((p) => url.searchParams.delete(p));
+      const url: URL = new URL(window.location.href);
+      ['flowId', 'authId', 'applicationId'].forEach((p: string) => url.searchParams.delete(p));
       window.history.replaceState({}, '', url.toString());
     };
 
@@ -206,7 +206,7 @@ const SignIn: Component = defineComponent({
     // ── Flow initialization ───────────────────────────────────────────────
 
     const initializeFlow = async (): Promise<void> => {
-      const urlParams = getUrlParams();
+      const urlParams: UrlParams = getUrlParams();
 
       oauthCodeProcessedFlag.value = false;
 
@@ -214,10 +214,11 @@ const SignIn: Component = defineComponent({
         sessionStorage.setItem(AUTH_ID_STORAGE_KEY, urlParams.authId);
       }
 
-      const effectiveApplicationId = (applicationId as string | undefined) || urlParams.applicationId;
+      const effectiveApplicationId: string | null | undefined =
+        (applicationId as string | undefined) || urlParams.applicationId;
 
       if (!urlParams.flowId && !effectiveApplicationId) {
-        const err = new AsgardeoRuntimeError(
+        const err: AsgardeoRuntimeError = new AsgardeoRuntimeError(
           'Either flowId or applicationId is required for authentication',
           'SIGN_IN_ERROR',
           'vue',
@@ -242,7 +243,7 @@ const SignIn: Component = defineComponent({
 
         // Handle OAuth redirect types
         if (response.type === EmbeddedSignInFlowTypeV2.Redirection) {
-          const redirectURL = (response.data as any)?.redirectURL || (response as any)?.redirectURL;
+          const redirectURL: string | undefined = (response.data as any)?.redirectURL || (response as any)?.redirectURL;
           if (redirectURL && window?.location) {
             if (response.flowId) persistFlowId(response.flowId);
             if (urlParams.authId) sessionStorage.setItem(AUTH_ID_STORAGE_KEY, urlParams.authId);
@@ -266,9 +267,9 @@ const SignIn: Component = defineComponent({
           cleanupFlowUrlParams();
         }
       } catch (error: unknown) {
-        const err = error as any;
+        const err: any = error as any;
         clearFlowState();
-        const errorMessage = err?.failureReason || (err instanceof Error ? err.message : String(err));
+        const errorMessage: string = err?.failureReason || (err instanceof Error ? err.message : String(err));
         setError(new Error(errorMessage));
         initializationAttempted = false;
       }
@@ -277,7 +278,7 @@ const SignIn: Component = defineComponent({
     // ── Submit handler ────────────────────────────────────────────────────
 
     const handleSubmit = async (payload: EmbeddedSignInFlowRequestV2): Promise<void> => {
-      const effectiveFlowId = payload.flowId || currentFlowId.value;
+      const effectiveFlowId: string | null = payload.flowId || currentFlowId.value;
 
       if (!effectiveFlowId) {
         throw new Error('No active flow ID');
@@ -288,31 +289,31 @@ const SignIn: Component = defineComponent({
       // Auto-compile consent decisions if on a consent prompt step
       if (additionalData.value?.['consentPrompt']) {
         try {
-          const consentRaw = additionalData.value['consentPrompt'];
+          const consentRaw: any = additionalData.value['consentPrompt'];
           const purposes: any[] =
             typeof consentRaw === 'string' ? JSON.parse(consentRaw) : consentRaw.purposes || consentRaw;
 
-          let isDeny = false;
+          let isDeny: boolean = false;
           if (payload.action) {
             const findAction = (comps: any[]): any => {
               if (!comps?.length) return null;
-              const found = comps.find((c: any) => c.id === payload.action);
+              const found: any = comps.find((c: any) => c.id === payload.action);
               if (found) return found;
-              return comps.reduce((acc: any, c: any) => (acc ? acc : c.components ? findAction(c.components) : null), null);
+              return comps.reduce((acc: any, c: any) => acc || (c.components ? findAction(c.components) : null), null);
             };
-            const submitAction = findAction(components.value as any[]);
+            const submitAction: any = findAction(components.value as any[]);
             if (submitAction && submitAction.variant?.toLowerCase() !== 'primary') {
               isDeny = true;
             }
           }
 
-          const decisions = {
+          const decisions: Record<string, any> = {
             purposes: purposes.map((p: any) => ({
               approved: !isDeny,
               elements: [
                 ...(p.essential || []).map((attr: string) => ({approved: !isDeny, name: attr})),
                 ...(p.optional || []).map((attr: string) => {
-                  const key = `__consent_opt__${p.purpose_id}__${attr}`;
+                  const key: string = `__consent_opt__${p.purpose_id}__${attr}`;
                   return {approved: isDeny ? false : processedInputs[key] !== 'false', name: attr};
                 }),
               ],
@@ -333,7 +334,7 @@ const SignIn: Component = defineComponent({
         isSubmitting.value = true;
         flowError.value = null;
 
-        const response = (await signIn({
+        const response: EmbeddedSignInFlowResponseV2 = (await signIn({
           flowId: effectiveFlowId,
           ...payload,
           inputs: processedInputs,
@@ -341,10 +342,10 @@ const SignIn: Component = defineComponent({
 
         // Handle OAuth redirect
         if (response.type === EmbeddedSignInFlowTypeV2.Redirection) {
-          const redirectURL = (response.data as any)?.redirectURL || (response as any)?.redirectURL;
+          const redirectURL: string | undefined = (response.data as any)?.redirectURL || (response as any)?.redirectURL;
           if (redirectURL && window?.location) {
             if (response.flowId) persistFlowId(response.flowId);
-            const urlParams = getUrlParams();
+            const urlParams: UrlParams = getUrlParams();
             if (urlParams.authId) sessionStorage.setItem(AUTH_ID_STORAGE_KEY, urlParams.authId);
             initiateOAuthRedirect(redirectURL);
             return;
@@ -379,8 +380,9 @@ const SignIn: Component = defineComponent({
         // Handle error flow status
         if (response.flowStatus === EmbeddedSignInFlowStatusV2.Error) {
           clearFlowState();
-          const failureReason = (response as any)?.failureReason || 'Authentication flow failed. Please try again.';
-          const err = new Error(failureReason);
+          const failureReason: string =
+            (response as any)?.failureReason || 'Authentication flow failed. Please try again.';
+          const err: Error = new Error(failureReason);
           setError(err);
           cleanupFlowUrlParams();
           throw err;
@@ -388,8 +390,8 @@ const SignIn: Component = defineComponent({
 
         // Handle flow completion
         if (response.flowStatus === EmbeddedSignInFlowStatusV2.Complete) {
-          const redirectUrl = (response as any)?.redirectUrl || (response as any)?.redirect_uri;
-          const finalRedirectUrl = redirectUrl || afterSignInUrl;
+          const redirectUrl: string | undefined = (response as any)?.redirectUrl || (response as any)?.redirect_uri;
+          const finalRedirectUrl: string | undefined = redirectUrl || afterSignInUrl;
 
           isSubmitting.value = false;
           persistFlowId(null);
@@ -422,13 +424,13 @@ const SignIn: Component = defineComponent({
           }
         }
       } catch (error: unknown) {
-        const err = error as any;
+        const err: any = error as any;
         if (err instanceof Error && flowError.value === err) {
           // Already set; re-throw
           throw err;
         }
         clearFlowState();
-        const errorMessage = err?.failureReason || (err instanceof Error ? err.message : String(err));
+        const errorMessage: string = err?.failureReason || (err instanceof Error ? err.message : String(err));
         setError(new Error(errorMessage));
       } finally {
         isSubmitting.value = false;
@@ -445,7 +447,7 @@ const SignIn: Component = defineComponent({
         isTimeoutDisabled.value = false;
         return;
       }
-      const remaining = Math.max(0, Math.floor((timeoutMs - Date.now()) / 1000));
+      const remaining: number = Math.max(0, Math.floor((timeoutMs - Date.now()) / 1000));
       if (remaining <= 0) {
         isTimeoutDisabled.value = true;
         setError(new Error(t('errors.signin.timeout') || 'Time allowed to complete the step has expired.'));
@@ -481,8 +483,8 @@ const SignIn: Component = defineComponent({
           let inputs: Record<string, string>;
 
           if (state.challenge) {
-            const passkeyResponse = await handlePasskeyAuthentication(state.challenge);
-            const obj = JSON.parse(passkeyResponse);
+            const passkeyResponse: string = await handlePasskeyAuthentication(state.challenge);
+            const obj: any = JSON.parse(passkeyResponse);
             inputs = {
               authenticatorData: obj.response.authenticatorData,
               clientDataJSON: obj.response.clientDataJSON,
@@ -491,8 +493,8 @@ const SignIn: Component = defineComponent({
               userHandle: obj.response.userHandle,
             };
           } else if (state.creationOptions) {
-            const passkeyResponse = await handlePasskeyRegistration(state.creationOptions);
-            const obj = JSON.parse(passkeyResponse);
+            const passkeyResponse: string = await handlePasskeyRegistration(state.creationOptions);
+            const obj: any = JSON.parse(passkeyResponse);
             inputs = {
               attestationObject: obj.response.attestationObject,
               clientDataJSON: obj.response.clientDataJSON,
@@ -513,7 +515,7 @@ const SignIn: Component = defineComponent({
             isActive: false,
           };
         } catch (error: unknown) {
-          const err = error as Error;
+          const err: Error = error as Error;
           passkeyState.value = {...passkeyState.value, error: err, isActive: false};
           flowError.value = err;
           emit('error', err);
@@ -536,7 +538,8 @@ const SignIn: Component = defineComponent({
           setError(err instanceof Error ? err : new Error(String(err)));
         }
       },
-      onSubmit: (payload) => handleSubmit({flowId: payload.flowId, inputs: payload.inputs}),
+      onSubmit: (payload: EmbeddedSignInFlowRequestV2) =>
+        handleSubmit({flowId: payload.flowId, inputs: payload.inputs}),
       processedFlag: oauthCodeProcessedFlag,
       setFlowId: persistFlowId,
     });
@@ -544,7 +547,7 @@ const SignIn: Component = defineComponent({
     // ── Lifecycle ─────────────────────────────────────────────────────────
 
     onMounted(() => {
-      const urlParams = getUrlParams();
+      const urlParams: UrlParams = getUrlParams();
 
       if (urlParams.authId) {
         sessionStorage.setItem(AUTH_ID_STORAGE_KEY, urlParams.authId);
@@ -553,11 +556,18 @@ const SignIn: Component = defineComponent({
 
     // Initialize flow when SDK is ready (OAuth callback is handled by useOAuthCallback)
     watch(
-      () => [isInitialized.value, sdkLoading.value, isFlowInitialized.value, currentFlowId.value, isSubmitting.value] as [boolean, boolean, boolean, string | null, boolean],
+      () =>
+        [isInitialized.value, sdkLoading.value, isFlowInitialized.value, currentFlowId.value, isSubmitting.value] as [
+          boolean,
+          boolean,
+          boolean,
+          string | null,
+          boolean,
+        ],
       ([initialized, loading, flowInit, flowId, submitting]: [boolean, boolean, boolean, string | null, boolean]) => {
-        const urlParams = getUrlParams();
-        const hasOAuthCode = !!urlParams.code;
-        const hasOAuthState = !!urlParams.state;
+        const urlParams: UrlParams = getUrlParams();
+        const hasOAuthCode: boolean = !!urlParams.code;
+        const hasOAuthState: boolean = !!urlParams.state;
 
         // Initialize flow when SDK is ready and no flow is active
         if (
@@ -580,7 +590,7 @@ const SignIn: Component = defineComponent({
     // ── Render ────────────────────────────────────────────────────────────
 
     return (): VNode | null => {
-      const combinedIsLoading = sdkLoading.value || isSubmitting.value || !isInitialized.value;
+      const combinedIsLoading: boolean = sdkLoading.value || isSubmitting.value || !isInitialized.value;
 
       // Scoped slot / render props pattern
       if (slots['default']) {
@@ -607,10 +617,10 @@ const SignIn: Component = defineComponent({
         error: flowError.value,
         isLoading: combinedIsLoading || !isFlowInitialized.value,
         isTimeoutDisabled: isTimeoutDisabled.value,
-        size: props.size,
-        variant: props.variant,
         onError: (err: Error) => emit('error', err),
         onSubmit: handleSubmit,
+        size: props.size,
+        variant: props.variant,
       });
     };
   },

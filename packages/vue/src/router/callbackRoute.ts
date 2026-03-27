@@ -16,19 +16,13 @@
  * under the License.
  */
 
-import {defineComponent, h} from 'vue';
+import {type Component, defineComponent, h} from 'vue';
 import Callback from '../components/auth/Callback';
 
 /**
  * Options for creating a callback route.
  */
 export interface CallbackRouteOptions {
-  /**
-   * The URL path for the callback route.
-   * @default '/callback'
-   */
-  path?: string;
-
   /**
    * The route name. If not provided, no name is set on the route record.
    */
@@ -38,6 +32,12 @@ export interface CallbackRouteOptions {
    * Optional error handler called when the OAuth callback encounters an error.
    */
   onError?: (error: Error) => void;
+
+  /**
+   * The URL path for the callback route.
+   * @default '/callback'
+   */
+  path?: string;
 }
 
 /**
@@ -46,10 +46,10 @@ export interface CallbackRouteOptions {
  * This avoids a hard dependency on `vue-router` while remaining structurally compatible.
  */
 export interface AsgardeoRouteRecord {
-  path: string;
-  name?: string;
   component: ReturnType<typeof defineComponent>;
   meta?: Record<string, unknown>;
+  name?: string;
+  path: string;
 }
 
 /**
@@ -93,7 +93,7 @@ export interface AsgardeoRouteRecord {
 export const createCallbackRoute = (options: CallbackRouteOptions = {}): AsgardeoRouteRecord => {
   const {path = '/callback', name, onError} = options;
 
-  const CallbackWrapper = defineComponent({
+  const CallbackWrapper: Component = defineComponent({
     name: 'AsgardeoCallbackRoute',
     setup() {
       return (): ReturnType<typeof h> =>

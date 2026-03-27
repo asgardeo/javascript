@@ -17,7 +17,7 @@
  */
 
 import {type User, withVendorCSSClassPrefix} from '@asgardeo/browser';
-import {type PropType, type Ref, type VNode, defineComponent, h, ref} from 'vue';
+import {type Component, type PropType, type Ref, type VNode, defineComponent, h, ref} from 'vue';
 import {ChevronDownIcon, LogOutIcon, UserIcon, XIcon} from '../../primitives/Icons';
 import Typography from '../../primitives/Typography';
 
@@ -34,7 +34,7 @@ export interface BaseUserDropdownProps {
 /**
  * BaseUserDropdown — unstyled user dropdown with avatar, profile link, sign-out.
  */
-const BaseUserDropdown = defineComponent({
+const BaseUserDropdown: Component = defineComponent({
   inheritAttrs: false,
   name: 'BaseUserDropdown',
   props: {

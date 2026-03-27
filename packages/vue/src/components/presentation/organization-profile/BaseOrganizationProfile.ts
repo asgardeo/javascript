@@ -18,7 +18,7 @@
 
 import {withVendorCSSClassPrefix} from '@asgardeo/browser';
 import type {Organization} from '@asgardeo/browser';
-import {type PropType, type Ref, type VNode, defineComponent, h, ref} from 'vue';
+import {type Component, type PropType, type Ref, type VNode, defineComponent, h, ref} from 'vue';
 import Button from '../../primitives/Button';
 import Card from '../../primitives/Card';
 import Divider from '../../primitives/Divider';
@@ -67,7 +67,7 @@ const formatDate = (dateStr: string): string => {
  * Renders a profile card with avatar, org name, handle, and two-column field rows
  * for Organization ID, Name, Description, Created Date, and Last Modified Date.
  */
-const BaseOrganizationProfile = defineComponent({
+const BaseOrganizationProfile: Component = defineComponent({
   name: 'BaseOrganizationProfile',
   props: {
     className: {default: '', type: String},

@@ -25,6 +25,13 @@ import type {AsgardeoContext} from '../models/contexts';
  */
 export interface GuardOptions {
   /**
+   * Maximum time (in ms) to wait for SDK initialization before redirecting.
+   * Only applicable when `waitForInit` is `true`.
+   * @default 10000
+   */
+  initTimeout?: number;
+
+  /**
    * The path to redirect unauthenticated users to.
    * @default '/'
    */
@@ -37,13 +44,6 @@ export interface GuardOptions {
    * @default true
    */
   waitForInit?: boolean;
-
-  /**
-   * Maximum time (in ms) to wait for SDK initialization before redirecting.
-   * Only applicable when `waitForInit` is `true`.
-   * @default 10000
-   */
-  initTimeout?: number;
 }
 
 /**
@@ -55,8 +55,8 @@ export interface GuardOptions {
  */
 export type NavigationGuardReturn = boolean | string | {path: string} | {name: string} | undefined;
 export type AsgardeoNavigationGuard = (
-  to: {path: string; fullPath: string; query: Record<string, string | (string | null)[] | null | undefined>},
-  from: {path: string; fullPath: string},
+  to: {fullPath: string; path: string; query: Record<string, string | (string | null)[] | null | undefined>},
+  from: {fullPath: string; path: string},
   next: (target?: NavigationGuardReturn) => void,
 ) => void | Promise<void>;
 
@@ -97,7 +97,7 @@ export type AsgardeoNavigationGuard = (
 export const createAsgardeoGuard = (options: GuardOptions = {}): AsgardeoNavigationGuard => {
   const {redirectTo = '/', waitForInit = true, initTimeout = 10000} = options;
 
-  return async (_to, _from, next): Promise<void> => {
+  return async (_to: unknown, _from: unknown, next: (target?: {path: string}) => void): Promise<void> => {
     const ctx: AsgardeoContext | undefined = inject(ASGARDEO_KEY);
 
     if (!ctx) {
@@ -134,7 +134,7 @@ export const createAsgardeoGuard = (options: GuardOptions = {}): AsgardeoNavigat
 
     // Wait for initialization to complete
     try {
-      await new Promise<void>((resolve, reject) => {
+      await new Promise<void>((resolve: () => void, reject: (reason?: Error) => void) => {
         const timeout: ReturnType<typeof setTimeout> = setTimeout(() => {
           reject(new Error('Asgardeo SDK initialization timed out'));
         }, initTimeout);

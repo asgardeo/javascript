@@ -18,7 +18,7 @@
 
 import {withVendorCSSClassPrefix} from '@asgardeo/browser';
 import type {Organization} from '@asgardeo/browser';
-import {type PropType, type Ref, type VNode, defineComponent, h, ref} from 'vue';
+import {type Component, type PropType, type Ref, type VNode, defineComponent, h, ref} from 'vue';
 import Card from '../../primitives/Card';
 import {BuildingIcon, ChevronDownIcon} from '../../primitives/Icons';
 import Spinner from '../../primitives/Spinner';
@@ -31,7 +31,7 @@ const cls = (name: string): string => withVendorCSSClassPrefix(`organization-swi
  *
  * Shows the current organization name and a dropdown list to switch.
  */
-const BaseOrganizationSwitcher = defineComponent({
+const BaseOrganizationSwitcher: Component = defineComponent({
   inheritAttrs: false,
   name: 'BaseOrganizationSwitcher',
   props: {

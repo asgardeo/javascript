@@ -16,9 +16,10 @@
  * under the License.
  */
 
+import {mount} from '@vue/test-utils';
+/* eslint-disable sort-keys, @typescript-eslint/typedef, @typescript-eslint/explicit-function-return-type */
 import {describe, expect, it, vi} from 'vitest';
 import {defineComponent, h, ref} from 'vue';
-import {mount} from '@vue/test-utils';
 import useAsgardeo from '../../composables/useAsgardeo';
 import {ASGARDEO_KEY} from '../../keys';
 import type {AsgardeoContext} from '../../models/contexts';

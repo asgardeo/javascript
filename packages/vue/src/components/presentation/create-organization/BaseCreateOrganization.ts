@@ -17,7 +17,7 @@
  */
 
 import {withVendorCSSClassPrefix} from '@asgardeo/browser';
-import {type PropType, type Ref, type VNode, defineComponent, h, ref} from 'vue';
+import {type Component, type PropType, type Ref, type VNode, defineComponent, h, ref} from 'vue';
 import Alert from '../../primitives/Alert';
 import Button from '../../primitives/Button';
 import Card from '../../primitives/Card';
@@ -38,7 +38,7 @@ interface BaseCreateOrganizationSetupProps {
  *
  * Provides a form with an org name input and create button.
  */
-const BaseCreateOrganization = defineComponent({
+const BaseCreateOrganization: Component = defineComponent({
   name: 'BaseCreateOrganization',
   props: {
     className: {default: '', type: String},

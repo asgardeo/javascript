@@ -17,7 +17,7 @@
  */
 
 import {withVendorCSSClassPrefix} from '@asgardeo/browser';
-import {type Ref, type VNode, defineComponent, h, ref} from 'vue';
+import {type Component, type Ref, type VNode, defineComponent, h, ref} from 'vue';
 import BaseUserDropdown from './BaseUserDropdown';
 import useAsgardeo from '../../../composables/useAsgardeo';
 import UserProfileComponent from '../user-profile/UserProfile';
@@ -27,7 +27,7 @@ import UserProfileComponent from '../user-profile/UserProfile';
  *
  * Retrieves user and signOut from context and delegates to BaseUserDropdown.
  */
-const UserDropdown = defineComponent({
+const UserDropdown: Component = defineComponent({
   emits: ['profileClick'],
   name: 'UserDropdown',
   props: {

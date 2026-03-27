@@ -60,7 +60,7 @@ const AcceptInvite: Component = defineComponent({
     variant: {default: 'outlined', type: String as PropType<'outlined' | 'elevated'>},
   },
   setup(props: any, {slots}: SetupContext): () => VNode | null {
-    const urlParams = getUrlParams();
+    const urlParams: {flowId?: string; inviteToken?: string} = getUrlParams();
     const flowId: string | undefined = props.flowId || urlParams.flowId;
     const inviteToken: string | undefined = props.inviteToken || urlParams.inviteToken;
 

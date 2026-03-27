@@ -17,7 +17,7 @@
  */
 
 import {type Organization as IOrganization, withVendorCSSClassPrefix} from '@asgardeo/browser';
-import {type PropType, type VNode, defineComponent, h} from 'vue';
+import {type Component, type PropType, type VNode, defineComponent, h} from 'vue';
 import {BuildingIcon} from '../../primitives/Icons';
 import Spinner from '../../primitives/Spinner';
 import Typography from '../../primitives/Typography';
@@ -25,7 +25,7 @@ import Typography from '../../primitives/Typography';
 /**
  * BaseOrganizationList — unstyled list of organizations.
  */
-const BaseOrganizationList = defineComponent({
+const BaseOrganizationList: Component = defineComponent({
   inheritAttrs: false,
   name: 'BaseOrganizationList',
   props: {

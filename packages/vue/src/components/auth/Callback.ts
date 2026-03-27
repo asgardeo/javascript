@@ -17,7 +17,7 @@
  */
 
 import {navigate as browserNavigate} from '@asgardeo/browser';
-import {defineComponent, onMounted} from 'vue';
+import {type Component, defineComponent, onMounted} from 'vue';
 
 interface CallbackSetupProps {
   onError: ((error: Error) => void) | undefined;
@@ -35,7 +35,7 @@ interface CallbackSetupProps {
  *
  * Flow: Extract OAuth parameters from URL -> Parse state parameter -> Redirect to original path with parameters
  */
-const Callback = defineComponent({
+const Callback: Component = defineComponent({
   name: 'Callback',
   props: {
     onError: {default: undefined, type: Function as unknown as () => (error: Error) => void},

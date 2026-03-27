@@ -17,14 +17,14 @@
  */
 
 import {AsgardeoRuntimeError} from '@asgardeo/browser';
-import {defineComponent, h, ref, type Ref, type SetupContext, type VNode} from 'vue';
+import {defineComponent, h, ref, type Component, type Ref, type SetupContext, type VNode} from 'vue';
 import BaseSignOutButton from './BaseSignOutButton';
 import useAsgardeo from '../../composables/useAsgardeo';
 
 /**
  * SignOutButton — triggers `signOut()` from the Asgardeo context.
  */
-const SignOutButton = defineComponent({
+const SignOutButton: Component = defineComponent({
   emits: ['click', 'error'],
   name: 'SignOutButton',
   setup(_: {}, {slots, emit, attrs}: SetupContext): () => VNode {

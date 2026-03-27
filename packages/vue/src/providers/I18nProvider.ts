@@ -24,7 +24,18 @@ import {
   getDefaultI18nBundles,
   normalizeTranslations,
 } from '@asgardeo/i18n';
-import {computed, defineComponent, h, provide, readonly, ref, watch, type PropType, type Ref} from 'vue';
+import {
+  computed,
+  defineComponent,
+  h,
+  provide,
+  readonly,
+  ref,
+  watch,
+  type Component,
+  type PropType,
+  type Ref,
+} from 'vue';
 import {I18N_KEY} from '../keys';
 import type {I18nContextValue} from '../models/contexts';
 
@@ -131,7 +142,7 @@ const detectBrowserLanguage = (): string => {
  *
  * @internal — This provider is mounted automatically by `<AsgardeoProvider>`.
  */
-const I18nProvider = defineComponent({
+const I18nProvider: Component = defineComponent({
   name: 'I18nProvider',
   props: {
     /** i18n preferences passed down from the AsgardeoProvider config. */

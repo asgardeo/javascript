@@ -23,6 +23,7 @@ import {
   FlowMetadataResponse,
 } from '@asgardeo/browser';
 import {
+  type ComputedRef,
   type Component,
   type PropType,
   type Ref,
@@ -34,15 +35,15 @@ import {
   ref,
   watch,
 } from 'vue';
-import useFlowMeta from '../../../../composables/useFlowMeta';
+import {renderSignInComponents} from './AuthOptionFactory';
 import useFlow from '../../../../composables/useFlow';
+import useFlowMeta from '../../../../composables/useFlowMeta';
 import useI18n from '../../../../composables/useI18n';
+import {extractErrorMessage} from '../../../../utils/v2/flowTransformer';
 import Alert from '../../../primitives/Alert';
 import Card from '../../../primitives/Card';
 import Spinner from '../../../primitives/Spinner';
 import Typography from '../../../primitives/Typography';
-import {extractErrorMessage} from '../../../../utils/v2/flowTransformer';
-import {renderSignInComponents} from './AuthOptionFactory';
 
 /**
  * Render props passed to the default scoped slot for custom UI rendering.
@@ -177,7 +178,7 @@ const BaseSignIn: Component = defineComponent({
     const isSubmitting: Ref<boolean> = ref(false);
     const apiError: Ref<Error | null> = ref(null);
 
-    const isLoading = computed<boolean>(() => props.isLoading || isSubmitting.value);
+    const isLoading: ComputedRef<boolean> = computed<boolean>(() => props.isLoading || isSubmitting.value);
 
     // Form state
     const formValues: Ref<Record<string, string>> = ref({});
@@ -199,7 +200,7 @@ const BaseSignIn: Component = defineComponent({
     );
 
     // Computed form errors based on current values + touched
-    const formErrors = computed<Record<string, string>>(() => {
+    const formErrors: ComputedRef<Record<string, string>> = computed<Record<string, string>>(() => {
       const fields: FieldDefinition[] = extractFormFields(props.components || []);
       const errors: Record<string, string> = {};
       fields.forEach((field: FieldDefinition) => {
@@ -215,7 +216,7 @@ const BaseSignIn: Component = defineComponent({
       return errors;
     });
 
-    const isFormValid = computed<boolean>(() => Object.keys(formErrors.value).length === 0);
+    const isFormValid: ComputedRef<boolean> = computed<boolean>(() => Object.keys(formErrors.value).length === 0);
 
     const handleError = (error: any): void => {
       const errorMessage: string = (error as any)?.failureReason || extractErrorMessage(error, t);
@@ -243,7 +244,7 @@ const BaseSignIn: Component = defineComponent({
 
     const validateForm = (): {fieldErrors: Record<string, string>; isValid: boolean} => {
       touchAllFields();
-      const errors = formErrors.value;
+      const errors: Record<string, string> = formErrors.value;
       return {fieldErrors: errors, isValid: Object.keys(errors).length === 0};
     };
 
@@ -350,12 +351,17 @@ const BaseSignIn: Component = defineComponent({
       if (!props.components || props.components.length === 0) {
         return h(Card, {class: containerClass, variant: props.variant}, () =>
           h(Alert, {severity: 'warning'}, () =>
-            h(Typography, {variant: 'body1'}, () => t('errors.signin.components.not.available') || 'No sign-in options available'),
+            h(
+              Typography,
+              {variant: 'body1'},
+              () => t('errors.signin.components.not.available') || 'No sign-in options available',
+            ),
           ),
         );
       }
 
-      const messages = (flowMessages as Ref<Array<{message: string; type: string}>>).value || [];
+      const messages: Array<{message: string; type: string}> =
+        (flowMessages as Ref<Array<{message: string; type: string}>>).value || [];
       const externalError: Error | null = props.error;
 
       return h(Card, {class: containerClass, ...attrs, variant: props.variant}, () => [
@@ -366,14 +372,10 @@ const BaseSignIn: Component = defineComponent({
             {class: [withVendorCSSClassPrefix('signin__messages'), props.messageClassName].filter(Boolean).join(' ')},
             [
               externalError &&
-                h(Alert, {severity: 'error'}, () =>
-                  h(Typography, {variant: 'body2'}, () => externalError.message),
-                ),
+                h(Alert, {severity: 'error'}, () => h(Typography, {variant: 'body2'}, () => externalError.message)),
               ...messages.map((msg: {message: string; type: string}, index: number) =>
-                h(
-                  Alert,
-                  {key: index, severity: msg.type === 'error' ? 'error' : 'info'},
-                  () => h(Typography, {variant: 'body2'}, () => msg.message),
+                h(Alert, {key: index, severity: msg.type === 'error' ? 'error' : 'info'}, () =>
+                  h(Typography, {variant: 'body2'}, () => msg.message),
                 ),
               ),
             ],

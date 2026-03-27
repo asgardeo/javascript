@@ -16,8 +16,9 @@
  * under the License.
  */
 
-import {describe, expect, it, vi, beforeEach, afterEach} from 'vitest';
+/* eslint-disable sort-keys, @typescript-eslint/typedef */
 import {mount} from '@vue/test-utils';
+import {describe, expect, it, vi, beforeEach, afterEach} from 'vitest';
 import Callback from '../../components/auth/Callback';
 
 describe('Callback', () => {
@@ -64,10 +65,7 @@ describe('Callback', () => {
     setWindowLocation(`http://localhost:3000/callback?code=auth-code-456&state=${state}`);
 
     // Store the state data in sessionStorage (simulating what signIn does)
-    sessionStorage.setItem(
-      `asgardeo_oauth_${state}`,
-      JSON.stringify({path: '/dashboard', timestamp: Date.now()}),
-    );
+    sessionStorage.setItem(`asgardeo_oauth_${state}`, JSON.stringify({path: '/dashboard', timestamp: Date.now()}));
 
     const onNavigate = vi.fn();
     mount(Callback, {
@@ -82,14 +80,9 @@ describe('Callback', () => {
 
   it('should include nonce in forwarded params when present', () => {
     const state = 'test-state-789';
-    setWindowLocation(
-      `http://localhost:3000/callback?code=auth-code&state=${state}&nonce=test-nonce`,
-    );
+    setWindowLocation(`http://localhost:3000/callback?code=auth-code&state=${state}&nonce=test-nonce`);
 
-    sessionStorage.setItem(
-      `asgardeo_oauth_${state}`,
-      JSON.stringify({path: '/app', timestamp: Date.now()}),
-    );
+    sessionStorage.setItem(`asgardeo_oauth_${state}`, JSON.stringify({path: '/app', timestamp: Date.now()}));
 
     const onNavigate = vi.fn();
     mount(Callback, {
@@ -156,10 +149,7 @@ describe('Callback', () => {
       `http://localhost:3000/callback?error=access_denied&error_description=User+cancelled&state=${state}`,
     );
 
-    sessionStorage.setItem(
-      `asgardeo_oauth_${state}`,
-      JSON.stringify({path: '/login', timestamp: Date.now()}),
-    );
+    sessionStorage.setItem(`asgardeo_oauth_${state}`, JSON.stringify({path: '/login', timestamp: Date.now()}));
 
     const onError = vi.fn();
     const onNavigate = vi.fn();
@@ -177,10 +167,7 @@ describe('Callback', () => {
     const state = 'cleanup-state';
     setWindowLocation(`http://localhost:3000/callback?code=auth-code&state=${state}`);
 
-    sessionStorage.setItem(
-      `asgardeo_oauth_${state}`,
-      JSON.stringify({path: '/app', timestamp: Date.now()}),
-    );
+    sessionStorage.setItem(`asgardeo_oauth_${state}`, JSON.stringify({path: '/app', timestamp: Date.now()}));
 
     const onNavigate = vi.fn();
     mount(Callback, {

@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import {type VNode, defineComponent, h, Fragment} from 'vue';
+import {type Component, type VNode, defineComponent, h, Fragment} from 'vue';
 import useOrganization from '../../../composables/useOrganization';
 
 /**
@@ -37,7 +37,7 @@ import useOrganization from '../../../composables/useOrganization';
  * </Organization>
  * ```
  */
-const Organization = defineComponent({
+const Organization: Component = defineComponent({
   name: 'Organization',
   setup(_props: Record<string, unknown>, {slots}: {slots: any}): () => VNode | VNode[] | null {
     const {currentOrganization} = useOrganization();

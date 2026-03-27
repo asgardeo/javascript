@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import {type VNode, defineComponent, h, Fragment} from 'vue';
+import {type Component, type VNode, defineComponent, h, Fragment} from 'vue';
 import useAsgardeo from '../../composables/useAsgardeo';
 
 /**
@@ -32,7 +32,7 @@ import useAsgardeo from '../../composables/useAsgardeo';
  * </SignedIn>
  * ```
  */
-const SignedIn = defineComponent({
+const SignedIn: Component = defineComponent({
   name: 'SignedIn',
   setup(_props: Record<string, unknown>, {slots}: {slots: any}): () => VNode | VNode[] | null {
     const {isSignedIn} = useAsgardeo();

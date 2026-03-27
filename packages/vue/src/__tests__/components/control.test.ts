@@ -16,12 +16,13 @@
  * under the License.
  */
 
+/* eslint-disable sort-keys, @typescript-eslint/typedef */
+import {mount} from '@vue/test-utils';
 import {describe, expect, it, vi} from 'vitest';
 import {h, ref} from 'vue';
-import {mount} from '@vue/test-utils';
+import Loading from '../../components/control/Loading';
 import SignedIn from '../../components/control/SignedIn';
 import SignedOut from '../../components/control/SignedOut';
-import Loading from '../../components/control/Loading';
 import {ASGARDEO_KEY} from '../../keys';
 import type {AsgardeoContext} from '../../models/contexts';
 

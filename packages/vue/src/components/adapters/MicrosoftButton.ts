@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import {defineComponent, h, type SetupContext, type VNode} from 'vue';
+import {defineComponent, h, type Component, type SetupContext, type VNode} from 'vue';
 import useI18n from '../../composables/useI18n';
 import Button from '../primitives/Button';
 
@@ -24,7 +24,7 @@ import Button from '../primitives/Button';
  * Microsoft Sign-In Button Component.
  * Handles authentication with Microsoft identity provider.
  */
-const MicrosoftButton = defineComponent({
+const MicrosoftButton: Component = defineComponent({
   emits: ['click'],
   name: 'MicrosoftButton',
   props: {

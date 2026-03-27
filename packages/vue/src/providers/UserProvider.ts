@@ -17,7 +17,7 @@
  */
 
 import {Schema, UpdateMeProfileConfig, User, UserProfile} from '@asgardeo/browser';
-import {computed, defineComponent, h, provide, type PropType, type Ref} from 'vue';
+import {computed, defineComponent, h, provide, type Component, type PropType, type Ref} from 'vue';
 import {USER_KEY} from '../keys';
 import type {UserContextValue} from '../models/contexts';
 
@@ -29,7 +29,7 @@ import type {UserContextValue} from '../models/contexts';
  *
  * @internal — This provider is mounted automatically by `<AsgardeoProvider>`.
  */
-const UserProvider = defineComponent({
+const UserProvider: Component = defineComponent({
   name: 'UserProvider',
   props: {
     /** The flattened profile (top-level attribute map). */

@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import {defineComponent, h, type SetupContext, type VNode} from 'vue';
+import {defineComponent, h, type Component, type SetupContext, type VNode} from 'vue';
 import useI18n from '../../composables/useI18n';
 import Button from '../primitives/Button';
 
@@ -24,7 +24,7 @@ import Button from '../primitives/Button';
  * GitHub Sign-In Button Component.
  * Handles authentication with GitHub identity provider.
  */
-const GitHubButton = defineComponent({
+const GitHubButton: Component = defineComponent({
   emits: ['click'],
   name: 'GitHubButton',
   props: {

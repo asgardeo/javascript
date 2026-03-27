@@ -16,6 +16,7 @@
  * under the License.
  */
 
+/* eslint-disable @typescript-eslint/typedef */
 import {describe, expect, it} from 'vitest';
 import {createApp, h} from 'vue';
 import AsgardeoPlugin from '../../plugins/AsgardeoPlugin';

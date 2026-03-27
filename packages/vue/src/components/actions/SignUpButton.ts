@@ -17,7 +17,7 @@
  */
 
 import {AsgardeoRuntimeError, navigate} from '@asgardeo/browser';
-import {defineComponent, h, ref, type Ref, type SetupContext, type VNode} from 'vue';
+import {defineComponent, h, ref, type Component, type Ref, type SetupContext, type VNode} from 'vue';
 import BaseSignUpButton from './BaseSignUpButton';
 import useAsgardeo from '../../composables/useAsgardeo';
 
@@ -27,7 +27,7 @@ import useAsgardeo from '../../composables/useAsgardeo';
  * If a custom `signUpUrl` is configured, navigates to it instead.
  * Falls back to i18n translation for the button text.
  */
-const SignUpButton = defineComponent({
+const SignUpButton: Component = defineComponent({
   emits: ['click', 'error'],
   name: 'SignUpButton',
   setup(_: {}, {slots, emit, attrs}: SetupContext): () => VNode {

@@ -18,9 +18,9 @@
 
 import {Platform} from '@asgardeo/browser';
 import {type Component, type PropType, type SetupContext, type VNode, defineComponent, h} from 'vue';
-import useAsgardeo from '../../../composables/useAsgardeo';
 import SignInV1 from './v1/SignIn';
 import SignInV2 from './v2/SignIn';
+import useAsgardeo from '../../../composables/useAsgardeo';
 
 export type {SignInRenderProps} from './v2/SignIn';
 
@@ -57,10 +57,10 @@ const SignIn: Component = defineComponent({
           {
             ...attrs,
             class: props.className,
-            size: props.size,
-            variant: props.variant,
             onError: (err: Error) => emit('error', err),
             onSuccess: (data: Record<string, any>) => emit('success', data),
+            size: props.size,
+            variant: props.variant,
           },
           slots,
         );
@@ -71,10 +71,10 @@ const SignIn: Component = defineComponent({
         {
           ...attrs,
           class: props.className,
-          size: props.size,
-          variant: props.variant,
           onError: (err: Error) => emit('error', err),
           onSuccess: (data: Record<string, any>) => emit('success', data),
+          size: props.size,
+          variant: props.variant,
         },
         slots,
       );

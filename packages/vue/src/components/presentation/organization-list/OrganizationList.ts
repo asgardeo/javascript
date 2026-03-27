@@ -17,7 +17,7 @@
  */
 
 import {type Organization as IOrganization, withVendorCSSClassPrefix} from '@asgardeo/browser';
-import {type VNode, defineComponent, h} from 'vue';
+import {type Component, type VNode, defineComponent, h} from 'vue';
 import BaseOrganizationList from './BaseOrganizationList';
 import useOrganization from '../../../composables/useOrganization';
 
@@ -26,7 +26,7 @@ import useOrganization from '../../../composables/useOrganization';
  *
  * Retrieves organization list from context and delegates to BaseOrganizationList.
  */
-const OrganizationList = defineComponent({
+const OrganizationList: Component = defineComponent({
   emits: ['select'],
   name: 'OrganizationList',
   props: {

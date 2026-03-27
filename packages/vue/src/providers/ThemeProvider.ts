@@ -42,6 +42,7 @@ import {
   shallowReadonly,
   ref,
   watch,
+  type Component,
   type PropType,
   type Ref,
 } from 'vue';
@@ -71,7 +72,7 @@ const logger: ReturnType<typeof createPackageComponentLogger> = createPackageCom
  * </ThemeProvider>
  * ```
  */
-const ThemeProvider = defineComponent({
+const ThemeProvider: Component = defineComponent({
   name: 'ThemeProvider',
   props: {
     /** Theme detection configuration (for 'class' or 'system' mode). */

@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import {defineComponent, h, type SetupContext, type VNode} from 'vue';
+import {defineComponent, h, type Component, type SetupContext, type VNode} from 'vue';
 import useI18n from '../../composables/useI18n';
 import Button from '../primitives/Button';
 
@@ -24,7 +24,7 @@ import Button from '../primitives/Button';
  * Google Sign-In Button Component.
  * Handles authentication with Google identity provider.
  */
-const GoogleButton = defineComponent({
+const GoogleButton: Component = defineComponent({
   emits: ['click'],
   name: 'GoogleButton',
   props: {

@@ -18,7 +18,19 @@
 
 import {FlowMetadataResponse, FlowMetaType, getFlowMetaV2} from '@asgardeo/browser';
 import {I18nBundle, TranslationBundleConstants} from '@asgardeo/i18n';
-import {defineComponent, h, inject, onMounted, provide, readonly, shallowReadonly, ref, watch, type Ref} from 'vue';
+import {
+  defineComponent,
+  h,
+  inject,
+  onMounted,
+  provide,
+  readonly,
+  shallowReadonly,
+  ref,
+  watch,
+  type Component,
+  type Ref,
+} from 'vue';
 import {ASGARDEO_KEY, FLOW_META_KEY, I18N_KEY} from '../keys';
 import type {AsgardeoContext, FlowMetaContextValue, I18nContextValue} from '../models/contexts';
 
@@ -31,7 +43,7 @@ import type {AsgardeoContext, FlowMetaContextValue, I18nContextValue} from '../m
  *
  * @internal — This provider is mounted automatically by `<AsgardeoProvider>`.
  */
-const FlowMetaProvider = defineComponent({
+const FlowMetaProvider: Component = defineComponent({
   name: 'FlowMetaProvider',
   props: {
     /**

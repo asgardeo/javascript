@@ -100,12 +100,13 @@ export function useOAuthCallback({
   setFlowId,
   tokenValidationAttemptedFlag,
 }: UseOAuthCallbackOptions): void {
-  const internalFlag = {value: false};
-  const oauthCodeProcessedFlag = processedFlag ?? internalFlag;
+  const internalFlag: {value: boolean} = {value: false};
+  const oauthCodeProcessedFlag: {value: boolean} = processedFlag ?? internalFlag;
+  const tokenValidationFlag: {value: boolean} | undefined = tokenValidationAttemptedFlag;
 
   watch(
     () => [isInitialized.value, currentFlowId.value, isSubmitting?.value] as const,
-    ([initialized, , submitting]) => {
+    ([initialized, , submitting]: readonly [boolean, string | null, boolean | undefined]) => {
       if (!initialized || submitting) {
         return;
       }
@@ -120,8 +121,8 @@ export function useOAuthCallback({
 
       if (error) {
         oauthCodeProcessedFlag.value = true;
-        if (tokenValidationAttemptedFlag) {
-          tokenValidationAttemptedFlag.value = true;
+        if (tokenValidationFlag) {
+          tokenValidationFlag.value = true;
         }
         onError?.(new Error(errorDescription || error || 'OAuth authentication failed'));
         cleanupUrlParams();
@@ -132,7 +133,7 @@ export function useOAuthCallback({
         return;
       }
 
-      if (tokenValidationAttemptedFlag?.value) {
+      if (tokenValidationFlag?.value) {
         return;
       }
 
@@ -148,8 +149,8 @@ export function useOAuthCallback({
 
       oauthCodeProcessedFlag.value = true;
 
-      if (tokenValidationAttemptedFlag) {
-        tokenValidationAttemptedFlag.value = true;
+      if (tokenValidationFlag) {
+        tokenValidationFlag.value = true;
       }
 
       onProcessingStart?.();

@@ -17,7 +17,7 @@
  */
 
 import {withVendorCSSClassPrefix} from '@asgardeo/browser';
-import {type PropType, type Ref, type VNode, defineComponent, h, ref} from 'vue';
+import {type Component, type PropType, type Ref, type VNode, defineComponent, h, ref} from 'vue';
 import Card from '../../primitives/Card';
 import {ChevronDownIcon, GlobeIcon} from '../../primitives/Icons';
 import type {SelectOption} from '../../primitives/Select/Select';
@@ -37,7 +37,7 @@ interface BaseLanguageSwitcherSetupProps {
  *
  * Shows the current language and a dropdown to select another.
  */
-const BaseLanguageSwitcher = defineComponent({
+const BaseLanguageSwitcher: Component = defineComponent({
   name: 'BaseLanguageSwitcher',
   props: {
     className: {default: '', type: String},

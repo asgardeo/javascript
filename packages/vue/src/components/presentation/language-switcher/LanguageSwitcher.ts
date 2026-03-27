@@ -17,7 +17,7 @@
  */
 
 import {withVendorCSSClassPrefix} from '@asgardeo/browser';
-import {type PropType, type VNode, defineComponent, h} from 'vue';
+import {type Component, type PropType, type VNode, defineComponent, h} from 'vue';
 import BaseLanguageSwitcher from './BaseLanguageSwitcher';
 import useI18n from '../../../composables/useI18n';
 import type {SelectOption} from '../../primitives/Select/Select';
@@ -32,7 +32,7 @@ interface LanguageSwitcherSetupProps {
  *
  * Retrieves current language and setLanguage from i18n context.
  */
-const LanguageSwitcher = defineComponent({
+const LanguageSwitcher: Component = defineComponent({
   name: 'LanguageSwitcher',
   props: {
     className: {default: '', type: String},

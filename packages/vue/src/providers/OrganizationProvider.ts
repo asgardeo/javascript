@@ -23,7 +23,7 @@ import {
   Organization,
   TokenResponse,
 } from '@asgardeo/browser';
-import {computed, defineComponent, h, provide, readonly, ref, type PropType, type Ref} from 'vue';
+import {computed, defineComponent, h, provide, readonly, ref, type Component, type PropType, type Ref} from 'vue';
 import {ORGANIZATION_KEY} from '../keys';
 import type {OrganizationContextValue} from '../models/contexts';
 
@@ -33,7 +33,7 @@ import type {OrganizationContextValue} from '../models/contexts';
  *
  * @internal — This provider is mounted automatically by `<AsgardeoProvider>`.
  */
-const OrganizationProvider = defineComponent({
+const OrganizationProvider: Component = defineComponent({
   name: 'OrganizationProvider',
   props: {
     /** Optional factory for creating a new sub-organization. */

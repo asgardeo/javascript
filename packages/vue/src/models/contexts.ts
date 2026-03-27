@@ -77,37 +77,37 @@ export interface AsgardeoContext {
   /** Whether the user is currently signed in. */
   isSignedIn: Readonly<Ref<boolean>>;
 
+  // ── FlowMeta (injected by useAsgardeo) ──
+  /** Flow metadata from the FlowMeta context, or `null` while loading/unavailable. */
+  meta?: Readonly<Ref<FlowMetadataResponse | null>>;
   /** The current organization, or `null`. */
   organization: Readonly<Ref<Organization | null>>;
   organizationHandle: string | undefined;
   platform: AsgardeoVueConfig['platform'] | undefined;
+
   // ── Lifecycle ──
   reInitialize: (config: Partial<AsgardeoVueConfig>) => Promise<boolean>;
 
+  /** Resolve `{{t(...)}}` and `{{meta(...)}}` template literals inside a string. */
+  resolveFlowTemplateLiterals?: (text: string | undefined) => string;
+
   // ── Auth Actions ──
   signIn: (...args: any[]) => Promise<any>;
-
   // ── Config ──
   signInOptions: SignInOptions | undefined;
 
   signInSilently: (options?: SignInOptions) => Promise<any>;
   signInUrl: string | undefined;
-
   signOut: (...args: any[]) => Promise<any>;
   signUp: (...args: any[]) => Promise<any>;
   signUpUrl: string | undefined;
   storage: AsgardeoVueConfig['storage'] | undefined;
+
   // ── Organization ──
   switchOrganization: AsgardeoVueClient['switchOrganization'];
+
   /** The current user object, or `null` if not signed in. */
   user: Readonly<Ref<any | null>>;
-
-  // ── FlowMeta (injected by useAsgardeo) ──
-  /** Flow metadata from the FlowMeta context, or `null` while loading/unavailable. */
-  meta?: Readonly<Ref<FlowMetadataResponse | null>>;
-
-  /** Resolve `{{t(...)}}` and `{{meta(...)}}` template literals inside a string. */
-  resolveFlowTemplateLiterals?: (text: string | undefined) => string;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

@@ -38,7 +38,6 @@ import {
   type VNode,
   defineComponent,
   h,
-  onMounted,
   ref,
   watch,
 } from 'vue';
@@ -46,7 +45,6 @@ import {createSignInOptionFromAuthenticator} from './options/SignInOptionFactory
 import useFlow from '../../../../composables/useFlow';
 import useI18n from '../../../../composables/useI18n';
 import Alert from '../../../primitives/Alert';
-import Button from '../../../primitives/Button';
 import Card from '../../../primitives/Card';
 import Divider from '../../../primitives/Divider';
 import Logo from '../../../primitives/Logo';
@@ -99,7 +97,7 @@ const BaseSignIn: Component = defineComponent({
   },
   setup(props: any, {emit}: SetupContext): () => VNode {
     const {t} = useI18n();
-    const {title: flowTitle, subtitle: flowSubtitle, messages: flowMessages, setTitle, setSubtitle} = useFlow();
+    const {title: flowTitle, subtitle: flowSubtitle, messages: flowMessages} = useFlow();
 
     // ── Reactive state ──
     const isInitRequestLoading: Ref<boolean> = ref(false);
@@ -140,14 +138,20 @@ const BaseSignIn: Component = defineComponent({
     const validateForm = (): boolean => {
       if (!currentAuthenticator.value) return true;
       const required: string[] = currentAuthenticator.value.requiredParams || [];
-      for (const key of required) {
+
+      return required.every((key: string) => {
         const val: string = formValues.value[key] || '';
-        if (!val || val.trim() === '') return false;
-      }
-      return true;
+
+        return !!val && val.trim() !== '';
+      });
     };
 
     // ── Next step processing ──
+
+    let handleAuthenticatorSelection: (
+      authenticator: EmbeddedSignInFlowAuthenticator,
+      formData?: Record<string, string>,
+    ) => Promise<void>;
 
     const processNextStep = (response: any): void => {
       if (response && 'flowId' in response && 'nextStep' in response) {
@@ -162,7 +166,9 @@ const BaseSignIn: Component = defineComponent({
           } else {
             const nextAuth: EmbeddedSignInFlowAuthenticator = response.nextStep.authenticators[0];
             if (isPasskeyAuthenticator(nextAuth)) {
-              handleAuthenticatorSelection(nextAuth);
+              handleAuthenticatorSelection(nextAuth).catch((err: unknown) => {
+                emit('error', err);
+              });
               return;
             }
             currentAuthenticator.value = nextAuth;
@@ -194,7 +200,7 @@ const BaseSignIn: Component = defineComponent({
           responseAuth.metadata?.promptType === EmbeddedSignInFlowAuthenticatorPromptType.RedirectionPrompt &&
           (responseAuth.metadata as any)?.additionalData?.redirectUrl
         ) {
-          const redirectUrl: string = (responseAuth.metadata as any).additionalData.redirectUrl;
+          const {redirectUrl} = (responseAuth.metadata as any).additionalData;
           const popup: Window | null = window.open(
             redirectUrl,
             'oauth_popup',
@@ -205,7 +211,7 @@ const BaseSignIn: Component = defineComponent({
 
           let messageHandler: any;
           let popupMonitor: any;
-          let hasProcessedCallback = false;
+          let hasProcessedCallback: boolean = false;
 
           const cleanup = (): void => {
             window.removeEventListener('message', messageHandler);
@@ -344,7 +350,7 @@ const BaseSignIn: Component = defineComponent({
 
     // ── Authenticator selection (multi-option, passkey, redirect, form) ──
 
-    const handleAuthenticatorSelection = async (
+    handleAuthenticatorSelection = async (
       authenticator: EmbeddedSignInFlowAuthenticator,
       formData?: Record<string, string>,
     ): Promise<void> => {
@@ -481,8 +487,7 @@ const BaseSignIn: Component = defineComponent({
           setupFormFields(authenticator);
         }
       } catch (err: any) {
-        const errorMessage: string =
-          err instanceof AsgardeoAPIError ? err.message : t('errors.signin.flow.failure');
+        const errorMessage: string = err instanceof AsgardeoAPIError ? err.message : t('errors.signin.flow.failure');
         error.value = errorMessage;
         emit('error', err);
       } finally {
@@ -510,7 +515,7 @@ const BaseSignIn: Component = defineComponent({
 
     // ── Initialize flow on mount ──
 
-    let initAttempted = false;
+    let initAttempted: boolean = false;
 
     watch(
       () => props.isLoading,
@@ -579,9 +584,7 @@ const BaseSignIn: Component = defineComponent({
       );
 
     const renderError = (): VNode | null =>
-      error.value
-        ? h(Alert, {severity: 'error'}, {default: () => error.value})
-        : null;
+      error.value ? h(Alert, {severity: 'error'}, {default: () => error.value}) : null;
 
     // ── Main render function ──
 
@@ -599,14 +602,18 @@ const BaseSignIn: Component = defineComponent({
       if (!isInitialized.value && isLoading()) {
         return h('div', {}, [
           props.showLogo ? h('div', {class: withVendorCSSClassPrefix('signin__logo')}, [h(Logo)]) : null,
-          h(Card, {class: cardClass, variant: props.variant}, {
-            default: () => [
-              h('div', {class: withVendorCSSClassPrefix('signin__loading')}, [
-                h(Spinner, {size: 'medium'}),
-                h(Typography, {variant: 'body1'}, {default: () => t('messages.loading.placeholder')}),
-              ]),
-            ],
-          }),
+          h(
+            Card,
+            {class: cardClass, variant: props.variant},
+            {
+              default: () => [
+                h('div', {class: withVendorCSSClassPrefix('signin__loading')}, [
+                  h(Spinner, {size: 'medium'}),
+                  h(Typography, {variant: 'body1'}, {default: () => t('messages.loading.placeholder')}),
+                ]),
+              ],
+            },
+          ),
         ]);
       }
 
@@ -626,23 +633,179 @@ const BaseSignIn: Component = defineComponent({
 
         return h('div', {}, [
           props.showLogo ? h('div', {class: withVendorCSSClassPrefix('signin__logo')}, [h(Logo)]) : null,
-          h(Card, {class: cardClass, variant: props.variant}, {
+          h(
+            Card,
+            {class: cardClass, variant: props.variant},
+            {
+              default: () => {
+                const children: VNode[] = [];
+
+                // Header
+                if (props.showTitle || props.showSubtitle) {
+                  children.push(
+                    h('div', {class: withVendorCSSClassPrefix('signin__header')}, [
+                      props.showTitle
+                        ? h(Typography, {variant: 'h2'}, {default: () => flowTitle.value || t('signin.heading')})
+                        : null,
+                      props.showSubtitle
+                        ? h(
+                            Typography,
+                            {variant: 'body1'},
+                            {default: () => flowSubtitle.value || t('signin.subheading')},
+                          )
+                        : null,
+                    ]),
+                  );
+                }
+
+                // Flow messages
+                if (flowMessages.value?.length > 0) {
+                  children.push(
+                    h(
+                      'div',
+                      {class: withVendorCSSClassPrefix('signin__flow-messages')},
+                      flowMessages.value.map((fm: any, i: number) =>
+                        h(Alert, {key: fm.id || i, severity: fm.type}, {default: () => fm.message}),
+                      ),
+                    ),
+                  );
+                }
+
+                // Local messages & error
+                if (messages.value.length > 0) children.push(h('div', {}, renderMessages()));
+                const errNode: VNode | null = renderError();
+                if (errNode) children.push(errNode);
+
+                // User prompt authenticators (forms)
+                userPromptAuths.forEach((auth: EmbeddedSignInFlowAuthenticator, index: number) => {
+                  if (index > 0) children.push(h(Divider, {}, {default: () => 'OR'}));
+                  children.push(
+                    h(
+                      'form',
+                      {
+                        onSubmit: (e: Event) => {
+                          e.preventDefault();
+                          const fd: Record<string, string> = {};
+                          auth.metadata?.params?.forEach((p: any) => {
+                            fd[p.param] = formValues.value[p.param] || '';
+                          });
+                          handleAuthenticatorSelection(auth, fd);
+                        },
+                      },
+                      [
+                        createSignInOptionFromAuthenticator(
+                          auth,
+                          formValues.value,
+                          touchedFields.value,
+                          isLoading(),
+                          handleInputChange,
+                          (a: any, fd: any) => handleAuthenticatorSelection(a, fd),
+                          t,
+                          {
+                            buttonClassName: props.buttonClassName,
+                            error: error.value,
+                            inputClassName: props.inputClassName,
+                          },
+                        ),
+                      ],
+                    ),
+                  );
+                });
+
+                // Divider between user prompts and options
+                if (userPromptAuths.length > 0 && optionAuths.length > 0) {
+                  children.push(h(Divider, {}, {default: () => 'OR'}));
+                }
+
+                // Option authenticators (social, multi-option buttons)
+                optionAuths.forEach((auth: EmbeddedSignInFlowAuthenticator) => {
+                  children.push(
+                    h('div', {key: auth.authenticatorId}, [
+                      createSignInOptionFromAuthenticator(
+                        auth,
+                        formValues.value,
+                        touchedFields.value,
+                        isLoading(),
+                        handleInputChange,
+                        (a: any, fd: any) => handleAuthenticatorSelection(a, fd),
+                        t,
+                        {
+                          buttonClassName: props.buttonClassName,
+                          error: error.value,
+                          inputClassName: props.inputClassName,
+                        },
+                      ),
+                    ]),
+                  );
+                });
+
+                return children;
+              },
+            },
+          ),
+        ]);
+      }
+
+      // No authenticator available (error state)
+      if (!currentAuthenticator.value) {
+        return h('div', {}, [
+          props.showLogo ? h('div', {class: withVendorCSSClassPrefix('signin__logo')}, [h(Logo)]) : null,
+          h(
+            Card,
+            {class: cardClass, variant: props.variant},
+            {
+              default: () => {
+                const errNode: VNode | null = renderError();
+                return errNode
+                  ? [errNode]
+                  : [h(Typography, {variant: 'body1'}, {default: () => t('messages.loading.placeholder')})];
+              },
+            },
+          ),
+        ]);
+      }
+
+      // Passkey auto-trigger
+      if (isPasskeyAuthenticator(currentAuthenticator.value) && !isLoading()) {
+        handleAuthenticatorSelection(currentAuthenticator.value);
+        return h('div', {}, [
+          props.showLogo ? h('div', {class: withVendorCSSClassPrefix('signin__logo')}, [h(Logo)]) : null,
+          h(
+            Card,
+            {class: cardClass, variant: props.variant},
+            {
+              default: () => [
+                h('div', {style: 'text-align:center'}, [
+                  h(Spinner, {size: 'large'}),
+                  h(
+                    Typography,
+                    {variant: 'body1'},
+                    {default: () => t('passkey.authenticating') || 'Authenticating with passkey...'},
+                  ),
+                ]),
+              ],
+            },
+          ),
+        ]);
+      }
+
+      // Single authenticator form
+      return h('div', {}, [
+        props.showLogo ? h('div', {class: withVendorCSSClassPrefix('signin__logo')}, [h(Logo)]) : null,
+        h(
+          Card,
+          {class: cardClass, variant: props.variant},
+          {
             default: () => {
               const children: VNode[] = [];
 
               // Header
-              if (props.showTitle || props.showSubtitle) {
-                children.push(
-                  h('div', {class: withVendorCSSClassPrefix('signin__header')}, [
-                    props.showTitle
-                      ? h(Typography, {variant: 'h2'}, {default: () => flowTitle.value || t('signin.heading')})
-                      : null,
-                    props.showSubtitle
-                      ? h(Typography, {variant: 'body1'}, {default: () => flowSubtitle.value || t('signin.subheading')})
-                      : null,
-                  ]),
-                );
-              }
+              children.push(
+                h('div', {class: withVendorCSSClassPrefix('signin__header')}, [
+                  h(Typography, {variant: 'h2'}, {default: () => flowTitle.value || t('signin.heading')}),
+                  h(Typography, {variant: 'body1'}, {default: () => flowSubtitle.value || t('signin.subheading')}),
+                ]),
+              );
 
               // Flow messages
               if (flowMessages.value?.length > 0) {
@@ -659,61 +822,32 @@ const BaseSignIn: Component = defineComponent({
 
               // Local messages & error
               if (messages.value.length > 0) children.push(h('div', {}, renderMessages()));
-              const errNode = renderError();
+              const errNode: VNode | null = renderError();
               if (errNode) children.push(errNode);
 
-              // User prompt authenticators (forms)
-              userPromptAuths.forEach((auth: EmbeddedSignInFlowAuthenticator, index: number) => {
-                if (index > 0) children.push(h(Divider, {}, {default: () => 'OR'}));
-                children.push(
-                  h(
-                    'form',
-                    {
-                      onSubmit: (e: Event) => {
-                        e.preventDefault();
-                        const fd: Record<string, string> = {};
-                        auth.metadata?.params?.forEach((p: any) => {
-                          fd[p.param] = formValues.value[p.param] || '';
-                        });
-                        handleAuthenticatorSelection(auth, fd);
-                      },
+              // Form
+              children.push(
+                h(
+                  'form',
+                  {
+                    class: withVendorCSSClassPrefix('signin__form'),
+                    onSubmit: (e: Event) => {
+                      e.preventDefault();
+                      const fd: Record<string, string> = {};
+                      currentAuthenticator.value!.metadata?.params?.forEach((p: any) => {
+                        fd[p.param] = formValues.value[p.param] || '';
+                      });
+                      handleSubmit(fd);
                     },
-                    [
-                      createSignInOptionFromAuthenticator(
-                        auth,
-                        formValues.value,
-                        touchedFields.value,
-                        isLoading(),
-                        handleInputChange,
-                        (a: any, fd: any) => handleAuthenticatorSelection(a, fd),
-                        t,
-                        {
-                          buttonClassName: props.buttonClassName,
-                          error: error.value,
-                          inputClassName: props.inputClassName,
-                        },
-                      ),
-                    ],
-                  ),
-                );
-              });
-
-              // Divider between user prompts and options
-              if (userPromptAuths.length > 0 && optionAuths.length > 0) {
-                children.push(h(Divider, {}, {default: () => 'OR'}));
-              }
-
-              // Option authenticators (social, multi-option buttons)
-              optionAuths.forEach((auth: EmbeddedSignInFlowAuthenticator) => {
-                children.push(
-                  h('div', {key: auth.authenticatorId}, [
+                  },
+                  [
                     createSignInOptionFromAuthenticator(
-                      auth,
+                      currentAuthenticator.value,
                       formValues.value,
                       touchedFields.value,
                       isLoading(),
                       handleInputChange,
-                      (a: any, fd: any) => handleAuthenticatorSelection(a, fd),
+                      (_: any, fd: any) => handleSubmit(fd || formValues.value),
                       t,
                       {
                         buttonClassName: props.buttonClassName,
@@ -721,117 +855,14 @@ const BaseSignIn: Component = defineComponent({
                         inputClassName: props.inputClassName,
                       },
                     ),
-                  ]),
-                );
-              });
+                  ],
+                ),
+              );
 
               return children;
             },
-          }),
-        ]);
-      }
-
-      // No authenticator available (error state)
-      if (!currentAuthenticator.value) {
-        return h('div', {}, [
-          props.showLogo ? h('div', {class: withVendorCSSClassPrefix('signin__logo')}, [h(Logo)]) : null,
-          h(Card, {class: cardClass, variant: props.variant}, {
-            default: () => {
-              const errNode: VNode | null = renderError();
-              return errNode
-                ? [errNode]
-                : [h(Typography, {variant: 'body1'}, {default: () => t('messages.loading.placeholder')})];
-            },
-          }),
-        ]);
-      }
-
-      // Passkey auto-trigger
-      if (isPasskeyAuthenticator(currentAuthenticator.value) && !isLoading()) {
-        handleAuthenticatorSelection(currentAuthenticator.value);
-        return h('div', {}, [
-          props.showLogo ? h('div', {class: withVendorCSSClassPrefix('signin__logo')}, [h(Logo)]) : null,
-          h(Card, {class: cardClass, variant: props.variant}, {
-            default: () => [
-              h('div', {style: 'text-align:center'}, [
-                h(Spinner, {size: 'large'}),
-                h(Typography, {variant: 'body1'}, {default: () => t('passkey.authenticating') || 'Authenticating with passkey...'}),
-              ]),
-            ],
-          }),
-        ]);
-      }
-
-      // Single authenticator form
-      return h('div', {}, [
-        props.showLogo ? h('div', {class: withVendorCSSClassPrefix('signin__logo')}, [h(Logo)]) : null,
-        h(Card, {class: cardClass, variant: props.variant}, {
-          default: () => {
-            const children: VNode[] = [];
-
-            // Header
-            children.push(
-              h('div', {class: withVendorCSSClassPrefix('signin__header')}, [
-                h(Typography, {variant: 'h2'}, {default: () => flowTitle.value || t('signin.heading')}),
-                h(Typography, {variant: 'body1'}, {default: () => flowSubtitle.value || t('signin.subheading')}),
-              ]),
-            );
-
-            // Flow messages
-            if (flowMessages.value?.length > 0) {
-              children.push(
-                h(
-                  'div',
-                  {class: withVendorCSSClassPrefix('signin__flow-messages')},
-                  flowMessages.value.map((fm: any, i: number) =>
-                    h(Alert, {key: fm.id || i, severity: fm.type}, {default: () => fm.message}),
-                  ),
-                ),
-              );
-            }
-
-            // Local messages & error
-            if (messages.value.length > 0) children.push(h('div', {}, renderMessages()));
-            const errNode: VNode | null = renderError();
-            if (errNode) children.push(errNode);
-
-            // Form
-            children.push(
-              h(
-                'form',
-                {
-                  class: withVendorCSSClassPrefix('signin__form'),
-                  onSubmit: (e: Event) => {
-                    e.preventDefault();
-                    const fd: Record<string, string> = {};
-                    currentAuthenticator.value!.metadata?.params?.forEach((p: any) => {
-                      fd[p.param] = formValues.value[p.param] || '';
-                    });
-                    handleSubmit(fd);
-                  },
-                },
-                [
-                  createSignInOptionFromAuthenticator(
-                    currentAuthenticator.value,
-                    formValues.value,
-                    touchedFields.value,
-                    isLoading(),
-                    handleInputChange,
-                    (_: any, fd: any) => handleSubmit(fd || formValues.value),
-                    t,
-                    {
-                      buttonClassName: props.buttonClassName,
-                      error: error.value,
-                      inputClassName: props.inputClassName,
-                    },
-                  ),
-                ],
-              ),
-            );
-
-            return children;
           },
-        }),
+        ),
       ]);
     };
   },

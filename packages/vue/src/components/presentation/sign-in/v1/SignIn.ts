@@ -80,15 +80,15 @@ const SignIn: Component = defineComponent({
         afterSignInUrl,
         class: props.className,
         isLoading: isLoading.value || !isInitialized.value,
+        onError: (err: Error) => emit('error', err),
         onInitialize: handleInitialize,
         onSubmit: handleOnSubmit,
+        onSuccess: handleSuccess,
         showLogo: true,
         showSubtitle: true,
         showTitle: true,
         size: props.size,
         variant: props.variant,
-        onError: (err: Error) => emit('error', err),
-        onSuccess: handleSuccess,
       });
   },
 });
