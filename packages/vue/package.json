@@ -1,6 +1,6 @@
 {
   "name": "@asgardeo/vue",
-  "version": "0.1.0",
+  "version": "0.0.10",
   "description": "Vue 3 SDK for Asgardeo - Authentication and Identity Management",
   "keywords": [
     "asgardeo",
