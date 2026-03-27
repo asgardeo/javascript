@@ -1,0 +1,92 @@
+@import "tailwindcss";
+@import "./themes.css";
+
+@theme {
+  /* ── Surfaces ── */
+  --color-surface: var(--surface-primary);
+  --color-surface-secondary: var(--surface-secondary);
+  --color-surface-muted: var(--surface-muted);
+  --color-surface-elevated: var(--surface-elevated);
+
+  /* ── Text ── */
+  --color-on-surface: var(--text-primary);
+  --color-on-surface-secondary: var(--text-secondary);
+  --color-on-surface-muted: var(--text-muted);
+  --color-on-surface-inverse: var(--text-inverse);
+
+  /* ── Borders ── */
+  --color-border: var(--border-default);
+  --color-border-hover: var(--border-hover);
+  --color-border-divider: var(--border-divider);
+
+  /* ── Accent ── */
+  --color-accent-50: var(--accent-50);
+  --color-accent-100: var(--accent-100);
+  --color-accent-500: var(--accent-500);
+  --color-accent-600: var(--accent-600);
+  --color-accent-700: var(--accent-700);
+  --color-accent-800: var(--accent-800);
+
+  /* ── Status ── */
+  --color-status-success-bg: var(--status-success-bg);
+  --color-status-success-text: var(--status-success-text);
+  --color-status-error-bg: var(--status-error-bg);
+  --color-status-error-text: var(--status-error-text);
+  --color-status-warning-bg: var(--status-warning-bg);
+  --color-status-warning-text: var(--status-warning-text);
+  --color-status-info-bg: var(--status-info-bg);
+  --color-status-info-text: var(--status-info-text);
+
+  /* ── Code ── */
+  --color-code-bg: var(--code-bg);
+  --color-code-text: var(--code-text);
+  --color-code-header-bg: var(--code-header-bg);
+  --color-code-header-text: var(--code-header-text);
+
+  /* ── Sidebar ── */
+  --color-sidebar-bg: var(--sidebar-bg);
+  --color-sidebar-header-bg: var(--sidebar-header-bg);
+  --color-sidebar-text: var(--sidebar-text);
+  --color-sidebar-active-bg: var(--sidebar-active-bg);
+  --color-sidebar-active-text: var(--sidebar-active-text);
+  --color-sidebar-hover-bg: var(--sidebar-hover-bg);
+}
+
+#app {
+  max-width: 100%;
+  font-weight: normal;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  font-weight: normal;
+}
+
+body {
+  min-height: 100vh;
+  color: var(--text-primary);
+  background: var(--surface-primary);
+  transition:
+    color 0.3s ease,
+    background-color 0.3s ease;
+  line-height: 1.6;
+  font-family:
+    Inter,
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    Roboto,
+    Oxygen,
+    Ubuntu,
+    Cantarell,
+    'Fira Sans',
+    'Droid Sans',
+    'Helvetica Neue',
+    sans-serif;
+  font-size: 15px;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}

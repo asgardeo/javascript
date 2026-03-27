@@ -1,0 +1,141 @@
+/*──────────────────────────────────────────────────────────
+  Theme Definitions — Vue SDK Playground
+
+  To add a new theme:
+  1. Copy one of the [data-theme="..."] blocks below
+  2. Change the attribute value to your theme name
+  3. Adjust all variable values
+  4. Register the theme in src/composables/useThemeSwitch.ts
+──────────────────────────────────────────────────────────*/
+
+/* ══════════════════════════════════════
+   LIGHT THEME
+   ══════════════════════════════════════ */
+[data-theme="light"] {
+  /* ── Surfaces ── */
+  --surface-primary: #f9fafb;      /* gray-50 */
+  --surface-secondary: #ffffff;     /* white */
+  --surface-muted: #f3f4f6;        /* gray-100 */
+  --surface-elevated: #ffffff;      /* white + shadow */
+
+  /* ── Text ── */
+  --text-primary: #111827;          /* gray-900 */
+  --text-secondary: #4b5563;        /* gray-600 */
+  --text-muted: #9ca3af;           /* gray-400 */
+  --text-inverse: #ffffff;          /* white */
+
+  /* ── Borders ── */
+  --border-default: #e5e7eb;        /* gray-200 */
+  --border-hover: #d1d5db;          /* gray-300 */
+  --border-divider: #f3f4f6;        /* gray-100 */
+
+  /* ── Accent (Indigo) ── */
+  --accent-50: #eef2ff;
+  --accent-100: #e0e7ff;
+  --accent-500: #6366f1;
+  --accent-600: #4f46e5;
+  --accent-700: #4338ca;
+  --accent-800: #3730a3;
+
+  /* ── Status: Success ── */
+  --status-success-bg: #dcfce7;     /* green-100 */
+  --status-success-text: #15803d;   /* green-700 */
+
+  /* ── Status: Error ── */
+  --status-error-bg: #fee2e2;       /* red-100 */
+  --status-error-text: #b91c1c;     /* red-700 */
+
+  /* ── Status: Warning ── */
+  --status-warning-bg: #fef3c7;     /* amber-100 */
+  --status-warning-text: #b45309;   /* amber-700 */
+
+  /* ── Status: Info ── */
+  --status-info-bg: #dbeafe;        /* blue-100 */
+  --status-info-text: #1d4ed8;      /* blue-700 */
+
+  /* ── Code Blocks ── */
+  --code-bg: #111827;               /* gray-900 */
+  --code-text: #f3f4f6;            /* gray-100 */
+  --code-header-bg: #1f2937;        /* gray-800 */
+  --code-header-text: #9ca3af;      /* gray-400 */
+
+  /* ── Sidebar ── */
+  --sidebar-bg: #ffffff;
+  --sidebar-header-bg: #4f46e5;     /* accent-600 (indigo) */
+  --sidebar-text: #374151;          /* gray-700 */
+  --sidebar-active-bg: #4f46e5;     /* accent-600 (indigo) */
+  --sidebar-active-text: #ffffff;
+  --sidebar-hover-bg: #f3f4f6;      /* gray-100 */
+
+  /* ── Misc ── */
+  --shadow-color: rgba(0, 0, 0, 0.1);
+  --overlay-color: rgba(0, 0, 0, 0.25);
+
+  color-scheme: light;
+}
+
+/* ══════════════════════════════════════
+   DARK THEME
+   ══════════════════════════════════════ */
+[data-theme="dark"] {
+  /* ── Surfaces ── */
+  --surface-primary: #111827;       /* gray-900 */
+  --surface-secondary: #1f2937;     /* gray-800 */
+  --surface-muted: #374151;         /* gray-700 */
+  --surface-elevated: #1f2937;
+
+  /* ── Text ── */
+  --text-primary: #f9fafb;          /* gray-50 */
+  --text-secondary: #d1d5db;        /* gray-300 */
+  --text-muted: #6b7280;           /* gray-500 */
+  --text-inverse: #111827;          /* gray-900 */
+
+  /* ── Borders ── */
+  --border-default: #374151;        /* gray-700 */
+  --border-hover: #4b5563;          /* gray-600 */
+  --border-divider: #1f2937;        /* gray-800 */
+
+  /* ── Accent (Indigo — lighter for dark bg) ── */
+  --accent-50: #1e1b4b;
+  --accent-100: #312e81;
+  --accent-500: #818cf8;
+  --accent-600: #6366f1;
+  --accent-700: #818cf8;
+  --accent-800: #a5b4fc;
+
+  /* ── Status: Success ── */
+  --status-success-bg: #064e3b;
+  --status-success-text: #6ee7b7;
+
+  /* ── Status: Error ── */
+  --status-error-bg: #7f1d1d;
+  --status-error-text: #fca5a5;
+
+  /* ── Status: Warning ── */
+  --status-warning-bg: #78350f;
+  --status-warning-text: #fcd34d;
+
+  /* ── Status: Info ── */
+  --status-info-bg: #1e3a5f;
+  --status-info-text: #93c5fd;
+
+  /* ── Code Blocks ── */
+  --code-bg: #0f172a;              /* slate-900 */
+  --code-text: #e2e8f0;           /* slate-200 */
+  --code-header-bg: #1e293b;       /* slate-800 */
+  --code-header-text: #94a3b8;     /* slate-400 */
+
+  /* ── Sidebar ── */
+  --sidebar-bg: #1f2937;
+  --sidebar-header-bg: #1e1b4b;     /* accent-50 dark (deep indigo) */
+  --sidebar-text: #d1d5db;
+  --sidebar-active-bg: #4f46e5;     /* accent-600 (indigo) */
+  --sidebar-active-text: #ffffff;
+  --sidebar-hover-bg: #374151;
+
+  /* ── Misc ── */
+  --shadow-color: rgba(0, 0, 0, 0.4);
+  --overlay-color: rgba(0, 0, 0, 0.5);
+
+  color-scheme: dark;
+}
