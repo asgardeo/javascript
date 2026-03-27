@@ -115,7 +115,7 @@ class AsgardeoVueClient<T extends AsgardeoVueConfig = AsgardeoVueConfig> extends
       let isInitialized: boolean;
 
       try {
-        await this.asgardeo.reInitialize(config);
+        await this.asgardeo.reInitialize(config as any);
         isInitialized = true;
       } catch (error) {
         throw new AsgardeoRuntimeError(
