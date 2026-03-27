@@ -1,8 +1,8 @@
 ﻿<script setup lang="ts">
 import { ref } from 'vue'
 import { useTheme } from '@asgardeo/vue'
-import ResultPanel from '../../components/shared/ResultPanel.vue'
-import SectionCard from '../../components/layout/SectionCard.vue'
+import ResultPanel from '../shared/ResultPanel.vue'
+import SectionCard from '../layout/SectionCard.vue'
 
 const { theme, colorScheme, direction, inheritFromBranding, isBrandingLoading, brandingError, toggleTheme } = useTheme()
 

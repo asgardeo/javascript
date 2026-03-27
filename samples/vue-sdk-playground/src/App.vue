@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { AsgardeoProvider } from '@asgardeo/vue';
-import Sidebar from './components/Sidebar.vue';
+import Sidebar from './components/navigation/Sidebar.vue';
 
 const baseUrl = import.meta.env.VITE_ASGARDEO_BASE_URL;
 const clientId = import.meta.env.VITE_ASGARDEO_CLIENT_ID;

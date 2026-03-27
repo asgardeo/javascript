@@ -2,8 +2,8 @@
 import { ref } from 'vue'
 import { useOrganization } from '@asgardeo/vue'
 import type { Organization } from '@asgardeo/vue'
-import ResultPanel from '../../components/shared/ResultPanel.vue'
-import SectionCard from '../../components/layout/SectionCard.vue'
+import ResultPanel from '../shared/ResultPanel.vue'
+import SectionCard from '../layout/SectionCard.vue'
 
 const {
   myOrganizations,

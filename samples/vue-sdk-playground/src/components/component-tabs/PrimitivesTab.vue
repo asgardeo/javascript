@@ -31,7 +31,7 @@ import {
   GlobeIcon,
   PencilIcon,
 } from '@asgardeo/vue';
-import SectionCard from '../../components/layout/SectionCard.vue';
+import SectionCard from '../layout/SectionCard.vue';
 
 // ── Button ──
 const btnVariant = ref<'solid' | 'outline' | 'ghost' | 'text'>('solid');

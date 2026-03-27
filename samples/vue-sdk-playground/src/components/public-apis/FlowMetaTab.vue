@@ -1,8 +1,8 @@
 ﻿<script setup lang="ts">
 import { ref } from 'vue'
 import { useFlowMeta } from '@asgardeo/vue'
-import ResultPanel from '../../components/shared/ResultPanel.vue'
-import SectionCard from '../../components/layout/SectionCard.vue'
+import ResultPanel from '../shared/ResultPanel.vue'
+import SectionCard from '../layout/SectionCard.vue'
 
 const { meta, isLoading, error, fetchFlowMeta, switchLanguage } = useFlowMeta()
 

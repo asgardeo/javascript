@@ -2,11 +2,11 @@
 import { ref } from 'vue';
 import PageHeader from '../components/layout/PageHeader.vue';
 import TabGroup from '../components/layout/TabGroup.vue';
-import PrimitivesTab from './components/PrimitivesTab.vue';
-import ActionsTab from './components/ActionsTab.vue';
-import ControlTab from './components/ControlTab.vue';
-import PresentationTab from './components/PresentationTab.vue';
-import SocialLoginsTab from './components/SocialLoginsTab.vue';
+import PrimitivesTab from '../components/component-tabs/PrimitivesTab.vue';
+import ActionsTab from '../components/component-tabs/ActionsTab.vue';
+import ControlTab from '../components/component-tabs/ControlTab.vue';
+import PresentationTab from '../components/component-tabs/PresentationTab.vue';
+import SocialLoginsTab from '../components/component-tabs/SocialLoginsTab.vue';
 
 const activeTab = ref('primitives');
 const tabs = [

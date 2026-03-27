@@ -2,7 +2,7 @@
 import { ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { XIcon } from '@asgardeo/vue';
-import ThemeSwitcher from './ThemeSwitcher.vue';
+import ThemeSwitcher from '../shared/ThemeSwitcher.vue';
 
 const sidebarOpen = ref(false);
 const route = useRoute();
@@ -32,7 +32,7 @@ const navigate = (path: string) => {
     >
       <!-- Header -->
       <div class="flex items-center justify-between h-16 px-4 bg-sidebar-header-bg shrink-0">
-        <h1 class="text-lg font-semibold text-sidebar-active-text">Vue SDK Demo</h1>
+        <h1 class="text-lg font-semibold text-sidebar-active-text">Vue SDK Playground</h1>
         <button @click="sidebarOpen = false" class="md:hidden text-sidebar-active-text">
           <XIcon class="h-6 w-6" />
         </button>

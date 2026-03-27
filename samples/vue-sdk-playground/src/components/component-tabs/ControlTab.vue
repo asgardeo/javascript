@@ -1,7 +1,7 @@
 ﻿<script setup lang="ts">
 import { useAsgardeo, SignedIn, SignedOut, Loading, Spinner, UserComponent, OrganizationComponent } from '@asgardeo/vue';
-import SectionCard from '../../components/layout/SectionCard.vue';
-import ResultPanel from '../../components/shared/ResultPanel.vue';
+import SectionCard from '../layout/SectionCard.vue';
+import ResultPanel from '../shared/ResultPanel.vue';
 
 const { isSignedIn, isLoading } = useAsgardeo();
 

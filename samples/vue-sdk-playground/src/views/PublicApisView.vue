@@ -2,14 +2,14 @@
 import { ref } from 'vue'
 import PageHeader from '../components/layout/PageHeader.vue'
 import TabGroup from '../components/layout/TabGroup.vue'
-import AsgardeoApiSection from './apis/AsgardeoApiSection.vue'
-import UserApiSection from './apis/UserApiSection.vue'
-import OrganizationApiSection from './apis/OrganizationApiSection.vue'
-import FlowApiSection from './apis/FlowApiSection.vue'
-import FlowMetaApiSection from './apis/FlowMetaApiSection.vue'
-import ThemeApiSection from './apis/ThemeApiSection.vue'
-import BrandingApiSection from './apis/BrandingApiSection.vue'
-import I18nApiSection from './apis/I18nApiSection.vue'
+import AsgardeoTab from '../components/public-apis/AsgardeoTab.vue'
+import UserTab from '../components/public-apis/UserTab.vue'
+import OrganizationTab from '../components/public-apis/OrganizationTab.vue'
+import FlowTab from '../components/public-apis/FlowTab.vue'
+import FlowMetaTab from '../components/public-apis/FlowMetaTab.vue'
+import ThemeTab from '../components/public-apis/ThemeTab.vue'
+import BrandingTab from '../components/public-apis/BrandingTab.vue'
+import I18nTab from '../components/public-apis/I18nTab.vue'
 
 const activeTab = ref('asgardeo')
 
@@ -33,14 +33,14 @@ const tabs = [
     />
 
     <TabGroup :tabs="tabs" v-model="activeTab">
-      <template #asgardeo><AsgardeoApiSection /></template>
-      <template #user><UserApiSection /></template>
-      <template #organization><OrganizationApiSection /></template>
-      <template #flow><FlowApiSection /></template>
-      <template #flowMeta><FlowMetaApiSection /></template>
-      <template #theme><ThemeApiSection /></template>
-      <template #branding><BrandingApiSection /></template>
-      <template #i18n><I18nApiSection /></template>
+      <template #asgardeo><AsgardeoTab /></template>
+      <template #user><UserTab /></template>
+      <template #organization><OrganizationTab /></template>
+      <template #flow><FlowTab /></template>
+      <template #flowMeta><FlowMetaTab /></template>
+      <template #theme><ThemeTab /></template>
+      <template #branding><BrandingTab /></template>
+      <template #i18n><I18nTab /></template>
     </TabGroup>
   </div>
 </template>

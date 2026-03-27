@@ -8,8 +8,8 @@ import {
   SignUpButton,
   BaseSignUpButton,
 } from '@asgardeo/vue';
-import SectionCard from '../../components/layout/SectionCard.vue';
-import EventLog from '../../components/shared/EventLog.vue';
+import SectionCard from '../layout/SectionCard.vue';
+import EventLog from '../shared/EventLog.vue';
 
 type LogEvent = { timestamp: string; type: string; data?: unknown };
 
