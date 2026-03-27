@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2025, WSO2 LLC. (https://www.wso2.com).
+ * Copyright (c) 2025-2026, WSO2 LLC. (https://www.wso2.com).
  *
  * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -306,6 +306,21 @@ export interface BaseConfig<T = unknown> extends WithPreferences {
    * @see {@link https://openid.net/specs/openid-connect-session-management-1_0.html#IframeBasedSessionManagement}
    */
   syncSession?: boolean;
+
+  /**
+   * Configuration for token lifecycle management.
+   */
+  tokenLifecycle?: {
+    /**
+     * Configuration for refresh token behavior.
+     */
+    refreshToken?: {
+      /**
+       * Whether to automatically refresh the access token periodically before it expires.
+       */
+      autoRefresh?: boolean;
+    };
+  };
 
   /**
    * Token validation configuration.
