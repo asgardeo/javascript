@@ -90,7 +90,7 @@ const ALERT_CSS: string = `
 }
 .asgardeo-alert__dismiss:hover {
   opacity: 1;
-  background-color: rgba(0, 0, 0, 0.06);
+  background-color: var(--asgardeo-color-action-hover);
 }
 `;
 

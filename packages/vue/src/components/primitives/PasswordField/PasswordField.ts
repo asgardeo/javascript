@@ -18,6 +18,7 @@
 
 import {withVendorCSSClassPrefix} from '@asgardeo/browser';
 import {type Component, type Ref, type SetupContext, type VNode, defineComponent, h, ref} from 'vue';
+import {EyeIcon, EyeOffIcon} from '../Icons';
 
 type PasswordFieldProps = Readonly<{
   disabled: boolean;
@@ -93,7 +94,7 @@ const PasswordField: Component = defineComponent({
               tabindex: -1,
               type: 'button',
             },
-            visible.value ? '\u25CF' : '\u25CB',
+            visible.value ? EyeOffIcon() : EyeIcon(),
           ),
         ]),
         hasError ? h('span', {class: withVendorCSSClassPrefix('password-field__error')}, props.error) : null,

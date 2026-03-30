@@ -53,11 +53,13 @@ const lightTheme: ThemeConfig = {
     error: {
       contrastText: '#d52828',
       dark: '#b71c1c',
+      light: '#fef2f2',
       main: '#d32f2f',
     },
     info: {
       contrastText: '#43aeda',
       dark: '#01579b',
+      light: '#eff6ff',
       main: '#bbebff',
     },
     primary: {
@@ -68,11 +70,13 @@ const lightTheme: ThemeConfig = {
     secondary: {
       contrastText: '#ffffff',
       dark: '#212121',
+      light: '#f3f4f6',
       main: '#424242',
     },
     success: {
       contrastText: '#00a807',
       dark: '#388e3c',
+      light: '#f0fdf4',
       main: '#4caf50',
     },
     text: {
@@ -83,6 +87,7 @@ const lightTheme: ThemeConfig = {
     warning: {
       contrastText: '#be7100',
       dark: '#f57c00',
+      light: '#fffbeb',
       main: '#ff9800',
     },
   },
@@ -156,11 +161,13 @@ const darkTheme: ThemeConfig = {
     error: {
       contrastText: '#d52828',
       dark: '#b71c1c',
+      light: '#2d1515',
       main: '#d32f2f',
     },
     info: {
       contrastText: '#43aeda',
       dark: '#01579b',
+      light: '#0f1f35',
       main: '#bbebff',
     },
     primary: {
@@ -171,11 +178,13 @@ const darkTheme: ThemeConfig = {
     secondary: {
       contrastText: '#ffffff',
       dark: '#212121',
+      light: '#2a2a2a',
       main: '#8b8b8b',
     },
     success: {
       contrastText: '#00a807',
       dark: '#388e3c',
+      light: '#132d1a',
       main: '#4caf50',
     },
     text: {
@@ -186,6 +195,7 @@ const darkTheme: ThemeConfig = {
     warning: {
       contrastText: '#be7100',
       dark: '#f57c00',
+      light: '#2d2310',
       main: '#ff9800',
     },
   },
@@ -280,6 +290,9 @@ const toCssVariables = (theme: ThemeConfig): Record<string, string> => {
   if (theme.colors?.secondary?.contrastText) {
     cssVars[`--${prefix}-color-secondary-contrastText`] = theme.colors.secondary.contrastText;
   }
+  if (theme.colors?.secondary?.light) {
+    cssVars[`--${prefix}-color-secondary-light`] = theme.colors.secondary.light;
+  }
 
   // Colors - Background
   if (theme.colors?.background?.surface) {
@@ -299,6 +312,9 @@ const toCssVariables = (theme: ThemeConfig): Record<string, string> => {
   if (theme.colors?.error?.contrastText) {
     cssVars[`--${prefix}-color-error-contrastText`] = theme.colors.error.contrastText;
   }
+  if (theme.colors?.error?.light) {
+    cssVars[`--${prefix}-color-error-light`] = theme.colors.error.light;
+  }
 
   // Colors - Success
   if (theme.colors?.success?.main) {
@@ -306,6 +322,9 @@ const toCssVariables = (theme: ThemeConfig): Record<string, string> => {
   }
   if (theme.colors?.success?.contrastText) {
     cssVars[`--${prefix}-color-success-contrastText`] = theme.colors.success.contrastText;
+  }
+  if (theme.colors?.success?.light) {
+    cssVars[`--${prefix}-color-success-light`] = theme.colors.success.light;
   }
 
   // Colors - Warning
@@ -315,6 +334,9 @@ const toCssVariables = (theme: ThemeConfig): Record<string, string> => {
   if (theme.colors?.warning?.contrastText) {
     cssVars[`--${prefix}-color-warning-contrastText`] = theme.colors.warning.contrastText;
   }
+  if (theme.colors?.warning?.light) {
+    cssVars[`--${prefix}-color-warning-light`] = theme.colors.warning.light;
+  }
 
   // Colors - Info
   if (theme.colors?.info?.main) {
@@ -322,6 +344,9 @@ const toCssVariables = (theme: ThemeConfig): Record<string, string> => {
   }
   if (theme.colors?.info?.contrastText) {
     cssVars[`--${prefix}-color-info-contrastText`] = theme.colors.info.contrastText;
+  }
+  if (theme.colors?.info?.light) {
+    cssVars[`--${prefix}-color-info-light`] = theme.colors.info.light;
   }
 
   // Colors - Text
