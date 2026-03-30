@@ -46,6 +46,7 @@
   /* ── Sidebar ── */
   --color-sidebar-bg: var(--sidebar-bg);
   --color-sidebar-header-bg: var(--sidebar-header-bg);
+  --color-sidebar-header-text: var(--sidebar-header-text);
   --color-sidebar-text: var(--sidebar-text);
   --color-sidebar-active-bg: var(--sidebar-active-bg);
   --color-sidebar-active-text: var(--sidebar-active-text);

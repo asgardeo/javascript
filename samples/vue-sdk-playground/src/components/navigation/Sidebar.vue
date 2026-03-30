@@ -108,9 +108,9 @@ watch(() => route.path, () => {
       :class="{ 'translate-x-0': sidebarOpen, '-translate-x-full md:translate-x-0': !sidebarOpen }"
     >
       <!-- Header -->
-      <div class="flex items-center justify-between h-16 px-4 bg-sidebar-header-bg shrink-0">
-        <h1 class="text-lg font-semibold text-sidebar-active-text">Vue SDK Playground</h1>
-        <button @click="sidebarOpen = false" class="md:hidden text-sidebar-active-text">
+      <div class="flex items-center justify-between h-16 px-4 bg-sidebar-header-bg border-b border-border shrink-0">
+        <h1 class="text-lg font-semibold text-sidebar-header-text">Vue SDK Playground</h1>
+        <button @click="sidebarOpen = false" class="md:hidden text-sidebar-header-text">
           <XIcon class="h-6 w-6" />
         </button>
       </div>

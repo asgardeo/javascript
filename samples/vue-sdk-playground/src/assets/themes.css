@@ -29,13 +29,13 @@
   --border-hover: #d1d5db;          /* gray-300 */
   --border-divider: #f3f4f6;        /* gray-100 */
 
-  /* ── Accent (Indigo) ── */
-  --accent-50: #eef2ff;
-  --accent-100: #e0e7ff;
-  --accent-500: #6366f1;
-  --accent-600: #4f46e5;
-  --accent-700: #4338ca;
-  --accent-800: #3730a3;
+  /* ── Accent (Orange — Thunder/Asgardeo brand) ── */
+  --accent-50: #fff7ed;             /* orange-50 */
+  --accent-100: #ffedd5;            /* orange-100 */
+  --accent-500: #f97316;            /* orange-500 */
+  --accent-600: #ea580c;            /* orange-600 */
+  --accent-700: #c2410c;            /* orange-700 */
+  --accent-800: #9a3412;            /* orange-800 */
 
   /* ── Status: Success ── */
   --status-success-bg: #dcfce7;     /* green-100 */
@@ -61,11 +61,12 @@
 
   /* ── Sidebar ── */
   --sidebar-bg: #ffffff;
-  --sidebar-header-bg: #4f46e5;     /* accent-600 (indigo) */
+  --sidebar-header-bg: #ffffff;     /* white — Thunder console clean header */
+  --sidebar-header-text: #111827;   /* gray-900 — dark text on white header */
   --sidebar-text: #374151;          /* gray-700 */
-  --sidebar-active-bg: #4f46e5;     /* accent-600 (indigo) */
-  --sidebar-active-text: #ffffff;
-  --sidebar-hover-bg: #f3f4f6;      /* gray-100 */
+  --sidebar-active-bg: #fff7ed;     /* orange-50 — subtle orange highlight */
+  --sidebar-active-text: #ea580c;   /* orange-600 */
+  --sidebar-hover-bg: #f9fafb;      /* gray-50 */
 
   /* ── Misc ── */
   --shadow-color: rgba(0, 0, 0, 0.1);
@@ -78,30 +79,30 @@
    DARK THEME
    ══════════════════════════════════════ */
 [data-theme="dark"] {
-  /* ── Surfaces ── */
-  --surface-primary: #111827;       /* gray-900 */
-  --surface-secondary: #1f2937;     /* gray-800 */
-  --surface-muted: #374151;         /* gray-700 */
-  --surface-elevated: #1f2937;
+  /* ── Surfaces — Thunder uses near-black backgrounds ── */
+  --surface-primary: #111111;       /* near-black */
+  --surface-secondary: #1c1c1c;     /* slightly elevated */
+  --surface-muted: #242424;         /* muted surface */
+  --surface-elevated: #1c1c1c;
 
   /* ── Text ── */
   --text-primary: #f9fafb;          /* gray-50 */
   --text-secondary: #d1d5db;        /* gray-300 */
   --text-muted: #6b7280;           /* gray-500 */
-  --text-inverse: #111827;          /* gray-900 */
+  --text-inverse: #111111;          /* near-black */
 
   /* ── Borders ── */
-  --border-default: #374151;        /* gray-700 */
-  --border-hover: #4b5563;          /* gray-600 */
-  --border-divider: #1f2937;        /* gray-800 */
+  --border-default: #2a2a2a;        /* subtle dark border */
+  --border-hover: #3a3a3a;          /* slightly lighter on hover */
+  --border-divider: #1c1c1c;        /* barely visible divider */
 
-  /* ── Accent (Indigo — lighter for dark bg) ── */
-  --accent-50: #1e1b4b;
-  --accent-100: #312e81;
-  --accent-500: #818cf8;
-  --accent-600: #6366f1;
-  --accent-700: #818cf8;
-  --accent-800: #a5b4fc;
+  /* ── Accent (Orange — Thunder/Asgardeo brand, brighter for dark bg) ── */
+  --accent-50: #2d1a0a;             /* very dark orange tint */
+  --accent-100: #431f05;            /* dark orange tint */
+  --accent-500: #f97316;            /* orange-500 */
+  --accent-600: #fb923c;            /* orange-400 — brighter for dark bg */
+  --accent-700: #f97316;            /* orange-500 */
+  --accent-800: #fed7aa;            /* orange-200 — light for text on dark */
 
   /* ── Status: Success ── */
   --status-success-bg: #064e3b;
@@ -120,22 +121,23 @@
   --status-info-text: #93c5fd;
 
   /* ── Code Blocks ── */
-  --code-bg: #0f172a;              /* slate-900 */
+  --code-bg: #0a0a0a;              /* near-black */
   --code-text: #e2e8f0;           /* slate-200 */
-  --code-header-bg: #1e293b;       /* slate-800 */
+  --code-header-bg: #161616;       /* slightly lighter than code-bg */
   --code-header-text: #94a3b8;     /* slate-400 */
 
-  /* ── Sidebar ── */
-  --sidebar-bg: #1f2937;
-  --sidebar-header-bg: #1e1b4b;     /* accent-50 dark (deep indigo) */
-  --sidebar-text: #d1d5db;
-  --sidebar-active-bg: #4f46e5;     /* accent-600 (indigo) */
-  --sidebar-active-text: #ffffff;
-  --sidebar-hover-bg: #374151;
+  /* ── Sidebar — Thunder dark: near-black with orange accents ── */
+  --sidebar-bg: #161616;            /* slightly lighter than main bg */
+  --sidebar-header-bg: #111111;     /* matches surface-primary */
+  --sidebar-header-text: #f9fafb;   /* gray-50 — light text on dark header */
+  --sidebar-text: #d1d5db;          /* gray-300 */
+  --sidebar-active-bg: #2d1a0a;     /* dark orange tint — subtle highlight */
+  --sidebar-active-text: #fb923c;   /* orange-400 — visible on dark */
+  --sidebar-hover-bg: #1c1c1c;      /* subtle hover */
 
   /* ── Misc ── */
-  --shadow-color: rgba(0, 0, 0, 0.4);
-  --overlay-color: rgba(0, 0, 0, 0.5);
+  --shadow-color: rgba(0, 0, 0, 0.6);
+  --overlay-color: rgba(0, 0, 0, 0.7);
 
   color-scheme: dark;
 }
