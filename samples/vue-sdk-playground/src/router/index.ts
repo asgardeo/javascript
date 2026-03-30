@@ -6,8 +6,16 @@ const router = createRouter({
   routes: [
     { path: '/', component: () => import('../views/OverviewView.vue') },
     { path: '/auth-flows', component: () => import('../views/AuthFlowsView.vue') },
-    { path: '/components', component: () => import('../views/ComponentsView.vue') },
-    { path: '/public-apis', component: () => import('../views/PublicApisView.vue') },
+    { path: '/components', redirect: '/components/primitives' },
+    {
+      path: '/components/:tab',
+      component: () => import('../views/ComponentsView.vue'),
+    },
+    { path: '/public-apis', redirect: '/public-apis/asgardeo' },
+    {
+      path: '/public-apis/:tab',
+      component: () => import('../views/PublicApisView.vue'),
+    },
     createCallbackRoute({ path: '/callback' }),
   ],
 });

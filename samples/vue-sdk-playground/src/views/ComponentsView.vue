@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { computed } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 import PageHeader from '../components/layout/PageHeader.vue';
 import TabGroup from '../components/layout/TabGroup.vue';
 import PrimitivesTab from '../components/component-tabs/PrimitivesTab.vue';
@@ -8,13 +9,27 @@ import ControlTab from '../components/component-tabs/ControlTab.vue';
 import PresentationTab from '../components/component-tabs/PresentationTab.vue';
 import SocialLoginsTab from '../components/component-tabs/SocialLoginsTab.vue';
 
-const activeTab = ref('primitives');
+const route = useRoute();
+const router = useRouter();
+
+const validTabs = ['primitives', 'actions', 'control', 'presentation', 'social'];
+
+const activeTab = computed({
+  get() {
+    const tab = route.params.tab as string;
+    return validTabs.includes(tab) ? tab : 'primitives';
+  },
+  set(tab: string) {
+    router.push(`/components/${tab}`);
+  },
+});
+
 const tabs = [
-  { key: 'primitives', label: 'Primitives' },
+  { key: 'primitives', label: 'Primitives', internal: true },
   { key: 'actions', label: 'Actions' },
   { key: 'control', label: 'Control' },
   { key: 'presentation', label: 'Presentation' },
-  { key: 'social', label: 'Social Logins' },
+  { key: 'social', label: 'Social Logins', internal: true },
 ];
 </script>
 

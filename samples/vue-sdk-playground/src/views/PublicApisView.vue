@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import PageHeader from '../components/layout/PageHeader.vue'
 import TabGroup from '../components/layout/TabGroup.vue'
 import AsgardeoTab from '../components/public-apis/AsgardeoTab.vue'
@@ -11,17 +12,30 @@ import ThemeTab from '../components/public-apis/ThemeTab.vue'
 import BrandingTab from '../components/public-apis/BrandingTab.vue'
 import I18nTab from '../components/public-apis/I18nTab.vue'
 
-const activeTab = ref('asgardeo')
+const route = useRoute()
+const router = useRouter()
+
+const validTabs = ['asgardeo', 'user', 'organization', 'flow', 'flowMeta', 'theme', 'branding', 'i18n']
+
+const activeTab = computed({
+  get() {
+    const tab = route.params.tab as string
+    return validTabs.includes(tab) ? tab : 'asgardeo'
+  },
+  set(tab: string) {
+    router.push(`/public-apis/${tab}`)
+  },
+})
 
 const tabs = [
-  { key: 'asgardeo', label: 'useAsgardeo()' },
-  { key: 'user', label: 'useUser()' },
-  { key: 'organization', label: 'useOrganization()' },
-  { key: 'flow', label: 'useFlow()' },
-  { key: 'flowMeta', label: 'useFlowMeta()' },
-  { key: 'theme', label: 'useTheme()' },
-  { key: 'branding', label: 'useBranding()' },
-  { key: 'i18n', label: 'useI18n()' },
+  { key: 'asgardeo', label: 'useAsgardeo' },
+  { key: 'user', label: 'useUser', internal: true },
+  { key: 'organization', label: 'useOrganization', internal: true },
+  { key: 'flow', label: 'useFlow', internal: true },
+  { key: 'flowMeta', label: 'useFlowMeta', internal: true },
+  { key: 'theme', label: 'useTheme', internal: true },
+  { key: 'branding', label: 'useBranding', internal: true },
+  { key: 'i18n', label: 'useI18n', internal: true },
 ]
 </script>
 
