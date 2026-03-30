@@ -23,7 +23,19 @@ import {
   Organization,
   TokenResponse,
 } from '@asgardeo/browser';
-import {computed, defineComponent, h, provide, readonly, ref, type Component, type PropType, type Ref} from 'vue';
+import {
+  computed,
+  defineComponent,
+  h,
+  provide,
+  readonly,
+  ref,
+  type Component,
+  type PropType,
+  type Ref,
+  type SetupContext,
+  type VNode,
+} from 'vue';
 import {ORGANIZATION_KEY} from '../keys';
 import type {OrganizationContextValue} from '../models/contexts';
 
@@ -33,6 +45,16 @@ import type {OrganizationContextValue} from '../models/contexts';
  *
  * @internal — This provider is mounted automatically by `<AsgardeoProvider>`.
  */
+interface OrganizationProviderProps {
+  createOrganization: ((payload: CreateOrganizationPayload, sessionId: string) => Promise<Organization>) | undefined;
+  currentOrganization: Organization | null;
+  getAllOrganizations: (() => Promise<AllOrganizationsApiResponse>) | undefined;
+  myOrganizations: Organization[];
+  onError: ((error: string) => void) | undefined;
+  onOrganizationSwitch: ((organization: Organization) => Promise<TokenResponse | Response>) | undefined;
+  revalidateMyOrganizations: () => Promise<Organization[]>;
+}
+
 const OrganizationProvider: Component = defineComponent({
   name: 'OrganizationProvider',
   props: {
@@ -63,7 +85,7 @@ const OrganizationProvider: Component = defineComponent({
       type: Function as PropType<() => Promise<Organization[]>>,
     },
   },
-  setup(props: any, {slots}: {slots: any}): any {
+  setup(props: OrganizationProviderProps, {slots}: SetupContext): () => VNode {
     const isLoading: Ref<boolean> = ref(false);
     const error: Ref<string | null> = ref(null);
 

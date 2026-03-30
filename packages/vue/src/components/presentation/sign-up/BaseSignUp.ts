@@ -23,7 +23,6 @@ import {
   EmbeddedFlowResponseType,
   EmbeddedFlowStatus,
   FlowMetadataResponse,
-  createPackageComponentLogger,
   withVendorCSSClassPrefix,
 } from '@asgardeo/browser';
 import {
@@ -39,6 +38,7 @@ import {
 } from 'vue';
 import useFlowMeta from '../../../composables/useFlowMeta';
 import useI18n from '../../../composables/useI18n';
+import {createVueLogger} from '../../../utils/logger';
 import {normalizeFlowResponse, extractErrorMessage} from '../../../utils/v2/flowTransformer';
 import getAuthComponentHeadings from '../../../utils/v2/getAuthComponentHeadings';
 import {handlePasskeyRegistration} from '../../../utils/v2/passkey';
@@ -48,10 +48,7 @@ import Spinner from '../../primitives/Spinner';
 import Typography from '../../primitives/Typography';
 import {renderSignUpComponents} from '../sign-in/AuthOptionFactory';
 
-const logger: ReturnType<typeof createPackageComponentLogger> = createPackageComponentLogger(
-  '@asgardeo/vue',
-  'BaseSignUp',
-);
+const logger: ReturnType<typeof createVueLogger> = createVueLogger('BaseSignUp');
 
 /**
  * Passkey registration tracking state.

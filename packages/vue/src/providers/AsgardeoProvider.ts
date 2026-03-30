@@ -42,9 +42,11 @@ import {
   provide,
   type Ref,
   ref,
+  type SetupContext,
   type ShallowRef,
   shallowRef,
   type PropType,
+  type VNode,
 } from 'vue';
 import BrandingProvider from './BrandingProvider';
 import FlowMetaProvider from './FlowMetaProvider';
@@ -57,6 +59,24 @@ import AsgardeoVueClient from '../AsgardeoVueClient';
 import {ASGARDEO_KEY} from '../keys';
 import type {AsgardeoVueConfig} from '../models/config';
 import type {AsgardeoContext} from '../models/contexts';
+
+interface AsgardeoProviderProps {
+  afterSignInUrl: string;
+  afterSignOutUrl: string;
+  applicationId: string | undefined;
+  baseUrl: string;
+  clientId: string;
+  instanceId: number;
+  organizationChain: object | undefined;
+  organizationHandle: string | undefined;
+  platform: string | undefined;
+  scopes: string[] | undefined;
+  signInOptions: SignInOptions | undefined;
+  signInUrl: string | undefined;
+  signUpUrl: string | undefined;
+  storage: string | undefined;
+  syncSession: boolean | undefined;
+}
 
 /**
  * Checks if the current URL contains authentication parameters.
@@ -162,7 +182,7 @@ const AsgardeoProvider: Component = defineComponent({
       type: Boolean,
     },
   },
-  setup(props: any, {slots}: any): any {
+  setup(props: AsgardeoProviderProps, {slots}: SetupContext): () => VNode {
     // ── Client ──
     const asgardeo: AsgardeoVueClient = new AsgardeoVueClient(props.instanceId);
 

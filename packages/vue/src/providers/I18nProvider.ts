@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import {deepMerge, I18nPreferences, I18nStorageStrategy, createPackageComponentLogger} from '@asgardeo/browser';
+import {deepMerge, I18nPreferences, I18nStorageStrategy} from '@asgardeo/browser';
 import {
   I18nBundle,
   I18nTranslations,
@@ -35,14 +35,14 @@ import {
   type Component,
   type PropType,
   type Ref,
+  type SetupContext,
+  type VNode,
 } from 'vue';
 import {I18N_KEY} from '../keys';
 import type {I18nContextValue} from '../models/contexts';
+import {createVueLogger} from '../utils/logger';
 
-const logger: ReturnType<typeof createPackageComponentLogger> = createPackageComponentLogger(
-  '@asgardeo/vue',
-  'I18nProvider',
-);
+const logger: ReturnType<typeof createVueLogger> = createVueLogger('I18nProvider');
 
 const DEFAULT_STORAGE_KEY: string = 'asgardeo-i18n-language';
 const DEFAULT_URL_PARAM: string = 'lang';
@@ -142,13 +142,17 @@ const detectBrowserLanguage = (): string => {
  *
  * @internal — This provider is mounted automatically by `<AsgardeoProvider>`.
  */
+interface I18nProviderProps {
+  preferences: I18nPreferences | undefined;
+}
+
 const I18nProvider: Component = defineComponent({
   name: 'I18nProvider',
   props: {
     /** i18n preferences passed down from the AsgardeoProvider config. */
     preferences: {default: undefined, type: Object as PropType<I18nPreferences>},
   },
-  setup(props: any, {slots}: {slots: any}): any {
+  setup(props: I18nProviderProps, {slots}: SetupContext): () => VNode {
     const defaultBundles: Record<string, I18nBundle> = getDefaultI18nBundles();
 
     const storageStrategy: I18nStorageStrategy = props.preferences?.storageStrategy ?? 'cookie';
@@ -284,7 +288,7 @@ const I18nProvider: Component = defineComponent({
       if (params && Object.keys(params).length > 0) {
         return Object.entries(params).reduce(
           (acc: string, [paramKey, paramValue]: [key: string, value: string | number]): string =>
-            acc.replace(new RegExp(`\\{${paramKey}\\}`, 'g'), String(paramValue)),
+            acc.replaceAll(`{${paramKey}}`, String(paramValue)),
           translation,
         );
       }

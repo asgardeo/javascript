@@ -30,6 +30,8 @@ import {
   watch,
   type Component,
   type Ref,
+  type SetupContext,
+  type VNode,
 } from 'vue';
 import {ASGARDEO_KEY, FLOW_META_KEY, I18N_KEY} from '../keys';
 import type {AsgardeoContext, FlowMetaContextValue, I18nContextValue} from '../models/contexts';
@@ -43,6 +45,10 @@ import type {AsgardeoContext, FlowMetaContextValue, I18nContextValue} from '../m
  *
  * @internal — This provider is mounted automatically by `<AsgardeoProvider>`.
  */
+interface FlowMetaProviderProps {
+  enabled: boolean;
+}
+
 const FlowMetaProvider: Component = defineComponent({
   name: 'FlowMetaProvider',
   props: {
@@ -52,7 +58,7 @@ const FlowMetaProvider: Component = defineComponent({
      */
     enabled: {default: true, type: Boolean},
   },
-  setup(props: any, {slots}: {slots: any}): any {
+  setup(props: FlowMetaProviderProps, {slots}: SetupContext): () => VNode {
     const asgardeoContext: AsgardeoContext | undefined = inject(ASGARDEO_KEY);
     const i18nContext: I18nContextValue | null = inject(I18N_KEY, null);
 

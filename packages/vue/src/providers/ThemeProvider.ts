@@ -28,7 +28,6 @@ import {
   detectThemeMode,
   createClassObserver,
   createMediaQueryListener,
-  createPackageComponentLogger,
 } from '@asgardeo/browser';
 import {
   computed,
@@ -45,14 +44,14 @@ import {
   type Component,
   type PropType,
   type Ref,
+  type SetupContext,
+  type VNode,
 } from 'vue';
 import {BRANDING_KEY, THEME_KEY} from '../keys';
 import type {BrandingContextValue, ThemeContextValue} from '../models/contexts';
+import {createVueLogger} from '../utils/logger';
 
-const logger: ReturnType<typeof createPackageComponentLogger> = createPackageComponentLogger(
-  '@asgardeo/vue',
-  'ThemeProvider',
-);
+const logger: ReturnType<typeof createVueLogger> = createVueLogger('ThemeProvider');
 
 /**
  * ThemeProvider manages theme state and provides it to child components via `useTheme()`.
@@ -72,6 +71,13 @@ const logger: ReturnType<typeof createPackageComponentLogger> = createPackageCom
  * </ThemeProvider>
  * ```
  */
+interface ThemeProviderProps {
+  detection: BrowserThemeDetection;
+  inheritFromBranding: boolean;
+  mode: ThemeMode | 'branding';
+  theme: RecursivePartial<ThemeConfig> | undefined;
+}
+
 const ThemeProvider: Component = defineComponent({
   name: 'ThemeProvider',
   props: {
@@ -93,7 +99,7 @@ const ThemeProvider: Component = defineComponent({
     /** Optional partial theme overrides applied on top of the resolved theme. */
     theme: {default: undefined, type: Object as PropType<RecursivePartial<ThemeConfig>>},
   },
-  setup(props: any, {slots}: {slots: any}): any {
+  setup(props: ThemeProviderProps, {slots}: SetupContext): () => VNode {
     // Try to consume branding context – it is optional (BrandingProvider may not be mounted)
     const brandingContext: BrandingContextValue | null = inject(BRANDING_KEY, null);
 

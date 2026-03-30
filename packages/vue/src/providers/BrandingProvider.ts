@@ -18,6 +18,7 @@
 
 import {BrandingPreference, Theme, transformBrandingPreferenceToTheme} from '@asgardeo/browser';
 import {
+  computed,
   defineComponent,
   h,
   provide,
@@ -28,9 +29,20 @@ import {
   type Component,
   type PropType,
   type Ref,
+  type SetupContext,
+  type VNode,
 } from 'vue';
 import {BRANDING_KEY} from '../keys';
 import type {BrandingContextValue} from '../models/contexts';
+
+interface BrandingProviderProps {
+  brandingPreference: BrandingPreference | null;
+  enabled: boolean;
+  error: Error | null;
+  forceTheme: 'light' | 'dark' | undefined;
+  isLoading: boolean;
+  refetch: (() => Promise<void>) | undefined;
+}
 
 /**
  * BrandingProvider manages branding preference state and makes branding data
@@ -73,7 +85,7 @@ const BrandingProvider: Component = defineComponent({
       type: Function as PropType<() => Promise<void>>,
     },
   },
-  setup(props: any, {slots}: {slots: any}): any {
+  setup(props: BrandingProviderProps, {slots}: SetupContext): () => VNode {
     const theme: Ref<Theme | null> = ref(null);
     const activeTheme: Ref<'light' | 'dark' | null> = ref(null);
 
@@ -111,17 +123,19 @@ const BrandingProvider: Component = defineComponent({
 
     const context: BrandingContextValue = {
       activeTheme: readonly(activeTheme),
-      brandingPreference: readonly(ref(props.brandingPreference)) as Readonly<Ref<BrandingPreference | null>>,
-      error: readonly(ref(props.error)) as Readonly<Ref<Error | null>>,
+      brandingPreference: readonly(computed(() => props.brandingPreference)) as Readonly<
+        Ref<BrandingPreference | null>
+      >,
+      error: readonly(computed(() => props.error)) as Readonly<Ref<Error | null>>,
       fetchBranding,
-      isLoading: readonly(ref(props.isLoading)) as Readonly<Ref<boolean>>,
+      isLoading: readonly(computed(() => props.isLoading)) as Readonly<Ref<boolean>>,
       refetch: props.refetch ?? fetchBranding,
       theme: shallowReadonly(theme),
     };
 
     provide(BRANDING_KEY, context);
 
-    return (): any => h('div', {style: 'display:contents'}, slots['default']?.());
+    return (): VNode => h('div', {style: 'display:contents'}, slots['default']?.());
   },
 });
 

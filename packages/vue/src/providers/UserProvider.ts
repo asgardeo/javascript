@@ -17,7 +17,17 @@
  */
 
 import {Schema, UpdateMeProfileConfig, User, UserProfile} from '@asgardeo/browser';
-import {computed, defineComponent, h, provide, type Component, type PropType, type Ref} from 'vue';
+import {
+  computed,
+  defineComponent,
+  h,
+  provide,
+  type Component,
+  type PropType,
+  type Ref,
+  type SetupContext,
+  type VNode,
+} from 'vue';
 import {USER_KEY} from '../keys';
 import type {UserContextValue} from '../models/contexts';
 
@@ -29,6 +39,20 @@ import type {UserContextValue} from '../models/contexts';
  *
  * @internal — This provider is mounted automatically by `<AsgardeoProvider>`.
  */
+interface UserProviderProps {
+  flattenedProfile: User | null;
+  onUpdateProfile: ((payload: User) => void) | undefined;
+  profile: UserProfile | null;
+  revalidateProfile: () => Promise<void>;
+  schemas: Schema[] | null;
+  updateProfile:
+    | ((
+        requestConfig: UpdateMeProfileConfig,
+        sessionId?: string,
+      ) => Promise<{data: {user: User}; error: string; success: boolean}>)
+    | undefined;
+}
+
 const UserProvider: Component = defineComponent({
   name: 'UserProvider',
   props: {
@@ -53,7 +77,7 @@ const UserProvider: Component = defineComponent({
       >,
     },
   },
-  setup(props: any, {slots}: {slots: any}): any {
+  setup(props: UserProviderProps, {slots}: SetupContext): () => VNode {
     // Use computed refs so context stays in sync when props change
     const flattenedProfileRef: Ref<User | null> = computed(() => props.flattenedProfile);
     const profileRef: Ref<UserProfile | null> = computed(() => props.profile);
@@ -75,7 +99,7 @@ const UserProvider: Component = defineComponent({
 
     provide(USER_KEY, context);
 
-    return (): any => h('div', {style: 'display:contents'}, slots['default']?.());
+    return (): VNode => h('div', {style: 'display:contents'}, slots['default']?.());
   },
 });
 

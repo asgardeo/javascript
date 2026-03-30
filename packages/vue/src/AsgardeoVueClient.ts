@@ -424,8 +424,14 @@ class AsgardeoVueClient<T extends AsgardeoVueConfig = AsgardeoVueConfig> extends
     afterSignOut?: (afterSignOutUrl: string) => void,
   ): Promise<string>;
   override async signOut(...args: any[]): Promise<string> {
-    if (args[1] && typeof args[1] !== 'function') {
-      throw new Error('The second argument must be a function.');
+    let afterSignOut: ((url: string) => void) | undefined;
+
+    if (typeof args[1] === 'string') {
+      // Overload 2: signOut(options, sessionId, afterSignOut?)
+      [, , afterSignOut] = args;
+    } else if (typeof args[1] === 'function') {
+      // Overload 1: signOut(options, afterSignOut)
+      [, afterSignOut] = args;
     }
 
     const config: AsgardeoVueConfig = (await this.asgardeo.getConfigData()) as AsgardeoVueConfig;
@@ -439,12 +445,12 @@ class AsgardeoVueClient<T extends AsgardeoVueConfig = AsgardeoVueConfig> extends
         this.signIn(config.signInOptions);
       }
 
-      args[1]?.(config.afterSignOutUrl || '');
+      afterSignOut?.(config.afterSignOutUrl || '');
 
       return Promise.resolve(config.afterSignOutUrl || '');
     }
 
-    const response: boolean = await this.asgardeo.signOut(args[1]);
+    const response: boolean = await this.asgardeo.signOut(afterSignOut as any);
 
     return Promise.resolve(String(response));
   }

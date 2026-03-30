@@ -26,6 +26,8 @@ import {
   type Component,
   type PropType,
   type Ref,
+  type SetupContext,
+  type VNode,
 } from 'vue';
 import {FLOW_KEY} from '../keys';
 import type {FlowContextValue, FlowMessage, FlowStep} from '../models/contexts';
@@ -39,6 +41,13 @@ import type {FlowContextValue, FlowMessage, FlowStep} from '../models/contexts';
  *
  * @internal — This provider is mounted automatically by `<AsgardeoProvider>`.
  */
+interface FlowProviderProps {
+  initialStep: FlowStep | null;
+  initialSubtitle: string | undefined;
+  initialTitle: string;
+  onFlowChange: ((step: FlowStep) => void) | undefined;
+}
+
 const FlowProvider: Component = defineComponent({
   name: 'FlowProvider',
   props: {
@@ -51,7 +60,7 @@ const FlowProvider: Component = defineComponent({
     /** Callback when the flow step changes. */
     onFlowChange: {default: undefined, type: Function as PropType<(step: FlowStep) => void>},
   },
-  setup(props: any, {slots}: {slots: any}): any {
+  setup(props: FlowProviderProps, {slots}: SetupContext): () => VNode {
     const currentStep: Ref<FlowStep> = ref(props.initialStep ?? null);
     const title: Ref<string> = ref(props.initialTitle ?? '');
     const subtitle: Ref<string | undefined> = ref(props.initialSubtitle);

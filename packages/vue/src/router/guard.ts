@@ -19,6 +19,9 @@
 import {inject} from 'vue';
 import {ASGARDEO_KEY} from '../keys';
 import type {AsgardeoContext} from '../models/contexts';
+import {createVueLogger} from '../utils/logger';
+
+const logger: ReturnType<typeof createVueLogger> = createVueLogger('Guard');
 
 /**
  * Options for the Asgardeo navigation guard.
@@ -101,9 +104,8 @@ export const createAsgardeoGuard = (options: GuardOptions = {}): AsgardeoNavigat
     const ctx: AsgardeoContext | undefined = inject(ASGARDEO_KEY);
 
     if (!ctx) {
-      // eslint-disable-next-line no-console
-      console.error(
-        '[Asgardeo] createAsgardeoGuard: Asgardeo context not found. ' +
+      logger.error(
+        'createAsgardeoGuard: Asgardeo context not found. ' +
           'Ensure the AsgardeoPlugin is installed before using the router guard.',
       );
       next({path: redirectTo});

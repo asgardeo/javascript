@@ -18,6 +18,9 @@
 
 import {navigate as browserNavigate} from '@asgardeo/browser';
 import {type Component, defineComponent, onMounted} from 'vue';
+import {createVueLogger} from '../../utils/logger';
+
+const logger: ReturnType<typeof createVueLogger> = createVueLogger('Callback');
 
 interface CallbackSetupProps {
   onError: ((error: Error) => void) | undefined;
@@ -97,7 +100,7 @@ const Callback: Component = defineComponent({
         returnPath = path || '/';
 
         // 3. Validate state freshness
-        const MAX_STATE_AGE: number = 600000; // 10 minutes
+        const MAX_STATE_AGE: number = 300000; // 5 minutes
         if (Date.now() - timestamp > MAX_STATE_AGE) {
           sessionStorage.removeItem(`asgardeo_oauth_${state}`);
           throw new Error('OAuth state expired - please try again');
@@ -138,8 +141,7 @@ const Callback: Component = defineComponent({
         navigate(`${returnPath}?${params.toString()}`);
       } catch (err) {
         const errorMessage: string = err instanceof Error ? err.message : 'OAuth callback processing failed';
-        // eslint-disable-next-line no-console
-        console.error('OAuth callback error:', err);
+        logger.error('OAuth callback error:', err);
 
         props.onError?.(err instanceof Error ? err : new Error(errorMessage));
 
