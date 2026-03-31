@@ -129,7 +129,8 @@ class AsgardeoReactClient<T extends AsgardeoReactConfig = AsgardeoReactConfig> e
       this.initializeConfig = {
         ...config,
         organizationHandle: resolvedOrganizationHandle,
-        periodicTokenRefresh: config?.tokenLifecycle?.refreshToken?.autoRefresh ?? (config as any)?.periodicTokenRefresh,
+        periodicTokenRefresh: config?.tokenLifecycle?.refreshToken?.autoRefresh 
+          ?? (config as any)?.periodicTokenRefresh,
       };
 
       return this.asgardeo.init(this.initializeConfig as any);
