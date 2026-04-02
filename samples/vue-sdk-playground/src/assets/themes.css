@@ -1,0 +1,143 @@
+/*──────────────────────────────────────────────────────────
+  Theme Definitions — Vue SDK Playground
+
+  To add a new theme:
+  1. Copy one of the [data-theme="..."] blocks below
+  2. Change the attribute value to your theme name
+  3. Adjust all variable values
+  4. Register the theme in src/composables/useThemeSwitch.ts
+──────────────────────────────────────────────────────────*/
+
+/* ══════════════════════════════════════
+   LIGHT THEME
+   ══════════════════════════════════════ */
+[data-theme="light"] {
+  /* ── Surfaces ── */
+  --surface-primary: #f9fafb;      /* gray-50 */
+  --surface-secondary: #ffffff;     /* white */
+  --surface-muted: #f3f4f6;        /* gray-100 */
+  --surface-elevated: #ffffff;      /* white + shadow */
+
+  /* ── Text ── */
+  --text-primary: #111827;          /* gray-900 */
+  --text-secondary: #4b5563;        /* gray-600 */
+  --text-muted: #9ca3af;           /* gray-400 */
+  --text-inverse: #ffffff;          /* white */
+
+  /* ── Borders ── */
+  --border-default: #e5e7eb;        /* gray-200 */
+  --border-hover: #d1d5db;          /* gray-300 */
+  --border-divider: #f3f4f6;        /* gray-100 */
+
+  /* ── Accent (Orange — Thunder/Asgardeo brand) ── */
+  --accent-50: #fff7ed;             /* orange-50 */
+  --accent-100: #ffedd5;            /* orange-100 */
+  --accent-500: #f97316;            /* orange-500 */
+  --accent-600: #ea580c;            /* orange-600 */
+  --accent-700: #c2410c;            /* orange-700 */
+  --accent-800: #9a3412;            /* orange-800 */
+
+  /* ── Status: Success ── */
+  --status-success-bg: #dcfce7;     /* green-100 */
+  --status-success-text: #15803d;   /* green-700 */
+
+  /* ── Status: Error ── */
+  --status-error-bg: #fee2e2;       /* red-100 */
+  --status-error-text: #b91c1c;     /* red-700 */
+
+  /* ── Status: Warning ── */
+  --status-warning-bg: #fef3c7;     /* amber-100 */
+  --status-warning-text: #b45309;   /* amber-700 */
+
+  /* ── Status: Info ── */
+  --status-info-bg: #dbeafe;        /* blue-100 */
+  --status-info-text: #1d4ed8;      /* blue-700 */
+
+  /* ── Code Blocks ── */
+  --code-bg: #111827;               /* gray-900 */
+  --code-text: #f3f4f6;            /* gray-100 */
+  --code-header-bg: #1f2937;        /* gray-800 */
+  --code-header-text: #9ca3af;      /* gray-400 */
+
+  /* ── Sidebar ── */
+  --sidebar-bg: #ffffff;
+  --sidebar-header-bg: #ffffff;     /* white — Thunder console clean header */
+  --sidebar-header-text: #111827;   /* gray-900 — dark text on white header */
+  --sidebar-text: #374151;          /* gray-700 */
+  --sidebar-active-bg: #fff7ed;     /* orange-50 — subtle orange highlight */
+  --sidebar-active-text: #ea580c;   /* orange-600 */
+  --sidebar-hover-bg: #f9fafb;      /* gray-50 */
+
+  /* ── Misc ── */
+  --shadow-color: rgba(0, 0, 0, 0.1);
+  --overlay-color: rgba(0, 0, 0, 0.25);
+
+  color-scheme: light;
+}
+
+/* ══════════════════════════════════════
+   DARK THEME
+   ══════════════════════════════════════ */
+[data-theme="dark"] {
+  /* ── Surfaces — Thunder uses near-black backgrounds ── */
+  --surface-primary: #111111;       /* near-black */
+  --surface-secondary: #1c1c1c;     /* slightly elevated */
+  --surface-muted: #242424;         /* muted surface */
+  --surface-elevated: #1c1c1c;
+
+  /* ── Text ── */
+  --text-primary: #f9fafb;          /* gray-50 */
+  --text-secondary: #d1d5db;        /* gray-300 */
+  --text-muted: #6b7280;           /* gray-500 */
+  --text-inverse: #111111;          /* near-black */
+
+  /* ── Borders ── */
+  --border-default: #2a2a2a;        /* subtle dark border */
+  --border-hover: #3a3a3a;          /* slightly lighter on hover */
+  --border-divider: #1c1c1c;        /* barely visible divider */
+
+  /* ── Accent (Orange — Thunder/Asgardeo brand, brighter for dark bg) ── */
+  --accent-50: #2d1a0a;             /* very dark orange tint */
+  --accent-100: #431f05;            /* dark orange tint */
+  --accent-500: #f97316;            /* orange-500 */
+  --accent-600: #fb923c;            /* orange-400 — brighter for dark bg */
+  --accent-700: #f97316;            /* orange-500 */
+  --accent-800: #fed7aa;            /* orange-200 — light for text on dark */
+
+  /* ── Status: Success ── */
+  --status-success-bg: #064e3b;
+  --status-success-text: #6ee7b7;
+
+  /* ── Status: Error ── */
+  --status-error-bg: #7f1d1d;
+  --status-error-text: #fca5a5;
+
+  /* ── Status: Warning ── */
+  --status-warning-bg: #78350f;
+  --status-warning-text: #fcd34d;
+
+  /* ── Status: Info ── */
+  --status-info-bg: #1e3a5f;
+  --status-info-text: #93c5fd;
+
+  /* ── Code Blocks ── */
+  --code-bg: #0a0a0a;              /* near-black */
+  --code-text: #e2e8f0;           /* slate-200 */
+  --code-header-bg: #161616;       /* slightly lighter than code-bg */
+  --code-header-text: #94a3b8;     /* slate-400 */
+
+  /* ── Sidebar — Thunder dark: near-black with orange accents ── */
+  --sidebar-bg: #161616;            /* slightly lighter than main bg */
+  --sidebar-header-bg: #111111;     /* matches surface-primary */
+  --sidebar-header-text: #f9fafb;   /* gray-50 — light text on dark header */
+  --sidebar-text: #d1d5db;          /* gray-300 */
+  --sidebar-active-bg: #2d1a0a;     /* dark orange tint — subtle highlight */
+  --sidebar-active-text: #fb923c;   /* orange-400 — visible on dark */
+  --sidebar-hover-bg: #1c1c1c;      /* subtle hover */
+
+  /* ── Misc ── */
+  --shadow-color: rgba(0, 0, 0, 0.6);
+  --overlay-color: rgba(0, 0, 0, 0.7);
+
+  color-scheme: dark;
+}

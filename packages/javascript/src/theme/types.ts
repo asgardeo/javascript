@@ -67,11 +67,13 @@ export interface ThemeColors {
   error: {
     contrastText: string;
     dark?: string;
+    light?: string;
     main: string;
   };
   info: {
     contrastText: string;
     dark?: string;
+    light?: string;
     main: string;
   };
   primary: {
@@ -82,11 +84,13 @@ export interface ThemeColors {
   secondary: {
     contrastText: string;
     dark?: string;
+    light?: string;
     main: string;
   };
   success: {
     contrastText: string;
     dark?: string;
+    light?: string;
     main: string;
   };
   text: {
@@ -97,6 +101,7 @@ export interface ThemeColors {
   warning: {
     contrastText: string;
     dark?: string;
+    light?: string;
     main: string;
   };
 }
