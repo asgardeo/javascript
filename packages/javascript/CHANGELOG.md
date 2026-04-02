@@ -1,5 +1,13 @@
 # @asgardeo/javascript
 
+## 0.15.0
+
+### Minor Changes
+
+- [#434](https://github.com/asgardeo/javascript/pull/434)
+  [`0114c6c`](https://github.com/asgardeo/javascript/commit/0114c6c68ec7a388c38743acffe59f4b66aa8307) Thanks
+  [@kavindadimuthu](https://github.com/kavindadimuthu)! - Implemented with vue3 standards
+
 ## 0.14.0
 
 ### Minor Changes
