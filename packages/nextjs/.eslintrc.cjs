@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2025, WSO2 LLC. (https://www.wso2.com).
+ * Copyright (c) 2025-2026, WSO2 LLC. (https://www.wso2.com).
  *
  * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -36,6 +36,9 @@ module.exports = {
     project: [path.resolve(__dirname, 'tsconfig.eslint.json')],
   },
   plugins: ['@wso2'],
+  rules: {
+    '@typescript-eslint/return-await': 'off',
+  },
   settings: {
     'import/resolver': {
       node: {
