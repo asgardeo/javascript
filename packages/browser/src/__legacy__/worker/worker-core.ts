@@ -30,7 +30,7 @@ import {
   Storage,
 } from '@asgardeo/javascript';
 import {AuthenticationHelper, SPAHelper} from '../helpers';
-import {HttpClient, HttpClientInstance} from '../http-client';
+import {FetchHttpClient} from '../../FetchHttpClient';
 import {
   AuthorizationResponse,
   HttpRequestConfig,
@@ -63,13 +63,11 @@ export const WebWorkerCore = async (
 
   const _dataLayer = _authenticationClient.getStorageManager();
 
-  const _httpClient: HttpClientInstance = HttpClient.getInstance(instanceId);
-
   const attachToken = async (request: HttpRequestConfig): Promise<void> => {
     await _authenticationHelper.attachTokenToRequestConfig(request);
   };
 
-  _httpClient?.init && (await _httpClient.init(true, attachToken));
+  const _httpClient = FetchHttpClient.getInstance(instanceId, true, attachToken);
 
   const setHttpRequestStartCallback = (callback: () => void): void => {
     _httpClient?.setHttpRequestStartCallback && _httpClient.setHttpRequestStartCallback(callback);

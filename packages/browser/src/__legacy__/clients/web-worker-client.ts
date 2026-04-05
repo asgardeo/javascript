@@ -63,7 +63,6 @@ import {AuthenticationHelper, SPAHelper, SessionManagementHelper} from '../helpe
 import {
   AuthorizationInfo,
   AuthorizationResponse,
-  HttpClient,
   HttpError,
   HttpRequestConfig,
   HttpResponse,
@@ -72,6 +71,13 @@ import {
   WebWorkerClientConfig,
   WebWorkerClientInterface,
 } from '../models';
+
+interface HttpClientCallbacks {
+  requestStartCallback: () => void;
+  requestSuccessCallback: (response: HttpResponse) => void;
+  requestErrorCallback: (error: HttpError) => void | Promise<void>;
+  requestFinishCallback: () => void;
+}
 import {SPACustomGrantConfig} from '../models/request-custom-grant';
 import {BrowserStorage} from '../models/storage';
 import {LocalStore, MemoryStore, SessionStore} from '../stores';
@@ -103,7 +109,7 @@ export const WebWorkerClient = async (
   /**
    * HttpClient handlers
    */
-  let httpClientHandlers: HttpClient;
+  let httpClientHandlers: HttpClientCallbacks;
   /**
    * API request time out.
    */

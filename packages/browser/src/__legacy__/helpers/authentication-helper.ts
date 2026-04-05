@@ -43,9 +43,9 @@ import {
   REFRESH_ACCESS_TOKEN_ERR0R,
   RP_IFRAME,
 } from '../constants';
+import {HttpClient} from '@asgardeo/javascript';
 import {
   AuthorizationInfo,
-  HttpClientInstance,
   HttpError,
   HttpRequestConfig,
   HttpRequestInterface,
@@ -74,11 +74,11 @@ export class AuthenticationHelper<T extends MainThreadClientConfig | WebWorkerCl
     this._isTokenRefreshing = false;
   }
 
-  public enableHttpHandler(httpClient: HttpClientInstance): void {
+  public enableHttpHandler(httpClient: HttpClient): void {
     httpClient?.enableHandler && httpClient.enableHandler();
   }
 
-  public disableHttpHandler(httpClient: HttpClientInstance): void {
+  public disableHttpHandler(httpClient: HttpClient): void {
     httpClient?.disableHandler && httpClient.disableHandler();
   }
 
@@ -222,7 +222,7 @@ export class AuthenticationHelper<T extends MainThreadClientConfig | WebWorkerCl
   }
 
   public async httpRequest(
-    httpClient: HttpClientInstance,
+    httpClient: HttpClient,
     requestConfig: HttpRequestConfig,
     isHttpHandlerEnabled?: boolean,
     httpErrorCallback?: (error: HttpError) => void | Promise<void>,
@@ -340,7 +340,7 @@ export class AuthenticationHelper<T extends MainThreadClientConfig | WebWorkerCl
 
   public async httpRequestAll(
     requestConfigs: HttpRequestConfig[],
-    httpClient: HttpClientInstance,
+    httpClient: HttpClient,
     isHttpHandlerEnabled?: boolean,
     httpErrorCallback?: (error: HttpError) => void | Promise<void>,
     httpFinishCallback?: () => void,

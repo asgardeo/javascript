@@ -33,7 +33,7 @@ import {
   SignInConfig,
   WebWorkerClientConfig,
 } from '.';
-import {HttpClientInstance} from '../http-client';
+import {HttpClient} from '@asgardeo/javascript';
 
 export interface MainThreadClientInterface {
   setHttpRequestStartCallback(callback: () => void): void;
@@ -42,7 +42,7 @@ export interface MainThreadClientInterface {
   setHttpRequestErrorCallback(callback: (error: HttpError) => void | Promise<void>): void;
   httpRequest(config: HttpRequestConfig): Promise<HttpResponse>;
   httpRequestAll(config: HttpRequestConfig[]): Promise<HttpResponse[] | undefined>;
-  getHttpClient(): HttpClientInstance;
+  getHttpClient(): HttpClient;
   enableHttpHandler(): boolean;
   disableHttpHandler(): boolean;
   signIn(

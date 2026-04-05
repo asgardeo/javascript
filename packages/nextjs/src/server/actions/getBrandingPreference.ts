@@ -33,7 +33,9 @@ const getBrandingPreference = async (
   sessionId?: string | undefined, // eslint-disable-line @typescript-eslint/no-unused-vars
 ): Promise<BrandingPreference> => {
   try {
-    return await baseGetBrandingPreference(config);
+    const brandingPreference: BrandingPreference = await baseGetBrandingPreference(config);
+
+    return brandingPreference;
   } catch (error) {
     throw new AsgardeoAPIError(
       `Failed to get branding preferences: ${error instanceof Error ? error.message : String(error)}`,

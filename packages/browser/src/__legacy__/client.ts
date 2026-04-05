@@ -32,7 +32,7 @@ import WorkerFile from '../web.worker';
 import {MainThreadClient, WebWorkerClient} from './clients';
 import {Hooks, REFRESH_ACCESS_TOKEN_ERR0R} from './constants';
 import {AuthenticationHelper, SPAHelper} from './helpers';
-import {HttpClientInstance} from './http-client';
+import {HttpClient} from '@asgardeo/javascript';
 import {
   AuthSPAClientConfig,
   LegacyConfig as Config,
@@ -796,13 +796,13 @@ export class AsgardeoSPAClient {
   /**
    * This methods returns the Axios http client.
    *
-   * @return {HttpClientInstance} - The Axios HTTP client.
+   * @return {HttpClient} - The Axios HTTP client.
    *
    * @memberof AsgardeoSPAClient
    *
    * @preserve
    */
-  public getHttpClient(): HttpClientInstance {
+  public getHttpClient(): HttpClient {
     if (this._client) {
       if (this._storage !== BrowserStorage.WebWorker) {
         const mainThreadClient = this._client as MainThreadClientInterface;

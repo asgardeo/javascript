@@ -18,7 +18,6 @@
 
 import {
   Schema,
-  HttpInstance,
   HttpResponse,
   AsgardeoSPAClient,
   HttpRequestConfig,
@@ -34,7 +33,7 @@ export interface GetSchemasConfig extends Omit<BaseGetSchemasConfig, 'fetcher'> 
 const getSchemas = async ({fetcher, instanceId = 0, ...requestConfig}: GetSchemasConfig): Promise<Schema[]> => {
   const defaultFetcher = async (url: string, config: RequestInit): Promise<Response> => {
     const client: AsgardeoSPAClient = AsgardeoSPAClient.getInstance(instanceId);
-    const httpClient: HttpInstance = client.httpRequest.bind(client);
+    const httpClient: (config: HttpRequestConfig) => Promise<HttpResponse<any>> = client.httpRequest.bind(client);
     const response: HttpResponse<any> = await httpClient({
       headers: config.headers as Record<string, string>,
       method: config.method || 'GET',
