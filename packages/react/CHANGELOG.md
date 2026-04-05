@@ -1,5 +1,106 @@
 # @asgardeo/react
 
+## 0.18.1
+
+### Patch Changes
+
+- Updated dependencies
+  [[`29463c4`](https://github.com/asgardeo/javascript/commit/29463c4be6ba7bd612ada83ccbe8179a2cd374f6)]:
+  - @asgardeo/browser@0.5.9
+
+## 0.18.0
+
+### Minor Changes
+
+- [#421](https://github.com/asgardeo/javascript/pull/421)
+  [`f53ef78`](https://github.com/asgardeo/javascript/commit/f53ef78da1fc6972675eef013df5f53f39a0a764) Thanks
+  [@brionmario](https://github.com/brionmario)! - Expose OIDC discovery response from `useAsgardeo`
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @asgardeo/browser@0.5.8
+
+## 0.17.0
+
+### Minor Changes
+
+- [#416](https://github.com/asgardeo/javascript/pull/416)
+  [`db123a8`](https://github.com/asgardeo/javascript/commit/db123a85e6dcd4406d61cb67972269412eccb92d) Thanks
+  [@dileepapeiris](https://github.com/dileepapeiris)! - Add user preferences to control automatic API calls for user
+  profile and organizations.
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @asgardeo/browser@0.5.7
+
+## 0.16.2
+
+### Patch Changes
+
+- [#422](https://github.com/asgardeo/javascript/pull/422)
+  [`f1e0225`](https://github.com/asgardeo/javascript/commit/f1e0225144815c9b08a0d8812f4fd8f9bdb8f438) Thanks
+  [@brionmario](https://github.com/brionmario)! - Refactor FlowMetaProvider to include platform check for metadata
+  fetching
+
+## 0.16.1
+
+### Patch Changes
+
+- [#419](https://github.com/asgardeo/javascript/pull/419)
+  [`2be8430`](https://github.com/asgardeo/javascript/commit/2be84302130f33c9278abcbf14df6ce7540c6729) Thanks
+  [@brionmario](https://github.com/brionmario)! - Fix the sign-in issues in Vite apps due to `initialization`
+
+## 0.16.0
+
+### Minor Changes
+
+- [#415](https://github.com/asgardeo/javascript/pull/415)
+  [`d5ce823`](https://github.com/asgardeo/javascript/commit/d5ce823f09dca42ef01fc8c2e3c5d4292598fbba) Thanks
+  [@ThaminduDilshan](https://github.com/ThaminduDilshan)! - Add toggle component and improve consent form with toggles
+
+### Patch Changes
+
+- [#418](https://github.com/asgardeo/javascript/pull/418)
+  [`f380a3a`](https://github.com/asgardeo/javascript/commit/f380a3a137d2a08a921373c5a9ca1ac4d588ad45) Thanks
+  [@brionmario](https://github.com/brionmario)! - Refactor getFlowMetaV2 parameters to make 'id' and 'type' optional for
+  i18n-only metadata retrieval
+
+- Updated dependencies []:
+  - @asgardeo/browser@0.5.6
+
+## 0.15.4
+
+### Patch Changes
+
+- [#413](https://github.com/asgardeo/javascript/pull/413)
+  [`0dca4b4`](https://github.com/asgardeo/javascript/commit/0dca4b405afe75d6e5baf0a2de2f3f204780dcf9) Thanks
+  [@brionmario](https://github.com/brionmario)! - Fix refresh issues in Asgardeo V2
+
+- Updated dependencies []:
+  - @asgardeo/browser@0.5.5
+
+## 0.15.3
+
+### Patch Changes
+
+- [#409](https://github.com/asgardeo/javascript/pull/409)
+  [`0adb9bc`](https://github.com/asgardeo/javascript/commit/0adb9bc633d932802b2829c79e7aa6c06229daf3) Thanks
+  [@brionmario](https://github.com/brionmario)! - Fix issues in Language Dropdown & expose emoji resolving utils
+
+- Updated dependencies
+  [[`0adb9bc`](https://github.com/asgardeo/javascript/commit/0adb9bc633d932802b2829c79e7aa6c06229daf3)]:
+  - @asgardeo/browser@0.5.4
+
+## 0.15.2
+
+### Patch Changes
+
+- [#407](https://github.com/asgardeo/javascript/pull/407)
+  [`0ce3c3b`](https://github.com/asgardeo/javascript/commit/0ce3c3bfd33f5e3436124236586416946929305e) Thanks
+  [@thiva-k](https://github.com/thiva-k)! - Fix validation errors
+
 ## 0.15.1
 
 ### Patch Changes

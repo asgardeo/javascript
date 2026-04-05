@@ -16,22 +16,13 @@
  * under the License.
  */
 
-import {FlowMetadataResponse, FlowMetaType, getFlowMetaV2} from '@asgardeo/browser';
+import {FlowMetadataResponse, FlowMetaType, getFlowMetaV2, Platform} from '@asgardeo/browser';
 import {I18nBundle, TranslationBundleConstants} from '@asgardeo/i18n';
-import {
-  FC,
-  PropsWithChildren,
-  ReactElement,
-  RefObject,
-  useCallback,
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
+import {FC, PropsWithChildren, ReactElement, RefObject, useCallback, useEffect, useRef, useState} from 'react';
 import FlowMetaContext from './FlowMetaContext';
 import useAsgardeo from '../Asgardeo/useAsgardeo';
-import I18nContext, {I18nContextValue} from '../I18n/I18nContext';
+import {I18nContextValue} from '../I18n/I18nContext';
+import useI18n from '../I18n/useI18n';
 
 export interface FlowMetaProviderProps {
   /**
@@ -68,8 +59,8 @@ const FlowMetaProvider: FC<PropsWithChildren<FlowMetaProviderProps>> = ({
   children,
   enabled = true,
 }: PropsWithChildren<FlowMetaProviderProps>): ReactElement => {
-  const {baseUrl, applicationId} = useAsgardeo();
-  const i18nContext: I18nContextValue = useContext(I18nContext);
+  const {baseUrl, applicationId, platform} = useAsgardeo();
+  const i18nContext: I18nContextValue = useI18n();
 
   const [meta, setMeta] = useState<FlowMetadataResponse | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -81,7 +72,7 @@ const FlowMetaProvider: FC<PropsWithChildren<FlowMetaProviderProps>> = ({
   const hasFetchedRef: RefObject<boolean> = useRef<boolean>(false);
 
   const fetchFlowMeta: () => Promise<void> = useCallback(async (): Promise<void> => {
-    if (!enabled) {
+    if (!enabled || platform !== Platform.AsgardeoV2) {
       setMeta(null);
       return;
     }
@@ -90,18 +81,22 @@ const FlowMetaProvider: FC<PropsWithChildren<FlowMetaProviderProps>> = ({
     setError(null);
 
     try {
-      const result: FlowMetadataResponse = await getFlowMetaV2({baseUrl, id: applicationId, type: FlowMetaType.App});
+      const result: FlowMetadataResponse = await getFlowMetaV2({
+        baseUrl,
+        ...(applicationId ? {id: applicationId, type: FlowMetaType.App} : {}),
+        language: i18nContext?.currentLanguage,
+      });
       setMeta(result);
     } catch (err: unknown) {
       setError(err instanceof Error ? err : new Error(String(err)));
     } finally {
       setIsLoading(false);
     }
-  }, [enabled, baseUrl, applicationId]);
+  }, [enabled, platform, baseUrl, applicationId, i18nContext?.currentLanguage]);
 
   const switchLanguage: (language: string) => Promise<void> = useCallback(
     async (language: string): Promise<void> => {
-      if (!enabled) return;
+      if (!enabled || platform !== Platform.AsgardeoV2) return;
 
       setIsLoading(true);
       setError(null);
@@ -109,9 +104,8 @@ const FlowMetaProvider: FC<PropsWithChildren<FlowMetaProviderProps>> = ({
       try {
         const result: FlowMetadataResponse = await getFlowMetaV2({
           baseUrl,
-          id: applicationId,
+          ...(applicationId ? {id: applicationId, type: FlowMetaType.App} : {}),
           language,
-          type: FlowMetaType.App,
         });
 
         // Inject translations for the new language before switching
@@ -136,7 +130,7 @@ const FlowMetaProvider: FC<PropsWithChildren<FlowMetaProviderProps>> = ({
         setIsLoading(false);
       }
     },
-    [enabled, baseUrl, applicationId, i18nContext],
+    [enabled, platform, baseUrl, applicationId, i18nContext],
   );
 
   // After injectBundles + setPendingLanguage are batched and committed, this

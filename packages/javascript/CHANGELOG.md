@@ -1,5 +1,39 @@
 # @asgardeo/javascript
 
+## 0.12.0
+
+### Minor Changes
+
+- [#421](https://github.com/asgardeo/javascript/pull/421)
+  [`f53ef78`](https://github.com/asgardeo/javascript/commit/f53ef78da1fc6972675eef013df5f53f39a0a764) Thanks
+  [@brionmario](https://github.com/brionmario)! - Expose OIDC discovery response from `useAsgardeo`
+
+## 0.11.0
+
+### Minor Changes
+
+- [#416](https://github.com/asgardeo/javascript/pull/416)
+  [`db123a8`](https://github.com/asgardeo/javascript/commit/db123a85e6dcd4406d61cb67972269412eccb92d) Thanks
+  [@dileepapeiris](https://github.com/dileepapeiris)! - Add user preferences to control automatic API calls for user
+  profile and organizations.
+
+## 0.10.2
+
+### Patch Changes
+
+- [#418](https://github.com/asgardeo/javascript/pull/418)
+  [`f380a3a`](https://github.com/asgardeo/javascript/commit/f380a3a137d2a08a921373c5a9ca1ac4d588ad45) Thanks
+  [@brionmario](https://github.com/brionmario)! - Refactor getFlowMetaV2 parameters to make 'id' and 'type' optional for
+  i18n-only metadata retrieval
+
+## 0.10.1
+
+### Patch Changes
+
+- [#413](https://github.com/asgardeo/javascript/pull/413)
+  [`0dca4b4`](https://github.com/asgardeo/javascript/commit/0dca4b405afe75d6e5baf0a2de2f3f204780dcf9) Thanks
+  [@brionmario](https://github.com/brionmario)! - Fix refresh issues in Asgardeo V2
+
 ## 0.10.0
 
 ### Minor Changes

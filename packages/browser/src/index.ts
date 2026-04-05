@@ -67,3 +67,4 @@ export {default as getActiveTheme} from './theme/getActiveTheme';
 
 export {default as handleWebAuthnAuthentication} from './utils/handleWebAuthnAuthentication';
 export {default as http} from './utils/http';
+export {default as resolveEmojiUrisInHtml} from './utils/v2/resolveEmojiUrisInHtml';

@@ -1,5 +1,37 @@
 # @asgardeo/node
 
+## 0.0.65
+
+### Patch Changes
+
+- Updated dependencies
+  [[`f53ef78`](https://github.com/asgardeo/javascript/commit/f53ef78da1fc6972675eef013df5f53f39a0a764)]:
+  - @asgardeo/javascript@0.12.0
+
+## 0.0.64
+
+### Patch Changes
+
+- Updated dependencies
+  [[`db123a8`](https://github.com/asgardeo/javascript/commit/db123a85e6dcd4406d61cb67972269412eccb92d)]:
+  - @asgardeo/javascript@0.11.0
+
+## 0.0.63
+
+### Patch Changes
+
+- Updated dependencies
+  [[`f380a3a`](https://github.com/asgardeo/javascript/commit/f380a3a137d2a08a921373c5a9ca1ac4d588ad45)]:
+  - @asgardeo/javascript@0.10.2
+
+## 0.0.62
+
+### Patch Changes
+
+- Updated dependencies
+  [[`0dca4b4`](https://github.com/asgardeo/javascript/commit/0dca4b405afe75d6e5baf0a2de2f3f204780dcf9)]:
+  - @asgardeo/javascript@0.10.1
+
 ## 0.0.61
 
 ### Patch Changes

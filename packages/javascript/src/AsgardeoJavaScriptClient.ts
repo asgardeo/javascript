@@ -38,6 +38,7 @@ import {
   EmbeddedSignInFlowInitiateResponse,
   EmbeddedSignInFlowStatus,
 } from './models/embedded-signin-flow';
+import {OIDCDiscoveryApiResponse} from './models/oidc-discovery';
 import {AllOrganizationsApiResponse, Organization} from './models/organization';
 import {Storage} from './models/store';
 import {TokenExchangeRequestConfig, TokenResponse} from './models/token';
@@ -66,6 +67,14 @@ class AsgardeoJavaScriptClient<T = Config> implements AsgardeoClient<T> {
     }
 
     this.baseURL = config?.baseUrl ?? '';
+  }
+
+  public async getDiscoveryResponse(): Promise<OIDCDiscoveryApiResponse | null> {
+    if (!this.storageManager) {
+      return null;
+    }
+
+    return this.storageManager.loadOpenIDProviderConfiguration();
   }
 
   /* eslint-disable class-methods-use-this, @typescript-eslint/no-unused-vars */

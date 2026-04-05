@@ -51,6 +51,7 @@ import {
   EmbeddedSignInFlowResponseV2,
   executeEmbeddedSignUpFlowV2,
   EmbeddedSignInFlowStatusV2,
+  OIDCDiscoveryApiResponse,
 } from '@asgardeo/browser';
 import AuthAPI from './__temp__/api';
 import getAllOrganizations from './api/getAllOrganizations';
@@ -71,6 +72,8 @@ class AsgardeoReactClient<T extends AsgardeoReactConfig = AsgardeoReactConfig> e
   private loadingState: boolean = false;
 
   private clientInstanceId: number;
+
+  private initializeConfig: AsgardeoReactConfig | undefined;
 
   /**
    * Creates a new AsgardeoReactClient instance.
@@ -122,9 +125,11 @@ class AsgardeoReactClient<T extends AsgardeoReactConfig = AsgardeoReactConfig> e
       resolvedOrganizationHandle = deriveOrganizationHandleFromBaseUrl(config?.baseUrl);
     }
 
-    return this.withLoading(async () =>
-      this.asgardeo.init({...config, organizationHandle: resolvedOrganizationHandle} as any),
-    );
+    return this.withLoading(async () => {
+      this.initializeConfig = {...config, organizationHandle: resolvedOrganizationHandle};
+
+      return this.asgardeo.init(this.initializeConfig as any);
+    });
   }
 
   override reInitialize(config: Partial<AsgardeoReactConfig>): Promise<boolean> {
@@ -132,7 +137,7 @@ class AsgardeoReactClient<T extends AsgardeoReactConfig = AsgardeoReactConfig> e
       let isInitialized: boolean;
 
       try {
-        await this.asgardeo.reInitialize(config);
+        await this.asgardeo.reInitialize(config as any);
 
         isInitialized = true;
       } catch (error) {
@@ -356,9 +361,15 @@ class AsgardeoReactClient<T extends AsgardeoReactConfig = AsgardeoReactConfig> e
         | AsgardeoReactConfig
         | undefined;
 
-      const platformFromStorage: string | null = sessionStorage.getItem('asgardeo_platform');
-      const isV2Platform: boolean =
-        (config && config.platform === Platform.AsgardeoV2) || platformFromStorage === 'AsgardeoV2';
+      // NOTE: With React 19 strict mode, the initialization logic runs twice, and there's an intermittent
+      // issue where the config object is not getting stored in the storage layer with Vite scaffolding.
+      // Hence, we need to check if the client is initialized but the config object is empty, and reinitialize.
+      // Tracker: https://github.com/asgardeo/asgardeo-auth-react-sdk/issues/240
+      if (!config || Object.keys(config).length === 0) {
+        await this.initialize(this.initializeConfig);
+      }
+
+      const isV2Platform: boolean = config && config.platform === Platform.AsgardeoV2;
 
       if (isV2Platform && typeof arg1 === 'object' && arg1 !== null && (arg1 as any).callOnlyOnRedirect === true) {
         return undefined as any;
@@ -374,8 +385,7 @@ class AsgardeoReactClient<T extends AsgardeoReactConfig = AsgardeoReactConfig> e
         const authIdFromUrl: string = new URL(window.location.href).searchParams.get('authId');
         const authIdFromStorage: string = sessionStorage.getItem('asgardeo_auth_id');
         const authId: string = authIdFromUrl || authIdFromStorage;
-        const baseUrlFromStorage: string = sessionStorage.getItem('asgardeo_base_url');
-        const baseUrl: string = config?.baseUrl || baseUrlFromStorage;
+        const baseUrl: string = config?.baseUrl;
 
         const response: EmbeddedSignInFlowResponseV2 = await executeEmbeddedSignInFlowV2({
           authId,
@@ -513,6 +523,12 @@ class AsgardeoReactClient<T extends AsgardeoReactConfig = AsgardeoReactConfig> e
 
     navigate(getRedirectBasedSignUpUrl(config as Config));
     return undefined;
+  }
+
+  override async getDiscoveryResponse(): Promise<OIDCDiscoveryApiResponse | null> {
+    const storageManager: any = await this.asgardeo.getStorageManager();
+
+    return storageManager.loadOpenIDProviderConfiguration();
   }
 
   async request(requestConfig?: HttpRequestConfig): Promise<HttpResponse<any>> {

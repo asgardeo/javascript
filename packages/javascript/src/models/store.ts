@@ -78,6 +78,11 @@ export enum Stores {
   OIDCProviderMetaData = 'oidc_provider_meta_data',
 
   /**
+   * Store for persisted data that needs to be retained across sessions and application restarts.
+   */
+  PersistedData = 'persisted_data',
+
+  /**
    * Store for user session-related data like tokens and authentication state.
    */
   SessionData = 'session_data',

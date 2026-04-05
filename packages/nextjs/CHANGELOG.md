@@ -1,5 +1,88 @@
 # @asgardeo/nextjs
 
+## 0.2.2
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @asgardeo/react@0.18.1
+
+## 0.2.1
+
+### Patch Changes
+
+- Updated dependencies
+  [[`f53ef78`](https://github.com/asgardeo/javascript/commit/f53ef78da1fc6972675eef013df5f53f39a0a764)]:
+  - @asgardeo/react@0.18.0
+  - @asgardeo/node@0.0.65
+
+## 0.2.0
+
+### Minor Changes
+
+- [#416](https://github.com/asgardeo/javascript/pull/416)
+  [`db123a8`](https://github.com/asgardeo/javascript/commit/db123a85e6dcd4406d61cb67972269412eccb92d) Thanks
+  [@dileepapeiris](https://github.com/dileepapeiris)! - Add user preferences to control automatic API calls for user
+  profile and organizations.
+
+### Patch Changes
+
+- Updated dependencies
+  [[`db123a8`](https://github.com/asgardeo/javascript/commit/db123a85e6dcd4406d61cb67972269412eccb92d)]:
+  - @asgardeo/react@0.17.0
+  - @asgardeo/node@0.0.64
+
+## 0.1.96
+
+### Patch Changes
+
+- Updated dependencies
+  [[`f1e0225`](https://github.com/asgardeo/javascript/commit/f1e0225144815c9b08a0d8812f4fd8f9bdb8f438)]:
+  - @asgardeo/react@0.16.2
+
+## 0.1.95
+
+### Patch Changes
+
+- Updated dependencies
+  [[`2be8430`](https://github.com/asgardeo/javascript/commit/2be84302130f33c9278abcbf14df6ce7540c6729)]:
+  - @asgardeo/react@0.16.1
+
+## 0.1.94
+
+### Patch Changes
+
+- Updated dependencies
+  [[`d5ce823`](https://github.com/asgardeo/javascript/commit/d5ce823f09dca42ef01fc8c2e3c5d4292598fbba),
+  [`f380a3a`](https://github.com/asgardeo/javascript/commit/f380a3a137d2a08a921373c5a9ca1ac4d588ad45)]:
+  - @asgardeo/react@0.16.0
+  - @asgardeo/node@0.0.63
+
+## 0.1.93
+
+### Patch Changes
+
+- Updated dependencies
+  [[`0dca4b4`](https://github.com/asgardeo/javascript/commit/0dca4b405afe75d6e5baf0a2de2f3f204780dcf9)]:
+  - @asgardeo/react@0.15.4
+  - @asgardeo/node@0.0.62
+
+## 0.1.92
+
+### Patch Changes
+
+- Updated dependencies
+  [[`0adb9bc`](https://github.com/asgardeo/javascript/commit/0adb9bc633d932802b2829c79e7aa6c06229daf3)]:
+  - @asgardeo/react@0.15.3
+
+## 0.1.91
+
+### Patch Changes
+
+- Updated dependencies
+  [[`0ce3c3b`](https://github.com/asgardeo/javascript/commit/0ce3c3bfd33f5e3436124236586416946929305e)]:
+  - @asgardeo/react@0.15.2
+
 ## 0.1.90
 
 ### Patch Changes

@@ -133,6 +133,14 @@ class StorageManager<T> {
     return JSON.parse((await this.store.getData(this.resolveKey(Stores.TemporaryData, userId))) ?? null);
   }
 
+  public async getPersistedData(userId?: string): Promise<TemporaryStore> {
+    return JSON.parse((await this.store.getData(this.resolveKey(Stores.PersistedData, userId))) ?? null);
+  }
+
+  public async setPersistedData(persistedData: Partial<TemporaryStore>, userId?: string): Promise<void> {
+    this.setDataInBulk(this.resolveKey(Stores.PersistedData, userId), persistedData);
+  }
+
   public async getSessionData(userId?: string, instanceId?: string): Promise<SessionData> {
     return JSON.parse((await this.store.getData(this.resolveKey(Stores.SessionData, userId, instanceId))) ?? null);
   }

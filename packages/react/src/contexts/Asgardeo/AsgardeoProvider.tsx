@@ -20,6 +20,7 @@ import {
   AllOrganizationsApiResponse,
   AsgardeoRuntimeError,
   generateFlattenedUserProfile,
+  OIDCDiscoveryApiResponse,
   Organization,
   SignInOptions,
   User,
@@ -100,6 +101,7 @@ const AsgardeoProvider: FC<PropsWithChildren<AsgardeoProviderProps>> = ({
   });
 
   const [isUpdatingSession, setIsUpdatingSession] = useState<boolean>(false);
+  const [wellKnown, setWellKnown] = useState<OIDCDiscoveryApiResponse | null>(null);
 
   // Branding state
   const [brandingPreference, setBrandingPreference] = useState<BrandingPreference | null>(null);
@@ -122,13 +124,7 @@ const AsgardeoProvider: FC<PropsWithChildren<AsgardeoProviderProps>> = ({
       await asgardeo.initialize(config);
       const initializedConfig: AsgardeoReactConfig = await asgardeo.getConfiguration();
       setConfig(initializedConfig);
-
-      if (initializedConfig?.platform) {
-        sessionStorage.setItem('asgardeo_platform', initializedConfig.platform);
-      }
-      if (initializedConfig?.baseUrl) {
-        sessionStorage.setItem('asgardeo_base_url', initializedConfig.baseUrl);
-      }
+      setWellKnown(await asgardeo.getDiscoveryResponse());
     })();
   }, []);
 
@@ -159,32 +155,42 @@ const AsgardeoProvider: FC<PropsWithChildren<AsgardeoProviderProps>> = ({
           schemas: [],
         });
       } else {
-        try {
-          const fetchedUser: User = await asgardeo.getUser({baseUrl: resolvedBaseUrl});
-          setUser(fetchedUser);
-        } catch (error) {
-          // TODO: Add an error log.
+        // Check if user profile fetching is enabled (default: true)
+        const shouldFetchUserProfile: boolean = preferences?.user?.fetchUserProfile !== false;
+
+        if (shouldFetchUserProfile) {
+          try {
+            const fetchedUser: User = await asgardeo.getUser({baseUrl: resolvedBaseUrl});
+            setUser(fetchedUser);
+          } catch (error) {
+            // TODO: Add an error log.
+          }
+
+          try {
+            const fetchedUserProfile: UserProfile = await asgardeo.getUserProfile({baseUrl: resolvedBaseUrl});
+            setUserProfile(fetchedUserProfile);
+          } catch (error) {
+            // TODO: Add an error log.
+          }
         }
 
-        try {
-          const fetchedUserProfile: UserProfile = await asgardeo.getUserProfile({baseUrl: resolvedBaseUrl});
-          setUserProfile(fetchedUserProfile);
-        } catch (error) {
-          // TODO: Add an error log.
-        }
+        // Check if organization fetching is enabled (default: true)
+        const shouldFetchOrganizations: boolean = preferences?.user?.fetchOrganizations !== false;
 
-        try {
-          const fetchedOrganization: Organization = await asgardeo.getCurrentOrganization();
-          setCurrentOrganization(fetchedOrganization);
-        } catch (error) {
-          // TODO: Add an error log.
-        }
+        if (shouldFetchOrganizations) {
+          try {
+            const fetchedOrganization: Organization = await asgardeo.getCurrentOrganization();
+            setCurrentOrganization(fetchedOrganization);
+          } catch (error) {
+            // TODO: Add an error log.
+          }
 
-        try {
-          const fetchedMyOrganizations: Organization[] = await asgardeo.getMyOrganizations();
-          setMyOrganizations(fetchedMyOrganizations);
-        } catch (error) {
-          // TODO: Add an error log.
+          try {
+            const fetchedMyOrganizations: Organization[] = await asgardeo.getMyOrganizations();
+            setMyOrganizations(fetchedMyOrganizations);
+          } catch (error) {
+            // TODO: Add an error log.
+          }
         }
       }
 
@@ -562,10 +568,13 @@ const AsgardeoProvider: FC<PropsWithChildren<AsgardeoProviderProps>> = ({
   const value: any = useMemo(
     () => ({
       afterSignInUrl,
-      applicationId,
+      applicationId: config.applicationId,
       baseUrl,
       clearSession,
       clientId,
+      discovery: {
+        wellKnown,
+      },
       exchangeToken,
       getAccessToken,
       getDecodedIdToken,
@@ -602,6 +611,7 @@ const AsgardeoProvider: FC<PropsWithChildren<AsgardeoProviderProps>> = ({
       afterSignInUrl,
       baseUrl,
       clientId,
+      wellKnown,
       isInitializedSync,
       isLoadingSync,
       isSignedInSync,

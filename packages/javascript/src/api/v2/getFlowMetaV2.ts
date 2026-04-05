@@ -28,12 +28,12 @@ import {FlowMetadataResponse, GetFlowMetaRequestConfig} from '../../models/v2/fl
  * - i18n translations filtered by `language` and `namespace`
  * - Registration flow enablement status
  *
- * @param config - Request configuration including `baseUrl`/`url`, `type`, `id`,
- *                 and optional `language` / `namespace` filters.
+ * @param config - Request configuration including `baseUrl`/`url`, and optional
+ *                 `type`, `id`, `language`, and `namespace` filters. When `type`
+ *                 and `id` are omitted the server returns i18n-only metadata.
  * @returns A promise that resolves to the {@link FlowMetadataResponse}.
  *
- * @throws {AsgardeoAPIError} When required parameters are missing or the server
- *         returns a non-OK response.
+ * @throws {AsgardeoAPIError} When the server returns a non-OK response.
  *
  * @example
  * ```typescript
@@ -63,29 +63,9 @@ const getFlowMetaV2 = async ({
   namespace,
   ...requestConfig
 }: GetFlowMetaRequestConfig): Promise<FlowMetadataResponse> => {
-  if (!type) {
-    throw new AsgardeoAPIError(
-      'The "type" parameter is required',
-      'getFlowMetaV2-ValidationError-001',
-      'javascript',
-      400,
-      'The "type" query parameter must be either "APP" or "OU".',
-    );
-  }
-
-  if (!id) {
-    throw new AsgardeoAPIError(
-      'The "id" parameter is required',
-      'getFlowMetaV2-ValidationError-002',
-      'javascript',
-      400,
-      'The "id" query parameter must be a valid UUID of the target application or organization unit.',
-    );
-  }
-
   const queryParams: URLSearchParams = new URLSearchParams({
-    id,
-    type,
+    ...(id ? {id} : {}),
+    ...(type ? {type} : {}),
     ...(language ? {language} : {}),
     ...(namespace ? {namespace} : {}),
   });

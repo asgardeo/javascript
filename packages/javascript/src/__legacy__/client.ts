@@ -21,12 +21,14 @@ import {AuthClientConfig, StrictAuthClientConfig} from './models';
 import OIDCDiscoveryConstants from '../constants/OIDCDiscoveryConstants';
 import OIDCRequestConstants from '../constants/OIDCRequestConstants';
 import PKCEConstants from '../constants/PKCEConstants';
+import OIDCDiscoveryConstantsV2 from '../constants/v2/OIDCDiscoveryConstants';
 import {AsgardeoAuthException} from '../errors/exception';
 import {IsomorphicCrypto} from '../IsomorphicCrypto';
 import {Crypto} from '../models/crypto';
 import {ExtendedAuthorizeRequestUrlParams} from '../models/oauth-request';
 import {OIDCDiscoveryApiResponse} from '../models/oidc-discovery';
 import {OIDCEndpoints} from '../models/oidc-endpoints';
+import {Platform} from '../models/platforms';
 import {SessionData, UserSession} from '../models/session';
 import {Storage, TemporaryStore} from '../models/store';
 import {TokenResponse, IdToken, TokenExchangeRequestConfig} from '../models/token';
@@ -149,9 +151,34 @@ export class AsgardeoAuthClient<T> {
     // Ref: https://github.com/asgardeo/asgardeo-auth-js-core/pull/205
     AsgardeoAuthClient.authHelperInstance = this.authHelper;
 
+    const {applicationId, platform, endpoints} = config;
+    let resolvedApplicationId: string | undefined = applicationId;
+
+    if (applicationId) {
+      await this.storageManager.setPersistedData({
+        applicationId,
+      });
+    } else {
+      const persistedData: TemporaryStore = await this.storageManager.getPersistedData();
+
+      if (persistedData['applicationId']) {
+        resolvedApplicationId = persistedData['applicationId'] as string;
+      }
+    }
+
+    const resolvedEndpoints: Partial<OIDCEndpoints> = endpoints || {};
+
+    if (platform === Platform.AsgardeoV2) {
+      if (!resolvedEndpoints['wellKnown']) {
+        resolvedEndpoints['wellKnown'] = OIDCDiscoveryConstantsV2.Endpoints.WELL_KNOWN;
+      }
+    }
+
     await this.storageManager.setConfigData({
       ...DefaultConfig,
       ...config,
+      applicationId: resolvedApplicationId,
+      endpoints: resolvedEndpoints,
       scope: processOpenIDScopes(config.scopes),
     });
   }
@@ -419,13 +446,19 @@ export class AsgardeoAuthClient<T> {
       return Promise.resolve();
     }
 
-    const {wellKnownEndpoint} = configData as any;
+    const {wellKnownEndpoint, platform, discovery, baseUrl, endpoints} = configData as any;
 
-    if (wellKnownEndpoint) {
+    const resolvedWellKnownEndpoint: string | undefined =
+      wellKnownEndpoint ||
+      (platform === Platform.AsgardeoV2 && discovery?.wellKnown?.enabled
+        ? `${baseUrl}${endpoints?.wellKnown ?? '/.well-known/openid-configuration'}`
+        : undefined);
+
+    if (resolvedWellKnownEndpoint) {
       let response: Response;
 
       try {
-        response = await fetch(wellKnownEndpoint);
+        response = await fetch(resolvedWellKnownEndpoint);
         if (response.status !== 200 || !response.ok) {
           throw new Error();
         }

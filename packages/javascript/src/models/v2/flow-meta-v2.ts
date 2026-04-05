@@ -313,8 +313,12 @@ export interface GetFlowMetaRequestConfig extends Omit<Partial<RequestInit>, 'me
    */
   baseUrl?: string;
 
-  /** UUID of the entity (application ID or organization unit ID) */
-  id: string;
+  /**
+   * UUID of the entity (application ID or organization unit ID).
+   * Optional — when omitted the server returns i18n-only metadata (e.g. for flows
+   * like AcceptInvite that are not tied to a specific application or OU).
+   */
+  id?: string;
 
   /**
    * Language tag in BCP 47 format for i18n translations.
@@ -331,8 +335,12 @@ export interface GetFlowMetaRequestConfig extends Omit<Partial<RequestInit>, 'me
    */
   namespace?: string;
 
-  /** The type of entity to retrieve metadata for */
-  type: FlowMetaType;
+  /**
+   * The type of entity to retrieve metadata for.
+   * Optional — must be omitted together with `id` for flows that are not
+   * associated with a specific application or OU (e.g. AcceptInvite).
+   */
+  type?: FlowMetaType;
 
   /**
    * Fully qualified URL of the `/flow/meta` endpoint.
