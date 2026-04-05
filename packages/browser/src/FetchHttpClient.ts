@@ -27,12 +27,12 @@ import {HttpClient, HttpError, HttpRequestConfig, HttpResponse} from '@asgardeo/
  * is currently used.
  */
 export class FetchHttpClient extends HttpClient {
-  private static instances = new Map<number, FetchHttpClient>();
+  private static instances: Map<number, FetchHttpClient> = new Map<number, FetchHttpClient>();
 
   static getInstance(
     instanceId: number = 0,
     isHandlerEnabled: boolean = true,
-    attachToken: (request: HttpRequestConfig) => Promise<void> = () => Promise.resolve(),
+    attachToken: (request: HttpRequestConfig) => Promise<void> = (): Promise<void> => Promise.resolve(),
   ): FetchHttpClient {
     if (!this.instances.has(instanceId)) {
       this.instances.set(instanceId, new FetchHttpClient(isHandlerEnabled, attachToken));
@@ -44,11 +44,12 @@ export class FetchHttpClient extends HttpClient {
     this.instances.delete(instanceId);
   }
 
+  // eslint-disable-next-line class-methods-use-this
   protected async transport<T = any>(config: HttpRequestConfig): Promise<HttpResponse<T>> {
-    let url = config.url ?? '';
+    let url: string = config.url ?? '';
 
     if (config.params) {
-      const qs = new URLSearchParams(config.params).toString();
+      const qs: string = new URLSearchParams(config.params).toString();
       if (qs) {
         url = `${url}?${qs}`;
       }
@@ -84,13 +85,13 @@ export class FetchHttpClient extends HttpClient {
       } as Partial<HttpError>);
     }
 
-    const contentType = fetchResponse.headers.get('content-type') ?? '';
+    const contentType: string = fetchResponse.headers.get('content-type') ?? '';
     const data: T = contentType.includes('application/json')
       ? await fetchResponse.json()
       : ((await fetchResponse.text()) as any);
 
     const responseHeaders: Record<string, string> = {};
-    fetchResponse.headers.forEach((value, key) => {
+    fetchResponse.headers.forEach((value: string, key: string) => {
       responseHeaders[key] = value;
     });
 

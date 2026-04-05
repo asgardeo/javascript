@@ -34,16 +34,23 @@ import {HttpError, HttpRequestConfig, HttpResponse} from './models/http';
  * ```
  */
 export abstract class HttpClient {
-  private static readonly DEFAULT_HANDLER_DISABLE_TIMEOUT = 1000;
+  private static readonly DEFAULT_HANDLER_DISABLE_TIMEOUT: number = 1000;
 
+  // eslint-disable-next-line class-methods-use-this
   private requestStartCallback: (request: HttpRequestConfig) => void = () => null;
+
+  // eslint-disable-next-line class-methods-use-this
   private requestSuccessCallback: (response: HttpResponse) => void = () => null;
+
+  // eslint-disable-next-line class-methods-use-this
   private requestErrorCallback: (error: HttpError) => void = () => null;
+
+  // eslint-disable-next-line class-methods-use-this
   private requestFinishCallback: () => void = () => null;
 
   constructor(
     private isHandlerEnabled: boolean = true,
-    private attachToken: (request: HttpRequestConfig) => Promise<void> = () => Promise.resolve(),
+    private attachToken: (request: HttpRequestConfig) => Promise<void> = (): Promise<void> => Promise.resolve(),
   ) {}
 
   /**
@@ -56,9 +63,9 @@ export abstract class HttpClient {
    * Public HTTP request entry point. Applies pre/post processing around `transport()`.
    */
   async request<T = any>(config: HttpRequestConfig): Promise<HttpResponse<T>> {
-    const processedConfig = await this.requestHandler(config);
+    const processedConfig: HttpRequestConfig = await this.requestHandler(config);
     try {
-      const response = await this.transport<T>(processedConfig);
+      const response: HttpResponse<T> = await this.transport<T>(processedConfig);
       return this.successHandler(response);
     } catch (error: any) {
       this.errorHandler(error as HttpError);
@@ -97,10 +104,12 @@ export abstract class HttpClient {
     this.requestFinishCallback = cb;
   }
 
+  // eslint-disable-next-line class-methods-use-this
   all<T>(values: (T | Promise<T>)[]): Promise<T[]> {
     return Promise.all(values);
   }
 
+  // eslint-disable-next-line class-methods-use-this
   spread<T, R>(callback: (...args: T[]) => R): (array: T[]) => R {
     return (array: T[]) => callback(...array);
   }
@@ -109,11 +118,13 @@ export abstract class HttpClient {
     await this.attachToken(config);
 
     if (config.shouldEncodeToFormData && config.data) {
-      const formData = new FormData();
-      Object.keys(config.data).forEach(key => formData.append(key, config.data[key]));
+      const formData: FormData = new FormData();
+      Object.keys(config.data).forEach((key: string) => formData.append(key, config.data[key]));
+      // eslint-disable-next-line no-param-reassign
       config.data = formData;
     }
 
+    // eslint-disable-next-line no-param-reassign
     config.startTimeInMs = Date.now();
 
     if (this.isHandlerEnabled && typeof this.requestStartCallback === 'function') {
