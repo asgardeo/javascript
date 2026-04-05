@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2020-2024, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2020-2025, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -16,46 +16,17 @@
  * under the License.
  */
 
-import type {AxiosRequestConfig} from 'axios';
-import {HttpClientInstance, HttpError, HttpResponse} from '.';
-import {SPACustomGrantConfig} from '../..';
+import {HttpClient, HttpError, HttpRequestConfig} from '@asgardeo/javascript';
+import {SPACustomGrantConfig} from './request-custom-grant';
 
-export interface HttpClient {
-  requestStartCallback: () => void;
-  requestSuccessCallback: (response: HttpResponse) => void;
-  requestErrorCallback: (error: HttpError) => void | Promise<void>;
-  requestFinishCallback: () => void;
-}
+export {HttpClient} from '@asgardeo/javascript';
+export type {HttpError, HttpRequestConfig, HttpResponse} from '@asgardeo/javascript';
 
 export interface HttpRequestInterface {
-  httpClient: HttpClientInstance;
+  httpClient: HttpClient;
   requestConfig: HttpRequestConfig;
   isHttpHandlerEnabled?: boolean;
   httpErrorCallback?: (error: HttpError) => void | Promise<void>;
   httpFinishCallback?: () => void;
   enableRetrievingSignOutURLFromSession?: (config: SPACustomGrantConfig) => void;
 }
-
-export interface HttpRequestConfig extends AxiosRequestConfig, Omit<Request, 'headers' | 'method' | 'signal' | 'url'> {
-  attachToken?: boolean;
-  shouldEncodeToFormData?: boolean;
-  shouldAttachIDPAccessToken?: boolean;
-  startTimeInMs?: number;
-}
-
-export type {
-  AxiosResponse as HttpResponse,
-  Method as HttpMethod,
-  AxiosRequestTransformer as HttpRequestTransformer,
-  AxiosResponseTransformer as HttpResponseTransformer,
-  AxiosAdapter as HttpAdapter,
-  AxiosBasicCredentials as HttpBasicCredentials,
-  ResponseType,
-  AxiosProxyConfig as HttpProxyConfig,
-  CancelToken,
-  AxiosError as HttpError,
-  AxiosPromise as HttpPromise,
-  AxiosInstance as HttpInstance,
-} from 'axios';
-
-export {HttpClientInstance} from '../http-client';

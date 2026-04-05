@@ -58,7 +58,6 @@
   },
   "dependencies": {
     "@asgardeo/javascript": "workspace:*",
-    "axios": "1.13.5",
     "base64url": "3.0.1",
     "buffer": "6.0.3",
     "core-js": "3.42.0",

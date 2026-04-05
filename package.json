@@ -61,7 +61,6 @@
       "@types/react-dom": "19.1.5",
       "js-yaml": "4.1.1",
       "read-yaml-file": "2.1.0",
-      "brace-expansion": "2.0.2",
       "@isaacs/brace-expansion": "5.0.1",
       "@eslint/plugin-kit": "0.3.4",
       "tmp": "0.2.4",

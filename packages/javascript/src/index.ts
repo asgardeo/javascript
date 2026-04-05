@@ -248,3 +248,6 @@ export {
 export type {LoggerConfig} from './utils/logger';
 
 export {default as StorageManager} from './StorageManager';
+
+export {HttpClient} from './HttpClient';
+export {HttpError, HttpRequestConfig, HttpResponse} from './models/http';
