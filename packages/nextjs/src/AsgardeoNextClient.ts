@@ -242,13 +242,15 @@ class AsgardeoNextClient<T extends AsgardeoNextConfig = AsgardeoNextConfig> exte
       const configData: AuthClientConfig<T> = await this.asgardeo.getConfigData();
       const baseUrl: string | undefined = configData?.baseUrl;
 
-      return await updateMeProfile({
+      const userProfile: User = await updateMeProfile({
         baseUrl,
         headers: {
           Authorization: `Bearer ${await this.getAccessToken(userId)}`,
         },
         payload,
       });
+
+      return userProfile;
     } catch (error) {
       throw new AsgardeoRuntimeError(
         `Failed to update user profile: ${error instanceof Error ? error.message : String(error)}`,
@@ -264,13 +266,15 @@ class AsgardeoNextClient<T extends AsgardeoNextConfig = AsgardeoNextConfig> exte
       const configData: AuthClientConfig<T> = await this.asgardeo.getConfigData();
       const baseUrl: string = configData?.baseUrl as string;
 
-      return await createOrganization({
+      const createdOrg: Organization = await createOrganization({
         baseUrl,
         headers: {
           Authorization: `Bearer ${await this.getAccessToken(userId)}`,
         },
         payload,
       });
+
+      return createdOrg;
     } catch (error) {
       throw new AsgardeoRuntimeError(
         `Failed to create organization: ${error instanceof Error ? error.message : String(error)}`,
@@ -286,13 +290,15 @@ class AsgardeoNextClient<T extends AsgardeoNextConfig = AsgardeoNextConfig> exte
       const configData: AuthClientConfig<T> = await this.asgardeo.getConfigData();
       const baseUrl: string = configData?.baseUrl as string;
 
-      return await getOrganization({
+      const organization: OrganizationDetails = await getOrganization({
         baseUrl,
         headers: {
           Authorization: `Bearer ${await this.getAccessToken(userId)}`,
         },
         organizationId,
       });
+
+      return organization;
     } catch (error) {
       throw new AsgardeoRuntimeError(
         `Failed to fetch the organization details of ${organizationId}: ${String(error)}`,
@@ -308,12 +314,14 @@ class AsgardeoNextClient<T extends AsgardeoNextConfig = AsgardeoNextConfig> exte
       const configData: AuthClientConfig<T> = await this.asgardeo.getConfigData();
       const baseUrl: string = configData?.baseUrl as string;
 
-      return await getMeOrganizations({
+      const myOrganizations: Organization[] = await getMeOrganizations({
         baseUrl,
         headers: {
           Authorization: `Bearer ${await this.getAccessToken(userId)}`,
         },
       });
+
+      return myOrganizations;
     } catch (error) {
       throw new AsgardeoRuntimeError(
         `Failed to fetch the user's associated organizations: ${
@@ -331,12 +339,14 @@ class AsgardeoNextClient<T extends AsgardeoNextConfig = AsgardeoNextConfig> exte
       const configData: AuthClientConfig<T> = await this.asgardeo.getConfigData();
       const baseUrl: string = configData?.baseUrl as string;
 
-      return await getAllOrganizations({
+      const allOrganizations: AllOrganizationsApiResponse = await getAllOrganizations({
         baseUrl,
         headers: {
           Authorization: `Bearer ${await this.getAccessToken(userId)}`,
         },
       });
+
+      return allOrganizations;
     } catch (error) {
       throw new AsgardeoRuntimeError(
         `Failed to fetch all organizations: ${error instanceof Error ? error.message : String(error)}`,
@@ -383,7 +393,9 @@ class AsgardeoNextClient<T extends AsgardeoNextConfig = AsgardeoNextConfig> exte
         signInRequired: true,
       };
 
-      return await this.asgardeo.exchangeToken(exchangeConfig, userId);
+      const tokenResponse: TokenResponse | Response = await this.asgardeo.exchangeToken(exchangeConfig, userId);
+
+      return tokenResponse;
     } catch (error) {
       throw new AsgardeoRuntimeError(
         `Failed to switch organization: ${error instanceof Error ? error.message : String(JSON.stringify(error))}`,
