@@ -1,5 +1,24 @@
 # @asgardeo/react
 
+## 0.21.0
+
+### Minor Changes
+
+- [#438](https://github.com/asgardeo/javascript/pull/438)
+  [`696fff7`](https://github.com/asgardeo/javascript/commit/696fff7a9eb1ba340dc8f2b35129575bfc737b41) Thanks
+  [@brionmario](https://github.com/brionmario)! - Migrate away from Axios
+
+- [#435](https://github.com/asgardeo/javascript/pull/435)
+  [`ab15a40`](https://github.com/asgardeo/javascript/commit/ab15a409b207695d7093cd0990a7df8c38b7020a) Thanks
+  [@NipuniBhagya](https://github.com/NipuniBhagya)! - Add tokenLifecycle.refreshToken.autoRefresh config to replace
+  legacy periodicTokenRefresh
+
+### Patch Changes
+
+- Updated dependencies
+  [[`696fff7`](https://github.com/asgardeo/javascript/commit/696fff7a9eb1ba340dc8f2b35129575bfc737b41)]:
+  - @asgardeo/browser@0.6.0
+
 ## 0.20.1
 
 ### Patch Changes
