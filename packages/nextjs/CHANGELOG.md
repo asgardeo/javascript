@@ -1,5 +1,21 @@
 # @asgardeo/nextjs
 
+## 0.3.0
+
+### Minor Changes
+
+- [#438](https://github.com/asgardeo/javascript/pull/438)
+  [`696fff7`](https://github.com/asgardeo/javascript/commit/696fff7a9eb1ba340dc8f2b35129575bfc737b41) Thanks
+  [@brionmario](https://github.com/brionmario)! - Migrate away from Axios
+
+### Patch Changes
+
+- Updated dependencies
+  [[`696fff7`](https://github.com/asgardeo/javascript/commit/696fff7a9eb1ba340dc8f2b35129575bfc737b41),
+  [`ab15a40`](https://github.com/asgardeo/javascript/commit/ab15a409b207695d7093cd0990a7df8c38b7020a)]:
+  - @asgardeo/react@0.21.0
+  - @asgardeo/node@0.0.69
+
 ## 0.2.5
 
 ### Patch Changes
