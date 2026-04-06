@@ -35,7 +35,7 @@ import {SILENT_SIGN_IN_STATE, TOKEN_REQUEST_CONFIG_KEY} from '../constants';
 import {AuthenticationHelper} from '../helpers/authentication-helper';
 import {SessionManagementHelper} from '../helpers/session-management-helper';
 import {SPAHelper} from '../helpers/spa-helper';
-import {HttpClient, HttpClientInstance} from '../http-client';
+import {FetchHttpClient} from '../../FetchHttpClient';
 import {HttpError, HttpRequestConfig, HttpResponse, MainThreadClientConfig, MainThreadClientInterface} from '../models';
 import {SPACustomGrantConfig} from '../models/request-custom-grant';
 import {BrowserStorage} from '../models/storage';
@@ -85,16 +85,14 @@ export const MainThreadClient = async (
 
   let _getSignOutURLFromSessionStorage: boolean = false;
 
-  const _httpClient: HttpClientInstance = HttpClient.getInstance(instanceId);
-  let _isHttpHandlerEnabled: boolean = true;
-  let _httpErrorCallback: (error: HttpError) => void | Promise<void>;
-  let _httpFinishCallback: () => void;
-
   const attachToken = async (request: HttpRequestConfig): Promise<void> => {
     await _authenticationHelper.attachTokenToRequestConfig(request);
   };
 
-  _httpClient?.init && (await _httpClient.init(true, attachToken));
+  const _httpClient = FetchHttpClient.getInstance(instanceId, true, attachToken);
+  let _isHttpHandlerEnabled: boolean = true;
+  let _httpErrorCallback: (error: HttpError) => void | Promise<void>;
+  let _httpFinishCallback: () => void;
 
   const setHttpRequestStartCallback = (callback: () => void): void => {
     _httpClient?.setHttpRequestStartCallback && _httpClient.setHttpRequestStartCallback(callback);
@@ -130,7 +128,7 @@ export const MainThreadClient = async (
       _httpFinishCallback,
     );
 
-  const getHttpClient = (): HttpClientInstance => _httpClient;
+  const getHttpClient = (): FetchHttpClient => _httpClient;
 
   const enableHttpHandler = (): boolean => {
     _authenticationHelper.enableHttpHandler(_httpClient);

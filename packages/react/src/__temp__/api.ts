@@ -23,7 +23,7 @@ import {
   LegacyConfig as Config,
   IdToken,
   Hooks,
-  HttpClientInstance,
+  HttpClient,
   HttpRequestConfig,
   HttpResponse,
   OIDCEndpoints,
@@ -296,9 +296,9 @@ class AuthAPI {
   /**
    * This methods returns the Axios http client.
    *
-   * @return {HttpClientInstance} - The Axios HTTP client.
+   * @return {HttpClient} - The Axios HTTP client.
    */
-  public async getHttpClient(): Promise<HttpClientInstance> {
+  public async getHttpClient(): Promise<HttpClient> {
     return this.client.getHttpClient();
   }
 

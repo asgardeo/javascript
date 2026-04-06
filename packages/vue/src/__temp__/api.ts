@@ -23,7 +23,7 @@ import {
   LegacyConfig as Config,
   IdToken,
   Hooks,
-  HttpClientInstance,
+  HttpClient,
   HttpRequestConfig,
   HttpResponse,
   OIDCEndpoints,
@@ -191,7 +191,7 @@ class AuthAPI {
     return this.client.getOpenIDProviderEndpoints();
   }
 
-  public async getHttpClient(): Promise<HttpClientInstance> {
+  public async getHttpClient(): Promise<HttpClient> {
     return this.client.getHttpClient();
   }
 

@@ -18,7 +18,6 @@
 
 import {
   Organization,
-  HttpInstance,
   HttpResponse,
   AsgardeoSPAClient,
   HttpRequestConfig,
@@ -38,7 +37,7 @@ const getMeOrganizations = async ({
 }: GetMeOrganizationsConfig): Promise<Organization[]> => {
   const defaultFetcher = async (url: string, config: RequestInit): Promise<Response> => {
     const client: AsgardeoSPAClient = AsgardeoSPAClient.getInstance(instanceId);
-    const httpClient: HttpInstance = client.httpRequest.bind(client);
+    const httpClient: (config: HttpRequestConfig) => Promise<HttpResponse<any>> = client.httpRequest.bind(client);
     const response: HttpResponse<any> = await httpClient({
       headers: config.headers as Record<string, string>,
       method: config.method || 'GET',

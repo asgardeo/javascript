@@ -24,7 +24,7 @@ import {
   TokenExchangeRequestConfig,
   IdToken,
   Hooks,
-  HttpClientInstance,
+  HttpClient,
   HttpRequestConfig,
   HttpResponse,
   OIDCEndpoints,
@@ -84,7 +84,7 @@ export interface AuthContextInterface {
   getAccessToken(): Promise<string>;
   getDecodedIDPIDToken(): Promise<IdToken>;
   getDecodedIdToken(sessionId?: string): Promise<IdToken>;
-  getHttpClient(): Promise<HttpClientInstance>;
+  getHttpClient(): Promise<HttpClient>;
   getIdToken(): Promise<string>;
   getOpenIDProviderEndpoints(): Promise<OIDCEndpoints>;
   getUser(): Promise<User>;

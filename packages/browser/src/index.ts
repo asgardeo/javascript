@@ -53,6 +53,7 @@ export {default as hasCalledForThisInstanceInUrl} from './utils/hasCalledForThis
 export {default as navigate} from './utils/navigate';
 
 export {default as AsgardeoBrowserClient} from './AsgardeoBrowserClient';
+export {FetchHttpClient} from './FetchHttpClient';
 
 // Re-export everything from the JavaScript package
 export * from '@asgardeo/javascript';
