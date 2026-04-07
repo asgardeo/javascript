@@ -42,13 +42,23 @@ export class SPAHelper<T extends MainThreadClientConfig | WebWorkerClientConfig>
 
     const sessionData = await this._storageManager.getSessionData();
     if (sessionData.refresh_token) {
-      // Refresh 10 seconds before the expiry time
-      const expiryTime = parseInt(sessionData.expires_in);
-      const time = expiryTime <= 10 ? expiryTime : expiryTime - 10;
+      if (sessionData.created_at == null || sessionData.expires_in == null) {
+        return;
+      }
+      
+      const TOKEN_REFRESH_BUFFER_MS = 10_000;
+      const expiryTime = Number(sessionData.expires_in) * 1000;
+      const absoluteExpiryTime: number = sessionData.created_at + expiryTime;
+      const timeUntilRefresh = absoluteExpiryTime - Date.now() - TOKEN_REFRESH_BUFFER_MS;
+
+      if (timeUntilRefresh <= 0) {
+        await authenticationHelper.refreshAccessToken();
+        return;
+      }
 
       const timer = setTimeout(async () => {
         await authenticationHelper.refreshAccessToken();
-      }, time * 1000);
+      }, timeUntilRefresh);
 
       await this._storageManager.setTemporaryDataParameter(
         TokenConstants.Storage.StorageKeys.REFRESH_TOKEN_TIMER,
