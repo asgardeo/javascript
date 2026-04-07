@@ -221,7 +221,7 @@ const AsgardeoProvider: FC<PropsWithChildren<AsgardeoProviderProps>> = ({
       config.platform === Platform.AsgardeoV2 &&
       typeof arg1 === 'object' &&
       arg1 !== null &&
-      ('flowId' in arg1 || 'applicationId' in arg1);
+      ('executionId' in arg1 || 'applicationId' in arg1);
 
     try {
       if (!isV2FlowRequest) {
@@ -316,11 +316,11 @@ const AsgardeoProvider: FC<PropsWithChildren<AsgardeoProviderProps>> = ({
             // For V2 platform, check if this is an embedded flow or traditional OAuth
             const urlParams: URLSearchParams = currentUrl.searchParams;
             const code: string | null = urlParams.get('code');
-            const flowIdFromUrl: string | null = urlParams.get('flowId');
-            const storedFlowId: string | null = sessionStorage.getItem('asgardeo_flow_id');
+            const executionIdFromUrl: string | null = urlParams.get('executionId');
+            const storedExecutionId: string | null = sessionStorage.getItem('asgardeo_execution_id');
 
-            // If there's a code and no flowId, exchange OAuth code for tokens
-            if (code && !flowIdFromUrl && !storedFlowId) {
+            // If there's a code and no executionId, exchange OAuth code for tokens
+            if (code && !executionIdFromUrl && !storedExecutionId) {
               await signIn();
             }
           } else {

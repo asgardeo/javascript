@@ -165,15 +165,15 @@ export interface EmbeddedSignUpFlowResponse extends ExtendedEmbeddedSignUpFlowRe
   };
 
   /**
+   * Unique identifier for this sign-up flow instance.
+   */
+  executionId: string;
+
+  /**
    * Optional reason for flow failure in case of an error.
    * Provides additional context when flowStatus is set to ERROR.
    */
   failureReason?: string;
-
-  /**
-   * Unique identifier for this sign-up flow instance.
-   */
-  flowId: string;
 
   /**
    * Current status of the sign-up flow.
@@ -210,7 +210,7 @@ export type EmbeddedSignUpFlowInitiateRequest = {
  */
 export interface EmbeddedSignUpFlowRequest extends Partial<EmbeddedSignUpFlowInitiateRequest> {
   action?: string;
-  flowId?: string;
+  executionId?: string;
   inputs?: Record<string, any>;
 }
 
@@ -223,7 +223,7 @@ export interface EmbeddedSignUpFlowRequest extends Partial<EmbeddedSignUpFlowIni
  *
  * **Key Differences from AsgardeoV1:**
  * - Uses `failureReason` instead of `message`/`description` for error details
- * - Maintains flow context with `flowId` for tracking failed operations
+ * - Maintains flow context with `executionId` for tracking failed operations
  * - Uses structured `flowStatus` enum instead of generic error codes
  * - Provides empty `data` object for consistency with success responses
  *
@@ -236,7 +236,7 @@ export interface EmbeddedSignUpFlowRequest extends Partial<EmbeddedSignUpFlowIni
  * ```typescript
  * // Typical Asgardeo error response
  * const errorResponse: EmbeddedSignUpFlowErrorResponse = {
- *   flowId: "0ccfeaf9-18b3-43a5-bcc1-07d863dcb2c0",
+ *   executionId: "0ccfeaf9-18b3-43a5-bcc1-07d863dcb2c0",
  *   flowStatus: EmbeddedSignUpFlowStatus.Error,
  *   data: {},
  *   failureReason: "User already exists with the provided username."
@@ -270,14 +270,14 @@ export interface EmbeddedSignUpFlowErrorResponse {
    * Unlike generic error codes, this provides contextual information
    * that helps users understand and resolve the issue.
    */
-  failureReason: string;
-
   /**
    * Unique identifier for the sign-up flow instance.
    * This ID is used to track the flow state and correlate error responses
    * with the specific sign-up attempt that failed.
    */
-  flowId: string;
+  executionId: string;
+
+  failureReason: string;
 
   /**
    * Status of the sign-up flow, which will be `EmbeddedSignUpFlowStatus.Error`

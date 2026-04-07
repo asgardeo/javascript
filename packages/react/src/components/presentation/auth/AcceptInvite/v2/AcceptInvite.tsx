@@ -49,7 +49,7 @@ export interface AcceptInviteProps {
    * Flow ID from the invite link.
    * If not provided, will be extracted from URL query parameters.
    */
-  flowId?: string;
+  executionId?: string;
 
   /**
    * Invite token from the invite link.
@@ -101,14 +101,14 @@ export interface AcceptInviteProps {
 /**
  * Helper to extract query parameters from URL.
  */
-const getUrlParams = (): {flowId?: string; inviteToken?: string} => {
+const getUrlParams = (): {executionId?: string; inviteToken?: string} => {
   if (typeof window === 'undefined') {
     return {};
   }
 
   const params: any = new URLSearchParams(window.location.search);
   return {
-    flowId: params.get('flowId') || undefined,
+    executionId: params.get('executionId') || undefined,
     inviteToken: params.get('inviteToken') || undefined,
   };
 };
@@ -118,7 +118,7 @@ const getUrlParams = (): {flowId?: string; inviteToken?: string} => {
  *
  * This component is designed for end users accessing the thunder-gate app via an invite link.
  * It automatically:
- * 1. Extracts flowId and inviteToken from URL query parameters
+ * 1. Extracts executionId and inviteToken from URL query parameters
  * 2. Validates the invite token with the backend
  * 3. Displays the password form if token is valid
  * 4. Completes the accept invite when password is set
@@ -127,7 +127,7 @@ const getUrlParams = (): {flowId?: string; inviteToken?: string} => {
  * ```tsx
  * import { AcceptInvite } from '@asgardeo/react';
  *
- * // URL: /invite?flowId=xxx&inviteToken=yyy
+ * // URL: /invite?executionId=xxx&inviteToken=yyy
  *
  * const AcceptInvitePage = () => {
  *   return (
@@ -153,7 +153,7 @@ const getUrlParams = (): {flowId?: string; inviteToken?: string} => {
  */
 const AcceptInvite: FC<AcceptInviteProps> = ({
   baseUrl,
-  flowId: flowIdProp,
+  executionId: executionIdProp,
   inviteToken: inviteTokenProp,
   onComplete,
   onError,
@@ -167,9 +167,9 @@ const AcceptInvite: FC<AcceptInviteProps> = ({
   showSubtitle = true,
 }: AcceptInviteProps): ReactElement => {
   // Extract from URL if not provided as props
-  const {flowId: urlFlowId, inviteToken: urlInviteToken} = useMemo(() => getUrlParams(), []);
+  const {executionId: urlExecutionId, inviteToken: urlInviteToken} = useMemo(() => getUrlParams(), []);
 
-  const flowId: any = flowIdProp || urlFlowId;
+  const executionId: any = executionIdProp || urlExecutionId;
   const inviteToken: any = inviteTokenProp || urlInviteToken;
 
   // Determine base URL
@@ -211,7 +211,7 @@ const AcceptInvite: FC<AcceptInviteProps> = ({
 
   return (
     <BaseAcceptInvite
-      flowId={flowId}
+      executionId={executionId}
       inviteToken={inviteToken}
       onSubmit={handleSubmit}
       onComplete={onComplete}

@@ -389,7 +389,7 @@ class AsgardeoReactClient<T extends AsgardeoReactConfig = AsgardeoReactConfig> e
         typeof arg1 === 'object' &&
         arg1 !== null &&
         !isEmpty(arg1) &&
-        ('flowId' in arg1 || 'applicationId' in arg1)
+        ('executionId' in arg1 || 'applicationId' in arg1)
       ) {
         const authIdFromUrl: string = new URL(window.location.href).searchParams.get('authId');
         const authIdFromStorage: string = sessionStorage.getItem('asgardeo_auth_id');

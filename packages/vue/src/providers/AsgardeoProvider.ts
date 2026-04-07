@@ -293,7 +293,7 @@ const AsgardeoProvider: Component = defineComponent({
         config.platform === Platform.AsgardeoV2 &&
         typeof arg1 === 'object' &&
         arg1 !== null &&
-        ('flowId' in arg1 || 'applicationId' in arg1);
+        ('executionId' in arg1 || 'applicationId' in arg1);
 
       try {
         if (!isV2FlowRequest) {
@@ -470,10 +470,10 @@ const AsgardeoProvider: Component = defineComponent({
             if (isV2Platform) {
               const urlParams: URLSearchParams = currentUrl.searchParams;
               const code: string | null = urlParams.get('code');
-              const flowIdFromUrl: string | null = urlParams.get('flowId');
-              const storedFlowId: string | null = sessionStorage.getItem('asgardeo_flow_id');
+              const executionIdFromUrl: string | null = urlParams.get('executionId');
+              const storedExecutionId: string | null = sessionStorage.getItem('asgardeo_execution_id');
 
-              if (code && !flowIdFromUrl && !storedFlowId) {
+              if (code && !executionIdFromUrl && !storedExecutionId) {
                 await signIn();
               }
             } else {

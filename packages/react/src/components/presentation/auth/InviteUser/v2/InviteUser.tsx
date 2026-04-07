@@ -93,7 +93,7 @@ export interface InviteUserProps {
  *
  *   return (
  *     <InviteUser
- *       onInviteLinkGenerated={(link, flowId) => setInviteLink(link)}
+ *       onInviteLinkGenerated={(link, executionId) => setInviteLink(link)}
  *       onError={(error) => console.error(error)}
  *     >
  *       {({ values, components, isLoading, handleInputChange, handleSubmit, inviteLink, isInviteGenerated }) => (

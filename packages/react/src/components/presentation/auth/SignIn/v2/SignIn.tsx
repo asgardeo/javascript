@@ -142,7 +142,7 @@ interface PasskeyState {
   challenge: string | null;
   creationOptions: string | null;
   error: Error | null;
-  flowId: string | null;
+  executionId: string | null;
   isActive: boolean;
 }
 
@@ -222,7 +222,7 @@ const SignIn: FC<SignInProps> = ({
   // State management for the flow
   const [components, setComponents] = useState<EmbeddedFlowComponent[]>([]);
   const [additionalData, setAdditionalData] = useState<Record<string, any>>({});
-  const [currentFlowId, setCurrentFlowId] = useState<string | null>(null);
+  const [currentExecutionId, setCurrentExecutionId] = useState<string | null>(null);
   const [isFlowInitialized, setIsFlowInitialized] = useState(false);
   const [flowError, setFlowError] = useState<Error | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -232,22 +232,22 @@ const SignIn: FC<SignInProps> = ({
     challenge: null,
     creationOptions: null,
     error: null,
-    flowId: null,
+    executionId: null,
     isActive: false,
   });
   const initializationAttemptedRef: any = useRef(false);
   const oauthCodeProcessedRef: any = useRef(false);
   const passkeyProcessedRef: any = useRef(false);
   /**
-   * Sets flowId between sessionStorage and state.
+   * Sets executionId between sessionStorage and state.
    * This ensures both are always in sync.
    */
-  const setFlowId = (flowId: string | null): void => {
-    setCurrentFlowId(flowId);
-    if (flowId) {
-      sessionStorage.setItem('asgardeo_flow_id', flowId);
+  const setExecutionId = (executionId: string | null): void => {
+    setCurrentExecutionId(executionId);
+    if (executionId) {
+      sessionStorage.setItem('asgardeo_execution_id', executionId);
     } else {
-      sessionStorage.removeItem('asgardeo_flow_id');
+      sessionStorage.removeItem('asgardeo_execution_id');
     }
   };
 
@@ -255,7 +255,7 @@ const SignIn: FC<SignInProps> = ({
    * Clear all flow-related storage and state.
    */
   const clearFlowState = (): void => {
-    setFlowId(null);
+    setExecutionId(null);
     setIsFlowInitialized(false);
     sessionStorage.removeItem('asgardeo_auth_id');
     setIsTimeoutDisabled(false);
@@ -275,7 +275,7 @@ const SignIn: FC<SignInProps> = ({
       code: urlParams.get('code'),
       error: urlParams.get('error'),
       errorDescription: urlParams.get('error_description'),
-      flowId: urlParams.get('flowId'),
+      executionId: urlParams.get('executionId'),
       nonce: urlParams.get('nonce'),
       state: urlParams.get('state'),
     };
@@ -307,13 +307,13 @@ const SignIn: FC<SignInProps> = ({
   };
 
   /**
-   * Clean up flow-related URL parameters (flowId, authId) from the browser URL.
-   * Used after flowId is set in state to prevent using invalidated flowId from URL.
+   * Clean up flow-related URL parameters (executionId, authId) from the browser URL.
+   * Used after executionId is set in state to prevent using invalidated executionId from URL.
    */
   const cleanupFlowUrlParams = (): void => {
     if (!window?.location?.href) return;
     const url: any = new URL(window.location.href);
-    url.searchParams.delete('flowId');
+    url.searchParams.delete('executionId');
     url.searchParams.delete('authId');
     url.searchParams.delete('applicationId');
     window?.history?.replaceState({}, '', url.toString());
@@ -349,8 +349,8 @@ const SignIn: FC<SignInProps> = ({
       const redirectURL: any = (response.data as any)?.redirectURL || (response as any)?.redirectURL;
 
       if (redirectURL && window?.location) {
-        if (response.flowId) {
-          setFlowId(response.flowId);
+        if (response.executionId) {
+          setExecutionId(response.executionId);
         }
 
         const urlParams: any = getUrlParams();
@@ -365,7 +365,7 @@ const SignIn: FC<SignInProps> = ({
 
   /**
    * Initialize the authentication flow.
-   * Priority: flowId > applicationId (from context) > applicationId (from URL)
+   * Priority: executionId > applicationId (from context) > applicationId (from URL)
    */
   const initializeFlow = async (): Promise<void> => {
     const urlParams: any = getUrlParams();
@@ -377,9 +377,9 @@ const SignIn: FC<SignInProps> = ({
 
     const effectiveApplicationId: any = applicationId || urlParams.applicationId;
 
-    if (!urlParams.flowId && !effectiveApplicationId) {
+    if (!urlParams.executionId && !effectiveApplicationId) {
       const error: any = new AsgardeoRuntimeError(
-        'Either flowId or applicationId is required for authentication',
+        'Either executionId or applicationId is required for authentication',
         'SIGN_IN_ERROR',
         'react',
       );
@@ -392,9 +392,9 @@ const SignIn: FC<SignInProps> = ({
 
       let response: EmbeddedSignInFlowResponseV2;
 
-      if (urlParams.flowId) {
+      if (urlParams.executionId) {
         response = (await signIn({
-          flowId: urlParams.flowId,
+          executionId: urlParams.executionId,
         })) as EmbeddedSignInFlowResponseV2;
       } else {
         response = (await signIn({
@@ -408,7 +408,7 @@ const SignIn: FC<SignInProps> = ({
       }
 
       const {
-        flowId: normalizedFlowId,
+        executionId: normalizedExecutionId,
         components: normalizedComponents,
         additionalData: normalizedAdditionalData,
       } = normalizeFlowResponse(
@@ -420,13 +420,13 @@ const SignIn: FC<SignInProps> = ({
         meta,
       );
 
-      if (normalizedFlowId && normalizedComponents) {
-        setFlowId(normalizedFlowId);
+      if (normalizedExecutionId && normalizedComponents) {
+        setExecutionId(normalizedExecutionId);
         setComponents(normalizedComponents);
         setAdditionalData(normalizedAdditionalData ?? {});
         setIsFlowInitialized(true);
         setIsTimeoutDisabled(false);
-        // Clean up flowId from URL after setting it in state
+        // Clean up executionId from URL after setting it in state
         cleanupFlowUrlParams();
       }
     } catch (error) {
@@ -468,7 +468,7 @@ const SignIn: FC<SignInProps> = ({
       !isLoading &&
       !isFlowInitialized &&
       !initializationAttemptedRef.current &&
-      !currentFlowId &&
+      !currentExecutionId &&
       !currentUrlParams.code &&
       !currentUrlParams.state &&
       !isSubmitting &&
@@ -477,7 +477,7 @@ const SignIn: FC<SignInProps> = ({
       initializationAttemptedRef.current = true;
       initializeFlow();
     }
-  }, [isInitialized, isLoading, isFlowInitialized, currentFlowId]);
+  }, [isInitialized, isLoading, isFlowInitialized, currentExecutionId]);
 
   /**
    * Handle step timeout if configured in additionalData.
@@ -513,10 +513,10 @@ const SignIn: FC<SignInProps> = ({
    * Handle form submission from BaseSignIn or render props.
    */
   const handleSubmit = async (payload: EmbeddedSignInFlowRequestV2): Promise<void> => {
-    // Use flowId from payload if available, otherwise fall back to currentFlowId
-    const effectiveFlowId: any = payload.flowId || currentFlowId;
+    // Use executionId from payload if available, otherwise fall back to currentExecutionId
+    const effectiveExecutionId: any = payload.executionId || currentExecutionId;
 
-    if (!effectiveFlowId) {
+    if (!effectiveExecutionId) {
       throw new Error('No active flow ID');
     }
 
@@ -592,7 +592,7 @@ const SignIn: FC<SignInProps> = ({
       setFlowError(null);
 
       const response: EmbeddedSignInFlowResponseV2 = (await signIn({
-        flowId: effectiveFlowId,
+        executionId: effectiveExecutionId,
         ...payload,
         inputs: processedInputs,
       })) as EmbeddedSignInFlowResponseV2;
@@ -605,7 +605,7 @@ const SignIn: FC<SignInProps> = ({
         response.data?.additionalData?.['passkeyCreationOptions']
       ) {
         const {passkeyChallenge, passkeyCreationOptions}: any = response.data.additionalData;
-        const effectiveFlowIdForPasskey: any = response.flowId || effectiveFlowId;
+        const effectiveExecutionIdForPasskey: any = response.executionId || effectiveExecutionId;
 
         // Reset passkey processed ref to allow processing
         passkeyProcessedRef.current = false;
@@ -616,7 +616,7 @@ const SignIn: FC<SignInProps> = ({
           challenge: passkeyChallenge,
           creationOptions: passkeyCreationOptions,
           error: null,
-          flowId: effectiveFlowIdForPasskey,
+          executionId: effectiveExecutionIdForPasskey,
           isActive: true,
         });
         setIsSubmitting(false);
@@ -625,7 +625,7 @@ const SignIn: FC<SignInProps> = ({
       }
 
       const {
-        flowId: normalizedFlowId,
+        executionId: normalizedExecutionId,
         components: normalizedComponents,
         additionalData: normalizedAdditionalData,
       } = normalizeFlowResponse(
@@ -659,9 +659,9 @@ const SignIn: FC<SignInProps> = ({
         setIsSubmitting(false);
 
         // Clear all OAuth-related storage on successful completion
-        setFlowId(null);
+        setExecutionId(null);
         setIsFlowInitialized(false);
-        sessionStorage.removeItem('asgardeo_flow_id');
+        sessionStorage.removeItem('asgardeo_execution_id');
         sessionStorage.removeItem('asgardeo_auth_id');
 
         // Clean up OAuth URL params before redirect
@@ -681,15 +681,15 @@ const SignIn: FC<SignInProps> = ({
         return;
       }
 
-      // Update flowId if response contains a new one
-      if (normalizedFlowId && normalizedComponents) {
-        setFlowId(normalizedFlowId);
+      // Update executionId if response contains a new one
+      if (normalizedExecutionId && normalizedComponents) {
+        setExecutionId(normalizedExecutionId);
         setComponents(normalizedComponents);
         setAdditionalData(normalizedAdditionalData ?? {});
         setIsTimeoutDisabled(false);
         // Ensure flow is marked as initialized when we have components
         setIsFlowInitialized(true);
-        // Clean up flowId from URL after setting it in state
+        // Clean up executionId from URL after setting it in state
         cleanupFlowUrlParams();
 
         // Display failure reason from INCOMPLETE response
@@ -719,16 +719,16 @@ const SignIn: FC<SignInProps> = ({
   };
 
   useOAuthCallback({
-    currentFlowId,
+    currentExecutionId,
     isInitialized: isInitialized && !isLoading,
     isSubmitting,
     onError: (err: any) => {
       clearFlowState();
       setError(err instanceof Error ? err : new Error(String(err)));
     },
-    onSubmit: async (payload: any) => handleSubmit({flowId: payload.flowId, inputs: payload.inputs}),
+    onSubmit: async (payload: any) => handleSubmit({executionId: payload.executionId, inputs: payload.inputs}),
     processedRef: oauthCodeProcessedRef,
-    setFlowId,
+    setExecutionId,
   });
 
   /**
@@ -736,7 +736,11 @@ const SignIn: FC<SignInProps> = ({
    * This effect auto-triggers the browser passkey popup and submits the result.
    */
   useEffect(() => {
-    if (!passkeyState.isActive || (!passkeyState.challenge && !passkeyState.creationOptions) || !passkeyState.flowId) {
+    if (
+      !passkeyState.isActive ||
+      (!passkeyState.challenge && !passkeyState.creationOptions) ||
+      !passkeyState.executionId
+    ) {
       return;
     }
 
@@ -774,7 +778,7 @@ const SignIn: FC<SignInProps> = ({
       }
 
       await handleSubmit({
-        flowId: passkeyState.flowId!,
+        executionId: passkeyState.executionId!,
         inputs,
       });
     };
@@ -786,7 +790,7 @@ const SignIn: FC<SignInProps> = ({
           challenge: null,
           creationOptions: null,
           error: null,
-          flowId: null,
+          executionId: null,
           isActive: false,
         });
       })
@@ -795,7 +799,7 @@ const SignIn: FC<SignInProps> = ({
         setFlowError(error as Error);
         onError?.(error as Error);
       });
-  }, [passkeyState.isActive, passkeyState.challenge, passkeyState.creationOptions, passkeyState.flowId]);
+  }, [passkeyState.isActive, passkeyState.challenge, passkeyState.creationOptions, passkeyState.executionId]);
 
   if (children) {
     const renderProps: SignInRenderProps = {

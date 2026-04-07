@@ -46,8 +46,8 @@ export interface AcceptInviteFlowResponse {
     };
     redirectURL?: string;
   };
+  executionId: string;
   failureReason?: string;
-  flowId: string;
   flowStatus: 'INCOMPLETE' | 'COMPLETE' | 'ERROR';
   type?: 'VIEW' | 'REDIRECTION';
 }
@@ -67,14 +67,14 @@ export interface BaseAcceptInviteRenderProps {
   error?: Error | null;
 
   /**
+   * Current flow ID from URL.
+   */
+  executionId?: string;
+
+  /**
    * Field validation errors.
    */
   fieldErrors: Record<string, string>;
-
-  /**
-   * Current flow ID from URL.
-   */
-  flowId?: string;
 
   /**
    * Navigate to sign in page.
@@ -170,7 +170,7 @@ export interface BaseAcceptInviteProps {
   /**
    * Flow ID from the invite link URL.
    */
-  flowId?: string;
+  executionId?: string;
 
   /**
    * Invite token from the invite link URL.
@@ -247,7 +247,7 @@ export interface BaseAcceptInviteProps {
  * 3. Flow completion
  */
 const BaseAcceptInvite: FC<BaseAcceptInviteProps> = ({
-  flowId,
+  executionId,
   inviteToken,
   onSubmit,
   onComplete,
@@ -339,7 +339,7 @@ const BaseAcceptInvite: FC<BaseAcceptInviteProps> = ({
    * This hook processes the authorization code and continues the flow.
    */
   useOAuthCallback({
-    currentFlowId: flowId ?? null,
+    currentExecutionId: executionId ?? null,
     isInitialized: true,
     onComplete: () => {
       setIsValidatingToken(false);
@@ -457,7 +457,7 @@ const BaseAcceptInvite: FC<BaseAcceptInviteProps> = ({
         const inputs: any = data || formValues;
 
         const payload: Record<string, any> = {
-          flowId: currentFlow.flowId,
+          executionId: currentFlow.executionId,
           inputs,
           verbose: true,
         };
@@ -531,10 +531,10 @@ const BaseAcceptInvite: FC<BaseAcceptInviteProps> = ({
     }
 
     // Validate required params for initial invite link
-    if (!flowId || !inviteToken) {
+    if (!executionId || !inviteToken) {
       setIsValidatingToken(false);
       setIsTokenInvalid(true);
-      handleError(new Error('Invalid invite link. Missing flowId or inviteToken.'));
+      handleError(new Error('Invalid invite link. Missing executionId or inviteToken.'));
       return;
     }
 
@@ -545,14 +545,14 @@ const BaseAcceptInvite: FC<BaseAcceptInviteProps> = ({
       setApiError(null);
 
       try {
-        // Store flowId in sessionStorage for OAuth callback
-        if (flowId) {
-          sessionStorage.setItem('asgardeo_flow_id', flowId);
+        // Store executionId in sessionStorage for OAuth callback
+        if (executionId) {
+          sessionStorage.setItem('asgardeo_execution_id', executionId);
         }
 
         // Send the invite token to validate and continue the flow
         const payload: any = {
-          flowId,
+          executionId,
           inputs: {
             inviteToken,
           },
@@ -579,7 +579,7 @@ const BaseAcceptInvite: FC<BaseAcceptInviteProps> = ({
         setIsValidatingToken(false);
       }
     })();
-  }, [flowId, inviteToken, onSubmit, onFlowChange, handleError, normalizeFlowResponseLocal]);
+  }, [executionId, inviteToken, onSubmit, onFlowChange, handleError, normalizeFlowResponseLocal]);
 
   /**
    * Extract title and subtitle from components.
@@ -621,8 +621,8 @@ const BaseAcceptInvite: FC<BaseAcceptInviteProps> = ({
   const renderProps: BaseAcceptInviteRenderProps = {
     components,
     error: apiError,
+    executionId,
     fieldErrors: formErrors,
-    flowId,
     goToSignIn: onGoToSignIn,
     handleInputBlur,
     handleInputChange,

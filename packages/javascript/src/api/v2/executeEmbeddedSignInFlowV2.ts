@@ -51,7 +51,7 @@ const executeEmbeddedSignInFlowV2 = async ({
   // `verbose: true` is required to get the `meta` field in the response that includes component details.
   // Add verbose:true if:
   // 1. payload contains only applicationId and flowType
-  // 2. payload contains only flowId
+  // 2. payload contains only executionId
   const hasOnlyAppIdAndFlowType: boolean =
     typeof cleanPayload === 'object' &&
     cleanPayload !== null &&
@@ -61,7 +61,7 @@ const executeEmbeddedSignInFlowV2 = async ({
   const hasOnlyFlowId: boolean =
     typeof cleanPayload === 'object' &&
     cleanPayload !== null &&
-    'flowId' in cleanPayload &&
+    'executionId' in cleanPayload &&
     Object.keys(cleanPayload).length === 1;
 
   const requestPayload: Record<string, unknown> =

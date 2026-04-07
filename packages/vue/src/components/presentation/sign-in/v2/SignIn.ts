@@ -43,12 +43,12 @@ import BaseSignIn from './BaseSignIn';
 import useAsgardeo from '../../../../composables/useAsgardeo';
 import useFlowMeta from '../../../../composables/useFlowMeta';
 import useI18n from '../../../../composables/useI18n';
-import {useOAuthCallback} from '../../../../composables/useOAuthCallback';
+import {useOAuthCallback} from '../../../../composables/v2/useOAuthCallback';
 import {initiateOAuthRedirect} from '../../../../utils/oauth';
 import {normalizeFlowResponse} from '../../../../utils/v2/flowTransformer';
 import {handlePasskeyAuthentication, handlePasskeyRegistration} from '../../../../utils/v2/passkey';
 
-const FLOW_ID_STORAGE_KEY: string = 'asgardeo_flow_id';
+const EXECUTION_ID_STORAGE_KEY: string = 'asgardeo_execution_id';
 const AUTH_ID_STORAGE_KEY: string = 'asgardeo_auth_id';
 
 interface PasskeyState {
@@ -56,7 +56,7 @@ interface PasskeyState {
   challenge: string | null;
   creationOptions: string | null;
   error: Error | null;
-  flowId: string | null;
+  executionId: string | null;
   isActive: boolean;
 }
 
@@ -120,7 +120,7 @@ const SignIn: Component = defineComponent({
     // Flow state
     const components: Ref<EmbeddedFlowComponent[]> = ref([]);
     const additionalData: Ref<Record<string, any>> = ref({});
-    const currentFlowId: Ref<string | null> = ref(null);
+    const currentExecutionId: Ref<string | null> = ref(null);
     const isFlowInitialized: Ref<boolean> = ref(false);
     const flowError: Ref<Error | null> = ref(null);
     const isSubmitting: Ref<boolean> = ref(false);
@@ -130,7 +130,7 @@ const SignIn: Component = defineComponent({
       challenge: null,
       creationOptions: null,
       error: null,
-      flowId: null,
+      executionId: null,
       isActive: false,
     });
 
@@ -141,17 +141,17 @@ const SignIn: Component = defineComponent({
 
     // ── Helpers ──────────────────────────────────────────────────────────
 
-    const persistFlowId = (flowId: string | null): void => {
-      currentFlowId.value = flowId;
-      if (flowId) {
-        sessionStorage.setItem(FLOW_ID_STORAGE_KEY, flowId);
+    const persistExecutionId = (executionId: string | null): void => {
+      currentExecutionId.value = executionId;
+      if (executionId) {
+        sessionStorage.setItem(EXECUTION_ID_STORAGE_KEY, executionId);
       } else {
-        sessionStorage.removeItem(FLOW_ID_STORAGE_KEY);
+        sessionStorage.removeItem(EXECUTION_ID_STORAGE_KEY);
       }
     };
 
     const clearFlowState = (): void => {
-      persistFlowId(null);
+      persistExecutionId(null);
       isFlowInitialized.value = false;
       sessionStorage.removeItem(AUTH_ID_STORAGE_KEY);
       isTimeoutDisabled.value = false;
@@ -164,7 +164,7 @@ const SignIn: Component = defineComponent({
       code: string | null;
       error: string | null;
       errorDescription: string | null;
-      flowId: string | null;
+      executionId: string | null;
       nonce: string | null;
       state: string | null;
     }
@@ -177,7 +177,7 @@ const SignIn: Component = defineComponent({
         code: params.get('code'),
         error: params.get('error'),
         errorDescription: params.get('error_description'),
-        flowId: params.get('flowId'),
+        executionId: params.get('executionId'),
         nonce: params.get('nonce'),
         state: params.get('state'),
       };
@@ -193,7 +193,7 @@ const SignIn: Component = defineComponent({
     const cleanupFlowUrlParams = (): void => {
       if (!window?.location?.href) return;
       const url: URL = new URL(window.location.href);
-      ['flowId', 'authId', 'applicationId'].forEach((p: string) => url.searchParams.delete(p));
+      ['executionId', 'authId', 'applicationId'].forEach((p: string) => url.searchParams.delete(p));
       window.history.replaceState({}, '', url.toString());
     };
 
@@ -217,9 +217,9 @@ const SignIn: Component = defineComponent({
       const effectiveApplicationId: string | null | undefined =
         (applicationId as string | undefined) || urlParams.applicationId;
 
-      if (!urlParams.flowId && !effectiveApplicationId) {
+      if (!urlParams.executionId && !effectiveApplicationId) {
         const err: AsgardeoRuntimeError = new AsgardeoRuntimeError(
-          'Either flowId or applicationId is required for authentication',
+          'Either executionId or applicationId is required for authentication',
           'SIGN_IN_ERROR',
           'vue',
         );
@@ -232,8 +232,8 @@ const SignIn: Component = defineComponent({
 
         let response: EmbeddedSignInFlowResponseV2;
 
-        if (urlParams.flowId) {
-          response = (await signIn({flowId: urlParams.flowId})) as EmbeddedSignInFlowResponseV2;
+        if (urlParams.executionId) {
+          response = (await signIn({executionId: urlParams.executionId})) as EmbeddedSignInFlowResponseV2;
         } else {
           response = (await signIn({
             applicationId: effectiveApplicationId,
@@ -245,7 +245,7 @@ const SignIn: Component = defineComponent({
         if (response.type === EmbeddedSignInFlowTypeV2.Redirection) {
           const redirectURL: string | undefined = (response.data as any)?.redirectURL || (response as any)?.redirectURL;
           if (redirectURL && window?.location) {
-            if (response.flowId) persistFlowId(response.flowId);
+            if (response.executionId) persistExecutionId(response.executionId);
             if (urlParams.authId) sessionStorage.setItem(AUTH_ID_STORAGE_KEY, urlParams.authId);
             initiateOAuthRedirect(redirectURL);
             return;
@@ -253,13 +253,13 @@ const SignIn: Component = defineComponent({
         }
 
         const {
-          flowId: normalizedFlowId,
+          executionId: normalizedExecutionId,
           components: normalizedComponents,
           additionalData: normalizedAdditionalData,
         } = normalizeFlowResponse(response, t, {resolveTranslations: false}, flowMeta.value);
 
-        if (normalizedFlowId && normalizedComponents) {
-          persistFlowId(normalizedFlowId);
+        if (normalizedExecutionId && normalizedComponents) {
+          persistExecutionId(normalizedExecutionId);
           components.value = normalizedComponents;
           additionalData.value = normalizedAdditionalData ?? {};
           isFlowInitialized.value = true;
@@ -278,9 +278,9 @@ const SignIn: Component = defineComponent({
     // ── Submit handler ────────────────────────────────────────────────────
 
     const handleSubmit = async (payload: EmbeddedSignInFlowRequestV2): Promise<void> => {
-      const effectiveFlowId: string | null = payload.flowId || currentFlowId.value;
+      const effectiveExecutionId: string | null = payload.executionId || currentExecutionId.value;
 
-      if (!effectiveFlowId) {
+      if (!effectiveExecutionId) {
         throw new Error('No active flow ID');
       }
 
@@ -335,7 +335,7 @@ const SignIn: Component = defineComponent({
         flowError.value = null;
 
         const response: EmbeddedSignInFlowResponseV2 = (await signIn({
-          flowId: effectiveFlowId,
+          executionId: effectiveExecutionId,
           ...payload,
           inputs: processedInputs,
         })) as EmbeddedSignInFlowResponseV2;
@@ -344,7 +344,7 @@ const SignIn: Component = defineComponent({
         if (response.type === EmbeddedSignInFlowTypeV2.Redirection) {
           const redirectURL: string | undefined = (response.data as any)?.redirectURL || (response as any)?.redirectURL;
           if (redirectURL && window?.location) {
-            if (response.flowId) persistFlowId(response.flowId);
+            if (response.executionId) persistExecutionId(response.executionId);
             const urlParams: UrlParams = getUrlParams();
             if (urlParams.authId) sessionStorage.setItem(AUTH_ID_STORAGE_KEY, urlParams.authId);
             initiateOAuthRedirect(redirectURL);
@@ -364,7 +364,7 @@ const SignIn: Component = defineComponent({
             challenge: passkeyChallenge || null,
             creationOptions: passkeyCreationOptions || null,
             error: null,
-            flowId: response.flowId || effectiveFlowId,
+            executionId: response.executionId || effectiveExecutionId,
             isActive: true,
           };
           isSubmitting.value = false;
@@ -372,7 +372,7 @@ const SignIn: Component = defineComponent({
         }
 
         const {
-          flowId: normalizedFlowId,
+          executionId: normalizedExecutionId,
           components: normalizedComponents,
           additionalData: normalizedAdditionalData,
         } = normalizeFlowResponse(response, t, {resolveTranslations: false}, flowMeta.value);
@@ -394,7 +394,7 @@ const SignIn: Component = defineComponent({
           const finalRedirectUrl: string | undefined = redirectUrl || afterSignInUrl;
 
           isSubmitting.value = false;
-          persistFlowId(null);
+          persistExecutionId(null);
           isFlowInitialized.value = false;
           sessionStorage.removeItem(AUTH_ID_STORAGE_KEY);
           cleanupOAuthUrlParams();
@@ -411,8 +411,8 @@ const SignIn: Component = defineComponent({
         }
 
         // Update flow state for next step
-        if (normalizedFlowId && normalizedComponents) {
-          persistFlowId(normalizedFlowId);
+        if (normalizedExecutionId && normalizedComponents) {
+          persistExecutionId(normalizedExecutionId);
           components.value = normalizedComponents;
           additionalData.value = normalizedAdditionalData ?? {};
           isTimeoutDisabled.value = false;
@@ -475,7 +475,7 @@ const SignIn: Component = defineComponent({
     watch(
       () => passkeyState.value,
       async (state: PasskeyState) => {
-        if (!state.isActive || (!state.challenge && !state.creationOptions) || !state.flowId) return;
+        if (!state.isActive || (!state.challenge && !state.creationOptions) || !state.executionId) return;
         if (passkeyProcessed) return;
         passkeyProcessed = true;
 
@@ -504,14 +504,14 @@ const SignIn: Component = defineComponent({
             throw new Error('No passkey challenge or creation options available');
           }
 
-          await handleSubmit({flowId: state.flowId!, inputs});
+          await handleSubmit({executionId: state.executionId!, inputs});
 
           passkeyState.value = {
             actionId: null,
             challenge: null,
             creationOptions: null,
             error: null,
-            flowId: null,
+            executionId: null,
             isActive: false,
           };
         } catch (error: unknown) {
@@ -527,8 +527,8 @@ const SignIn: Component = defineComponent({
     // ── OAuth callback (via composable) ─────────────────────────────────
 
     useOAuthCallback({
-      currentFlowId,
-      flowIdStorageKey: FLOW_ID_STORAGE_KEY,
+      currentExecutionId,
+      executionIdStorageKey: EXECUTION_ID_STORAGE_KEY,
       isInitialized,
       isSubmitting,
       onError: (err: any) => {
@@ -539,9 +539,9 @@ const SignIn: Component = defineComponent({
         }
       },
       onSubmit: (payload: EmbeddedSignInFlowRequestV2) =>
-        handleSubmit({flowId: payload.flowId, inputs: payload.inputs}),
+        handleSubmit({executionId: payload.executionId, inputs: payload.inputs}),
       processedFlag: oauthCodeProcessedFlag,
-      setFlowId: persistFlowId,
+      setExecutionId: persistExecutionId,
     });
 
     // ── Lifecycle ─────────────────────────────────────────────────────────
@@ -557,14 +557,20 @@ const SignIn: Component = defineComponent({
     // Initialize flow when SDK is ready (OAuth callback is handled by useOAuthCallback)
     watch(
       () =>
-        [isInitialized.value, sdkLoading.value, isFlowInitialized.value, currentFlowId.value, isSubmitting.value] as [
-          boolean,
-          boolean,
-          boolean,
-          string | null,
-          boolean,
-        ],
-      ([initialized, loading, flowInit, flowId, submitting]: [boolean, boolean, boolean, string | null, boolean]) => {
+        [
+          isInitialized.value,
+          sdkLoading.value,
+          isFlowInitialized.value,
+          currentExecutionId.value,
+          isSubmitting.value,
+        ] as [boolean, boolean, boolean, string | null, boolean],
+      ([initialized, loading, flowInit, executionId, submitting]: [
+        boolean,
+        boolean,
+        boolean,
+        string | null,
+        boolean,
+      ]) => {
         const urlParams: UrlParams = getUrlParams();
         const hasOAuthCode: boolean = !!urlParams.code;
         const hasOAuthState: boolean = !!urlParams.state;
@@ -575,7 +581,7 @@ const SignIn: Component = defineComponent({
           !loading &&
           !flowInit &&
           !initializationAttempted &&
-          !flowId &&
+          !executionId &&
           !hasOAuthCode &&
           !hasOAuthState &&
           !submitting &&
