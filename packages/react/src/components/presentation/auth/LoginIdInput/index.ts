@@ -16,30 +16,7 @@
  * under the License.
  */
 
-import {FC} from 'react';
-import ArrowLeftRight from './ArrowLeftRight';
-import ArrowRightLeft from './ArrowRightLeft';
-import Mail from './Mail';
-import Smartphone from './Smartphone';
-import UinIcon from './UinIcon';
-import VidIcon from './VidIcon';
-
-export interface FlowIconProps {
-  color?: string;
-  size?: number;
-}
-
-/**
- * Registry of icon components keyed by their lucide-compatible name.
- * Add new icons here as needed by flow definitions.
- */
-const flowIconRegistry: Record<string, FC<FlowIconProps>> = {
-  ArrowLeftRight,
-  ArrowRightLeft,
-  Mail,
-  Smartphone,
-  UinIcon,
-  VidIcon,
-};
-
-export default flowIconRegistry;
+export {default as LoginIdInput} from './v1/LoginIdInput';
+export type {LoginIdInputProps} from './v1/LoginIdInput';
+export {default as PrefixSelector} from './v1/PrefixSelector';
+export type {PrefixSelectorProps} from './v1/PrefixSelector';

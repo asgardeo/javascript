@@ -121,6 +121,7 @@ export * from './components/presentation/auth/SignUp/BaseSignUp';
 export {default as SignUp} from './components/presentation/auth/SignUp/SignUp';
 export * from './components/presentation/auth/SignUp/SignUp';
 
+export * from './components/presentation/auth/LoginIdInput';
 export * from './components/presentation/auth/InviteUser';
 export * from './components/presentation/auth/OrganizationUnitPicker';
 

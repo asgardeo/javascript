@@ -64,7 +64,7 @@ const translations: I18nTranslations = {
 
   /* Validation */
   'validations.required.field.error': 'මෙම ක්ෂේත්‍රය අවශ්‍යයි',
-
+  'validations.invalid.format.error': 'ඇතුලත් කළ අගය සහිත ආකාරයට නොගැටිය.',
   /* |---------------------------------------------------------------| */
   /* |                        Widgets                                | */
   /* |---------------------------------------------------------------| */

@@ -64,7 +64,8 @@ const translations: I18nTranslations = {
 
   /* Validation */
   'validations.required.field.error': 'यह फील्ड आवश्यक है',
-
+  'validations.invalid.format.error': 'दर्ज की गई वैल्यू सही फॉरमेट में नहीं है।',
+  
   /* |---------------------------------------------------------------| */
   /* |                        Widgets                                | */
   /* |---------------------------------------------------------------| */

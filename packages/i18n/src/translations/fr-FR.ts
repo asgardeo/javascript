@@ -64,7 +64,8 @@ const translations: I18nTranslations = {
 
   /* Validation */
   'validations.required.field.error': 'Ce champ est obligatoire',
-
+  'validations.invalid.format.error': 'La valeur saisie n\'est pas dans le format correct.',
+  
   /* |---------------------------------------------------------------| */
   /* |                        Widgets                                | */
   /* |---------------------------------------------------------------| */

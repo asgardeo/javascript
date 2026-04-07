@@ -33,11 +33,12 @@ import {
   ConsentPurposeDecisionV2 as ConsentPurposeDecision,
   ConsentAttributeElementV2 as ConsentAttributeElement,
 } from '@asgardeo/browser';
+import type {LoginIdType, Theme} from '@asgardeo/browser';
 import {css} from '@emotion/css';
 import DOMPurify from 'dompurify';
 import {cloneElement, CSSProperties, ReactElement} from 'react';
+import {LoginIdInput} from './LoginIdInput';
 import {OrganizationUnitPicker} from './OrganizationUnitPicker';
-import useTheme from '../../../contexts/Theme/useTheme';
 import {UseTranslation} from '../../../hooks/useTranslation';
 import Consent from '../../adapters/Consent';
 import {getConsentOptionalKey} from '../../adapters/ConsentCheckboxList';
@@ -205,11 +206,11 @@ const createAuthComponentFromFlow = (
     size?: 'small' | 'medium' | 'large';
     /** Translation function for resolving {{t(...)}} expressions at render time */
     t?: UseTranslation['t'];
+    /** Theme instance passed from the parent React component to avoid calling useTheme() in a loop */
+    theme?: Theme;
     variant?: any;
   } = {},
 ): ReactElement | null => {
-  const {theme} = useTheme();
-
   const key: string | number = options.key || component.id;
 
   /** Resolve any remaining {{t()}} or {{meta()}} template expressions in a string at render time. */
@@ -412,6 +413,32 @@ const createAuthComponentFromFlow = (
       );
     }
 
+    case EmbeddedFlowComponentType.LoginIdInput: {
+      const identifier: string = component.ref ?? component.id;
+      const loginIdTypes: LoginIdType[] | undefined = component.loginIdTypes;
+
+      if (!loginIdTypes || loginIdTypes.length === 0) {
+        logger.warn(`LOGIN_ID_INPUT component "${component.id}" has no loginIdTypes. Skipping render.`);
+        return null;
+      }
+
+      const isTouched: boolean = touchedFields[identifier] || false;
+      const externalError: string | undefined = isTouched ? formErrors[identifier] : undefined;
+
+      return (
+        <LoginIdInput
+          key={key}
+          loginIdTypes={loginIdTypes}
+          outerLabel={resolve(component.label)}
+          required={component.required || false}
+          disabled={isLoading}
+          error={externalError}
+          t={options.t}
+          onInputChange={(finalValue: string) => onInputChange(identifier, finalValue)}
+        />
+      );
+    }
+
     case EmbeddedFlowComponentType.OuSelect: {
       const identifier: string = component.ref ?? component.id;
       const rootOuId: string | undefined = options.additionalData?.['rootOuId'] as string | undefined;
@@ -437,7 +464,7 @@ const createAuthComponentFromFlow = (
         const formStyles: CSSProperties = {
           display: 'flex',
           flexDirection: 'column',
-          gap: `calc(${theme.vars.spacing.unit} * 2)`,
+          gap: `calc(${options.theme?.vars.spacing.unit ?? '8px'} * 2)`,
         };
 
         const blockComponents: any = component.components
@@ -613,6 +640,7 @@ export const renderSignInComponents = (
     size?: 'small' | 'medium' | 'large';
     /** Translation function for resolving {{t(...)}} expressions at render time */
     t?: UseTranslation['t'];
+    theme?: Theme;
     variant?: any;
   },
 ): ReactElement[] =>
@@ -658,6 +686,7 @@ export const renderSignUpComponents = (
     size?: 'small' | 'medium' | 'large';
     /** Translation function for resolving {{t(...)}} expressions at render time */
     t?: UseTranslation['t'];
+    theme?: Theme;
     variant?: any;
   },
 ): ReactElement[] =>
@@ -710,6 +739,7 @@ export const renderInviteUserComponents = (
     size?: 'small' | 'medium' | 'large';
     /** Translation function for resolving {{t(...)}} expressions at render time */
     t?: UseTranslation['t'];
+    theme?: Theme;
     variant?: any;
   },
 ): ReactElement[] =>

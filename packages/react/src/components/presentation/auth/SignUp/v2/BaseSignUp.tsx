@@ -827,6 +827,7 @@ const BaseSignUpContent: FC<BaseSignUpProps> = ({
           onInputBlur: handleInputBlur,
           onSubmit: handleSubmit,
           size,
+          theme,
           variant,
         },
       ),
