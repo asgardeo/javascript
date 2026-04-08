@@ -1,5 +1,13 @@
 # @asgardeo/browser
 
+## 0.6.2
+
+### Patch Changes
+
+- [#445](https://github.com/asgardeo/javascript/pull/445)
+  [`6e6fb7f`](https://github.com/asgardeo/javascript/commit/6e6fb7fdd525e064e517c4e5b2a538c1d7b2c286) Thanks
+  [@NipuniBhagya](https://github.com/NipuniBhagya)! - Fix the race condition in token refresh
+
 ## 0.6.1
 
 ### Patch Changes
