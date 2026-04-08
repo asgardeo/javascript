@@ -67,6 +67,7 @@ export interface MainThreadClientInterface {
   getAccessToken(sessionId?: string): Promise<string>;
   getStorageManager(): Promise<StorageManager<MainThreadClientConfig>>;
   isSignedIn(): Promise<boolean>;
+  startAutoRefreshToken(): Promise<void>;
   reInitialize(config: Partial<AuthClientConfig<MainThreadClientConfig>>): Promise<void>;
   signInSilently(
     additionalParams?: Record<string, string | boolean>,

@@ -271,6 +271,14 @@ const AsgardeoProvider: FC<PropsWithChildren<AsgardeoProviderProps>> = ({
 
       if (isAlreadySignedIn) {
         await updateSession();
+        await asgardeo.startAutoRefreshToken();
+        return;
+      }
+
+      await asgardeo.startAutoRefreshToken().catch(() => {});
+      if (await asgardeo.isSignedIn()) {
+        await updateSession();
+        await asgardeo.startAutoRefreshToken();
         return;
       }
 

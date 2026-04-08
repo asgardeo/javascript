@@ -336,6 +336,10 @@ class AsgardeoReactClient<T extends AsgardeoReactConfig = AsgardeoReactConfig> e
     return this.asgardeo.isSignedIn();
   }
 
+  async startAutoRefreshToken(): Promise<void> {
+    return this.asgardeo.startAutoRefreshToken();
+  }
+
   override getConfiguration(): T {
     return this.asgardeo.getConfigData() as unknown as T;
   }

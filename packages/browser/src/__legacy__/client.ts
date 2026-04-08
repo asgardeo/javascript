@@ -1107,6 +1107,12 @@ export class AsgardeoSPAClient {
     return this._client?.isSignedIn();
   }
 
+  public async startAutoRefreshToken(): Promise<void> {
+    await this.isInitialized();
+
+    return (this._client as MainThreadClientInterface)?.startAutoRefreshToken();
+  }
+
   /**
    * This method specifies if there is an active session in the browser or not.
    *
