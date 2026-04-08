@@ -1,5 +1,17 @@
 # @asgardeo/react
 
+## 0.21.1
+
+### Patch Changes
+
+- [#442](https://github.com/asgardeo/javascript/pull/442)
+  [`ed8f055`](https://github.com/asgardeo/javascript/commit/ed8f055630cb4078bd0164a1969718510a5d1b5b) Thanks
+  [@NipuniBhagya](https://github.com/NipuniBhagya)! - Fix auto refresh token logic error
+
+- Updated dependencies
+  [[`ed8f055`](https://github.com/asgardeo/javascript/commit/ed8f055630cb4078bd0164a1969718510a5d1b5b)]:
+  - @asgardeo/browser@0.6.1
+
 ## 0.21.0
 
 ### Minor Changes

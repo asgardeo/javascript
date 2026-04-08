@@ -1,5 +1,13 @@
 # @asgardeo/vue
 
+## 0.2.1
+
+### Patch Changes
+
+- Updated dependencies
+  [[`ed8f055`](https://github.com/asgardeo/javascript/commit/ed8f055630cb4078bd0164a1969718510a5d1b5b)]:
+  - @asgardeo/browser@0.6.1
+
 ## 0.2.0
 
 ### Minor Changes
