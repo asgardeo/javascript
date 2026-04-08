@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2020-2026, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -24,6 +24,7 @@ import {MainThreadClientConfig, WebWorkerClientConfig} from '../models/client-co
 export class SPAHelper<T extends MainThreadClientConfig | WebWorkerClientConfig> {
   private _authenticationClient: AsgardeoAuthClient<T>;
   private _storageManager: StorageManager<T>;
+  private _isTokenRefreshLoading: boolean = false;
 
   public constructor(authClient: AsgardeoAuthClient<T>) {
     this._authenticationClient = authClient;
@@ -52,12 +53,26 @@ export class SPAHelper<T extends MainThreadClientConfig | WebWorkerClientConfig>
       const timeUntilRefresh = absoluteExpiryTime - Date.now() - TOKEN_REFRESH_BUFFER_MS;
 
       if (timeUntilRefresh <= 0) {
-        await authenticationHelper.refreshAccessToken();
+        if (this._isTokenRefreshLoading) return;
+
+        this._isTokenRefreshLoading = true;
+        try {
+          await authenticationHelper.refreshAccessToken();
+        } finally {
+          this._isTokenRefreshLoading = false;
+        }
         return;
       }
 
       const timer = setTimeout(async () => {
-        await authenticationHelper.refreshAccessToken();
+        if (this._isTokenRefreshLoading) return;
+
+        this._isTokenRefreshLoading = true;
+        try {
+          await authenticationHelper.refreshAccessToken();
+        } finally {
+          this._isTokenRefreshLoading = false;
+        }
       }, timeUntilRefresh);
 
       await this._storageManager.setTemporaryDataParameter(
