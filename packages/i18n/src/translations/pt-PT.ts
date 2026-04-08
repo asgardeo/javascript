@@ -43,6 +43,8 @@ const translations: I18nTranslations = {
 
   /* Display */
   'elements.display.divider.or_separator': 'OU',
+  'elements.display.copyable_text.copy': 'Cópia',
+  'elements.display.copyable_text.copied': 'Copiado!',
 
   /* Fields */
   'elements.fields.generic.placeholder': 'Introduza o seu {field}',

@@ -53,11 +53,6 @@ export interface InviteUserProps {
   onFlowChange?: (response: InviteUserFlowResponse) => void;
 
   /**
-   * Callback when the invite link is generated successfully.
-   */
-  onInviteLinkGenerated?: (inviteLink: string, flowId: string) => void;
-
-  /**
    * Whether to show the subtitle.
    */
   showSubtitle?: boolean;
@@ -119,7 +114,6 @@ export interface InviteUserProps {
  * ```
  */
 const InviteUser: FC<InviteUserProps> = ({
-  onInviteLinkGenerated,
   onError,
   onFlowChange,
   className,
@@ -197,7 +191,6 @@ const InviteUser: FC<InviteUserProps> = ({
     <BaseInviteUser
       onInitialize={handleInitialize}
       onSubmit={handleSubmit}
-      onInviteLinkGenerated={onInviteLinkGenerated}
       onError={onError}
       onFlowChange={onFlowChange}
       className={className}

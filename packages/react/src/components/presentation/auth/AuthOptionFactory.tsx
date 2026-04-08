@@ -52,6 +52,7 @@ import SignInWithEthereumButton from '../../adapters/SignInWithEthereumButton';
 import SmsOtpButton from '../../adapters/SmsOtpButton';
 import {createField} from '../../factories/FieldFactory';
 import Button from '../../primitives/Button/Button';
+import CopyableText from '../../primitives/CopyableText/CopyableText';
 import Divider from '../../primitives/Divider/Divider';
 import flowIconRegistry from '../../primitives/Icons/flowIconRegistry';
 import Select from '../../primitives/Select/Select';
@@ -579,6 +580,14 @@ const createAuthComponentFromFlow = (
       const expiresIn: number = timeoutMs > 0 ? Math.max(0, Math.floor((timeoutMs - Date.now()) / 1000)) : 0;
 
       return <FlowTimer key={key} expiresIn={expiresIn} textTemplate={textTemplate} />;
+    }
+
+    case EmbeddedFlowComponentType.CopyableText: {
+      const sourceKey: string | undefined = (component as any).source;
+      const value: string = sourceKey && options.additionalData ? String(options.additionalData[sourceKey] ?? '') : '';
+      const labelText: string | undefined = resolve((component as any).label) || undefined;
+
+      return <CopyableText key={key} label={labelText} value={value} />;
     }
 
     default:

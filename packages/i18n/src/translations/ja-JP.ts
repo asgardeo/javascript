@@ -43,6 +43,8 @@ const translations: I18nTranslations = {
 
   /* Display */
   'elements.display.divider.or_separator': 'または',
+  'elements.display.copyable_text.copy': 'コピー',
+  'elements.display.copyable_text.copied': 'コピーしました！',
 
   /* Fields */
   'elements.fields.generic.placeholder': '{field}を入力してください',

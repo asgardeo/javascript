@@ -43,6 +43,8 @@ const translations: I18nTranslations = {
 
   /* Display */
   'elements.display.divider.or_separator': 'లేదా',
+  'elements.display.copyable_text.copy': 'కాపీ చేయండి',
+  'elements.display.copyable_text.copied': 'కాపీ చేయబడింది!',
 
   /* Fields */
   'elements.fields.generic.placeholder': 'మీ {field} ను నమోదు చేయండి',

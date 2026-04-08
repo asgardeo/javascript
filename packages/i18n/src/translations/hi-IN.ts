@@ -43,6 +43,8 @@ const translations: I18nTranslations = {
 
   /* Display */
   'elements.display.divider.or_separator': 'या',
+  'elements.display.copyable_text.copy': 'प्रतिलिपि',
+  'elements.display.copyable_text.copied': 'नकल की गई!',
 
   /* Fields */
   'elements.fields.generic.placeholder': '{field} दर्ज करें',

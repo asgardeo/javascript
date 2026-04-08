@@ -40,6 +40,8 @@ export interface I18nTranslations {
 
   /* Display */
   'elements.display.divider.or_separator': string;
+  'elements.display.copyable_text.copy': string;
+  'elements.display.copyable_text.copied': string;
 
   /* Fields */
   'elements.fields.generic.placeholder': string;
