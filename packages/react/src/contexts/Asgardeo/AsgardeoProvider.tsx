@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2025, WSO2 LLC. (https://www.wso2.com).
+ * Copyright (c) 2025-2026, WSO2 LLC. (https://www.wso2.com).
  *
  * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -34,6 +34,7 @@ import {
   extractUserClaimsFromIdToken,
   EmbeddedSignInFlowResponseV2,
   TokenResponse,
+  createPackageComponentLogger,
 } from '@asgardeo/browser';
 import {FC, RefObject, PropsWithChildren, ReactElement, useEffect, useMemo, useRef, useState, useCallback} from 'react';
 import AsgardeoContext from './AsgardeoContext';
@@ -47,6 +48,11 @@ import I18nProvider from '../I18n/I18nProvider';
 import OrganizationProvider from '../Organization/OrganizationProvider';
 import ThemeProvider from '../Theme/ThemeProvider';
 import UserProvider from '../User/UserProvider';
+
+const logger: ReturnType<typeof createPackageComponentLogger> = createPackageComponentLogger(
+  '@asgardeo/react',
+  'AsgardeoProvider',
+);
 
 /**
  * Props interface of {@link AsgardeoProvider}
@@ -269,8 +275,32 @@ const AsgardeoProvider: FC<PropsWithChildren<AsgardeoProviderProps>> = ({
       // User is already authenticated. Skip...
       const isAlreadySignedIn: boolean = await asgardeo.isSignedIn();
 
-      if (isAlreadySignedIn) {
+      // Start auto-refresh with a soft failure.
+      const scheduleAutoRefresh = async (): Promise<void> => {
+        try {
+          await asgardeo.startAutoRefreshToken();
+        } catch (error) {
+          logger.warn('Failed to schedule automatic token refresh.', error);
+        }
+      };
+
+      // Restore session state and kick off the refresh timer.
+      const resumeSession = async (): Promise<void> => {
         await updateSession();
+        await scheduleAutoRefresh();
+      };
+
+      if (isAlreadySignedIn) {
+        await resumeSession();
+      }
+
+      // The access token may have expired while the refresh token is still valid.
+      // Attempt a silent refresh — startAutoRefreshToken() calls refreshAccessToken()
+      // immediately when timeUntilRefresh <= 0, then re-check sign-in status.
+      await scheduleAutoRefresh();
+
+      if (await asgardeo.isSignedIn()) {
+        await resumeSession();
         return;
       }
 

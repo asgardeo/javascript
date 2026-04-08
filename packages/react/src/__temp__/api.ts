@@ -383,6 +383,10 @@ class AuthAPI {
     return this.client.isSignedIn();
   }
 
+  public async startAutoRefreshToken(): Promise<void> {
+    return this.client.startAutoRefreshToken();
+  }
+
   /**
    * This method specifies if the session is active or not.
    *

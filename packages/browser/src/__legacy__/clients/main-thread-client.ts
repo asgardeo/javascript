@@ -415,6 +415,11 @@ export const MainThreadClient = async (
     return _authenticationClient.decodeJwtToken<T>(token);
   };
 
+  const startAutoRefreshToken = async (): Promise<void> => {
+    _spaHelper.clearRefreshTokenTimeout();
+    await _spaHelper.refreshAccessTokenAutomatically(_authenticationHelper);
+  };
+
   return {
     disableHttpHandler,
     enableHttpHandler,
@@ -441,6 +446,7 @@ export const MainThreadClient = async (
     signIn,
     signOut,
     signInSilently,
+    startAutoRefreshToken,
     reInitialize,
     decodeJwtToken,
   };
