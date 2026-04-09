@@ -43,6 +43,8 @@ const translations: I18nTranslations = {
 
   /* Display */
   'elements.display.divider.or_separator': 'அல்லது',
+  'elements.display.copyable_text.copy': 'நகலெடுக்கவும்',
+  'elements.display.copyable_text.copied': 'நகலெடுக்கப்பட்டது!',
 
   /* Fields */
   'elements.fields.generic.placeholder': '{field} உள்ளிடவும்',

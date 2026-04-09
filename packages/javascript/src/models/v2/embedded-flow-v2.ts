@@ -47,6 +47,9 @@ export enum EmbeddedFlowComponentType {
   /** Consent component for displaying consent purposes and attributes */
   Consent = 'CONSENT',
 
+  /** Copyable text display component that shows text with a copy-to-clipboard action */
+  CopyableText = 'COPYABLE_TEXT',
+
   /** Divider component for visual separation of content */
   Divider = 'DIVIDER',
 
@@ -319,6 +322,12 @@ export interface EmbeddedFlowComponent {
    * Icon size in pixels (for Icon components).
    */
   size?: number;
+
+  /**
+   * Data source key for dynamic components (e.g., COPYABLE_TEXT).
+   * References a key in additionalData whose value is resolved at render time.
+   */
+  source?: string;
 
   /**
    * Image source URL (for Image components).

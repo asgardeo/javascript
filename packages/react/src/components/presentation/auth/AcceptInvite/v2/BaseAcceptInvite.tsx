@@ -57,11 +57,6 @@ export interface AcceptInviteFlowResponse {
  */
 export interface BaseAcceptInviteRenderProps {
   /**
-   * Title from the password screen (for use in completion screen).
-   */
-  completionTitle?: string;
-
-  /**
    * Flow components from the current step.
    */
   components: any[];
@@ -281,7 +276,6 @@ const BaseAcceptInvite: FC<BaseAcceptInviteProps> = ({
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const [touchedFields, setTouchedFields] = useState<Record<string, boolean>>({});
   const [isFormValid, setIsFormValid] = useState(true);
-  const [completionTitle, setCompletionTitle] = useState<string | undefined>(undefined);
 
   const tokenValidationAttemptedRef: any = useRef(false);
 
@@ -348,7 +342,6 @@ const BaseAcceptInvite: FC<BaseAcceptInviteProps> = ({
     currentFlowId: flowId ?? null,
     isInitialized: true,
     onComplete: () => {
-      setIsComplete(true);
       setIsValidatingToken(false);
       onComplete?.();
     },
@@ -488,21 +481,15 @@ const BaseAcceptInvite: FC<BaseAcceptInviteProps> = ({
           }
         }
 
-        // Store the heading from current flow before completion
-        if (currentFlow?.data?.components || currentFlow?.data?.meta?.components) {
-          const currentComponents: any = currentFlow.data.components || currentFlow.data.meta?.components || [];
-          const heading: any = currentComponents.find(
-            (comp: any) => comp.type === 'TEXT' && comp.variant === 'HEADING_1',
-          );
-          if (heading?.label) {
-            setCompletionTitle(heading.label);
-          }
-        }
-
         // Check for completion
         if (response.flowStatus === 'COMPLETE') {
           setIsComplete(true);
-          onComplete?.();
+          const completionComponents: any[] = response.data?.components || response.data?.meta?.components || [];
+          if (completionComponents.length > 0) {
+            setCurrentFlow(response);
+          } else {
+            onComplete?.();
+          }
           return;
         }
 
@@ -632,7 +619,6 @@ const BaseAcceptInvite: FC<BaseAcceptInviteProps> = ({
 
   // Render props
   const renderProps: BaseAcceptInviteRenderProps = {
-    completionTitle,
     components,
     error: apiError,
     fieldErrors: formErrors,
@@ -696,33 +682,6 @@ const BaseAcceptInvite: FC<BaseAcceptInviteProps> = ({
             <div style={{display: 'flex', justifyContent: 'center', marginTop: '1.5rem'}}>
               <Button variant="outline" onClick={onGoToSignIn}>
                 Go to Sign In
-              </Button>
-            </div>
-          )}
-        </CardPrimitive.Content>
-      </CardPrimitive>
-    );
-  }
-
-  // Completion state
-  if (isComplete) {
-    return (
-      <CardPrimitive className={cx(className, styles.card)} variant={variant}>
-        <CardPrimitive.Header className={styles.header}>
-          <CardPrimitive.Title level={2} className={styles.title}>
-            Account Setup Complete!
-          </CardPrimitive.Title>
-        </CardPrimitive.Header>
-        <CardPrimitive.Content>
-          <AlertPrimitive variant="success">
-            <AlertPrimitive.Description>
-              Your account has been successfully set up. You can now sign in with your credentials.
-            </AlertPrimitive.Description>
-          </AlertPrimitive>
-          {onGoToSignIn && (
-            <div style={{display: 'flex', justifyContent: 'center', marginTop: '1.5rem'}}>
-              <Button variant="solid" color="primary" onClick={onGoToSignIn}>
-                Sign In
               </Button>
             </div>
           )}

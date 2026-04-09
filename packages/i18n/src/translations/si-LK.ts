@@ -43,6 +43,8 @@ const translations: I18nTranslations = {
 
   /* Display */
   'elements.display.divider.or_separator': 'හෝ',
+  'elements.display.copyable_text.copy': 'පිටපත් කරන්න',
+  'elements.display.copyable_text.copied': 'පිටපත් කළා!',
 
   /* Fields */
   'elements.fields.generic.placeholder': 'ඔබේ {field} ඇතුලත් කරන්න',

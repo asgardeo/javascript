@@ -25,7 +25,6 @@ import useTheme from '../../../../../contexts/Theme/useTheme';
 import useTranslation from '../../../../../hooks/useTranslation';
 import {normalizeFlowResponse, extractErrorMessage} from '../../../../../utils/v2/flowTransformer';
 import AlertPrimitive from '../../../../primitives/Alert/Alert';
-import Button from '../../../../primitives/Button/Button';
 // eslint-disable-next-line import/no-named-as-default
 import CardPrimitive, {CardProps} from '../../../../primitives/Card/Card';
 import Spinner from '../../../../primitives/Spinner/Spinner';
@@ -64,11 +63,6 @@ export interface BaseInviteUserRenderProps {
   components: any[];
 
   /**
-   * Copy invite link to clipboard.
-   */
-  copyInviteLink: () => Promise<void>;
-
-  /**
    * API error (if any).
    */
   error?: Error | null;
@@ -97,26 +91,6 @@ export interface BaseInviteUserRenderProps {
    * Function to handle form submission.
    */
   handleSubmit: (component: any, data?: Record<string, any>) => Promise<void>;
-
-  /**
-   * Generated invite link (available after user provisioning).
-   */
-  inviteLink?: string;
-
-  /**
-   * Whether the invite link was copied.
-   */
-  inviteLinkCopied: boolean;
-
-  /**
-   * Whether the invite email was sent successfully.
-   */
-  isEmailSent: boolean;
-
-  /**
-   * Whether the invite link has been generated (admin flow complete).
-   */
-  isInviteGenerated: boolean;
 
   /**
    * Loading state.
@@ -206,11 +180,6 @@ export interface BaseInviteUserProps {
   onInitialize: (payload: Record<string, any>) => Promise<InviteUserFlowResponse>;
 
   /**
-   * Callback when the invite link is generated successfully.
-   */
-  onInviteLinkGenerated?: (inviteLink: string, flowId: string) => void;
-
-  /**
    * Function to submit flow step data.
    * This should make an authenticated request to the flow/execute endpoint.
    */
@@ -264,7 +233,6 @@ const BaseInviteUser: FC<BaseInviteUserProps> = ({
   onSubmit,
   onError,
   onFlowChange,
-  onInviteLinkGenerated,
   className = '',
   children,
   fetchOrganizationUnitChildren,
@@ -286,9 +254,6 @@ const BaseInviteUser: FC<BaseInviteUserProps> = ({
   const [formValues, setFormValues] = useState<Record<string, string>>({});
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const [touchedFields, setTouchedFields] = useState<Record<string, boolean>>({});
-  const [inviteLink, setInviteLink] = useState<string | undefined>();
-  const [inviteLinkCopied, setInviteLinkCopied] = useState(false);
-  const [emailSent, setEmailSent] = useState(false);
   const [isFormValid, setIsFormValid] = useState(true);
 
   const initializationAttemptedRef: any = useRef(false);
@@ -452,18 +417,6 @@ const BaseInviteUser: FC<BaseInviteUserProps> = ({
         const response: any = normalizeFlowResponseLocal(rawResponse);
         onFlowChange?.(response);
 
-        // Check if invite link is in the response
-        if (response.data?.additionalData?.['inviteLink']) {
-          const inviteLinkValue: any = response.data.additionalData['inviteLink'];
-          setInviteLink(inviteLinkValue);
-          onInviteLinkGenerated?.(inviteLinkValue, response.flowId);
-        }
-
-        // Check if email was sent successfully
-        if (response.data?.additionalData?.['emailSent'] === 'true') {
-          setEmailSent(true);
-        }
-
         // Check for error status
         if (response.flowStatus === 'ERROR') {
           handleError(response);
@@ -481,40 +434,8 @@ const BaseInviteUser: FC<BaseInviteUserProps> = ({
         setIsLoading(false);
       }
     },
-    [
-      currentFlow,
-      formValues,
-      validateForm,
-      onSubmit,
-      onFlowChange,
-      onInviteLinkGenerated,
-      handleError,
-      normalizeFlowResponseLocal,
-    ],
+    [currentFlow, formValues, validateForm, onSubmit, onFlowChange, handleError, normalizeFlowResponseLocal],
   );
-
-  /**
-   * Copy invite link to clipboard.
-   */
-  const copyInviteLink: any = useCallback(async () => {
-    if (!inviteLink) return;
-
-    try {
-      await navigator.clipboard.writeText(inviteLink);
-      setInviteLinkCopied(true);
-      setTimeout(() => setInviteLinkCopied(false), 3000);
-    } catch {
-      // Fallback for browsers that don't support clipboard API
-      const textArea: any = document.createElement('textarea');
-      textArea.value = inviteLink;
-      document.body.appendChild(textArea);
-      textArea.select();
-      document.execCommand('copy');
-      document.body.removeChild(textArea);
-      setInviteLinkCopied(true);
-      setTimeout(() => setInviteLinkCopied(false), 3000);
-    }
-  }, [inviteLink]);
 
   /**
    * Reset the flow to invite another user.
@@ -526,9 +447,6 @@ const BaseInviteUser: FC<BaseInviteUserProps> = ({
     setFormValues({});
     setFormErrors({});
     setTouchedFields({});
-    setInviteLink(undefined);
-    setInviteLinkCopied(false);
-    setEmailSent(false);
     initializationAttemptedRef.current = false;
   }, []);
 
@@ -655,24 +573,17 @@ const BaseInviteUser: FC<BaseInviteUserProps> = ({
   const components: any = currentFlow?.data?.components || currentFlow?.data?.meta?.components || [];
   const {title, subtitle} = extractHeadings(components);
   const componentsWithoutHeadings: any = filterHeadings(components);
-  const isInviteGenerated: any = !!inviteLink;
-  const isEmailSent: boolean = emailSent;
 
   // Render props
   const renderProps: BaseInviteUserRenderProps = {
     additionalData: currentFlow?.data?.additionalData,
     components,
-    copyInviteLink,
     error: apiError,
     fieldErrors: formErrors,
     flowId: currentFlow?.flowId,
     handleInputBlur,
     handleInputChange,
     handleSubmit,
-    inviteLink,
-    inviteLinkCopied,
-    isEmailSent,
-    isInviteGenerated,
     isLoading,
     isValid: isFormValid,
     meta,
@@ -725,80 +636,6 @@ const BaseInviteUser: FC<BaseInviteUserProps> = ({
             <AlertPrimitive.Title>Error</AlertPrimitive.Title>
             <AlertPrimitive.Description>{apiError.message}</AlertPrimitive.Description>
           </AlertPrimitive>
-        </CardPrimitive.Content>
-      </CardPrimitive>
-    );
-  }
-
-  // Invite email sent successfully - show email sent confirmation
-  if (isInviteGenerated && isEmailSent) {
-    return (
-      <CardPrimitive className={cx(className, styles.card)} variant={variant}>
-        <CardPrimitive.Header className={styles.header}>
-          <CardPrimitive.Title level={2} className={styles.title}>
-            Invite Email Sent!
-          </CardPrimitive.Title>
-        </CardPrimitive.Header>
-        <CardPrimitive.Content>
-          <AlertPrimitive variant="success">
-            <AlertPrimitive.Description>
-              An invitation email has been sent successfully. The user can complete their registration using the link in
-              the email.
-            </AlertPrimitive.Description>
-          </AlertPrimitive>
-          <div style={{display: 'flex', gap: '0.5rem', marginTop: '1.5rem'}}>
-            <Button variant="outline" onClick={resetFlow}>
-              Invite Another User
-            </Button>
-          </div>
-        </CardPrimitive.Content>
-      </CardPrimitive>
-    );
-  }
-
-  // Invite link generated but email not sent - show copy link fallback
-  if (isInviteGenerated && inviteLink) {
-    return (
-      <CardPrimitive className={cx(className, styles.card)} variant={variant}>
-        <CardPrimitive.Header className={styles.header}>
-          <CardPrimitive.Title level={2} className={styles.title}>
-            Invite Link Generated!
-          </CardPrimitive.Title>
-        </CardPrimitive.Header>
-        <CardPrimitive.Content>
-          <AlertPrimitive variant="success">
-            <AlertPrimitive.Description>
-              Share this link with the user to complete their registration.
-            </AlertPrimitive.Description>
-          </AlertPrimitive>
-          <div style={{marginTop: '1rem'}}>
-            <Typography variant="body2" style={{marginBottom: '0.5rem'}}>
-              Invite Link
-            </Typography>
-            <div
-              style={{
-                alignItems: 'center',
-                backgroundColor: 'var(--asgardeo-color-background-secondary, #f5f5f5)',
-                borderRadius: '4px',
-                display: 'flex',
-                gap: '0.5rem',
-                padding: '0.75rem',
-                wordBreak: 'break-all',
-              }}
-            >
-              <Typography variant="body2" style={{flex: 1}}>
-                {inviteLink}
-              </Typography>
-              <Button variant="outline" size="small" onClick={copyInviteLink}>
-                {inviteLinkCopied ? 'Copied!' : 'Copy'}
-              </Button>
-            </div>
-          </div>
-          <div style={{display: 'flex', gap: '0.5rem', marginTop: '1.5rem'}}>
-            <Button variant="outline" onClick={resetFlow}>
-              Invite Another User
-            </Button>
-          </div>
         </CardPrimitive.Content>
       </CardPrimitive>
     );
