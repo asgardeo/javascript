@@ -25,6 +25,7 @@ export enum FieldType {
   Password = 'PASSWORD',
   Radio = 'RADIO',
   Select = 'SELECT',
+  Tel = 'TEL',
   Text = 'TEXT',
   Textarea = 'TEXTAREA',
   Time = 'TIME',

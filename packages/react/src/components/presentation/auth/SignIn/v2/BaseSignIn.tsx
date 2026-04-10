@@ -281,7 +281,9 @@ const BaseSignInContent: FC<BaseSignInProps> = ({
           if (
             component.type === 'TEXT_INPUT' ||
             component.type === 'PASSWORD_INPUT' ||
-            component.type === 'EMAIL_INPUT'
+            component.type === 'EMAIL_INPUT' ||
+            component.type === 'PHONE_INPUT' ||
+            component.type === 'OTP_INPUT'
           ) {
             const identifier: string = component.ref;
             fields.push({

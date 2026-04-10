@@ -343,7 +343,7 @@ const BaseInviteUser: FC<BaseInviteUserProps> = ({
       const validateComponents = (comps: any[]): any => {
         comps.forEach((comp: any) => {
           if (
-            (comp.type === 'TEXT_INPUT' || comp.type === 'EMAIL_INPUT' || comp.type === 'SELECT') &&
+            (comp.type === 'TEXT_INPUT' || comp.type === 'EMAIL_INPUT' || comp.type === 'SELECT' || comp.type === 'PHONE_INPUT' || comp.type === 'OTP_INPUT') &&
             comp.required &&
             comp.ref
           ) {

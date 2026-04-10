@@ -187,6 +187,15 @@ export const createField = (config: FieldConfig): ReactElement => {
           autoComplete="email"
         />
       );
+    case FieldType.Tel:
+      return (
+        <TextField
+          {...commonProps}
+          type="tel"
+          onChange={(e: ChangeEvent<HTMLInputElement>): void => onChange(e.target.value)}
+          autoComplete="tel"
+        />
+      );
     case FieldType.Date:
       return (
         <DatePicker {...commonProps} onChange={(e: ChangeEvent<HTMLInputElement>): void => onChange(e.target.value)} />
