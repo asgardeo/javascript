@@ -33,7 +33,7 @@
  * ```typescript
  * import { normalizeFlowResponse } from '../../../utils/v2/flowTransformer';
  *
- * const { flowId, components } = normalizeFlowResponse(apiResponse, t, {
+ * const { executionId, components } = normalizeFlowResponse(apiResponse, t, {
  *   defaultErrorKey: 'components.signIn.errors.generic'
  * });
  * ```
@@ -51,8 +51,8 @@ type TranslationFn = (key: string, params?: Record<string, string | number>) => 
  * Generic flow error response interface that covers common error structure
  */
 export interface FlowErrorResponse {
+  executionId: string;
   failureReason?: string;
-  flowId: string;
   flowStatus: 'ERROR';
 }
 
@@ -239,7 +239,7 @@ export const normalizeFlowResponse = (
 ): {
   additionalData: Record<string, any>;
   components: EmbeddedFlowComponent[];
-  flowId: string;
+  executionId: string;
 } => {
   const {throwOnError = true, defaultErrorKey = 'errors.flow.generic', resolveTranslations = true} = options;
 
@@ -263,6 +263,6 @@ export const normalizeFlowResponse = (
   return {
     additionalData,
     components: transformComponents(response, t, resolveTranslations, meta),
-    flowId: response.flowId,
+    executionId: response.executionId,
   };
 };

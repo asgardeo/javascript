@@ -40,14 +40,14 @@ export interface EmbeddedUserOnboardingFlowResponse {
   };
 
   /**
+   * Unique identifier for the flow execution.
+   */
+  executionId: string;
+
+  /**
    * Reason for failure if flowStatus is ERROR.
    */
   failureReason?: string;
-
-  /**
-   * Unique identifier for the flow execution.
-   */
-  flowId: string;
 
   /**
    * Current status of the flow.
@@ -88,7 +88,7 @@ export interface EmbeddedUserOnboardingFlowResponse {
  * const response = await executeEmbeddedUserOnboardingFlowV2({
  *   baseUrl: "https://api.thunder.io",
  *   payload: {
- *     flowId: "flow-id-from-url",
+ *     executionId: "flow-id-from-url",
  *     inputs: { inviteToken: "token-from-url" }
  *   }
  * });
@@ -128,10 +128,13 @@ const executeEmbeddedUserOnboardingFlowV2 = async ({
   const hasOnlyFlowId: boolean =
     typeof cleanPayload === 'object' &&
     cleanPayload !== null &&
-    'flowId' in cleanPayload &&
+    'executionId' in cleanPayload &&
     Object.keys(cleanPayload).length === 1;
   const hasFlowIdWithInputs: boolean =
-    typeof cleanPayload === 'object' && cleanPayload !== null && 'flowId' in cleanPayload && 'inputs' in cleanPayload;
+    typeof cleanPayload === 'object' &&
+    cleanPayload !== null &&
+    'executionId' in cleanPayload &&
+    'inputs' in cleanPayload;
 
   // Add verbose for initial requests and when continuing with inputs
   const requestPayload: Record<string, unknown> =

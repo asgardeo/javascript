@@ -145,7 +145,7 @@ export interface ExtendedEmbeddedSignInFlowResponse {
  * @example
  * ```typescript
  * const response: EmbeddedSignInFlowResponse = {
- *   flowId: "flow_12345",
+ *   executionId: "flow_12345",
  *   flowStatus: EmbeddedSignInFlowStatus.Incomplete,
  *   type: EmbeddedSignInFlowType.View,
  *   data: {
@@ -197,16 +197,16 @@ export interface EmbeddedSignInFlowResponse extends ExtendedEmbeddedSignInFlowRe
   };
 
   /**
+   * Unique identifier for this specific flow instance.
+   * Used to maintain state across multiple API calls during the authentication process.
+   */
+  executionId: string;
+
+  /**
    * Optional reason for flow failure in case of an error.
    * Provides additional context when flowStatus is set to ERROR.
    */
   failureReason?: string;
-
-  /**
-   * Unique identifier for this specific flow instance.
-   * Used to maintain state across multiple API calls during the authentication process.
-   */
-  flowId: string;
 
   /**
    * Current status of the sign-in flow.
@@ -292,14 +292,14 @@ export type EmbeddedSignInFlowInitiateRequest = {
  * Request payload for executing steps in Asgardeo embedded sign-in flows.
  *
  * This interface defines the structure for subsequent requests after flow initiation.
- * It supports both continuing existing flows (with flowId) and submitting user
+ * It supports both continuing existing flows (with executionId) and submitting user
  * input data collected from the rendered components.
  *
  * @example
  * ```typescript
  * // Continue existing flow with user input
  * const stepRequest: EmbeddedSignInFlowRequest = {
- *   flowId: "flow_12345",
+ *   executionId: "flow_12345",
  *   action: "action_001",
  *   inputs: {
  *     username: "user@example.com",
@@ -327,7 +327,7 @@ export interface EmbeddedSignInFlowRequest extends Partial<EmbeddedSignInFlowIni
    * Identifier of the flow instance to continue.
    * Required when submitting data for an existing flow.
    */
-  flowId?: string;
+  executionId?: string;
 
   /**
    * User input data collected from the form components.

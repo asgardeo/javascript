@@ -42,8 +42,8 @@ export interface InviteUserFlowResponse {
       components?: any[];
     };
   };
+  executionId: string;
   failureReason?: string;
-  flowId: string;
   flowStatus: 'INCOMPLETE' | 'COMPLETE' | 'ERROR';
   type?: 'VIEW' | 'REDIRECTION';
 }
@@ -68,14 +68,19 @@ export interface BaseInviteUserRenderProps {
   error?: Error | null;
 
   /**
+   * Current flow execution ID.
+   */
+  executionId?: string;
+
+  /**
    * Field validation errors.
    */
   fieldErrors: Record<string, string>;
 
   /**
-   * Current flow ID.
+   * Current flow execution ID.
    */
-  flowId?: string;
+  flowExecId?: string;
 
   /**
    * Function to handle input blur.
@@ -403,7 +408,7 @@ const BaseInviteUser: FC<BaseInviteUserProps> = ({
         const inputs: any = data || formValues;
 
         const payload: Record<string, any> = {
-          flowId: currentFlow.flowId,
+          executionId: currentFlow.executionId,
           inputs,
           verbose: true,
         };
@@ -579,8 +584,8 @@ const BaseInviteUser: FC<BaseInviteUserProps> = ({
     additionalData: currentFlow?.data?.additionalData,
     components,
     error: apiError,
+    executionId: currentFlow?.executionId,
     fieldErrors: formErrors,
-    flowId: currentFlow?.flowId,
     handleInputBlur,
     handleInputChange,
     handleSubmit,

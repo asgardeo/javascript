@@ -20,14 +20,14 @@ import {useEffect, useRef, type RefObject} from 'react';
 
 export interface UseOAuthCallbackOptions {
   /**
-   * Current flowId from component state
+   * Current executionId from component state
    */
-  currentFlowId: string | null;
+  currentExecutionId: string | null;
 
   /**
-   * SessionStorage key for flowId (defaults to 'asgardeo_flow_id')
+   * SessionStorage key for executionId (defaults to 'asgardeo_execution_id')
    */
-  flowIdStorageKey?: string;
+  executionIdStorageKey?: string;
 
   /**
    * Whether the component is initialized and ready to process OAuth callback
@@ -71,9 +71,9 @@ export interface UseOAuthCallbackOptions {
   processedRef?: RefObject<boolean>;
 
   /**
-   * Additional handler for setting state (e.g., setFlowId)
+   * Additional handler for setting state (e.g., setExecutionId)
    */
-  setFlowId?: (flowId: string) => void;
+  setExecutionId?: (executionId: string) => void;
 
   /**
    * Ref to mark that token validation was attempted (prevents duplicate validation)
@@ -83,7 +83,7 @@ export interface UseOAuthCallbackOptions {
 }
 
 export interface OAuthCallbackPayload {
-  flowId: string;
+  executionId: string;
   inputs: {
     code: string;
     nonce?: string;
@@ -104,12 +104,12 @@ function cleanupUrlParams(): void {
 }
 
 /**
- * Processes OAuth callbacks by detecting auth code in URL, resolving flowId, and submitting to server.
+ * Processes OAuth callbacks by detecting auth code in URL, resolving executionId, and submitting to server.
  * Used by SignIn, SignUp, and AcceptInvite components.
  */
 export function useOAuthCallback({
-  currentFlowId,
-  flowIdStorageKey = 'asgardeo_flow_id',
+  currentExecutionId,
+  executionIdStorageKey = 'asgardeo_execution_id',
   isInitialized,
   isSubmitting = false,
   onComplete,
@@ -118,7 +118,7 @@ export function useOAuthCallback({
   onProcessingStart,
   onSubmit,
   processedRef,
-  setFlowId,
+  setExecutionId: setExecExecutionId,
   tokenValidationAttemptedRef,
 }: UseOAuthCallbackOptions): void {
   const internalRef: any = useRef(false);
@@ -133,7 +133,7 @@ export function useOAuthCallback({
     const code: string | null = urlParams.get('code');
     const nonce: string | null = urlParams.get('nonce');
     const state: string | null = urlParams.get('state');
-    const flowIdFromUrl: string | null = urlParams.get('flowId');
+    const executionIdFromUrl: string | null = urlParams.get('executionId');
     const error: string | null = urlParams.get('error');
     const errorDescription: string | null = urlParams.get('error_description');
 
@@ -156,12 +156,13 @@ export function useOAuthCallback({
       return;
     }
 
-    const storedFlowId: string | null = sessionStorage.getItem(flowIdStorageKey);
-    const flowIdToUse: string | null = currentFlowId || storedFlowId || flowIdFromUrl || state || null;
+    const storedExecutionId: string | null = sessionStorage.getItem(executionIdStorageKey);
+    const executionIdToUse: string | null =
+      currentExecutionId || storedExecutionId || executionIdFromUrl || state || null;
 
-    if (!flowIdToUse) {
+    if (!executionIdToUse) {
       oauthCodeProcessedRef.current = true;
-      onError?.(new Error('Invalid flow. Missing flowId.'));
+      onError?.(new Error('Invalid flow. Missing executionId.'));
       cleanupUrlParams();
       return;
     }
@@ -175,14 +176,14 @@ export function useOAuthCallback({
 
     onProcessingStart?.();
 
-    if (!currentFlowId && setFlowId) {
-      setFlowId(flowIdToUse);
+    if (!currentExecutionId && setExecExecutionId) {
+      setExecExecutionId(executionIdToUse);
     }
 
     (async (): Promise<void> => {
       try {
         const payload: OAuthCallbackPayload = {
-          flowId: flowIdToUse,
+          executionId: executionIdToUse,
           inputs: {
             code,
             ...(nonce && {nonce}),
@@ -209,13 +210,13 @@ export function useOAuthCallback({
     })();
   }, [
     isInitialized,
-    currentFlowId,
+    currentExecutionId,
     isSubmitting,
     onSubmit,
     onComplete,
     onError,
     onFlowChange,
-    setFlowId,
-    flowIdStorageKey,
+    setExecExecutionId,
+    executionIdStorageKey,
   ]);
 }

@@ -59,7 +59,7 @@ interface PasskeyState {
   actionId: string | null;
   creationOptions: string | null;
   error: Error | null;
-  flowId: string | null;
+  executionId: string | null;
   isActive: boolean;
 }
 
@@ -285,7 +285,7 @@ const BaseSignUpContent: FC<BaseSignUpProps> = ({
     actionId: null,
     creationOptions: null,
     error: null,
-    flowId: null,
+    executionId: null,
     isActive: false,
   });
 
@@ -522,7 +522,7 @@ const BaseSignUpContent: FC<BaseSignUpProps> = ({
 
         if (code && state) {
           const payload: EmbeddedFlowExecuteRequestPayload = {
-            ...(currentFlow.flowId && {flowId: currentFlow.flowId}),
+            ...((currentFlow as any).executionId && {executionId: (currentFlow as any).executionId}),
             action: '',
             flowType: (currentFlow as any).flowType || 'REGISTRATION',
             inputs: {
@@ -593,7 +593,7 @@ const BaseSignUpContent: FC<BaseSignUpProps> = ({
 
               if (code && state) {
                 const payload: EmbeddedFlowExecuteRequestPayload = {
-                  ...(currentFlow.flowId && {flowId: currentFlow.flowId}),
+                  ...((currentFlow as any).executionId && {executionId: (currentFlow as any).executionId}),
                   action: '',
                   flowType: (currentFlow as any).flowType || 'REGISTRATION',
                   inputs: {
@@ -672,7 +672,7 @@ const BaseSignUpContent: FC<BaseSignUpProps> = ({
       }
 
       const payload: EmbeddedFlowExecuteRequestPayload = {
-        ...(currentFlow.flowId && {flowId: currentFlow.flowId}),
+        ...((currentFlow as any).executionId && {executionId: (currentFlow as any).executionId}),
         flowType: (currentFlow as any).flowType || 'REGISTRATION',
         ...(component.id && {action: component.id}),
         inputs: filteredInputs,
@@ -694,7 +694,7 @@ const BaseSignUpContent: FC<BaseSignUpProps> = ({
 
         if (response.data?.additionalData?.['passkeyCreationOptions']) {
           const {passkeyCreationOptions}: any = response.data.additionalData;
-          const effectiveFlowIdForPasskey: any = response.flowId || currentFlow?.flowId;
+          const effectiveExecutionIdForPasskey: any = response.executionId || (currentFlow as any)?.executionId;
 
           // Reset passkey processed ref to allow processing
           passkeyProcessedRef.current = false;
@@ -704,7 +704,7 @@ const BaseSignUpContent: FC<BaseSignUpProps> = ({
             actionId: component.id || 'submit',
             creationOptions: passkeyCreationOptions,
             error: null,
-            flowId: effectiveFlowIdForPasskey,
+            executionId: effectiveExecutionIdForPasskey,
             isActive: true,
           });
           setIsLoading(false);
@@ -726,7 +726,7 @@ const BaseSignUpContent: FC<BaseSignUpProps> = ({
    * This effect auto-triggers the browser passkey popup and submits the result.
    */
   useEffect(() => {
-    if (!passkeyState.isActive || !passkeyState.creationOptions || !passkeyState.flowId) {
+    if (!passkeyState.isActive || !passkeyState.creationOptions || !passkeyState.executionId) {
       return;
     }
 
@@ -749,7 +749,7 @@ const BaseSignUpContent: FC<BaseSignUpProps> = ({
       // After successful registration, submit the result to the server
       const payload: EmbeddedFlowExecuteRequestPayload = {
         actionId: passkeyState.actionId || 'submit',
-        flowId: passkeyState.flowId as string,
+        executionId: passkeyState.executionId as string,
         flowType: (currentFlow as any)?.flowType || 'REGISTRATION',
         inputs,
       } as any;
@@ -768,14 +768,14 @@ const BaseSignUpContent: FC<BaseSignUpProps> = ({
 
     performPasskeyRegistration()
       .then(() => {
-        setPasskeyState({actionId: null, creationOptions: null, error: null, flowId: null, isActive: false});
+        setPasskeyState({actionId: null, creationOptions: null, error: null, executionId: null, isActive: false});
       })
       .catch((error: any) => {
         setPasskeyState((prev: any) => ({...prev, error: error as Error, isActive: false}));
         handleError(error);
         onError?.(error as Error);
       });
-  }, [passkeyState.isActive, passkeyState.creationOptions, passkeyState.flowId]);
+  }, [passkeyState.isActive, passkeyState.creationOptions, passkeyState.executionId]);
 
   const containerClasses: any = cx(
     [

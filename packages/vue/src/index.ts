@@ -42,6 +42,11 @@ export {default as useTheme} from './composables/useTheme';
 export {default as useUser} from './composables/useUser';
 export {useOAuthCallback} from './composables/useOAuthCallback';
 export type {UseOAuthCallbackOptions, OAuthCallbackPayload} from './composables/useOAuthCallback';
+export {useOAuthCallback as useOAuthCallbackV2} from './composables/v2/useOAuthCallback';
+export type {
+  UseOAuthCallbackOptions as UseOAuthCallbackOptionsV2,
+  OAuthCallbackPayload as OAuthCallbackPayloadV2,
+} from './composables/v2/useOAuthCallback';
 
 // ── Client ──
 export {default as AsgardeoVueClient} from './AsgardeoVueClient';
