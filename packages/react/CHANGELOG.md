@@ -1,5 +1,17 @@
 # @asgardeo/react
 
+## 0.21.4
+
+### Patch Changes
+
+- [#450](https://github.com/asgardeo/javascript/pull/450)
+  [`4bad8c2`](https://github.com/asgardeo/javascript/commit/4bad8c2872449adc554e3f7eb52fa33f96262252) Thanks
+  [@DonOmalVindula](https://github.com/DonOmalVindula)! - Add rendering support for PHONE_INPUT and OTP_INPUT component
+  types in the embedded flow
+
+- Updated dependencies []:
+  - @asgardeo/browser@0.6.4
+
 ## 0.21.3
 
 ### Patch Changes
