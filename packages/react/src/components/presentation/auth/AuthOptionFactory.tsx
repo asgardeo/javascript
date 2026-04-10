@@ -110,6 +110,8 @@ const getFieldType = (variant: EmbeddedFlowComponentType): FieldType => {
   switch (variant) {
     case EmbeddedFlowComponentType.EmailInput:
       return FieldType.Email;
+    case EmbeddedFlowComponentType.PhoneInput:
+      return FieldType.Tel;
     case EmbeddedFlowComponentType.PasswordInput:
       return FieldType.Password;
     case EmbeddedFlowComponentType.TextInput:
@@ -224,7 +226,8 @@ const createAuthComponentFromFlow = (
   switch (component.type) {
     case EmbeddedFlowComponentType.TextInput:
     case EmbeddedFlowComponentType.PasswordInput:
-    case EmbeddedFlowComponentType.EmailInput: {
+    case EmbeddedFlowComponentType.EmailInput:
+    case EmbeddedFlowComponentType.PhoneInput: {
       const identifier: string = component.ref;
       const value: string = formValues[identifier] || '';
       const isTouched: boolean = touchedFields[identifier] || false;
@@ -241,6 +244,28 @@ const createAuthComponentFromFlow = (
         placeholder: resolve(component.placeholder) || '',
         required: component.required || false,
         type: fieldType as FieldType,
+        value,
+      });
+
+      return cloneElement(field, {key});
+    }
+
+    case EmbeddedFlowComponentType.OtpInput: {
+      const identifier: string = component.ref;
+      const value: string = formValues[identifier] || '';
+      const isTouched: boolean = touchedFields[identifier] || false;
+      const error: string = isTouched ? formErrors[identifier] : undefined;
+
+      const field: any = createField({
+        className: options.inputClassName,
+        error,
+        label: resolve(component.label) || '',
+        name: identifier,
+        onBlur: () => options.onInputBlur?.(identifier),
+        onChange: (newValue: string) => onInputChange(identifier, newValue),
+        placeholder: resolve(component.placeholder) || '',
+        required: component.required || false,
+        type: FieldType.Otp,
         value,
       });
 
