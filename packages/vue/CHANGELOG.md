@@ -1,5 +1,18 @@
 # @asgardeo/vue
 
+## 0.3.0
+
+### Minor Changes
+
+- [#443](https://github.com/asgardeo/javascript/pull/443)
+  [`1a580b9`](https://github.com/asgardeo/javascript/commit/1a580b96d58c7d1b182b93d6926efae48ef6c4ae) Thanks
+  [@NutharaNR](https://github.com/NutharaNR)! - Rename flowId in flow execution to executionId
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @asgardeo/browser@0.6.5
+
 ## 0.2.4
 
 ### Patch Changes
