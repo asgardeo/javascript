@@ -1,5 +1,13 @@
 # @asgardeo/browser
 
+## 0.6.5
+
+### Patch Changes
+
+- Updated dependencies
+  [[`1a580b9`](https://github.com/asgardeo/javascript/commit/1a580b96d58c7d1b182b93d6926efae48ef6c4ae)]:
+  - @asgardeo/javascript@0.17.0
+
 ## 0.6.4
 
 ### Patch Changes
