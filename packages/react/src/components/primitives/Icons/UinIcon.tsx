@@ -17,29 +17,37 @@
  */
 
 import {FC} from 'react';
-import ArrowLeftRight from './ArrowLeftRight';
-import ArrowRightLeft from './ArrowRightLeft';
-import Mail from './Mail';
-import Smartphone from './Smartphone';
-import UinIcon from './UinIcon';
-import VidIcon from './VidIcon';
 
-export interface FlowIconProps {
+export interface UinIconProps {
+  /** Color of the icon stroke */
   color?: string;
+  /** Icon size in pixels */
   size?: number;
 }
 
 /**
- * Registry of icon components keyed by their lucide-compatible name.
- * Add new icons here as needed by flow definitions.
+ * UinIcon — ID card with photo and text lines, used for UIN login type.
  */
-const flowIconRegistry: Record<string, FC<FlowIconProps>> = {
-  ArrowLeftRight,
-  ArrowRightLeft,
-  Mail,
-  Smartphone,
-  UinIcon,
-  VidIcon,
-};
+const UinIcon: FC<UinIconProps> = ({color = 'currentColor', size = 24}: UinIconProps) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke={color}
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <rect width="20" height="14" x="2" y="5" rx="2" />
+    <circle cx="8" cy="12" r="2" />
+    <path d="M13 12h3" />
+    <path d="M13 16h3" />
+    <path d="M8 16h.01" />
+  </svg>
+);
 
-export default flowIconRegistry;
+UinIcon.displayName = 'UinIcon';
+
+export default UinIcon;

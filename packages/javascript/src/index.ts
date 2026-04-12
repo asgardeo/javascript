@@ -92,6 +92,8 @@ export {
   ConsentDecisions as ConsentDecisionsV2,
   ConsentPurposeData as ConsentPurposeDataV2,
   ConsentPromptData as ConsentPromptDataV2,
+  LoginIdPrefix,
+  LoginIdType,
 } from './models/v2/embedded-flow-v2';
 export {
   EmbeddedSignInFlowStatus as EmbeddedSignInFlowStatusV2,

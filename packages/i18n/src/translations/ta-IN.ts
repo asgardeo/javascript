@@ -66,6 +66,7 @@ const translations: I18nTranslations = {
 
   /* Validation */
   'validations.required.field.error': 'இந்த புலம் தேவை',
+  'validations.invalid.format.error': 'உள்ளிடப்பட்ட மதிப்பு சரியான வடிவம் இல்லை.',
 
   /* |---------------------------------------------------------------| */
   /* |                        Widgets                                | */

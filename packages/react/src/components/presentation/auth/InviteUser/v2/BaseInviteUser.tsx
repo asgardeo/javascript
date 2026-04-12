@@ -555,6 +555,7 @@ const BaseInviteUser: FC<BaseInviteUserProps> = ({
           onInputBlur: handleInputBlur,
           onSubmit: handleSubmit,
           size,
+          theme,
           variant,
         },
       ),
