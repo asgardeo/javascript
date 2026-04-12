@@ -34,7 +34,8 @@
     "e2e:docker:down": "docker compose -f e2e/docker-compose.yml down -v",
     "e2e:docker:up:is": "docker compose -f e2e/docker-compose.yml up -d wso2is",
     "e2e:docker:up:thunder": "docker compose -f e2e/docker-compose.yml up -d thunder",
-    "e2e:install": "playwright install chromium"
+    "e2e:install": "playwright install chromium",
+    "symlink": "node scripts/symlink.js"
   },
   "devDependencies": {
     "@changesets/changelog-github": "0.5.1",

@@ -22,7 +22,7 @@ This guide walks you through setting up the development environment and other im
       - [Export the new language bundle](#export-the-new-language-bundle)
       - [Add the export to the translations index](#add-the-export-to-the-translations-index)
     - [Test your translation](#test-your-translation)
-      - [Option 1: Using `npm` symlinks](#option-1-using-npm-symlinks)
+      - [Option 1: Using a `symlink`](#option-1-using-a-symlink)
       - [Option 2: Integrate into an existing sample](#option-2-integrate-into-an-existing-sample)
       - [Testing with AsgardeoProvider](#testing-with-asgardeoprovider)
       - [Update documentation](#update-documentation)
@@ -244,25 +244,53 @@ pnpm build --filter @asgardeo/i18n
 
 To test your new language translation, you have two options:
 
-##### Option 1: Using `npm` symlinks
+##### Option 1: Using a symlink
 
-Create a symlink to test your local changes without publishing:
+From the workspace root, run the `symlink` script. It builds all packages, resolves `catalog:` and `workspace:*` references, and prints ready-to-paste override snippets:
 
 ```bash
-# Navigate to the i18n package
-cd packages/i18n
-
-# Create a global symlink
-npm link
-
-# Navigate to your test application
-cd /path/to/your/test-app
-
-# Link the local i18n package
-npm link @asgardeo/i18n
+pnpm symlink
 ```
 
-For more information about npm symlinks, see the [npm link documentation](https://docs.npmjs.com/cli/v10/commands/npm-link).
+Copy the relevant snippet from the output into your test project's `package.json` and run `pnpm install` (or the equivalent for your package manager):
+
+###### pnpm
+
+```json
+{
+  "pnpm": {
+    "overrides": {
+      "@asgardeo/i18n": "file:/path/to/javascript/packages/i18n"
+    }
+  }
+}
+```
+
+###### npm
+
+```json
+{
+  "overrides": {
+    "@asgardeo/i18n": "file:/path/to/javascript/packages/i18n"
+  }
+}
+```
+
+###### Yarn (Berry)
+
+```json
+{
+  "resolutions": {
+    "@asgardeo/i18n": "file:/path/to/javascript/packages/i18n"
+  }
+}
+```
+
+To restore the patched source files when you're done:
+
+```bash
+git checkout packages/*/package.json
+```
 
 ##### Option 2: Integrate into an existing sample
 
