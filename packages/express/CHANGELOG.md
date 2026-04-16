@@ -1,5 +1,12 @@
 # @asgardeo/express
 
+## 0.0.72
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @asgardeo/node@0.0.73
+
 ## 0.0.71
 
 ### Patch Changes
