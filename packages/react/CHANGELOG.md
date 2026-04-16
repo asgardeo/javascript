@@ -1,5 +1,13 @@
 # @asgardeo/react
 
+## 0.22.2
+
+### Patch Changes
+
+- [#460](https://github.com/asgardeo/javascript/pull/460)
+  [`86647a2`](https://github.com/asgardeo/javascript/commit/86647a23b9bc2bc4525c28ea0091ccfa9e682c8f) Thanks
+  [@brionmario](https://github.com/brionmario)! - Expose `isMetaLoading` from `useAsgardeo`
+
 ## 0.22.1
 
 ### Patch Changes
