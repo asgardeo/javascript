@@ -25,25 +25,33 @@ import AsgardeoRuntimeError from '../errors/AsgardeoRuntimeError';
  * If the input is an array, it joins the elements into a single string separated by spaces.
  * If the input is neither, it throws an error.
  *
- * @param scopes - The OpenID scopes to process, which can be a string or an array of strings.
+ * Default scopes are only injected when no scopes are configured (undefined, empty string,
+ * or empty array). If the caller explicitly provides scopes, those are used as-is.
+ *
+ * @param scopes - The OpenID scopes to process, which can be a string, an array of strings,
+ *   or undefined/null when not configured.
  * @returns A string of OpenID scopes separated by spaces.
  *
  * @example
  * ```typescript
  * processOpenIDScopes("openid profile email"); // returns "openid profile email"
  * processOpenIDScopes(["openid", "profile", "email"]); // returns "openid profile email"
+ * processOpenIDScopes(undefined); // returns default scopes
  * processOpenIDScopes(123); // throws AsgardeoRuntimeError
  * processOpenIDScopes({}); // throws AsgardeoRuntimeError
  * ```
  */
-const processOpenIDScopes = (scopes: string | string[]): string => {
+const processOpenIDScopes = (scopes: string | string[] | undefined | null): string => {
   let processedScopes: string[] = [];
+  let userConfiguredScopes: boolean = false;
 
-  if (scopes) {
+  if (scopes !== undefined && scopes !== null) {
     if (Array.isArray(scopes)) {
       processedScopes = scopes;
+      userConfiguredScopes = scopes.length > 0;
     } else if (typeof scopes === 'string') {
-      processedScopes = scopes.split(' ');
+      processedScopes = scopes ? scopes.split(' ') : [];
+      userConfiguredScopes = scopes.length > 0;
     } else {
       throw new AsgardeoRuntimeError(
         'Scopes must be a string or an array of strings.',
@@ -54,11 +62,13 @@ const processOpenIDScopes = (scopes: string | string[]): string => {
     }
   }
 
-  OIDCRequestConstants.SignIn.Payload.DEFAULT_SCOPES.forEach((defaultScope: string) => {
-    if (!processedScopes.includes(defaultScope)) {
-      processedScopes.push(defaultScope);
-    }
-  });
+  if (!userConfiguredScopes) {
+    OIDCRequestConstants.SignIn.Payload.DEFAULT_SCOPES.forEach((defaultScope: string) => {
+      if (!processedScopes.includes(defaultScope)) {
+        processedScopes.push(defaultScope);
+      }
+    });
+  }
 
   return processedScopes.join(' ');
 };
