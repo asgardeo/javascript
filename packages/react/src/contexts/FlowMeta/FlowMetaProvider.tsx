@@ -63,7 +63,7 @@ const FlowMetaProvider: FC<PropsWithChildren<FlowMetaProviderProps>> = ({
   const i18nContext: I18nContextValue = useI18n();
 
   const [meta, setMeta] = useState<FlowMetadataResponse | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<Error | null>(null);
   const [pendingLanguage, setPendingLanguage] = useState<string | null>(null);
 
@@ -74,6 +74,7 @@ const FlowMetaProvider: FC<PropsWithChildren<FlowMetaProviderProps>> = ({
   const fetchFlowMeta: () => Promise<void> = useCallback(async (): Promise<void> => {
     if (!enabled || platform !== Platform.AsgardeoV2) {
       setMeta(null);
+      setIsLoading(false);
       return;
     }
 

@@ -107,6 +107,10 @@ export type AsgardeoContextProps = {
    */
   isLoading: boolean;
   /**
+   * Flag indicating whether flow metadata is currently being fetched.
+   */
+  isMetaLoading: boolean;
+  /**
    * Flag indicating whether the user is signed in or not.
    */
   isSignedIn: boolean;
@@ -212,6 +216,7 @@ const AsgardeoContext: Context<AsgardeoContextProps | null> = createContext<null
   instanceId: 0,
   isInitialized: false,
   isLoading: true,
+  isMetaLoading: false,
   isSignedIn: false,
   meta: null,
   organization: null,

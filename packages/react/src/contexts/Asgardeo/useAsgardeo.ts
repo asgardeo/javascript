@@ -39,9 +39,11 @@ const useAsgardeo = (): AsgardeoContextProps => {
   const i18nContext: I18nContextValue | null = useContext(I18nContext);
 
   const meta: FlowMetaContextValue['meta'] = flowMetaContext?.meta ?? null;
+  const isMetaLoading: boolean = flowMetaContext?.isLoading ?? false;
 
   return {
     ...context,
+    isMetaLoading,
     meta,
     resolveFlowTemplateLiterals: (text: string | undefined): string =>
       resolveFlowTemplateLiterals(text, {
