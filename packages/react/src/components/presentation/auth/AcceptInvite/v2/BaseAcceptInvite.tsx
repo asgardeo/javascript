@@ -402,7 +402,11 @@ const BaseAcceptInvite: FC<BaseAcceptInviteProps> = ({
       const validateComponents = (comps: any[]): any => {
         comps.forEach((comp: any) => {
           if (
-            (comp.type === 'PASSWORD_INPUT' || comp.type === 'TEXT_INPUT' || comp.type === 'EMAIL_INPUT' || comp.type === 'PHONE_INPUT' || comp.type === 'OTP_INPUT') &&
+            (comp.type === 'PASSWORD_INPUT' ||
+              comp.type === 'TEXT_INPUT' ||
+              comp.type === 'EMAIL_INPUT' ||
+              comp.type === 'PHONE_INPUT' ||
+              comp.type === 'OTP_INPUT') &&
             comp.required &&
             comp.ref
           ) {
