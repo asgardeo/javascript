@@ -31,46 +31,49 @@ vi.mock('../../constants/OIDCRequestConstants', () => ({
 }));
 
 describe('processOpenIDScopes', () => {
-  it('should return the same string if it already includes all default scopes (no duplicates, preserves order)', () => {
+  it('should return user-configured string scopes exactly as provided (no default injection)', () => {
     const input: string = 'email openid profile';
     const out: string = processOpenIDScopes(input);
     expect(out).toBe('email openid profile');
   });
 
-  it('should add missing default scopes to a string input (appends to the end)', () => {
+  it('should return user-configured string scopes without injecting defaults', () => {
     const input: string = 'profile';
     const out: string = processOpenIDScopes(input);
-
-    expect(out).toBe('profile openid email');
+    expect(out).toBe('profile');
   });
 
-  it('should append only the missing default scopes when some are already present', () => {
-    const input: string = 'email profile';
-    const out: string = processOpenIDScopes(input);
-    expect(out).toBe('email profile openid');
-  });
-
-  it('should join an array of scopes and injects any missing defaults', () => {
+  it('should return user-configured array scopes joined as a string without injecting defaults', () => {
     const input: string[] = ['profile', 'email'];
     const out: string = processOpenIDScopes(input);
-    expect(out).toBe('profile email openid');
+    expect(out).toBe('profile email');
   });
 
-  it('should not duplicate defaults when provided as array', () => {
+  it('should return user-configured array scopes without duplicating values', () => {
     const input: string[] = ['openid', 'email'];
     const out: string = processOpenIDScopes(input);
     expect(out).toBe('openid email');
   });
 
-  it('should handle an empty string by returning only defaults', () => {
+  it('should return only defaults for an empty string (not configured)', () => {
     const input: string = '';
     const out: string = processOpenIDScopes(input);
     expect(out).toBe('openid email');
   });
 
-  it('should handle an empty array by returning only defaults', () => {
+  it('should return only defaults for an empty array (not configured)', () => {
     const input: string[] = [];
     const out: string = processOpenIDScopes(input);
+    expect(out).toBe('openid email');
+  });
+
+  it('should return only defaults when scopes is undefined (not configured)', () => {
+    const out: string = processOpenIDScopes(undefined);
+    expect(out).toBe('openid email');
+  });
+
+  it('should return only defaults when scopes is null (not configured)', () => {
+    const out: string = processOpenIDScopes(null);
     expect(out).toBe('openid email');
   });
 
@@ -82,9 +85,9 @@ describe('processOpenIDScopes', () => {
     expect(() => processOpenIDScopes({})).toThrow(AsgardeoRuntimeError);
   });
 
-  it('should not trim or re-order user-provided string segments beyond default injection', () => {
+  it('should return custom scopes exactly without appending defaults', () => {
     const input: string = 'custom-scope another';
     const out: string = processOpenIDScopes(input);
-    expect(out).toBe('custom-scope another openid email');
+    expect(out).toBe('custom-scope another');
   });
 });
