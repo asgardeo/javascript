@@ -1,5 +1,13 @@
 # @asgardeo/javascript
 
+## 0.18.0
+
+### Minor Changes
+
+- [#457](https://github.com/asgardeo/javascript/pull/457)
+  [`91c39b8`](https://github.com/asgardeo/javascript/commit/91c39b828e0fee027063c6be884c81aee28b5fd0) Thanks
+  [@brionmario](https://github.com/brionmario)! - Request default scopes only when user hasn't explicitly defined
+
 ## 0.17.0
 
 ### Minor Changes
