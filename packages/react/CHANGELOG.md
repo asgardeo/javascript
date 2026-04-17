@@ -1,5 +1,14 @@
 # @asgardeo/react
 
+## 0.22.4
+
+### Patch Changes
+
+- [#464](https://github.com/asgardeo/javascript/pull/464)
+  [`264719c`](https://github.com/asgardeo/javascript/commit/264719c177796cd63b66429e599961ac2556eb30) Thanks
+  [@brionmario](https://github.com/brionmario)! - Refactor FlowMetaProvider to defer metadata fetch until Asgardeo
+  initialization is complete
+
 ## 0.22.3
 
 ### Patch Changes
