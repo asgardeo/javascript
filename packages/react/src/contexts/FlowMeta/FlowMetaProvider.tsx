@@ -67,14 +67,26 @@ const FlowMetaProvider: FC<PropsWithChildren<FlowMetaProviderProps>> = ({
   const [error, setError] = useState<Error | null>(null);
   const [pendingLanguage, setPendingLanguage] = useState<string | null>(null);
 
-  // Track whether an initial fetch has been triggered so we don't double-fetch
-  // when the component first mounts with a stable config reference.
-  const hasFetchedRef: RefObject<boolean> = useRef<boolean>(false);
+  // Track the last fetchFlowMeta reference that was actually dispatched.
+  // This prevents two classes of double-fetch:
+  //   1. React StrictMode simulates unmount+remount — the re-mount fires the
+  //      effect again with the same fetchFlowMeta reference; without this guard
+  //      the else-branch would issue a redundant second network request.
+  //   2. Rapid dependency changes (e.g. baseUrl stabilising) that produce two
+  //      effect firings before the first fetch completes.
+  const lastFetchedRef: RefObject<(() => Promise<void>) | null> = useRef<(() => Promise<void>) | null>(null);
 
   const fetchFlowMeta: () => Promise<void> = useCallback(async (): Promise<void> => {
     if (!enabled || platform !== Platform.AsgardeoV2) {
       setMeta(null);
       setIsLoading(false);
+      return;
+    }
+
+    // Defer until applicationId is available. Without it the server returns
+    // i18n-only metadata (no design), which would cause a design flicker when
+    // the full fetch arrives once applicationId is set.
+    if (!applicationId) {
       return;
     }
 
@@ -145,12 +157,13 @@ const FlowMetaProvider: FC<PropsWithChildren<FlowMetaProviderProps>> = ({
   }, [pendingLanguage, i18nContext?.setLanguage]);
 
   useEffect(() => {
-    if (!hasFetchedRef.current) {
-      hasFetchedRef.current = true;
-      fetchFlowMeta();
+    if (lastFetchedRef.current === fetchFlowMeta) {
+      // Same reference as the last dispatch — this is a StrictMode re-mount
+      // or an effect re-fire with unchanged deps. Skip to avoid a duplicate fetch.
       return;
     }
-    // Re-fetch when config or enabled changes after the initial mount
+
+    lastFetchedRef.current = fetchFlowMeta;
     fetchFlowMeta();
   }, [fetchFlowMeta]);
 
