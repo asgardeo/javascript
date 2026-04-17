@@ -83,6 +83,13 @@ const FlowMetaProvider: FC<PropsWithChildren<FlowMetaProviderProps>> = ({
       return;
     }
 
+    // Defer until applicationId is available. Without it the server returns
+    // i18n-only metadata (no design), which would cause a design flicker when
+    // the full fetch arrives once applicationId is set.
+    if (!applicationId) {
+      return;
+    }
+
     setIsLoading(true);
     setError(null);
 
