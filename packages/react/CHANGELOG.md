@@ -1,5 +1,14 @@
 # @asgardeo/react
 
+## 0.22.3
+
+### Patch Changes
+
+- [#462](https://github.com/asgardeo/javascript/pull/462)
+  [`81830c1`](https://github.com/asgardeo/javascript/commit/81830c1b26843b09472caff160198c15a03ad274) Thanks
+  [@brionmario](https://github.com/brionmario)! - Refactor FlowMetaProvider to prevent duplicate fetches during
+  re-mounts and rapid dependency changes
+
 ## 0.22.2
 
 ### Patch Changes
