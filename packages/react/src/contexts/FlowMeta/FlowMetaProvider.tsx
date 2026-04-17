@@ -59,7 +59,7 @@ const FlowMetaProvider: FC<PropsWithChildren<FlowMetaProviderProps>> = ({
   children,
   enabled = true,
 }: PropsWithChildren<FlowMetaProviderProps>): ReactElement => {
-  const {baseUrl, applicationId, platform} = useAsgardeo();
+  const {baseUrl, applicationId, platform, isInitialized} = useAsgardeo();
   const i18nContext: I18nContextValue = useI18n();
 
   const [meta, setMeta] = useState<FlowMetadataResponse | null>(null);
@@ -83,10 +83,10 @@ const FlowMetaProvider: FC<PropsWithChildren<FlowMetaProviderProps>> = ({
       return;
     }
 
-    // Defer until applicationId is available. Without it the server returns
-    // i18n-only metadata (no design), which would cause a design flicker when
-    // the full fetch arrives once applicationId is set.
-    if (!applicationId) {
+    // Defer until Asgardeo finishes initializing (e.g. loading applicationId
+    // from storage on refresh). Once initialized, proceed even if applicationId
+    // is absent — some flows (e.g. AcceptInvite) have no applicationId by design.
+    if (!isInitialized && !applicationId) {
       return;
     }
 
@@ -105,7 +105,7 @@ const FlowMetaProvider: FC<PropsWithChildren<FlowMetaProviderProps>> = ({
     } finally {
       setIsLoading(false);
     }
-  }, [enabled, platform, baseUrl, applicationId, i18nContext?.currentLanguage]);
+  }, [enabled, platform, baseUrl, applicationId, isInitialized, i18nContext?.currentLanguage]);
 
   const switchLanguage: (language: string) => Promise<void> = useCallback(
     async (language: string): Promise<void> => {
