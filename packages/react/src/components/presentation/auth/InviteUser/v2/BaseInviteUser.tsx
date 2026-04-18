@@ -35,6 +35,7 @@ import {renderInviteUserComponents} from '../../AuthOptionFactory';
  * Flow response structure from the backend.
  */
 export interface InviteUserFlowResponse {
+  challengeToken?: string;
   data?: {
     additionalData?: Record<string, any>;
     components?: any[];
@@ -415,6 +416,7 @@ const BaseInviteUser: FC<BaseInviteUserProps> = ({
           executionId: currentFlow.executionId,
           inputs,
           verbose: true,
+          ...(currentFlow.challengeToken ? {challengeToken: currentFlow.challengeToken} : {}),
         };
 
         // Add action ID if component has one

@@ -223,6 +223,9 @@ const SignIn: FC<SignInProps> = ({
   const [components, setComponents] = useState<EmbeddedFlowComponent[]>([]);
   const [additionalData, setAdditionalData] = useState<Record<string, any>>({});
   const [currentExecutionId, setCurrentExecutionId] = useState<string | null>(null);
+  const [currentChallengeToken, setCurrentChallengeToken] = useState<string | null>(() =>
+    sessionStorage.getItem('asgardeo_challenge_token'),
+  );
   const [isFlowInitialized, setIsFlowInitialized] = useState(false);
   const [flowError, setFlowError] = useState<Error | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -252,10 +255,24 @@ const SignIn: FC<SignInProps> = ({
   };
 
   /**
+   * Sets challengeToken between sessionStorage and state.
+   * This ensures both are always in sync.
+   */
+  const setChallengeToken = (challengeToken: string | null): void => {
+    setCurrentChallengeToken(challengeToken);
+    if (challengeToken) {
+      sessionStorage.setItem('asgardeo_challenge_token', challengeToken);
+    } else {
+      sessionStorage.removeItem('asgardeo_challenge_token');
+    }
+  };
+
+  /**
    * Clear all flow-related storage and state.
    */
   const clearFlowState = (): void => {
     setExecutionId(null);
+    setChallengeToken(null);
     setIsFlowInitialized(false);
     sessionStorage.removeItem('asgardeo_auth_id');
     setIsTimeoutDisabled(false);
@@ -352,6 +369,7 @@ const SignIn: FC<SignInProps> = ({
         if (response.executionId) {
           setExecutionId(response.executionId);
         }
+        setChallengeToken(response.challengeToken ?? null);
 
         const urlParams: any = getUrlParams();
         handleAuthId(urlParams.authId);
@@ -422,6 +440,7 @@ const SignIn: FC<SignInProps> = ({
 
       if (normalizedExecutionId && normalizedComponents) {
         setExecutionId(normalizedExecutionId);
+        setChallengeToken(response.challengeToken ?? null);
         setComponents(normalizedComponents);
         setAdditionalData(normalizedAdditionalData ?? {});
         setIsFlowInitialized(true);
@@ -595,6 +614,7 @@ const SignIn: FC<SignInProps> = ({
         executionId: effectiveExecutionId,
         ...payload,
         inputs: processedInputs,
+        ...(currentChallengeToken ? {challengeToken: currentChallengeToken} : {}),
       })) as EmbeddedSignInFlowResponseV2;
 
       if (handleRedirection(response)) {
@@ -609,6 +629,8 @@ const SignIn: FC<SignInProps> = ({
 
         // Reset passkey processed ref to allow processing
         passkeyProcessedRef.current = false;
+
+        setChallengeToken(response.challengeToken ?? null);
 
         // Set passkey state to trigger the passkey
         setPasskeyState({
@@ -660,6 +682,7 @@ const SignIn: FC<SignInProps> = ({
 
         // Clear all OAuth-related storage on successful completion
         setExecutionId(null);
+        setChallengeToken(null);
         setIsFlowInitialized(false);
         sessionStorage.removeItem('asgardeo_execution_id');
         sessionStorage.removeItem('asgardeo_auth_id');
@@ -684,6 +707,7 @@ const SignIn: FC<SignInProps> = ({
       // Update executionId if response contains a new one
       if (normalizedExecutionId && normalizedComponents) {
         setExecutionId(normalizedExecutionId);
+        setChallengeToken(response.challengeToken ?? null);
         setComponents(normalizedComponents);
         setAdditionalData(normalizedAdditionalData ?? {});
         setIsTimeoutDisabled(false);

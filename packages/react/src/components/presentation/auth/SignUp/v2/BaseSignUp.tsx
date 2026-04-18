@@ -675,6 +675,7 @@ const BaseSignUpContent: FC<BaseSignUpProps> = ({
         ...((currentFlow as any).executionId && {executionId: (currentFlow as any).executionId}),
         flowType: (currentFlow as any).flowType || 'REGISTRATION',
         ...(component.id && {action: component.id}),
+        ...((currentFlow as any).challengeToken && {challengeToken: (currentFlow as any).challengeToken}),
         inputs: filteredInputs,
       } as any;
 

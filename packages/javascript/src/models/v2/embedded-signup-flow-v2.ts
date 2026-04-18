@@ -142,6 +142,12 @@ export interface ExtendedEmbeddedSignUpFlowResponse {
  */
 export interface EmbeddedSignUpFlowResponse extends ExtendedEmbeddedSignUpFlowResponse {
   /**
+   * Per-step challenge token for replay protection.
+   * Must be included in the next request to continue this flow.
+   */
+  challengeToken?: string;
+
+  /**
    * Flow data containing form inputs and available actions.
    * This is transformed to component-driven format by the React transformer.
    */
@@ -210,6 +216,7 @@ export type EmbeddedSignUpFlowInitiateRequest = {
  */
 export interface EmbeddedSignUpFlowRequest extends Partial<EmbeddedSignUpFlowInitiateRequest> {
   action?: string;
+  challengeToken?: string;
   executionId?: string;
   inputs?: Record<string, any>;
 }
