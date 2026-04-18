@@ -214,7 +214,7 @@ Configure the path of the sign-in page in the `middleware.ts` file:
 import { asgardeoMiddleware } from '@asgardeo/nextjs/server';
 
 -export default asgardeoMiddleware();
-+export default asgardeoMiddleware({
++export default asgardeoMiddleware(undefined, {
 +  signInUrl: '/signin',
 +});
 
