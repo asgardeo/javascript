@@ -33,6 +33,8 @@ import getUserProfileAction from './actions/getUserProfileAction';
 import handleOAuthCallbackAction from './actions/handleOAuthCallbackAction';
 import isSignedIn from './actions/isSignedIn';
 import signInAction from './actions/signInAction';
+import clearSession from './actions/clearSession';
+import refreshToken from './actions/refreshToken';
 import signOutAction from './actions/signOutAction';
 import signUpAction from './actions/signUpAction';
 import switchOrganization from './actions/switchOrganization';
@@ -99,7 +101,7 @@ const AsgardeoServerProvider: FC<PropsWithChildren<AsgardeoServerProviderProps>>
   // Try to get session information from JWT first, then fall back to legacy
   const sessionPayload: SessionTokenPayload | undefined = await getSessionPayload();
   const sessionId: string = sessionPayload?.sessionId || (await getSessionId()) || '';
-  const signedIn: boolean = sessionPayload ? true : await isSignedIn(sessionId);
+  const signedIn: boolean = await isSignedIn(sessionId);
 
   let user: User = {};
   let userProfile: UserProfile = {
@@ -203,6 +205,8 @@ const AsgardeoServerProvider: FC<PropsWithChildren<AsgardeoServerProviderProps>>
       applicationId={config?.applicationId}
       baseUrl={config?.baseUrl}
       signIn={signInAction}
+      clearSession={clearSession}
+      refreshToken={refreshToken}
       signOut={signOutAction}
       signUp={signUpAction}
       handleOAuthCallback={handleOAuthCallbackAction}

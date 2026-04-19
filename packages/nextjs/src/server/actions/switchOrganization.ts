@@ -19,6 +19,8 @@
 'use server';
 
 import {Organization, AsgardeoAPIError, IdToken, TokenResponse} from '@asgardeo/node';
+import {AsgardeoNextConfig} from '../../models/config';
+import {DEFAULT_ACCESS_TOKEN_EXPIRY_SECONDS} from '../../utils/constants';
 import {ReadonlyRequestCookies} from 'next/dist/server/web/spec-extension/adapters/request-cookies';
 import {cookies} from 'next/headers';
 import getSessionId from './getSessionId';
@@ -39,33 +41,33 @@ const switchOrganization = async (
     const resolvedSessionId: string = sessionId ?? ((await getSessionId()) as string);
     const response: TokenResponse | Response = await client.switchOrganization(organization, resolvedSessionId);
 
-    // After switching organization, we need to refresh the page to get updated session data
-    // This is because server components don't maintain state between function calls
     const {revalidatePath} = await import('next/cache');
-
-    // Revalidate the current path to refresh the component with new data
     revalidatePath('/');
 
-    if (response) {
-      const idToken: IdToken = await client.getDecodedIdToken(resolvedSessionId, (response as TokenResponse).idToken);
+    if (response && (response as TokenResponse).accessToken) {
+      const tokenResponse: TokenResponse = response as TokenResponse;
+      const idToken: IdToken = await client.getDecodedIdToken(resolvedSessionId, tokenResponse.idToken);
       const userIdFromToken: string = idToken['sub'] as string;
-      const {accessToken}: {accessToken: string} = response as TokenResponse;
-      const scopes: string = (response as TokenResponse).scope;
       const organizationId: string | undefined = (idToken['user_org'] || idToken['organization_id']) as
         | string
         | undefined;
+      const config: AsgardeoNextConfig = client.getConfiguration() as AsgardeoNextConfig;
+      const sessionExpirySeconds: number = SessionManager.resolveSessionExpiry(config.sessionExpirySeconds);
+      const expiresIn: number = tokenResponse.expiresIn ? parseInt(tokenResponse.expiresIn, 10) : DEFAULT_ACCESS_TOKEN_EXPIRY_SECONDS;
 
       const sessionToken: string = await SessionManager.createSessionToken(
-        accessToken,
-        userIdFromToken as string,
-        resolvedSessionId as string,
-        scopes,
+        tokenResponse.accessToken,
+        userIdFromToken,
+        resolvedSessionId,
+        tokenResponse.scope,
+        expiresIn,
+        tokenResponse.refreshToken ?? '',
         organizationId,
       );
 
       logger.debug('[switchOrganization] Session token created successfully.');
 
-      cookieStore.set(SessionManager.getSessionCookieName(), sessionToken, SessionManager.getSessionCookieOptions());
+      cookieStore.set(SessionManager.getSessionCookieName(), sessionToken, SessionManager.getSessionCookieOptions(sessionExpirySeconds));
     }
 
     return response;

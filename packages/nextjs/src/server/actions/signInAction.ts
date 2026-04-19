@@ -30,6 +30,9 @@ import {
 import {ReadonlyRequestCookies} from 'next/dist/server/web/spec-extension/adapters/request-cookies';
 import {cookies} from 'next/headers';
 import AsgardeoNextClient from '../../AsgardeoNextClient';
+import {AsgardeoNextConfig} from '../../models/config';
+import {DEFAULT_ACCESS_TOKEN_EXPIRY_SECONDS} from '../../utils/constants';
+import logger from '../../utils/logger';
 import SessionManager, {SessionTokenPayload} from '../../utils/SessionManager';
 
 /**
@@ -116,23 +119,32 @@ const signInAction = async (
       );
 
       if (signInResult) {
-        const idToken: IdToken = await client.getDecodedIdToken(sessionId);
+        const idToken: IdToken = await client.getDecodedIdToken(
+          sessionId,
+          (signInResult['idToken'] || signInResult['id_token']) as string,
+        );
         const userIdFromToken: string = (idToken['sub'] || signInResult['sub'] || sessionId) as string;
         const {accessToken}: {accessToken: string} = signInResult as {accessToken: string};
+        const refreshToken: string = (signInResult['refreshToken'] as string | undefined) ?? '';
         const scopes: string = signInResult['scope'] as string;
         const organizationId: string | undefined = (idToken['user_org'] || idToken['organization_id']) as
           | string
           | undefined;
+        const expiresIn: number = (signInResult['expiresIn'] as number | undefined) ?? DEFAULT_ACCESS_TOKEN_EXPIRY_SECONDS;
+        const config: AsgardeoNextConfig = client.getConfiguration() as AsgardeoNextConfig;
+        const sessionExpirySeconds: number = SessionManager.resolveSessionExpiry(config.sessionExpirySeconds);
 
         const sessionToken: string = await SessionManager.createSessionToken(
           accessToken,
           userIdFromToken,
-          sessionId as string,
+          sessionId,
           scopes,
+          expiresIn,
+          refreshToken,
           organizationId,
         );
 
-        cookieStore.set(SessionManager.getSessionCookieName(), sessionToken, SessionManager.getSessionCookieOptions());
+        cookieStore.set(SessionManager.getSessionCookieName(), sessionToken, SessionManager.getSessionCookieOptions(sessionExpirySeconds));
 
         cookieStore.delete(SessionManager.getTempSessionCookieName());
       }
@@ -143,8 +155,7 @@ const signInAction = async (
 
     return {data: response as EmbeddedSignInFlowInitiateResponse, success: true};
   } catch (error) {
-    // eslint-disable-next-line no-console
-    console.error('[signInAction] Error during sign-in:', error);
+    logger.error(`[signInAction] Error during sign-in: ${error instanceof Error ? error.message : String(error)}`);
     return {error: String(error), success: false};
   }
 };

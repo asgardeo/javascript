@@ -19,6 +19,7 @@
 'use server';
 
 import {IdToken} from '@asgardeo/node';
+import {DEFAULT_ACCESS_TOKEN_EXPIRY_SECONDS} from '../../utils/constants';
 import {ReadonlyRequestCookies} from 'next/dist/server/web/spec-extension/adapters/request-cookies';
 import {cookies} from 'next/headers';
 import AsgardeoNextClient from '../../AsgardeoNextClient';
@@ -98,6 +99,8 @@ const handleOAuthCallbackAction = async (
       sessionId,
     );
 
+    const config: AsgardeoNextConfig = asgardeoClient.getConfiguration() as AsgardeoNextConfig;
+
     if (signInResult) {
       try {
         const idToken: IdToken = await asgardeoClient.getDecodedIdToken(
@@ -105,21 +108,26 @@ const handleOAuthCallbackAction = async (
           (signInResult['id_token'] || signInResult['idToken']) as string,
         );
         const accessToken: string = (signInResult['accessToken'] || signInResult['access_token']) as string;
+        const refreshToken: string = (signInResult['refreshToken'] as string | undefined) ?? '';
         const userIdFromToken: string = (idToken.sub || signInResult['sub'] || sessionId) as string;
         const scopes: string = signInResult['scope'] as string;
         const organizationId: string | undefined = (idToken['user_org'] || idToken['organization_id']) as
           | string
           | undefined;
+        const expiresIn: number = (signInResult['expiresIn'] as number | undefined) ?? DEFAULT_ACCESS_TOKEN_EXPIRY_SECONDS;
+        const sessionExpirySeconds: number = SessionManager.resolveSessionExpiry(config.sessionExpirySeconds);
 
         const sessionToken: string = await SessionManager.createSessionToken(
           accessToken,
           userIdFromToken,
           sessionId,
           scopes,
+          expiresIn,
+          refreshToken,
           organizationId,
         );
 
-        cookieStore.set(SessionManager.getSessionCookieName(), sessionToken, SessionManager.getSessionCookieOptions());
+        cookieStore.set(SessionManager.getSessionCookieName(), sessionToken, SessionManager.getSessionCookieOptions(sessionExpirySeconds));
 
         cookieStore.delete(SessionManager.getTempSessionCookieName());
       } catch (error) {
@@ -130,7 +138,6 @@ const handleOAuthCallbackAction = async (
       }
     }
 
-    const config: AsgardeoNextConfig = await asgardeoClient.getConfiguration();
     const afterSignInUrl: string = config.afterSignInUrl || '/';
 
     return {

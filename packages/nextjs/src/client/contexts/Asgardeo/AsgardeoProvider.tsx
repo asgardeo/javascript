@@ -65,11 +65,13 @@ export type AsgardeoClientProviderProps = Partial<Omit<AsgardeoProviderProps, 'b
       state: string,
       sessionState?: string,
     ) => Promise<{error?: string; redirectUrl?: string; success: boolean}>;
+    clearSession: () => Promise<void>;
     isSignedIn: boolean;
     myOrganizations: Organization[];
     organizationHandle: AsgardeoContextProps['organizationHandle'];
     revalidateMyOrganizations?: (sessionId?: string) => Promise<Organization[]>;
     signIn: AsgardeoContextProps['signIn'];
+    refreshToken: () => Promise<TokenResponse>;
     signOut: AsgardeoContextProps['signOut'];
     signUp: AsgardeoContextProps['signUp'];
     switchOrganization: (organization: Organization, sessionId?: string) => Promise<TokenResponse | Response>;
@@ -85,6 +87,8 @@ const AsgardeoClientProvider: FC<PropsWithChildren<AsgardeoClientProviderProps>>
   baseUrl,
   children,
   signIn,
+  clearSession,
+  refreshToken,
   signOut,
   signUp,
   handleOAuthCallback,
@@ -292,10 +296,12 @@ const AsgardeoClientProvider: FC<PropsWithChildren<AsgardeoClientProviderProps>>
     () => ({
       applicationId,
       baseUrl,
+      clearSession,
       isLoading,
       isSignedIn,
       organizationHandle,
       signIn: handleSignIn,
+      refreshToken,
       signInUrl,
       signOut: handleSignOut,
       signUp: handleSignUp,

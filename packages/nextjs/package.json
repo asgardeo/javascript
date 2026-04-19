@@ -28,6 +28,12 @@
       "types": "./dist/types/server/index.d.ts",
       "import": "./dist/esm/server/index.js",
       "require": "./dist/cjs/server/index.js"
+    },
+    "./middleware": {
+      "edge-light": "./dist/esm/middleware.js",
+      "types": "./dist/types/middleware.d.ts",
+      "import": "./dist/esm/middleware.js",
+      "require": "./dist/cjs/middleware.js"
     }
   },
   "files": [

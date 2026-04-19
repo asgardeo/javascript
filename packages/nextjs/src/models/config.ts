@@ -29,4 +29,19 @@ import {AsgardeoNodeConfig} from '@asgardeo/node';
  * - Session configuration for Next.js apps
  * - Environment variable integration
  */
-export type AsgardeoNextConfig = AsgardeoNodeConfig;
+export type AsgardeoNextConfig = AsgardeoNodeConfig & {
+  /**
+   * Session lifetime in seconds. Determines how long the session JWT and its
+   * corresponding cookie remain valid after sign-in.
+   *
+   * Resolution order (first defined value wins):
+   *   1. This field — set programmatically at SDK initialisation.
+   *   2. `ASGARDEO_SESSION_EXPIRY_SECONDS` environment variable.
+   *   3. Built-in default of 86400 seconds (24 hours).
+   *
+   * @example
+   * // 8-hour session
+   * { sessionExpirySeconds: 28800 }
+   */
+  sessionExpirySeconds?: number;
+};

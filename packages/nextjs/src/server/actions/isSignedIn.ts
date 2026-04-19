@@ -25,29 +25,25 @@ import {SessionTokenPayload} from '../../utils/SessionManager';
 
 /**
  * Check if the user is currently signed in.
- * First tries JWT session validation, then falls back to legacy session check.
  *
- * @param sessionId - Optional session ID to check (if not provided, gets from cookies)
- * @returns True if user is signed in, false otherwise
+ * For JWT-based sessions: the session JWT exp claim is now tied to the access
+ * token expiry. A successful jwtVerify (inside getSessionPayload) already proves
+ * exp > now, so no separate timestamp comparison is needed here.
+ *
+ * Falls back to the legacy SDK in-memory check when no JWT session cookie exists.
+ *
+ * @param sessionId - Optional session ID (used only for the legacy fallback path)
+ * @returns True if the user is signed in with a valid, non-expired token
  */
 const isSignedIn = async (sessionId?: string): Promise<boolean> => {
   try {
     const sessionPayload: SessionTokenPayload | undefined = await getSessionPayload();
 
     if (sessionPayload) {
-      const resolvedSessionId: string = sessionPayload.sessionId;
-
-      if (resolvedSessionId) {
-        const client: AsgardeoNextClient = AsgardeoNextClient.getInstance();
-        try {
-          const accessToken: string = await client.getAccessToken(resolvedSessionId);
-          return !!accessToken;
-        } catch (error) {
-          return false;
-        }
-      }
+      return true;
     }
 
+    // No JWT session — fall back to the legacy SDK in-memory store check.
     const resolvedSessionId: string | undefined = sessionId || (await getSessionId());
 
     if (!resolvedSessionId) {
@@ -58,9 +54,8 @@ const isSignedIn = async (sessionId?: string): Promise<boolean> => {
 
     try {
       const accessToken: string = await client.getAccessToken(resolvedSessionId);
-
       return !!accessToken;
-    } catch (error) {
+    } catch {
       return false;
     }
   } catch {

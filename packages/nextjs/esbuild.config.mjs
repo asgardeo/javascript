@@ -20,7 +20,7 @@ import {build} from 'esbuild';
 
 const commonOptions = {
   bundle: false,
-  entryPoints: ['src/index.ts', 'src/server/index.ts'],
+  entryPoints: ['src/index.ts', 'src/server/index.ts', 'src/middleware.ts'],
   platform: 'node',
   target: ['node18'],
 };

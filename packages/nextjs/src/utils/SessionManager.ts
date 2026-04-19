@@ -17,18 +17,22 @@
  */
 
 import {AsgardeoRuntimeError, CookieConfig} from '@asgardeo/node';
-import {SignJWT, jwtVerify, JWTPayload} from 'jose';
+import {SignJWT, jwtVerify, decodeJwt, JWTPayload} from 'jose';
+import {DEFAULT_SESSION_EXPIRY_SECONDS} from './constants'
+
 
 /**
  * Session token payload interface
  */
 export interface SessionTokenPayload extends JWTPayload {
-  /** Expiration timestamp */
+  /** Expiration timestamp — doubles as the access token expiry (JWT exp == access token exp) */
   exp: number;
   /** Issued at timestamp */
   iat: number;
   /** Organization ID if applicable */
   organizationId?: string;
+  /** The refresh token; empty string if not provided by the auth server */
+  refreshToken: string;
   /** OAuth scopes */
   scopes: string[];
   /** Session ID */
@@ -41,7 +45,6 @@ export interface SessionTokenPayload extends JWTPayload {
  * Session management utility class for JWT-based session cookies
  */
 class SessionManager {
-  private static readonly DEFAULT_EXPIRY_SECONDS: number = 3600;
 
   /**
    * Get the signing secret from environment variable
@@ -87,21 +90,46 @@ class SessionManager {
   }
 
   /**
-   * Create a session cookie with user information
+   * Resolve the session expiry in seconds.
+   *
+   * Resolution order (first defined value wins):
+   *   1. `configuredExpiry` — value from `AsgardeoNextConfig.sessionExpirySeconds`
+   *   2. `ASGARDEO_SESSION_EXPIRY_SECONDS` environment variable
+   *   3. `DEFAULT_SESSION_EXPIRY_SECONDS` (24 hours)
    */
+  static resolveSessionExpiry(configuredExpiry?: number): number {
+    if (configuredExpiry != null && configuredExpiry > 0) {
+      return configuredExpiry;
+    }
+
+    const envValue: string | undefined = process.env['ASGARDEO_SESSION_EXPIRY_SECONDS'];
+
+    if (envValue) {
+      const parsed: number = parseInt(envValue, 10);
+
+      if (!isNaN(parsed) && parsed > 0) {
+        return parsed;
+      }
+    }
+
+    return DEFAULT_SESSION_EXPIRY_SECONDS;
+  }
+
   static async createSessionToken(
     accessToken: string,
     userId: string,
     sessionId: string,
     scopes: string,
+    accessTokenTtlSeconds: number,
+    refreshToken: string,
     organizationId?: string,
-    expirySeconds: number = this.DEFAULT_EXPIRY_SECONDS,
   ): Promise<string> {
     const secret: Uint8Array = this.getSecret();
 
     const jwt: string = await new SignJWT({
       accessToken,
       organizationId,
+      refreshToken,
       scopes,
       sessionId,
       type: 'session',
@@ -109,10 +137,19 @@ class SessionManager {
       .setProtectedHeader({alg: 'HS256'})
       .setSubject(userId)
       .setIssuedAt()
-      .setExpirationTime(Date.now() / 1000 + expirySeconds)
+      .setExpirationTime(Math.floor(Date.now() / 1000) + accessTokenTtlSeconds)
       .sign(secret);
 
     return jwt;
+  }
+
+  /**
+   * Decode a session token without verifying the signature or expiry.
+   * Use only to inspect an expired token (e.g. to extract a refresh token for renewal).
+   * Never use the result to make authorization decisions.
+   */
+  static decodeSessionToken(token: string): SessionTokenPayload {
+    return decodeJwt(token) as SessionTokenPayload;
   }
 
   /**
@@ -160,7 +197,7 @@ class SessionManager {
   /**
    * Get session cookie options
    */
-  static getSessionCookieOptions(): {
+  static getSessionCookieOptions(maxAge: number): {
     httpOnly: boolean;
     maxAge: number;
     path: string;
@@ -169,7 +206,7 @@ class SessionManager {
   } {
     return {
       httpOnly: true,
-      maxAge: this.DEFAULT_EXPIRY_SECONDS,
+      maxAge,
       path: '/',
       sameSite: 'lax' as const,
       secure: process.env['NODE_ENV'] === 'production',

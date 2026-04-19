@@ -23,7 +23,3 @@ export {default as asgardeo} from './asgardeo';
 export {default as AsgardeoProvider} from './AsgardeoProvider.js';
 export * from './AsgardeoProvider.js';
 
-export {default as asgardeoMiddleware} from './middleware/asgardeoMiddleware';
-export * from './middleware/asgardeoMiddleware';
-
-export {default as createRouteMatcher} from './middleware/createRouteMatcher';
