@@ -20,8 +20,8 @@
 
 import {ReadonlyRequestCookies} from 'next/dist/server/web/spec-extension/adapters/request-cookies';
 import {cookies} from 'next/headers';
-import SessionManager from '../../utils/SessionManager';
 import logger from '../../utils/logger';
+import SessionManager from '../../utils/SessionManager';
 
 /**
  * Deletes all Asgardeo session cookies from the browser without contacting the

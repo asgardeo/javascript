@@ -19,12 +19,12 @@
 'use server';
 
 import {Organization, AsgardeoAPIError, IdToken, TokenResponse} from '@asgardeo/node';
-import {AsgardeoNextConfig} from '../../models/config';
-import {DEFAULT_ACCESS_TOKEN_EXPIRY_SECONDS} from '../../utils/constants';
 import {ReadonlyRequestCookies} from 'next/dist/server/web/spec-extension/adapters/request-cookies';
 import {cookies} from 'next/headers';
 import getSessionId from './getSessionId';
 import AsgardeoNextClient from '../../AsgardeoNextClient';
+import {AsgardeoNextConfig} from '../../models/config';
+import {DEFAULT_ACCESS_TOKEN_EXPIRY_SECONDS} from '../../utils/constants';
 import logger from '../../utils/logger';
 import SessionManager from '../../utils/SessionManager';
 
@@ -53,7 +53,9 @@ const switchOrganization = async (
         | undefined;
       const config: AsgardeoNextConfig = client.getConfiguration() as AsgardeoNextConfig;
       const sessionExpirySeconds: number = SessionManager.resolveSessionExpiry(config.sessionExpirySeconds);
-      const expiresIn: number = tokenResponse.expiresIn ? parseInt(tokenResponse.expiresIn, 10) : DEFAULT_ACCESS_TOKEN_EXPIRY_SECONDS;
+      const expiresIn: number = tokenResponse.expiresIn
+        ? parseInt(tokenResponse.expiresIn, 10)
+        : DEFAULT_ACCESS_TOKEN_EXPIRY_SECONDS;
 
       const sessionToken: string = await SessionManager.createSessionToken(
         tokenResponse.accessToken,
@@ -67,7 +69,11 @@ const switchOrganization = async (
 
       logger.debug('[switchOrganization] Session token created successfully.');
 
-      cookieStore.set(SessionManager.getSessionCookieName(), sessionToken, SessionManager.getSessionCookieOptions(sessionExpirySeconds));
+      cookieStore.set(
+        SessionManager.getSessionCookieName(),
+        sessionToken,
+        SessionManager.getSessionCookieOptions(sessionExpirySeconds),
+      );
     }
 
     return response;

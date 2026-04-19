@@ -45,14 +45,14 @@ await esbuild.build({
 
 await esbuild.build({
   ...commonOptions,
-  format: 'esm',
-  outfile: 'dist/edge/index.js',
-  platform: 'browser',
   define: {
     // process.versions is a Node.js-only API not available in the Edge Runtime.
     // Replacing it with undefined makes isNode() evaluate to false, causing the
     // logger to fall back to plain console.log() — the correct behaviour for Edge.
     'process.versions': 'undefined',
   },
+  format: 'esm',
+  outfile: 'dist/edge/index.js',
+  platform: 'browser',
   sourcemap: true,
 });

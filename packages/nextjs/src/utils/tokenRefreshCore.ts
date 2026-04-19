@@ -98,8 +98,7 @@ const tokenRefreshCore = async (
   // Use the rotated refresh token if the server provided one; otherwise keep the existing one.
   const newRefreshToken: string = (tokenData['refresh_token'] as string | undefined) ?? storedRefreshToken;
   const newScopes: string =
-    (tokenData['scope'] as string | undefined) ??
-    (Array.isArray(scopes) ? scopes.join(' ') : (scopes as string) ?? '');
+    (tokenData['scope'] as string | undefined) ?? (Array.isArray(scopes) ? scopes.join(' ') : (scopes as string) ?? '');
 
   const resolvedSessionExpiry: number = SessionManager.resolveSessionExpiry(configuredExpiry);
 

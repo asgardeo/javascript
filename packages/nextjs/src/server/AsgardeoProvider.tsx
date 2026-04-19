@@ -21,6 +21,7 @@
 import {BrandingPreference, AsgardeoRuntimeError, IdToken, Organization, User, UserProfile} from '@asgardeo/node';
 import {AsgardeoProviderProps} from '@asgardeo/react';
 import {FC, PropsWithChildren, ReactElement} from 'react';
+import clearSession from './actions/clearSession';
 import createOrganization from './actions/createOrganization';
 import getAllOrganizations from './actions/getAllOrganizations';
 import getBrandingPreference from './actions/getBrandingPreference';
@@ -32,9 +33,8 @@ import getUserAction from './actions/getUserAction';
 import getUserProfileAction from './actions/getUserProfileAction';
 import handleOAuthCallbackAction from './actions/handleOAuthCallbackAction';
 import isSignedIn from './actions/isSignedIn';
-import signInAction from './actions/signInAction';
-import clearSession from './actions/clearSession';
 import refreshToken from './actions/refreshToken';
+import signInAction from './actions/signInAction';
 import signOutAction from './actions/signOutAction';
 import signUpAction from './actions/signUpAction';
 import switchOrganization from './actions/switchOrganization';

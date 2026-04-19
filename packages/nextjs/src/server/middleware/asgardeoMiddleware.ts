@@ -18,14 +18,11 @@
 
 import {NextRequest, NextResponse} from 'next/server';
 import {AsgardeoNextConfig} from '../../models/config';
+import {REFRESH_BUFFER_SECONDS} from '../../utils/constants';
 import decorateConfigWithNextEnv from '../../utils/decorateConfigWithNextEnv';
 import SessionManager, {SessionTokenPayload} from '../../utils/SessionManager';
-import {REFRESH_BUFFER_SECONDS} from '../../utils/constants';
+import {getSessionFromRequest, getSessionIdFromRequest} from '../../utils/sessionUtils';
 import tokenRefreshCore from '../../utils/tokenRefreshCore';
-import {
-  getSessionFromRequest,
-  getSessionIdFromRequest,
-} from '../../utils/sessionUtils';
 
 export type AsgardeoMiddlewareOptions = Partial<AsgardeoNextConfig>;
 
@@ -59,8 +56,8 @@ type AsgardeoMiddlewareHandler = (
 const removeCookieFromHeader = (cookieHeader: string, name: string): string =>
   cookieHeader
     .split(';')
-    .map(p => p.trim())
-    .filter(p => {
+    .map((p: string) => p.trim())
+    .filter((p: string) => {
       const eqIdx: number = p.indexOf('=');
       const partName: string = eqIdx === -1 ? p : p.slice(0, eqIdx).trim();
       return partName !== name;
@@ -74,11 +71,11 @@ const removeCookieFromHeader = (cookieHeader: string, name: string): string =>
 const replaceCookieInHeader = (cookieHeader: string, name: string, value: string): string => {
   const parts: string[] = cookieHeader
     .split(';')
-    .map(p => p.trim())
+    .map((p: string) => p.trim())
     .filter(Boolean);
 
   let found: boolean = false;
-  const updated: string[] = parts.map(part => {
+  const updated: string[] = parts.map((part: string) => {
     const eqIdx: number = part.indexOf('=');
     const partName: string = eqIdx === -1 ? part : part.slice(0, eqIdx).trim();
     if (partName === name) {
@@ -149,13 +146,10 @@ const asgardeoMiddleware =
     options?: AsgardeoMiddlewareOptions | ((req: NextRequest) => AsgardeoMiddlewareOptions),
   ): ((request: NextRequest) => Promise<NextResponse>) =>
   async (request: NextRequest): Promise<NextResponse> => {
-    const resolvedOptions: AsgardeoMiddlewareOptions =
-      typeof options === 'function' ? options(request) : options || {};
+    const resolvedOptions: AsgardeoMiddlewareOptions = typeof options === 'function' ? options(request) : options || {};
 
     // Resolve full config from passed options + environment variable fallbacks.
-    const resolvedConfig: AsgardeoNextConfig = decorateConfigWithNextEnv(
-      resolvedOptions as AsgardeoNextConfig,
-    );
+    const resolvedConfig: AsgardeoNextConfig = decorateConfigWithNextEnv(resolvedOptions as AsgardeoNextConfig);
 
     // ── OAuth callback detection ──────────────────────────────────────────────
     const url: URL = new URL(request.url);
@@ -185,9 +179,7 @@ const asgardeoMiddleware =
     // access token as long as a refresh token is still present.
     let expiredSession: SessionTokenPayload | undefined;
     if (!verifiedSession) {
-      const rawToken: string | undefined = request.cookies.get(
-        SessionManager.getSessionCookieName(),
-      )?.value;
+      const rawToken: string | undefined = request.cookies.get(SessionManager.getSessionCookieName())?.value;
       if (rawToken) {
         try {
           const decoded: SessionTokenPayload = SessionManager.decodeSessionToken(rawToken);
@@ -217,14 +209,11 @@ const asgardeoMiddleware =
     const needsRefresh: boolean =
       !isValidOAuthCallback &&
       hasRefreshConfig &&
-      !!(candidateSession?.refreshToken) &&
-      (
-        (!!verifiedSession && verifiedSession.exp <= now + REFRESH_BUFFER_SECONDS) ||
-        !!expiredSession
-      );
+      !!candidateSession?.refreshToken &&
+      ((!!verifiedSession && verifiedSession.exp <= now + REFRESH_BUFFER_SECONDS) || !!expiredSession);
 
     let activeSession: SessionTokenPayload | undefined = verifiedSession;
-    let refreshCookieUpdate: {token: string; expiry: number} | undefined;
+    let refreshCookieUpdate: {expiry: number; token: string} | undefined;
 
     if (needsRefresh && candidateSession) {
       try {
@@ -236,7 +225,7 @@ const asgardeoMiddleware =
         });
         // Verify the newly minted token so activeSession reflects fresh claims.
         activeSession = await SessionManager.verifySessionToken(newSessionToken);
-        refreshCookieUpdate = {token: newSessionToken, expiry: sessionExpirySeconds};
+        refreshCookieUpdate = {expiry: sessionExpirySeconds, token: newSessionToken};
       } catch {
         // Refresh failed — clear the irrecoverable session.
         activeSession = undefined;
@@ -246,9 +235,7 @@ const asgardeoMiddleware =
     // ── Session cleanup detection ─────────────────────────────────────────────
     // Mark stale cookies for deletion when the session is irrecoverable. Skipped
     // during OAuth callbacks where a session cookie may not exist yet.
-    const rawSessionCookie: string | undefined = request.cookies.get(
-      SessionManager.getSessionCookieName(),
-    )?.value;
+    const rawSessionCookie: string | undefined = request.cookies.get(SessionManager.getSessionCookieName())?.value;
 
     let shouldClearCookie: boolean = false;
 
@@ -258,8 +245,7 @@ const asgardeoMiddleware =
       shouldClearCookie = true;
     }
 
-    const sessionId: string | undefined =
-      activeSession?.sessionId ?? (await getSessionIdFromRequest(request));
+    const sessionId: string | undefined = activeSession?.sessionId ?? (await getSessionIdFromRequest(request));
     const isAuthenticated: boolean = !!activeSession;
 
     // ── Middleware context ────────────────────────────────────────────────────
@@ -301,10 +287,7 @@ const asgardeoMiddleware =
     };
 
     // ── Handler ───────────────────────────────────────────────────────────────
-    let handlerResponse: NextResponse | void = undefined;
-    if (handler) {
-      handlerResponse = await handler(asgardeo, request);
-    }
+    const handlerResponse: NextResponse | void = handler ? await handler(asgardeo, request) : undefined;
 
     // ── Build final response ──────────────────────────────────────────────────
     if (shouldClearCookie) {
@@ -335,7 +318,8 @@ const asgardeoMiddleware =
     //   2. The forwarded request headers so the same-request Server Component
     //      render reads the fresh session token instead of the expired one.
     const cookieName: string = SessionManager.getSessionCookieName();
-    const cookieOptions = SessionManager.getSessionCookieOptions(refreshCookieUpdate.expiry);
+    const cookieOptions: ReturnType<typeof SessionManager.getSessionCookieOptions> =
+      SessionManager.getSessionCookieOptions(refreshCookieUpdate.expiry);
 
     if (handlerResponse) {
       // Handler returned a response (e.g. a redirect from protectRoute).

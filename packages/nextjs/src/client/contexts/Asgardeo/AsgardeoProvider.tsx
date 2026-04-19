@@ -57,6 +57,7 @@ export type AsgardeoClientProviderProps = Partial<Omit<AsgardeoProviderProps, 'b
   Pick<AsgardeoProviderProps, 'baseUrl' | 'clientId'> & {
     applicationId: AsgardeoContextProps['applicationId'];
     brandingPreference?: BrandingPreference | null;
+    clearSession: () => Promise<void>;
     createOrganization: (payload: CreateOrganizationPayload, sessionId: string) => Promise<Organization>;
     currentOrganization: Organization;
     getAllOrganizations: (options?: any, sessionId?: string) => Promise<AllOrganizationsApiResponse>;
@@ -65,13 +66,12 @@ export type AsgardeoClientProviderProps = Partial<Omit<AsgardeoProviderProps, 'b
       state: string,
       sessionState?: string,
     ) => Promise<{error?: string; redirectUrl?: string; success: boolean}>;
-    clearSession: () => Promise<void>;
     isSignedIn: boolean;
     myOrganizations: Organization[];
     organizationHandle: AsgardeoContextProps['organizationHandle'];
+    refreshToken: () => Promise<TokenResponse>;
     revalidateMyOrganizations?: (sessionId?: string) => Promise<Organization[]>;
     signIn: AsgardeoContextProps['signIn'];
-    refreshToken: () => Promise<TokenResponse>;
     signOut: AsgardeoContextProps['signOut'];
     signUp: AsgardeoContextProps['signUp'];
     switchOrganization: (organization: Organization, sessionId?: string) => Promise<TokenResponse | Response>;
@@ -300,8 +300,8 @@ const AsgardeoClientProvider: FC<PropsWithChildren<AsgardeoClientProviderProps>>
       isLoading,
       isSignedIn,
       organizationHandle,
-      signIn: handleSignIn,
       refreshToken,
+      signIn: handleSignIn,
       signInUrl,
       signOut: handleSignOut,
       signUp: handleSignUp,

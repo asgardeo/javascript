@@ -18,8 +18,7 @@
 
 import {AsgardeoRuntimeError, CookieConfig} from '@asgardeo/node';
 import {SignJWT, jwtVerify, decodeJwt, JWTPayload} from 'jose';
-import {DEFAULT_SESSION_EXPIRY_SECONDS} from './constants'
-
+import {DEFAULT_SESSION_EXPIRY_SECONDS} from './constants';
 
 /**
  * Session token payload interface
@@ -45,7 +44,6 @@ export interface SessionTokenPayload extends JWTPayload {
  * Session management utility class for JWT-based session cookies
  */
 class SessionManager {
-
   /**
    * Get the signing secret from environment variable
    * Throws error in production if not set
@@ -107,7 +105,7 @@ class SessionManager {
     if (envValue) {
       const parsed: number = parseInt(envValue, 10);
 
-      if (!isNaN(parsed) && parsed > 0) {
+      if (!Number.isNaN(parsed) && parsed > 0) {
         return parsed;
       }
     }

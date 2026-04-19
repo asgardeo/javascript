@@ -130,7 +130,8 @@ const signInAction = async (
         const organizationId: string | undefined = (idToken['user_org'] || idToken['organization_id']) as
           | string
           | undefined;
-        const expiresIn: number = (signInResult['expiresIn'] as number | undefined) ?? DEFAULT_ACCESS_TOKEN_EXPIRY_SECONDS;
+        const expiresIn: number =
+          (signInResult['expiresIn'] as number | undefined) ?? DEFAULT_ACCESS_TOKEN_EXPIRY_SECONDS;
         const config: AsgardeoNextConfig = client.getConfiguration() as AsgardeoNextConfig;
         const sessionExpirySeconds: number = SessionManager.resolveSessionExpiry(config.sessionExpirySeconds);
 
@@ -144,7 +145,11 @@ const signInAction = async (
           organizationId,
         );
 
-        cookieStore.set(SessionManager.getSessionCookieName(), sessionToken, SessionManager.getSessionCookieOptions(sessionExpirySeconds));
+        cookieStore.set(
+          SessionManager.getSessionCookieName(),
+          sessionToken,
+          SessionManager.getSessionCookieOptions(sessionExpirySeconds),
+        );
 
         cookieStore.delete(SessionManager.getTempSessionCookieName());
       }
