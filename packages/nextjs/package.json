@@ -30,8 +30,8 @@
       "require": "./dist/cjs/server/index.js"
     },
     "./middleware": {
-      "edge-light": "./dist/esm/middleware.js",
       "types": "./dist/types/middleware.d.ts",
+      "edge-light": "./dist/esm/middleware.js",
       "import": "./dist/esm/middleware.js",
       "require": "./dist/cjs/middleware.js"
     }
