@@ -1,5 +1,13 @@
 # @asgardeo/javascript
 
+## 0.18.1
+
+### Patch Changes
+
+- [#466](https://github.com/asgardeo/javascript/pull/466)
+  [`b65b5cd`](https://github.com/asgardeo/javascript/commit/b65b5cde5ddcdb54d18449804f29d233daf25d0b) Thanks
+  [@ThaminduDilshan](https://github.com/ThaminduDilshan)! - Add support for optional per step challenge token
+
 ## 0.18.0
 
 ### Minor Changes
