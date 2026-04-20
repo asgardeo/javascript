@@ -52,7 +52,7 @@ const refreshToken = async (): Promise<TokenResponse> => {
       );
     }
 
-    const sessionPayload: SessionTokenPayload = await SessionManager.verifySessionToken(sessionToken);
+    const sessionPayload: SessionTokenPayload = await SessionManager.verifySessionTokenForRefresh(sessionToken);
     const client: AsgardeoNextClient = AsgardeoNextClient.getInstance();
     const config: AsgardeoNextConfig = await (client.getConfiguration() as unknown as Promise<AsgardeoNextConfig>);
 

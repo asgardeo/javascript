@@ -174,20 +174,24 @@ const asgardeoMiddleware =
     // Step 1: Attempt to get a fully verified (signature + expiry) session.
     const verifiedSession: SessionTokenPayload | undefined = await getSessionFromRequest(request);
 
-    // Step 2: If no verified session exists, try to decode the raw cookie without
-    // expiry verification. This allows the middleware to recover from an expired
-    // access token as long as a refresh token is still present.
+    // Step 2: If no verified session exists, verify the raw cookie's signature
+    // without enforcing expiry. This allows the middleware to recover from an
+    // expired access token as long as the JWT is authentic and a refresh token
+    // is present. Skipping the signature check here would let a tampered cookie
+    // drive identity-confusion attacks since tokenRefreshCore reuses `sub`,
+    // `sessionId`, and `organizationId` from the input payload when minting the
+    // new session JWT.
     let expiredSession: SessionTokenPayload | undefined;
     if (!verifiedSession) {
       const rawToken: string | undefined = request.cookies.get(SessionManager.getSessionCookieName())?.value;
       if (rawToken) {
         try {
-          const decoded: SessionTokenPayload = SessionManager.decodeSessionToken(rawToken);
+          const decoded: SessionTokenPayload = await SessionManager.verifySessionTokenForRefresh(rawToken);
           if (decoded.refreshToken) {
             expiredSession = decoded;
           }
         } catch {
-          // Malformed token — ignore.
+          // Forged, tampered, wrong type, or malformed — ignore.
         }
       }
     }

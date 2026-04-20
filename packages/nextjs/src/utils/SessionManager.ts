@@ -17,7 +17,7 @@
  */
 
 import {AsgardeoRuntimeError, CookieConfig} from '@asgardeo/node';
-import {SignJWT, jwtVerify, decodeJwt, JWTPayload} from 'jose';
+import {SignJWT, jwtVerify, compactVerify, JWTPayload} from 'jose';
 import {DEFAULT_SESSION_EXPIRY_SECONDS} from './constants';
 
 /**
@@ -144,15 +144,6 @@ class SessionManager {
   }
 
   /**
-   * Decode a session token without verifying the signature or expiry.
-   * Use only to inspect an expired token (e.g. to extract a refresh token for renewal).
-   * Never use the result to make authorization decisions.
-   */
-  static decodeSessionToken(token: string): SessionTokenPayload {
-    return decodeJwt(token) as SessionTokenPayload;
-  }
-
-  /**
    * Verify and decode a session token
    */
   static async verifySessionToken(token: string): Promise<SessionTokenPayload> {
@@ -171,6 +162,38 @@ class SessionManager {
         'invalid-session-token',
         'nextjs',
         'Session token verification failed',
+      );
+    }
+  }
+
+  /**
+   * Verify a session token for refresh. Validates the HMAC signature and the
+   * `type === 'session'` discriminant but intentionally skips the `exp` check
+   * so an expired access token can still be exchanged for a new one.
+   *
+   * Session lifetime is still bounded — the cookie's `maxAge` is set from
+   * `sessionExpirySeconds`, so the browser drops an over-age session regardless
+   * of the access-token exp embedded in the JWT.
+   *
+   * Never use the returned payload for authorization.
+   */
+  static async verifySessionTokenForRefresh(token: string): Promise<SessionTokenPayload> {
+    try {
+      const secret: Uint8Array = this.getSecret();
+      const {payload: rawPayload} = await compactVerify(token, secret);
+      const payload: SessionTokenPayload = JSON.parse(new TextDecoder().decode(rawPayload)) as SessionTokenPayload;
+
+      if (payload.type !== 'session') {
+        throw new Error('Invalid token type');
+      }
+
+      return payload;
+    } catch (error) {
+      throw new AsgardeoRuntimeError(
+        `Invalid session token: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        'invalid-session-token-for-refresh',
+        'nextjs',
+        'Session token signature or type check failed during refresh',
       );
     }
   }
