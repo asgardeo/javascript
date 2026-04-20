@@ -318,13 +318,17 @@ const BaseSignUpContent: FC<BaseSignUpProps> = ({
    */
   const setChallengeToken = async (challengeToken: string | null): Promise<void> => {
     challengeTokenRef.current = challengeToken;
-    const storageManager: any = await getStorageManager();
-    if (storageManager) {
-      if (challengeToken) {
-        await storageManager.setTemporaryDataParameter('challengeToken', challengeToken);
-      } else {
-        await storageManager.removeTemporaryDataParameter('challengeToken');
+    try {
+      const storageManager: any = await getStorageManager();
+      if (storageManager) {
+        if (challengeToken) {
+          await storageManager.setTemporaryDataParameter('challengeToken', challengeToken);
+        } else {
+          await storageManager.removeTemporaryDataParameter('challengeToken');
+        }
       }
+    } catch {
+      logger.warn('Failed to persist challenge token in storage.');
     }
   };
 

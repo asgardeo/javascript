@@ -16,7 +16,13 @@
  * under the License.
  */
 
-import {EmbeddedFlowType, FlowMetadataResponse, OrganizationUnitListResponse, Preferences} from '@asgardeo/browser';
+import {
+  EmbeddedFlowType,
+  FlowMetadataResponse,
+  logger,
+  OrganizationUnitListResponse,
+  Preferences,
+} from '@asgardeo/browser';
 import {cx} from '@emotion/css';
 import {FC, ReactElement, ReactNode, useCallback, useEffect, useRef, useState} from 'react';
 import useStyles from './BaseInviteUser.styles';
@@ -290,13 +296,17 @@ const BaseInviteUser: FC<BaseInviteUserProps> = ({
    */
   const setChallengeToken = async (challengeToken: string | null): Promise<void> => {
     challengeTokenRef.current = challengeToken;
-    const storageManager: any = await getStorageManager();
-    if (storageManager) {
-      if (challengeToken) {
-        await storageManager.setTemporaryDataParameter('challengeToken', challengeToken);
-      } else {
-        await storageManager.removeTemporaryDataParameter('challengeToken');
+    try {
+      const storageManager: any = await getStorageManager();
+      if (storageManager) {
+        if (challengeToken) {
+          await storageManager.setTemporaryDataParameter('challengeToken', challengeToken);
+        } else {
+          await storageManager.removeTemporaryDataParameter('challengeToken');
+        }
       }
+    } catch {
+      logger.warn('Failed to persist challenge token in storage.');
     }
   };
 

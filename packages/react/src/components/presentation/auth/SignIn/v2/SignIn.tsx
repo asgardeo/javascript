@@ -26,6 +26,7 @@ import {
   EmbeddedSignInFlowTypeV2,
   FlowMetadataResponse,
   Preferences,
+  logger,
 } from '@asgardeo/browser';
 import {FC, ReactElement, useState, useEffect, useRef, ReactNode} from 'react';
 // eslint-disable-next-line import/no-named-as-default
@@ -279,13 +280,17 @@ const SignIn: FC<SignInProps> = ({
    */
   const setChallengeToken = async (challengeToken: string | null): Promise<void> => {
     challengeTokenRef.current = challengeToken;
-    const storageManager: any = await getStorageManager();
-    if (storageManager) {
-      if (challengeToken) {
-        await storageManager.setTemporaryDataParameter('challengeToken', challengeToken);
-      } else {
-        await storageManager.removeTemporaryDataParameter('challengeToken');
+    try {
+      const storageManager: any = await getStorageManager();
+      if (storageManager) {
+        if (challengeToken) {
+          await storageManager.setTemporaryDataParameter('challengeToken', challengeToken);
+        } else {
+          await storageManager.removeTemporaryDataParameter('challengeToken');
+        }
       }
+    } catch {
+      logger.warn('Failed to persist challenge token in storage.');
     }
   };
 
