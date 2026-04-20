@@ -27,13 +27,14 @@ import {
   IdToken,
   isEmpty,
 } from '@asgardeo/node';
-import {ReadonlyRequestCookies} from 'next/dist/server/web/spec-extension/adapters/request-cookies';
 import {cookies} from 'next/headers';
 import AsgardeoNextClient from '../../AsgardeoNextClient';
 import {AsgardeoNextConfig} from '../../models/config';
 import {DEFAULT_ACCESS_TOKEN_EXPIRY_SECONDS} from '../../utils/constants';
 import logger from '../../utils/logger';
 import SessionManager, {SessionTokenPayload} from '../../utils/SessionManager';
+
+type RequestCookies = Awaited<ReturnType<typeof cookies>>;
 
 /**
  * Server action for signing in a user.
@@ -58,7 +59,7 @@ const signInAction = async (
 }> => {
   try {
     const client: AsgardeoNextClient = AsgardeoNextClient.getInstance();
-    const cookieStore: ReadonlyRequestCookies = await cookies();
+    const cookieStore: RequestCookies = await cookies();
 
     let sessionId: string | undefined;
 

@@ -19,7 +19,6 @@
 'use server';
 
 import {Organization, AsgardeoAPIError, IdToken, TokenResponse} from '@asgardeo/node';
-import {ReadonlyRequestCookies} from 'next/dist/server/web/spec-extension/adapters/request-cookies';
 import {cookies} from 'next/headers';
 import getSessionId from './getSessionId';
 import AsgardeoNextClient from '../../AsgardeoNextClient';
@@ -27,6 +26,8 @@ import {AsgardeoNextConfig} from '../../models/config';
 import {DEFAULT_ACCESS_TOKEN_EXPIRY_SECONDS} from '../../utils/constants';
 import logger from '../../utils/logger';
 import SessionManager from '../../utils/SessionManager';
+
+type RequestCookies = Awaited<ReturnType<typeof cookies>>;
 
 /**
  * Server action to switch organization.
@@ -36,7 +37,7 @@ const switchOrganization = async (
   sessionId: string | undefined,
 ): Promise<TokenResponse | Response> => {
   try {
-    const cookieStore: ReadonlyRequestCookies = await cookies();
+    const cookieStore: RequestCookies = await cookies();
     const client: AsgardeoNextClient = AsgardeoNextClient.getInstance();
     const resolvedSessionId: string = sessionId ?? ((await getSessionId()) as string);
     const response: TokenResponse | Response = await client.switchOrganization(organization, resolvedSessionId);

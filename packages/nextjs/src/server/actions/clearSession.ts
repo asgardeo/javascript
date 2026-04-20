@@ -18,10 +18,11 @@
 
 'use server';
 
-import {ReadonlyRequestCookies} from 'next/dist/server/web/spec-extension/adapters/request-cookies';
 import {cookies} from 'next/headers';
 import logger from '../../utils/logger';
 import SessionManager from '../../utils/SessionManager';
+
+type RequestCookies = Awaited<ReturnType<typeof cookies>>;
 
 /**
  * Deletes all Asgardeo session cookies from the browser without contacting the
@@ -44,7 +45,7 @@ import SessionManager from '../../utils/SessionManager';
  * ```
  */
 const clearSession = async (): Promise<void> => {
-  const cookieStore: ReadonlyRequestCookies = await cookies();
+  const cookieStore: RequestCookies = await cookies();
   cookieStore.delete(SessionManager.getSessionCookieName());
   cookieStore.delete(SessionManager.getTempSessionCookieName());
   logger.debug('[clearSession] Session cookies cleared.');

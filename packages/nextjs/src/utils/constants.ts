@@ -21,7 +21,7 @@
  * refreshes the token. A 60-second buffer prevents races where the token is
  * valid when a request starts but expires mid-flight.
  */
-export const REFRESH_BUFFER_SECONDS: number = 60;
+export const REFRESH_BUFFER_SECONDS: number = 25;
 
 /**
  * Default access token lifetime in seconds (1 hour).

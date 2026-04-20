@@ -38,6 +38,8 @@ export interface SessionTokenPayload extends JWTPayload {
   sessionId: string;
   /** User ID */
   sub: string;
+  /** Token type discriminant — must be 'session' for access-session JWTs */
+  type: 'session';
 }
 
 /**
@@ -157,6 +159,10 @@ class SessionManager {
     try {
       const secret: Uint8Array = this.getSecret();
       const {payload} = await jwtVerify(token, secret);
+
+      if (payload['type'] !== 'session') {
+        throw new Error('Invalid token type');
+      }
 
       return payload as SessionTokenPayload;
     } catch (error) {

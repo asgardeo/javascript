@@ -19,13 +19,14 @@
 'use server';
 
 import {IdToken} from '@asgardeo/node';
-import {ReadonlyRequestCookies} from 'next/dist/server/web/spec-extension/adapters/request-cookies';
 import {cookies} from 'next/headers';
 import AsgardeoNextClient from '../../AsgardeoNextClient';
 import {AsgardeoNextConfig} from '../../models/config';
 import {DEFAULT_ACCESS_TOKEN_EXPIRY_SECONDS} from '../../utils/constants';
 import logger from '../../utils/logger';
 import SessionManager from '../../utils/SessionManager';
+
+type RequestCookies = Awaited<ReturnType<typeof cookies>>;
 
 /**
  * Server action to handle OAuth callback with authorization code.
@@ -63,7 +64,7 @@ const handleOAuthCallbackAction = async (
       };
     }
 
-    const cookieStore: ReadonlyRequestCookies = await cookies();
+    const cookieStore: RequestCookies = await cookies();
     let sessionId: string | undefined;
 
     const tempSessionToken: string | undefined = cookieStore.get(SessionManager.getTempSessionCookieName())?.value;

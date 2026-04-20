@@ -19,12 +19,13 @@
 'use server';
 
 import {AsgardeoAPIError, logger, TokenResponse} from '@asgardeo/node';
-import {ReadonlyRequestCookies} from 'next/dist/server/web/spec-extension/adapters/request-cookies';
 import {cookies} from 'next/headers';
 import AsgardeoNextClient from '../../AsgardeoNextClient';
 import {AsgardeoNextConfig} from '../../models/config';
 import SessionManager, {SessionTokenPayload} from '../../utils/SessionManager';
 import tokenRefreshCore, {TokenRefreshCoreResult} from '../../utils/tokenRefreshCore';
+
+type RequestCookies = Awaited<ReturnType<typeof cookies>>;
 
 /**
  * Server action to refresh the access token using the stored refresh token.
@@ -39,7 +40,7 @@ import tokenRefreshCore, {TokenRefreshCoreResult} from '../../utils/tokenRefresh
  */
 const refreshToken = async (): Promise<TokenResponse> => {
   try {
-    const cookieStore: ReadonlyRequestCookies = await cookies();
+    const cookieStore: RequestCookies = await cookies();
     const sessionToken: string | undefined = cookieStore.get(SessionManager.getSessionCookieName())?.value;
 
     if (!sessionToken) {
@@ -83,7 +84,7 @@ const refreshToken = async (): Promise<TokenResponse> => {
     // rendering context Next.js blocks cookie mutation; the middleware cleanup
     // path covers that case on the next request.
     try {
-      const cookieStore: ReadonlyRequestCookies = await cookies();
+      const cookieStore: RequestCookies = await cookies();
       cookieStore.delete(SessionManager.getSessionCookieName());
       logger.debug('[refreshToken] Cleared session cookie after refresh failure.');
     } catch {

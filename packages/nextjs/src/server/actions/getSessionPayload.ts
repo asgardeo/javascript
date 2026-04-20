@@ -18,9 +18,10 @@
 
 'use server';
 
-import {ReadonlyRequestCookies} from 'next/dist/server/web/spec-extension/adapters/request-cookies';
 import {cookies} from 'next/headers';
 import SessionManager, {SessionTokenPayload} from '../../utils/SessionManager';
+
+type RequestCookies = Awaited<ReturnType<typeof cookies>>;
 
 /**
  * Get the session payload from JWT session cookie.
@@ -29,7 +30,7 @@ import SessionManager, {SessionTokenPayload} from '../../utils/SessionManager';
  * @returns The session payload if valid JWT session exists, undefined otherwise
  */
 const getSessionPayload = async (): Promise<SessionTokenPayload | undefined> => {
-  const cookieStore: ReadonlyRequestCookies = await cookies();
+  const cookieStore: RequestCookies = await cookies();
 
   const sessionToken: string | undefined = cookieStore.get(SessionManager.getSessionCookieName())?.value;
   if (!sessionToken) {
