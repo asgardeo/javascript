@@ -41,7 +41,16 @@ export const DEFAULT_ACCESS_TOKEN_EXPIRY_SECONDS: number = 3600;
  *      (e.g. `ASGARDEO_SESSION_EXPIRY_SECONDS=86400`).
  *   3. This constant — applied when neither of the above is present.
  *
- * The JWT `exp` claim and the browser cookie `maxAge` are always set to the
- * same resolved value so they expire together.
+ * Two independent expiry bounds apply to the session and they are generally
+ * NOT the same value:
+ *
+ *   - JWT `exp` claim — set by `SessionManager.createSessionToken(...)` from
+ *     the `accessTokenTtlSeconds` argument (i.e. the access token's `expires_in`
+ *     returned by the auth server, typically ~1 hour). This controls when
+ *     `verifySessionToken` rejects the token and is the trigger for a refresh.
+ *   - Browser cookie `maxAge` — set by the caller (sign-in / refresh / org-switch
+ *     actions) from `SessionManager.resolveSessionExpiry(...)`, which returns
+ *     this constant by default (24 hours). This controls how long the browser
+ *     holds the cookie before discarding it.
  */
 export const DEFAULT_SESSION_EXPIRY_SECONDS: number = 86400;

@@ -18,14 +18,30 @@
 
 'use server';
 
-import {AsgardeoAPIError, logger, TokenResponse} from '@asgardeo/node';
+import {AsgardeoAPIError, logger} from '@asgardeo/node';
 import {cookies} from 'next/headers';
 import AsgardeoNextClient from '../../AsgardeoNextClient';
 import {AsgardeoNextConfig} from '../../models/config';
+import {DEFAULT_ACCESS_TOKEN_EXPIRY_SECONDS} from '../../utils/constants';
 import SessionManager, {SessionTokenPayload} from '../../utils/SessionManager';
 import tokenRefreshCore, {TokenRefreshCoreResult} from '../../utils/tokenRefreshCore';
 
 type RequestCookies = Awaited<ReturnType<typeof cookies>>;
+
+/**
+ * Client-safe result of a token refresh.
+ *
+ * Intentionally omits accessToken, refreshToken, idToken, and scopes — those stay
+ * server-side in the HttpOnly session cookie. Returning tokens from a Server Action
+ * serializes them into browser memory, defeating the HttpOnly boundary and exposing
+ * them to XSS, browser extensions, and error-tracking SDKs.
+ *
+ * `expiresAt` is epoch seconds for the new access token; the client uses it to
+ * schedule the next refresh.
+ */
+export interface RefreshResult {
+  expiresAt: number;
+}
 
 /**
  * Server action to refresh the access token using the stored refresh token.
@@ -38,7 +54,7 @@ type RequestCookies = Awaited<ReturnType<typeof cookies>>;
  * Next.js allows cookie mutation. When invoked during SSR rendering the cookie
  * write is silently skipped and a warning is logged.
  */
-const refreshToken = async (): Promise<TokenResponse> => {
+const refreshToken = async (): Promise<RefreshResult> => {
   try {
     const cookieStore: RequestCookies = await cookies();
     const sessionToken: string | undefined = cookieStore.get(SessionManager.getSessionCookieName())?.value;
@@ -76,8 +92,13 @@ const refreshToken = async (): Promise<TokenResponse> => {
       logger.warn('[refreshToken] Could not write session cookie — called from SSR rendering context.');
     }
 
+    const expiresInSeconds: number = result.tokenResponse.expiresIn
+      ? parseInt(result.tokenResponse.expiresIn, 10)
+      : DEFAULT_ACCESS_TOKEN_EXPIRY_SECONDS;
+    const expiresAt: number = Math.floor(Date.now() / 1000) + expiresInSeconds;
+
     logger.debug('[refreshToken] Token refresh succeeded.');
-    return result.tokenResponse;
+    return {expiresAt};
   } catch (error) {
     // Clear the dead session cookie before throwing so the browser is not left
     // holding a stale credential. This is best-effort — if called from an SSR

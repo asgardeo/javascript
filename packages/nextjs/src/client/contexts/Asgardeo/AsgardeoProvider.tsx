@@ -33,6 +33,7 @@ import {
   CreateOrganizationPayload,
   AsgardeoRuntimeError,
 } from '@asgardeo/node';
+import {RefreshResult} from '../../../server/actions/refreshToken';
 import {
   I18nProvider,
   FlowProvider,
@@ -69,7 +70,7 @@ export type AsgardeoClientProviderProps = Partial<Omit<AsgardeoProviderProps, 'b
     isSignedIn: boolean;
     myOrganizations: Organization[];
     organizationHandle: AsgardeoContextProps['organizationHandle'];
-    refreshToken: () => Promise<TokenResponse>;
+    refreshToken: () => Promise<RefreshResult>;
     revalidateMyOrganizations?: (sessionId?: string) => Promise<Organization[]>;
     signIn: AsgardeoContextProps['signIn'];
     signOut: AsgardeoContextProps['signOut'];

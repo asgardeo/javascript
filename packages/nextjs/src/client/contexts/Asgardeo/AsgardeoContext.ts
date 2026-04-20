@@ -18,16 +18,16 @@
 
 'use client';
 
-import {TokenResponse} from '@asgardeo/node';
 import {AsgardeoContextProps as AsgardeoReactContextProps} from '@asgardeo/react';
 import {Context, createContext} from 'react';
+import {RefreshResult} from '../../../server/actions/refreshToken';
 
 /**
  * Props interface of {@link AsgardeoContext}
  */
 export type AsgardeoContextProps = Partial<AsgardeoReactContextProps> & {
   clearSession?: () => Promise<void>;
-  refreshToken?: () => Promise<TokenResponse>;
+  refreshToken?: () => Promise<RefreshResult>;
 };
 
 /**
@@ -42,7 +42,7 @@ const AsgardeoContext: Context<AsgardeoContextProps | null> = createContext<null
   isLoading: true,
   isSignedIn: false,
   organizationHandle: undefined,
-  refreshToken: () => Promise.resolve({} as TokenResponse),
+  refreshToken: () => Promise.resolve({expiresAt: 0}),
   signIn: () => Promise.resolve({} as any),
   signInUrl: undefined,
   signOut: () => Promise.resolve({} as any),

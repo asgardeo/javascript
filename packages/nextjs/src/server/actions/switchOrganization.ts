@@ -54,9 +54,9 @@ const switchOrganization = async (
         | undefined;
       const config: AsgardeoNextConfig = client.getConfiguration() as AsgardeoNextConfig;
       const sessionExpirySeconds: number = SessionManager.resolveSessionExpiry(config.sessionExpirySeconds);
-      const expiresIn: number = tokenResponse.expiresIn
-        ? parseInt(tokenResponse.expiresIn, 10)
-        : DEFAULT_ACCESS_TOKEN_EXPIRY_SECONDS;
+      const parsedExpiresIn: number = tokenResponse.expiresIn ? parseInt(tokenResponse.expiresIn, 10) : NaN;
+      const expiresIn: number =
+        Number.isFinite(parsedExpiresIn) && parsedExpiresIn > 0 ? parsedExpiresIn : DEFAULT_ACCESS_TOKEN_EXPIRY_SECONDS;
 
       const sessionToken: string = await SessionManager.createSessionToken(
         tokenResponse.accessToken,
