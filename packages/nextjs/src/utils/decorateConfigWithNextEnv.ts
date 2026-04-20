@@ -30,6 +30,7 @@ const decorateConfigWithNextEnv = (config: AsgardeoNextConfig): AsgardeoNextConf
     signUpUrl,
     afterSignInUrl,
     afterSignOutUrl,
+    sessionCookieExpiryTime,
     ...rest
   } = config;
 
@@ -43,6 +44,11 @@ const decorateConfigWithNextEnv = (config: AsgardeoNextConfig): AsgardeoNextConf
     clientSecret: clientSecret || (process.env['ASGARDEO_CLIENT_SECRET'] as string),
     organizationHandle: organizationHandle || (process.env['NEXT_PUBLIC_ASGARDEO_ORGANIZATION_HANDLE'] as string),
     scopes: scopes || (process.env['NEXT_PUBLIC_ASGARDEO_SCOPES'] as string),
+    sessionCookieExpiryTime:
+      sessionCookieExpiryTime ||
+      (process.env['ASGARDEO_SESSION_COOKIE_EXPIRY_TIME']
+        ? parseInt(process.env['ASGARDEO_SESSION_COOKIE_EXPIRY_TIME'], 10)
+        : undefined),
     signInUrl: signInUrl || (process.env['NEXT_PUBLIC_ASGARDEO_SIGN_IN_URL'] as string),
     signUpUrl: signUpUrl || (process.env['NEXT_PUBLIC_ASGARDEO_SIGN_UP_URL'] as string),
   };

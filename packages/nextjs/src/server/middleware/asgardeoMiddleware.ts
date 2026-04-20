@@ -18,11 +18,11 @@
 
 import {NextRequest, NextResponse} from 'next/server';
 import {AsgardeoNextConfig} from '../../models/config';
-import {REFRESH_BUFFER_SECONDS} from '../../utils/constants';
+import {REFRESH_BUFFER_SECONDS} from '../../constants/sessionConstants';
 import decorateConfigWithNextEnv from '../../utils/decorateConfigWithNextEnv';
 import SessionManager, {SessionTokenPayload} from '../../utils/SessionManager';
 import {getSessionFromRequest, getSessionIdFromRequest} from '../../utils/sessionUtils';
-import tokenRefreshCore from '../../utils/tokenRefreshCore';
+import handleRefreshToken from '../../utils/handleRefreshToken';
 
 export type AsgardeoMiddlewareOptions = Partial<AsgardeoNextConfig>;
 
@@ -178,7 +178,7 @@ const asgardeoMiddleware =
     // without enforcing expiry. This allows the middleware to recover from an
     // expired access token as long as the JWT is authentic and a refresh token
     // is present. Skipping the signature check here would let a tampered cookie
-    // drive identity-confusion attacks since tokenRefreshCore reuses `sub`,
+    // drive identity-confusion attacks since handleRefreshToken reuses `sub`,
     // `sessionId`, and `organizationId` from the input payload when minting the
     // new session JWT.
     let expiredSession: SessionTokenPayload | undefined;
@@ -221,15 +221,15 @@ const asgardeoMiddleware =
 
     if (needsRefresh && candidateSession) {
       try {
-        const {newSessionToken, sessionExpirySeconds} = await tokenRefreshCore(candidateSession, {
+        const {newSessionToken, sessionCookieExpiryTime} = await handleRefreshToken(candidateSession, {
           baseUrl: resolvedConfig.baseUrl!,
           clientId: resolvedConfig.clientId!,
           clientSecret: resolvedConfig.clientSecret!,
-          sessionExpirySeconds: resolvedConfig.sessionExpirySeconds,
+          sessionCookieExpiryTime: resolvedConfig.sessionCookieExpiryTime,
         });
         // Verify the newly minted token so activeSession reflects fresh claims.
         activeSession = await SessionManager.verifySessionToken(newSessionToken);
-        refreshCookieUpdate = {expiry: sessionExpirySeconds, token: newSessionToken};
+        refreshCookieUpdate = {expiry: sessionCookieExpiryTime, token: newSessionToken};
       } catch {
         // Refresh failed — clear the irrecoverable session.
         activeSession = undefined;

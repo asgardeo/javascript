@@ -18,7 +18,7 @@
 
 import {AsgardeoRuntimeError, CookieConfig} from '@asgardeo/node';
 import {SignJWT, jwtVerify, compactVerify, JWTPayload} from 'jose';
-import {DEFAULT_SESSION_EXPIRY_SECONDS} from './constants';
+import {DEFAULT_SESSION_COOKIE_EXPIRY_TIME} from '../constants/sessionConstants';
 
 /**
  * Session token payload interface
@@ -90,19 +90,19 @@ class SessionManager {
   }
 
   /**
-   * Resolve the session expiry in seconds.
+   * Resolve the session cookie expiry time in seconds.
    *
    * Resolution order (first defined value wins):
-   *   1. `configuredExpiry` — value from `AsgardeoNextConfig.sessionExpirySeconds`
-   *   2. `ASGARDEO_SESSION_EXPIRY_SECONDS` environment variable
-   *   3. `DEFAULT_SESSION_EXPIRY_SECONDS` (24 hours)
+   *   1. `configuredExpiry` — value from `AsgardeoNodeConfig.sessionCookieExpiryTime`
+   *   2. `ASGARDEO_SESSION_COOKIE_EXPIRY_TIME` environment variable
+   *   3. `DEFAULT_SESSION_COOKIE_EXPIRY_TIME` (24 hours)
    */
-  static resolveSessionExpiry(configuredExpiry?: number): number {
+  static resolveSessionCookieExpiry(configuredExpiry?: number): number {
     if (configuredExpiry != null && configuredExpiry > 0) {
       return configuredExpiry;
     }
 
-    const envValue: string | undefined = process.env['ASGARDEO_SESSION_EXPIRY_SECONDS'];
+    const envValue: string | undefined = process.env['ASGARDEO_SESSION_COOKIE_EXPIRY_TIME'];
 
     if (envValue) {
       const parsed: number = parseInt(envValue, 10);
@@ -112,7 +112,7 @@ class SessionManager {
       }
     }
 
-    return DEFAULT_SESSION_EXPIRY_SECONDS;
+    return DEFAULT_SESSION_COOKIE_EXPIRY_TIME;
   }
 
   static async createSessionToken(
@@ -172,7 +172,7 @@ class SessionManager {
    * so an expired access token can still be exchanged for a new one.
    *
    * Session lifetime is still bounded — the cookie's `maxAge` is set from
-   * `sessionExpirySeconds`, so the browser drops an over-age session regardless
+   * `sessionCookieExpiryTime`, so the browser drops an over-age session regardless
    * of the access-token exp embedded in the JWT.
    *
    * Never use the returned payload for authorization.

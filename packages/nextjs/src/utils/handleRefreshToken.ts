@@ -17,42 +17,40 @@
  */
 
 import type {TokenResponse} from '@asgardeo/node';
-import {DEFAULT_ACCESS_TOKEN_EXPIRY_SECONDS} from './constants';
 import SessionManager, {SessionTokenPayload} from './SessionManager';
 
 /**
  * Config required to call the token endpoint.
  */
-export interface TokenRefreshCoreConfig {
+export interface HandleRefreshTokenConfig {
   baseUrl: string;
   clientId: string;
   clientSecret: string;
-  sessionExpirySeconds?: number;
+  sessionCookieExpiryTime?: number;
 }
 
 /**
- * Result returned by tokenRefreshCore.
+ * Result returned by handleRefreshToken.
  * Callers are responsible for persisting newSessionToken in the appropriate cookie context.
  */
-export interface TokenRefreshCoreResult {
+export interface HandleRefreshTokenResult {
   newSessionToken: string;
-  sessionExpirySeconds: number;
+  sessionCookieExpiryTime: number;
   tokenResponse: TokenResponse;
 }
 
 /**
- * Core token refresh logic — performs the OAuth refresh_token grant and builds a new
- * session JWT string.
+ * Handles the OAuth refresh_token grant and builds a new session JWT string.
  *
  * Intentionally decoupled from cookie APIs so it can be called from both the Edge
  * Runtime (Next.js middleware) and the Node.js Runtime (server actions).
  * Cookie persistence is the caller's responsibility.
  */
-const tokenRefreshCore = async (
+const handleRefreshToken = async (
   sessionPayload: SessionTokenPayload,
-  config: TokenRefreshCoreConfig,
-): Promise<TokenRefreshCoreResult> => {
-  const {baseUrl, clientId, clientSecret, sessionExpirySeconds: configuredExpiry} = config;
+  config: HandleRefreshTokenConfig,
+): Promise<HandleRefreshTokenResult> => {
+  const {baseUrl, clientId, clientSecret, sessionCookieExpiryTime: configuredExpiry} = config;
   const {refreshToken: storedRefreshToken, sessionId, sub, scopes, organizationId} = sessionPayload;
 
   if (!storedRefreshToken) {
@@ -94,13 +92,13 @@ const tokenRefreshCore = async (
   }
 
   const newAccessToken: string = tokenData['access_token'] as string;
-  const expiresIn: number = (tokenData['expires_in'] as number | undefined) ?? DEFAULT_ACCESS_TOKEN_EXPIRY_SECONDS;
+  const expiresIn: number = tokenData['expires_in'] as number;
   // Use the rotated refresh token if the server provided one; otherwise keep the existing one.
   const newRefreshToken: string = (tokenData['refresh_token'] as string | undefined) ?? storedRefreshToken;
   const newScopes: string =
     (tokenData['scope'] as string | undefined) ?? (Array.isArray(scopes) ? scopes.join(' ') : (scopes as string) ?? '');
 
-  const resolvedSessionExpiry: number = SessionManager.resolveSessionExpiry(configuredExpiry);
+  const resolvedSessionCookieExpiry: number = SessionManager.resolveSessionCookieExpiry(configuredExpiry);
 
   const newSessionToken: string = await SessionManager.createSessionToken(
     newAccessToken,
@@ -114,7 +112,7 @@ const tokenRefreshCore = async (
 
   return {
     newSessionToken,
-    sessionExpirySeconds: resolvedSessionExpiry,
+    sessionCookieExpiryTime: resolvedSessionCookieExpiry,
     tokenResponse: {
       accessToken: newAccessToken,
       createdAt: Math.floor(Date.now() / 1000),
@@ -127,4 +125,4 @@ const tokenRefreshCore = async (
   };
 };
 
-export default tokenRefreshCore;
+export default handleRefreshToken;

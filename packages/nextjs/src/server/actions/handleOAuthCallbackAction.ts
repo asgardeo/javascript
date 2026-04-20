@@ -22,7 +22,6 @@ import {IdToken} from '@asgardeo/node';
 import {cookies} from 'next/headers';
 import AsgardeoNextClient from '../../AsgardeoNextClient';
 import {AsgardeoNextConfig} from '../../models/config';
-import {DEFAULT_ACCESS_TOKEN_EXPIRY_SECONDS} from '../../utils/constants';
 import logger from '../../utils/logger';
 import SessionManager from '../../utils/SessionManager';
 
@@ -100,7 +99,7 @@ const handleOAuthCallbackAction = async (
       sessionId,
     );
 
-    const config: AsgardeoNextConfig = asgardeoClient.getConfiguration() as AsgardeoNextConfig;
+    const config: AsgardeoNextConfig = await (asgardeoClient.getConfiguration() as unknown as Promise<AsgardeoNextConfig>);
 
     if (signInResult) {
       try {
@@ -115,9 +114,8 @@ const handleOAuthCallbackAction = async (
         const organizationId: string | undefined = (idToken['user_org'] || idToken['organization_id']) as
           | string
           | undefined;
-        const expiresIn: number =
-          (signInResult['expiresIn'] as number | undefined) ?? DEFAULT_ACCESS_TOKEN_EXPIRY_SECONDS;
-        const sessionExpirySeconds: number = SessionManager.resolveSessionExpiry(config.sessionExpirySeconds);
+        const expiresIn: number = signInResult['expiresIn'] as number;
+        const sessionCookieExpiryTime: number = SessionManager.resolveSessionCookieExpiry(config.sessionCookieExpiryTime);
 
         const sessionToken: string = await SessionManager.createSessionToken(
           accessToken,
@@ -132,7 +130,7 @@ const handleOAuthCallbackAction = async (
         cookieStore.set(
           SessionManager.getSessionCookieName(),
           sessionToken,
-          SessionManager.getSessionCookieOptions(sessionExpirySeconds),
+          SessionManager.getSessionCookieOptions(sessionCookieExpiryTime),
         );
 
         cookieStore.delete(SessionManager.getTempSessionCookieName());

@@ -18,27 +18,21 @@
 
 /**
  * Number of seconds before access token expiry at which the SDK proactively
- * refreshes the token. A 60-second buffer prevents races where the token is
+ * refreshes the token. A 25-second buffer prevents races where the token is
  * valid when a request starts but expires mid-flight.
  */
 export const REFRESH_BUFFER_SECONDS: number = 25;
 
 /**
- * Default access token lifetime in seconds (1 hour).
- * Used as a fallback when the token endpoint does not return an `expires_in` value.
- */
-export const DEFAULT_ACCESS_TOKEN_EXPIRY_SECONDS: number = 3600;
-
-/**
- * Default session lifetime in seconds (24 hours).
+ * Default session cookie lifetime in seconds (24 hours).
  *
- * Used when no explicit session expiry is configured. The session lifetime
- * can be overridden in two ways (evaluated in this order):
+ * Used when no explicit session cookie expiry is configured. The session cookie
+ * lifetime can be overridden in two ways (evaluated in this order):
  *
- *   1. `sessionExpirySeconds` in `AsgardeoNextConfig` — set programmatically
+ *   1. `sessionCookieExpiryTime` in `AsgardeoNodeConfig` — set programmatically
  *      when initialising the SDK.
- *   2. `ASGARDEO_SESSION_EXPIRY_SECONDS` environment variable — set in `.env`
- *      (e.g. `ASGARDEO_SESSION_EXPIRY_SECONDS=86400`).
+ *   2. `ASGARDEO_SESSION_COOKIE_EXPIRY_TIME` environment variable — set in `.env`
+ *      (e.g. `ASGARDEO_SESSION_COOKIE_EXPIRY_TIME=86400`).
  *   3. This constant — applied when neither of the above is present.
  *
  * Two independent expiry bounds apply to the session and they are generally
@@ -49,8 +43,8 @@ export const DEFAULT_ACCESS_TOKEN_EXPIRY_SECONDS: number = 3600;
  *     returned by the auth server, typically ~1 hour). This controls when
  *     `verifySessionToken` rejects the token and is the trigger for a refresh.
  *   - Browser cookie `maxAge` — set by the caller (sign-in / refresh / org-switch
- *     actions) from `SessionManager.resolveSessionExpiry(...)`, which returns
+ *     actions) from `SessionManager.resolveSessionCookieExpiry(...)`, which returns
  *     this constant by default (24 hours). This controls how long the browser
  *     holds the cookie before discarding it.
  */
-export const DEFAULT_SESSION_EXPIRY_SECONDS: number = 86400;
+export const DEFAULT_SESSION_COOKIE_EXPIRY_TIME: number = 86400;

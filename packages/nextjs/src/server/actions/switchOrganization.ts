@@ -23,7 +23,6 @@ import {cookies} from 'next/headers';
 import getSessionId from './getSessionId';
 import AsgardeoNextClient from '../../AsgardeoNextClient';
 import {AsgardeoNextConfig} from '../../models/config';
-import {DEFAULT_ACCESS_TOKEN_EXPIRY_SECONDS} from '../../utils/constants';
 import logger from '../../utils/logger';
 import SessionManager from '../../utils/SessionManager';
 
@@ -52,11 +51,9 @@ const switchOrganization = async (
       const organizationId: string | undefined = (idToken['user_org'] || idToken['organization_id']) as
         | string
         | undefined;
-      const config: AsgardeoNextConfig = client.getConfiguration() as AsgardeoNextConfig;
-      const sessionExpirySeconds: number = SessionManager.resolveSessionExpiry(config.sessionExpirySeconds);
-      const parsedExpiresIn: number = tokenResponse.expiresIn ? parseInt(tokenResponse.expiresIn, 10) : NaN;
-      const expiresIn: number =
-        Number.isFinite(parsedExpiresIn) && parsedExpiresIn > 0 ? parsedExpiresIn : DEFAULT_ACCESS_TOKEN_EXPIRY_SECONDS;
+      const config: AsgardeoNextConfig = await (client.getConfiguration() as unknown as Promise<AsgardeoNextConfig>);
+      const sessionCookieExpiryTime: number = SessionManager.resolveSessionCookieExpiry(config.sessionCookieExpiryTime);
+      const expiresIn: number = parseInt(tokenResponse.expiresIn, 10);
 
       const sessionToken: string = await SessionManager.createSessionToken(
         tokenResponse.accessToken,
@@ -73,7 +70,7 @@ const switchOrganization = async (
       cookieStore.set(
         SessionManager.getSessionCookieName(),
         sessionToken,
-        SessionManager.getSessionCookieOptions(sessionExpirySeconds),
+        SessionManager.getSessionCookieOptions(sessionCookieExpiryTime),
       );
     }
 

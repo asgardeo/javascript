@@ -22,9 +22,8 @@ import {AsgardeoAPIError, logger} from '@asgardeo/node';
 import {cookies} from 'next/headers';
 import AsgardeoNextClient from '../../AsgardeoNextClient';
 import {AsgardeoNextConfig} from '../../models/config';
-import {DEFAULT_ACCESS_TOKEN_EXPIRY_SECONDS} from '../../utils/constants';
 import SessionManager, {SessionTokenPayload} from '../../utils/SessionManager';
-import tokenRefreshCore, {TokenRefreshCoreResult} from '../../utils/tokenRefreshCore';
+import handleRefreshToken, {HandleRefreshTokenResult} from '../../utils/handleRefreshToken';
 
 type RequestCookies = Awaited<ReturnType<typeof cookies>>;
 
@@ -47,7 +46,7 @@ export interface RefreshResult {
  * Server action to refresh the access token using the stored refresh token.
  * Exchanges the refresh token for a new token set and updates the session cookie.
  *
- * Delegates the HTTP exchange to tokenRefreshCore so the same logic is shared
+ * Delegates the HTTP exchange to handleRefreshToken so the same logic is shared
  * with the middleware token refresh path.
  *
  * Called from the client side (e.g. AsgardeoClientProvider refreshOnMount) where
@@ -72,18 +71,18 @@ const refreshToken = async (): Promise<RefreshResult> => {
     const client: AsgardeoNextClient = AsgardeoNextClient.getInstance();
     const config: AsgardeoNextConfig = await (client.getConfiguration() as unknown as Promise<AsgardeoNextConfig>);
 
-    const result: TokenRefreshCoreResult = await tokenRefreshCore(sessionPayload, {
+    const result: HandleRefreshTokenResult = await handleRefreshToken(sessionPayload, {
       baseUrl: config.baseUrl ?? '',
       clientId: config.clientId ?? '',
       clientSecret: config.clientSecret ?? '',
-      sessionExpirySeconds: config.sessionExpirySeconds,
+      sessionCookieExpiryTime: config.sessionCookieExpiryTime,
     });
 
     try {
       cookieStore.set(
         SessionManager.getSessionCookieName(),
         result.newSessionToken,
-        SessionManager.getSessionCookieOptions(result.sessionExpirySeconds),
+        SessionManager.getSessionCookieOptions(result.sessionCookieExpiryTime),
       );
     } catch {
       // cookies().set() is only permitted inside a Server Action invoked from the client
@@ -92,9 +91,7 @@ const refreshToken = async (): Promise<RefreshResult> => {
       logger.warn('[refreshToken] Could not write session cookie — called from SSR rendering context.');
     }
 
-    const expiresInSeconds: number = result.tokenResponse.expiresIn
-      ? parseInt(result.tokenResponse.expiresIn, 10)
-      : DEFAULT_ACCESS_TOKEN_EXPIRY_SECONDS;
+    const expiresInSeconds: number = parseInt(result.tokenResponse.expiresIn, 10);
     const expiresAt: number = Math.floor(Date.now() / 1000) + expiresInSeconds;
 
     logger.debug('[refreshToken] Token refresh succeeded.');
