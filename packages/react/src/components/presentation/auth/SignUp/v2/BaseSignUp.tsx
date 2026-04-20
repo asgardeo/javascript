@@ -274,7 +274,12 @@ const BaseSignUpContent: FC<BaseSignUpProps> = ({
   const {theme, colorScheme} = useTheme();
   const {t} = useTranslation();
   const {subtitle: flowSubtitle, title: flowTitle, messages: flowMessages, addMessage, clearMessages} = useFlow();
-  const {meta} = useAsgardeo();
+  const {
+    meta,
+    isInitialized: isSdkInitialized,
+    getChallengeToken,
+    setChallengeToken: persistChallengeToken,
+  } = useAsgardeo();
   const styles: any = useStyles(theme, colorScheme);
 
   const [isLoading, setIsLoading] = useState(false);
@@ -288,9 +293,37 @@ const BaseSignUpContent: FC<BaseSignUpProps> = ({
     executionId: null,
     isActive: false,
   });
+  const challengeTokenRef: any = useRef<string | null>(null);
 
   const initializationAttemptedRef: any = useRef(false);
   const passkeyProcessedRef: any = useRef(false);
+
+  /**
+   * Restore any challenge token persisted before an OAuth redirect.
+   */
+  useEffect(() => {
+    if (!isSdkInitialized) return;
+
+    (async (): Promise<void> => {
+      try {
+        const token: string | null = await getChallengeToken();
+        if (token) {
+          challengeTokenRef.current = token;
+        }
+      } catch {
+        // StorageManager unavailable — continue without persisted token
+      }
+    })();
+  }, [isSdkInitialized]);
+
+  /**
+   * Updates challengeTokenRef immediately (stale-closure safe) and persists via
+   * the provider's StorageManager so the token survives OAuth redirects.
+   */
+  const setChallengeToken = async (challengeToken: string | null): Promise<void> => {
+    challengeTokenRef.current = challengeToken;
+    await persistChallengeToken(challengeToken);
+  };
 
   /**
    * Handle error responses and extract meaningful error messages
@@ -675,13 +708,15 @@ const BaseSignUpContent: FC<BaseSignUpProps> = ({
         ...((currentFlow as any).executionId && {executionId: (currentFlow as any).executionId}),
         flowType: (currentFlow as any).flowType || 'REGISTRATION',
         ...(component.id && {action: component.id}),
-        ...((currentFlow as any).challengeToken && {challengeToken: (currentFlow as any).challengeToken}),
+        ...(challengeTokenRef.current ? {challengeToken: challengeTokenRef.current} : {}),
         inputs: filteredInputs,
       } as any;
 
       const rawResponse: any = await onSubmit(payload);
       const response: any = normalizeFlowResponseLocal(rawResponse);
       onFlowChange?.(response);
+
+      await setChallengeToken(response.challengeToken ?? null);
 
       if (response.flowStatus === EmbeddedFlowStatus.Complete) {
         onComplete?.(response);
@@ -878,6 +913,7 @@ const BaseSignUpContent: FC<BaseSignUpProps> = ({
           const rawResponse: any = await onInitialize();
           const response: any = normalizeFlowResponseLocal(rawResponse);
 
+          await setChallengeToken(response.challengeToken ?? null);
           setCurrentFlow(response);
           setIsFlowInitialized(true);
           onFlowChange?.(response);

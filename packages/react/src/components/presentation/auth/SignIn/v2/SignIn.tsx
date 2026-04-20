@@ -216,16 +216,24 @@ const SignIn: FC<SignInProps> = ({
   variant,
   children,
 }: SignInProps): ReactElement => {
-  const {applicationId, afterSignInUrl, signIn, isInitialized, isLoading, meta} = useAsgardeo();
+  const {
+    applicationId,
+    afterSignInUrl,
+    signIn,
+    isInitialized,
+    isLoading,
+    meta,
+    getChallengeToken,
+    setChallengeToken: persistChallengeToken,
+  } = useAsgardeo();
   const {t} = useTranslation(preferences?.i18n);
 
   // State management for the flow
   const [components, setComponents] = useState<EmbeddedFlowComponent[]>([]);
   const [additionalData, setAdditionalData] = useState<Record<string, any>>({});
   const [currentExecutionId, setCurrentExecutionId] = useState<string | null>(null);
-  const [currentChallengeToken, setCurrentChallengeToken] = useState<string | null>(() =>
-    sessionStorage.getItem('asgardeo_challenge_token'),
-  );
+  const challengeTokenRef: any = useRef<string | null>(null);
+  const [isStorageReady, setIsStorageReady] = useState(false);
   const [isFlowInitialized, setIsFlowInitialized] = useState(false);
   const [flowError, setFlowError] = useState<Error | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -255,24 +263,39 @@ const SignIn: FC<SignInProps> = ({
   };
 
   /**
-   * Sets challengeToken between sessionStorage and state.
-   * This ensures both are always in sync.
+   * Restore any challenge token persisted before an OAuth redirect.
+   * Waits for SDK initialization before reading from storage.
    */
-  const setChallengeToken = (challengeToken: string | null): void => {
-    setCurrentChallengeToken(challengeToken);
-    if (challengeToken) {
-      sessionStorage.setItem('asgardeo_challenge_token', challengeToken);
-    } else {
-      sessionStorage.removeItem('asgardeo_challenge_token');
-    }
+  useEffect(() => {
+    if (!isInitialized) return;
+
+    (async (): Promise<void> => {
+      try {
+        const token: string | null = await getChallengeToken();
+        if (token) {
+          challengeTokenRef.current = token;
+        }
+      } finally {
+        setIsStorageReady(true);
+      }
+    })();
+  }, [isInitialized]);
+
+  /**
+   * Updates challengeTokenRef immediately (stale-closure safe) and persists via
+   * the provider's StorageManager so the token survives OAuth redirects.
+   */
+  const setChallengeToken = async (challengeToken: string | null): Promise<void> => {
+    challengeTokenRef.current = challengeToken;
+    await persistChallengeToken(challengeToken);
   };
 
   /**
    * Clear all flow-related storage and state.
    */
-  const clearFlowState = (): void => {
+  const clearFlowState = async (): Promise<void> => {
     setExecutionId(null);
-    setChallengeToken(null);
+    await setChallengeToken(null);
     setIsFlowInitialized(false);
     sessionStorage.removeItem('asgardeo_auth_id');
     setIsTimeoutDisabled(false);
@@ -361,7 +384,7 @@ const SignIn: FC<SignInProps> = ({
   /**
    * Handle REDIRECTION response by storing flow state and redirecting to OAuth provider.
    */
-  const handleRedirection = (response: EmbeddedSignInFlowResponseV2): boolean => {
+  const handleRedirection = async (response: EmbeddedSignInFlowResponseV2): Promise<boolean> => {
     if (response.type === EmbeddedSignInFlowTypeV2.Redirection) {
       const redirectURL: any = (response.data as any)?.redirectURL || (response as any)?.redirectURL;
 
@@ -369,7 +392,7 @@ const SignIn: FC<SignInProps> = ({
         if (response.executionId) {
           setExecutionId(response.executionId);
         }
-        setChallengeToken(response.challengeToken ?? null);
+        await setChallengeToken(response.challengeToken ?? null);
 
         const urlParams: any = getUrlParams();
         handleAuthId(urlParams.authId);
@@ -421,7 +444,7 @@ const SignIn: FC<SignInProps> = ({
         })) as EmbeddedSignInFlowResponseV2;
       }
 
-      if (handleRedirection(response)) {
+      if (await handleRedirection(response)) {
         return;
       }
 
@@ -438,9 +461,10 @@ const SignIn: FC<SignInProps> = ({
         meta,
       );
 
+      await setChallengeToken(response.challengeToken ?? null);
+
       if (normalizedExecutionId && normalizedComponents) {
         setExecutionId(normalizedExecutionId);
-        setChallengeToken(response.challengeToken ?? null);
         setComponents(normalizedComponents);
         setAdditionalData(normalizedAdditionalData ?? {});
         setIsFlowInitialized(true);
@@ -450,7 +474,7 @@ const SignIn: FC<SignInProps> = ({
       }
     } catch (error) {
       const err: any = error as any;
-      clearFlowState();
+      await clearFlowState();
 
       // Extract error message from response or error object
       const errorMessage: any = err?.failureReason || (err instanceof Error ? err.message : String(err));
@@ -614,10 +638,10 @@ const SignIn: FC<SignInProps> = ({
         executionId: effectiveExecutionId,
         ...payload,
         inputs: processedInputs,
-        ...(currentChallengeToken ? {challengeToken: currentChallengeToken} : {}),
+        ...(challengeTokenRef.current ? {challengeToken: challengeTokenRef.current} : {}),
       })) as EmbeddedSignInFlowResponseV2;
 
-      if (handleRedirection(response)) {
+      if (await handleRedirection(response)) {
         return;
       }
       if (
@@ -630,7 +654,7 @@ const SignIn: FC<SignInProps> = ({
         // Reset passkey processed ref to allow processing
         passkeyProcessedRef.current = false;
 
-        setChallengeToken(response.challengeToken ?? null);
+        await setChallengeToken(response.challengeToken ?? null);
 
         // Set passkey state to trigger the passkey
         setPasskeyState({
@@ -661,7 +685,7 @@ const SignIn: FC<SignInProps> = ({
 
       // Handle Error flow status - flow has failed and is invalidated
       if (response.flowStatus === EmbeddedSignInFlowStatusV2.Error) {
-        clearFlowState();
+        await clearFlowState();
         // Extract failureReason from response if available
         const failureReason: any = (response as any)?.failureReason;
         const errorMessage: any = failureReason || 'Authentication flow failed. Please try again.';
@@ -682,7 +706,7 @@ const SignIn: FC<SignInProps> = ({
 
         // Clear all OAuth-related storage on successful completion
         setExecutionId(null);
-        setChallengeToken(null);
+        await setChallengeToken(null);
         setIsFlowInitialized(false);
         sessionStorage.removeItem('asgardeo_execution_id');
         sessionStorage.removeItem('asgardeo_auth_id');
@@ -704,10 +728,12 @@ const SignIn: FC<SignInProps> = ({
         return;
       }
 
+      // Always update challenge token on any INCOMPLETE response — token rotates every step.
+      await setChallengeToken(response.challengeToken ?? null);
+
       // Update executionId if response contains a new one
       if (normalizedExecutionId && normalizedComponents) {
         setExecutionId(normalizedExecutionId);
-        setChallengeToken(response.challengeToken ?? null);
         setComponents(normalizedComponents);
         setAdditionalData(normalizedAdditionalData ?? {});
         setIsTimeoutDisabled(false);
@@ -723,7 +749,7 @@ const SignIn: FC<SignInProps> = ({
       }
     } catch (error) {
       const err: any = error as any;
-      clearFlowState();
+      await clearFlowState();
 
       // Extract error message from response or error object
       const errorMessage: any = err?.failureReason || (err instanceof Error ? err.message : String(err));
@@ -744,7 +770,7 @@ const SignIn: FC<SignInProps> = ({
 
   useOAuthCallback({
     currentExecutionId,
-    isInitialized: isInitialized && !isLoading,
+    isInitialized: isInitialized && !isLoading && isStorageReady,
     isSubmitting,
     onError: (err: any) => {
       clearFlowState();
