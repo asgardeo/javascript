@@ -263,7 +263,7 @@ const BaseAcceptInvite: FC<BaseAcceptInviteProps> = ({
   showTitle = true,
   showSubtitle = true,
 }: BaseAcceptInviteProps): ReactElement => {
-  const {meta, isInitialized, getChallengeToken, setChallengeToken: persistChallengeToken} = useAsgardeo();
+  const {meta, isInitialized, getStorageManager} = useAsgardeo();
   const {t} = useTranslation(preferences?.i18n);
   const {theme} = useTheme();
   const styles: any = useStyles(theme, theme.vars.colors.text.primary);
@@ -291,9 +291,10 @@ const BaseAcceptInvite: FC<BaseAcceptInviteProps> = ({
 
     (async (): Promise<void> => {
       try {
-        const token: string | null = await getChallengeToken();
-        if (token) {
-          challengeTokenRef.current = token;
+        const storageManager: any = await getStorageManager();
+        const tempData: any = await storageManager?.getTemporaryData();
+        if (tempData?.challengeToken) {
+          challengeTokenRef.current = tempData.challengeToken as string;
         }
       } finally {
         setIsStorageReady(true);
@@ -307,7 +308,14 @@ const BaseAcceptInvite: FC<BaseAcceptInviteProps> = ({
    */
   const setChallengeToken = async (challengeToken: string | null): Promise<void> => {
     challengeTokenRef.current = challengeToken;
-    await persistChallengeToken(challengeToken);
+    const storageManager: any = await getStorageManager();
+    if (storageManager) {
+      if (challengeToken) {
+        await storageManager.setTemporaryDataParameter('challengeToken', challengeToken);
+      } else {
+        await storageManager.removeTemporaryDataParameter('challengeToken');
+      }
+    }
   };
 
   /**

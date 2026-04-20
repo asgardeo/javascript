@@ -274,12 +274,7 @@ const BaseSignUpContent: FC<BaseSignUpProps> = ({
   const {theme, colorScheme} = useTheme();
   const {t} = useTranslation();
   const {subtitle: flowSubtitle, title: flowTitle, messages: flowMessages, addMessage, clearMessages} = useFlow();
-  const {
-    meta,
-    isInitialized: isSdkInitialized,
-    getChallengeToken,
-    setChallengeToken: persistChallengeToken,
-  } = useAsgardeo();
+  const {meta, isInitialized: isSdkInitialized, getStorageManager} = useAsgardeo();
   const styles: any = useStyles(theme, colorScheme);
 
   const [isLoading, setIsLoading] = useState(false);
@@ -306,9 +301,10 @@ const BaseSignUpContent: FC<BaseSignUpProps> = ({
 
     (async (): Promise<void> => {
       try {
-        const token: string | null = await getChallengeToken();
-        if (token) {
-          challengeTokenRef.current = token;
+        const storageManager: any = await getStorageManager();
+        const tempData: any = await storageManager?.getTemporaryData();
+        if (tempData?.challengeToken) {
+          challengeTokenRef.current = tempData.challengeToken as string;
         }
       } catch {
         // StorageManager unavailable — continue without persisted token
@@ -322,7 +318,14 @@ const BaseSignUpContent: FC<BaseSignUpProps> = ({
    */
   const setChallengeToken = async (challengeToken: string | null): Promise<void> => {
     challengeTokenRef.current = challengeToken;
-    await persistChallengeToken(challengeToken);
+    const storageManager: any = await getStorageManager();
+    if (storageManager) {
+      if (challengeToken) {
+        await storageManager.setTemporaryDataParameter('challengeToken', challengeToken);
+      } else {
+        await storageManager.removeTemporaryDataParameter('challengeToken');
+      }
+    }
   };
 
   /**
@@ -562,6 +565,7 @@ const BaseSignUpContent: FC<BaseSignUpProps> = ({
               code,
               state,
             },
+            ...(challengeTokenRef.current ? {challengeToken: challengeTokenRef.current} : {}),
           } as any;
 
           try {
@@ -633,6 +637,7 @@ const BaseSignUpContent: FC<BaseSignUpProps> = ({
                     code,
                     state,
                   },
+                  ...(challengeTokenRef.current ? {challengeToken: challengeTokenRef.current} : {}),
                 } as any;
 
                 try {

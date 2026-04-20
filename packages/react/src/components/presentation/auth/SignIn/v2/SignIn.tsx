@@ -216,16 +216,7 @@ const SignIn: FC<SignInProps> = ({
   variant,
   children,
 }: SignInProps): ReactElement => {
-  const {
-    applicationId,
-    afterSignInUrl,
-    signIn,
-    isInitialized,
-    isLoading,
-    meta,
-    getChallengeToken,
-    setChallengeToken: persistChallengeToken,
-  } = useAsgardeo();
+  const {applicationId, afterSignInUrl, signIn, isInitialized, isLoading, meta, getStorageManager} = useAsgardeo();
   const {t} = useTranslation(preferences?.i18n);
 
   // State management for the flow
@@ -271,9 +262,10 @@ const SignIn: FC<SignInProps> = ({
 
     (async (): Promise<void> => {
       try {
-        const token: string | null = await getChallengeToken();
-        if (token) {
-          challengeTokenRef.current = token;
+        const storageManager: any = await getStorageManager();
+        const tempData: any = await storageManager?.getTemporaryData();
+        if (tempData?.challengeToken) {
+          challengeTokenRef.current = tempData.challengeToken as string;
         }
       } finally {
         setIsStorageReady(true);
@@ -287,7 +279,14 @@ const SignIn: FC<SignInProps> = ({
    */
   const setChallengeToken = async (challengeToken: string | null): Promise<void> => {
     challengeTokenRef.current = challengeToken;
-    await persistChallengeToken(challengeToken);
+    const storageManager: any = await getStorageManager();
+    if (storageManager) {
+      if (challengeToken) {
+        await storageManager.setTemporaryDataParameter('challengeToken', challengeToken);
+      } else {
+        await storageManager.removeTemporaryDataParameter('challengeToken');
+      }
+    }
   };
 
   /**

@@ -561,38 +561,13 @@ const AsgardeoProvider: FC<PropsWithChildren<AsgardeoProviderProps>> = ({
     [asgardeo],
   );
 
-  const getChallengeToken: () => Promise<string | null> = useCallback(async (): Promise<string | null> => {
-    try {
-      const storageManager: any = storageManagerRef.current ?? (await asgardeo.getStorageManager());
-      if (storageManager) {
-        storageManagerRef.current = storageManager;
-        const tempData: any = await storageManager.getTemporaryData();
-        return (tempData?.challengeToken as string) ?? null;
-      }
-    } catch {
-      // StorageManager unavailable
+  const getStorageManager: () => Promise<any> = useCallback(async (): Promise<any> => {
+    const storageManager: any = storageManagerRef.current ?? (await asgardeo.getStorageManager());
+    if (storageManager) {
+      storageManagerRef.current = storageManager;
     }
-    return null;
+    return storageManager;
   }, [asgardeo]);
-
-  const setChallengeToken: (token: string | null) => Promise<void> = useCallback(
-    async (token: string | null): Promise<void> => {
-      try {
-        const storageManager: any = storageManagerRef.current ?? (await asgardeo.getStorageManager());
-        if (storageManager) {
-          storageManagerRef.current = storageManager;
-          if (token) {
-            await storageManager.setTemporaryDataParameter('challengeToken', token);
-          } else {
-            await storageManager.removeTemporaryDataParameter('challengeToken');
-          }
-        }
-      } catch {
-        // StorageManager unavailable
-      }
-    },
-    [asgardeo],
-  );
 
   const request: (...args: any[]) => Promise<any> = useCallback(
     async (...args: any[]): Promise<any> => asgardeo.request(...args),
@@ -641,10 +616,9 @@ const AsgardeoProvider: FC<PropsWithChildren<AsgardeoProviderProps>> = ({
       },
       exchangeToken,
       getAccessToken,
-      getChallengeToken,
       getDecodedIdToken,
       getIdToken,
-      getStorageManager: asgardeo.getStorageManager.bind(asgardeo),
+      getStorageManager,
       http: {
         request,
         requestAll,
@@ -658,7 +632,6 @@ const AsgardeoProvider: FC<PropsWithChildren<AsgardeoProviderProps>> = ({
       organizationHandle: config?.organizationHandle,
       platform: config?.platform,
       reInitialize,
-      setChallengeToken,
       signIn,
       signInOptions,
       signInSilently,
@@ -692,8 +665,7 @@ const AsgardeoProvider: FC<PropsWithChildren<AsgardeoProviderProps>> = ({
       switchOrganization,
       getDecodedIdToken,
       getAccessToken,
-      getChallengeToken,
-      setChallengeToken,
+      getStorageManager,
       request,
       requestAll,
       exchangeToken,

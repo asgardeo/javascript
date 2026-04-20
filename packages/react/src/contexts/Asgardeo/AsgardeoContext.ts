@@ -64,11 +64,6 @@ export type AsgardeoContextProps = {
    */
   getAccessToken: () => Promise<string>;
   /**
-   * Retrieves the challenge token from temporary storage.
-   * Used by authentication flow components for per-step token rotation.
-   */
-  getChallengeToken: () => Promise<string | null>;
-  /**
    * Function to retrieve the decoded ID token.
    * This function decodes the ID token and returns its payload.
    * It can be used to access user claims and other information contained in the ID token.
@@ -160,12 +155,6 @@ export type AsgardeoContextProps = {
   resolveFlowTemplateLiterals: (text: string | undefined) => string;
 
   /**
-   * Persists a challenge token to temporary storage.
-   * Pass `null` to clear the stored token.
-   */
-  setChallengeToken: (token: string | null) => Promise<void>;
-
-  /**
    * Sign-in function to initiate the authentication process.
    * @remark This is the programmatic version of the `SignInButton` component.
    * TODO: Fix the types.
@@ -222,7 +211,6 @@ const AsgardeoContext: Context<AsgardeoContextProps | null> = createContext<null
   },
   exchangeToken: null,
   getAccessToken: null,
-  getChallengeToken: () => Promise.resolve(null),
   getDecodedIdToken: null,
   getIdToken: null,
   getStorageManager: () => Promise.resolve(null),
@@ -241,7 +229,6 @@ const AsgardeoContext: Context<AsgardeoContextProps | null> = createContext<null
   platform: undefined,
   reInitialize: null,
   resolveFlowTemplateLiterals: (text: string | undefined) => text ?? '',
-  setChallengeToken: () => Promise.resolve(),
   signIn: () => Promise.resolve({} as any),
   signInOptions: {},
   signInSilently: () => Promise.resolve({} as any),
