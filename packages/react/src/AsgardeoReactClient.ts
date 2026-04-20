@@ -560,6 +560,10 @@ class AsgardeoReactClient<T extends AsgardeoReactConfig = AsgardeoReactConfig> e
     return (await this.asgardeo.getStorageManager()).setSessionData(sessionData, sessionId);
   }
 
+  async getStorageManager(): Promise<any> {
+    return this.asgardeo.getStorageManager();
+  }
+
   override decodeJwtToken<TResult = Record<string, unknown>>(token: string): Promise<TResult> {
     return this.asgardeo.decodeJwtToken<TResult>(token);
   }

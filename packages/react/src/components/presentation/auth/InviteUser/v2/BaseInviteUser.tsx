@@ -16,7 +16,13 @@
  * under the License.
  */
 
-import {EmbeddedFlowType, FlowMetadataResponse, OrganizationUnitListResponse, Preferences} from '@asgardeo/browser';
+import {
+  EmbeddedFlowType,
+  FlowMetadataResponse,
+  logger,
+  OrganizationUnitListResponse,
+  Preferences,
+} from '@asgardeo/browser';
 import {cx} from '@emotion/css';
 import {FC, ReactElement, ReactNode, useCallback, useEffect, useRef, useState} from 'react';
 import useStyles from './BaseInviteUser.styles';
@@ -35,6 +41,7 @@ import {renderInviteUserComponents} from '../../AuthOptionFactory';
  * Flow response structure from the backend.
  */
 export interface InviteUserFlowResponse {
+  challengeToken?: string;
   data?: {
     additionalData?: Record<string, any>;
     components?: any[];
@@ -248,7 +255,7 @@ const BaseInviteUser: FC<BaseInviteUserProps> = ({
   showTitle = true,
   showSubtitle = true,
 }: BaseInviteUserProps): ReactElement => {
-  const {meta} = useAsgardeo();
+  const {meta, isInitialized: isSdkInitialized, getStorageManager} = useAsgardeo();
   const {t} = useTranslation(preferences?.i18n);
   const {theme} = useTheme();
   const styles: any = useStyles(theme, theme.vars.colors.text.primary);
@@ -260,8 +267,48 @@ const BaseInviteUser: FC<BaseInviteUserProps> = ({
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const [touchedFields, setTouchedFields] = useState<Record<string, boolean>>({});
   const [isFormValid, setIsFormValid] = useState(true);
+  const challengeTokenRef: any = useRef<string | null>(null);
 
   const initializationAttemptedRef: any = useRef(false);
+
+  /**
+   * Restore any challenge token persisted before an OAuth redirect.
+   */
+  useEffect(() => {
+    if (!isSdkInitialized) return;
+
+    (async (): Promise<void> => {
+      try {
+        const storageManager: any = await getStorageManager();
+        const tempData: any = await storageManager?.getTemporaryData();
+        if (tempData?.challengeToken) {
+          challengeTokenRef.current = tempData.challengeToken as string;
+        }
+      } catch {
+        // StorageManager unavailable — continue without persisted token
+      }
+    })();
+  }, [isSdkInitialized]);
+
+  /**
+   * Updates challengeTokenRef immediately (stale-closure safe) and persists via
+   * the provider's StorageManager so the token survives OAuth redirects.
+   */
+  const setChallengeToken = async (challengeToken: string | null): Promise<void> => {
+    challengeTokenRef.current = challengeToken;
+    try {
+      const storageManager: any = await getStorageManager();
+      if (storageManager) {
+        if (challengeToken) {
+          await storageManager.setTemporaryDataParameter('challengeToken', challengeToken);
+        } else {
+          await storageManager.removeTemporaryDataParameter('challengeToken');
+        }
+      }
+    } catch {
+      logger.warn('Failed to persist challenge token in storage.');
+    }
+  };
 
   /**
    * Handle error responses and extract meaningful error messages.
@@ -415,6 +462,7 @@ const BaseInviteUser: FC<BaseInviteUserProps> = ({
           executionId: currentFlow.executionId,
           inputs,
           verbose: true,
+          ...(challengeTokenRef.current ? {challengeToken: challengeTokenRef.current} : {}),
         };
 
         // Add action ID if component has one
@@ -425,6 +473,8 @@ const BaseInviteUser: FC<BaseInviteUserProps> = ({
         const rawResponse: any = await onSubmit(payload);
         const response: any = normalizeFlowResponseLocal(rawResponse);
         onFlowChange?.(response);
+
+        await setChallengeToken(response.challengeToken ?? null);
 
         // Check for error status
         if (response.flowStatus === 'ERROR') {
@@ -478,6 +528,7 @@ const BaseInviteUser: FC<BaseInviteUserProps> = ({
 
           const rawResponse: any = await onInitialize(payload);
           const response: any = normalizeFlowResponseLocal(rawResponse);
+          await setChallengeToken(response.challengeToken ?? null);
           setCurrentFlow(response);
           setIsFlowInitialized(true);
           onFlowChange?.(response);

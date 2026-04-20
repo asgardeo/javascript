@@ -79,6 +79,7 @@ const AsgardeoProvider: FC<PropsWithChildren<AsgardeoProviderProps>> = ({
 }: PropsWithChildren<AsgardeoProviderProps>): ReactElement => {
   const reRenderCheckRef: RefObject<boolean> = useRef(false);
   const asgardeo: AsgardeoReactClient = useMemo(() => new AsgardeoReactClient(instanceId), [instanceId]);
+  const storageManagerRef: any = useRef<any>(null);
   const {hasAuthParams, hasCalledForThisInstance} = useBrowserUrl();
   const [user, setUser] = useState<any | null>(null);
   const [currentOrganization, setCurrentOrganization] = useState<Organization | null>(null);
@@ -560,6 +561,14 @@ const AsgardeoProvider: FC<PropsWithChildren<AsgardeoProviderProps>> = ({
     [asgardeo],
   );
 
+  const getStorageManager: () => Promise<any> = useCallback(async (): Promise<any> => {
+    const storageManager: any = storageManagerRef.current ?? (await asgardeo.getStorageManager());
+    if (storageManager) {
+      storageManagerRef.current = storageManager;
+    }
+    return storageManager;
+  }, [asgardeo]);
+
   const request: (...args: any[]) => Promise<any> = useCallback(
     async (...args: any[]): Promise<any> => asgardeo.request(...args),
     [asgardeo],
@@ -609,6 +618,7 @@ const AsgardeoProvider: FC<PropsWithChildren<AsgardeoProviderProps>> = ({
       getAccessToken,
       getDecodedIdToken,
       getIdToken,
+      getStorageManager,
       http: {
         request,
         requestAll,
@@ -655,6 +665,7 @@ const AsgardeoProvider: FC<PropsWithChildren<AsgardeoProviderProps>> = ({
       switchOrganization,
       getDecodedIdToken,
       getAccessToken,
+      getStorageManager,
       request,
       requestAll,
       exchangeToken,

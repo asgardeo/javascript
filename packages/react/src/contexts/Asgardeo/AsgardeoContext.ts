@@ -79,6 +79,10 @@ export type AsgardeoContextProps = {
    */
   getIdToken: () => Promise<string>;
   /**
+   * Returns the underlying StorageManager instance for reading and writing SDK-managed storage.
+   */
+  getStorageManager: () => Promise<any>;
+  /**
    * HTTP request function to make API calls.
    * @param requestConfig - Configuration for the HTTP request.
    * @returns A promise that resolves to the HTTP response.
@@ -209,6 +213,7 @@ const AsgardeoContext: Context<AsgardeoContextProps | null> = createContext<null
   getAccessToken: null,
   getDecodedIdToken: null,
   getIdToken: null,
+  getStorageManager: () => Promise.resolve(null),
   http: {
     request: () => null,
     requestAll: () => null,

@@ -167,6 +167,12 @@ export interface ExtendedEmbeddedSignInFlowResponse {
  */
 export interface EmbeddedSignInFlowResponse extends ExtendedEmbeddedSignInFlowResponse {
   /**
+   * Per-step challenge token for replay protection.
+   * Must be included in the next request to continue this flow.
+   */
+  challengeToken?: string;
+
+  /**
    * Core response data containing UI components and flow metadata.
    * Includes both modern meta.components structure and legacy fields for compatibility.
    */
@@ -322,6 +328,12 @@ export interface EmbeddedSignInFlowRequest extends Partial<EmbeddedSignInFlowIni
    * Corresponds to action components in the UI (e.g., submit button, social login).
    */
   action?: string;
+
+  /**
+   * Per-step challenge token received from the previous flow response.
+   * Required when continuing an existing flow to prevent replay attacks.
+   */
+  challengeToken?: string;
 
   /**
    * Identifier of the flow instance to continue.

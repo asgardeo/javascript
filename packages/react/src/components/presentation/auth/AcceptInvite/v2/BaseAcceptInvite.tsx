@@ -38,6 +38,7 @@ import {renderInviteUserComponents} from '../../AuthOptionFactory';
  * Flow response structure from the backend.
  */
 export interface AcceptInviteFlowResponse {
+  challengeToken?: string;
   data?: {
     additionalData?: Record<string, string>;
     components?: any[];
@@ -262,7 +263,7 @@ const BaseAcceptInvite: FC<BaseAcceptInviteProps> = ({
   showTitle = true,
   showSubtitle = true,
 }: BaseAcceptInviteProps): ReactElement => {
-  const {meta} = useAsgardeo();
+  const {meta, isInitialized, getStorageManager} = useAsgardeo();
   const {t} = useTranslation(preferences?.i18n);
   const {theme} = useTheme();
   const styles: any = useStyles(theme, theme.vars.colors.text.primary);
@@ -276,8 +277,46 @@ const BaseAcceptInvite: FC<BaseAcceptInviteProps> = ({
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const [touchedFields, setTouchedFields] = useState<Record<string, boolean>>({});
   const [isFormValid, setIsFormValid] = useState(true);
+  const [isStorageReady, setIsStorageReady] = useState(false);
+  const challengeTokenRef: any = useRef<string | null>(null);
 
   const tokenValidationAttemptedRef: any = useRef(false);
+
+  /**
+   * Restore any challenge token persisted before an OAuth redirect.
+   * Waits for SDK initialization before reading from storage.
+   */
+  useEffect(() => {
+    if (!isInitialized) return;
+
+    (async (): Promise<void> => {
+      try {
+        const storageManager: any = await getStorageManager();
+        const tempData: any = await storageManager?.getTemporaryData();
+        if (tempData?.challengeToken) {
+          challengeTokenRef.current = tempData.challengeToken as string;
+        }
+      } finally {
+        setIsStorageReady(true);
+      }
+    })();
+  }, [isInitialized]);
+
+  /**
+   * Updates challengeTokenRef immediately (stale-closure safe) and persists via
+   * the provider's StorageManager so the token survives OAuth redirects.
+   */
+  const setChallengeToken = async (challengeToken: string | null): Promise<void> => {
+    challengeTokenRef.current = challengeToken;
+    const storageManager: any = await getStorageManager();
+    if (storageManager) {
+      if (challengeToken) {
+        await storageManager.setTemporaryDataParameter('challengeToken', challengeToken);
+      } else {
+        await storageManager.removeTemporaryDataParameter('challengeToken');
+      }
+    }
+  };
 
   /**
    * Handle error responses and extract meaningful error messages.
@@ -340,7 +379,7 @@ const BaseAcceptInvite: FC<BaseAcceptInviteProps> = ({
    */
   useOAuthCallback({
     currentExecutionId: executionId ?? null,
-    isInitialized: true,
+    isInitialized: isStorageReady,
     onComplete: () => {
       setIsValidatingToken(false);
       onComplete?.();
@@ -364,8 +403,12 @@ const BaseAcceptInvite: FC<BaseAcceptInviteProps> = ({
       setIsValidatingToken(true);
     },
     onSubmit: async (payload: any) => {
-      const rawResponse: any = await onSubmit(payload);
+      const rawResponse: any = await onSubmit({
+        ...payload,
+        ...(challengeTokenRef.current ? {challengeToken: challengeTokenRef.current} : {}),
+      });
       const response: any = normalizeFlowResponseLocal(rawResponse);
+      await setChallengeToken(response.challengeToken ?? null);
       return response;
     },
     tokenValidationAttemptedRef,
@@ -464,6 +507,7 @@ const BaseAcceptInvite: FC<BaseAcceptInviteProps> = ({
           executionId: currentFlow.executionId,
           inputs,
           verbose: true,
+          ...(challengeTokenRef.current ? {challengeToken: challengeTokenRef.current} : {}),
         };
 
         // Add action ID if component has one
@@ -474,6 +518,8 @@ const BaseAcceptInvite: FC<BaseAcceptInviteProps> = ({
         const rawResponse: any = await onSubmit(payload);
         const response: any = normalizeFlowResponseLocal(rawResponse);
         onFlowChange?.(response);
+
+        await setChallengeToken(response.challengeToken ?? null);
 
         // Handle OAuth redirect response
         if (response.type === 'REDIRECTION') {
@@ -566,6 +612,8 @@ const BaseAcceptInvite: FC<BaseAcceptInviteProps> = ({
         const rawResponse: any = await onSubmit(payload);
         const response: any = normalizeFlowResponseLocal(rawResponse);
         onFlowChange?.(response);
+
+        await setChallengeToken(response.challengeToken ?? null);
 
         // Check for error (invalid token)
         if (response.flowStatus === 'ERROR') {
