@@ -93,7 +93,7 @@ const refreshToken = async (): Promise<RefreshResult> => {
 
     const rawExpiresIn: string | undefined = result.tokenResponse.expiresIn;
     const expiresInSeconds: number = parseInt(rawExpiresIn ?? '', 10);
-    if (isNaN(expiresInSeconds)) {
+    if (Number.isNaN(expiresInSeconds)) {
       throw new Error(`[refreshToken] Invalid expiresIn value received: ${rawExpiresIn}`);
     }
     const expiresAt: number = Math.floor(Date.now() / 1000) + expiresInSeconds;
