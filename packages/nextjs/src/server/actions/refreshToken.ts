@@ -69,7 +69,7 @@ const refreshToken = async (): Promise<RefreshResult> => {
 
     const sessionPayload: SessionTokenPayload = await SessionManager.verifySessionTokenForRefresh(sessionToken);
     const client: AsgardeoNextClient = AsgardeoNextClient.getInstance();
-    const config: AsgardeoNextConfig = await (client.getConfiguration() as unknown as Promise<AsgardeoNextConfig>);
+    const config: AsgardeoNextConfig = await client.getConfiguration();
 
     const result: HandleRefreshTokenResult = await handleRefreshToken(sessionPayload, {
       baseUrl: config.baseUrl ?? '',

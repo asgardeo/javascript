@@ -131,7 +131,7 @@ const signInAction = async (
           | string
           | undefined;
         const expiresIn: number = signInResult['expiresIn'] as number;
-        const config: AsgardeoNextConfig = await (client.getConfiguration() as unknown as Promise<AsgardeoNextConfig>);
+        const config: AsgardeoNextConfig = await client.getConfiguration();
         const sessionCookieExpiryTime: number = SessionManager.resolveSessionCookieExpiry(config.sessionCookieExpiryTime);
 
         const sessionToken: string = await SessionManager.createSessionToken(

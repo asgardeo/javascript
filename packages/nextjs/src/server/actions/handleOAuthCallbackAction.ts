@@ -99,7 +99,7 @@ const handleOAuthCallbackAction = async (
       sessionId,
     );
 
-    const config: AsgardeoNextConfig = await (asgardeoClient.getConfiguration() as unknown as Promise<AsgardeoNextConfig>);
+    const config: AsgardeoNextConfig = await asgardeoClient.getConfiguration();
 
     if (signInResult) {
       try {

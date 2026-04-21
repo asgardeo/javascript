@@ -51,7 +51,7 @@ const switchOrganization = async (
       const organizationId: string | undefined = (idToken['user_org'] || idToken['organization_id']) as
         | string
         | undefined;
-      const config: AsgardeoNextConfig = await (client.getConfiguration() as unknown as Promise<AsgardeoNextConfig>);
+      const config: AsgardeoNextConfig = await client.getConfiguration();
       const sessionCookieExpiryTime: number = SessionManager.resolveSessionCookieExpiry(config.sessionCookieExpiryTime);
       const expiresIn: number = parseInt(tokenResponse.expiresIn, 10);
 
