@@ -19,6 +19,7 @@
   "main": "dist/cjs/index.js",
   "module": "dist/index.js",
   "exports": {
+    "edge-light": "./dist/edge/index.js",
     "import": "./dist/index.js",
     "require": "./dist/cjs/index.js"
   },

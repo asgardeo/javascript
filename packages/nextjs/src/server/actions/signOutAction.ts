@@ -18,12 +18,13 @@
 
 'use server';
 
-import {ReadonlyRequestCookies} from 'next/dist/server/web/spec-extension/adapters/request-cookies';
 import {cookies} from 'next/headers';
 import getSessionId from './getSessionId';
 import AsgardeoNextClient from '../../AsgardeoNextClient';
 import logger from '../../utils/logger';
 import SessionManager from '../../utils/SessionManager';
+
+type RequestCookies = Awaited<ReturnType<typeof cookies>>;
 
 /**
  * Server action for signing out a user.
@@ -35,7 +36,7 @@ const signOutAction = async (): Promise<{data?: {afterSignOutUrl?: string}; erro
   logger.debug('[signOutAction] Initiating sign out process from the server action.');
 
   const clearSessionCookies = async (): Promise<void> => {
-    const cookieStore: ReadonlyRequestCookies = await cookies();
+    const cookieStore: RequestCookies = await cookies();
 
     cookieStore.delete(SessionManager.getSessionCookieName());
     cookieStore.delete(SessionManager.getTempSessionCookieName());

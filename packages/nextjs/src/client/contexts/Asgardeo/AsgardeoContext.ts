@@ -20,11 +20,15 @@
 
 import {AsgardeoContextProps as AsgardeoReactContextProps} from '@asgardeo/react';
 import {Context, createContext} from 'react';
+import {RefreshResult} from '../../../server/actions/refreshToken';
 
 /**
  * Props interface of {@link AsgardeoContext}
  */
-export type AsgardeoContextProps = Partial<AsgardeoReactContextProps>;
+export type AsgardeoContextProps = Partial<AsgardeoReactContextProps> & {
+  clearSession?: () => Promise<void>;
+  refreshToken?: () => Promise<RefreshResult>;
+};
 
 /**
  * Context object for managing the Authentication flow builder core context.
@@ -33,10 +37,12 @@ const AsgardeoContext: Context<AsgardeoContextProps | null> = createContext<null
   afterSignInUrl: undefined,
   applicationId: undefined,
   baseUrl: undefined,
+  clearSession: () => Promise.resolve(),
   isInitialized: false,
   isLoading: true,
   isSignedIn: false,
   organizationHandle: undefined,
+  refreshToken: () => Promise.resolve({expiresAt: 0}),
   signIn: () => Promise.resolve({} as any),
   signInUrl: undefined,
   signOut: () => Promise.resolve({} as any),

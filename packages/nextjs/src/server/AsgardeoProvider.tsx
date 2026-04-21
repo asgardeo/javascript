@@ -21,6 +21,7 @@
 import {BrandingPreference, AsgardeoRuntimeError, IdToken, Organization, User, UserProfile} from '@asgardeo/node';
 import {AsgardeoProviderProps} from '@asgardeo/react';
 import {FC, PropsWithChildren, ReactElement} from 'react';
+import clearSession from './actions/clearSession';
 import createOrganization from './actions/createOrganization';
 import getAllOrganizations from './actions/getAllOrganizations';
 import getBrandingPreference from './actions/getBrandingPreference';
@@ -32,6 +33,7 @@ import getUserAction from './actions/getUserAction';
 import getUserProfileAction from './actions/getUserProfileAction';
 import handleOAuthCallbackAction from './actions/handleOAuthCallbackAction';
 import isSignedIn from './actions/isSignedIn';
+import refreshToken from './actions/refreshToken';
 import signInAction from './actions/signInAction';
 import signOutAction from './actions/signOutAction';
 import signUpAction from './actions/signUpAction';
@@ -48,6 +50,20 @@ import {SessionTokenPayload} from '../utils/SessionManager';
  */
 export type AsgardeoServerProviderProps = Partial<AsgardeoProviderProps> & {
   clientSecret?: string;
+  /**
+   * Session cookie lifetime in seconds. Determines how long the session cookie
+   * remains valid in the browser after sign-in.
+   *
+   * Resolution order (first defined value wins):
+   *   1. This prop — set here when mounting the provider.
+   *   2. `ASGARDEO_SESSION_COOKIE_EXPIRY_TIME` environment variable.
+   *   3. Built-in default of 86400 seconds (24 hours).
+   *
+   * @example
+   * // 8-hour session cookie
+   * <AsgardeoServerProvider sessionCookieExpiryTime={28800} ... />
+   */
+  sessionCookieExpiryTime?: number;
 };
 
 /**
@@ -99,7 +115,7 @@ const AsgardeoServerProvider: FC<PropsWithChildren<AsgardeoServerProviderProps>>
   // Try to get session information from JWT first, then fall back to legacy
   const sessionPayload: SessionTokenPayload | undefined = await getSessionPayload();
   const sessionId: string = sessionPayload?.sessionId || (await getSessionId()) || '';
-  const signedIn: boolean = sessionPayload ? true : await isSignedIn(sessionId);
+  const signedIn: boolean = await isSignedIn(sessionId);
 
   let user: User = {};
   let userProfile: UserProfile = {
@@ -203,6 +219,8 @@ const AsgardeoServerProvider: FC<PropsWithChildren<AsgardeoServerProviderProps>>
       applicationId={config?.applicationId}
       baseUrl={config?.baseUrl}
       signIn={signInAction}
+      clearSession={clearSession}
+      refreshToken={refreshToken}
       signOut={signOutAction}
       signUp={signUpAction}
       handleOAuthCallback={handleOAuthCallbackAction}

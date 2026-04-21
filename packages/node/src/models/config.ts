@@ -28,4 +28,19 @@ import {Config} from '@asgardeo/javascript';
  * - Authentication parameters
  * - Session management options
  */
-export type AsgardeoNodeConfig = Config;
+export type AsgardeoNodeConfig = Config & {
+  /**
+   * Session cookie lifetime in seconds. Determines how long the session cookie
+   * remains valid in the browser after sign-in.
+   *
+   * Resolution order (first defined value wins):
+   *   1. This field — set programmatically at SDK initialisation.
+   *   2. `ASGARDEO_SESSION_COOKIE_EXPIRY_TIME` environment variable.
+   *   3. Built-in default of 86400 seconds (24 hours).
+   *
+   * @example
+   * // 8-hour session cookie
+   * { sessionCookieExpiryTime: 28800 }
+   */
+  sessionCookieExpiryTime?: number;
+};

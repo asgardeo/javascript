@@ -48,6 +48,7 @@ import {AppRouterInstance} from 'next/dist/shared/lib/app-router-context.shared-
 import {useRouter, useSearchParams} from 'next/navigation';
 import {FC, PropsWithChildren, RefObject, useEffect, useMemo, useRef, useState} from 'react';
 import AsgardeoContext, {AsgardeoContextProps} from './AsgardeoContext';
+import {RefreshResult} from '../../../server/actions/refreshToken';
 import logger from '../../../utils/logger';
 
 /**
@@ -57,6 +58,7 @@ export type AsgardeoClientProviderProps = Partial<Omit<AsgardeoProviderProps, 'b
   Pick<AsgardeoProviderProps, 'baseUrl' | 'clientId'> & {
     applicationId: AsgardeoContextProps['applicationId'];
     brandingPreference?: BrandingPreference | null;
+    clearSession: () => Promise<void>;
     createOrganization: (payload: CreateOrganizationPayload, sessionId: string) => Promise<Organization>;
     currentOrganization: Organization;
     getAllOrganizations: (options?: any, sessionId?: string) => Promise<AllOrganizationsApiResponse>;
@@ -68,6 +70,7 @@ export type AsgardeoClientProviderProps = Partial<Omit<AsgardeoProviderProps, 'b
     isSignedIn: boolean;
     myOrganizations: Organization[];
     organizationHandle: AsgardeoContextProps['organizationHandle'];
+    refreshToken: () => Promise<RefreshResult>;
     revalidateMyOrganizations?: (sessionId?: string) => Promise<Organization[]>;
     signIn: AsgardeoContextProps['signIn'];
     signOut: AsgardeoContextProps['signOut'];
@@ -85,6 +88,8 @@ const AsgardeoClientProvider: FC<PropsWithChildren<AsgardeoClientProviderProps>>
   baseUrl,
   children,
   signIn,
+  clearSession,
+  refreshToken,
   signOut,
   signUp,
   handleOAuthCallback,
@@ -292,9 +297,11 @@ const AsgardeoClientProvider: FC<PropsWithChildren<AsgardeoClientProviderProps>>
     () => ({
       applicationId,
       baseUrl,
+      clearSession,
       isLoading,
       isSignedIn,
       organizationHandle,
+      refreshToken,
       signIn: handleSignIn,
       signInUrl,
       signOut: handleSignOut,

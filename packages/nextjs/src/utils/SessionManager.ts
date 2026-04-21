@@ -17,32 +17,35 @@
  */
 
 import {AsgardeoRuntimeError, CookieConfig} from '@asgardeo/node';
-import {SignJWT, jwtVerify, JWTPayload} from 'jose';
+import {SignJWT, jwtVerify, compactVerify, JWTPayload} from 'jose';
+import {DEFAULT_SESSION_COOKIE_EXPIRY_TIME} from '../constants/sessionConstants';
 
 /**
  * Session token payload interface
  */
 export interface SessionTokenPayload extends JWTPayload {
-  /** Expiration timestamp */
+  /** Expiration timestamp — doubles as the access token expiry (JWT exp == access token exp) */
   exp: number;
   /** Issued at timestamp */
   iat: number;
   /** Organization ID if applicable */
   organizationId?: string;
+  /** The refresh token; empty string if not provided by the auth server */
+  refreshToken: string;
   /** OAuth scopes */
   scopes: string[];
   /** Session ID */
   sessionId: string;
   /** User ID */
   sub: string;
+  /** Token type discriminant — must be 'session' for access-session JWTs */
+  type: 'session';
 }
 
 /**
  * Session management utility class for JWT-based session cookies
  */
 class SessionManager {
-  private static readonly DEFAULT_EXPIRY_SECONDS: number = 3600;
-
   /**
    * Get the signing secret from environment variable
    * Throws error in production if not set
@@ -87,21 +90,46 @@ class SessionManager {
   }
 
   /**
-   * Create a session cookie with user information
+   * Resolve the session cookie expiry time in seconds.
+   *
+   * Resolution order (first defined value wins):
+   *   1. `configuredExpiry` — value from `AsgardeoNodeConfig.sessionCookieExpiryTime`
+   *   2. `ASGARDEO_SESSION_COOKIE_EXPIRY_TIME` environment variable
+   *   3. `DEFAULT_SESSION_COOKIE_EXPIRY_TIME` (24 hours)
    */
+  static resolveSessionCookieExpiry(configuredExpiry?: number): number {
+    if (configuredExpiry != null && configuredExpiry > 0) {
+      return configuredExpiry;
+    }
+
+    const envValue: string | undefined = process.env['ASGARDEO_SESSION_COOKIE_EXPIRY_TIME'];
+
+    if (envValue) {
+      const parsed: number = parseInt(envValue, 10);
+
+      if (!Number.isNaN(parsed) && parsed > 0) {
+        return parsed;
+      }
+    }
+
+    return DEFAULT_SESSION_COOKIE_EXPIRY_TIME;
+  }
+
   static async createSessionToken(
     accessToken: string,
     userId: string,
     sessionId: string,
     scopes: string,
+    accessTokenTtlSeconds: number,
+    refreshToken: string,
     organizationId?: string,
-    expirySeconds: number = this.DEFAULT_EXPIRY_SECONDS,
   ): Promise<string> {
     const secret: Uint8Array = this.getSecret();
 
     const jwt: string = await new SignJWT({
       accessToken,
       organizationId,
+      refreshToken,
       scopes,
       sessionId,
       type: 'session',
@@ -109,7 +137,7 @@ class SessionManager {
       .setProtectedHeader({alg: 'HS256'})
       .setSubject(userId)
       .setIssuedAt()
-      .setExpirationTime(Date.now() / 1000 + expirySeconds)
+      .setExpirationTime(Math.floor(Date.now() / 1000) + accessTokenTtlSeconds)
       .sign(secret);
 
     return jwt;
@@ -123,6 +151,10 @@ class SessionManager {
       const secret: Uint8Array = this.getSecret();
       const {payload} = await jwtVerify(token, secret);
 
+      if (payload['type'] !== 'session') {
+        throw new Error('Invalid token type');
+      }
+
       return payload as SessionTokenPayload;
     } catch (error) {
       throw new AsgardeoRuntimeError(
@@ -130,6 +162,38 @@ class SessionManager {
         'invalid-session-token',
         'nextjs',
         'Session token verification failed',
+      );
+    }
+  }
+
+  /**
+   * Verify a session token for refresh. Validates the HMAC signature and the
+   * `type === 'session'` discriminant but intentionally skips the `exp` check
+   * so an expired access token can still be exchanged for a new one.
+   *
+   * Session lifetime is still bounded — the cookie's `maxAge` is set from
+   * `sessionCookieExpiryTime`, so the browser drops an over-age session regardless
+   * of the access-token exp embedded in the JWT.
+   *
+   * Never use the returned payload for authorization.
+   */
+  static async verifySessionTokenForRefresh(token: string): Promise<SessionTokenPayload> {
+    try {
+      const secret: Uint8Array = this.getSecret();
+      const {payload: rawPayload} = await compactVerify(token, secret);
+      const payload: SessionTokenPayload = JSON.parse(new TextDecoder().decode(rawPayload)) as SessionTokenPayload;
+
+      if (payload.type !== 'session') {
+        throw new Error('Invalid token type');
+      }
+
+      return payload;
+    } catch (error) {
+      throw new AsgardeoRuntimeError(
+        `Invalid session token: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        'invalid-session-token-for-refresh',
+        'nextjs',
+        'Session token signature or type check failed during refresh',
       );
     }
   }
@@ -160,7 +224,7 @@ class SessionManager {
   /**
    * Get session cookie options
    */
-  static getSessionCookieOptions(): {
+  static getSessionCookieOptions(maxAge: number): {
     httpOnly: boolean;
     maxAge: number;
     path: string;
@@ -169,7 +233,7 @@ class SessionManager {
   } {
     return {
       httpOnly: true,
-      maxAge: this.DEFAULT_EXPIRY_SECONDS,
+      maxAge,
       path: '/',
       sameSite: 'lax' as const,
       secure: process.env['NODE_ENV'] === 'production',

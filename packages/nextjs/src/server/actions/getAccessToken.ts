@@ -18,9 +18,10 @@
 
 'use server';
 
-import {ReadonlyRequestCookies} from 'next/dist/server/web/spec-extension/adapters/request-cookies';
 import {cookies} from 'next/headers';
 import SessionManager, {SessionTokenPayload} from '../../utils/SessionManager';
+
+type RequestCookies = Awaited<ReturnType<typeof cookies>>;
 
 /**
  * Get the access token from the session cookie.
@@ -28,7 +29,7 @@ import SessionManager, {SessionTokenPayload} from '../../utils/SessionManager';
  * @returns The access token if it exists, undefined otherwise
  */
 const getAccessToken = async (): Promise<string | undefined> => {
-  const cookieStore: ReadonlyRequestCookies = await cookies();
+  const cookieStore: RequestCookies = await cookies();
 
   const sessionToken: string | undefined = cookieStore.get(SessionManager.getSessionCookieName())?.value;
 
