@@ -17,7 +17,7 @@
  */
 
 import {EmbeddedFlowComponentV2 as EmbeddedFlowComponent, FlowMetadataResponse} from '@asgardeo/browser';
-import {createContext, ReactElement} from 'react';
+import {Context, createContext, ReactElement} from 'react';
 
 export interface ComponentRenderContext {
   additionalData?: Record<string, any>;
@@ -40,6 +40,6 @@ export type ComponentRenderer = (
 
 export type ComponentRendererMap = Record<string, ComponentRenderer>;
 
-const ComponentRendererContext = createContext<ComponentRendererMap>({});
+const ComponentRendererContext: Context<ComponentRendererMap> = createContext<ComponentRendererMap>({});
 
 export default ComponentRendererContext;

@@ -36,10 +36,12 @@ import {
 import {css} from '@emotion/css';
 import DOMPurify from 'dompurify';
 import {cloneElement, CSSProperties, ReactElement, useContext} from 'react';
-import ComponentRendererContext, {
-  ComponentRenderContext,
-} from '../../../contexts/ComponentRenderer/ComponentRendererContext';
 import {OrganizationUnitPicker} from './OrganizationUnitPicker';
+import ComponentRendererContext, {
+  ComponentRenderer,
+  ComponentRenderContext,
+  ComponentRendererMap,
+} from '../../../contexts/ComponentRenderer/ComponentRendererContext';
 import useTheme from '../../../contexts/Theme/useTheme';
 import {UseTranslation} from '../../../hooks/useTranslation';
 import Consent from '../../adapters/Consent';
@@ -215,11 +217,12 @@ const createAuthComponentFromFlow = (
   } = {},
 ): ReactElement | null => {
   const {theme} = useTheme();
-  const customRenderers = useContext(ComponentRendererContext);
+  const customRenderers: ComponentRendererMap = useContext(ComponentRendererContext);
 
   const key: string | number = options.key || component.id;
 
-  const customRenderer = customRenderers[component.id] ?? customRenderers[component.type as string];
+  const customRenderer: ComponentRenderer | undefined =
+    customRenderers[component.id] ?? customRenderers[component.type as string];
   if (customRenderer) {
     const renderCtx: ComponentRenderContext = {
       additionalData: options.additionalData,
