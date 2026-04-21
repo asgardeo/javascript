@@ -1,5 +1,14 @@
 # @asgardeo/javascript
 
+## 0.19.0
+
+### Minor Changes
+
+- [#471](https://github.com/asgardeo/javascript/pull/471)
+  [`03c4306`](https://github.com/asgardeo/javascript/commit/03c4306e10c4ca70c03d5cb6394ba2553e1b4dee) Thanks
+  [@brionmario](https://github.com/brionmario)! - Implement component rendering extensions and context for customizable
+  SDK behavior
+
 ## 0.18.1
 
 ### Patch Changes
