@@ -62,6 +62,9 @@ export enum EmbeddedFlowComponentType {
   /** Image display component for logos and illustrations */
   Image = 'IMAGE',
 
+  /** Login ID type selector with contextual input for multi-identifier authentication */
+  LoginIdInput = 'LOGIN_ID_INPUT',
+
   /** One-time password input field for multi-factor authentication */
   OtpInput = 'OTP_INPUT',
 
@@ -289,6 +292,12 @@ export interface EmbeddedFlowComponent {
    * Supports internationalization and may contain template strings.
    */
   label?: string;
+
+  /**
+   * Login ID types for LOGIN_ID_INPUT components.
+   * Present when type === 'LOGIN_ID_INPUT'.
+   */
+  loginIdTypes?: LoginIdType[];
 
   /**
    * Icon name for Icon components (e.g., lucide-react icon names like 'ArrowLeftRight').
@@ -530,6 +539,50 @@ export interface ConsentPurposeData {
 export interface ConsentPromptData {
   /** Array of consent purposes requiring user review */
   purposes: ConsentPurposeData[];
+}
+
+/**
+ * A selectable prefix option for a LoginIdType (e.g., a country dial code).
+ *
+ * @experimental This interface may change in future versions
+ */
+export interface LoginIdPrefix {
+  /** Display label shown in the prefix selector (e.g. country name or ISO code) */
+  label: string;
+  /** Overrides the outer maxLength for this prefix selection */
+  maxLength?: number;
+  /** Overrides the outer regex for this prefix selection */
+  regex?: string;
+  /** The actual prefix value to concatenate before the raw input (e.g. "+91") */
+  value: string;
+}
+
+/**
+ * A single login ID type within a LOGIN_ID_INPUT component.
+ *
+ * @experimental This interface may change in future versions
+ */
+export interface LoginIdType {
+  /** Whether this type is pre-selected on render */
+  default?: boolean;
+  /** Semantic icon name resolved by the SDK (lucide-react icon name) */
+  icon?: string;
+  /** Unique identifier for this login ID type (e.g. "mobile", "email") */
+  id: string;
+  /** HTML input type hint for the browser. Defaults to "text" if absent. */
+  inputType?: 'email' | 'number' | 'tel' | 'text';
+  /** Display label. Supports {{t(key)}} template literals */
+  label: string;
+  /** Maximum character length of the raw input (before prefix/postfix) */
+  maxLength?: number;
+  /** Input placeholder. Supports {{t(key)}} template literals */
+  placeholder?: string;
+  /** Static string appended to the raw input value before submission (never displayed) */
+  postfix?: string;
+  /** Static prefix string, or list of selectable prefix objects */
+  prefixes?: LoginIdPrefix[] | string;
+  /** Regex pattern the raw input must satisfy */
+  regex?: string;
 }
 
 /**

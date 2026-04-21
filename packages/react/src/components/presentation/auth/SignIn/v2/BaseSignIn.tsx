@@ -463,6 +463,7 @@ const BaseSignInContent: FC<BaseSignInProps> = ({
           onSubmit: handleSubmit,
           size,
           t,
+          theme,
           variant,
         },
       ),

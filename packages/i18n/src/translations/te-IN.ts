@@ -66,7 +66,7 @@ const translations: I18nTranslations = {
 
   /* Validation */
   'validations.required.field.error': 'ఈ ఫీల్డ్ అవసరం',
-
+  'validations.invalid.format.error': 'ఇంకా సరిగ్గా ఫార్మేట్ లో ఇవ్వలేదు.',
   /* |---------------------------------------------------------------| */
   /* |                        Widgets                                | */
   /* |---------------------------------------------------------------| */

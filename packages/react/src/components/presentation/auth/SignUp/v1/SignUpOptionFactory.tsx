@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import {EmbeddedFlowComponent, EmbeddedFlowComponentType} from '@asgardeo/browser';
+import {EmbeddedFlowComponent, EmbeddedFlowComponentType, Theme} from '@asgardeo/browser';
 import {AdapterProps} from 'packages/react/src/models/adapters';
 import {ReactElement} from 'react';
 import CheckboxInput from '../../../../adapters/CheckboxInput';
@@ -174,6 +174,7 @@ export const createSignUpOptionFromComponent = (
     key?: string | number;
     onSubmit?: (component: EmbeddedFlowComponent, data?: Record<string, any>) => void;
     size?: 'small' | 'medium' | 'large';
+    theme?: Theme;
     variant?: any;
   },
 ): ReactElement =>
@@ -204,6 +205,7 @@ export const renderSignUpComponents = (
     inputClassName?: string;
     onSubmit?: (component: EmbeddedFlowComponent, data?: Record<string, any>) => void;
     size?: 'small' | 'medium' | 'large';
+    theme?: Theme;
     variant?: any;
   },
 ): ReactElement[] =>

@@ -781,6 +781,7 @@ const BaseAcceptInvite: FC<BaseAcceptInviteProps> = ({
                   onInputBlur: handleInputBlur,
                   onSubmit: handleSubmit,
                   size,
+                  theme,
                   variant,
                 },
               )

@@ -658,6 +658,7 @@ const BaseSignUpContent: FC<BaseSignUpProps> = ({
           inputClassName: inputClasses,
           onSubmit: handleSubmit,
           size,
+          theme,
           variant,
         },
       ),
