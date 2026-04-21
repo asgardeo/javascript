@@ -91,7 +91,11 @@ const refreshToken = async (): Promise<RefreshResult> => {
       logger.warn('[refreshToken] Could not write session cookie — called from SSR rendering context.');
     }
 
-    const expiresInSeconds: number = parseInt(result.tokenResponse.expiresIn, 10);
+    const rawExpiresIn: string | undefined = result.tokenResponse.expiresIn;
+    const expiresInSeconds: number = parseInt(rawExpiresIn ?? '', 10);
+    if (isNaN(expiresInSeconds)) {
+      throw new Error(`[refreshToken] Invalid expiresIn value received: ${rawExpiresIn}`);
+    }
     const expiresAt: number = Math.floor(Date.now() / 1000) + expiresInSeconds;
 
     logger.debug('[refreshToken] Token refresh succeeded.');
