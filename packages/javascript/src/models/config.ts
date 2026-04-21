@@ -17,6 +17,7 @@
  */
 
 import {I18nBundle} from '@asgardeo/i18n';
+import {ComponentsExtensions} from './v2/extensions/components';
 import {Platform} from './platforms';
 import {RecursivePartial} from './utility-types';
 import {ThemeConfig, ThemeMode} from '../theme/types';
@@ -54,7 +55,7 @@ export type SignOutOptions = Record<string, unknown>;
  */
 export type SignUpOptions = Record<string, unknown>;
 
-export interface BaseConfig<T = unknown> extends WithPreferences {
+export interface BaseConfig<T = unknown> extends WithPreferences, WithExtensions {
   /**
    * Optional URL where the authorization server should redirect after authentication.
    * This must match one of the allowed redirect URIs configured in your IdP.
@@ -355,6 +356,20 @@ export interface WithPreferences {
    * Preferences for customizing the Asgardeo UI components
    */
   preferences?: Preferences;
+}
+
+export interface Extensions {
+  /**
+   * Extension configuration for flow component rendering.
+   */
+  components?: ComponentsExtensions;
+}
+
+export interface WithExtensions {
+  /**
+   * Extensions for customizing SDK behavior at defined integration points.
+   */
+  extensions?: Extensions;
 }
 
 export type Config<T = unknown> = BaseConfig<T>;

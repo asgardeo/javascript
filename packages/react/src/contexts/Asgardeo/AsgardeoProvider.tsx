@@ -42,6 +42,7 @@ import AsgardeoReactClient from '../../AsgardeoReactClient';
 import useBrowserUrl from '../../hooks/useBrowserUrl';
 import {AsgardeoReactConfig} from '../../models/config';
 import BrandingProvider from '../Branding/BrandingProvider';
+import ComponentRendererProvider from '../ComponentRenderer/ComponentRendererProvider';
 import FlowProvider from '../Flow/FlowProvider';
 import FlowMetaProvider from '../FlowMeta/FlowMetaProvider';
 import I18nProvider from '../I18n/I18nProvider';
@@ -65,6 +66,7 @@ const AsgardeoProvider: FC<PropsWithChildren<AsgardeoProviderProps>> = ({
   baseUrl: initialBaseUrl,
   clientId,
   children,
+  extensions,
   scopes,
   preferences,
   signInUrl,
@@ -708,7 +710,9 @@ const AsgardeoProvider: FC<PropsWithChildren<AsgardeoProviderProps>> = ({
                     onOrganizationSwitch={switchOrganization}
                     revalidateMyOrganizations={async (): Promise<Organization[]> => asgardeo.getMyOrganizations()}
                   >
-                    {children}
+                    <ComponentRendererProvider renderers={(extensions?.components?.renderers ?? {}) as any}>
+                      {children}
+                    </ComponentRendererProvider>
                   </OrganizationProvider>
                 </UserProvider>
               </FlowProvider>
