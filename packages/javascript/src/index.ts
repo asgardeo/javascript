@@ -156,10 +156,13 @@ export {
   I18nPreferences,
   I18nStorageStrategy,
   WithPreferences,
+  Extensions,
+  WithExtensions,
   SignInOptions,
   SignOutOptions,
   SignUpOptions,
 } from './models/config';
+export type {ComponentRenderContext, ComponentRenderer, ComponentsExtensions} from './models/v2/extensions/components';
 export {TokenResponse, IdToken, TokenExchangeRequestConfig} from './models/token';
 export {AgentConfig} from './models/agent';
 export {AuthCodeResponse} from './models/auth-code-response';

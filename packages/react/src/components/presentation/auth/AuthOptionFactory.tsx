@@ -35,8 +35,13 @@ import {
 } from '@asgardeo/browser';
 import {css} from '@emotion/css';
 import DOMPurify from 'dompurify';
-import {cloneElement, CSSProperties, ReactElement} from 'react';
+import {cloneElement, CSSProperties, ReactElement, useContext} from 'react';
 import {OrganizationUnitPicker} from './OrganizationUnitPicker';
+import ComponentRendererContext, {
+  ComponentRenderer,
+  ComponentRenderContext,
+  ComponentRendererMap,
+} from '../../../contexts/ComponentRenderer/ComponentRendererContext';
 import useTheme from '../../../contexts/Theme/useTheme';
 import {UseTranslation} from '../../../hooks/useTranslation';
 import Consent from '../../adapters/Consent';
@@ -212,8 +217,28 @@ const createAuthComponentFromFlow = (
   } = {},
 ): ReactElement | null => {
   const {theme} = useTheme();
+  const customRenderers: ComponentRendererMap = useContext(ComponentRendererContext);
 
   const key: string | number = options.key || component.id;
+
+  const customRenderer: ComponentRenderer | undefined =
+    customRenderers[component.id] ?? customRenderers[component.type as string];
+  if (customRenderer) {
+    const renderCtx: ComponentRenderContext = {
+      additionalData: options.additionalData,
+      authType,
+      formErrors,
+      formValues,
+      isFormValid,
+      isLoading,
+      meta: options.meta,
+      onInputBlur: options.onInputBlur,
+      onInputChange,
+      onSubmit: options.onSubmit,
+      touchedFields,
+    };
+    return customRenderer(component, renderCtx);
+  }
 
   /** Resolve any remaining {{t()}} or {{meta()}} template expressions in a string at render time. */
   const resolve = (text: string | undefined): string => {
