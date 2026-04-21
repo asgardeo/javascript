@@ -1,5 +1,13 @@
 # @asgardeo/vue
 
+## 0.3.3
+
+### Patch Changes
+
+- Updated dependencies
+  [[`03c4306`](https://github.com/asgardeo/javascript/commit/03c4306e10c4ca70c03d5cb6394ba2553e1b4dee)]:
+  - @asgardeo/browser@0.7.0
+
 ## 0.3.2
 
 ### Patch Changes
