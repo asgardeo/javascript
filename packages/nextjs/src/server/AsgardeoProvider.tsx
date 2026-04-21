@@ -18,9 +18,9 @@
 
 'use server';
 
-import { BrandingPreference, AsgardeoRuntimeError, IdToken, Organization, User, UserProfile } from '@asgardeo/node';
-import { AsgardeoProviderProps } from '@asgardeo/react';
-import { FC, PropsWithChildren, ReactElement } from 'react';
+import {BrandingPreference, AsgardeoRuntimeError, IdToken, Organization, User, UserProfile} from '@asgardeo/node';
+import {AsgardeoProviderProps} from '@asgardeo/react';
+import {FC, PropsWithChildren, ReactElement} from 'react';
 import clearSession from './actions/clearSession';
 import createOrganization from './actions/createOrganization';
 import getAllOrganizations from './actions/getAllOrganizations';
@@ -41,9 +41,9 @@ import switchOrganization from './actions/switchOrganization';
 import updateUserProfileAction from './actions/updateUserProfileAction';
 import AsgardeoNextClient from '../AsgardeoNextClient';
 import AsgardeoClientProvider from '../client/contexts/Asgardeo/AsgardeoProvider.js';
-import { AsgardeoNextConfig } from '../models/config';
+import {AsgardeoNextConfig} from '../models/config';
 import logger from '../utils/logger';
-import { SessionTokenPayload } from '../utils/SessionManager';
+import {SessionTokenPayload} from '../utils/SessionManager';
 
 /**
  * Props interface of {@link AsgardeoServerProvider}
@@ -136,13 +136,13 @@ const AsgardeoServerProvider: FC<PropsWithChildren<AsgardeoServerProviderProps>>
 
     if (sessionPayload?.organizationId) {
       updatedBaseUrl = `${config?.baseUrl}/o`;
-      config = { ...config, baseUrl: updatedBaseUrl };
+      config = {...config, baseUrl: updatedBaseUrl};
     } else if (sessionId) {
       try {
         const idToken: IdToken = await asgardeoClient.getDecodedIdToken(sessionId);
         if (idToken?.['user_org']) {
           updatedBaseUrl = `${config?.baseUrl}/o`;
-          config = { ...config, baseUrl: updatedBaseUrl };
+          config = {...config, baseUrl: updatedBaseUrl};
         }
       } catch {
         // Continue without organization info
@@ -157,12 +157,12 @@ const AsgardeoServerProvider: FC<PropsWithChildren<AsgardeoServerProviderProps>>
     if (shouldFetchUserProfile) {
       try {
         const userResponse: {
-          data: { user: User | null };
+          data: {user: User | null};
           error: string | null;
           success: boolean;
         } = await getUserAction(sessionId);
         const userProfileResponse: {
-          data: { userProfile: UserProfile };
+          data: {userProfile: UserProfile};
           error: string | null;
           success: boolean;
         } = await getUserProfileAction(sessionId);
@@ -177,7 +177,7 @@ const AsgardeoServerProvider: FC<PropsWithChildren<AsgardeoServerProviderProps>>
     if (shouldFetchOrganizations) {
       try {
         const currentOrganizationResponse: {
-          data: { organization?: Organization; user?: Record<string, unknown> };
+          data: {organization?: Organization; user?: Record<string, unknown>};
           error: string | null;
           success: boolean;
         } = await getCurrentOrganizationAction(sessionId);

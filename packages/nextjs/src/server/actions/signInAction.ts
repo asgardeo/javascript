@@ -132,7 +132,9 @@ const signInAction = async (
           | undefined;
         const expiresIn: number = signInResult['expiresIn'] as number;
         const config: AsgardeoNextConfig = await client.getConfiguration();
-        const sessionCookieExpiryTime: number = SessionManager.resolveSessionCookieExpiry(config.sessionCookieExpiryTime);
+        const sessionCookieExpiryTime: number = SessionManager.resolveSessionCookieExpiry(
+          config.sessionCookieExpiryTime,
+        );
 
         const sessionToken: string = await SessionManager.createSessionToken(
           accessToken,

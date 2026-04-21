@@ -22,8 +22,8 @@ import {AsgardeoAPIError, logger} from '@asgardeo/node';
 import {cookies} from 'next/headers';
 import AsgardeoNextClient from '../../AsgardeoNextClient';
 import {AsgardeoNextConfig} from '../../models/config';
-import SessionManager, {SessionTokenPayload} from '../../utils/SessionManager';
 import handleRefreshToken, {HandleRefreshTokenResult} from '../../utils/handleRefreshToken';
+import SessionManager, {SessionTokenPayload} from '../../utils/SessionManager';
 
 type RequestCookies = Awaited<ReturnType<typeof cookies>>;
 

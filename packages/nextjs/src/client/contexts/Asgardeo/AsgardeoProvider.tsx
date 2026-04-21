@@ -33,7 +33,6 @@ import {
   CreateOrganizationPayload,
   AsgardeoRuntimeError,
 } from '@asgardeo/node';
-import {RefreshResult} from '../../../server/actions/refreshToken';
 import {
   I18nProvider,
   FlowProvider,
@@ -49,6 +48,7 @@ import {AppRouterInstance} from 'next/dist/shared/lib/app-router-context.shared-
 import {useRouter, useSearchParams} from 'next/navigation';
 import {FC, PropsWithChildren, RefObject, useEffect, useMemo, useRef, useState} from 'react';
 import AsgardeoContext, {AsgardeoContextProps} from './AsgardeoContext';
+import {RefreshResult} from '../../../server/actions/refreshToken';
 import logger from '../../../utils/logger';
 
 /**

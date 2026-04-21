@@ -17,12 +17,12 @@
  */
 
 import {NextRequest, NextResponse} from 'next/server';
-import {AsgardeoNextConfig} from '../../models/config';
 import {REFRESH_BUFFER_SECONDS} from '../../constants/sessionConstants';
+import {AsgardeoNextConfig} from '../../models/config';
 import decorateConfigWithNextEnv from '../../utils/decorateConfigWithNextEnv';
+import handleRefreshToken from '../../utils/handleRefreshToken';
 import SessionManager, {SessionTokenPayload} from '../../utils/SessionManager';
 import {getSessionFromRequest, getSessionIdFromRequest} from '../../utils/sessionUtils';
-import handleRefreshToken from '../../utils/handleRefreshToken';
 
 export type AsgardeoMiddlewareOptions = Partial<AsgardeoNextConfig>;
 
