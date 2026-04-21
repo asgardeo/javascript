@@ -130,11 +130,14 @@ const signInAction = async (
         const organizationId: string | undefined = (idToken['user_org'] || idToken['organization_id']) as
           | string
           | undefined;
-        const expiresIn: number = signInResult['expiresIn'] as number;
+        const rawExpiresIn: unknown = signInResult['expiresIn'] ?? signInResult['expires_in'];
+        const expiresIn: number = Number(rawExpiresIn);
+        if (isNaN(expiresIn)) {
+          throw new Error(`[signInAction] Invalid expiresIn value received: ${rawExpiresIn}`);
+        }
         const config: AsgardeoNextConfig = await client.getConfiguration();
-        const sessionCookieExpiryTime: number = SessionManager.resolveSessionCookieExpiry(
-          config.sessionCookieExpiryTime,
-        );
+        const sessionCookieExpiryTime: number =
+          SessionManager.resolveSessionCookieExpiry(config.sessionCookieExpiryTime);
 
         const sessionToken: string = await SessionManager.createSessionToken(
           accessToken,
