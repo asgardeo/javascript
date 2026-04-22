@@ -16,98 +16,123 @@
  * under the License.
  */
 
-import {defineNuxtModule, addImports, createResolver, addServerImports} from '@nuxt/kit';
+import {
+  addImports,
+  addPlugin,
+  addServerHandler,
+  addServerPlugin,
+  createResolver,
+  defineNuxtModule,
+} from '@nuxt/kit';
 import {defu} from 'defu';
-import type {NitroConfig} from 'nitropack';
-import type {Nuxt, NuxtModule} from 'nuxt/schema';
-import type {ModuleOptions, BasicUserInfo} from './runtime/types';
+import type {AsgardeoNuxtConfig} from './runtime/types';
 
-const PACKAGE_NAME: string = '@asgardeo/nuxt';
+const PACKAGE_NAME = '@asgardeo/nuxt';
 
-export type {BasicUserInfo};
-
-export default defineNuxtModule<ModuleOptions>({
-  defaults: {
-    baseUrl: process.env.ASGARDEO_BASE_URL || '',
-    clientId: process.env.ASGARDEO_CLIENT_ID || '',
-    clientSecret: process.env.ASGARDEO_CLIENT_SECRET || '',
-    scope: ['openid', 'profile'],
-    afterSignInUrl: process.env.ASGARDEO_SIGN_IN_REDIRECT_URL || '',
-    afterSignOutUrl: process.env.ASGARDEO_SIGN_OUT_REDIRECT_URL || '',
-  },
+export default defineNuxtModule<AsgardeoNuxtConfig>({
   meta: {
-    configKey: 'asgardeoAuth',
+    configKey: 'asgardeo',
     name: PACKAGE_NAME,
   },
-  setup(userOptions: ModuleOptions, nuxt: Nuxt) {
-    const options: ModuleOptions = defu(
-      userOptions,
-      nuxt.options.runtimeConfig.asgardeoAuth,
-      nuxt.options.runtimeConfig.public.asgardeoAuth,
-      {
-        clientId: process.env.ASGARDEO_CLIENT_ID,
-        clientSecret: process.env.ASGARDEO_CLIENT_SECRET,
-        enablePKCE: true,
-        scope: ['openid', 'profile'],
-        serverOrigin: process.env.ASGARDEO_BASE_URL,
-        afterSignInUrl: process.env.ASGARDEO_SIGN_IN_REDIRECT_URL || '',
-        afterSignOutUrl: process.env.ASGARDEO_SIGN_OUT_REDIRECT_URL || '',
-      },
-    ) as ModuleOptions;
-
-    // eslint-disable-next-line no-param-reassign
-    nuxt.options.runtimeConfig.public.asgardeoAuth = defu(nuxt.options.runtimeConfig.public.asgardeoAuth, {
-      clientId: options.clientId,
-    });
-
-    // eslint-disable-next-line no-param-reassign
-    nuxt.options.runtimeConfig.asgardeoAuth = defu(nuxt.options.runtimeConfig.asgardeoAuth, {
-      clientId: options.clientId,
-      clientSecret: options.clientSecret,
-      scope: options.scope,
-      serverOrigin: options.baseUrl,
-      afterSignInUrl: options.afterSignInUrl,
-      afterSignOutUrl: options.afterSignOutUrl,
-    });
-
+  defaults: {},
+  setup(userOptions, nuxt) {
     const {resolve} = createResolver(import.meta.url);
-    const runtimeDir: string = resolve('./runtime');
-    const runtimeServerDir: string = resolve('./runtime/server');
 
-    addImports({
-      from: resolve(runtimeDir, 'composables/asgardeo/useAuth'),
-      name: 'useAuth',
-    });
-
-    addServerImports([
+    // Merge config: env vars -> user options -> runtime config
+    const publicConfig = defu(
       {
-        as: 'AsgardeoAuthHandler',
-        from: resolve(runtimeServerDir, 'handler'),
-        name: 'AsgardeoAuthHandler',
+        baseUrl: process.env['NUXT_PUBLIC_ASGARDEO_BASE_URL'],
+        clientId: process.env['NUXT_PUBLIC_ASGARDEO_CLIENT_ID'],
+        afterSignInUrl: process.env['NUXT_PUBLIC_ASGARDEO_AFTER_SIGN_IN_URL'] || '/',
+        afterSignOutUrl: process.env['NUXT_PUBLIC_ASGARDEO_AFTER_SIGN_OUT_URL'] || '/',
+        scopes: userOptions.scopes || ['openid', 'profile'],
       },
-    ]);
+      userOptions,
+    );
 
-    nuxt.hook('nitro:config', (nitroConfig: NitroConfig) => {
-      // eslint-disable-next-line no-param-reassign
-      nitroConfig.alias = nitroConfig.alias || {};
-      // eslint-disable-next-line no-param-reassign
-      nitroConfig.alias['#auth/server'] = resolve(runtimeDir, 'server/services/asgardeo');
-      // eslint-disable-next-line no-param-reassign
-      nitroConfig.externals = defu(typeof nitroConfig.externals === 'object' ? nitroConfig.externals : {}, {
-        inline: [resolve(runtimeDir)],
-      });
-    });
+    const privateConfig = {
+      clientSecret: process.env['ASGARDEO_CLIENT_SECRET'] || userOptions.clientSecret || '',
+      sessionSecret: process.env['ASGARDEO_SESSION_SECRET'] || userOptions.sessionSecret || '',
+    };
+
+    // Validate required config
+    if (!publicConfig.baseUrl) {
+      console.warn(`[${PACKAGE_NAME}] baseUrl is required. Set NUXT_PUBLIC_ASGARDEO_BASE_URL env var or configure in nuxt.config.`);
+    }
+    if (!publicConfig.clientId) {
+      console.warn(`[${PACKAGE_NAME}] clientId is required. Set NUXT_PUBLIC_ASGARDEO_CLIENT_ID env var or configure in nuxt.config.`);
+    }
+
+    // Security: ensure secrets are never in public runtime config
+    nuxt.options.runtimeConfig.asgardeo = defu(
+      nuxt.options.runtimeConfig.asgardeo as Record<string, unknown> || {},
+      privateConfig,
+    );
+
+    nuxt.options.runtimeConfig.public.asgardeo = defu(
+      nuxt.options.runtimeConfig.public.asgardeo as Record<string, unknown> || {},
+      {
+        baseUrl: publicConfig.baseUrl,
+        clientId: publicConfig.clientId,
+        afterSignInUrl: publicConfig.afterSignInUrl,
+        afterSignOutUrl: publicConfig.afterSignOutUrl,
+        scopes: publicConfig.scopes,
+      },
+    );
+
+    // Ensure clientSecret never leaks to public config
+    const publicAsgardeo = nuxt.options.runtimeConfig.public.asgardeo as Record<string, unknown>;
+    if (publicAsgardeo?.['clientSecret']) {
+      delete publicAsgardeo['clientSecret'];
+      console.error(`[${PACKAGE_NAME}] SECURITY: clientSecret found in public config. Removed. Use ASGARDEO_CLIENT_SECRET env var.`);
+    }
+    if (publicAsgardeo?.['sessionSecret']) {
+      delete publicAsgardeo['sessionSecret'];
+      console.error(`[${PACKAGE_NAME}] SECURITY: sessionSecret found in public config. Removed. Use ASGARDEO_SESSION_SECRET env var.`);
+    }
+
+    // Register server API routes
+    const serverRoutes = [
+      {route: '/api/auth/signin', handler: resolve('./runtime/server/routes/auth/signin.get')},
+      {route: '/api/auth/callback', handler: resolve('./runtime/server/routes/auth/callback.get')},
+      {route: '/api/auth/signout', handler: resolve('./runtime/server/routes/auth/signout.get')},
+      {route: '/api/auth/session', handler: resolve('./runtime/server/routes/auth/session.get')},
+      {route: '/api/auth/token', handler: resolve('./runtime/server/routes/auth/token.get')},
+      {route: '/api/auth/user', handler: resolve('./runtime/server/routes/auth/user.get')},
+    ];
+
+    for (const sr of serverRoutes) {
+      addServerHandler({route: sr.route, handler: sr.handler});
+    }
+
+    // Register server plugin for SSR auth state
+    addServerPlugin(resolve('./runtime/server/plugins/auth-state'));
+
+    // Register client plugin
+    addPlugin(resolve('./runtime/plugins/asgardeo'));
+
+    // Auto-import composables
+    addImports([
+      {name: 'useAsgardeo', from: resolve('./runtime/composables/useAsgardeo')},
+    ]);
   },
-}) satisfies NuxtModule<ModuleOptions>;
+});
 
 declare module '@nuxt/schema' {
   interface PublicRuntimeConfig {
-    asgardeoAuth: Pick<ModuleOptions, 'clientId' | 'baseUrl' | 'afterSignInUrl' | 'afterSignOutUrl' | 'scope'>;
+    asgardeo: {
+      baseUrl: string;
+      clientId: string;
+      afterSignInUrl: string;
+      afterSignOutUrl: string;
+      scopes: string[];
+    };
   }
 
   interface RuntimeConfig {
-    asgardeoAuth: {
+    asgardeo: {
       clientSecret: string;
+      sessionSecret: string;
     };
   }
 }
