@@ -16,62 +16,55 @@
  * under the License.
  */
 
-import type {User, StorageManager, IdToken, OIDCEndpoints} from '@asgardeo/node';
+import type {JWTPayload} from 'jose';
+import type {User} from '@asgardeo/node';
 
-export interface ModuleOptions {
-  /**
-   * The base URL of your Asgardeo organization tenant.
-   * e.g., https://api.asgardeo.io/t/your_org_name
-   * @default process.env.ASGARDEO_BASE_URL
-   */
-  baseUrl: string;
-
-  /**
-   * Asgardeo Application Client ID.
-   * @default process.env.ASGARDEO_CLIENT_ID
-   */
-  clientId: string;
-
-  /**
-   * Asgardeo Application Client Secret. (Server-side only)
-   * @default process.env.ASGARDEO_CLIENT_SECRET
-   */
+/**
+ * Configuration for the Asgardeo Nuxt module.
+ */
+export interface AsgardeoNuxtConfig {
+  /** Base URL of the Asgardeo org tenant (e.g. https://api.asgardeo.io/t/your_org) */
+  baseUrl?: string;
+  /** OAuth2 Client ID */
+  clientId?: string;
+  /** OAuth2 Client Secret (server-only, use ASGARDEO_CLIENT_SECRET env var) */
   clientSecret?: string;
-
-  /**
-   * Authentication scopes to request from Asgardeo.
-   * @default ['openid', 'profile']
-   */
-  scope?: string[]; // Moved up for sorting
-
-  /**
-   * The absolute redirect URI where Asgardeo should redirect after sign-in.
-   * Must match the URI configured in your Asgardeo app.
-   * @default process.env.ASGARDEO_SIGN_IN_REDIRECT_URL
-   */
-  afterSignInUrl: string;
-  /**
-   * The absolute URI to redirect to after sign-out completes.
-   * @default process.env.ASGARDEO_SIGN_OUT_REDIRECT_URL
-   */
-  afterSignOutUrl: string;
+  /** Secret for signing session JWTs (use ASGARDEO_SESSION_SECRET env var) */
+  sessionSecret?: string;
+  /** OAuth2 scopes to request */
+  scopes?: string[];
+  /** URL to redirect to after sign-in (default: '/') */
+  afterSignInUrl?: string;
+  /** URL to redirect to after sign-out (default: '/') */
+  afterSignOutUrl?: string;
 }
 
-export interface AuthInterface {
-  getAccessToken: () => Promise<string | null>;
-  getUser: () => Promise<User | null>;
-  getStorageManager: () => Promise<StorageManager<any> | null>;
-  getDecodedIdToken: () => Promise<IdToken | null>;
-  getIdToken: () => Promise<string | null>;
-  getOpenIDProviderEndpoints: () => Promise<OIDCEndpoints | null>;
-  isSignedIn: () => Promise<boolean>;
-  revokeAccessToken: () => Promise<void>;
-  signIn: (callbackUrl?: string) => Promise<void>;
-  signOut: () => Promise<void>;
+/**
+ * Payload stored in the session JWT cookie.
+ */
+export interface AsgardeoSessionPayload extends JWTPayload {
+  sessionId: string;
+  sub: string;
+  accessToken: string;
+  scopes: string;
+  organizationId?: string;
+  iat: number;
+  exp: number;
 }
 
-export type SessionLastRefreshedAt = Date | undefined;
+/**
+ * Payload stored in the temporary session JWT cookie (during OAuth flow).
+ */
+export interface AsgardeoTempSessionPayload extends JWTPayload {
+  sessionId: string;
+  type: 'temp';
+}
 
-export type SessionStatus = 'authenticated' | 'unauthenticated' | 'loading';
-
-export type {User};
+/**
+ * Auth state hydrated from server to client via useState.
+ */
+export interface AsgardeoAuthState {
+  isSignedIn: boolean;
+  user: User | null;
+  isLoading: boolean;
+}

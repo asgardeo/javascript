@@ -1,7 +1,6 @@
 packages:
   - 'docs'
   - 'packages/*'
-  - '!packages/nuxt'
   - 'samples/*'
   - '!samples/teamspace-nextjs'
 

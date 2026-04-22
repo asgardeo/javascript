@@ -17,3 +17,10 @@
  */
 
 export {default} from './module';
+
+export type {
+  AsgardeoNuxtConfig,
+  AsgardeoSessionPayload,
+  AsgardeoTempSessionPayload,
+  AsgardeoAuthState,
+} from './runtime/types';

@@ -57,7 +57,8 @@
   "dependencies": {
     "@asgardeo/node": "workspace:*",
     "@nuxt/kit": "3.16.2",
-    "defu": "6.1.4"
+    "defu": "6.1.4",
+    "jose": "^6.0.11"
   },
   "devDependencies": {
     "@nuxt/devtools": "2.4.0",
