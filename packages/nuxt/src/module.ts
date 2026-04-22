@@ -19,6 +19,7 @@
 import {
   addImports,
   addPlugin,
+  addRouteMiddleware,
   addServerHandler,
   addServerPlugin,
   createResolver,
@@ -67,7 +68,7 @@ export default defineNuxtModule<AsgardeoNuxtConfig>({
     nuxt.options.runtimeConfig.asgardeo = defu(
       nuxt.options.runtimeConfig.asgardeo as Record<string, unknown> || {},
       privateConfig,
-    );
+    ) as {clientSecret: string; sessionSecret: string};
 
     nuxt.options.runtimeConfig.public.asgardeo = defu(
       nuxt.options.runtimeConfig.public.asgardeo as Record<string, unknown> || {},
@@ -78,7 +79,7 @@ export default defineNuxtModule<AsgardeoNuxtConfig>({
         afterSignOutUrl: publicConfig.afterSignOutUrl,
         scopes: publicConfig.scopes,
       },
-    );
+    ) as {baseUrl: string; clientId: string; afterSignInUrl: string; afterSignOutUrl: string; scopes: string[]};
 
     // Ensure clientSecret never leaks to public config
     const publicAsgardeo = nuxt.options.runtimeConfig.public.asgardeo as Record<string, unknown>;
@@ -111,10 +112,37 @@ export default defineNuxtModule<AsgardeoNuxtConfig>({
     // Register client plugin
     addPlugin(resolve('./runtime/plugins/asgardeo'));
 
-    // Auto-import composables
+    // Register named route middleware for page protection
+    addRouteMiddleware({
+      name: 'auth',
+      path: resolve('./runtime/middleware/auth'),
+    });
+
+    // Auto-import composables and utilities
     addImports([
       {name: 'useAsgardeo', from: resolve('./runtime/composables/useAsgardeo')},
+      {name: 'createRouteMatcher', from: resolve('./runtime/utils/createRouteMatcher')},
     ]);
+
+    // Auto-import server utilities
+    nuxt.hook('nitro:config', (nitroConfig) => {
+      nitroConfig.imports = nitroConfig.imports || {};
+      nitroConfig.imports.imports = nitroConfig.imports.imports || [];
+      nitroConfig.imports.imports.push(
+        {
+          name: 'useServerSession',
+          from: resolve('./runtime/server/utils/serverSession'),
+        },
+        {
+          name: 'requireServerSession',
+          from: resolve('./runtime/server/utils/serverSession'),
+        },
+        {
+          name: 'useAsgardeoServerClient',
+          from: resolve('./runtime/server/utils/client'),
+        },
+      );
+    });
   },
 });
 

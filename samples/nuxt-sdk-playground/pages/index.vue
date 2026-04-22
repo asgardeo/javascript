@@ -17,7 +17,16 @@
 
       <div v-else style="padding: 1rem; background: #fff3e0; border-radius: 4px;">
         <h3 style="font-weight: 600; color: #e65100; margin-bottom: 0.5rem;">🔒 Not Authenticated</h3>
-        <p>Click "Sign In" in the header to authenticate with Asgardeo.</p>
+        <p style="margin-bottom: 0.75rem;">Click "Sign In" in the header to authenticate with Asgardeo.</p>
+        <button
+          style="background: #ff6b00; color: white; border: none; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer; font-weight: 600;"
+          @click="signIn('/protected')"
+        >
+          Sign In &amp; Go to Protected Page
+        </button>
+        <p style="font-size: 0.75rem; color: #999; margin-top: 0.5rem;">
+          Uses <code>signIn('/protected')</code> to redirect back to the protected page after sign-in.
+        </p>
       </div>
     </section>
 
@@ -40,11 +49,11 @@
     </section>
 
     <!-- API Routes Info -->
-    <section style="background: white; border-radius: 8px; padding: 2rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+    <section style="background: white; border-radius: 8px; padding: 2rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 1.5rem;">
       <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 1rem;">Available API Routes</h3>
       <ul style="list-style: none; padding: 0;">
         <li style="padding: 0.5rem 0; border-bottom: 1px solid #eee;">
-          <code>GET /api/auth/signin</code> — Initiates sign-in flow (redirect to Asgardeo)
+          <code>GET /api/auth/signin</code> — Initiates sign-in flow (supports <code>?returnTo=/path</code>)
         </li>
         <li style="padding: 0.5rem 0; border-bottom: 1px solid #eee;">
           <code>GET /api/auth/callback</code> — OAuth callback handler
@@ -63,11 +72,33 @@
         </li>
       </ul>
     </section>
+
+    <!-- SDK Features -->
+    <section style="background: white; border-radius: 8px; padding: 2rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+      <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 1rem;">SDK Features</h3>
+      <ul style="list-style: none; padding: 0;">
+        <li style="padding: 0.5rem 0; border-bottom: 1px solid #eee;">
+          <strong>Route Protection</strong> — Use <code>definePageMeta({ middleware: ['auth'] })</code> on any page
+        </li>
+        <li style="padding: 0.5rem 0; border-bottom: 1px solid #eee;">
+          <strong>returnTo Redirect</strong> — <code>signIn('/path')</code> returns user to that path after sign-in
+        </li>
+        <li style="padding: 0.5rem 0; border-bottom: 1px solid #eee;">
+          <strong>Server Session</strong> — <code>useServerSession(event)</code> / <code>requireServerSession(event)</code> in API routes
+        </li>
+        <li style="padding: 0.5rem 0; border-bottom: 1px solid #eee;">
+          <strong>Route Matcher</strong> — <code>createRouteMatcher(['/admin/**'])</code> for advanced middleware
+        </li>
+        <li style="padding: 0.5rem 0;">
+          <strong>SSR Hydration</strong> — Auth state resolved server-side, no loading flash
+        </li>
+      </ul>
+    </section>
   </div>
 </template>
 
 <script setup lang="ts">
-const {isSignedIn, isLoading, user, getAccessToken} = useAsgardeo();
+const {isSignedIn, isLoading, user, signIn, getAccessToken} = useAsgardeo();
 
 const accessToken = ref<string | null>(null);
 

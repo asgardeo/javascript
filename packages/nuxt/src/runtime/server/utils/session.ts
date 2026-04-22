@@ -78,13 +78,20 @@ export async function createSessionToken(
 export async function createTempSessionToken(
   sessionId: string,
   sessionSecret?: string,
+  returnTo?: string,
 ): Promise<string> {
   const secret = getSecret(sessionSecret);
 
-  return new SignJWT({
+  const payload: Record<string, unknown> = {
     sessionId,
     type: 'temp',
-  } as AsgardeoTempSessionPayload)
+  };
+
+  if (returnTo) {
+    payload['returnTo'] = returnTo;
+  }
+
+  return new SignJWT(payload)
     .setProtectedHeader({alg: 'HS256'})
     .setIssuedAt()
     .setExpirationTime('15m')
@@ -109,7 +116,7 @@ export async function verifySessionToken(
 export async function verifyTempSessionToken(
   token: string,
   sessionSecret?: string,
-): Promise<{sessionId: string}> {
+): Promise<{sessionId: string; returnTo?: string}> {
   const secret = getSecret(sessionSecret);
   const {payload} = await jwtVerify(token, secret);
 
@@ -117,7 +124,10 @@ export async function verifyTempSessionToken(
     throw new Error('Invalid token type: expected temp session');
   }
 
-  return {sessionId: payload['sessionId'] as string};
+  return {
+    sessionId: payload['sessionId'] as string,
+    returnTo: payload['returnTo'] as string | undefined,
+  };
 }
 
 /**

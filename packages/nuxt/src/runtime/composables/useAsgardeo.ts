@@ -64,13 +64,14 @@ export function useAsgardeo(): UseAsgardeoReturn {
 
   /**
    * Redirect to Asgardeo for sign-in.
+   * @param returnTo - Optional URL path to redirect to after sign-in (must be a relative path)
    */
   const signIn = async (returnTo?: string): Promise<void> => {
-    const query: Record<string, string> = {};
+    let url = '/api/auth/signin';
     if (returnTo) {
-      query['returnTo'] = returnTo;
+      url += `?returnTo=${encodeURIComponent(returnTo)}`;
     }
-    await navigateTo('/api/auth/signin', {external: true});
+    await navigateTo(url, {external: true});
   };
 
   /**

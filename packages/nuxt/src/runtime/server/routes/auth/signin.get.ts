@@ -17,7 +17,7 @@
  */
 
 import {generateSessionId} from '@asgardeo/node';
-import {defineEventHandler, sendRedirect, setCookie, createError} from 'h3';
+import {defineEventHandler, getQuery, sendRedirect, setCookie, createError} from 'h3';
 import {useAsgardeoServerClient} from '../../utils/client';
 import {
   createTempSessionToken,
@@ -32,16 +32,25 @@ import {useRuntimeConfig} from '#imports';
  * Initiates the OAuth2 authorization code flow with PKCE.
  * Creates a temp session, stores it in a signed JWT cookie,
  * and redirects the user to Asgardeo's authorization endpoint.
+ *
+ * Accepts an optional `returnTo` query parameter to redirect
+ * the user to a specific page after sign-in.
  */
 export default defineEventHandler(async (event) => {
   const client = useAsgardeoServerClient(event);
   const config = useRuntimeConfig();
   const sessionSecret = config.asgardeo?.sessionSecret;
 
+  const query = getQuery(event);
+  const returnTo = query['returnTo'] as string | undefined;
+
+  // Validate returnTo is a relative path to prevent open redirect
+  const safeReturnTo = returnTo && returnTo.startsWith('/') && !returnTo.startsWith('//') ? returnTo : undefined;
+
   const sessionId = generateSessionId();
 
-  // Create temp session JWT and set as cookie
-  const tempToken = await createTempSessionToken(sessionId, sessionSecret);
+  // Create temp session JWT and set as cookie (includes returnTo if provided)
+  const tempToken = await createTempSessionToken(sessionId, sessionSecret, safeReturnTo);
   setCookie(event, getTempSessionCookieName(), tempToken, getTempSessionCookieOptions());
 
   // Get the authorization URL from the Node SDK

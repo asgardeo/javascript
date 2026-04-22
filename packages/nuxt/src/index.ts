@@ -24,3 +24,7 @@ export type {
   AsgardeoTempSessionPayload,
   AsgardeoAuthState,
 } from './runtime/types';
+
+export {createRouteMatcher} from './runtime/utils/createRouteMatcher';
+
+export type {UseAsgardeoReturn} from './runtime/composables/useAsgardeo';
