@@ -1,6 +1,6 @@
 {
   "name": "@asgardeo/nuxt",
-  "version": "0.0.0",
+  "version": "0.1.0-alpha.0",
   "description": "Nuxt module for Asgardeo - Authentication and Identity Management",
   "author": "WSO2",
   "license": "Apache-2.0",
@@ -30,6 +30,10 @@
     ".": {
       "types": "./dist/types.d.mts",
       "import": "./dist/module.mjs"
+    },
+    "./server": {
+      "types": "./dist/runtime/server/index.d.ts",
+      "import": "./dist/runtime/server/index.mjs"
     }
   },
   "main": "./dist/module.mjs",
@@ -37,6 +41,9 @@
     "*": {
       ".": [
         "./dist/types.d.mts"
+      ],
+      "server": [
+        "./dist/runtime/server/index.d.ts"
       ]
     }
   },
@@ -56,9 +63,14 @@
   },
   "dependencies": {
     "@asgardeo/node": "workspace:*",
+    "@asgardeo/vue": "workspace:*",
     "@nuxt/kit": "3.16.2",
     "defu": "6.1.4",
     "jose": "^6.0.11"
+  },
+  "peerDependencies": {
+    "nuxt": ">=3.10.0",
+    "vue": ">=3.5.0"
   },
   "devDependencies": {
     "@nuxt/devtools": "2.4.0",

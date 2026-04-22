@@ -16,33 +16,21 @@
  * under the License.
  */
 
-import type {User} from '@asgardeo/node';
-import type {Ref} from 'vue';
-import {computed} from 'vue';
+import {computed, inject, readonly, ref} from 'vue';
 import {useState, navigateTo} from '#app';
+import {ASGARDEO_KEY} from '@asgardeo/vue';
+import type {AsgardeoContext} from '@asgardeo/vue';
 import type {AsgardeoAuthState} from '../types';
 
-export interface UseAsgardeoReturn {
-  /** Whether the user is signed in */
-  isSignedIn: Ref<boolean>;
-  /** Whether auth state is loading */
-  isLoading: Ref<boolean>;
-  /** The current user (null if not signed in) */
-  user: Ref<User | null>;
-  /** Initiate sign-in by redirecting to Asgardeo */
-  signIn: (returnTo?: string) => Promise<void>;
-  /** Sign out and redirect */
-  signOut: () => Promise<void>;
-  /** Get the current access token from the server */
-  getAccessToken: () => Promise<string | null>;
-  /** Refresh user info from the server */
-  refreshUser: () => Promise<void>;
-}
-
 /**
- * Primary composable for Asgardeo authentication.
+ * Nuxt-aware primary composable for Asgardeo authentication.
  *
- * Auth state is SSR-hydrated (no loading flash) and reactive.
+ * Thin wrapper around `@asgardeo/vue`'s inject-based context that:
+ *  - Reads context provided at the app level by the Asgardeo Nuxt plugin.
+ *  - Falls back to `useState('asgardeo:auth')` for lightweight SSR access
+ *    when called outside a component setup (e.g. in a Nitro handler).
+ *  - Overrides `signIn`/`signOut`/`signUp` with Nuxt-aware `navigateTo`
+ *    so server-side redirects work correctly.
  *
  * @example
  * ```vue
@@ -51,71 +39,78 @@ export interface UseAsgardeoReturn {
  * </script>
  * ```
  */
-export function useAsgardeo(): UseAsgardeoReturn {
+export function useAsgardeo(): AsgardeoContext {
+  // Prefer the full Vue SDK context (provided at app level by the Nuxt plugin).
+  const ctx = inject<AsgardeoContext>(ASGARDEO_KEY);
+
+  if (ctx) {
+    // Override navigation helpers with Nuxt-aware versions so SSR redirects
+    // use the correct response mechanism instead of window.location.
+    const signIn = async (options?: Record<string, unknown>): Promise<void> => {
+      const returnTo = typeof options?.['returnTo'] === 'string' ? options['returnTo'] : undefined;
+      const url = returnTo ? `/api/auth/signin?returnTo=${encodeURIComponent(returnTo)}` : '/api/auth/signin';
+      await navigateTo(url, {external: true});
+    };
+
+    const signOut = async (): Promise<void> => {
+      await navigateTo('/api/auth/signout', {external: true});
+    };
+
+    const signUp = async (): Promise<void> => {
+      await navigateTo('/api/auth/signup', {external: true});
+    };
+
+    return {...ctx, signIn, signOut, signUp};
+  }
+
+  // ── Lightweight fallback ─────────────────────────────────────────────────
+  // The inject context should always be present when the Nuxt plugin is
+  // installed.  This branch guards against edge cases (e.g. unit tests that
+  // don't run a full Nuxt app).
   const authState = useState<AsgardeoAuthState>('asgardeo:auth', () => ({
     isSignedIn: false,
     user: null,
     isLoading: true,
   }));
 
-  const isSignedIn = computed(() => authState.value.isSignedIn);
-  const isLoading = computed(() => authState.value.isLoading);
-  const user = computed(() => authState.value.user);
-
-  /**
-   * Redirect to Asgardeo for sign-in.
-   * @param returnTo - Optional URL path to redirect to after sign-in (must be a relative path)
-   */
-  const signIn = async (returnTo?: string): Promise<void> => {
-    let url = '/api/auth/signin';
-    if (returnTo) {
-      url += `?returnTo=${encodeURIComponent(returnTo)}`;
-    }
-    await navigateTo(url, {external: true});
-  };
-
-  /**
-   * Sign out and redirect to Asgardeo's logout endpoint.
-   */
-  const signOut = async (): Promise<void> => {
-    await navigateTo('/api/auth/signout', {external: true});
-  };
-
-  /**
-   * Get the current access token from the server.
-   */
-  const getAccessToken = async (): Promise<string | null> => {
-    try {
-      const response = await $fetch<{accessToken: string}>('/api/auth/token', {
-        method: 'GET',
-      });
-      return response.accessToken || null;
-    } catch {
-      return null;
-    }
-  };
-
-  /**
-   * Refresh user info from the server and update reactive state.
-   */
-  const refreshUser = async (): Promise<void> => {
-    try {
-      const session = await $fetch<AsgardeoAuthState>('/api/auth/session', {
-        method: 'GET',
-      });
-      authState.value = session;
-    } catch {
-      authState.value = {isSignedIn: false, user: null, isLoading: false};
-    }
-  };
+  const noop = async (): Promise<any> => undefined;
 
   return {
-    isSignedIn,
-    isLoading,
-    user,
-    signIn,
-    signOut,
-    getAccessToken,
-    refreshUser,
-  };
+    afterSignInUrl: undefined,
+    afterSignOutUrl: undefined,
+    applicationId: undefined,
+    baseUrl: undefined,
+    clearSession: noop,
+    clientId: undefined,
+    exchangeToken: noop,
+    getAccessToken: noop,
+    getDecodedIdToken: noop,
+    getIdToken: noop,
+    http: {request: noop, requestAll: noop},
+    instanceId: 0,
+    isInitialized: readonly(ref(true)),
+    isLoading: computed(() => authState.value.isLoading),
+    isSignedIn: computed(() => authState.value.isSignedIn),
+    organization: readonly(ref(null)),
+    organizationHandle: undefined,
+    platform: undefined,
+    reInitialize: async () => false,
+    signIn: async (opts?: any): Promise<void> => {
+      const returnTo = opts?.returnTo ? `?returnTo=${encodeURIComponent(opts.returnTo)}` : '';
+      await navigateTo(`/api/auth/signin${returnTo}`, {external: true});
+    },
+    signInOptions: undefined,
+    signInSilently: noop,
+    signInUrl: undefined,
+    signOut: async (): Promise<void> => {
+      await navigateTo('/api/auth/signout', {external: true});
+    },
+    signUp: async (): Promise<void> => {
+      await navigateTo('/api/auth/signup', {external: true});
+    },
+    signUpUrl: undefined,
+    storage: undefined,
+    switchOrganization: noop,
+    user: computed(() => authState.value.user),
+  } as AsgardeoContext;
 }
