@@ -24,15 +24,21 @@ import {
   getSessionCookieName,
 } from '../utils/session';
 import type {AsgardeoAuthState} from '../../types';
+import {createLogger} from '../../utils/log';
+
+// Import augmentation so event.context.asgardeo is typed
+import '../../types/augments.d';
+
+const log = createLogger('auth-state');
 
 /**
  * Nitro server plugin that resolves auth state during SSR.
- * Sets the `event.context.__asgardeoAuth` so the Nuxt server plugin
+ * Sets the typed `event.context.asgardeo` so the Nuxt client plugin
  * can hydrate it into `useState('asgardeo:auth')`.
  */
 export default defineNitroPlugin((nitro) => {
   nitro.hooks.hook('request', async (event) => {
-    // Only process page requests (skip API routes)
+    // Only process page requests (skip API routes and Nuxt internals)
     const url = event.path || '';
     if (url.startsWith('/api/') || url.startsWith('/_nuxt/')) {
       return;
@@ -55,11 +61,19 @@ export default defineNitroPlugin((nitro) => {
 
         authState.isSignedIn = true;
         authState.user = user;
+
+        // Populate typed context (no more `as any`)
+        event.context.asgardeo = {session, isSignedIn: true};
+      } else {
+        event.context.asgardeo = {session: null, isSignedIn: false};
       }
-    } catch {
+    } catch (err) {
       // Session invalid or expired — leave as unauthenticated
+      log.debug('Auth state resolution failed, treating as unauthenticated:', err);
+      event.context.asgardeo = {session: null, isSignedIn: false};
     }
 
+    // Keep the legacy key populated for backward compat during migration
     event.context['__asgardeoAuth'] = authState;
   });
 });

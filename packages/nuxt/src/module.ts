@@ -17,6 +17,7 @@
  */
 
 import {
+  addComponent,
   addImports,
   addPlugin,
   addRouteMiddleware,
@@ -62,6 +63,15 @@ export default defineNuxtModule<AsgardeoNuxtConfig>({
     }
     if (!publicConfig.clientId) {
       console.warn(`[${PACKAGE_NAME}] clientId is required. Set NUXT_PUBLIC_ASGARDEO_CLIENT_ID env var or configure in nuxt.config.`);
+    }
+    if (!privateConfig.sessionSecret && process.env['NODE_ENV'] === 'production') {
+      throw new Error(
+        `[${PACKAGE_NAME}] sessionSecret is required in production. ` +
+        'Set the ASGARDEO_SESSION_SECRET environment variable to a secure random string of at least 32 characters.',
+      );
+    }
+    if (!privateConfig.sessionSecret) {
+      console.warn(`[${PACKAGE_NAME}] sessionSecret is not set. Using an insecure default for development only. Set ASGARDEO_SESSION_SECRET before deploying.`);
     }
 
     // Security: ensure secrets are never in public runtime config
@@ -120,9 +130,58 @@ export default defineNuxtModule<AsgardeoNuxtConfig>({
 
     // Auto-import composables and utilities
     addImports([
+      // Core auth composable (Nuxt-specific wrapper around @asgardeo/vue)
       {name: 'useAsgardeo', from: resolve('./runtime/composables/useAsgardeo')},
+      // Composables from @asgardeo/vue (re-exported through local wrappers)
+      {name: 'useUser',         from: resolve('./runtime/composables/useUser')},
+      {name: 'useOrganization', from: resolve('./runtime/composables/useOrganization')},
+      {name: 'useFlow',         from: resolve('./runtime/composables/useFlow')},
+      {name: 'useTheme',        from: resolve('./runtime/composables/useTheme')},
+      {name: 'useBranding',     from: resolve('./runtime/composables/useBranding')},
+      // useI18n aliased to avoid collision with @nuxtjs/i18n
+      {name: 'useAsgardeoI18n', from: resolve('./runtime/composables/useAsgardeoI18n')},
+      // Middleware factory
+      {name: 'defineAsgardeoMiddleware', from: resolve('./runtime/composables/defineAsgardeoMiddleware')},
+      // Utilities
       {name: 'createRouteMatcher', from: resolve('./runtime/utils/createRouteMatcher')},
     ]);
+
+    // Auto-register @asgardeo/vue components with `Asgardeo` prefix.
+    // The prefix avoids collisions with user-defined components and matches
+    // Nuxt's convention for third-party components (cf. `@nuxt/ui` → `UButton`).
+    const vueComponents: Array<{name: string; export: string}> = [
+      // Control flow
+      {name: 'AsgardeoSignedIn',   export: 'SignedIn'},
+      {name: 'AsgardeoSignedOut',  export: 'SignedOut'},
+      {name: 'AsgardeoLoading',    export: 'Loading'},
+      // Action buttons
+      {name: 'AsgardeoSignInButton',  export: 'SignInButton'},
+      {name: 'AsgardeoSignOutButton', export: 'SignOutButton'},
+      {name: 'AsgardeoSignUpButton',  export: 'SignUpButton'},
+      // Auth flows (embedded)
+      {name: 'AsgardeoSignIn',   export: 'SignIn'},
+      {name: 'AsgardeoSignUp',   export: 'SignUp'},
+      // User
+      {name: 'AsgardeoUser',        export: 'UserComponent'},
+      {name: 'AsgardeoUserProfile', export: 'UserProfile'},
+      {name: 'AsgardeoUserDropdown',export: 'UserDropdown'},
+      // Organization
+      {name: 'AsgardeoOrganization',       export: 'OrganizationComponent'},
+      {name: 'AsgardeoOrganizationProfile',export: 'OrganizationProfile'},
+      {name: 'AsgardeoOrganizationSwitcher',export: 'OrganizationSwitcher'},
+      {name: 'AsgardeoOrganizationList',   export: 'OrganizationList'},
+      {name: 'AsgardeoCreateOrganization', export: 'CreateOrganization'},
+      // Callback helper (for embedded flow client-side handling)
+      {name: 'AsgardeoCallback', export: 'Callback'},
+    ];
+
+    for (const {name, export: exportName} of vueComponents) {
+      addComponent({
+        export: exportName,
+        filePath: '@asgardeo/vue',
+        name,
+      });
+    }
 
     // Auto-import server utilities
     nuxt.hook('nitro:config', (nitroConfig) => {

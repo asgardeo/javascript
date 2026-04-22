@@ -18,6 +18,7 @@
 
 export {default} from './module';
 
+// ── Types ──────────────────────────────────────────────────────────────────
 export type {
   AsgardeoNuxtConfig,
   AsgardeoSessionPayload,
@@ -25,6 +26,33 @@ export type {
   AsgardeoAuthState,
 } from './runtime/types';
 
+// ── Composables ────────────────────────────────────────────────────────────
+export {useAsgardeo} from './runtime/composables/useAsgardeo';
+export {useUser}         from './runtime/composables/useUser';
+export {useOrganization} from './runtime/composables/useOrganization';
+export {useFlow}         from './runtime/composables/useFlow';
+export {useTheme}        from './runtime/composables/useTheme';
+export {useBranding}     from './runtime/composables/useBranding';
+export {useAsgardeoI18n} from './runtime/composables/useAsgardeoI18n';
+export {defineAsgardeoMiddleware} from './runtime/composables/defineAsgardeoMiddleware';
+export type {AsgardeoMiddlewareOptions} from './runtime/composables/defineAsgardeoMiddleware';
+
+// ── Composable types (re-exported from @asgardeo/vue) ─────────────────────
+export type {
+  AsgardeoContext,
+  UserContextValue,
+  OrganizationContextValue,
+  FlowContextValue,
+  ThemeContextValue,
+  BrandingContextValue,
+  I18nContextValue,
+} from '@asgardeo/vue';
+
+// ── Utilities ──────────────────────────────────────────────────────────────
 export {createRouteMatcher} from './runtime/utils/createRouteMatcher';
 
-export type {UseAsgardeoReturn} from './runtime/composables/useAsgardeo';
+// ── Errors ─────────────────────────────────────────────────────────────────
+export {AsgardeoError, ErrorCode} from './runtime/errors';
+
+// ── Logging ────────────────────────────────────────────────────────────────
+export {maskToken, createLogger} from './runtime/utils/log';
