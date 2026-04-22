@@ -58,6 +58,8 @@ export interface AsgardeoSessionPayload extends JWTPayload {
 export interface AsgardeoTempSessionPayload extends JWTPayload {
   sessionId: string;
   type: 'temp';
+  /** URL to redirect to after successful sign-in */
+  returnTo?: string;
 }
 
 /**

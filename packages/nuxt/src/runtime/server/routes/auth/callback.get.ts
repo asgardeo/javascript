@@ -73,9 +73,11 @@ export default defineEventHandler(async (event) => {
   }
 
   let sessionId: string;
+  let returnTo: string | undefined;
   try {
     const tempSession = await verifyTempSessionToken(tempSessionCookie, sessionSecret);
     sessionId = tempSession.sessionId;
+    returnTo = tempSession.returnTo;
   } catch {
     throw createError({
       statusCode: 400,
@@ -139,9 +141,13 @@ export default defineEventHandler(async (event) => {
     deleteCookie(event, getTempSessionCookieName(), getTempSessionCookieOptions());
   } catch (err: any) {
     console.error('[asgardeo] Failed to create JWT session:', err?.message || err);
-    // Continue with redirect even if JWT creation fails — the legacy session might still work
+    throw createError({
+      statusCode: 500,
+      statusMessage: 'Failed to establish session after authentication.',
+    });
   }
 
-  const afterSignInUrl = publicConfig.afterSignInUrl || '/';
-  return sendRedirect(event, afterSignInUrl, 302);
+  // Redirect to returnTo (from sign-in request) or configured afterSignInUrl
+  const redirectUrl = returnTo || publicConfig.afterSignInUrl || '/';
+  return sendRedirect(event, redirectUrl, 302);
 });

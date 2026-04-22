@@ -5,6 +5,7 @@
       <nav style="display: flex; gap: 1rem; align-items: center;">
         <NuxtLink to="/" style="color: white;">Home</NuxtLink>
         <NuxtLink to="/protected" style="color: white;">Protected</NuxtLink>
+        <NuxtLink to="/api-demo" style="color: white;">API Demo</NuxtLink>
         <template v-if="isSignedIn">
           <span style="font-size: 0.875rem;">{{ user?.username || user?.email || 'User' }}</span>
           <button
