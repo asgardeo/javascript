@@ -4,20 +4,18 @@
     "private": true,
     "type": "module",
     "scripts": {
-        "dev": "cross-env NODE_TLS_REJECT_UNAUTHORIZED=0 nuxi dev",
+        "dev": "nuxi dev",
         "build": "nuxi build",
         "preview": "nuxi preview",
-        "generate": "nuxi generate"
+        "prepare": "nuxi prepare"
     },
     "dependencies": {
         "@asgardeo/nuxt": "workspace:*",
         "nuxt": "3.16.2",
-        "vue": "3.5.13",
-        "vue-router": "4.5.0"
+        "vue": ">=3.5.0"
     },
     "devDependencies": {
-        "@types/node": "22.13.4",
-        "cross-env": "^10.1.0",
+        "@nuxt/devtools": "2.4.0",
         "typescript": "5.8.3"
     }
 }
