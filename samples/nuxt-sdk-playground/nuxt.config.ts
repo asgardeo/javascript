@@ -1,22 +1,29 @@
-// https://nuxt.com/docs/api/configuration/nuxt-config
+/**
+ * nuxt.config.ts
+ *
+ * Sample Nuxt application using the @asgardeo/nuxt module.
+ * Configuration is driven by environment variables so no secrets are
+ * committed to source control.
+ *
+ * Usage:
+ *   cd samples/nuxt-sdk-playground
+ *   cp .env.example .env
+ *   # fill in .env values
+ *   pnpm dev
+ */
 export default defineNuxtConfig({
-  compatibilityDate: '2026-04-19',
-
-  devtools: {enabled: true},
-
-  devServer: {
-    https: true,
-  },
-
   modules: ['@asgardeo/nuxt'],
 
   asgardeo: {
-    // These can also be set via environment variables:
-    // NUXT_PUBLIC_ASGARDEO_BASE_URL, NUXT_PUBLIC_ASGARDEO_CLIENT_ID, etc.
-    scopes: ['openid', 'profile', 'email'],
+    baseUrl: process.env['NUXT_PUBLIC_ASGARDEO_BASE_URL'] || '',
+    clientId: process.env['NUXT_PUBLIC_ASGARDEO_CLIENT_ID'] || '',
+    clientSecret: process.env['ASGARDEO_CLIENT_SECRET'] || '',
+    sessionSecret: process.env['ASGARDEO_SESSION_SECRET'] || 'dev-only-secret-change-in-production',
     afterSignInUrl: '/',
     afterSignOutUrl: '/',
+    scopes: ['openid', 'profile', 'email'],
   },
 
-  css: ['~/assets/css/main.css'],
+  devtools: {enabled: true},
+  compatibilityDate: '2024-04-03',
 });
