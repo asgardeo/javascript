@@ -48,6 +48,7 @@ export default defineNuxtModule<AsgardeoNuxtConfig>({
         afterSignInUrl: process.env['NUXT_PUBLIC_ASGARDEO_AFTER_SIGN_IN_URL'] || '/',
         afterSignOutUrl: process.env['NUXT_PUBLIC_ASGARDEO_AFTER_SIGN_OUT_URL'] || '/',
         scopes: userOptions.scopes || ['openid', 'profile'],
+        preferences: userOptions.preferences,
       },
       userOptions,
     );
@@ -57,22 +58,12 @@ export default defineNuxtModule<AsgardeoNuxtConfig>({
       sessionSecret: process.env['ASGARDEO_SESSION_SECRET'] || userOptions.sessionSecret || '',
     };
 
-    // Validate required config
-    if (!publicConfig.baseUrl) {
-      console.warn(`[${PACKAGE_NAME}] baseUrl is required. Set NUXT_PUBLIC_ASGARDEO_BASE_URL env var or configure in nuxt.config.`);
-    }
-    if (!publicConfig.clientId) {
-      console.warn(`[${PACKAGE_NAME}] clientId is required. Set NUXT_PUBLIC_ASGARDEO_CLIENT_ID env var or configure in nuxt.config.`);
-    }
-    if (!privateConfig.sessionSecret && process.env['NODE_ENV'] === 'production') {
-      throw new Error(
-        `[${PACKAGE_NAME}] sessionSecret is required in production. ` +
-        'Set the ASGARDEO_SESSION_SECRET environment variable to a secure random string of at least 32 characters.',
-      );
-    }
-    if (!privateConfig.sessionSecret) {
-      console.warn(`[${PACKAGE_NAME}] sessionSecret is not set. Using an insecure default for development only. Set ASGARDEO_SESSION_SECRET before deploying.`);
-    }
+    // Config validation deliberately does not happen here. `setup()` runs during
+    // `nuxt module-build prepare` (SDK build) and during the consumer's build —
+    // neither is the right moment to complain about unset runtime env vars.
+    // Missing/invalid config is reported where it matters:
+    //  - Server: runtime/server/plugins/asgardeo-ssr.ts (refuses to initialize)
+    //  - Client: runtime/plugins/asgardeo.ts (dev-time browser console warning)
 
     // Security: ensure secrets are never in public runtime config
     nuxt.options.runtimeConfig.asgardeo = defu(
@@ -88,8 +79,9 @@ export default defineNuxtModule<AsgardeoNuxtConfig>({
         afterSignInUrl: publicConfig.afterSignInUrl,
         afterSignOutUrl: publicConfig.afterSignOutUrl,
         scopes: publicConfig.scopes,
+        preferences: publicConfig.preferences,
       },
-    ) as {baseUrl: string; clientId: string; afterSignInUrl: string; afterSignOutUrl: string; scopes: string[]};
+    ) as {baseUrl: string; clientId: string; afterSignInUrl: string; afterSignOutUrl: string; scopes: string[]; preferences: AsgardeoNuxtConfig['preferences']};
 
     // Ensure clientSecret never leaks to public config
     const publicAsgardeo = nuxt.options.runtimeConfig.public.asgardeo as Record<string, unknown>;
@@ -104,20 +96,29 @@ export default defineNuxtModule<AsgardeoNuxtConfig>({
 
     // Register server API routes
     const serverRoutes = [
-      {route: '/api/auth/signin', handler: resolve('./runtime/server/routes/auth/signin.get')},
-      {route: '/api/auth/callback', handler: resolve('./runtime/server/routes/auth/callback.get')},
-      {route: '/api/auth/signout', handler: resolve('./runtime/server/routes/auth/signout.get')},
-      {route: '/api/auth/session', handler: resolve('./runtime/server/routes/auth/session.get')},
-      {route: '/api/auth/token', handler: resolve('./runtime/server/routes/auth/token.get')},
-      {route: '/api/auth/user', handler: resolve('./runtime/server/routes/auth/user.get')},
+      // ── Auth flow ──────────────────────────────────────────────────────
+      {route: '/api/auth/signin',    handler: resolve('./runtime/server/routes/auth/signin.get')},
+      {route: '/api/auth/callback',  handler: resolve('./runtime/server/routes/auth/callback.get')},
+      {route: '/api/auth/signout',   handler: resolve('./runtime/server/routes/auth/signout.get')},
+      // ── Session / token ───────────────────────────────────────────────
+      {route: '/api/auth/session',   handler: resolve('./runtime/server/routes/auth/session.get')},
+      {route: '/api/auth/token',     handler: resolve('./runtime/server/routes/auth/token.get')},
+      {route: '/api/auth/user',      handler: resolve('./runtime/server/routes/auth/user.get')},
+      // ── Profile (Step 5) ──────────────────────────────────────────────
+      {route: '/api/auth/profile',      handler: resolve('./runtime/server/routes/auth/profile.post'),      method: 'post' as const},
+      {route: '/api/auth/user-profile', handler: resolve('./runtime/server/routes/auth/user-profile.get')},
+      // ── Organisations (Step 5) ────────────────────────────────────────
+      {route: '/api/auth/my-orgs',    handler: resolve('./runtime/server/routes/auth/my-orgs.get')},
+      {route: '/api/auth/orgs',       handler: resolve('./runtime/server/routes/auth/orgs.get')},
+      {route: '/api/auth/switch-org', handler: resolve('./runtime/server/routes/auth/switch-org.post'), method: 'post' as const},
     ];
 
     for (const sr of serverRoutes) {
-      addServerHandler({route: sr.route, handler: sr.handler});
+      addServerHandler({route: sr.route, handler: sr.handler, method: 'method' in sr ? sr.method : undefined});
     }
 
-    // Register server plugin for SSR auth state
-    addServerPlugin(resolve('./runtime/server/plugins/auth-state'));
+    // Register server plugin for SSR auth state + rich SSR data fetching
+    addServerPlugin(resolve('./runtime/server/plugins/asgardeo-ssr'));
 
     // Register client plugin
     addPlugin(resolve('./runtime/plugins/asgardeo'));
@@ -206,10 +207,6 @@ export default defineNuxtModule<AsgardeoNuxtConfig>({
           from: resolve('./runtime/server/utils/serverSession'),
         },
         {
-          name: 'AsgardeoNuxtClient',
-          from: resolve('./runtime/server/utils/AsgardeoNuxtClient'),
-        },
-        {
           name: 'getValidAccessToken',
           from: resolve('./runtime/server/utils/token-refresh'),
         },
@@ -226,6 +223,7 @@ declare module '@nuxt/schema' {
       afterSignInUrl: string;
       afterSignOutUrl: string;
       scopes: string[];
+      preferences?: import('./runtime/types').AsgardeoNuxtConfig['preferences'];
     };
   }
 

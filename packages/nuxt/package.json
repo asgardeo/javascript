@@ -33,7 +33,7 @@
     },
     "./server": {
       "types": "./dist/runtime/server/index.d.ts",
-      "import": "./dist/runtime/server/index.mjs"
+      "import": "./dist/runtime/server/index.js"
     }
   },
   "main": "./dist/module.mjs",

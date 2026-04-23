@@ -17,7 +17,7 @@
  */
 
 import type {JWTPayload} from 'jose';
-import type {User} from '@asgardeo/node';
+import type {BrandingPreference, I18nPreferences, Organization, User, UserProfile} from '@asgardeo/node';
 
 /**
  * Configuration for the Asgardeo Nuxt module.
@@ -37,6 +37,27 @@ export interface AsgardeoNuxtConfig {
   afterSignInUrl?: string;
   /** URL to redirect to after sign-out (default: '/') */
   afterSignOutUrl?: string;
+  /**
+   * Feature-gating preferences that control which server-side data fetches
+   * the Nitro plugin performs on every SSR request.
+   */
+  preferences?: {
+    user?: {
+      /** Whether to fetch the SCIM2 user profile during SSR (default: true). */
+      fetchUserProfile?: boolean;
+      /** Whether to fetch the user's organisations during SSR (default: true). */
+      fetchOrganizations?: boolean;
+    };
+    theme?: {
+      /**
+       * When true (default), the Nitro plugin fetches the branding preference
+       * from Asgardeo and passes it to `BrandingProvider` / `ThemeProvider`.
+       */
+      inheritFromBranding?: boolean;
+    };
+    /** i18n configuration forwarded to `I18nProvider`. */
+    i18n?: I18nPreferences;
+  };
 }
 
 /**
@@ -66,6 +87,32 @@ export interface AsgardeoTempSessionPayload extends JWTPayload {
   type: 'temp';
   /** URL to redirect to after successful sign-in */
   returnTo?: string;
+}
+
+/**
+ * Full SSR payload resolved by the Nitro plugin on each page request.
+ * Written to `event.context.asgardeo.ssr` and subsequently seeded into
+ * hydrated `useState` keys so the client never re-fetches on first render.
+ */
+export interface AsgardeoSSRData {
+  isSignedIn: boolean;
+  session: AsgardeoSessionPayload | null;
+  user: User | null;
+  /** Flattened SCIM2 profile + raw profile + schemas (null when `preferences.user.fetchUserProfile` is false). */
+  userProfile: UserProfile | null;
+  /** The organisation the user is currently acting within (null when not in an org). */
+  currentOrganization: Organization | null;
+  /** All organisations the user is a member of (empty array when `preferences.user.fetchOrganizations` is false). */
+  myOrganizations: Organization[];
+  /** Branding preference fetched from Asgardeo (null when `preferences.theme.inheritFromBranding` is false). */
+  brandingPreference: BrandingPreference | null;
+  /**
+   * The base URL actually used for this request.
+   * Equals `${baseUrl}/o` when the user is acting within an organisation
+   * (derived from the `user_org` claim in the ID token), otherwise equals
+   * the configured `baseUrl`.
+   */
+  resolvedBaseUrl: string | null;
 }
 
 /**
