@@ -59,6 +59,7 @@
     "typecheck": "nuxt prepare && vue-tsc --noEmit"
   },
   "dependencies": {
+    "@asgardeo/browser": "workspace:*",
     "@asgardeo/node": "workspace:*",
     "@asgardeo/vue": "workspace:*",
     "@nuxt/kit": "3.16.2",

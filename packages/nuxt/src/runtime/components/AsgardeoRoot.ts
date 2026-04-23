@@ -96,6 +96,9 @@ const AsgardeoRoot: Component = defineComponent({
     const shouldFetchProfile = prefs?.user?.fetchUserProfile !== false;
     const shouldFetchOrgs = prefs?.user?.fetchOrganizations !== false;
     const shouldFetchBranding = prefs?.theme?.inheritFromBranding !== false;
+    // Defaults to 'light' — matches the Vue SDK's AsgardeoProvider, which
+    // passes no mode and therefore uses ThemeProvider's `DEFAULT_THEME`.
+    const themeMode = prefs?.theme?.mode ?? 'light';
 
     // ── Callbacks ──────────────────────────────────────────────────────────
 
@@ -192,7 +195,7 @@ const AsgardeoRoot: Component = defineComponent({
               h(ThemeProvider, {
                 // Mirror the same flag used in the Nitro plugin gate.
                 inheritFromBranding: shouldFetchBranding,
-                mode: 'branding' as any,
+                mode: themeMode as any,
               }, {
                 default: (): VNode =>
                   h(FlowProvider, null, {
