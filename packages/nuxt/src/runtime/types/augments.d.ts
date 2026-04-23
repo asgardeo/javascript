@@ -35,13 +35,13 @@ declare module '@nuxt/schema' {
  * H3 event context augmentation — provides a typed `event.context.asgardeo`
  * property so server plugins and API routes no longer need `as any` casts.
  *
- * Set by the Nitro `auth-state` plugin on every page request.
+ * Set by the Nitro `asgardeo-ssr` plugin on every page request.
  */
 declare module 'h3' {
   interface H3EventContext {
     /**
      * Resolved auth state for the current request.
-     * Populated by the Nitro `auth-state` plugin during SSR page requests.
+     * Populated by the Nitro `asgardeo-ssr` plugin during SSR page requests.
      * `null` when the request is an API route or when the session is absent/invalid.
      */
     asgardeo?: {
