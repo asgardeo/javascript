@@ -45,7 +45,7 @@ vi.mock('#app', () => {
   return {navigateTo, useState, defineNuxtRouteMiddleware};
 });
 
-import {defineAsgardeoMiddleware, AsgardeoMiddlewareOptions} from '../../src/runtime/composables/defineAsgardeoMiddleware';
+import {defineAsgardeoMiddleware, AsgardeoMiddlewareOptions} from '../../src/runtime/middleware/defineAsgardeoMiddleware';
 
 /** Build a fake `to` route object */
 const makeTo = (fullPath = '/dashboard') => ({fullPath});

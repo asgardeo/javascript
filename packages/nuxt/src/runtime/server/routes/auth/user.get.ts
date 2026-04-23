@@ -17,7 +17,7 @@
  */
 
 import {defineEventHandler, getCookie, createError} from 'h3';
-import {useAsgardeoServerClient} from '../../utils/client';
+import AsgardeoNuxtClient from '../../AsgardeoNuxtClient';
 import {
   verifySessionToken,
   getSessionCookieName,
@@ -48,7 +48,7 @@ export default defineEventHandler(async (event) => {
   }
 
   try {
-    const client = useAsgardeoServerClient(event);
+    const client = AsgardeoNuxtClient.getInstance();
     return await client.getUser(sessionId);
   } catch {
     throw createError({statusCode: 500, statusMessage: 'Failed to retrieve user information.'});

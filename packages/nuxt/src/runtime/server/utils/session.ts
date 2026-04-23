@@ -53,6 +53,12 @@ export async function createSessionToken(
     scopes: string;
     organizationId?: string;
     expirySeconds?: number;
+    /** Unix timestamp (seconds) when the access token expires. */
+    accessTokenExpiresAt?: number;
+    /** Refresh token for silent re-auth. */
+    refreshToken?: string;
+    /** Raw ID token string. */
+    idToken?: string;
   },
   sessionSecret?: string,
 ): Promise<string> {
@@ -63,6 +69,9 @@ export async function createSessionToken(
     scopes: params.scopes,
     sessionId: params.sessionId,
     organizationId: params.organizationId,
+    accessTokenExpiresAt: params.accessTokenExpiresAt,
+    refreshToken: params.refreshToken,
+    idToken: params.idToken,
     type: 'session',
   } as Omit<AsgardeoSessionPayload, 'sub' | 'iat' | 'exp'>)
     .setProtectedHeader({alg: 'HS256'})

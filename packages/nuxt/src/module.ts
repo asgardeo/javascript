@@ -132,19 +132,28 @@ export default defineNuxtModule<AsgardeoNuxtConfig>({
     addImports([
       // Core auth composable (Nuxt-specific wrapper around @asgardeo/vue)
       {name: 'useAsgardeo', from: resolve('./runtime/composables/useAsgardeo')},
-      // Composables from @asgardeo/vue (re-exported through local wrappers)
-      {name: 'useUser',         from: resolve('./runtime/composables/useUser')},
-      {name: 'useOrganization', from: resolve('./runtime/composables/useOrganization')},
-      {name: 'useFlow',         from: resolve('./runtime/composables/useFlow')},
-      {name: 'useTheme',        from: resolve('./runtime/composables/useTheme')},
-      {name: 'useBranding',     from: resolve('./runtime/composables/useBranding')},
-      // useI18n aliased to avoid collision with @nuxtjs/i18n
-      {name: 'useAsgardeoI18n', from: resolve('./runtime/composables/useAsgardeoI18n')},
+      // Composables from @asgardeo/vue — auto-imported directly, no local wrappers
+      {name: 'useUser',         from: '@asgardeo/vue'},
+      {name: 'useOrganization', from: '@asgardeo/vue'},
+      {name: 'useFlow',         from: '@asgardeo/vue'},
+      {name: 'useTheme',        from: '@asgardeo/vue'},
+      {name: 'useBranding',     from: '@asgardeo/vue'},
+      // useI18n aliased to `useAsgardeoI18n` to avoid collision with @nuxtjs/i18n
+      {name: 'useI18n', as: 'useAsgardeoI18n', from: '@asgardeo/vue'},
       // Middleware factory
-      {name: 'defineAsgardeoMiddleware', from: resolve('./runtime/composables/defineAsgardeoMiddleware')},
+      {name: 'defineAsgardeoMiddleware', from: resolve('./runtime/middleware/defineAsgardeoMiddleware')},
       // Utilities
       {name: 'createRouteMatcher', from: resolve('./runtime/utils/createRouteMatcher')},
     ]);
+
+    // Register the Nuxt-specific root component that mounts the full Vue
+    // provider tree (I18nProvider, BrandingProvider, ThemeProvider, etc.).
+    // Users wrap their `app.vue` with `<AsgardeoRoot>` — matching the way
+    // Next.js users wrap their app with `<AsgardeoServerProvider>`.
+    addComponent({
+      filePath: resolve('./runtime/components/AsgardeoRoot'),
+      name: 'AsgardeoRoot',
+    });
 
     // Auto-register @asgardeo/vue components with `Asgardeo` prefix.
     // The prefix avoids collisions with user-defined components and matches
@@ -197,8 +206,12 @@ export default defineNuxtModule<AsgardeoNuxtConfig>({
           from: resolve('./runtime/server/utils/serverSession'),
         },
         {
-          name: 'useAsgardeoServerClient',
-          from: resolve('./runtime/server/utils/client'),
+          name: 'AsgardeoNuxtClient',
+          from: resolve('./runtime/server/utils/AsgardeoNuxtClient'),
+        },
+        {
+          name: 'getValidAccessToken',
+          from: resolve('./runtime/server/utils/token-refresh'),
         },
       );
     });

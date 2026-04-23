@@ -48,6 +48,12 @@ export interface AsgardeoSessionPayload extends JWTPayload {
   accessToken: string;
   scopes: string;
   organizationId?: string;
+  /** Unix timestamp (seconds) when the access token expires. Used for proactive refresh. */
+  accessTokenExpiresAt?: number;
+  /** Refresh token for obtaining new access tokens without re-authentication. */
+  refreshToken?: string;
+  /** Raw ID token string (for userinfo derivation without in-memory store). */
+  idToken?: string;
   iat: number;
   exp: number;
 }

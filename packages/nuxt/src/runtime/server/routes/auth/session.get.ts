@@ -17,7 +17,7 @@
  */
 
 import {defineEventHandler, getCookie} from 'h3';
-import {useAsgardeoServerClient} from '../../utils/client';
+import AsgardeoNuxtClient from '../../AsgardeoNuxtClient';
 import {
   verifySessionToken,
   getSessionCookieName,
@@ -42,7 +42,7 @@ export default defineEventHandler(async (event): Promise<AsgardeoAuthState> => {
 
   try {
     const session = await verifySessionToken(sessionCookie, sessionSecret);
-    const client = useAsgardeoServerClient(event);
+    const client = AsgardeoNuxtClient.getInstance();
     const user = await client.getUser(session.sessionId);
 
     return {isSignedIn: true, user, isLoading: false};

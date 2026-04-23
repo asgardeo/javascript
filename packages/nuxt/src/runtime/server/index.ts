@@ -29,7 +29,8 @@
  */
 
 export {useServerSession, requireServerSession} from './utils/serverSession';
-export {useAsgardeoServerClient, resolveCallbackUrl} from './utils/client';
+export {default as AsgardeoNuxtClient} from './AsgardeoNuxtClient';
+export {getValidAccessToken} from './utils/token-refresh';
 export {
   createSessionToken,
   createTempSessionToken,

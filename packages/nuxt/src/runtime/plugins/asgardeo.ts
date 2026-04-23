@@ -18,19 +18,8 @@
 
 import {defineNuxtPlugin, useState, useRequestEvent, useRuntimeConfig, navigateTo} from '#app';
 import {computed, readonly, ref} from 'vue';
-import {
-  AsgardeoPlugin,
-  ASGARDEO_KEY,
-  USER_KEY,
-  ORGANIZATION_KEY,
-  THEME_KEY,
-  BRANDING_KEY,
-  I18N_KEY,
-  FLOW_KEY,
-  FLOW_META_KEY,
-  type FlowMessage,
-} from '@asgardeo/vue';
-import type {Organization, Theme} from '@asgardeo/browser';
+import {AsgardeoPlugin, ASGARDEO_KEY} from '@asgardeo/vue';
+import AsgardeoRoot from '../components/AsgardeoRoot';
 import type {AsgardeoAuthState} from '../types';
 
 // Import H3 augmentation so event.context.asgardeo is typed
@@ -38,15 +27,23 @@ import '../types/augments.d';
 
 /**
  * Universal Nuxt plugin (runs on both server and client) that wires up the
- * Asgardeo Vue SDK in delegated mode.
+ * Asgardeo Vue SDK.
  *
- * Responsibilities:
- *  1. Hydrate `useState('asgardeo:auth')` from the SSR Nitro plugin context.
- *  2. Provide all Vue injection keys (ASGARDEO_KEY, USER_KEY, …) at the app
- *     level so that every `@asgardeo/vue` composable and component works
- *     without requiring `<AsgardeoProvider>` in user markup.
- *  3. Install AsgardeoPlugin in 'delegated' mode (styles are skipped server-
- *     side; components are registered via addComponent in module.ts).
+ * Responsibilities — mirrors the split between `AsgardeoServerProvider` and
+ * `AsgardeoClientProvider` in the Next.js SDK:
+ *
+ *  1. **Auth state** — hydrate `useState('asgardeo:auth')` from the Nitro
+ *     plugin's `event.context.asgardeo` so SSR and client agree on signed-in
+ *     status and the user object.
+ *  2. **ASGARDEO_KEY** — provide the primary auth context at the app level.
+ *     Action helpers (`signIn` / `signOut` / `signUp`) use Nuxt's
+ *     `navigateTo` so redirects work on both server and client.
+ *  3. **AsgardeoRoot** — register the wrapper component that mounts the rest
+ *     of the provider tree (`I18nProvider`, `BrandingProvider`,
+ *     `ThemeProvider`, `FlowProvider`, `UserProvider`, `OrganizationProvider`)
+ *     so downstream composables receive real context values.
+ *  4. **AsgardeoPlugin (delegated)** — install the Vue SDK plugin in
+ *     delegated mode so it skips browser-only initialisation (SSR-safe).
  */
 export default defineNuxtPlugin((nuxtApp) => {
   const publicConfig = useRuntimeConfig().public.asgardeo as {
@@ -78,7 +75,6 @@ export default defineNuxtPlugin((nuxtApp) => {
         isLoading: false,
       };
     } else {
-      // Fallback for backward compat during migration
       const legacyAuth = event?.context?.['__asgardeoAuth'] as AsgardeoAuthState | undefined;
       authState.value = legacyAuth ?? {isSignedIn: false, user: null, isLoading: false};
     }
@@ -88,14 +84,14 @@ export default defineNuxtPlugin((nuxtApp) => {
     authState.value = {...authState.value, isLoading: false};
   }
 
-  // ── 2. Build reactive refs from auth state ──────────────────────────────
+  // ── 2. Reactive refs over auth state ────────────────────────────────────
   const isSignedIn = computed(() => authState.value.isSignedIn);
   const isLoading = computed(() => authState.value.isLoading);
   const isInitialized = computed(() => !authState.value.isLoading);
   const user = computed(() => authState.value.user ?? null);
-  const organizationRef = readonly(ref<null>(null));
+  const organizationRef = readonly(ref(null));
 
-  // ── 3. Action helpers ───────────────────────────────────────────────────
+  // ── 3. Action helpers (Nuxt-aware navigation) ───────────────────────────
   const signIn = async (options?: Record<string, unknown>): Promise<void> => {
     const returnTo = typeof options?.['returnTo'] === 'string' ? options['returnTo'] : undefined;
     const url = returnTo ? `/api/auth/signin?returnTo=${encodeURIComponent(returnTo)}` : '/api/auth/signin';
@@ -121,7 +117,7 @@ export default defineNuxtPlugin((nuxtApp) => {
 
   const noop = async (): Promise<any> => undefined;
 
-  // ── 4. Provide ASGARDEO_KEY ─────────────────────────────────────────────
+  // ── 4. Provide ASGARDEO_KEY at the app level ────────────────────────────
   nuxtApp.vueApp.provide(ASGARDEO_KEY, {
     // Config
     afterSignInUrl: publicConfig.afterSignInUrl,
@@ -156,150 +152,7 @@ export default defineNuxtPlugin((nuxtApp) => {
     switchOrganization: noop,
   });
 
-  // ── 5. Provide USER_KEY ─────────────────────────────────────────────────
-  const userProfile = readonly(ref<null>(null));
-  const userSchemas = readonly(ref<null>(null));
-
-  nuxtApp.vueApp.provide(USER_KEY, {
-    flattenedProfile: user,
-    profile: userProfile,
-    revalidateProfile: async (): Promise<void> => {
-      try {
-        const data = await $fetch<AsgardeoAuthState>('/api/auth/session');
-        authState.value = data;
-      } catch {
-        /* ignore */
-      }
-    },
-    schemas: userSchemas,
-    updateProfile: async (): Promise<{data: {user: any}; error: string; success: boolean}> => ({
-      data: {user: null},
-      error: 'Not implemented in Phase 1',
-      success: false,
-    }),
-  });
-
-  // ── 6. Provide ORGANIZATION_KEY ─────────────────────────────────────────
-  const orgLoading = readonly(ref(false));
-  const orgError = readonly(ref<string | null>(null));
-  const orgList = ref<Organization[]>([]);
-  const currentOrg = readonly(ref<Organization | null>(null));
-
-  nuxtApp.vueApp.provide(ORGANIZATION_KEY, {
-    createOrganization: noop,
-    currentOrganization: currentOrg,
-    error: orgError,
-    getAllOrganizations: async () => ({count: 0, organizations: []}),
-    isLoading: orgLoading,
-    myOrganizations: orgList,
-    revalidateMyOrganizations: async () => [],
-    switchOrganization: noop,
-  });
-
-  // ── 7. Provide THEME_KEY ────────────────────────────────────────────────
-  const colorScheme = readonly(ref<'light' | 'dark'>('light'));
-  const direction = readonly(ref<'ltr' | 'rtl'>('ltr'));
-  const brandingError = readonly(ref<null>(null));
-  // Provide a minimal default theme object that styled components can consume
-  const defaultTheme = {colors: {}, fontFamily: ''} as unknown as Theme;
-  const themeRef = readonly(ref<Theme>(defaultTheme));
-
-  nuxtApp.vueApp.provide(THEME_KEY, {
-    brandingError,
-    colorScheme,
-    direction,
-    inheritFromBranding: false,
-    isBrandingLoading: readonly(ref(false)),
-    theme: themeRef,
-    toggleTheme: (): void => {
-      /* noop in Phase 1 */
-    },
-  });
-
-  // ── 8. Provide BRANDING_KEY ─────────────────────────────────────────────
-  nuxtApp.vueApp.provide(BRANDING_KEY, {
-    activeTheme: readonly(ref<null>(null)),
-    brandingPreference: readonly(ref<null>(null)),
-    error: readonly(ref<null>(null)),
-    fetchBranding: noop,
-    isLoading: readonly(ref(false)),
-    refetch: noop,
-    theme: readonly(ref<null>(null)),
-  });
-
-  // ── 9. Provide I18N_KEY ─────────────────────────────────────────────────
-  nuxtApp.vueApp.provide(I18N_KEY, {
-    bundles: readonly(ref({})),
-    currentLanguage: readonly(ref('en-US')),
-    fallbackLanguage: 'en-US',
-    injectBundles: (): void => {
-      /* noop */
-    },
-    setLanguage: (): void => {
-      /* noop */
-    },
-    t: (key: string): string => key,
-  });
-
-  // ── 10. Provide FLOW_KEY ────────────────────────────────────────────────
-  nuxtApp.vueApp.provide(FLOW_KEY, {
-    addMessage: (): void => {
-      /* noop */
-    },
-    clearMessages: (): void => {
-      /* noop */
-    },
-    currentStep: readonly(ref(null)),
-    error: readonly(ref<null>(null)),
-    isLoading: readonly(ref(false)),
-    messages: ref<FlowMessage[]>([]),
-    navigateToFlow: (): void => {
-      /* noop */
-    },
-    onGoBack: readonly(ref(undefined)),
-    removeMessage: (): void => {
-      /* noop */
-    },
-    reset: (): void => {
-      /* noop */
-    },
-    setCurrentStep: (): void => {
-      /* noop */
-    },
-    setError: (): void => {
-      /* noop */
-    },
-    setIsLoading: (): void => {
-      /* noop */
-    },
-    setOnGoBack: (): void => {
-      /* noop */
-    },
-    setShowBackButton: (): void => {
-      /* noop */
-    },
-    setSubtitle: (): void => {
-      /* noop */
-    },
-    setTitle: (): void => {
-      /* noop */
-    },
-    showBackButton: readonly(ref(false)),
-    subtitle: readonly(ref(undefined)),
-    title: readonly(ref('')),
-  });
-
-  // ── 11. Provide FLOW_META_KEY ───────────────────────────────────────────
-  nuxtApp.vueApp.provide(FLOW_META_KEY, {
-    error: readonly(ref<null>(null)),
-    fetchFlowMeta: noop,
-    isLoading: readonly(ref(false)),
-    meta: readonly(ref(null)),
-    switchLanguage: noop,
-  });
-
-  // ── 12. Install AsgardeoPlugin in delegated mode ────────────────────────
-  // This is a no-op (mode:'delegated') but documents the intent.
-  // Components are registered individually via addComponent in module.ts.
+  // ── 5. Register AsgardeoRoot + install Vue plugin in delegated mode ─────
+  nuxtApp.vueApp.component('AsgardeoRoot', AsgardeoRoot);
   nuxtApp.vueApp.use(AsgardeoPlugin, {mode: 'delegated'});
 });

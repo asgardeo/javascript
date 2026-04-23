@@ -16,9 +16,10 @@
  * under the License.
  */
 
-import {getCookie} from 'h3';
+import {getCookie, getRequestURL, type H3Event} from 'h3';
 import {defineNitroPlugin} from 'nitropack/runtime';
-import {useAsgardeoServerClient} from '../utils/client';
+import {useRuntimeConfig} from '#imports';
+import AsgardeoNuxtClient from '../AsgardeoNuxtClient';
 import {
   verifySessionToken,
   getSessionCookieName,
@@ -31,16 +32,59 @@ import '../../types/augments.d';
 
 const log = createLogger('auth-state');
 
+const CALLBACK_PATH = '/api/auth/callback';
+
 /**
- * Nitro server plugin that resolves auth state during SSR.
- * Sets the typed `event.context.asgardeo` so the Nuxt client plugin
- * can hydrate it into `useState('asgardeo:auth')`.
+ * Build the OAuth redirect_uri from the incoming request origin.
+ * Honors X-Forwarded-* headers so it works correctly behind a reverse proxy.
+ */
+function resolveCallbackUrl(event: H3Event): string {
+  const url = getRequestURL(event, {xForwardedHost: true, xForwardedProto: true});
+  return `${url.origin}${CALLBACK_PATH}`;
+}
+
+/**
+ * Nitro server plugin that:
+ * 1. Initializes the singleton {@link AsgardeoNuxtClient} on the first request.
+ *    Mirrors how `AsgardeoServerProvider` initializes the Next.js singleton.
+ * 2. Resolves auth state during SSR and exposes it on `event.context.asgardeo`
+ *    so the Nuxt client plugin can hydrate it into `useState('asgardeo:auth')`.
  */
 export default defineNitroPlugin((nitro) => {
   nitro.hooks.hook('request', async (event) => {
-    // Only process page requests (skip API routes and Nuxt internals)
+    // Initialize the singleton on first request (idempotent).
+    const client = AsgardeoNuxtClient.getInstance();
+    if (!client.isInitialized) {
+      const config = useRuntimeConfig(event);
+      const publicConfig = config.public.asgardeo;
+      const privateConfig = config.asgardeo;
+
+      if (!publicConfig?.baseUrl || !publicConfig?.clientId) {
+        log.error(
+          'Missing required config: baseUrl and clientId. ' +
+          'Set NUXT_PUBLIC_ASGARDEO_BASE_URL and NUXT_PUBLIC_ASGARDEO_CLIENT_ID.',
+        );
+        return;
+      }
+
+      try {
+        await client.initialize({
+          baseUrl: publicConfig.baseUrl,
+          clientId: publicConfig.clientId,
+          clientSecret: privateConfig?.clientSecret || undefined,
+          afterSignInUrl: resolveCallbackUrl(event),
+          afterSignOutUrl: publicConfig.afterSignOutUrl || '/',
+          scopes: publicConfig.scopes || ['openid', 'profile'],
+        });
+      } catch (err) {
+        log.error('Failed to initialize Asgardeo client:', err);
+        return;
+      }
+    }
+
+    // Skip auth-state resolution for API routes and Nuxt internals.
     const url = event.path || '';
-    if (url.startsWith('/api/') || url.startsWith('/_nuxt/')) {
+    if (url.startsWith('/api/auth/') || url.startsWith('/_nuxt/')) {
       return;
     }
 
@@ -53,27 +97,22 @@ export default defineNitroPlugin((nitro) => {
     try {
       const sessionCookie = getCookie(event, getSessionCookieName());
       if (sessionCookie) {
-        // Read session secret from environment directly (runtime config not available in Nitro plugins)
         const sessionSecret = process.env['ASGARDEO_SESSION_SECRET'];
         const session = await verifySessionToken(sessionCookie, sessionSecret);
-        const client = useAsgardeoServerClient(event);
         const user = await client.getUser(session.sessionId);
 
         authState.isSignedIn = true;
         authState.user = user;
 
-        // Populate typed context (no more `as any`)
         event.context.asgardeo = {session, isSignedIn: true};
       } else {
         event.context.asgardeo = {session: null, isSignedIn: false};
       }
     } catch (err) {
-      // Session invalid or expired — leave as unauthenticated
       log.debug('Auth state resolution failed, treating as unauthenticated:', err);
       event.context.asgardeo = {session: null, isSignedIn: false};
     }
 
-    // Keep the legacy key populated for backward compat during migration
     event.context['__asgardeoAuth'] = authState;
   });
 });

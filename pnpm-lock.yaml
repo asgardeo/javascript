@@ -443,6 +443,9 @@ importers:
       eslint:
         specifier: 8.57.0
         version: 8.57.0
+      h3:
+        specifier: 1.15.11
+        version: 1.15.11
       nuxt:
         specifier: 3.16.2
         version: 3.16.2(@parcel/watcher@2.5.6)(@types/node@22.13.4)(cac@6.7.14)(db0@0.3.4)(eslint@8.57.0)(ioredis@5.10.1)(lightningcss@1.32.0)(magicast@0.5.2)(optionator@0.9.4)(rollup@4.50.0)(sass-embedded@1.92.1)(sass@1.92.1)(srvx@0.11.15)(terser@5.39.2)(tsx@4.21.0)(typescript@5.8.3)(vite@7.3.1(@types/node@22.13.4)(jiti@2.6.1)(lightningcss@1.32.0)(sass-embedded@1.92.1)(sass@1.92.1)(terser@5.39.2)(tsx@4.21.0)(yaml@2.8.3))(vue-tsc@2.2.8(typescript@5.8.3))(yaml@2.8.3)

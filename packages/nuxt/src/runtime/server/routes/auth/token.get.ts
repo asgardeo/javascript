@@ -16,42 +16,19 @@
  * under the License.
  */
 
-import {defineEventHandler, getCookie, createError} from 'h3';
-import {useAsgardeoServerClient} from '../../utils/client';
-import {
-  verifySessionToken,
-  getSessionCookieName,
-} from '../../utils/session';
-import {useRuntimeConfig} from '#imports';
+import {defineEventHandler} from 'h3';
+import {getValidAccessToken} from '../../utils/token-refresh';
 
 /**
  * GET /api/auth/token
  *
- * Returns the current access token.
- * Requires a valid session.
+ * Returns a valid access token for the current session.
+ * Proactively refreshes the token if it is within 60 seconds of expiry
+ * (requires a refresh token stored in the session JWT).
+ * Returns 401 if there is no active session or the token cannot be refreshed.
  */
 export default defineEventHandler(async (event) => {
-  const config = useRuntimeConfig();
-  const sessionSecret = config.asgardeo?.sessionSecret;
-
-  const sessionCookie = getCookie(event, getSessionCookieName());
-  if (!sessionCookie) {
-    throw createError({statusCode: 401, statusMessage: 'Unauthorized: No active session.'});
-  }
-
-  let sessionId: string;
-  try {
-    const session = await verifySessionToken(sessionCookie, sessionSecret);
-    sessionId = session.sessionId;
-  } catch {
-    throw createError({statusCode: 401, statusMessage: 'Unauthorized: Invalid or expired session.'});
-  }
-
-  try {
-    const client = useAsgardeoServerClient(event);
-    const accessToken = await client.getAccessToken(sessionId);
-    return {accessToken};
-  } catch {
-    throw createError({statusCode: 500, statusMessage: 'Failed to retrieve access token.'});
-  }
+  const accessToken = await getValidAccessToken(event);
+  return {accessToken};
 });
+
