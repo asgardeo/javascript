@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import type {AsgardeoSessionPayload} from './types';
+import type {AsgardeoSessionPayload, AsgardeoSSRData} from './types';
 
 /**
  * Nuxt schema augmentation — adds `asgardeo` to NuxtConfig / NuxtOptions
@@ -47,6 +47,13 @@ declare module 'h3' {
     asgardeo?: {
       session: AsgardeoSessionPayload | null;
       isSignedIn: boolean;
+      /**
+       * Rich SSR payload populated by the Nitro `asgardeo-ssr` plugin.
+       * Contains the user, userProfile, organisations, and branding data
+       * resolved on the server and seeded into `useState` keys for
+       * zero-cost client hydration.
+       */
+      ssr?: AsgardeoSSRData;
     };
   }
 }

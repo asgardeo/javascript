@@ -17,10 +17,11 @@
  */
 
 import {defineNuxtPlugin, useState, useRequestEvent, useRuntimeConfig, navigateTo} from '#app';
-import {computed, readonly, ref} from 'vue';
+import {computed} from 'vue';
 import {AsgardeoPlugin, ASGARDEO_KEY} from '@asgardeo/vue';
 import AsgardeoRoot from '../components/AsgardeoRoot';
 import type {AsgardeoAuthState} from '../types';
+import type {BrandingPreference, Organization, UserProfile} from '@asgardeo/node';
 
 // Import H3 augmentation so event.context.asgardeo is typed
 import '../types/augments.d';
@@ -58,25 +59,63 @@ export default defineNuxtPlugin((nuxtApp) => {
     applicationId?: string;
   };
 
-  // ── 1. Hydrate auth state ───────────────────────────────────────────────
+  // Surface misconfiguration in the browser dev console only. The server
+  // counterpart is handled by the asgardeo-ssr Nitro plugin; doing both
+  // covers the two places a developer will actually look.
+  if (import.meta.client && import.meta.dev) {
+    if (!publicConfig?.baseUrl || !publicConfig?.clientId) {
+      // eslint-disable-next-line no-console
+      console.warn(
+        '[@asgardeo/nuxt] Missing baseUrl or clientId. ' +
+        'Set NUXT_PUBLIC_ASGARDEO_BASE_URL and NUXT_PUBLIC_ASGARDEO_CLIENT_ID, ' +
+        'or configure `asgardeo` in nuxt.config. Auth endpoints will not function until this is resolved.',
+      );
+    }
+  }
+
+  // ── 1. Hydrate auth state family ────────────────────────────────────────
+  //  Each key is written on the server inside `if (import.meta.server)` so
+  //  Nuxt snapshots the values into the `__NUXT__` payload and the client
+  //  hydrates automatically — no extra fetch needed.
+
   const authState = useState<AsgardeoAuthState>('asgardeo:auth', () => ({
     isSignedIn: false,
     user: null,
     isLoading: true,
   }));
+  const userProfileState = useState<UserProfile | null>('asgardeo:user-profile', () => null);
+  const currentOrgState = useState<Organization | null>('asgardeo:current-org', () => null);
+  const myOrgsState = useState<Organization[]>('asgardeo:my-orgs', () => []);
+  const brandingState = useState<BrandingPreference | null>('asgardeo:branding', () => null);
 
   if (import.meta.server) {
     const event = useRequestEvent();
-    const ssrContext = event?.context?.asgardeo;
-    if (ssrContext) {
+    const ssr = event?.context?.asgardeo?.ssr;
+
+    if (ssr) {
+      // Seed from the rich SSR payload written by the asgardeo-ssr Nitro plugin.
       authState.value = {
-        isSignedIn: ssrContext.isSignedIn,
-        user: ssrContext.session?.sub ? ({sub: ssrContext.session.sub} as AsgardeoAuthState['user']) : null,
+        isSignedIn: ssr.isSignedIn,
+        user: ssr.user,
         isLoading: false,
       };
+      userProfileState.value = ssr.userProfile;
+      currentOrgState.value = ssr.currentOrganization;
+      myOrgsState.value = ssr.myOrganizations;
+      brandingState.value = ssr.brandingPreference;
     } else {
-      const legacyAuth = event?.context?.['__asgardeoAuth'] as AsgardeoAuthState | undefined;
-      authState.value = legacyAuth ?? {isSignedIn: false, user: null, isLoading: false};
+      // Backwards-compat: fall back to the legacy context shape (pre-Step-2 plugin).
+      const ssrContext = event?.context?.asgardeo;
+      if (ssrContext) {
+        authState.value = {
+          isSignedIn: ssrContext.isSignedIn,
+          user: ssrContext.session?.sub ? ({sub: ssrContext.session.sub} as AsgardeoAuthState['user']) : null,
+          isLoading: false,
+        };
+      } else {
+        const legacyAuth = event?.context?.['__asgardeoAuth'] as AsgardeoAuthState | undefined;
+        authState.value = legacyAuth ?? {isSignedIn: false, user: null, isLoading: false};
+      }
     }
   }
 
@@ -88,8 +127,12 @@ export default defineNuxtPlugin((nuxtApp) => {
   const isSignedIn = computed(() => authState.value.isSignedIn);
   const isLoading = computed(() => authState.value.isLoading);
   const isInitialized = computed(() => !authState.value.isLoading);
+  // `user` is backed by the dedicated state key so AsgardeoRoot can read it
+  // reactively without going through the ASGARDEO_KEY indirection.
   const user = computed(() => authState.value.user ?? null);
-  const organizationRef = readonly(ref(null));
+  // `organization` reflects the SSR-resolved current org (hydrated from
+  // 'asgardeo:current-org'). Kept readonly at the ASGARDEO_KEY level.
+  const organizationRef = computed(() => currentOrgState.value);
 
   // ── 3. Action helpers (Nuxt-aware navigation) ───────────────────────────
   const signIn = async (options?: Record<string, unknown>): Promise<void> => {

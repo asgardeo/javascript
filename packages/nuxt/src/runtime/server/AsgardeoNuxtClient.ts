@@ -21,10 +21,24 @@ import {
   LegacyAsgardeoNodeClient,
   type AuthClientConfig,
   type IdToken,
+  type Organization,
   type Storage,
   type TokenExchangeRequestConfig,
   type TokenResponse,
   type User,
+  type UserProfile,
+  type UpdateMeProfileConfig,
+  type AllOrganizationsApiResponse,
+  getBrandingPreference,
+  getMeOrganizations,
+  getAllOrganizations,
+  getScim2Me,
+  getSchemas,
+  flattenUserSchema,
+  generateFlattenedUserProfile,
+  updateMeProfile,
+  type GetBrandingPreferenceConfig,
+  type BrandingPreference,
 } from '@asgardeo/node';
 import type {AsgardeoNuxtConfig} from '../types';
 
@@ -151,7 +165,144 @@ class AsgardeoNuxtClient extends AsgardeoNodeClient<AsgardeoNuxtConfig> {
   ): Promise<TokenResponse | Response> {
     return this.legacy.exchangeToken(config, sessionId);
   }
+
+  /**
+   * Fetches the flattened SCIM2 user profile for the given session.
+   * Mirrors `AsgardeoNextClient.getUserProfile` — calls `getScim2Me` +
+   * `getSchemas` + `generateFlattenedUserProfile` and falls back to
+   * `getUser` claims if SCIM2 is unavailable.
+   */
+  override async getUserProfile(sessionId: string): Promise<UserProfile> {
+    const accessToken: string = await this.getAccessToken(sessionId);
+    const configData = await this.legacy.getConfigData?.() as (AuthClientConfig<AsgardeoNuxtConfig> | undefined);
+    const baseUrl: string = (configData?.baseUrl ?? '') as string;
+
+    try {
+      const authHeaders = {Authorization: `Bearer ${accessToken}`};
+
+      const [profile, schemas] = await Promise.all([
+        getScim2Me({baseUrl, headers: authHeaders}),
+        getSchemas({baseUrl, headers: authHeaders}),
+      ]);
+
+      const processedSchemas = flattenUserSchema(schemas);
+
+      return {
+        flattenedProfile: generateFlattenedUserProfile(profile, processedSchemas),
+        profile,
+        schemas: processedSchemas,
+      };
+    } catch {
+      // Fall back to user claims from the ID token
+      const user: User = await this.getUser(sessionId);
+      return {flattenedProfile: user, profile: user, schemas: []};
+    }
+  }
+
+  /**
+   * Extracts the current organisation from the decoded ID token.
+   * Returns null when the user is not acting within an organisation.
+   */
+  override async getCurrentOrganization(sessionId: string): Promise<Organization | null> {
+    try {
+      const idToken: IdToken = await this.getDecodedIdToken(sessionId);
+      if (!idToken?.org_id) {
+        return null;
+      }
+      return {
+        id: idToken.org_id as string,
+        name: (idToken.org_name ?? '') as string,
+        orgHandle: (idToken.org_handle ?? '') as string,
+      };
+    } catch {
+      return null;
+    }
+  }
+
+  /**
+   * Returns the list of organisations the authenticated user is a member of.
+   */
+  override async getMyOrganizations(sessionId: string): Promise<Organization[]> {
+    const accessToken: string = await this.getAccessToken(sessionId);
+    const configData = await this.legacy.getConfigData?.() as (AuthClientConfig<AsgardeoNuxtConfig> | undefined);
+    const baseUrl: string = (configData?.baseUrl ?? '') as string;
+
+    return getMeOrganizations({
+      baseUrl,
+      headers: {Authorization: `Bearer ${accessToken}`},
+    });
+  }
+
+  /**
+   * Fetches the branding preference for the tenant / application.
+   * Delegates to the standalone `getBrandingPreference` API helper from
+   * `@asgardeo/node`, which does not require an authenticated session.
+   */
+  async getBrandingPreference(config: GetBrandingPreferenceConfig): Promise<BrandingPreference> {
+    return getBrandingPreference(config);
+  }
+
+  /**
+   * Updates the SCIM2 /Me profile for the authenticated user.
+   * Mirrors `AsgardeoNextClient.updateUserProfile`.
+   */
+  override async updateUserProfile(payload: UpdateMeProfileConfig, sessionId: string): Promise<User> {
+    const accessToken: string = await this.getAccessToken(sessionId);
+    const configData = await this.legacy.getConfigData?.() as (AuthClientConfig<AsgardeoNuxtConfig> | undefined);
+    const baseUrl: string = (configData?.baseUrl ?? '') as string;
+
+    return updateMeProfile({
+      baseUrl,
+      headers: {Authorization: `Bearer ${accessToken}`},
+      payload,
+    });
+  }
+
+  /**
+   * Retrieves all organisations accessible to the authenticated user
+   * (paginated). Mirrors `AsgardeoNextClient.getAllOrganizations`.
+   */
+  override async getAllOrganizations(options?: any, sessionId?: string): Promise<AllOrganizationsApiResponse> {
+    const resolvedSessionId = sessionId ?? '';
+    const accessToken: string = await this.getAccessToken(resolvedSessionId);
+    const configData = await this.legacy.getConfigData?.() as (AuthClientConfig<AsgardeoNuxtConfig> | undefined);
+    const baseUrl: string = (configData?.baseUrl ?? '') as string;
+
+    return getAllOrganizations({
+      baseUrl,
+      headers: {Authorization: `Bearer ${accessToken}`},
+    });
+  }
+
+  /**
+   * Performs an organisation-switch token exchange and returns the new
+   * `TokenResponse`. The caller (the Nitro route) is responsible for
+   * persisting the new session cookie.
+   *
+   * Mirrors `AsgardeoNextClient.switchOrganization`.
+   */
+  override async switchOrganization(organization: Organization, sessionId: string): Promise<TokenResponse | Response> {
+    if (!organization.id) {
+      throw new Error('Organization ID is required for switching organizations.');
+    }
+
+    const exchangeConfig: TokenExchangeRequestConfig = {
+      attachToken: false,
+      data: {
+        client_id: '{{clientId}}',
+        client_secret: '{{clientSecret}}',
+        grant_type: 'organization_switch',
+        scope: '{{scopes}}',
+        switching_organization: organization.id,
+        token: '{{accessToken}}',
+      },
+      id: 'organization-switch',
+      returnsSession: true,
+      signInRequired: true,
+    };
+
+    return this.legacy.exchangeToken(exchangeConfig, sessionId);
+  }
 }
 
 export default AsgardeoNuxtClient;
-export {AsgardeoNuxtClient};
