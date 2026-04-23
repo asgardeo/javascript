@@ -40,7 +40,7 @@ import {
   type GetBrandingPreferenceConfig,
   type BrandingPreference,
 } from '@asgardeo/node';
-import type {AsgardeoNuxtConfig} from '../types';
+import type {AsgardeoNuxtConfig, AsgardeoSessionPayload} from '../types';
 
 /**
  * Singleton Asgardeo client for Nuxt applications.
@@ -115,6 +115,50 @@ class AsgardeoNuxtClient extends AsgardeoNodeClient<AsgardeoNuxtConfig> {
   override async reInitialize(config: Partial<AsgardeoNuxtConfig>): Promise<boolean> {
     await this.legacy.reInitialize(config as any);
     return true;
+  }
+
+  /**
+   * Seeds the legacy in-memory token store from a verified session JWT payload.
+   *
+   * The signed session cookie is the source of truth for tokens in this SDK — it
+   * survives server restarts and new worker processes. The underlying
+   * {@link LegacyAsgardeoNodeClient}, however, keeps tokens in a
+   * {@link MemoryCacheStore} keyed by `sessionId`, and its
+   * `getAccessToken` / `getUser` / `getDecodedIdToken` / `signOut` paths all
+   * read from that store. Without rehydration, those calls fail whenever the
+   * in-memory store and the cookie diverge (the classic case: `nuxi dev`
+   * restart while the browser still holds a valid session cookie).
+   *
+   * Writes the snake_case token shape the legacy helper expects
+   * (see `AuthenticationHelper.processTokenResponse`). Safe to call on every
+   * request — it's an in-memory write and the cookie always reflects the
+   * freshest tokens (the refresh path re-issues the cookie too).
+   */
+  async rehydrateSessionFromPayload(session: AsgardeoSessionPayload): Promise<void> {
+    if (!this.isInitialized || !session?.sessionId || !session?.accessToken) {
+      return;
+    }
+
+    const storageManager = await this.legacy.getStorageManager();
+    const iatSeconds: number = typeof session.iat === 'number' ? session.iat : Math.floor(Date.now() / 1000);
+    const expiresInSeconds: number =
+      typeof session.accessTokenExpiresAt === 'number'
+        ? Math.max(0, session.accessTokenExpiresAt - iatSeconds)
+        : 3600;
+
+    await storageManager.setSessionData(
+      {
+        access_token: session.accessToken,
+        id_token: session.idToken ?? '',
+        refresh_token: session.refreshToken ?? '',
+        scope: session.scopes ?? '',
+        expires_in: String(expiresInSeconds || 3600),
+        token_type: 'Bearer',
+        session_state: '',
+        created_at: iatSeconds * 1000,
+      },
+      session.sessionId,
+    );
   }
 
   /**

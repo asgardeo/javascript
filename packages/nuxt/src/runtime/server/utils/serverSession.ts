@@ -19,6 +19,7 @@
 import type {H3Event} from 'h3';
 import {getCookie, createError} from 'h3';
 import {verifySessionToken, getSessionCookieName} from './session';
+import AsgardeoNuxtClient from '../AsgardeoNuxtClient';
 import type {AsgardeoSessionPayload} from '../../types';
 import {useRuntimeConfig} from '#imports';
 
@@ -78,5 +79,42 @@ export async function requireServerSession(event: H3Event): Promise<AsgardeoSess
       statusMessage: 'Unauthorized: Authentication required.',
     });
   }
+  return session;
+}
+
+/**
+ * Verify the session cookie and rehydrate the legacy in-memory token store
+ * from its payload. Used internally by the SDK's SSR plugin and /api/auth/*
+ * routes so that subsequent calls which look up tokens by `sessionId`
+ * (`getAccessToken`, `getUser`, `getDecodedIdToken`, `signOut`) still succeed
+ * after a server restart, when the in-memory store is empty but the signed
+ * session cookie is still valid.
+ *
+ * Returns `null` for missing or invalid cookies — callers decide whether to
+ * 401 or silently treat the user as unauthenticated.
+ */
+export async function verifyAndRehydrateSession(
+  event: H3Event,
+  sessionSecret?: string,
+): Promise<AsgardeoSessionPayload | null> {
+  const sessionCookie = getCookie(event, getSessionCookieName());
+  if (!sessionCookie) {
+    return null;
+  }
+
+  let session: AsgardeoSessionPayload;
+  try {
+    session = await verifySessionToken(sessionCookie, sessionSecret);
+  } catch {
+    return null;
+  }
+
+  try {
+    await AsgardeoNuxtClient.getInstance().rehydrateSessionFromPayload(session);
+  } catch {
+    // Rehydration is best-effort: the cookie payload itself is still usable
+    // by callers that read tokens directly from `session`.
+  }
+
   return session;
 }

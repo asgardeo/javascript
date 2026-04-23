@@ -16,15 +16,15 @@
  * under the License.
  */
 
-import {defineEventHandler, getCookie, deleteCookie, sendRedirect} from 'h3';
+import {defineEventHandler, deleteCookie, sendRedirect} from 'h3';
 import AsgardeoNuxtClient from '../../AsgardeoNuxtClient';
 import {
-  verifySessionToken,
   getSessionCookieName,
   getSessionCookieOptions,
   getTempSessionCookieName,
   getTempSessionCookieOptions,
 } from '../../utils/session';
+import {verifyAndRehydrateSession} from '../../utils/serverSession';
 import {useRuntimeConfig} from '#imports';
 
 /**
@@ -45,26 +45,17 @@ export default defineEventHandler(async (event) => {
     deleteCookie(event, getTempSessionCookieName(), getTempSessionCookieOptions());
   };
 
-  // Try to get the session ID from the JWT cookie
-  const sessionCookie = getCookie(event, getSessionCookieName());
-  if (!sessionCookie) {
-    clearCookies();
-    return sendRedirect(event, publicConfig.afterSignOutUrl || '/', 302);
-  }
-
-  let sessionId: string;
-  try {
-    const session = await verifySessionToken(sessionCookie, sessionSecret);
-    sessionId = session.sessionId;
-  } catch {
-    // Invalid session — just clear cookies and redirect
+  // Decode + rehydrate so the legacy client can read the id_token from the
+  // in-memory store when building the RP-Initiated Logout URL.
+  const session = await verifyAndRehydrateSession(event, sessionSecret);
+  if (!session) {
     clearCookies();
     return sendRedirect(event, publicConfig.afterSignOutUrl || '/', 302);
   }
 
   try {
     const client = AsgardeoNuxtClient.getInstance();
-    const signOutUrl = await client.signOut(sessionId);
+    const signOutUrl = await client.signOut(session.sessionId);
 
     clearCookies();
 
