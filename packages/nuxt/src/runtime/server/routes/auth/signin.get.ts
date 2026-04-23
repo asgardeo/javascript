@@ -18,7 +18,7 @@
 
 import {generateSessionId} from '@asgardeo/node';
 import {defineEventHandler, getQuery, sendRedirect, setCookie, createError} from 'h3';
-import {useAsgardeoServerClient} from '../../utils/client';
+import AsgardeoNuxtClient from '../../AsgardeoNuxtClient';
 import {
   createTempSessionToken,
   getTempSessionCookieName,
@@ -37,7 +37,7 @@ import {useRuntimeConfig} from '#imports';
  * the user to a specific page after sign-in.
  */
 export default defineEventHandler(async (event) => {
-  const client = useAsgardeoServerClient(event);
+  const client = AsgardeoNuxtClient.getInstance();
   const config = useRuntimeConfig();
   const sessionSecret = config.asgardeo?.sessionSecret;
 

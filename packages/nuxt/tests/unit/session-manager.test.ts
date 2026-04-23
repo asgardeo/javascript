@@ -149,3 +149,96 @@ describe('createTempSessionToken / verifyTempSessionToken', () => {
     await expect(verifyTempSessionToken(parts.join('.'), TEST_SECRET)).rejects.toThrow();
   });
 });
+
+describe('createSessionToken — Phase 2 fields (accessTokenExpiresAt / refreshToken / idToken)', () => {
+  it('round-trips accessTokenExpiresAt', async () => {
+    const expiresAt = Math.floor(Date.now() / 1000) + 3600;
+    const token = await createSessionToken(
+      {
+        accessToken: 'at_p2',
+        userId: 'user-p2',
+        sessionId: 'sess-p2',
+        scopes: 'openid profile',
+        accessTokenExpiresAt: expiresAt,
+      },
+      TEST_SECRET,
+    );
+
+    const payload = await verifySessionToken(token, TEST_SECRET);
+    expect(payload.accessTokenExpiresAt).toBe(expiresAt);
+    expect(payload.refreshToken).toBeUndefined();
+    expect(payload.idToken).toBeUndefined();
+  });
+
+  it('round-trips refreshToken', async () => {
+    const token = await createSessionToken(
+      {
+        accessToken: 'at',
+        userId: 'u',
+        sessionId: 's',
+        scopes: 'openid',
+        refreshToken: 'rt_test_value',
+      },
+      TEST_SECRET,
+    );
+
+    const payload = await verifySessionToken(token, TEST_SECRET);
+    expect(payload.refreshToken).toBe('rt_test_value');
+  });
+
+  it('round-trips idToken', async () => {
+    const fakeIdToken = 'header.payload.signature';
+    const token = await createSessionToken(
+      {
+        accessToken: 'at',
+        userId: 'u',
+        sessionId: 's',
+        scopes: 'openid',
+        idToken: fakeIdToken,
+      },
+      TEST_SECRET,
+    );
+
+    const payload = await verifySessionToken(token, TEST_SECRET);
+    expect(payload.idToken).toBe(fakeIdToken);
+  });
+
+  it('round-trips all three Phase 2 fields together', async () => {
+    const expiresAt = Math.floor(Date.now() / 1000) + 1800;
+    const token = await createSessionToken(
+      {
+        accessToken: 'at_full',
+        userId: 'user-full',
+        sessionId: 'sess-full',
+        scopes: 'openid profile email',
+        organizationId: 'org-123',
+        accessTokenExpiresAt: expiresAt,
+        refreshToken: 'rt_full',
+        idToken: 'idt_full',
+      },
+      TEST_SECRET,
+    );
+
+    const payload = await verifySessionToken(token, TEST_SECRET);
+    expect(payload.accessToken).toBe('at_full');
+    expect(payload.sub).toBe('user-full');
+    expect(payload.sessionId).toBe('sess-full');
+    expect(payload.organizationId).toBe('org-123');
+    expect(payload.accessTokenExpiresAt).toBe(expiresAt);
+    expect(payload.refreshToken).toBe('rt_full');
+    expect(payload.idToken).toBe('idt_full');
+  });
+
+  it('omits Phase 2 fields when not provided (backward-compat)', async () => {
+    // Sessions created before Phase 2 have no new fields — they must still verify.
+    const token = await createSessionToken(
+      {accessToken: 'at', userId: 'u', sessionId: 's', scopes: 'openid'},
+      TEST_SECRET,
+    );
+
+    const payload = await verifySessionToken(token, TEST_SECRET);
+    expect(payload.accessTokenExpiresAt).toBeUndefined();
+    expect(payload.refreshToken).toBeUndefined();
+    expect(payload.idToken).toBeUndefined();
+  });
+});

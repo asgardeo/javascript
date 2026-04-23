@@ -17,7 +17,7 @@
  */
 
 import {defineEventHandler, getCookie, deleteCookie, sendRedirect} from 'h3';
-import {useAsgardeoServerClient} from '../../utils/client';
+import AsgardeoNuxtClient from '../../AsgardeoNuxtClient';
 import {
   verifySessionToken,
   getSessionCookieName,
@@ -63,7 +63,7 @@ export default defineEventHandler(async (event) => {
   }
 
   try {
-    const client = useAsgardeoServerClient(event);
+    const client = AsgardeoNuxtClient.getInstance();
     const signOutUrl = await client.signOut(sessionId);
 
     clearCookies();

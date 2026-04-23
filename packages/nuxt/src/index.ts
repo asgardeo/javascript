@@ -27,15 +27,19 @@ export type {
 } from './runtime/types';
 
 // ── Composables ────────────────────────────────────────────────────────────
+// The Nuxt-specific `useAsgardeo` layers navigation overrides over Vue's
+// `useAsgardeo`. The rest are re-exports of `@asgardeo/vue` composables —
+// their contexts are mounted by `<AsgardeoRoot>` (see runtime/components).
 export {useAsgardeo} from './runtime/composables/useAsgardeo';
-export {useUser}         from './runtime/composables/useUser';
-export {useOrganization} from './runtime/composables/useOrganization';
-export {useFlow}         from './runtime/composables/useFlow';
-export {useTheme}        from './runtime/composables/useTheme';
-export {useBranding}     from './runtime/composables/useBranding';
-export {useAsgardeoI18n} from './runtime/composables/useAsgardeoI18n';
-export {defineAsgardeoMiddleware} from './runtime/composables/defineAsgardeoMiddleware';
-export type {AsgardeoMiddlewareOptions} from './runtime/composables/defineAsgardeoMiddleware';
+export {useUser, useOrganization, useFlow, useTheme, useBranding} from '@asgardeo/vue';
+export {useI18n as useAsgardeoI18n} from '@asgardeo/vue';
+
+// ── Components ─────────────────────────────────────────────────────────────
+export {default as AsgardeoRoot} from './runtime/components/AsgardeoRoot';
+
+// ── Middleware ─────────────────────────────────────────────────────────────
+export {defineAsgardeoMiddleware} from './runtime/middleware/defineAsgardeoMiddleware';
+export type {AsgardeoMiddlewareOptions} from './runtime/middleware/defineAsgardeoMiddleware';
 
 // ── Composable types (re-exported from @asgardeo/vue) ─────────────────────
 export type {

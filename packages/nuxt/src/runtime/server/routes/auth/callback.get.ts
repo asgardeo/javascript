@@ -18,7 +18,7 @@
 
 import type {IdToken, TokenResponse} from '@asgardeo/node';
 import {defineEventHandler, getQuery, getCookie, setCookie, deleteCookie, sendRedirect, createError} from 'h3';
-import {useAsgardeoServerClient} from '../../utils/client';
+import AsgardeoNuxtClient from '../../AsgardeoNuxtClient';
 import {
   createSessionToken,
   verifyTempSessionToken,
@@ -86,9 +86,7 @@ export default defineEventHandler(async (event) => {
   }
 
   // Exchange authorization code for tokens using the Node SDK.
-  // Pass the event so the client's redirect_uri matches the one used at
-  // sign-in — OAuth requires a byte-for-byte match.
-  const client = useAsgardeoServerClient(event);
+  const client = AsgardeoNuxtClient.getInstance();
 
   let tokenResponse: TokenResponse;
   try {
@@ -126,6 +124,10 @@ export default defineEventHandler(async (event) => {
     const scopes = tokenResponse.scope || '';
     const organizationId = (idToken['user_org'] || idToken['organization_id']) as string | undefined;
 
+    // Compute absolute expiry from the token response's expires_in (a string per the SDK type).
+    const expiresInSeconds = parseInt(tokenResponse.expiresIn ?? '3600', 10);
+    const accessTokenExpiresAt = Math.floor(Date.now() / 1000) + (Number.isFinite(expiresInSeconds) ? expiresInSeconds : 3600);
+
     const sessionToken = await createSessionToken(
       {
         accessToken,
@@ -133,6 +135,9 @@ export default defineEventHandler(async (event) => {
         sessionId,
         scopes,
         organizationId,
+        accessTokenExpiresAt,
+        refreshToken: tokenResponse.refreshToken || undefined,
+        idToken: tokenResponse.idToken || undefined,
       },
       sessionSecret,
     );
