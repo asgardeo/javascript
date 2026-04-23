@@ -1,0 +1,39 @@
+/*──────────────────────────────────────────────────────────
+  main.css — nuxtjs-sdk-playground
+
+  Entry point for all styles.
+  Import order matters: tokens → themes → tailwind → base overrides.
+  PostCSS runs @import resolution first, then Tailwind's directives.
+──────────────────────────────────────────────────────────*/
+
+@import './tokens.css';
+@import './themes/orange.css';
+@import './themes/blue.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── Base overrides ── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  /* default to orange theme, light mode */
+  --_init: '';
+}
+
+body {
+  min-height: 100vh;
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-sans);
+  font-size: 15px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  transition: color 0.2s ease, background-color 0.2s ease;
+}
