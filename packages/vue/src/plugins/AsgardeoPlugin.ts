@@ -74,13 +74,14 @@ export interface AsgardeoPluginOptions {
  */
 const AsgardeoPlugin: Plugin<AsgardeoPluginOptions | undefined> = {
   install(app: App, options?: AsgardeoPluginOptions): void {
+    injectStyles();
+
     if (options?.mode === 'delegated') {
       // In delegated mode the host framework is responsible for providing all
-      // injection context (ASGARDEO_KEY, USER_KEY, …) via app.provide().
-      // We skip browser-only initialisation so the plugin is SSR-safe.
+      // injection context (ASGARDEO_KEY, USER_KEY, …) via app.provide() and
+      // for registering its own root component.
       return;
     }
-    injectStyles();
     app.component('AsgardeoProvider', AsgardeoProvider);
   },
 };
