@@ -16,8 +16,7 @@
  * License.
  */
 
-import {defineNuxtRouteMiddleware, navigateTo} from '#app';
-import {useState} from '#app';
+import {defineNuxtRouteMiddleware, navigateTo, useState} from '#app';
 import type {AsgardeoAuthState} from '../types';
 
 export interface AsgardeoMiddlewareOptions {
@@ -38,6 +37,8 @@ export interface AsgardeoMiddlewareOptions {
   redirectTo?: string;
 }
 
+const DEFAULT_REDIRECT_TO = '/api/auth/signin';
+
 /**
  * Typed factory for Asgardeo route middleware.
  *
@@ -51,33 +52,31 @@ export interface AsgardeoMiddlewareOptions {
  * ```
  *
  * Or add it as a named middleware in `middleware/` and reference by name.
+ *
+ * The built-in `'auth'` middleware registered by this module is equivalent
+ * to calling `defineAsgardeoMiddleware()` with no options.
  */
 export function defineAsgardeoMiddleware(options: AsgardeoMiddlewareOptions = {}) {
-  const {redirectTo = '/api/auth/signin', requireOrganization = false, requireScopes = []} = options;
+  const {redirectTo = DEFAULT_REDIRECT_TO, requireOrganization = false, requireScopes = []} = options;
 
-  return defineNuxtRouteMiddleware(async (to) => {
+  return defineNuxtRouteMiddleware((to) => {
     const authState = useState<AsgardeoAuthState>('asgardeo:auth');
 
-    // Not signed in → redirect
-    if (!authState.value.isSignedIn) {
+    if (!authState.value?.isSignedIn) {
       const returnTo = encodeURIComponent(to.fullPath);
       return navigateTo(`${redirectTo}?returnTo=${returnTo}`, {external: true});
     }
 
-    // Organization required but missing
-    if (requireOrganization) {
-      const user = authState.value.user as Record<string, unknown> | null;
-      if (!user?.['organizationId']) {
-        return navigateTo(redirectTo, {external: true});
-      }
+    const user = authState.value.user as Record<string, unknown> | null;
+
+    if (requireOrganization && !user?.['organizationId']) {
+      return navigateTo(redirectTo, {external: true});
     }
 
-    // Scope check (requires scopes to be stored in session — Phase 2 extends this)
     if (requireScopes.length > 0) {
-      const user = authState.value.user as Record<string, unknown> | null;
-      const sessionScopes: string[] = String(user?.['scopes'] ?? '').split(' ');
-      const hasScopes = requireScopes.every((s) => sessionScopes.includes(s));
-      if (!hasScopes) {
+      const sessionScopes = String(user?.['scopes'] ?? '').split(' ');
+      const hasAllScopes = requireScopes.every((s) => sessionScopes.includes(s));
+      if (!hasAllScopes) {
         return navigateTo(redirectTo, {external: true});
       }
     }

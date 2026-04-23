@@ -16,30 +16,22 @@
  * under the License.
  */
 
-import {defineNuxtRouteMiddleware, navigateTo, useState} from '#app';
-import type {AsgardeoAuthState} from '../types';
+import {defineAsgardeoMiddleware} from './defineAsgardeoMiddleware';
 
 /**
  * Named route middleware for protecting pages.
  *
- * Usage in a page:
+ * Registered under the name `'auth'` by the Nuxt module, so pages can
+ * opt in by string reference:
+ *
  * ```vue
  * <script setup>
  * definePageMeta({ middleware: ['auth'] });
  * </script>
  * ```
  *
- * When a user is not authenticated, they are redirected to the
- * sign-in endpoint with a `returnTo` parameter pointing to the
- * page they tried to access.
+ * Equivalent to `defineAsgardeoMiddleware()` with no options: redirects
+ * unauthenticated users to `/api/auth/signin?returnTo=<path>`. For scope
+ * or organization gating, use `defineAsgardeoMiddleware({ ... })` directly.
  */
-export default defineNuxtRouteMiddleware((to) => {
-  const authState = useState<AsgardeoAuthState>('asgardeo:auth');
-
-  if (!authState.value?.isSignedIn) {
-    const returnTo = to.fullPath;
-    return navigateTo(`/api/auth/signin?returnTo=${encodeURIComponent(returnTo)}`, {
-      external: true,
-    });
-  }
-});
+export default defineAsgardeoMiddleware();
