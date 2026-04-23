@@ -22,6 +22,16 @@ export default defineNuxtConfig({
     afterSignInUrl: '/',
     afterSignOutUrl: '/',
     scopes: ['openid', 'profile', 'email'],
+    preferences: {
+      theme: {
+        inheritFromBranding: false,
+        mode: 'light',
+      },
+      user: {
+        fetchUserProfile: true,
+        fetchOrganizations: true,
+      },
+    },   
   },
 
   devtools: {enabled: true},

@@ -54,6 +54,14 @@ export interface AsgardeoNuxtConfig {
        * from Asgardeo and passes it to `BrandingProvider` / `ThemeProvider`.
        */
       inheritFromBranding?: boolean;
+      /**
+       * Theme mode forwarded to the Vue SDK's `ThemeProvider`.
+       * - `'light'` (default) | `'dark'`: Fixed color scheme. Toggle at runtime with `useTheme().toggleTheme()`.
+       * - `'system'`: Follows the OS `prefers-color-scheme`.
+       * - `'class'`: Reads a CSS class on `<html>` (works well with Tailwind dark-mode).
+       * - `'branding'`: Follows the active theme from the tenant's branding preference.
+       */
+      mode?: 'light' | 'dark' | 'system' | 'class' | 'branding';
     };
     /** i18n configuration forwarded to `I18nProvider`. */
     i18n?: I18nPreferences;

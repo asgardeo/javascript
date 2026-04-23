@@ -156,42 +156,48 @@ export default defineNuxtModule<AsgardeoNuxtConfig>({
       name: 'AsgardeoRoot',
     });
 
-    // Auto-register @asgardeo/vue components with `Asgardeo` prefix.
-    // The prefix avoids collisions with user-defined components and matches
-    // Nuxt's convention for third-party components (cf. `@nuxt/ui` → `UButton`).
-    const vueComponents: Array<{name: string; export: string}> = [
-      // Control flow
-      {name: 'AsgardeoSignedIn',   export: 'SignedIn'},
-      {name: 'AsgardeoSignedOut',  export: 'SignedOut'},
-      {name: 'AsgardeoLoading',    export: 'Loading'},
-      // Action buttons
-      {name: 'AsgardeoSignInButton',  export: 'SignInButton'},
-      {name: 'AsgardeoSignOutButton', export: 'SignOutButton'},
-      {name: 'AsgardeoSignUpButton',  export: 'SignUpButton'},
-      // Auth flows (embedded)
-      {name: 'AsgardeoSignIn',   export: 'SignIn'},
-      {name: 'AsgardeoSignUp',   export: 'SignUp'},
-      // User
-      {name: 'AsgardeoUser',        export: 'UserComponent'},
-      {name: 'AsgardeoUserProfile', export: 'UserProfile'},
-      {name: 'AsgardeoUserDropdown',export: 'UserDropdown'},
-      // Organization
-      {name: 'AsgardeoOrganization',       export: 'OrganizationComponent'},
-      {name: 'AsgardeoOrganizationProfile',export: 'OrganizationProfile'},
-      {name: 'AsgardeoOrganizationSwitcher',export: 'OrganizationSwitcher'},
-      {name: 'AsgardeoOrganizationList',   export: 'OrganizationList'},
-      {name: 'AsgardeoCreateOrganization', export: 'CreateOrganization'},
-      // Callback helper (for embedded flow client-side handling)
-      {name: 'AsgardeoCallback', export: 'Callback'},
-    ];
+    // Register Nuxt-specific component containers with the `Asgardeo` prefix.
+    //
+    // Each container lives at `./runtime/components/<Name>.ts` and:
+    //   1. Imports the corresponding BaseXxx from @asgardeo/vue (not the Vue container).
+    //   2. Wires composables through `#imports` (Nuxt auto-import layer).
+    //   3. Uses `navigateTo` from `#app` for all navigation — SSR-safe, no window.location.
+    //
+    // This mirrors the Next.js SDK pattern where Base components come from
+    // @asgardeo/react and host-specific containers live in the Next.js package.
+    //
+    // NOTE: Composables (useUser, useOrganization, useTheme, useBranding,
+    // useFlow, useI18n) remain direct re-exports from @asgardeo/vue via
+    // addImports above — only the components need Nuxt wrappers.
 
-    for (const {name, export: exportName} of vueComponents) {
-      addComponent({
-        export: exportName,
-        filePath: '@asgardeo/vue',
-        name,
-      });
-    }
+    // ── Control flow ────────────────────────────────────────────────────────
+    addComponent({name: 'AsgardeoSignedIn',  filePath: resolve('./runtime/components/SignedIn')});
+    addComponent({name: 'AsgardeoSignedOut', filePath: resolve('./runtime/components/SignedOut')});
+    addComponent({name: 'AsgardeoLoading',   filePath: resolve('./runtime/components/Loading')});
+
+    // ── Action buttons ───────────────────────────────────────────────────────
+    addComponent({name: 'AsgardeoSignInButton',  filePath: resolve('./runtime/components/SignInButton')});
+    addComponent({name: 'AsgardeoSignOutButton', filePath: resolve('./runtime/components/SignOutButton')});
+    addComponent({name: 'AsgardeoSignUpButton',  filePath: resolve('./runtime/components/SignUpButton')});
+
+    // ── Embedded auth flows ──────────────────────────────────────────────────
+    addComponent({name: 'AsgardeoSignIn', filePath: resolve('./runtime/components/SignIn')});
+    addComponent({name: 'AsgardeoSignUp', filePath: resolve('./runtime/components/SignUp')});
+
+    // ── User ─────────────────────────────────────────────────────────────────
+    addComponent({name: 'AsgardeoUser',         filePath: resolve('./runtime/components/User')});
+    addComponent({name: 'AsgardeoUserProfile',  filePath: resolve('./runtime/components/UserProfile')});
+    addComponent({name: 'AsgardeoUserDropdown', filePath: resolve('./runtime/components/UserDropdown')});
+
+    // ── Organization ─────────────────────────────────────────────────────────
+    addComponent({name: 'AsgardeoOrganization',         filePath: resolve('./runtime/components/Organization')});
+    addComponent({name: 'AsgardeoOrganizationProfile',  filePath: resolve('./runtime/components/OrganizationProfile')});
+    addComponent({name: 'AsgardeoOrganizationSwitcher', filePath: resolve('./runtime/components/OrganizationSwitcher')});
+    addComponent({name: 'AsgardeoOrganizationList',     filePath: resolve('./runtime/components/OrganizationList')});
+    addComponent({name: 'AsgardeoCreateOrganization',   filePath: resolve('./runtime/components/CreateOrganization')});
+
+    // ── Auth callback ────────────────────────────────────────────────────────
+    addComponent({name: 'AsgardeoCallback', filePath: resolve('./runtime/components/Callback')});
 
     // Auto-import server utilities
     nuxt.hook('nitro:config', (nitroConfig) => {
