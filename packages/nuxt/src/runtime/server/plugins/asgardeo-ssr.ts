@@ -16,11 +16,11 @@
  * under the License.
  */
 
-import {getCookie, getRequestURL, type H3Event} from 'h3';
+import {getRequestURL, type H3Event} from 'h3';
 import {defineNitroPlugin} from 'nitropack/runtime';
 import {useRuntimeConfig} from '#imports';
 import AsgardeoNuxtClient from '../AsgardeoNuxtClient';
-import {verifySessionToken, getSessionCookieName} from '../utils/session';
+import {verifyAndRehydrateSession} from '../utils/serverSession';
 import type {AsgardeoAuthState, AsgardeoNuxtConfig, AsgardeoSSRData} from '../../types';
 import {createLogger} from '../../utils/log';
 
@@ -117,23 +117,14 @@ export default defineNitroPlugin((nitro) => {
       return;
     }
 
-    // ── 2. Verify session cookie ───────────────────────────────────────────
-    const sessionCookie = getCookie(event, getSessionCookieName());
-    if (!sessionCookie) {
-      event.context.asgardeo = {session: null, isSignedIn: false};
-      return;
-    }
-
+    // ── 2. Verify session cookie + rehydrate legacy store ─────────────────
     const config = useRuntimeConfig(event);
     const publicConfig = config.public.asgardeo as (typeof config.public.asgardeo & AsgardeoNuxtConfig);
     const prefs = publicConfig?.preferences;
+    const sessionSecret = process.env['ASGARDEO_SESSION_SECRET'] || config.asgardeo?.sessionSecret;
 
-    let session;
-    try {
-      const sessionSecret = process.env['ASGARDEO_SESSION_SECRET'];
-      session = await verifySessionToken(sessionCookie, sessionSecret);
-    } catch (err) {
-      log.debug('Session verification failed, treating as unauthenticated:', err);
+    const session = await verifyAndRehydrateSession(event, sessionSecret);
+    if (!session) {
       event.context.asgardeo = {session: null, isSignedIn: false};
       return;
     }

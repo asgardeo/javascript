@@ -17,14 +17,14 @@
  */
 
 import type {IdToken, Organization, TokenResponse} from '@asgardeo/node';
-import {defineEventHandler, getCookie, setCookie, readBody, createError} from 'h3';
+import {defineEventHandler, setCookie, readBody, createError} from 'h3';
 import AsgardeoNuxtClient from '../../AsgardeoNuxtClient';
 import {
-  verifySessionToken,
   createSessionToken,
   getSessionCookieName,
   getSessionCookieOptions,
 } from '../../utils/session';
+import {verifyAndRehydrateSession} from '../../utils/serverSession';
 import {useRuntimeConfig} from '#imports';
 
 /**
@@ -42,18 +42,11 @@ export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig();
   const sessionSecret = config.asgardeo?.sessionSecret;
 
-  const sessionCookie = getCookie(event, getSessionCookieName());
-  if (!sessionCookie) {
-    throw createError({statusCode: 401, statusMessage: 'Unauthorized: No active session.'});
-  }
-
-  let sessionId: string;
-  try {
-    const session = await verifySessionToken(sessionCookie, sessionSecret);
-    sessionId = session.sessionId;
-  } catch {
+  const session = await verifyAndRehydrateSession(event, sessionSecret);
+  if (!session) {
     throw createError({statusCode: 401, statusMessage: 'Unauthorized: Invalid or expired session.'});
   }
+  const sessionId = session.sessionId;
 
   let organization: Organization;
   try {

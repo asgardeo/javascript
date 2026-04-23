@@ -28,7 +28,7 @@
  * ```
  */
 
-export {useServerSession, requireServerSession} from './utils/serverSession';
+export {useServerSession, requireServerSession, verifyAndRehydrateSession} from './utils/serverSession';
 export {default as AsgardeoNuxtClient} from './AsgardeoNuxtClient';
 export {getValidAccessToken} from './utils/token-refresh';
 export {

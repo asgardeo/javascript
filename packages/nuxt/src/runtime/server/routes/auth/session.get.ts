@@ -16,12 +16,9 @@
  * under the License.
  */
 
-import {defineEventHandler, getCookie} from 'h3';
+import {defineEventHandler} from 'h3';
 import AsgardeoNuxtClient from '../../AsgardeoNuxtClient';
-import {
-  verifySessionToken,
-  getSessionCookieName,
-} from '../../utils/session';
+import {verifyAndRehydrateSession} from '../../utils/serverSession';
 import type {AsgardeoAuthState} from '../../../types';
 import {useRuntimeConfig} from '#imports';
 
@@ -35,16 +32,14 @@ export default defineEventHandler(async (event): Promise<AsgardeoAuthState> => {
   const config = useRuntimeConfig();
   const sessionSecret = config.asgardeo?.sessionSecret;
 
-  const sessionCookie = getCookie(event, getSessionCookieName());
-  if (!sessionCookie) {
+  const session = await verifyAndRehydrateSession(event, sessionSecret);
+  if (!session) {
     return {isSignedIn: false, user: null, isLoading: false};
   }
 
   try {
-    const session = await verifySessionToken(sessionCookie, sessionSecret);
     const client = AsgardeoNuxtClient.getInstance();
     const user = await client.getUser(session.sessionId);
-
     return {isSignedIn: true, user, isLoading: false};
   } catch {
     return {isSignedIn: false, user: null, isLoading: false};
