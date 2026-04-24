@@ -5,7 +5,7 @@ type NavChild = { path: string; label: string; badge?: string };
 type NavItem = {
   path: string;
   label: string;
-  icon: 'home' | 'key' | 'box' | 'code' | 'server' | 'shield' | 'bug';
+  icon: 'home' | 'key' | 'box' | 'code' | 'server' | 'shield' | 'bug' | 'route';
   children?: NavChild[];
 };
 
@@ -50,8 +50,31 @@ const navItems: NavItem[] = [
     ],
   },
   {
+    path: '/routes',
+    label: 'SDK Routes',
+    icon: 'route',
+    children: [
+      { path: '/routes', label: 'Overview' },
+      { path: '/routes/session/signin', label: 'GET /signin' },
+      { path: '/routes/session/callback', label: 'GET /callback' },
+      { path: '/routes/session/signout', label: 'POST /signout' },
+      { path: '/routes/session/session', label: 'GET /session' },
+      { path: '/routes/session/token', label: 'GET /token' },
+      { path: '/routes/user/user', label: 'GET /user' },
+      { path: '/routes/user/profile-get', label: 'GET /user/profile' },
+      { path: '/routes/user/profile-patch', label: 'PATCH /user/profile' },
+      { path: '/routes/organizations/list', label: 'GET /organizations' },
+      { path: '/routes/organizations/create', label: 'POST /organizations' },
+      { path: '/routes/organizations/me', label: 'GET /organizations/me' },
+      { path: '/routes/organizations/current', label: 'GET /organizations/current' },
+      { path: '/routes/organizations/by-id', label: 'GET /organizations/:id' },
+      { path: '/routes/organizations/switch', label: 'POST /organizations/switch' },
+      { path: '/routes/branding', label: 'GET /branding' },
+    ],
+  },
+  {
     path: '/server',
-    label: 'Server',
+    label: 'Server Utilities',
     icon: 'server',
     children: [
       { path: '/server/session', label: 'useServerSession' },
@@ -183,6 +206,8 @@ watch(() => route.path, expandActiveParent);
               d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
             <path v-else-if="item.icon === 'server'" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
               d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01" />
+            <path v-else-if="item.icon === 'route'" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
             <path v-else-if="item.icon === 'shield'" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
               d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
             <path v-else-if="item.icon === 'bug'" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"

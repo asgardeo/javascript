@@ -80,10 +80,11 @@ const codeSnippet = `const {
 // Reactive state — use in templates
 console.log(flattenedProfile.value?.userName);
 
-// Refetch from server
+// Refetch from server (GET /api/auth/user/profile)
 await revalidateProfile();
 
-// Update a field (SCIM2 PatchOp)
+// Update a field via PATCH /api/auth/user/profile (SCIM2 PatchOp)
+// Transport changed from POST /api/auth/profile → PATCH /api/auth/user/profile
 const result = await updateProfile({
   payload: {
     Operations: [{ op: 'replace', value: { name: { givenName: 'Alice' } } }],
@@ -161,7 +162,7 @@ const result = await updateProfile({
     <!-- ── updateProfile ────────────────────────────────────────────────── -->
     <LayoutSectionCard
       title="updateProfile()"
-      description="Sends a SCIM2 PatchOp request to update the user profile. Edit the JSON payload and click the button."
+      description="Sends a SCIM2 PatchOp request to PATCH /api/auth/user/profile. Edit the JSON payload and click the button."
     >
       <label class="block text-xs font-medium text-text-muted mb-1">PatchOp payload (JSON)</label>
       <textarea
