@@ -148,8 +148,6 @@ export default defineNuxtModule<AsgardeoNuxtConfig>({
       {name: 'useI18n', as: 'useAsgardeoI18n', from: '@asgardeo/vue'},
       // Middleware factory
       {name: 'defineAsgardeoMiddleware', from: resolve('./runtime/middleware/defineAsgardeoMiddleware')},
-      // Utilities
-      {name: 'createRouteMatcher', from: resolve('./runtime/utils/createRouteMatcher')},
     ]);
 
     // Register the Nuxt-specific root component that mounts the full Vue
@@ -203,26 +201,6 @@ export default defineNuxtModule<AsgardeoNuxtConfig>({
 
     // ── Auth callback ────────────────────────────────────────────────────────
     addComponent({name: 'AsgardeoCallback', filePath: resolve('./runtime/components/auth/Callback')});
-
-    // Auto-import server utilities
-    nuxt.hook('nitro:config', (nitroConfig) => {
-      nitroConfig.imports = nitroConfig.imports || {};
-      nitroConfig.imports.imports = nitroConfig.imports.imports || [];
-      nitroConfig.imports.imports.push(
-        {
-          name: 'useServerSession',
-          from: resolve('./runtime/server/utils/serverSession'),
-        },
-        {
-          name: 'requireServerSession',
-          from: resolve('./runtime/server/utils/serverSession'),
-        },
-        {
-          name: 'getValidAccessToken',
-          from: resolve('./runtime/server/utils/token-refresh'),
-        },
-      );
-    });
   },
 });
 
