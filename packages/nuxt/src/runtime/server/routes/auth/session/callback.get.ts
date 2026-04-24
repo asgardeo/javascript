@@ -18,7 +18,7 @@
 
 import type {IdToken, TokenResponse} from '@asgardeo/node';
 import {defineEventHandler, getQuery, getCookie, setCookie, deleteCookie, sendRedirect, createError} from 'h3';
-import AsgardeoNuxtClient from '../../AsgardeoNuxtClient';
+import AsgardeoNuxtClient from '../../../AsgardeoNuxtClient';
 import {
   createSessionToken,
   verifyTempSessionToken,
@@ -26,7 +26,7 @@ import {
   getSessionCookieOptions,
   getTempSessionCookieName,
   getTempSessionCookieOptions,
-} from '../../utils/session';
+} from '../../../utils/session';
 import {useRuntimeConfig} from '#imports';
 
 /**

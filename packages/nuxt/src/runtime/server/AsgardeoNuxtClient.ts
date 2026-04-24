@@ -22,6 +22,8 @@ import {
   type AuthClientConfig,
   type IdToken,
   type Organization,
+  type OrganizationDetails,
+  type CreateOrganizationPayload,
   type Storage,
   type TokenExchangeRequestConfig,
   type TokenResponse,
@@ -32,6 +34,8 @@ import {
   getBrandingPreference,
   getMeOrganizations,
   getAllOrganizations,
+  createOrganization,
+  getOrganization,
   getScim2Me,
   getSchemas,
   flattenUserSchema,
@@ -315,6 +319,37 @@ class AsgardeoNuxtClient extends AsgardeoNodeClient<AsgardeoNuxtConfig> {
     return getAllOrganizations({
       baseUrl,
       headers: {Authorization: `Bearer ${accessToken}`},
+    });
+  }
+
+  /**
+   * Creates a new sub-organisation. Mirrors `AsgardeoNextClient.createOrganization`.
+   */
+  async createOrganization(payload: CreateOrganizationPayload, sessionId: string): Promise<Organization> {
+    const accessToken: string = await this.getAccessToken(sessionId);
+    const configData = await this.legacy.getConfigData?.() as (AuthClientConfig<AsgardeoNuxtConfig> | undefined);
+    const baseUrl: string = (configData?.baseUrl ?? '') as string;
+
+    return createOrganization({
+      baseUrl,
+      headers: {Authorization: `Bearer ${accessToken}`},
+      payload,
+    });
+  }
+
+  /**
+   * Fetches the details of a single organisation by ID.
+   * Mirrors `AsgardeoNextClient.getOrganization`.
+   */
+  async getOrganization(organizationId: string, sessionId: string): Promise<OrganizationDetails> {
+    const accessToken: string = await this.getAccessToken(sessionId);
+    const configData = await this.legacy.getConfigData?.() as (AuthClientConfig<AsgardeoNuxtConfig> | undefined);
+    const baseUrl: string = (configData?.baseUrl ?? '') as string;
+
+    return getOrganization({
+      baseUrl,
+      headers: {Authorization: `Bearer ${accessToken}`},
+      organizationId,
     });
   }
 

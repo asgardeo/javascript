@@ -142,7 +142,8 @@ export default defineNuxtPlugin((nuxtApp) => {
   };
 
   const signOut = async (): Promise<void> => {
-    await navigateTo('/api/auth/signout', {external: true});
+    const res = await $fetch<{redirectUrl: string}>('/api/auth/signout', {method: 'POST'});
+    await navigateTo(res.redirectUrl || '/', {external: true});
   };
 
   const signUp = async (): Promise<void> => {

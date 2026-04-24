@@ -17,9 +17,9 @@
  */
 
 import {defineEventHandler} from 'h3';
-import AsgardeoNuxtClient from '../../AsgardeoNuxtClient';
-import {verifyAndRehydrateSession} from '../../utils/serverSession';
-import type {AsgardeoAuthState} from '../../../types';
+import AsgardeoNuxtClient from '../../../AsgardeoNuxtClient';
+import {verifyAndRehydrateSession} from '../../../utils/serverSession';
+import type {AsgardeoAuthState} from '../../../../types';
 import {useRuntimeConfig} from '#imports';
 
 /**

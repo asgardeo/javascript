@@ -18,12 +18,12 @@
 
 import {generateSessionId} from '@asgardeo/node';
 import {defineEventHandler, getQuery, sendRedirect, setCookie, createError} from 'h3';
-import AsgardeoNuxtClient from '../../AsgardeoNuxtClient';
+import AsgardeoNuxtClient from '../../../AsgardeoNuxtClient';
 import {
   createTempSessionToken,
   getTempSessionCookieName,
   getTempSessionCookieOptions,
-} from '../../utils/session';
+} from '../../../utils/session';
 import {useRuntimeConfig} from '#imports';
 
 /**
