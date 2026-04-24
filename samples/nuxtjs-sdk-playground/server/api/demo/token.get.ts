@@ -7,11 +7,9 @@
  *   3. Performs a silent refresh_token grant when the token is near expiry,
  *      reissues the session cookie, and returns the new token.
  *   4. Throws a 401 if the user is not signed in or the refresh fails.
- *
- * Auto-imported utilities used:
- *   • useServerSession       — read current session metadata pre-call.
- *   • getValidAccessToken    — obtain a guaranteed-fresh access token.
  */
+import {useServerSession, getValidAccessToken} from '@asgardeo/nuxt/server';
+
 export default defineEventHandler(async (event) => {
   // Read the current session first so we can detect whether a token refresh
   // happened (the token will differ from the one stored in the cookie before).

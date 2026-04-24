@@ -61,17 +61,19 @@ function populatedCount(): number {
     .filter(isPopulated).length;
 }
 
-const codeSnippet = `// Reading Asgardeo state keys in any Nuxt component or page
-// useState is auto-imported by Nuxt — no import needed.
-
-const authState     = useState('asgardeo:auth');
-const userProfile   = useState('asgardeo:user-profile');
-const currentOrg    = useState('asgardeo:current-org');
-const myOrgs        = useState('asgardeo:my-orgs');
-const brandingState = useState('asgardeo:branding');
-
-// These are reactive — any update from the SDK propagates automatically.
-// Never write to these keys from application code; they are SDK-owned.`;
+const codeSnippet = `// \u26a0\ufe0f  Do NOT use these keys directly in your application code.
+// They are internal SDK implementation details and may change without notice.
+// Use the SDK composables instead:
+//
+//   const { isSignedIn, user }             = useAsgardeo();
+//   const { profile }                      = useUser();
+//   const { currentOrganization, myOrgs }  = useOrganization();
+//   const { branding }                     = useBranding();
+//
+// On the server (Nitro), use getAsgardeoContext():
+//
+//   import { getAsgardeoContext } from '@asgardeo/nuxt/server';
+//   const ctx = getAsgardeoContext(event); // { session, isSignedIn, ssr }`;
 </script>
 
 <template>
@@ -80,6 +82,22 @@ const brandingState = useState('asgardeo:branding');
       title="State dump"
       description="Every useState('asgardeo:*') key the SDK writes to, displayed live. Values are seeded by the Nitro SSR plugin and hydrated to the client — no extra fetch on page load."
     />
+
+    <!-- ── Internal state warning ──────────────────────────────────────── -->
+    <div class="rounded-lg border border-warning/40 bg-warning/5 px-5 py-4 flex items-start gap-3">
+      <svg class="mt-0.5 h-5 w-5 flex-shrink-0 text-warning" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+      </svg>
+      <div class="space-y-1">
+        <p class="text-sm font-semibold text-text">Playground Internals — do not use these keys in your app</p>
+        <p class="text-xs text-text-muted leading-relaxed">
+          The <code class="font-mono">asgardeo:*</code> useState keys below are internal SDK implementation details.
+          They are shown here for debugging purposes only. Use the SDK composables
+          (<code class="font-mono">useAsgardeo()</code>, <code class="font-mono">useUser()</code>, <code class="font-mono">useOrganization()</code>, <code class="font-mono">useBranding()</code>)
+          or <code class="font-mono">getAsgardeoContext(event)</code> on the server instead.
+        </p>
+      </div>
+    </div>
 
     <!-- ── Summary bar ────────────────────────────────────────────────── -->
     <div class="flex flex-wrap gap-3 items-center">

@@ -49,6 +49,10 @@ const signUpCode = `<!-- Default styled button -->
       title="Action Components"
       description="Sign-in, sign-out, and sign-up buttons — pre-styled and unstyled variants, with custom slot support."
     />
+    <div class="flex items-center gap-2 -mt-2">
+      <SharedStatusBadge status="info" label="Auto-imported" />
+      <span class="text-xs text-text-muted">from <code class="font-mono">@asgardeo/nuxt</code></span>
+    </div>
 
     <LayoutTabGroup :tabs="tabs" v-model="activeTab">
 

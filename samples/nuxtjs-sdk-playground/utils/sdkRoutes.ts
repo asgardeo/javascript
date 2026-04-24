@@ -52,8 +52,8 @@ export const getOrganizationById = (id: string) =>
   $fetch(`/api/auth/organizations/${id}`);
 
 /** POST /api/auth/organizations/switch — switch the active organization */
-export const switchOrganization = (organizationId: string) =>
-  $fetch('/api/auth/organizations/switch', { method: 'POST', body: { organizationId } });
+export const switchOrganization = (organization: string) =>
+  $fetch('/api/auth/organizations/switch', { method: 'POST', body: { organization } });
 
 // ── Branding ──────────────────────────────────────────────────────────────
 

@@ -6,7 +6,7 @@ import { serverUtilities } from '~/utils/sdk-manifest';
   <div class="space-y-6">
     <LayoutPageHeader
       title="Server Utilities — Overview"
-      description="Nitro auto-imports and the AsgardeoNuxtClient singleton available inside your own server/api/ handlers."
+      description="Functions exported from @asgardeo/nuxt/server for use in your own server/api/ handlers. All require an explicit import statement."
     />
 
     <!-- ── Utility cards ────────────────────────────────────────────────── -->

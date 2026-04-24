@@ -4,10 +4,9 @@
  * Returns the decoded session payload for the current request (or null when
  * the user is not signed in).  Raw tokens are redacted so this endpoint is
  * safe to display in the playground UI.
- *
- * Auto-imported utilities used:
- *   • useServerSession — reads and verifies the session JWT cookie.
  */
+import {useServerSession} from '@asgardeo/nuxt/server';
+
 export default defineEventHandler(async (event) => {
   const session = await useServerSession(event);
 

@@ -89,8 +89,8 @@ definePageMeta({
 <template>
   <div class="space-y-6">
     <LayoutPageHeader
-      title="requireScopes"
-      description="Use defineAsgardeoMiddleware({ requireScopes: [...] }) to gate a page behind specific OAuth scopes. Users whose session does not contain all listed scopes are redirected."
+      title="requireScopes option"
+      description="Example of defineAsgardeoMiddleware({ requireScopes: [...] }) — redirects users who are missing one or more of the listed OAuth scopes."
     />
 
     <!-- ── Dry-run result ────────────────────────────────────────────── -->
