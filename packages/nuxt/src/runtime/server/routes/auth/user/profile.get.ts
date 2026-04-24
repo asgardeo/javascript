@@ -16,22 +16,22 @@
  * under the License.
  */
 
-import type {UpdateMeProfileConfig, User} from '@asgardeo/node';
-import {defineEventHandler, readBody, createError} from 'h3';
-import AsgardeoNuxtClient from '../../AsgardeoNuxtClient';
-import {verifyAndRehydrateSession} from '../../utils/serverSession';
+import type {UserProfile} from '@asgardeo/node';
+import {defineEventHandler, createError} from 'h3';
+import AsgardeoNuxtClient from '../../../AsgardeoNuxtClient';
+import {verifyAndRehydrateSession} from '../../../utils/serverSession';
 import {useRuntimeConfig} from '#imports';
 
 /**
- * POST /api/auth/profile
+ * GET /api/auth/user/profile
  *
- * Updates the SCIM2 /Me profile for the authenticated user.
- * Mirrors the `updateUserProfileAction` Next.js server action.
+ * Returns the full SCIM2 {@link UserProfile} (with `flattenedProfile` and
+ * `schemas`) for the authenticated user.  Used by `AsgardeoRoot.revalidateProfile`
+ * to refresh client-side state after a profile update.
  *
- * Request body: {@link UpdateMeProfileConfig} (the SCIM patch payload).
- * Response: `{ data: { user: User }; success: boolean; error: string }`
+ * Mirrors `getUserProfileAction` in the Next.js SDK.
  */
-export default defineEventHandler(async (event): Promise<{data: {user: User}; success: boolean; error: string}> => {
+export default defineEventHandler(async (event): Promise<UserProfile> => {
   const config = useRuntimeConfig();
   const sessionSecret = config.asgardeo?.sessionSecret;
 
@@ -40,21 +40,13 @@ export default defineEventHandler(async (event): Promise<{data: {user: User}; su
     throw createError({statusCode: 401, statusMessage: 'Unauthorized: Invalid or expired session.'});
   }
 
-  let payload: UpdateMeProfileConfig;
-  try {
-    payload = await readBody<UpdateMeProfileConfig>(event);
-  } catch {
-    throw createError({statusCode: 400, statusMessage: 'Invalid request body.'});
-  }
-
   try {
     const client = AsgardeoNuxtClient.getInstance();
-    const user: User = await client.updateUserProfile(payload, session.sessionId);
-    return {data: {user}, success: true, error: ''};
+    return await client.getUserProfile(session.sessionId);
   } catch (err) {
     throw createError({
       statusCode: 500,
-      statusMessage: `Failed to update user profile: ${err instanceof Error ? err.message : String(err)}`,
+      statusMessage: `Failed to retrieve user profile: ${err instanceof Error ? err.message : String(err)}`,
     });
   }
 });

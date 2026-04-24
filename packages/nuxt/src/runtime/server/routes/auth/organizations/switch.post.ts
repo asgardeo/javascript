@@ -18,17 +18,17 @@
 
 import type {IdToken, Organization, TokenResponse} from '@asgardeo/node';
 import {defineEventHandler, setCookie, readBody, createError} from 'h3';
-import AsgardeoNuxtClient from '../../AsgardeoNuxtClient';
+import AsgardeoNuxtClient from '../../../AsgardeoNuxtClient';
 import {
   createSessionToken,
   getSessionCookieName,
   getSessionCookieOptions,
-} from '../../utils/session';
-import {verifyAndRehydrateSession} from '../../utils/serverSession';
+} from '../../../utils/session';
+import {verifyAndRehydrateSession} from '../../../utils/serverSession';
 import {useRuntimeConfig} from '#imports';
 
 /**
- * POST /api/auth/switch-org
+ * POST /api/auth/organizations/switch
  *
  * Performs an `organization_switch` token exchange for the given organisation,
  * then re-issues the JWT session cookie so subsequent requests carry the new

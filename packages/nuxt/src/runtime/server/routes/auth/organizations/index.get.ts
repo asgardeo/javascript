@@ -18,12 +18,12 @@
 
 import type {AllOrganizationsApiResponse} from '@asgardeo/node';
 import {defineEventHandler, createError} from 'h3';
-import AsgardeoNuxtClient from '../../AsgardeoNuxtClient';
-import {verifyAndRehydrateSession} from '../../utils/serverSession';
+import AsgardeoNuxtClient from '../../../AsgardeoNuxtClient';
+import {verifyAndRehydrateSession} from '../../../utils/serverSession';
 import {useRuntimeConfig} from '#imports';
 
 /**
- * GET /api/auth/orgs
+ * GET /api/auth/organizations
  *
  * Returns all organisations accessible to the authenticated user (paginated).
  * Used by `AsgardeoRoot.getAllOrganizations` callback.

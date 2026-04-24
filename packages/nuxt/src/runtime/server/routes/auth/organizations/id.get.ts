@@ -16,18 +16,21 @@
  * under the License.
  */
 
-import {defineEventHandler, createError} from 'h3';
-import AsgardeoNuxtClient from '../../AsgardeoNuxtClient';
-import {verifyAndRehydrateSession} from '../../utils/serverSession';
+import type {OrganizationDetails} from '@asgardeo/node';
+import {defineEventHandler, getRouterParam, createError} from 'h3';
+import AsgardeoNuxtClient from '../../../AsgardeoNuxtClient';
+import {verifyAndRehydrateSession} from '../../../utils/serverSession';
 import {useRuntimeConfig} from '#imports';
 
 /**
- * GET /api/auth/user
+ * GET /api/auth/organizations/:id
  *
- * Returns user information for the current session.
- * Requires a valid session.
+ * Returns the details of a single organisation by its ID.
+ * Requires an active session.
+ *
+ * Mirrors `getOrganizationAction` in the Next.js SDK.
  */
-export default defineEventHandler(async (event) => {
+export default defineEventHandler(async (event): Promise<OrganizationDetails> => {
   const config = useRuntimeConfig();
   const sessionSecret = config.asgardeo?.sessionSecret;
 
@@ -36,10 +39,18 @@ export default defineEventHandler(async (event) => {
     throw createError({statusCode: 401, statusMessage: 'Unauthorized: Invalid or expired session.'});
   }
 
+  const organizationId = getRouterParam(event, 'id');
+  if (!organizationId) {
+    throw createError({statusCode: 400, statusMessage: 'Organization ID is required.'});
+  }
+
   try {
     const client = AsgardeoNuxtClient.getInstance();
-    return await client.getUser(session.sessionId);
-  } catch {
-    throw createError({statusCode: 500, statusMessage: 'Failed to retrieve user information.'});
+    return await client.getOrganization(organizationId, session.sessionId);
+  } catch (err) {
+    throw createError({
+      statusCode: 500,
+      statusMessage: `Failed to retrieve organisation: ${err instanceof Error ? err.message : String(err)}`,
+    });
   }
 });

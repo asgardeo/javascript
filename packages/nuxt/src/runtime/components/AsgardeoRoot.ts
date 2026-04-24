@@ -29,6 +29,7 @@ import {generateFlattenedUserProfile} from '@asgardeo/node';
 import type {
   AllOrganizationsApiResponse,
   BrandingPreference,
+  CreateOrganizationPayload,
   Organization,
   UpdateMeProfileConfig,
   User,
@@ -126,7 +127,7 @@ const AsgardeoRoot: Component = defineComponent({
     };
 
     /**
-     * SCIM2 PATCH via the `/api/auth/profile` Nitro route (added in Step 5).
+     * SCIM2 PATCH via the `/api/auth/user/profile` Nitro route.
      * Signature matches `UserProvider.updateProfile` exactly.
      */
     const updateProfile = async (
@@ -134,19 +135,18 @@ const AsgardeoRoot: Component = defineComponent({
       _sessionId?: string,
     ): Promise<{data: {user: User}; error: string; success: boolean}> => {
       try {
-        return await $fetch('/api/auth/profile', {method: 'POST', body: requestConfig});
+        return await $fetch('/api/auth/user/profile', {method: 'PATCH', body: requestConfig});
       } catch (err) {
         return {data: {user: {} as User}, error: String(err), success: false};
       }
     };
 
     /**
-     * Re-fetch the full user profile. The `/api/auth/user-profile` route is
-     * added in Step 5; until then this is a forward-compatible no-op stub.
+     * Re-fetch the full user profile from `/api/auth/user/profile`.
      */
     const revalidateProfile = async (): Promise<void> => {
       try {
-        const res = await $fetch<UserProfile>('/api/auth/user-profile');
+        const res = await $fetch<UserProfile>('/api/auth/user/profile');
         if (res) userProfileState.value = res;
       } catch {
         // Non-fatal — profile stays stale until the next navigation.
@@ -154,18 +154,17 @@ const AsgardeoRoot: Component = defineComponent({
     };
 
     /**
-     * Token-exchange org switch via the `/api/auth/switch-org` Nitro route
-     * (added in Step 5).
+     * Token-exchange org switch via the `/api/auth/organizations/switch` Nitro route.
      */
     const onOrganizationSwitch = async (organization: Organization): Promise<any> => {
-      return $fetch('/api/auth/switch-org', {method: 'POST', body: organization});
+      return $fetch('/api/auth/organizations/switch', {method: 'POST', body: {organization}});
     };
 
     /**
-     * Paginated org list via the `/api/auth/orgs` Nitro route (Step 5).
+     * Paginated org list via the `/api/auth/organizations` Nitro route.
      */
     const getAllOrganizations = async (): Promise<AllOrganizationsApiResponse> => {
-      return $fetch<AllOrganizationsApiResponse>('/api/auth/orgs');
+      return $fetch<AllOrganizationsApiResponse>('/api/auth/organizations');
     };
 
     /**
@@ -174,11 +173,45 @@ const AsgardeoRoot: Component = defineComponent({
      */
     const revalidateMyOrganizations = async (): Promise<Organization[]> => {
       try {
-        const res = await $fetch<Organization[]>('/api/auth/my-orgs');
+        const res = await $fetch<Organization[]>('/api/auth/organizations/me');
         myOrgsState.value = res ?? [];
         return myOrgsState.value;
       } catch {
         return myOrgsState.value;
+      }
+    };
+
+    /**
+     * Create a new sub-organisation via the `POST /api/auth/organizations` route.
+     */
+    const createOrganization = async (payload: CreateOrganizationPayload): Promise<Organization> => {
+      return $fetch<Organization>('/api/auth/organizations', {method: 'POST', body: payload});
+    };
+
+    /**
+     * Refresh the current organisation from the session's ID token claims
+     * and update local state so `useOrganization().currentOrganization` stays reactive.
+     */
+    const revalidateCurrentOrganization = async (): Promise<Organization | null> => {
+      try {
+        const res = await $fetch<Organization | null>('/api/auth/organizations/current');
+        currentOrgState.value = res ?? null;
+        return currentOrgState.value;
+      } catch {
+        return currentOrgState.value;
+      }
+    };
+
+    /**
+     * Refresh the branding preference and update local state so
+     * `useBranding().brandingPreference` stays reactive.
+     */
+    const revalidateBranding = async (): Promise<void> => {
+      try {
+        const res = await $fetch<BrandingPreference | null>('/api/auth/branding');
+        if (res) brandingState.value = res;
+      } catch {
+        // Non-fatal — branding stays stale until the next navigation.
       }
     };
 
@@ -190,6 +223,7 @@ const AsgardeoRoot: Component = defineComponent({
             // When inheritFromBranding is disabled, pass null so the provider
             // falls back to its own default theme without using SSR-fetched data.
             brandingPreference: shouldFetchBranding ? brandingState.value : null,
+            revalidateBranding: shouldFetchBranding ? revalidateBranding : undefined,
           }, {
             default: (): VNode =>
               h(ThemeProvider, {
@@ -227,6 +261,12 @@ const AsgardeoRoot: Component = defineComponent({
                             getAllOrganizations: shouldFetchOrgs ? getAllOrganizations : undefined,
                             revalidateMyOrganizations: shouldFetchOrgs
                               ? revalidateMyOrganizations
+                              : undefined,
+                            createOrganization: shouldFetchOrgs
+                              ? (createOrganization as any)
+                              : undefined,
+                            revalidateCurrentOrganization: shouldFetchOrgs
+                              ? revalidateCurrentOrganization
                               : undefined,
                           }, {
                             default: (): VNode | VNode[] | undefined => slots['default']?.(),

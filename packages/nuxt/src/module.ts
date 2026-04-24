@@ -97,20 +97,25 @@ export default defineNuxtModule<AsgardeoNuxtConfig>({
     // Register server API routes
     const serverRoutes = [
       // ── Auth flow ──────────────────────────────────────────────────────
-      {route: '/api/auth/signin',    handler: resolve('./runtime/server/routes/auth/signin.get')},
-      {route: '/api/auth/callback',  handler: resolve('./runtime/server/routes/auth/callback.get')},
-      {route: '/api/auth/signout',   handler: resolve('./runtime/server/routes/auth/signout.get')},
+      {route: '/api/auth/signin',   handler: resolve('./runtime/server/routes/auth/session/signin.get')},
+      {route: '/api/auth/callback', handler: resolve('./runtime/server/routes/auth/session/callback.get')},
+      {route: '/api/auth/signout',  handler: resolve('./runtime/server/routes/auth/session/signout.post'), method: 'post' as const},
       // ── Session / token ───────────────────────────────────────────────
-      {route: '/api/auth/session',   handler: resolve('./runtime/server/routes/auth/session.get')},
-      {route: '/api/auth/token',     handler: resolve('./runtime/server/routes/auth/token.get')},
-      {route: '/api/auth/user',      handler: resolve('./runtime/server/routes/auth/user.get')},
-      // ── Profile (Step 5) ──────────────────────────────────────────────
-      {route: '/api/auth/profile',      handler: resolve('./runtime/server/routes/auth/profile.post'),      method: 'post' as const},
-      {route: '/api/auth/user-profile', handler: resolve('./runtime/server/routes/auth/user-profile.get')},
-      // ── Organisations (Step 5) ────────────────────────────────────────
-      {route: '/api/auth/my-orgs',    handler: resolve('./runtime/server/routes/auth/my-orgs.get')},
-      {route: '/api/auth/orgs',       handler: resolve('./runtime/server/routes/auth/orgs.get')},
-      {route: '/api/auth/switch-org', handler: resolve('./runtime/server/routes/auth/switch-org.post'), method: 'post' as const},
+      {route: '/api/auth/session',  handler: resolve('./runtime/server/routes/auth/session/session.get')},
+      {route: '/api/auth/token',    handler: resolve('./runtime/server/routes/auth/session/token.get')},
+      // ── User ──────────────────────────────────────────────────────────
+      {route: '/api/auth/user',         handler: resolve('./runtime/server/routes/auth/user/user.get')},
+      {route: '/api/auth/user/profile', handler: resolve('./runtime/server/routes/auth/user/profile.get')},
+      {route: '/api/auth/user/profile', handler: resolve('./runtime/server/routes/auth/user/profile.patch'), method: 'patch' as const},
+      // ── Organisations ─────────────────────────────────────────────────
+      {route: '/api/auth/organizations',         handler: resolve('./runtime/server/routes/auth/organizations/index.get')},
+      {route: '/api/auth/organizations',         handler: resolve('./runtime/server/routes/auth/organizations/index.post'),   method: 'post'  as const},
+      {route: '/api/auth/organizations/me',      handler: resolve('./runtime/server/routes/auth/organizations/me.get')},
+      {route: '/api/auth/organizations/current', handler: resolve('./runtime/server/routes/auth/organizations/current.get')},
+      {route: '/api/auth/organizations/:id',     handler: resolve('./runtime/server/routes/auth/organizations/id.get')},
+      {route: '/api/auth/organizations/switch',  handler: resolve('./runtime/server/routes/auth/organizations/switch.post'),  method: 'post'  as const},
+      // ── Branding ──────────────────────────────────────────────────────
+      {route: '/api/auth/branding', handler: resolve('./runtime/server/routes/auth/branding/branding.get')},
     ];
 
     for (const sr of serverRoutes) {

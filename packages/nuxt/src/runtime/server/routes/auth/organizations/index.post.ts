@@ -16,21 +16,23 @@
  * under the License.
  */
 
-import type {Organization} from '@asgardeo/node';
-import {defineEventHandler, createError} from 'h3';
-import AsgardeoNuxtClient from '../../AsgardeoNuxtClient';
-import {verifyAndRehydrateSession} from '../../utils/serverSession';
+import type {CreateOrganizationPayload, Organization} from '@asgardeo/node';
+import {defineEventHandler, readBody, createError} from 'h3';
+import AsgardeoNuxtClient from '../../../AsgardeoNuxtClient';
+import {verifyAndRehydrateSession} from '../../../utils/serverSession';
 import {useRuntimeConfig} from '#imports';
 
 /**
- * GET /api/auth/my-orgs
+ * POST /api/auth/organizations
  *
- * Returns the list of organisations the authenticated user is a member of.
- * Used by `AsgardeoRoot.revalidateMyOrganizations` to refresh client-side state.
+ * Creates a new sub-organisation under the authenticated user's root organisation.
  *
- * Mirrors `getMyOrganizations` server action in the Next.js SDK.
+ * Request body: {@link CreateOrganizationPayload}
+ * Response: {@link Organization}
+ *
+ * Mirrors `createOrganization` server action in the Next.js SDK.
  */
-export default defineEventHandler(async (event): Promise<Organization[]> => {
+export default defineEventHandler(async (event): Promise<Organization> => {
   const config = useRuntimeConfig();
   const sessionSecret = config.asgardeo?.sessionSecret;
 
@@ -39,13 +41,20 @@ export default defineEventHandler(async (event): Promise<Organization[]> => {
     throw createError({statusCode: 401, statusMessage: 'Unauthorized: Invalid or expired session.'});
   }
 
+  let payload: CreateOrganizationPayload;
+  try {
+    payload = await readBody<CreateOrganizationPayload>(event);
+  } catch {
+    throw createError({statusCode: 400, statusMessage: 'Invalid request body.'});
+  }
+
   try {
     const client = AsgardeoNuxtClient.getInstance();
-    return await client.getMyOrganizations(session.sessionId);
+    return await client.createOrganization(payload, session.sessionId);
   } catch (err) {
     throw createError({
       statusCode: 500,
-      statusMessage: `Failed to retrieve organisations: ${err instanceof Error ? err.message : String(err)}`,
+      statusMessage: `Failed to create organisation: ${err instanceof Error ? err.message : String(err)}`,
     });
   }
 });

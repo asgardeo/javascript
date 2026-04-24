@@ -16,22 +16,22 @@
  * under the License.
  */
 
-import type {UserProfile} from '@asgardeo/node';
+import type {Organization} from '@asgardeo/node';
 import {defineEventHandler, createError} from 'h3';
-import AsgardeoNuxtClient from '../../AsgardeoNuxtClient';
-import {verifyAndRehydrateSession} from '../../utils/serverSession';
+import AsgardeoNuxtClient from '../../../AsgardeoNuxtClient';
+import {verifyAndRehydrateSession} from '../../../utils/serverSession';
 import {useRuntimeConfig} from '#imports';
 
 /**
- * GET /api/auth/user-profile
+ * GET /api/auth/organizations/current
  *
- * Returns the full SCIM2 {@link UserProfile} (with `flattenedProfile` and
- * `schemas`) for the authenticated user.  Used by `AsgardeoRoot.revalidateProfile`
- * to refresh client-side state after a profile update.
+ * Returns the organisation the authenticated user is currently acting within,
+ * derived from the session's ID token (`org_id` / `org_name` claims).
+ * Returns `null` when the user is not inside an organisation context.
  *
- * Mirrors `getUserProfileAction` in the Next.js SDK.
+ * Used by `AsgardeoRoot.revalidateCurrentOrganization` callback.
  */
-export default defineEventHandler(async (event): Promise<UserProfile> => {
+export default defineEventHandler(async (event): Promise<Organization | null> => {
   const config = useRuntimeConfig();
   const sessionSecret = config.asgardeo?.sessionSecret;
 
@@ -42,11 +42,11 @@ export default defineEventHandler(async (event): Promise<UserProfile> => {
 
   try {
     const client = AsgardeoNuxtClient.getInstance();
-    return await client.getUserProfile(session.sessionId);
+    return await client.getCurrentOrganization(session.sessionId);
   } catch (err) {
     throw createError({
       statusCode: 500,
-      statusMessage: `Failed to retrieve user profile: ${err instanceof Error ? err.message : String(err)}`,
+      statusMessage: `Failed to retrieve current organisation: ${err instanceof Error ? err.message : String(err)}`,
     });
   }
 });

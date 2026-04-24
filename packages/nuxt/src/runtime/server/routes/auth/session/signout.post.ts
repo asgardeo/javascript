@@ -16,29 +16,32 @@
  * under the License.
  */
 
-import {defineEventHandler, deleteCookie, sendRedirect} from 'h3';
-import AsgardeoNuxtClient from '../../AsgardeoNuxtClient';
+import {defineEventHandler, deleteCookie} from 'h3';
+import AsgardeoNuxtClient from '../../../AsgardeoNuxtClient';
 import {
   getSessionCookieName,
   getSessionCookieOptions,
   getTempSessionCookieName,
   getTempSessionCookieOptions,
-} from '../../utils/session';
-import {verifyAndRehydrateSession} from '../../utils/serverSession';
+} from '../../../utils/session';
+import {verifyAndRehydrateSession} from '../../../utils/serverSession';
 import {useRuntimeConfig} from '#imports';
 
 /**
- * GET /api/auth/signout
+ * POST /api/auth/signout
  *
  * Signs the user out by:
  * 1. Getting the sign-out URL from Asgardeo (for RP-Initiated Logout)
  * 2. Clearing all session cookies
- * 3. Redirecting to Asgardeo's logout endpoint
+ * 3. Returning `{ redirectUrl }` for the client to navigate to
+ *
+ * Using POST instead of GET prevents CSRF-based forced sign-outs.
  */
-export default defineEventHandler(async (event) => {
+export default defineEventHandler(async (event): Promise<{redirectUrl: string}> => {
   const config = useRuntimeConfig();
   const sessionSecret = config.asgardeo?.sessionSecret;
   const publicConfig = config.public.asgardeo;
+  const fallbackUrl = (publicConfig as any).afterSignOutUrl || '/';
 
   const clearCookies = () => {
     deleteCookie(event, getSessionCookieName(), getSessionCookieOptions());
@@ -50,7 +53,7 @@ export default defineEventHandler(async (event) => {
   const session = await verifyAndRehydrateSession(event, sessionSecret);
   if (!session) {
     clearCookies();
-    return sendRedirect(event, publicConfig.afterSignOutUrl || '/', 302);
+    return {redirectUrl: fallbackUrl};
   }
 
   try {
@@ -59,14 +62,10 @@ export default defineEventHandler(async (event) => {
 
     clearCookies();
 
-    if (signOutUrl) {
-      return sendRedirect(event, signOutUrl, 302);
-    }
-
-    return sendRedirect(event, publicConfig.afterSignOutUrl || '/', 302);
+    return {redirectUrl: signOutUrl || fallbackUrl};
   } catch (err: any) {
     console.error('[asgardeo] Sign-out error:', err?.message || err);
     clearCookies();
-    return sendRedirect(event, publicConfig.afterSignOutUrl || '/', 302);
+    return {redirectUrl: fallbackUrl};
   }
 });
