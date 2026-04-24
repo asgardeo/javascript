@@ -5,7 +5,6 @@ import {
   componentGroups,
   composables,
   middleware,
-  serverRoutes,
   serverUtilities,
 } from '~/utils/sdk-manifest';
 
@@ -30,24 +29,6 @@ const route = useRoute();
 const sidebarOpen = ref(false);
 const expandedItems = ref<Set<string>>(new Set());
 
-// ── Helpers to translate the SDK manifest into sidebar nodes ───────────────
-
-const routeLeafLabel = (method: string, path: string) => {
-  // Turn `/api/auth/organizations/:id` into `GET /organizations/:id`.
-  const suffix = path.replace(/^\/api\/auth/, '') || '/';
-  return `${method} ${suffix}`;
-};
-
-const serverRouteChildren: Array<NavLeaf | NavDivider> = serverRoutes.flatMap(
-  (domain) => [
-    { kind: 'divider' as const, label: domain.label },
-    ...domain.routes.map((r) => ({
-      kind: 'leaf' as const,
-      path: r.page,
-      label: routeLeafLabel(r.method, r.path),
-    })),
-  ],
-);
 
 // ── Nav tree ───────────────────────────────────────────────────────────────
 
@@ -88,29 +69,11 @@ const navItems: NavNode[] = [
       label: c.name,
     })),
   },
-  {
-    kind: 'parent',
-    path: '/middleware',
-    label: 'Middleware',
-    icon: 'shield',
-    children: middleware.map((m) => ({
-      kind: 'leaf' as const,
-      path: m.path,
-      label: m.name,
-    })),
-  },
+  { kind: 'parent', path: '/middleware', label: 'Middleware', icon: 'shield', children: middleware.map((m) => ({ kind: 'leaf' as const, path: m.path, label: m.name })) },
+  { kind: 'parent', path: '/reference/errors', label: 'Errors', icon: 'book', children: [] },
 
   { kind: 'section', label: 'Server Surface' },
-  {
-    kind: 'parent',
-    path: '/server/routes',
-    label: 'Routes',
-    icon: 'route',
-    children: [
-      { kind: 'leaf', path: '/server/routes', label: 'Overview' },
-      ...serverRouteChildren,
-    ],
-  },
+  { kind: 'parent', path: '/server/routes',    label: 'Routes',    icon: 'route',  children: [] },
   {
     kind: 'parent',
     path: '/server/utilities',
@@ -126,9 +89,7 @@ const navItems: NavNode[] = [
     ],
   },
 
-  { kind: 'section', label: 'Reference' },
-  { kind: 'parent', path: '/reference/utilities', label: 'Utilities', icon: 'book', children: [] },
-  { kind: 'parent', path: '/reference/errors',    label: 'Errors',    icon: 'book', children: [] },
+  { kind: 'section', label: 'Playground Internals' },
   {
     kind: 'parent',
     path: '/tools',

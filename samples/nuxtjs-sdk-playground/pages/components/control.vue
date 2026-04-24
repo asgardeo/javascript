@@ -79,6 +79,10 @@ const nestedCode = `<!-- Compose control components for conditional layouts -->
       title="Control Components"
       description="Gate content on authentication state — AsgardeoSignedIn, AsgardeoSignedOut, AsgardeoLoading."
     />
+    <div class="flex items-center gap-2 -mt-2">
+      <SharedStatusBadge status="info" label="Auto-imported" />
+      <span class="text-xs text-text-muted">from <code class="font-mono">@asgardeo/nuxt</code></span>
+    </div>
 
     <!-- Current state banner -->
     <div class="flex flex-wrap items-center gap-3 px-4 py-3 rounded-lg bg-surface-muted border border-border text-sm">

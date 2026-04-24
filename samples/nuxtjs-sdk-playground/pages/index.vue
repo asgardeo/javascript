@@ -92,7 +92,7 @@ const quickLinks = [
   {
     path: '/reference/utilities',
     title: 'Reference',
-    description: 'createRouteMatcher, maskToken, createLogger, AsgardeoError.',
+    description: 'createRouteMatcher, AsgardeoError, ErrorCode.',
     icon: 'book',
   },
 ];

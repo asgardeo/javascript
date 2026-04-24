@@ -115,9 +115,9 @@ export const composables: SdkExport[] = [
 // ── Middleware ─────────────────────────────────────────────────────────────
 
 export const middleware: SdkExport[] = [
-  { name: 'auth (named)',        description: 'Named middleware — protects a page from unauthenticated access.',  path: '/middleware/protected'   },
-  { name: 'requireOrganization', description: 'Redirects when the user has no active organization.',              path: '/middleware/org-required' },
-  { name: 'requireScopes',       description: 'Redirects when the user is missing required scopes.',              path: '/middleware/scoped'       },
+  { name: 'auth (named)',             description: 'Named middleware — protects a page from unauthenticated access.',                                   path: '/middleware/protected' },
+  { name: 'defineAsgardeoMiddleware', description: 'Factory for typed route middleware with requireOrganization / requireScopes options.',              path: '/middleware/factory'   },
+  { name: 'Global middleware',        description: 'createRouteMatcher pattern — protect all routes matching a pattern from a single global middleware.', path: '/middleware/global'    },
 ];
 
 // ── Server: built-in /api/auth/* routes ────────────────────────────────────
@@ -172,7 +172,7 @@ export const serverRoutes: ServerRouteDomain[] = [
       { method: 'GET',  path: '/api/auth/organizations/me',      description: 'Organizations the current user belongs to.', page: '/server/routes/organizations/me',     composable: 'useOrganization().myOrganizations'       },
       { method: 'GET',  path: '/api/auth/organizations/current', description: 'The currently active organization.',         page: '/server/routes/organizations/current', composable: 'useOrganization().currentOrganization'   },
       { method: 'GET',  path: '/api/auth/organizations/:id',     description: 'Get a single organization by ID.',           page: '/server/routes/organizations/by-id',   composable: '—' },
-      { method: 'POST', path: '/api/auth/organizations/switch',  description: 'Switch the active organization.',            page: '/server/routes/organizations/switch',  composable: 'useOrganization().switchOrganization()'  },
+      { method: 'POST', path: '/api/auth/organizations/switch',  description: 'Switch the active organization.',            page: '/server/routes/organizations/switch',  composable: 'useOrganization().onOrganizationSwitch()'  },
     ],
   },
   {
@@ -180,7 +180,7 @@ export const serverRoutes: ServerRouteDomain[] = [
     label: 'Branding',
     description: 'Organization branding preferences.',
     routes: [
-      { method: 'GET', path: '/api/auth/branding', description: 'Current branding preference.', page: '/server/routes/branding', composable: 'useBranding().fetchBranding()' },
+      { method: 'GET', path: '/api/auth/branding', description: 'Current branding preference.', page: '/server/routes/branding', composable: 'useBranding().revalidateBranding()' },
     ],
   },
 ];
@@ -188,18 +188,13 @@ export const serverRoutes: ServerRouteDomain[] = [
 // ── Server utilities ──────────────────────────────────────────────────────
 
 export const serverUtilities: SdkExport[] = [
-  { name: 'useServerSession',    description: 'Read the signed session cookie inside a Nitro handler.',        path: '/server/utilities/session'  },
-  { name: 'getValidAccessToken', description: 'Return a guaranteed-fresh access token (silent refresh).',      path: '/server/utilities/token'    },
-  { name: 'AsgardeoNuxtClient',  description: 'Server-side SDK client — user / org / branding calls.',         path: '/server/utilities/userinfo' },
+  { name: 'useServerSession',     description: 'Read the signed session cookie inside a Nitro handler.',                 path: '/server/utilities/session' },
+  { name: 'requireServerSession', description: 'Assert the session exists; throws 401 if not signed in.',                path: '/server/utilities/session' },
+  { name: 'getValidAccessToken',  description: 'Return a guaranteed-fresh access token (silent refresh).',               path: '/server/utilities/token'   },
+  { name: 'getAsgardeoContext',   description: 'Typed accessor for event.context.asgardeo — session, isSignedIn, ssr.', path: '/server/utilities/context' },
 ];
 
-// ── Reference — non-composable utilities ──────────────────────────────────
-
-export const referenceUtilities: SdkExport[] = [
-  { name: 'createRouteMatcher', description: 'Build a matcher function from route patterns.',       path: '/reference/utilities#createRouteMatcher' },
-  { name: 'maskToken',          description: 'Mask a token for safe logging.',                      path: '/reference/utilities#maskToken'          },
-  { name: 'createLogger',       description: 'Create a namespaced logger with level controls.',     path: '/reference/utilities#createLogger'       },
-];
+// ── Reference — errors ──────────────────────────────────────────────────
 
 export const referenceErrors: SdkExport[] = [
   { name: 'AsgardeoError', description: 'Base error class thrown by the SDK.',    path: '/reference/errors#AsgardeoError' },

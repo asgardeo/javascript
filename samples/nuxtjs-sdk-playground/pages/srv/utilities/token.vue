@@ -24,7 +24,8 @@ async function fetchToken() {
 fetchToken();
 
 const codeSnippet = `// server/api/demo/token.get.ts
-// getValidAccessToken is auto-imported by @asgardeo/nuxt — no import needed.
+import { useServerSession, getValidAccessToken } from '@asgardeo/nuxt/server';
+
 export default defineEventHandler(async (event) => {
   // Reads the session; detects whether a refresh happened.
   const sessionBefore = await useServerSession(event);
@@ -55,6 +56,10 @@ export default defineEventHandler(async (event) => {
       title="getValidAccessToken"
       description="Obtain a guaranteed-fresh access token from any Nitro server handler. Silently performs a refresh_token grant when the stored token is near expiry."
     />
+    <div class="flex items-center gap-2 -mt-2">
+      <SharedStatusBadge status="neutral" label="Explicit import" />
+      <code class="text-xs font-mono text-text-muted">import { getValidAccessToken } from '@asgardeo/nuxt/server'</code>
+    </div>
 
     <!-- ── What it does ────────────────────────────────────────────────── -->
     <LayoutSectionCard title="What it does">
@@ -74,8 +79,8 @@ export default defineEventHandler(async (event) => {
           <li>Throws a <code class="font-mono">401</code> if the token is expired and no refresh token is available.</li>
         </ul>
         <p>
-          Auto-imported by <code class="font-mono">@asgardeo/nuxt</code> — no import statement
-          needed in your server files.
+          Requires an <strong class="text-text">explicit import</strong> from
+          <code class="font-mono">@asgardeo/nuxt/server</code> in your server files.
         </p>
       </div>
     </LayoutSectionCard>

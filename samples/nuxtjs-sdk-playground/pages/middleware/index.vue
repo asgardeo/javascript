@@ -18,22 +18,22 @@ const cards = [
     snippet: "definePageMeta({ middleware: ['auth'] })",
   },
   {
-    path: '/middleware/org-required',
-    label: 'requireOrganization',
-    badge: 'inline middleware',
-    badgeStatus: 'warning' as const,
+    path: '/middleware/factory',
+    label: 'defineAsgardeoMiddleware',
+    badge: 'factory — auto-imported',
+    badgeStatus: 'success' as const,
     description:
-      'Require the user to be acting within an organization. Uses defineAsgardeoMiddleware() with the requireOrganization option.',
+      'Factory for typed inline middleware. Pass requireOrganization, requireScopes, or a custom redirectTo to guard any page.',
     snippet: "defineAsgardeoMiddleware({ requireOrganization: true })",
   },
   {
-    path: '/middleware/scoped',
-    label: 'requireScopes',
-    badge: 'inline middleware',
-    badgeStatus: 'warning' as const,
+    path: '/middleware/global',
+    label: 'Global middleware',
+    badge: 'explicit import',
+    badgeStatus: 'neutral' as const,
     description:
-      "Guard a page behind specific OAuth scopes. Only users whose session contains all listed scopes can proceed.",
-    snippet: "defineAsgardeoMiddleware({ requireScopes: ['openid', 'profile'] })",
+      'Use createRouteMatcher from @asgardeo/nuxt/utils in a middleware/*.global.ts file to protect entire route patterns at once.',
+    snippet: "createRouteMatcher(['/app/**', '/dashboard'])",
   },
 ];
 

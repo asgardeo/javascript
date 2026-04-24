@@ -100,6 +100,10 @@ injectBundles({
       title="useAsgardeoI18n"
       description="Access internationalization utilities — translate keys, switch languages, and inject custom bundles."
     />
+    <div class="flex items-center gap-2 -mt-2">
+      <SharedStatusBadge status="info" label="Auto-imported" />
+      <span class="text-xs text-text-muted">from <code class="font-mono">@asgardeo/nuxt</code></span>
+    </div>
 
     <!-- ── Reactive State ───────────────────────────────────────────────── -->
     <LayoutSectionCard title="Reactive State">

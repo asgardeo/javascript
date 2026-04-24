@@ -6,7 +6,8 @@
         "dev": "nuxi dev",
         "build": "nuxi build",
         "preview": "nuxi preview",
-        "prepare": "nuxi prepare"
+        "prepare": "nuxi prepare",
+        "test": "vitest run"
     },
     "dependencies": {
         "@asgardeo/nuxt": "workspace:*",
@@ -17,6 +18,7 @@
         "@nuxt/devtools": "2.4.0",
         "@nuxtjs/tailwindcss": "^6.12.0",
         "tailwindcss": "^3.4.0",
-        "typescript": "5.8.3"
+        "typescript": "5.8.3",
+        "vitest": "^3.0.0"
     }
 }

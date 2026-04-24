@@ -75,6 +75,10 @@ await refetch();`;
       title="useBranding"
       description="Fetch and access the organization's branding preference and resolved Theme object from the Asgardeo console."
     />
+    <div class="flex items-center gap-2 -mt-2">
+      <SharedStatusBadge status="info" label="Auto-imported" />
+      <span class="text-xs text-text-muted">from <code class="font-mono">@asgardeo/nuxt</code></span>
+    </div>
 
     <!-- ── Reactive State ───────────────────────────────────────────────── -->
     <LayoutSectionCard title="Reactive State">

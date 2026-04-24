@@ -152,6 +152,10 @@ const res = await http.request({ url: '/scim2/Me', method: 'GET' });`;
       title="useAsgardeo"
       description="Core composable — reactive auth state, redirect actions, token getters, and authenticated HTTP client."
     />
+    <div class="flex items-center gap-2 -mt-2">
+      <SharedStatusBadge status="info" label="Auto-imported" />
+      <span class="text-xs text-text-muted">from <code class="font-mono">@asgardeo/nuxt</code></span>
+    </div>
 
     <!-- ── Reactive State ───────────────────────────────────────────────── -->
     <LayoutSectionCard title="Reactive State">

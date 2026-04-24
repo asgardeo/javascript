@@ -66,8 +66,8 @@ const methodClass = (method: string) => {
 <template>
   <div class="space-y-6">
     <LayoutPageHeader
-      title="Server Routes — Overview"
-      description="All built-in /api/auth/* routes registered by @asgardeo/nuxt. Click any row to open the route's demo page."
+      title="Server Routes"
+      description="All built-in /api/auth/* routes registered by @asgardeo/nuxt."
     />
 
     <LayoutSectionCard title="Filter & Smoke Test">
@@ -108,8 +108,7 @@ const methodClass = (method: string) => {
             <tr
               v-for="r in filteredRoutes"
               :key="r.path + r.method"
-              class="hover:bg-surface-muted cursor-pointer transition-colors"
-              @click="navigateTo(r.page)"
+              class="hover:bg-surface-muted transition-colors"
             >
               <td class="py-2 pr-4 text-xs text-text-muted">{{ r.domain }}</td>
               <td class="py-2 pr-4">

@@ -46,6 +46,10 @@ const { isSignedIn, user } = useAsgardeo();
       title="auth (named middleware)"
       description="The built-in named middleware shipped by @asgardeo/nuxt. Reference it by name in any page to require authentication."
     />
+    <div class="flex items-center gap-2 -mt-2">
+      <SharedStatusBadge status="info" label="Auto-imported" />
+      <span class="text-xs text-text-muted">from <code class="font-mono">@asgardeo/nuxt</code></span>
+    </div>
 
     <!-- ── Proof banner ──────────────────────────────────────────────── -->
     <div

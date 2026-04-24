@@ -61,6 +61,10 @@ const createOrgCode = `<!-- Form to create a new sub-organization -->
       title="Organization Components"
       description="AsgardeoOrganization (control), AsgardeoOrganizationList, AsgardeoOrganizationSwitcher, AsgardeoOrganizationProfile, AsgardeoCreateOrganization."
     />
+    <div class="flex items-center gap-2 -mt-2">
+      <SharedStatusBadge status="info" label="Auto-imported" />
+      <span class="text-xs text-text-muted">from <code class="font-mono">@asgardeo/nuxt</code></span>
+    </div>
 
     <!-- Current org banner -->
     <div class="flex flex-wrap items-center gap-3 px-4 py-3 rounded-lg bg-surface-muted border border-border text-sm">

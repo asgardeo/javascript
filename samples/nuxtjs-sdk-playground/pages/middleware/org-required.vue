@@ -73,8 +73,8 @@ definePageMeta({
 <template>
   <div class="space-y-6">
     <LayoutPageHeader
-      title="requireOrganization"
-      description="Use defineAsgardeoMiddleware({ requireOrganization: true }) to restrict a page to users who are acting within an Asgardeo organization."
+      title="requireOrganization option"
+      description="Example of defineAsgardeoMiddleware({ requireOrganization: true }) — redirects users who are not acting within an Asgardeo organization."
     />
 
     <!-- ── Dry-run result ────────────────────────────────────────────── -->

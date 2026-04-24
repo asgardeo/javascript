@@ -1,9 +1,4 @@
 <script setup lang="ts">
-// See pages/debug/index.vue for why the Asgardeo state-key types are not
-// imported here. We only read `authState.isSignedIn`, so that one is typed
-// inline; the rest flow through `isPopulated()` / `SharedJsonViewer` which
-// accept `unknown`.
-
 // ── Read current preferences from runtime config ──────────────────────────
 // These are baked in at build time from nuxt.config.ts and are safe to
 // expose — secrets (clientSecret, sessionSecret) are filtered out by the SDK.
@@ -22,19 +17,6 @@ const pub = config.public.asgardeo as {
 };
 const prefs = pub.preferences ?? {};
 
-// ── Read SSR state to show empty vs populated ─────────────────────────────
-const userProfile   = useState('asgardeo:user-profile');
-const myOrgs        = useState('asgardeo:my-orgs');
-const brandingState = useState('asgardeo:branding');
-const authState     = useState<{ isSignedIn: boolean }>('asgardeo:auth');
-
-function isPopulated(v: unknown): boolean {
-  if (v === null || v === undefined) return false;
-  if (Array.isArray(v)) return v.length > 0;
-  if (typeof v === 'object') return Object.keys(v as object).length > 0;
-  return true;
-}
-
 // ── Preference flag definitions ───────────────────────────────────────────
 const prefFlags = computed(() => [
   {
@@ -42,8 +24,6 @@ const prefFlags = computed(() => [
     current: prefs.user?.fetchUserProfile !== false,
     default: true,
     description: 'Fetch the full SCIM2 user profile during SSR. Populates asgardeo:user-profile.',
-    ssrKey: 'asgardeo:user-profile',
-    ssrValue: userProfile.value,
     impact: 'Disabling saves one SCIM2 API call per SSR request. The useUser() composable will return a partial object derived from the ID token only.',
   },
   {
@@ -51,8 +31,6 @@ const prefFlags = computed(() => [
     current: prefs.user?.fetchOrganizations !== false,
     default: true,
     description: "Fetch the user's organizations during SSR. Populates asgardeo:my-orgs.",
-    ssrKey: 'asgardeo:my-orgs',
-    ssrValue: myOrgs.value,
     impact: 'Disabling saves one /my-orgs API call per SSR request. The useOrganization() composable will not receive a pre-populated org list.',
   },
   {
@@ -60,8 +38,6 @@ const prefFlags = computed(() => [
     current: prefs.theme?.inheritFromBranding === true,
     default: false,
     description: 'Fetch the tenant branding preference during SSR. Populates asgardeo:branding and passes it to BrandingProvider / ThemeProvider.',
-    ssrKey: 'asgardeo:branding',
-    ssrValue: brandingState.value,
     impact: 'Enabling adds one branding API call per SSR request but allows components like AsgardeoSignInButton to inherit the tenant color scheme automatically.',
   },
 ]);
@@ -120,8 +96,7 @@ const preferences = config.public.asgardeo.preferences;`;
             <tr class="border-b border-border text-left">
               <th class="pb-2 pr-4 font-medium text-text-muted">Flag</th>
               <th class="pb-2 pr-4 font-medium text-text-muted">Default</th>
-              <th class="pb-2 pr-4 font-medium text-text-muted">Current</th>
-              <th class="pb-2 font-medium text-text-muted">SSR key status</th>
+              <th class="pb-2 font-medium text-text-muted">Current</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-border text-xs">
@@ -134,15 +109,6 @@ const preferences = config.public.asgardeo.preferences;`;
                   :label="String(pref.current)"
                 />
               </td>
-              <td class="py-3">
-                <div class="flex items-center gap-2">
-                  <SharedStatusBadge
-                    :status="isPopulated(pref.ssrValue) ? 'success' : (pref.current && authState.isSignedIn ? 'warning' : 'neutral')"
-                    :label="isPopulated(pref.ssrValue) ? 'populated' : 'null / empty'"
-                  />
-                  <span class="font-mono text-text-muted">{{ pref.ssrKey }}</span>
-                </div>
-              </td>
             </tr>
             <tr>
               <td class="py-3 pr-4 font-mono text-text">preferences.theme.mode</td>
@@ -150,7 +116,6 @@ const preferences = config.public.asgardeo.preferences;`;
               <td class="py-3 pr-4">
                 <SharedStatusBadge status="info" :label="themeModeValue" />
               </td>
-              <td class="py-3 text-text-muted text-xs">{{ themeModeDocs[themeModeValue] ?? themeModeValue }}</td>
             </tr>
           </tbody>
         </table>
@@ -167,19 +132,12 @@ const preferences = config.public.asgardeo.preferences;`;
     >
       <div class="space-y-4">
         <!-- Current state -->
-        <div class="grid grid-cols-2 gap-4 text-sm">
+        <div class="grid grid-cols-1 gap-4 text-sm">
           <div>
             <p class="text-xs text-text-muted mb-1">Preference enabled</p>
             <SharedStatusBadge
               :status="pref.current ? 'success' : 'neutral'"
               :label="pref.current ? 'true (enabled)' : 'false (disabled)'"
-            />
-          </div>
-          <div>
-            <p class="text-xs text-text-muted mb-1">SSR key: <code class="font-mono">{{ pref.ssrKey }}</code></p>
-            <SharedStatusBadge
-              :status="isPopulated(pref.ssrValue) ? 'success' : (pref.current && authState.isSignedIn ? 'warning' : 'neutral')"
-              :label="isPopulated(pref.ssrValue) ? 'populated' : (pref.current && authState.isSignedIn ? 'enabled but empty — check sign-in' : 'null / empty')"
             />
           </div>
         </div>
@@ -189,20 +147,6 @@ const preferences = config.public.asgardeo.preferences;`;
           <strong class="text-text">Impact when disabled:</strong>
           {{ pref.impact }}
         </div>
-
-        <!-- SSR value preview -->
-        <div v-if="isPopulated(pref.ssrValue)">
-          <p class="text-xs text-text-muted mb-2">Current value:</p>
-          <div class="rounded-md bg-surface-code border border-border p-4 overflow-x-auto text-sm leading-relaxed">
-            <SharedJsonViewer :data="pref.ssrValue" :depth="0" />
-          </div>
-        </div>
-        <p v-else class="text-xs text-text-muted italic">
-          {{ pref.current
-            ? (authState.isSignedIn ? 'Preference is enabled but the SSR key is empty — the API call may have failed or returned no data.' : 'Sign in to see data populated in this SSR key.')
-            : 'Preference is disabled. Set to true in nuxt.config.ts to populate this SSR key.'
-          }}
-        </p>
       </div>
     </LayoutSectionCard>
 

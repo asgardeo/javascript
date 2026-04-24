@@ -31,6 +31,10 @@ const callbackCode = `<!-- pages/auth/callback.vue -->
       title="Auth Components"
       description="Full-page auth primitives — SignIn, SignUp, and the post-redirect Callback handler."
     />
+    <div class="flex items-center gap-2 -mt-2">
+      <SharedStatusBadge status="info" label="Auto-imported" />
+      <span class="text-xs text-text-muted">from <code class="font-mono">@asgardeo/nuxt</code></span>
+    </div>
 
     <LayoutTabGroup v-model="activeTab" :tabs="tabs" />
 
