@@ -124,7 +124,7 @@ await switchOrganization({ organizationId: 'target-org-id' });
     <LayoutSectionCard title="Related composable">
       <p class="text-sm text-text-muted">
         <code class="font-mono">useOrganization().switchOrganization({ organizationId })</code>
-        See <NuxtLink to="/apis/organization" class="text-accent-600 hover:underline">APIs → useOrganization</NuxtLink>.
+        See <NuxtLink to="/composables/organization" class="text-accent-600 hover:underline">Composables → useOrganization</NuxtLink>.
       </p>
     </LayoutSectionCard>
 

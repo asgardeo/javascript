@@ -34,6 +34,18 @@
     "./server": {
       "types": "./dist/runtime/server/index.d.ts",
       "import": "./dist/runtime/server/index.js"
+    },
+    "./errors": {
+      "types": "./dist/runtime/errors/index.d.ts",
+      "import": "./dist/runtime/errors/index.js"
+    },
+    "./utils/log": {
+      "types": "./dist/runtime/utils/log.d.ts",
+      "import": "./dist/runtime/utils/log.js"
+    },
+    "./utils/createRouteMatcher": {
+      "types": "./dist/runtime/utils/createRouteMatcher.d.ts",
+      "import": "./dist/runtime/utils/createRouteMatcher.js"
     }
   },
   "main": "./dist/module.mjs",
@@ -44,6 +56,15 @@
       ],
       "server": [
         "./dist/runtime/server/index.d.ts"
+      ],
+      "errors": [
+        "./dist/runtime/errors/index.d.ts"
+      ],
+      "utils/log": [
+        "./dist/runtime/utils/log.d.ts"
+      ],
+      "utils/createRouteMatcher": [
+        "./dist/runtime/utils/createRouteMatcher.d.ts"
       ]
     }
   },

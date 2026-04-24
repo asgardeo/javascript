@@ -73,37 +73,37 @@ samples/nuxtjs-sdk-playground/
 |  | `/components/actions` | Sign-in / sign-out / sign-up buttons — props, slots, callbacks |
 |  | `/components/user` | `AsgardeoUser`, `AsgardeoUserProfile`, `AsgardeoUserDropdown` |
 |  | `/components/organization` | `AsgardeoOrganization`, `AsgardeoOrganizationProfile`, `AsgardeoOrganizationSwitcher`, `AsgardeoOrganizationList`, `AsgardeoCreateOrganization` |
-| **Public APIs** | `/apis/asgardeo` | `useAsgardeo` — `isSignedIn`, `isLoading`, `user`, `signIn`, `signOut`, `signUp` |
-|  | `/apis/user` | `useUser` — `profile`, `flattenedProfile`, `schemas`, `updateProfile`, `revalidateProfile` |
-|  | `/apis/organization` | `useOrganization` — `currentOrganization`, `myOrganizations`, `getAllOrganizations`, `onOrganizationSwitch` |
-|  | `/apis/flow` | `useFlow` |
-|  | `/apis/theme` | `useTheme` — light/dark toggle, branding |
-|  | `/apis/branding` | `useBranding` — `BrandingPreference` display, `fetchBranding()` hits `GET /api/auth/branding` |
-|  | `/apis/i18n` | `useAsgardeoI18n` — locale switching at runtime |
-| **SDK Routes** | `/routes` | Overview table of all `/api/auth/*` routes + one-click smoke-test |
-|  | `/routes/session/signin` | `GET /api/auth/signin` — initiates the OAuth2 redirect flow |
-|  | `/routes/session/callback` | `GET /api/auth/callback` — code exchange & session cookie |
-|  | `/routes/session/signout` | `POST /api/auth/signout` — CSRF-safe session teardown |
-|  | `/routes/session/session` | `GET /api/auth/session` — decoded session state |
-|  | `/routes/session/token` | `GET /api/auth/token` — current access token |
-|  | `/routes/user/user` | `GET /api/auth/user` — basic user info from ID token claims |
-|  | `/routes/user/profile-get` | `GET /api/auth/user/profile` — full SCIM2 profile |
-|  | `/routes/user/profile-patch` | `PATCH /api/auth/user/profile` — update profile via SCIM2 PatchOp |
-|  | `/routes/organizations/list` | `GET /api/auth/organizations` — list all orgs with filter + pagination |
-|  | `/routes/organizations/create` | `POST /api/auth/organizations` — create a new organization |
-|  | `/routes/organizations/me` | `GET /api/auth/organizations/me` — user's own org memberships |
-|  | `/routes/organizations/current` | `GET /api/auth/organizations/current` — currently active org |
-|  | `/routes/organizations/by-id` | `GET /api/auth/organizations/:id` — single org by ID |
-|  | `/routes/organizations/switch` | `POST /api/auth/organizations/switch` — switch active org |
-|  | `/routes/branding` | `GET /api/auth/branding` — org branding preference |
-| **Server Utilities** | `/server/session` | `useServerSession(event)` + `requireServerSession(event)` |
-|  | `/server/token` | `getValidAccessToken(event)` — proactive refresh demo |
-|  | `/server/userinfo` | `AsgardeoNuxtClient.getInstance().getUserProfile()` |
+| **Composables** | `/composables/asgardeo` | `useAsgardeo` — `isSignedIn`, `isLoading`, `user`, `signIn`, `signOut`, `signUp` |
+|  | `/composables/user` | `useUser` — `profile`, `flattenedProfile`, `schemas`, `updateProfile`, `revalidateProfile` |
+|  | `/composables/organization` | `useOrganization` — `currentOrganization`, `myOrganizations`, `getAllOrganizations`, `onOrganizationSwitch` |
+|  | `/composables/flow` | `useFlow` |
+|  | `/composables/theme` | `useTheme` — light/dark toggle, branding |
+|  | `/composables/branding` | `useBranding` — `BrandingPreference` display, `fetchBranding()` hits `GET /api/auth/branding` |
+|  | `/composables/i18n` | `useAsgardeoI18n` — locale switching at runtime |
+| **Server Routes** | `/server/routes` | Overview table of all `/api/auth/*` routes + one-click smoke-test |
+|  | `/server/routes/session/signin` | `GET /api/auth/signin` — initiates the OAuth2 redirect flow |
+|  | `/server/routes/session/callback` | `GET /api/auth/callback` — code exchange & session cookie |
+|  | `/server/routes/session/signout` | `POST /api/auth/signout` — CSRF-safe session teardown |
+|  | `/server/routes/session/session` | `GET /api/auth/session` — decoded session state |
+|  | `/server/routes/session/token` | `GET /api/auth/token` — current access token |
+|  | `/server/routes/user/user` | `GET /api/auth/user` — basic user info from ID token claims |
+|  | `/server/routes/user/profile-get` | `GET /api/auth/user/profile` — full SCIM2 profile |
+|  | `/server/routes/user/profile-patch` | `PATCH /api/auth/user/profile` — update profile via SCIM2 PatchOp |
+|  | `/server/routes/organizations/list` | `GET /api/auth/organizations` — list all orgs with filter + pagination |
+|  | `/server/routes/organizations/create` | `POST /api/auth/organizations` — create a new organization |
+|  | `/server/routes/organizations/me` | `GET /api/auth/organizations/me` — user's own org memberships |
+|  | `/server/routes/organizations/current` | `GET /api/auth/organizations/current` — currently active org |
+|  | `/server/routes/organizations/by-id` | `GET /api/auth/organizations/:id` — single org by ID |
+|  | `/server/routes/organizations/switch` | `POST /api/auth/organizations/switch` — switch active org |
+|  | `/server/routes/branding` | `GET /api/auth/branding` — org branding preference |
+| **Server Utilities** | `/server/utilities/session` | `useServerSession(event)` + `requireServerSession(event)` |
+|  | `/server/utilities/token` | `getValidAccessToken(event)` — proactive refresh demo |
+|  | `/server/utilities/userinfo` | `AsgardeoNuxtClient.getInstance().getUserProfile()` |
 | **Middleware** | `/middleware/protected` | Named `'auth'` middleware — `returnTo` flow |
 |  | `/middleware/org-required` | `defineAsgardeoMiddleware({ requireOrganization: true })` |
 |  | `/middleware/scoped` | `defineAsgardeoMiddleware({ requireScopes: [...] })` |
-| **Debug** | `/debug` | All `useState('asgardeo:*')` keys — live JSON tree |
-|  | `/debug/preferences` | `useRuntimeConfig().public.asgardeo.preferences` inspector |
+| **Playground Tools** | `/playground/state` | All `useState('asgardeo:*')` keys — live JSON tree |
+|  | `/playground/preferences` | `useRuntimeConfig().public.asgardeo.preferences` inspector |
 
 ---
 
@@ -169,30 +169,37 @@ const { toggleMode } = useThemeMode();
 
 ## Add a new demo in 3 minutes
 
-Every demo page is a **self-contained leaf** — no shared stores, no cross-page state. Adding one is:
+Every demo page is a **self-contained leaf** — no shared stores, no cross-page state. The sidebar
+and every section-overview page are driven from one file, so you don't edit navigation by hand.
 
-### 1. Copy the template page
+### 1. Add a manifest entry
 
-```bash
-cp pages/apis/asgardeo.vue pages/apis/my-new-api.vue
+Open [`utils/sdk-manifest.ts`](utils/sdk-manifest.ts) and add one object to the group that matches
+your export's surface (`composables`, `componentGroups`, `middleware`, `serverRoutes`,
+`serverUtilities`, etc.):
+
+```ts
+// utils/sdk-manifest.ts — inside `composables`
+{ name: 'useMyThing', description: 'One-line summary.', path: '/composables/my-thing' },
 ```
 
-`pages/apis/asgardeo.vue` is the reference template. It shows the canonical structure:
+The sidebar and the overview cards update automatically.
+
+### 2. Create the page
+
+```bash
+cp pages/composables/asgardeo.vue pages/composables/my-thing.vue
+```
+
+`pages/composables/asgardeo.vue` is the reference template. It shows the canonical structure:
 - `<LayoutPageHeader>` at the top
 - One or more `<LayoutSectionCard>` blocks (each wraps a feature)
 - A `<SharedResultPanel>` wired to a `$fetch` call
 - A `<LayoutCodeBlock>` at the bottom with the copy-pasteable snippet
 
-### 2. Add a nav entry
-
-Open `components/layout/Sidebar.vue` and add one object to the relevant `children` array:
-
-```ts
-// Inside the 'Public APIs' navItem children:
-{ path: '/apis/my-new-api', label: 'myNewComposable' },
-```
-
 Nuxt's file-based routing picks up the new page automatically — no `router.ts` to edit.
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for the full 15-minute rule and conventions.
 
 ### 3. (Optional) Add a backing server route
 
@@ -211,7 +218,7 @@ export default defineEventHandler(async (event) => {
 Then call it from the page:
 
 ```ts
-// pages/apis/my-new-api.vue  <script setup>
+// pages/composables/my-new-api.vue  <script setup>
 const result = ref(null);
 async function fetchData() {
   result.value = await $fetch('/api/demo/my-new');

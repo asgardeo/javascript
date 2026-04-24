@@ -99,7 +99,7 @@ const tokenData = await getToken();
     <LayoutSectionCard title="Related server utility">
       <p class="text-sm text-text-muted">
         <code class="font-mono">getValidAccessToken(event)</code> — Nitro auto-import for server
-        handlers. See <NuxtLink to="/server/token" class="text-accent-600 hover:underline">Server Utilities → getValidAccessToken</NuxtLink>.
+        handlers. See <NuxtLink to="/server/utilities/token" class="text-accent-600 hover:underline">Server Utilities → getValidAccessToken</NuxtLink>.
       </p>
     </LayoutSectionCard>
 

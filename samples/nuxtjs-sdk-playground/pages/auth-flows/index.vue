@@ -274,7 +274,7 @@ await signOut();
         </p>
         <p>
           See the route explorer:
-          <NuxtLink to="/routes/session/signout" class="text-accent-600 hover:underline">
+          <NuxtLink to="/server/routes/session/signout" class="text-accent-600 hover:underline">
             POST /api/auth/signout
           </NuxtLink>.
         </p>

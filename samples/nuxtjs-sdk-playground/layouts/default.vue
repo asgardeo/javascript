@@ -16,7 +16,7 @@ const { theme, mode } = useThemeMode();
     <LayoutSidebar />
     <!-- Page content pushed right of the fixed sidebar on md+ -->
     <div class="md:ml-64">
-      <main class="p-6 max-w-5xl">
+      <main class="p-6">
         <slot />
       </main>
     </div>
