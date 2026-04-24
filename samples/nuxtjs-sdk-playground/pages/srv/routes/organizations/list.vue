@@ -109,7 +109,7 @@ const result = await getAllOrganizations();`;
     <LayoutSectionCard title="Related composable">
       <p class="text-sm text-text-muted">
         <code class="font-mono">useOrganization().getAllOrganizations()</code> — calls this route.
-        See <NuxtLink to="/apis/organization" class="text-accent-600 hover:underline">APIs → useOrganization</NuxtLink>.
+        See <NuxtLink to="/composables/organization" class="text-accent-600 hover:underline">Composables → useOrganization</NuxtLink>.
       </p>
     </LayoutSectionCard>
 

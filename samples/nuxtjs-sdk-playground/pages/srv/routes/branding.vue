@@ -93,7 +93,7 @@ await refetch();            // force re-fetch (bypasses dedup, hits this route)
           route.
         </p>
         <p>
-          See <NuxtLink to="/apis/branding" class="text-accent-600 hover:underline">APIs → useBranding</NuxtLink>.
+          See <NuxtLink to="/composables/branding" class="text-accent-600 hover:underline">Composables → useBranding</NuxtLink>.
         </p>
       </div>
     </LayoutSectionCard>

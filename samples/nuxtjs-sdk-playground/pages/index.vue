@@ -68,20 +68,14 @@ const quickLinks = [
   {
     path: '/components',
     title: 'Components',
-    description: 'Every UI component — control, actions, user, organization.',
+    description: 'Auth, control, actions, user, and organization components.',
     icon: 'box',
   },
   {
-    path: '/apis/asgardeo',
-    title: 'Public APIs',
-    description: 'Test every composable method interactively.',
+    path: '/composables',
+    title: 'Composables',
+    description: 'Every auto-imported composable — explored interactively.',
     icon: 'code',
-  },
-  {
-    path: '/server/session',
-    title: 'Server Utils',
-    description: 'useServerSession, getValidAccessToken, AsgardeoNuxtClient.',
-    icon: 'server',
   },
   {
     path: '/middleware/protected',
@@ -90,10 +84,16 @@ const quickLinks = [
     icon: 'shield',
   },
   {
-    path: '/debug',
-    title: 'Debug',
-    description: 'Raw useState dump and preferences inspector.',
-    icon: 'bug',
+    path: '/server',
+    title: 'Server',
+    description: 'Built-in /api/auth/* routes and the Nitro utilities.',
+    icon: 'server',
+  },
+  {
+    path: '/reference/utilities',
+    title: 'Reference',
+    description: 'createRouteMatcher, maskToken, createLogger, AsgardeoError.',
+    icon: 'book',
   },
 ];
 

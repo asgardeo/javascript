@@ -78,7 +78,7 @@ const profile = await getUserProfile();
           updates reactive state.
         </p>
         <p>
-          <NuxtLink to="/routes/user/profile-patch" class="text-accent-600 hover:underline">
+          <NuxtLink to="/server/routes/user/profile-patch" class="text-accent-600 hover:underline">
             PATCH /api/auth/user/profile
           </NuxtLink> — update the profile.
         </p>

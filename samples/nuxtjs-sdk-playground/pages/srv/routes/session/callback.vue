@@ -54,7 +54,7 @@ const codeSnippet = `// This route is called automatically by Asgardeo after aut
       <p class="text-sm text-text-muted">
         This route is called by Asgardeo's servers automatically — there is no user-triggered live
         demo here. Use the
-        <NuxtLink to="/routes/session/signin" class="text-accent-600 hover:underline">Sign In</NuxtLink>
+        <NuxtLink to="/server/routes/session/signin" class="text-accent-600 hover:underline">Sign In</NuxtLink>
         demo to start the full flow.
       </p>
     </LayoutSectionCard>

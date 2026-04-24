@@ -1,135 +1,222 @@
 <script setup lang="ts">
-import { ref, watch, onMounted } from 'vue';
+import { ref, watch, onMounted, onUnmounted, computed } from 'vue';
+import { useThemeMode } from '~/composables/useThemeMode';
+import {
+  componentGroups,
+  composables,
+  middleware,
+  serverRoutes,
+  serverUtilities,
+} from '~/utils/sdk-manifest';
 
-type NavChild = { path: string; label: string; badge?: string };
-type NavItem = {
+// ── Types ──────────────────────────────────────────────────────────────────
+
+type IconName =
+  | 'home' | 'key' | 'box' | 'code' | 'server' | 'shield' | 'bug' | 'route' | 'book';
+
+type NavLeaf = { kind: 'leaf'; path: string; label: string; badge?: string };
+type NavDivider = { kind: 'divider'; label: string };
+type NavParent = {
+  kind: 'parent';
   path: string;
   label: string;
-  icon: 'home' | 'key' | 'box' | 'code' | 'server' | 'shield' | 'bug' | 'route';
-  children?: NavChild[];
+  icon: IconName;
+  children: Array<NavLeaf | NavDivider>;
 };
+type NavSection = { kind: 'section'; label: string };
+type NavNode = NavLeaf | NavDivider | NavParent | NavSection;
 
 const route = useRoute();
 const sidebarOpen = ref(false);
 const expandedItems = ref<Set<string>>(new Set());
 
-const navItems: NavItem[] = [
-  { path: '/', label: 'Overview', icon: 'home' },
+// ── Helpers to translate the SDK manifest into sidebar nodes ───────────────
+
+const routeLeafLabel = (method: string, path: string) => {
+  // Turn `/api/auth/organizations/:id` into `GET /organizations/:id`.
+  const suffix = path.replace(/^\/api\/auth/, '') || '/';
+  return `${method} ${suffix}`;
+};
+
+const serverRouteChildren: Array<NavLeaf | NavDivider> = serverRoutes.flatMap(
+  (domain) => [
+    { kind: 'divider' as const, label: domain.label },
+    ...domain.routes.map((r) => ({
+      kind: 'leaf' as const,
+      path: r.page,
+      label: routeLeafLabel(r.method, r.path),
+    })),
+  ],
+);
+
+// ── Nav tree ───────────────────────────────────────────────────────────────
+
+const navItems: NavNode[] = [
+  { kind: 'section', label: 'Getting Started' },
+  { kind: 'parent', path: '/', label: 'Overview', icon: 'home', children: [] },
   {
+    kind: 'parent',
     path: '/auth-flows',
     label: 'Auth Flows',
     icon: 'key',
     children: [
-      { path: '/auth-flows', label: 'Redirect Flow' },
-      { path: '/auth-flows/embedded', label: 'Embedded' },
+      { kind: 'leaf', path: '/auth-flows',          label: 'Redirect Flow' },
+      { kind: 'leaf', path: '/auth-flows/embedded', label: 'Embedded' },
     ],
   },
+
+  { kind: 'section', label: 'Client Surface' },
   {
+    kind: 'parent',
     path: '/components',
     label: 'Components',
     icon: 'box',
-    children: [
-      { path: '/components/control', label: 'Control' },
-      { path: '/components/actions', label: 'Actions' },
-      { path: '/components/user', label: 'User' },
-      { path: '/components/organization', label: 'Organization' },
-    ],
+    children: componentGroups.map((g) => ({
+      kind: 'leaf' as const,
+      path: g.path,
+      label: g.label,
+    })),
   },
   {
-    path: '/apis',
-    label: 'Public APIs',
+    kind: 'parent',
+    path: '/composables',
+    label: 'Composables',
     icon: 'code',
-    children: [
-      { path: '/apis/asgardeo', label: 'useAsgardeo' },
-      { path: '/apis/user', label: 'useUser' },
-      { path: '/apis/organization', label: 'useOrganization' },
-      { path: '/apis/flow', label: 'useFlow' },
-      { path: '/apis/theme', label: 'useTheme' },
-      { path: '/apis/branding', label: 'useBranding' },
-      { path: '/apis/i18n', label: 'useAsgardeoI18n' },
-    ],
+    children: composables.map((c) => ({
+      kind: 'leaf' as const,
+      path: c.path,
+      label: c.name,
+    })),
   },
   {
-    path: '/routes',
-    label: 'SDK Routes',
-    icon: 'route',
-    children: [
-      { path: '/routes', label: 'Overview' },
-      { path: '/routes/session/signin', label: 'GET /signin' },
-      { path: '/routes/session/callback', label: 'GET /callback' },
-      { path: '/routes/session/signout', label: 'POST /signout' },
-      { path: '/routes/session/session', label: 'GET /session' },
-      { path: '/routes/session/token', label: 'GET /token' },
-      { path: '/routes/user/user', label: 'GET /user' },
-      { path: '/routes/user/profile-get', label: 'GET /user/profile' },
-      { path: '/routes/user/profile-patch', label: 'PATCH /user/profile' },
-      { path: '/routes/organizations/list', label: 'GET /organizations' },
-      { path: '/routes/organizations/create', label: 'POST /organizations' },
-      { path: '/routes/organizations/me', label: 'GET /organizations/me' },
-      { path: '/routes/organizations/current', label: 'GET /organizations/current' },
-      { path: '/routes/organizations/by-id', label: 'GET /organizations/:id' },
-      { path: '/routes/organizations/switch', label: 'POST /organizations/switch' },
-      { path: '/routes/branding', label: 'GET /branding' },
-    ],
-  },
-  {
-    path: '/server',
-    label: 'Server Utilities',
-    icon: 'server',
-    children: [
-      { path: '/server/session', label: 'useServerSession' },
-      { path: '/server/token', label: 'getValidAccessToken' },
-      { path: '/server/userinfo', label: 'AsgardeoNuxtClient' },
-    ],
-  },
-  {
+    kind: 'parent',
     path: '/middleware',
     label: 'Middleware',
     icon: 'shield',
+    children: middleware.map((m) => ({
+      kind: 'leaf' as const,
+      path: m.path,
+      label: m.name,
+    })),
+  },
+
+  { kind: 'section', label: 'Server Surface' },
+  {
+    kind: 'parent',
+    path: '/server/routes',
+    label: 'Routes',
+    icon: 'route',
     children: [
-      { path: '/middleware/protected', label: 'auth (named)' },
-      { path: '/middleware/org-required', label: 'requireOrganization' },
-      { path: '/middleware/scoped', label: 'requireScopes' },
+      { kind: 'leaf', path: '/server/routes', label: 'Overview' },
+      ...serverRouteChildren,
     ],
   },
   {
-    path: '/debug',
-    label: 'Debug',
+    kind: 'parent',
+    path: '/server/utilities',
+    label: 'Utilities',
+    icon: 'server',
+    children: [
+      { kind: 'leaf', path: '/server/utilities', label: 'Overview' },
+      ...serverUtilities.map((u) => ({
+        kind: 'leaf' as const,
+        path: u.path,
+        label: u.name,
+      })),
+    ],
+  },
+
+  { kind: 'section', label: 'Reference' },
+  { kind: 'parent', path: '/reference/utilities', label: 'Utilities', icon: 'book', children: [] },
+  { kind: 'parent', path: '/reference/errors',    label: 'Errors',    icon: 'book', children: [] },
+  {
+    kind: 'parent',
+    path: '/playground',
+    label: 'Playground Tools',
     icon: 'bug',
     children: [
-      { path: '/debug', label: 'State dump' },
-      { path: '/debug/preferences', label: 'Preferences' },
+      { kind: 'leaf', path: '/playground/state',       label: 'State dump' },
+      { kind: 'leaf', path: '/playground/preferences', label: 'Preferences' },
     ],
   },
 ];
 
+// Overview is a leaf — simplify by stripping its empty children.
+const renderedNav = computed(() =>
+  navItems.map((n) =>
+    n.kind === 'parent' && n.children.length === 0
+      ? ({ kind: 'leaf', path: n.path, label: n.label, icon: n.icon } as const)
+      : n,
+  ),
+);
+
 const isActive = (path: string) => route.path === path;
-const isParentActive = (item: NavItem) =>
+const isParentActive = (item: NavParent) =>
   item.path !== '/' && route.path.startsWith(item.path);
 
 const toggleExpanded = (path: string) => {
-  if (expandedItems.value.has(path)) {
-    expandedItems.value.delete(path);
-  } else {
-    expandedItems.value.add(path);
-  }
+  if (expandedItems.value.has(path)) expandedItems.value.delete(path);
+  else expandedItems.value.add(path);
 };
 
 const closeSidebar = () => { sidebarOpen.value = false; };
 
 const expandActiveParent = () => {
   for (const item of navItems) {
-    if (item.children) {
-      const childActive = item.children.some(c => route.path === c.path);
-      if ((childActive || isParentActive(item)) && !expandedItems.value.has(item.path)) {
-        expandedItems.value.add(item.path);
-      }
+    if (item.kind !== 'parent' || item.children.length === 0) continue;
+    const childActive = item.children.some(
+      (c) => c.kind === 'leaf' && route.path === c.path,
+    );
+    if ((childActive || isParentActive(item)) && !expandedItems.value.has(item.path)) {
+      expandedItems.value.add(item.path);
     }
   }
 };
 
 onMounted(expandActiveParent);
 watch(() => route.path, expandActiveParent);
+
+// ── Settings popup ────────────────────────────────────────────────────────
+
+const { theme, mode, setTheme, setMode } = useThemeMode();
+
+const settingsOpen          = ref(false);
+const activeSubmenu         = ref<'mode' | 'palette' | null>(null);
+const settingsContainerRef  = ref<HTMLElement | null>(null);
+
+let closeSubmenuTimer: ReturnType<typeof setTimeout> | null = null;
+
+const themes = [
+  { id: 'orange' as const, label: 'Orange', color: '#f97316' },
+  { id: 'blue'   as const, label: 'Blue',   color: '#3b82f6' },
+];
+
+const modes = [
+  { id: 'light' as const, label: 'Light' },
+  { id: 'dark'  as const, label: 'Dark'  },
+];
+
+function openSubmenu(id: 'mode' | 'palette') {
+  if (closeSubmenuTimer) { clearTimeout(closeSubmenuTimer); closeSubmenuTimer = null; }
+  activeSubmenu.value = id;
+}
+
+function scheduleCloseSubmenu() {
+  closeSubmenuTimer = setTimeout(() => { activeSubmenu.value = null; }, 150);
+}
+
+function handleSettingsClickOutside(e: MouseEvent) {
+  if (!settingsContainerRef.value?.contains(e.target as Node)) {
+    settingsOpen.value = false;
+    activeSubmenu.value = null;
+  }
+}
+
+onMounted(() => document.addEventListener('mousedown', handleSettingsClickOutside));
+onUnmounted(() => {
+  document.removeEventListener('mousedown', handleSettingsClickOutside);
+  if (closeSubmenuTimer) clearTimeout(closeSubmenuTimer);
+});
 </script>
 
 <template>
@@ -178,81 +265,200 @@ watch(() => route.path, expandActiveParent);
 
     <!-- Nav — scrollable -->
     <nav class="flex-1 overflow-y-auto py-4 px-2 space-y-0.5">
-      <template v-for="item in navItems" :key="item.path">
-        <!-- Parent / leaf item -->
-        <button
-          type="button"
-          class="w-full text-left flex items-center gap-2.5 px-3 py-2 rounded-md text-sm font-medium transition-colors"
-          :class="
-            item.path === '/'
-              ? isActive(item.path)
-                ? 'bg-sidebar-active-bg text-sidebar-text-active'
-                : 'text-sidebar-text hover:bg-sidebar-hover'
-              : isParentActive(item)
-                ? 'bg-sidebar-active-bg text-sidebar-text-active'
-                : 'text-sidebar-text hover:bg-sidebar-hover'
-          "
-          @click="item.children ? toggleExpanded(item.path) : navigateTo(item.path)"
+      <template v-for="(item, idx) in renderedNav" :key="item.kind + idx">
+        <!-- Section heading -->
+        <p
+          v-if="item.kind === 'section'"
+          class="px-3 pt-4 pb-1 text-[10px] font-semibold uppercase tracking-wider text-text-muted first:pt-0"
         >
-          <!-- Icons -->
-          <svg class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path v-if="item.icon === 'home'" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-            <path v-else-if="item.icon === 'key'" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
-            <path v-else-if="item.icon === 'box'" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-            <path v-else-if="item.icon === 'code'" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
-            <path v-else-if="item.icon === 'server'" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01" />
-            <path v-else-if="item.icon === 'route'" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
-            <path v-else-if="item.icon === 'shield'" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-            <path v-else-if="item.icon === 'bug'" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
+          {{ item.label }}
+        </p>
 
+        <!-- Leaf (flat, no children) -->
+        <NuxtLink
+          v-else-if="item.kind === 'leaf'"
+          :to="item.path"
+          class="flex items-center gap-2.5 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+          :class="isActive(item.path)
+            ? 'bg-sidebar-active-bg text-sidebar-text-active'
+            : 'text-sidebar-text hover:bg-sidebar-hover'"
+          @click="closeSidebar"
+        >
+          <SidebarIcon :name="(item as any).icon ?? 'home'" />
           <span class="flex-1">{{ item.label }}</span>
+        </NuxtLink>
 
-          <!-- Chevron for items with children -->
-          <svg
-            v-if="item.children"
-            class="h-4 w-4 shrink-0 transition-transform duration-200"
-            :class="expandedItems.has(item.path) ? 'rotate-90' : ''"
-            fill="none" viewBox="0 0 24 24" stroke="currentColor"
+        <!-- Parent with children -->
+        <template v-else-if="item.kind === 'parent'">
+          <button
+            type="button"
+            class="w-full text-left flex items-center gap-2.5 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+            :class="isParentActive(item)
+              ? 'bg-sidebar-active-bg text-sidebar-text-active'
+              : 'text-sidebar-text hover:bg-sidebar-hover'"
+            @click="toggleExpanded(item.path)"
           >
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-          </svg>
-        </button>
+            <SidebarIcon :name="item.icon" />
+            <span class="flex-1">{{ item.label }}</span>
+            <svg
+              class="h-4 w-4 shrink-0 transition-transform duration-200"
+              :class="expandedItems.has(item.path) ? 'rotate-90' : ''"
+              fill="none" viewBox="0 0 24 24" stroke="currentColor"
+            >
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
 
-        <!-- Children -->
-        <div
-          v-if="item.children && expandedItems.has(item.path)"
-          class="ml-4 pl-3 border-l border-border space-y-0.5"
-        >
-          <NuxtLink
-            v-for="child in item.children"
-            :key="child.path"
-            :to="child.path"
-            class="block px-2 py-1.5 rounded-md text-xs font-medium transition-colors"
-            :class="
-              isActive(child.path)
-                ? 'text-accent-600 bg-sidebar-active-bg font-semibold'
-                : 'text-sidebar-text hover:bg-sidebar-hover'
-            "
-            @click="closeSidebar"
+          <div
+            v-if="expandedItems.has(item.path)"
+            class="ml-4 pl-3 border-l border-border space-y-0.5"
           >
-            {{ child.label }}
-          </NuxtLink>
-        </div>
+            <template v-for="(child, cidx) in item.children" :key="child.kind + cidx">
+              <!-- Non-clickable domain divider inside a parent -->
+              <p
+                v-if="child.kind === 'divider'"
+                class="mt-2 mb-0.5 px-2 text-[10px] font-semibold uppercase tracking-wider text-text-muted"
+              >
+                {{ child.label }}
+              </p>
+              <NuxtLink
+                v-else
+                :to="child.path"
+                class="block px-2 py-1.5 rounded-md text-xs font-medium transition-colors"
+                :class="isActive(child.path)
+                  ? 'text-accent-600 bg-sidebar-active-bg font-semibold'
+                  : 'text-sidebar-text hover:bg-sidebar-hover'"
+                @click="closeSidebar"
+              >
+                {{ child.label }}
+              </NuxtLink>
+            </template>
+          </div>
+        </template>
       </template>
     </nav>
 
-    <!-- Theme switcher at bottom -->
-    <div class="border-t border-border p-4 shrink-0">
-      <SharedThemeSwitcher />
+    <!-- Settings: icon button + flyout popup -->
+    <div ref="settingsContainerRef" class="relative border-t border-border px-3 py-2 shrink-0 flex items-center justify-end">
+      <button
+        type="button"
+        class="p-1.5 rounded-md transition-colors"
+        :class="settingsOpen ? 'bg-sidebar-hover text-text' : 'text-text-muted hover:text-text hover:bg-sidebar-hover'"
+        aria-label="Settings"
+        @click="settingsOpen = !settingsOpen"
+      >
+        <!-- Gear icon -->
+        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+        </svg>
+      </button>
+
+      <!-- Settings popup -->
+      <div
+        v-if="settingsOpen"
+        class="absolute bottom-full right-0 mb-1.5 w-48 rounded-lg border border-border bg-surface py-1 shadow-lg z-[60]"
+      >
+        <!-- ─ Mode row ──────────────────────────────────────────────────── -->
+        <div
+          class="relative"
+          @mouseenter="openSubmenu('mode')"
+          @mouseleave="scheduleCloseSubmenu()"
+        >
+          <div class="flex cursor-default select-none items-center gap-2.5 rounded-md mx-1 px-3 py-2.5 text-sm text-text hover:bg-sidebar-hover">
+            <!-- Sun icon -->
+            <svg class="h-4 w-4 shrink-0 text-text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+            </svg>
+            <span class="flex-1">Mode</span>
+            <svg class="h-3.5 w-3.5 shrink-0 text-text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+            </svg>
+          </div>
+
+          <!-- Mode sub-panel -->
+          <div
+            v-if="activeSubmenu === 'mode'"
+            class="absolute top-0 left-full w-36 rounded-lg border border-border bg-surface py-1 shadow-lg z-[70]"
+            @mouseenter="openSubmenu('mode')"
+            @mouseleave="scheduleCloseSubmenu()"
+          >
+            <div
+              v-for="m in modes"
+              :key="m.id"
+              class="flex cursor-pointer items-center gap-2 rounded-md mx-1 px-3 py-2 text-sm text-text hover:bg-sidebar-hover"
+              @click="setMode(m.id); settingsOpen = false; activeSubmenu = null"
+            >
+              <!-- Checkmark if active -->
+              <svg
+                v-if="mode === m.id"
+                class="h-3.5 w-3.5 shrink-0 text-accent-600"
+                fill="none" viewBox="0 0 24 24" stroke="currentColor"
+              >
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+              </svg>
+              <span v-else class="inline-block h-3.5 w-3.5 shrink-0" />
+              <!-- Sun / Moon icon per option -->
+              <svg v-if="m.id === 'light'" class="h-3.5 w-3.5 shrink-0 text-text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+              </svg>
+              <svg v-else class="h-3.5 w-3.5 shrink-0 text-text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+              </svg>
+              {{ m.label }}
+            </div>
+          </div>
+        </div>
+
+        <!-- ─ Color Palette row ─────────────────────────────────────────── -->
+        <div
+          class="relative"
+          @mouseenter="openSubmenu('palette')"
+          @mouseleave="scheduleCloseSubmenu()"
+        >
+          <div class="flex cursor-default select-none items-center gap-2.5 rounded-md mx-1 px-3 py-2.5 text-sm text-text hover:bg-sidebar-hover">
+            <!-- Swatch icon -->
+            <svg class="h-4 w-4 shrink-0 text-text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
+            </svg>
+            <span class="flex-1">Color Palette</span>
+            <svg class="h-3.5 w-3.5 shrink-0 text-text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+            </svg>
+          </div>
+
+          <!-- Palette sub-panel -->
+          <div
+            v-if="activeSubmenu === 'palette'"
+            class="absolute top-0 left-full w-40 rounded-lg border border-border bg-surface py-1 shadow-lg z-[70]"
+            @mouseenter="openSubmenu('palette')"
+            @mouseleave="scheduleCloseSubmenu()"
+          >
+            <div
+              v-for="t in themes"
+              :key="t.id"
+              class="flex cursor-pointer items-center gap-2 rounded-md mx-1 px-3 py-2 text-sm text-text hover:bg-sidebar-hover"
+              @click="setTheme(t.id); settingsOpen = false; activeSubmenu = null"
+            >
+              <!-- Checkmark if active -->
+              <svg
+                v-if="theme === t.id"
+                class="h-3.5 w-3.5 shrink-0 text-accent-600"
+                fill="none" viewBox="0 0 24 24" stroke="currentColor"
+              >
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+              </svg>
+              <span v-else class="inline-block h-3.5 w-3.5 shrink-0" />
+              <!-- Color swatch dot -->
+              <span
+                class="inline-block h-3 w-3 shrink-0 rounded-full border border-border"
+                :style="{ backgroundColor: t.color }"
+              />
+              {{ t.label }}
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </aside>
 </template>

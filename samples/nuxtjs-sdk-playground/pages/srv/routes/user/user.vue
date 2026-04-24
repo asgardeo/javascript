@@ -57,7 +57,7 @@ const user = await getUser();
         </p>
         <p>
           For the full SCIM2 profile with custom attributes, use
-          <NuxtLink to="/routes/user/profile-get" class="text-accent-600 hover:underline">
+          <NuxtLink to="/server/routes/user/profile-get" class="text-accent-600 hover:underline">
             GET /api/auth/user/profile
           </NuxtLink> instead.
         </p>
@@ -92,7 +92,7 @@ const user = await getUser();
     <LayoutSectionCard title="Related composable">
       <p class="text-sm text-text-muted">
         <code class="font-mono">useUser().profile</code> — reactive wrapper around this route.
-        See <NuxtLink to="/apis/user" class="text-accent-600 hover:underline">APIs → useUser</NuxtLink>.
+        See <NuxtLink to="/composables/user" class="text-accent-600 hover:underline">Composables → useUser</NuxtLink>.
       </p>
     </LayoutSectionCard>
 

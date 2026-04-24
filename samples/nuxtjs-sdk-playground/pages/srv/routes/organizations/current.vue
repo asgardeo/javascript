@@ -55,7 +55,7 @@ const { currentOrganization } = useOrganization();
           <code class="font-mono">organizationId</code> (root context).
         </p>
         <p>
-          Use <NuxtLink to="/routes/organizations/switch" class="text-accent-600 hover:underline">
+          Use <NuxtLink to="/server/routes/organizations/switch" class="text-accent-600 hover:underline">
             POST /api/auth/organizations/switch
           </NuxtLink> to change the active organization.
         </p>

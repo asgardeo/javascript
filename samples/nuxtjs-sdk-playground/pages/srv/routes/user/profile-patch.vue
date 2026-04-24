@@ -109,10 +109,10 @@ await updateProfile({
         <p>
           <code class="font-mono">useUser().updateProfile({ payload })</code> — calls this route
           and refreshes reactive state.
-          See <NuxtLink to="/apis/user" class="text-accent-600 hover:underline">APIs → useUser</NuxtLink>.
+          See <NuxtLink to="/composables/user" class="text-accent-600 hover:underline">Composables → useUser</NuxtLink>.
         </p>
         <p>
-          <NuxtLink to="/routes/user/profile-get" class="text-accent-600 hover:underline">
+          <NuxtLink to="/server/routes/user/profile-get" class="text-accent-600 hover:underline">
             GET /api/auth/user/profile
           </NuxtLink> — read the current profile.
         </p>
