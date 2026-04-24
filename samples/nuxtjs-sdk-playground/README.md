@@ -78,9 +78,25 @@ samples/nuxtjs-sdk-playground/
 |  | `/apis/organization` | `useOrganization` — `currentOrganization`, `myOrganizations`, `getAllOrganizations`, `onOrganizationSwitch` |
 |  | `/apis/flow` | `useFlow` |
 |  | `/apis/theme` | `useTheme` — light/dark toggle, branding |
-|  | `/apis/branding` | `useBranding` — `BrandingPreference` display |
+|  | `/apis/branding` | `useBranding` — `BrandingPreference` display, `fetchBranding()` hits `GET /api/auth/branding` |
 |  | `/apis/i18n` | `useAsgardeoI18n` — locale switching at runtime |
-| **Server** | `/server/session` | `useServerSession(event)` + `requireServerSession(event)` |
+| **SDK Routes** | `/routes` | Overview table of all `/api/auth/*` routes + one-click smoke-test |
+|  | `/routes/session/signin` | `GET /api/auth/signin` — initiates the OAuth2 redirect flow |
+|  | `/routes/session/callback` | `GET /api/auth/callback` — code exchange & session cookie |
+|  | `/routes/session/signout` | `POST /api/auth/signout` — CSRF-safe session teardown |
+|  | `/routes/session/session` | `GET /api/auth/session` — decoded session state |
+|  | `/routes/session/token` | `GET /api/auth/token` — current access token |
+|  | `/routes/user/user` | `GET /api/auth/user` — basic user info from ID token claims |
+|  | `/routes/user/profile-get` | `GET /api/auth/user/profile` — full SCIM2 profile |
+|  | `/routes/user/profile-patch` | `PATCH /api/auth/user/profile` — update profile via SCIM2 PatchOp |
+|  | `/routes/organizations/list` | `GET /api/auth/organizations` — list all orgs with filter + pagination |
+|  | `/routes/organizations/create` | `POST /api/auth/organizations` — create a new organization |
+|  | `/routes/organizations/me` | `GET /api/auth/organizations/me` — user's own org memberships |
+|  | `/routes/organizations/current` | `GET /api/auth/organizations/current` — currently active org |
+|  | `/routes/organizations/by-id` | `GET /api/auth/organizations/:id` — single org by ID |
+|  | `/routes/organizations/switch` | `POST /api/auth/organizations/switch` — switch active org |
+|  | `/routes/branding` | `GET /api/auth/branding` — org branding preference |
+| **Server Utilities** | `/server/session` | `useServerSession(event)` + `requireServerSession(event)` |
 |  | `/server/token` | `getValidAccessToken(event)` — proactive refresh demo |
 |  | `/server/userinfo` | `AsgardeoNuxtClient.getInstance().getUserProfile()` |
 | **Middleware** | `/middleware/protected` | Named `'auth'` middleware — `returnTo` flow |

@@ -119,7 +119,7 @@ await refetch();`;
     <!-- ── fetchBranding ──────────────────────────────────────────────── -->
     <LayoutSectionCard
       title="fetchBranding()"
-      description="Fetch the organization branding preference. Deduplicated — returns cached result if already loaded."
+      description="Fetch the organization branding preference from GET /api/auth/branding. Deduplicated — returns cached result if already loaded."
     >
       <button
         :disabled="fetchLoading"
@@ -134,7 +134,7 @@ await refetch();`;
     <!-- ── refetch ────────────────────────────────────────────────────── -->
     <LayoutSectionCard
       title="refetch()"
-      description="Force a fresh branding fetch, bypassing deduplication. Always makes a new network request."
+      description="Force a fresh branding fetch via GET /api/auth/branding, bypassing deduplication. Always makes a new network request."
     >
       <button
         :disabled="refetchLoading"

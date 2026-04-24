@@ -28,6 +28,16 @@ const cards = [
       description="Auto-imported Nitro helpers and the AsgardeoNuxtClient singleton for use in custom server API routes."
     />
 
+    <!-- Note: separate from SDK routes ──────────────────────────────────── -->
+    <div class="rounded-lg border border-border bg-surface-muted px-4 py-3 text-sm text-text-muted">
+      <span class="font-medium text-text">Note:</span>
+      This section covers the <strong class="text-text">playground-owned</strong> server utilities
+      (<code class="font-mono">useServerSession</code>, <code class="font-mono">AsgardeoNuxtClient</code>)
+      that you can call from your own <code class="font-mono">server/api/</code> handlers.
+      For the SDK's built-in <code class="font-mono">/api/auth/*</code> routes,
+      see <NuxtLink to="/routes" class="text-accent-600 hover:underline">SDK Routes</NuxtLink>.
+    </div>
+
     <div class="grid gap-4 md:grid-cols-3">
       <NuxtLink
         v-for="card in cards"

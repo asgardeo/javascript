@@ -125,6 +125,10 @@ const programmaticSnippet = `<script setup lang="ts">
 const { signIn, signOut, signUp } = useAsgardeo();
 // Optionally pass a returnTo so the user lands back on the right page
 await signIn({ returnTo: '/dashboard' });
+
+// signOut() submits a form POST to /api/auth/signout (CSRF protection).
+// Never call GET /api/auth/signout directly — the route does not exist.
+await signOut();
 <\/script>`;
 </script>
 
@@ -257,6 +261,24 @@ await signIn({ returnTo: '/dashboard' });
           </div>
         </li>
       </ol>
+      <div class="mt-4 pt-4 border-t border-border text-xs text-text-muted space-y-1">
+        <p class="font-semibold text-text">Sign-out flow</p>
+        <p>
+          <code class="font-mono">signOut()</code> and <code class="font-mono">&lt;AsgardeoSignOutButton /&gt;</code>
+          both submit a <strong class="text-text">form POST</strong> to
+          <code class="font-mono">POST /api/auth/signout</code>. The route is POST-only to prevent
+          cross-site request forgery — a third-party page cannot trigger sign-out via a
+          <code class="font-mono">&lt;img&gt;</code> or <code class="font-mono">&lt;a&gt;</code> tag.
+          After the session cookie is cleared the user is redirected to
+          <code class="font-mono">afterSignOutUrl</code>.
+        </p>
+        <p>
+          See the route explorer:
+          <NuxtLink to="/routes/session/signout" class="text-accent-600 hover:underline">
+            POST /api/auth/signout
+          </NuxtLink>.
+        </p>
+      </div>
     </LayoutSectionCard>
 
     <!-- ── Event log ──────────────────────────────────────────────────────── -->
