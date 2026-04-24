@@ -17,20 +17,16 @@
  */
 
 /**
- * @asgardeo/nuxt/server
+ * @asgardeo/nuxt/utils
  *
- * Public server-only barrel. Import from this subpath to access
- * server utilities without bundling them into the client.
+ * Public utilities barrel. Import from this subpath to access
+ * utilities such as createRouteMatcher without polluting the
+ * global auto-import namespace.
  *
  * @example
  * ```ts
- * import { useServerSession, requireServerSession } from '@asgardeo/nuxt/server';
+ * import { createRouteMatcher } from '@asgardeo/nuxt/utils';
  * ```
  */
 
-export {useServerSession, requireServerSession} from './utils/serverSession';
-export {getValidAccessToken} from './utils/token-refresh';
-export {getAsgardeoContext} from './utils/event-context';
-export type {AsgardeoEventContext} from './utils/event-context';
-
-export type {AsgardeoSessionPayload, AsgardeoNuxtConfig} from '../types';
+export {createRouteMatcher} from './createRouteMatcher';

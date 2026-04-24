@@ -22,7 +22,6 @@ export {default} from './module';
 export type {
   AsgardeoNuxtConfig,
   AsgardeoSessionPayload,
-  AsgardeoTempSessionPayload,
   AsgardeoAuthState,
 } from './runtime/types';
 
@@ -42,21 +41,10 @@ export {defineAsgardeoMiddleware} from './runtime/middleware/defineAsgardeoMiddl
 export type {AsgardeoMiddlewareOptions} from './runtime/middleware/defineAsgardeoMiddleware';
 
 // ── Composable types (re-exported from @asgardeo/vue) ─────────────────────
-export type {
-  AsgardeoContext,
-  UserContextValue,
-  OrganizationContextValue,
-  FlowContextValue,
-  ThemeContextValue,
-  BrandingContextValue,
-  I18nContextValue,
-} from '@asgardeo/vue';
-
-// ── Utilities ──────────────────────────────────────────────────────────────
-export {createRouteMatcher} from './runtime/utils/createRouteMatcher';
+// Only AsgardeoContext is exposed — it is the return type of useAsgardeo()
+// and users may need it to type custom wrappers. The individual *ContextValue
+// types are internal implementation details; use ReturnType<typeof useXxx> instead.
+export type {AsgardeoContext} from '@asgardeo/vue';
 
 // ── Errors ─────────────────────────────────────────────────────────────────
 export {AsgardeoError, ErrorCode} from './runtime/errors';
-
-// ── Logging ────────────────────────────────────────────────────────────────
-export {maskToken, createLogger} from './runtime/utils/log';
