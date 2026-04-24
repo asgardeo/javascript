@@ -797,6 +797,7 @@ const BaseSignUpContent: FC<BaseSignUpProps> = ({
         executionId: passkeyState.executionId as string,
         flowType: (currentFlow as any)?.flowType || 'REGISTRATION',
         inputs,
+        ...(challengeTokenRef.current ? {challengeToken: challengeTokenRef.current} : {}),
       } as any;
 
       const nextResponse: any = await onSubmit(payload);
