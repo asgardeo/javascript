@@ -171,33 +171,33 @@ export default defineNuxtModule<AsgardeoNuxtConfig>({
     // addImports above — only the components need Nuxt wrappers.
 
     // ── Control flow ────────────────────────────────────────────────────────
-    addComponent({name: 'AsgardeoSignedIn',  filePath: resolve('./runtime/components/SignedIn')});
-    addComponent({name: 'AsgardeoSignedOut', filePath: resolve('./runtime/components/SignedOut')});
-    addComponent({name: 'AsgardeoLoading',   filePath: resolve('./runtime/components/Loading')});
+    addComponent({name: 'AsgardeoSignedIn',  filePath: resolve('./runtime/components/control/SignedIn')});
+    addComponent({name: 'AsgardeoSignedOut', filePath: resolve('./runtime/components/control/SignedOut')});
+    addComponent({name: 'AsgardeoLoading',   filePath: resolve('./runtime/components/control/Loading')});
 
     // ── Action buttons ───────────────────────────────────────────────────────
-    addComponent({name: 'AsgardeoSignInButton',  filePath: resolve('./runtime/components/SignInButton')});
-    addComponent({name: 'AsgardeoSignOutButton', filePath: resolve('./runtime/components/SignOutButton')});
-    addComponent({name: 'AsgardeoSignUpButton',  filePath: resolve('./runtime/components/SignUpButton')});
+    addComponent({name: 'AsgardeoSignInButton',  filePath: resolve('./runtime/components/actions/SignInButton')});
+    addComponent({name: 'AsgardeoSignOutButton', filePath: resolve('./runtime/components/actions/SignOutButton')});
+    addComponent({name: 'AsgardeoSignUpButton',  filePath: resolve('./runtime/components/actions/SignUpButton')});
 
     // ── Embedded auth flows ──────────────────────────────────────────────────
-    addComponent({name: 'AsgardeoSignIn', filePath: resolve('./runtime/components/SignIn')});
-    addComponent({name: 'AsgardeoSignUp', filePath: resolve('./runtime/components/SignUp')});
+    addComponent({name: 'AsgardeoSignIn', filePath: resolve('./runtime/components/auth/SignIn')});
+    addComponent({name: 'AsgardeoSignUp', filePath: resolve('./runtime/components/auth/SignUp')});
 
     // ── User ─────────────────────────────────────────────────────────────────
-    addComponent({name: 'AsgardeoUser',         filePath: resolve('./runtime/components/User')});
-    addComponent({name: 'AsgardeoUserProfile',  filePath: resolve('./runtime/components/UserProfile')});
-    addComponent({name: 'AsgardeoUserDropdown', filePath: resolve('./runtime/components/UserDropdown')});
+    addComponent({name: 'AsgardeoUser',         filePath: resolve('./runtime/components/user/User')});
+    addComponent({name: 'AsgardeoUserProfile',  filePath: resolve('./runtime/components/user/UserProfile')});
+    addComponent({name: 'AsgardeoUserDropdown', filePath: resolve('./runtime/components/user/UserDropdown')});
 
     // ── Organization ─────────────────────────────────────────────────────────
-    addComponent({name: 'AsgardeoOrganization',         filePath: resolve('./runtime/components/Organization')});
-    addComponent({name: 'AsgardeoOrganizationProfile',  filePath: resolve('./runtime/components/OrganizationProfile')});
-    addComponent({name: 'AsgardeoOrganizationSwitcher', filePath: resolve('./runtime/components/OrganizationSwitcher')});
-    addComponent({name: 'AsgardeoOrganizationList',     filePath: resolve('./runtime/components/OrganizationList')});
-    addComponent({name: 'AsgardeoCreateOrganization',   filePath: resolve('./runtime/components/CreateOrganization')});
+    addComponent({name: 'AsgardeoOrganization',         filePath: resolve('./runtime/components/organization/Organization')});
+    addComponent({name: 'AsgardeoOrganizationProfile',  filePath: resolve('./runtime/components/organization/OrganizationProfile')});
+    addComponent({name: 'AsgardeoOrganizationSwitcher', filePath: resolve('./runtime/components/organization/OrganizationSwitcher')});
+    addComponent({name: 'AsgardeoOrganizationList',     filePath: resolve('./runtime/components/organization/OrganizationList')});
+    addComponent({name: 'AsgardeoCreateOrganization',   filePath: resolve('./runtime/components/organization/CreateOrganization')});
 
     // ── Auth callback ────────────────────────────────────────────────────────
-    addComponent({name: 'AsgardeoCallback', filePath: resolve('./runtime/components/Callback')});
+    addComponent({name: 'AsgardeoCallback', filePath: resolve('./runtime/components/auth/Callback')});
 
     // Auto-import server utilities
     nuxt.hook('nitro:config', (nitroConfig) => {
