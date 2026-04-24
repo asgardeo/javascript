@@ -131,12 +131,12 @@ const navItems: NavNode[] = [
   { kind: 'parent', path: '/reference/errors',    label: 'Errors',    icon: 'book', children: [] },
   {
     kind: 'parent',
-    path: '/playground',
-    label: 'Playground Tools',
+    path: '/tools',
+    label: 'Tools',
     icon: 'bug',
     children: [
-      { kind: 'leaf', path: '/playground/state',       label: 'State dump' },
-      { kind: 'leaf', path: '/playground/preferences', label: 'Preferences' },
+      { kind: 'leaf', path: '/tools/state',       label: 'State dump' },
+      { kind: 'leaf', path: '/tools/preferences', label: 'Preferences' },
     ],
   },
 ];

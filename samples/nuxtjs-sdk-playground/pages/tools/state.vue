@@ -143,8 +143,8 @@ const brandingState = useState('asgardeo:branding');
           If a key shows <em>null / empty</em> while signed in, check the matching
           <code class="font-mono">preferences.*</code> flag in
           <code class="font-mono">nuxt.config.ts</code> — or visit
-          <NuxtLink to="/playground/preferences" class="text-accent-600 hover:underline">
-            /playground/preferences
+          <NuxtLink to="/tools/preferences" class="text-accent-600 hover:underline">
+            /tools/preferences
           </NuxtLink>
           for a full breakdown.
         </li>
