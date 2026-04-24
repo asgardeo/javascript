@@ -1,5 +1,13 @@
 # @asgardeo/react
 
+## 0.23.1
+
+### Patch Changes
+
+- [#473](https://github.com/asgardeo/javascript/pull/473)
+  [`2e73a94`](https://github.com/asgardeo/javascript/commit/2e73a94aa7dfbdd9e77a8fba6c4f690b54969f3a) Thanks
+  [@ThaminduDilshan](https://github.com/ThaminduDilshan)! - Add missing challenge token to the passkey registration
+
 ## 0.23.0
 
 ### Minor Changes
