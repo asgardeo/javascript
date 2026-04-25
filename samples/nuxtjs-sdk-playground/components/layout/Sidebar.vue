@@ -7,6 +7,7 @@ import {
   middleware,
   serverUtilities,
 } from '~/utils/sdk-manifest';
+import SidebarIcon from './SidebarIcon.vue';
 
 // ── Types ──────────────────────────────────────────────────────────────────
 
