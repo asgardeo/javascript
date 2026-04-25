@@ -16,7 +16,22 @@
  * under the License.
  */
 
-import {type User, type Schema, type UpdateMeProfileConfig, withVendorCSSClassPrefix} from '@asgardeo/browser';
+import {
+  type User,
+  type Schema,
+  type SchemaAttribute,
+  type UpdateMeProfileConfig,
+  WellKnownSchemaIds,
+  withVendorCSSClassPrefix,
+} from '@asgardeo/browser';
+
+/**
+ * Runtime shape produced by `flattenUserSchema` — a `SchemaAttribute` with the
+ * owning schema's URN attached. Modelled locally because the published
+ * `FlattenedSchema` type incorrectly extends `Schema` instead of
+ * `SchemaAttribute` and is therefore missing fields like `multiValued`.
+ */
+type FlatSchemaEntry = SchemaAttribute & {schemaId: string};
 import {type Component, type PropType, type Ref, type SetupContext, type VNode, defineComponent, h, ref} from 'vue';
 import Alert from '../../primitives/Alert';
 import Button from '../../primitives/Button';
@@ -52,15 +67,118 @@ export interface BaseUserProfileProps {
  */
 type ProfileFieldDescriptor = {keys: string[]; label: string; readonly: boolean};
 
+/**
+ * Each entry's `keys` lists candidate flattened paths produced by
+ * `generateFlattenedUserProfile`. The first key that exists in the profile
+ * data is used both for display lookup and as the SCIM2 attribute path
+ * `buildScimPatchValue` translates back into a proper PATCH payload.
+ */
 const PROFILE_FIELD_DESCRIPTORS: ProfileFieldDescriptor[] = [
-  {keys: ['username', 'userName', 'user_name'], label: 'Username', readonly: true},
-  {keys: ['firstName', 'givenName'], label: 'First Name', readonly: false},
-  {keys: ['lastName', 'familyName'], label: 'Last Name', readonly: false},
-  {keys: ['email', 'emails'], label: 'Email', readonly: false},
+  {keys: ['userName', 'username'], label: 'Username', readonly: true},
+  {keys: ['name.givenName', 'firstName', 'givenName'], label: 'First Name', readonly: false},
+  {keys: ['name.familyName', 'lastName', 'familyName'], label: 'Last Name', readonly: false},
+  {keys: ['emails', 'email'], label: 'Email', readonly: true},
   {keys: ['country'], label: 'Country', readonly: false},
-  {keys: ['birthdate', 'birthDate', 'dateOfBirth'], label: 'Birth Date', readonly: false},
-  {keys: ['mobile', 'mobileNumber', 'phoneNumbers'], label: 'Mobile Numbers', readonly: false},
+  {keys: ['dateOfBirth', 'birthdate', 'birthDate'], label: 'Birth Date', readonly: false},
+  {keys: ['phoneNumbers.mobile', 'mobile', 'mobileNumbers'], label: 'Mobile', readonly: false},
 ];
+
+const CORE_USER_SCHEMA_ID: string = WellKnownSchemaIds.User;
+
+const setNestedPath = (target: Record<string, unknown>, segments: string[], value: unknown): void => {
+  let cursor: Record<string, unknown> = target;
+  for (let i: number = 0; i < segments.length - 1; i += 1) {
+    const segment: string = segments[i];
+    if (typeof cursor[segment] !== 'object' || cursor[segment] === null) {
+      cursor[segment] = {};
+    }
+    cursor = cursor[segment] as Record<string, unknown>;
+  }
+  cursor[segments[segments.length - 1]] = value;
+};
+
+/**
+ * Build a SCIM2 PATCH `value` object for a flattened profile field update.
+ *
+ * Translates a flat key (e.g. `name.givenName`, `phoneNumbers.mobile`,
+ * `country`) plus a string value into the canonical SCIM2 structure expected
+ * by the `/scim2/Me` PATCH endpoint:
+ *
+ *  - `name.givenName`         → `{name: {givenName: value}}`
+ *  - `phoneNumbers.mobile`    → `{phoneNumbers: [{type: 'mobile', value}]}`
+ *  - `emails.work`            → `{emails: [{type: 'work', value}]}`
+ *  - `country` (WSO2 ext)     → `{"urn:scim:wso2:schema": {country: value}}`
+ *  - `mobileNumbers` (multiV) → `{"urn:scim:wso2:schema": {mobileNumbers: [value]}}`
+ *
+ * Falls back to a plain `{[flatKey]: value}` when the schema is unknown so
+ * unrecognised fields still produce a syntactically valid (if possibly
+ * ineffective) PATCH instead of throwing.
+ */
+const buildScimPatchValue = (
+  flatKey: string,
+  rawValue: string,
+  schemas: Schema[] | null | undefined,
+): Record<string, unknown> => {
+  const list: FlatSchemaEntry[] = (schemas ?? []) as unknown as FlatSchemaEntry[];
+  const entry: FlatSchemaEntry | undefined = list.find((s: FlatSchemaEntry) => s.name === flatKey);
+
+  // Special case: in Asgardeo / WSO2 IS the user's mobile is stored across two
+  // independent SCIM2 attributes that map to two distinct userstore columns:
+  //   - phoneNumbers[type=mobile].value      → claim http://wso2.org/claims/mobile
+  //   - urn:scim:wso2:schema.mobileNumbers   → claim http://wso2.org/claims/mobileNumbers
+  // ID-token claims and the SCIM `phoneNumbers` array read from the first;
+  // the Asgardeo Console's User Details page and consumers that read the
+  // multi-valued aggregate read from the second. Update both in the same
+  // PATCH so the value is consistent everywhere.
+  if (flatKey === 'phoneNumbers.mobile') {
+    return {
+      phoneNumbers: [{type: 'mobile', value: rawValue}],
+      [WellKnownSchemaIds.SystemUser]: {mobileNumbers: [rawValue]},
+    };
+  }
+
+  // SCIM multi-valued complex attributes (phoneNumbers, emails, ims, photos, ...)
+  // surface in flattenedProfile as `<attr>.<type>` (e.g. phoneNumbers.mobile).
+  // The PATCH shape is an array of typed objects, NOT a nested object —
+  // sending `{phoneNumbers: {mobile: "..."}}` is invalid and silently dropped.
+  const complexMultiValued: Set<string> = new Set([
+    'phoneNumbers',
+    'emails',
+    'ims',
+    'photos',
+    'addresses',
+    'entitlements',
+    'roles',
+    'x509Certificates',
+  ]);
+  const dotIndex: number = flatKey.indexOf('.');
+  if (dotIndex > 0) {
+    const head: string = flatKey.slice(0, dotIndex);
+    const tail: string = flatKey.slice(dotIndex + 1);
+    if (complexMultiValued.has(head)) {
+      return {[head]: [{type: tail, value: rawValue}]};
+    }
+  }
+
+  // Multi-valued simple attributes (e.g. mobileNumbers under WSO2 schema):
+  // wrap the value in an array.
+  const value: unknown = entry?.multiValued ? [rawValue] : rawValue;
+
+  // Build the nested object for dotted attribute paths within the same
+  // schema (e.g. name.givenName → {name: {givenName: value}}).
+  const segments: string[] = flatKey.split('.');
+  const nested: Record<string, unknown> = {};
+  setNestedPath(nested, segments, value);
+
+  // If the attribute belongs to an extension schema, wrap under its URN.
+  // Core attributes (urn:...:core:2.0:User) sit at the root.
+  const schemaId: string | undefined = entry?.schemaId;
+  if (schemaId && schemaId !== CORE_USER_SCHEMA_ID) {
+    return {[schemaId]: nested};
+  }
+
+  return nested;
+};
 
 const AVATAR_GRADIENTS: string[] = [
   'linear-gradient(135deg, #a855f7 0%, #ec4899 100%)',
@@ -229,7 +347,11 @@ const BaseUserProfile: Component = defineComponent({
                             onClick: async (): Promise<void> => {
                               if (props.onUpdate) {
                                 await props.onUpdate({
-                                  payload: {[key]: editedValues.value[key]},
+                                  payload: buildScimPatchValue(
+                                    key,
+                                    editedValues.value[key] ?? '',
+                                    props.schemas,
+                                  ),
                                 } as UpdateMeProfileConfig);
                               }
                               editingFields.value = {...editingFields.value, [key]: false};
