@@ -294,17 +294,18 @@ class AsgardeoNuxtClient extends AsgardeoNodeClient<AsgardeoNuxtConfig> {
    * Updates the SCIM2 /Me profile for the authenticated user.
    * Mirrors `AsgardeoNextClient.updateUserProfile`.
    */
-  override async updateUserProfile(payload: UpdateMeProfileConfig, sessionId: string): Promise<User> {
-    const accessToken: string = await this.getAccessToken(sessionId);
+  override async updateUserProfile(config: UpdateMeProfileConfig, sessionId: string): Promise<User> {
+    const accessToken = await this.getAccessToken(sessionId);
     const configData = await this.legacy.getConfigData?.() as (AuthClientConfig<AsgardeoNuxtConfig> | undefined);
-    const baseUrl: string = (configData?.baseUrl ?? '') as string;
+    const baseUrl = (configData?.baseUrl ?? '') as string;
 
     return updateMeProfile({
+      ...config,                                                  // pass-through, includes payload
       baseUrl,
-      headers: {Authorization: `Bearer ${accessToken}`},
-      payload,
+      headers: {...config.headers, Authorization: `Bearer ${accessToken}`},
     });
   }
+
 
   /**
    * Retrieves all organisations accessible to the authenticated user

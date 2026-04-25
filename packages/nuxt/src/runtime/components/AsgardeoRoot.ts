@@ -129,13 +129,25 @@ const AsgardeoRoot: Component = defineComponent({
     /**
      * SCIM2 PATCH via the `/api/auth/user/profile` Nitro route.
      * Signature matches `UserProvider.updateProfile` exactly.
+     *
+     * On success, applies an optimistic local update via `onUpdateProfile`
+     * so consumers of `useUser()` (e.g. `<AsgardeoUserProfile>`) and
+     * `useAsgardeo().user` (e.g. `<AsgardeoUser>`) reflect the new value
+     * without waiting for the next navigation/SSR refetch.
      */
     const updateProfile = async (
       requestConfig: UpdateMeProfileConfig,
       _sessionId?: string,
     ): Promise<{data: {user: User}; error: string; success: boolean}> => {
       try {
-        return await $fetch('/api/auth/user/profile', {method: 'PATCH', body: requestConfig});
+        const result: {data: {user: User}; error: string; success: boolean} = await $fetch(
+          '/api/auth/user/profile',
+          {method: 'PATCH', body: requestConfig},
+        );
+        if (result?.success && result.data?.user) {
+          onUpdateProfile(result.data.user);
+        }
+        return result;
       } catch (err) {
         return {data: {user: {} as User}, error: String(err), success: false};
       }

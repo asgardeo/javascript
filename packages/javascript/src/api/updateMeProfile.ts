@@ -18,6 +18,7 @@
 
 import AsgardeoAPIError from '../errors/AsgardeoAPIError';
 import {User} from '../models/user';
+import processUserUsername from '../utils/processUsername';
 
 /**
  * Configuration for the updateMeProfile request
@@ -141,7 +142,11 @@ const updateMeProfile = async ({
       );
     }
 
-    return (await response.json()) as User;
+    // Match the read path (`getScim2Me`) — strip the userstore prefix
+    // (e.g. "DEFAULT/") so consumers receive a clean `userName`. Without
+    // this, the optimistic-update path would put the prefixed value into
+    // local state and the UI would flip to "DEFAULT/<email>" after a save.
+    return processUserUsername((await response.json()) as User);
   } catch (error) {
     if (error instanceof AsgardeoAPIError) {
       throw error;
