@@ -46,14 +46,7 @@ export default defineEventHandler(async (event) => {
       // Raw tokens are redacted in this demo for display safety.
     },
   };
-});
-
-// ── requireServerSession (throws 401 when not signed in) ──────────────────
-// export default defineEventHandler(async (event) => {
-//   const session = await requireServerSession(event);
-//   // session is guaranteed non-null here
-//   return { userId: session.sub };
-// });`;
+});`;
 </script>
 
 <template>
@@ -79,11 +72,8 @@ export default defineEventHandler(async (event) => {
         <p>
           Returns <code class="font-mono">null</code> gracefully when the cookie is absent or
           the signature is invalid — use
-          <code class="font-mono">requireServerSession</code> instead to get an automatic 401.
-        </p>
-        <p>
-          Both helpers require an <strong class="text-text">explicit import</strong> from
-          <code class="font-mono">@asgardeo/nuxt/server</code> in your server files.
+          <NuxtLink to="/server/utilities/require-session" class="font-mono text-accent-600 hover:underline">requireServerSession</NuxtLink>
+          instead to have a 401 thrown automatically.
         </p>
       </div>
     </LayoutSectionCard>

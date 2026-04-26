@@ -80,14 +80,11 @@ const navItems: NavNode[] = [
     path: '/server/utilities',
     label: 'Utilities',
     icon: 'server',
-    children: [
-      { kind: 'leaf', path: '/server/utilities', label: 'Overview' },
-      ...serverUtilities.map((u) => ({
-        kind: 'leaf' as const,
-        path: u.path,
-        label: u.name,
-      })),
-    ],
+    children: serverUtilities.map((u) => ({
+      kind: 'leaf' as const,
+      path: u.path,
+      label: u.name,
+    })),
   },
 
   { kind: 'section', label: 'Playground Internals' },
