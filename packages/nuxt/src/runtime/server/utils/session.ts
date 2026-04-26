@@ -18,6 +18,9 @@
 
 import {SignJWT, jwtVerify} from 'jose';
 import {CookieConfig} from '@asgardeo/node';
+import type {IdToken, TokenResponse} from '@asgardeo/node';
+import {setCookie} from 'h3';
+import type {H3Event} from 'h3';
 import type {AsgardeoSessionPayload, AsgardeoTempSessionPayload} from '../../types';
 
 const DEFAULT_EXPIRY_SECONDS = 3600;
@@ -177,4 +180,47 @@ export function getTempSessionCookieOptions() {
     sameSite: 'lax' as const,
     secure: process.env['NODE_ENV'] === 'production',
   };
+}
+
+/**
+ * Decode a token response into a signed session JWT and write it as the
+ * session cookie on the H3 event.
+ *
+ * Extracted from the inline blocks in `callback.get.ts` and
+ * `organizations/switch.post.ts` so that all three callers (callback.get,
+ * switch.post, and the new `signin.post`) share one implementation.
+ */
+export async function issueSessionCookie(
+  event: H3Event,
+  sessionId: string,
+  tokenResponse: TokenResponse,
+  sessionSecret?: string,
+): Promise<void> {
+  // Lazy-import to avoid circular dep: session.ts → AsgardeoNuxtClient → session.ts
+  const {default: AsgardeoNuxtClient} = await import('../AsgardeoNuxtClient');
+  const client = AsgardeoNuxtClient.getInstance();
+
+  const idToken: IdToken = await client.getDecodedIdToken(sessionId, tokenResponse.idToken);
+
+  const userId = (idToken.sub || sessionId) as string;
+  const organizationId = (idToken['user_org'] || idToken['organization_id']) as string | undefined;
+  const expiresInSeconds = parseInt(tokenResponse.expiresIn ?? '3600', 10);
+  const accessTokenExpiresAt =
+    Math.floor(Date.now() / 1000) + (Number.isFinite(expiresInSeconds) ? expiresInSeconds : 3600);
+
+  const sessionToken = await createSessionToken(
+    {
+      accessToken: tokenResponse.accessToken,
+      userId,
+      sessionId,
+      scopes: tokenResponse.scope || '',
+      organizationId,
+      accessTokenExpiresAt,
+      refreshToken: tokenResponse.refreshToken || undefined,
+      idToken: tokenResponse.idToken || undefined,
+    },
+    sessionSecret,
+  );
+
+  setCookie(event, getSessionCookieName(), sessionToken, getSessionCookieOptions());
 }

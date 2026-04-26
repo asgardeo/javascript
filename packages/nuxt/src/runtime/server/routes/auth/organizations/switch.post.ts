@@ -16,13 +16,11 @@
  * under the License.
  */
 
-import type {IdToken, Organization, TokenResponse} from '@asgardeo/node';
-import {defineEventHandler, setCookie, readBody, createError} from 'h3';
+import type {Organization, TokenResponse} from '@asgardeo/node';
+import {defineEventHandler, readBody, createError} from 'h3';
 import AsgardeoNuxtClient from '../../../AsgardeoNuxtClient';
 import {
-  createSessionToken,
-  getSessionCookieName,
-  getSessionCookieOptions,
+  issueSessionCookie,
 } from '../../../utils/session';
 import {verifyAndRehydrateSession} from '../../../utils/serverSession';
 import {useRuntimeConfig} from '#imports';
@@ -75,31 +73,9 @@ export default defineEventHandler(async (event) => {
   // Re-issue the session cookie with the new token so subsequent SSR requests
   // pick up the switched organisation context — mirrors callback.get.ts.
   try {
-    const client = AsgardeoNuxtClient.getInstance();
-    const idToken: IdToken = await client.getDecodedIdToken(sessionId, tokenResponse.idToken);
-    const userId = (idToken.sub || sessionId) as string;
-    const accessToken = tokenResponse.accessToken;
-    const scopes = tokenResponse.scope || '';
-    const organizationId = (idToken['user_org'] || idToken['organization_id']) as string | undefined;
-    const expiresInSeconds = parseInt(tokenResponse.expiresIn ?? '3600', 10);
-    const accessTokenExpiresAt =
-      Math.floor(Date.now() / 1000) + (Number.isFinite(expiresInSeconds) ? expiresInSeconds : 3600);
-
-    const newSessionToken = await createSessionToken(
-      {
-        accessToken,
-        userId,
-        sessionId,
-        scopes,
-        organizationId,
-        accessTokenExpiresAt,
-        refreshToken: tokenResponse.refreshToken || undefined,
-        idToken: tokenResponse.idToken || undefined,
-      },
-      sessionSecret,
-    );
-
-    setCookie(event, getSessionCookieName(), newSessionToken, getSessionCookieOptions());
+    const config = useRuntimeConfig();
+    const sessionSecret = config.asgardeo?.sessionSecret;
+    await issueSessionCookie(event, sessionId, tokenResponse, sessionSecret);
   } catch (err) {
     throw createError({
       statusCode: 500,

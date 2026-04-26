@@ -18,6 +18,7 @@
 
 import {defineNuxtPlugin, useState, useRequestEvent, useRuntimeConfig, navigateTo} from '#app';
 import {computed} from 'vue';
+import {getRedirectBasedSignUpUrl} from '@asgardeo/browser';
 import {AsgardeoPlugin, ASGARDEO_KEY} from '@asgardeo/vue';
 import AsgardeoRoot from '../components/AsgardeoRoot';
 import type {AsgardeoAuthState} from '../types';
@@ -146,7 +147,30 @@ export default defineNuxtPlugin((nuxtApp) => {
     await navigateTo(res.redirectUrl || '/', {external: true});
   };
 
+  // Redirect-based sign-up — mirrors `AsgardeoReactClient.signUp` (no-arg
+  // overload). The composable's `signUp` shadows this for SDK consumers, but
+  // base components in `@asgardeo/vue` (e.g. `BaseSignUpButton`) call into
+  // the context's `signUp` directly when no Nuxt-aware override is in scope.
   const signUp = async (): Promise<void> => {
+    if (publicConfig.signUpUrl) {
+      await navigateTo(publicConfig.signUpUrl, {external: true});
+      return;
+    }
+
+    const redirectUrl: string = getRedirectBasedSignUpUrl({
+      baseUrl: publicConfig.baseUrl,
+      clientId: publicConfig.clientId,
+      applicationId: publicConfig.applicationId,
+    } as any);
+
+    if (redirectUrl) {
+      await navigateTo(redirectUrl, {external: true});
+      return;
+    }
+
+    // Last-resort fallback for unrecognised baseUrls — keeps the historical
+    // behaviour of hitting the (POST-only) Nitro route, which will surface a
+    // 405 in the network tab and make the misconfiguration obvious.
     await navigateTo('/api/auth/signup', {external: true});
   };
 

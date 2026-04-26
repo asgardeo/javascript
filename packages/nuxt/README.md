@@ -20,6 +20,7 @@
   - [Environment variables](#environment-variables)
 - [AsgardeoRoot wrapper](#asgardeoroot-wrapper)
 - [Composables](#composables)
+- [Embedded (app-native) auth flows](#embedded-app-native-auth-flows)
 - [Server-side data flow](#server-side-data-flow)
   - [How the Nitro plugin works](#how-the-nitro-plugin-works)
   - [SSR → client hydration](#ssr--client-hydration)
@@ -272,6 +273,101 @@ export default defineAsgardeoMiddleware({
 
 ---
 
+## Embedded (app-native) auth flows
+
+In addition to the standard redirect flow, `@asgardeo/nuxt` supports **embedded (app-native) authentication** — rendering the sign-in / sign-up UI inline without redirecting to a separate Asgardeo login page. All OAuth traffic happens server-side through Nitro API routes so no tokens are exposed in the browser.
+
+### How it works
+
+| Step | What happens |
+|------|-------------|
+| 1 | `<AsgardeoSignIn>` renders inline. On mount it calls `POST /api/auth/signin` with an empty body to initialise the flow. |
+| 2 | The server returns the first authentication step (e.g. username / password fields). The component renders the step UI. |
+| 3 | The user fills in credentials and submits. The component calls `POST /api/auth/signin` with the step payload. |
+| 4 | If Asgardeo returns `flowStatus: SUCCESS_COMPLETED` the server exchanges the auth code for tokens and issues a signed session cookie. |
+| 5 | If an external authenticator (social login, etc.) redirects back with a `?code=` query parameter, the `<AsgardeoCallback>` component on `/callback` calls `POST /api/auth/callback` to complete the exchange. |
+
+### Embedded sign-in
+
+```vue
+<!-- pages/login.vue -->
+<template>
+  <AsgardeoSignIn
+    variant="outlined"
+    size="medium"
+    @success="onSuccess"
+    @error="onError"
+  />
+</template>
+
+<script setup lang="ts">
+function onSuccess() {
+  navigateTo('/dashboard');
+}
+function onError(err: unknown) {
+  console.error(err);
+}
+</script>
+```
+
+### Embedded sign-up
+
+```vue
+<!-- pages/register.vue -->
+<template>
+  <AsgardeoSignUp
+    variant="outlined"
+    @success="onSuccess"
+    @error="onError"
+  />
+</template>
+
+<script setup lang="ts">
+function onSuccess() {
+  navigateTo('/dashboard');
+}
+function onError(err: unknown) {
+  console.error(err);
+}
+</script>
+```
+
+### Callback page (required for embedded flows)
+
+When an embedded authenticator step redirects back to your app (e.g. social login), you need a `/callback` page that uses `<AsgardeoCallback>`:
+
+```vue
+<!-- pages/callback.vue -->
+<template>
+  <AsgardeoCallback
+    @error="(err) => console.error(err)"
+  />
+</template>
+```
+
+Set `callbackUrl` in `nuxt.config.ts` to match the registered redirect URI in Asgardeo:
+
+```ts
+// nuxt.config.ts
+export default defineNuxtConfig({
+  asgardeo: {
+    baseUrl: '...',
+    clientId: '...',
+    callbackUrl: '/callback',   // must match the registered redirect URI
+  },
+});
+```
+
+### Embedded flow API routes
+
+| Method | Route | Description |
+|--------|-------|-------------|
+| `POST` | `/api/auth/signin` | Initiate or advance an embedded sign-in flow step. Empty body → returns authorize URL; step payload → returns next step or exchanges code on completion. |
+| `POST` | `/api/auth/signup` | Advance an embedded sign-up flow step. No payload → returns empty `signUpUrl`; step payload → returns next step or `afterSignUpUrl` on completion. |
+| `POST` | `/api/auth/callback` | Exchange an authorization code for tokens after an external IdP redirect. Reads `code`, `state`, and `sessionState` from the request body. |
+
+---
+
 ## Server-side data flow
 
 The SDK uses a three-layer pipeline to resolve auth data on the server and hydrate the client without additional network round-trips.
@@ -353,6 +449,9 @@ The module registers the following Nitro routes automatically. These back the ca
 | `GET` | `/api/auth/signout` | Clears the session cookie and redirects to Asgardeo's end-session endpoint. |
 | `GET` | `/api/auth/session` | Returns the current session state `{isSignedIn, user}` as JSON. |
 | `GET` | `/api/auth/token` | Returns the current access token (for use in client-side API calls). |
+| `POST` | `/api/auth/signin` | Embedded flow: initiate or advance a sign-in step. |
+| `POST` | `/api/auth/signup` | Embedded flow: advance a sign-up step. |
+| `POST` | `/api/auth/callback` | Embedded flow: exchange auth code after external IdP redirect. |
 
 ### User
 
