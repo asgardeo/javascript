@@ -102,8 +102,8 @@ samples/nuxtjs-sdk-playground/
 | **Middleware** | `/middleware/protected` | Named `'auth'` middleware — `returnTo` flow |
 |  | `/middleware/org-required` | `defineAsgardeoMiddleware({ requireOrganization: true })` |
 |  | `/middleware/scoped` | `defineAsgardeoMiddleware({ requireScopes: [...] })` |
-| **Tools** | `/tools/state` | All `useState('asgardeo:*')` keys — live JSON tree |
-|  | `/tools/preferences` | `useRuntimeConfig().public.asgardeo.preferences` inspector |
+| **Tools** | `/tools/token-debugger` | Inspect and decode every auth token (session JWT, access, ID, refresh) |
+|  | `/tools/config` | Build-time config table + live playground overrides (theme, i18n locale) |
 
 ---
 
