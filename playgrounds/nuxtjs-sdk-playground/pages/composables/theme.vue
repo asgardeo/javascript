@@ -1,4 +1,10 @@
 <script setup lang="ts">
+import {computed, ref} from 'vue';
+import StateInspectionTable from '~/components/composables/StateInspectionTable.vue';
+import FunctionCard from '~/components/composables/FunctionCard.vue';
+import type {StateInspectionRow} from '~/components/composables/StateInspectionTable.vue';
+import {composableSpecByName} from '~/utils/composables-manifest';
+
 const {
   colorScheme,
   direction,
@@ -9,119 +15,83 @@ const {
   toggleTheme,
 } = useTheme();
 
-const codeSnippet = `const {
-  colorScheme,     // 'light' | 'dark'
-  direction,       // 'ltr' | 'rtl'
-  inheritFromBranding,
-  isBrandingLoading,
-  brandingError,
-  theme,           // full Theme object
-  toggleTheme,     // () => void
-} = useTheme();
+const spec = composableSpecByName['useTheme'];
+const toggleThemeSpec = spec.functions.find((fn) => fn.name === 'toggleTheme');
 
-// Toggle between light and dark
-toggleTheme();
+const isToggleThemeLoading = ref(false);
+const toggleThemeError = ref<string | null>(null);
 
-// Read the current color scheme
-console.log(colorScheme.value); // 'light' or 'dark'`;
+const stateRows = computed<StateInspectionRow[]>(() => {
+  const stateValues: Record<string, unknown> = {
+    colorScheme: colorScheme.value,
+    direction: direction.value,
+    inheritFromBranding,
+    isBrandingLoading: isBrandingLoading.value,
+    brandingError: brandingError.value,
+    theme: theme.value,
+  };
+
+  return spec.state.map((row) => ({
+    name: row.name,
+    value: stateValues[row.name],
+    type: row.type,
+    description: row.description,
+  }));
+});
+
+const onExecuteToggleTheme = async (): Promise<void> => {
+  try {
+    toggleThemeError.value = null;
+    isToggleThemeLoading.value = true;
+    toggleTheme();
+  } catch (error) {
+    toggleThemeError.value = error instanceof Error ? error.message : String(error);
+  } finally {
+    isToggleThemeLoading.value = false;
+  }
+};
 </script>
 
 <template>
   <div class="space-y-6">
     <LayoutPageHeader
       title="useTheme"
-      description="Access and control the active color scheme, direction, and resolved Theme object applied to Asgardeo components."
+      :description="spec.description"
     />
+
     <div class="flex items-center gap-2 -mt-2">
       <SharedStatusBadge status="info" label="Auto-imported" />
       <span class="text-xs text-text-muted">from <code class="font-mono">@asgardeo/nuxt</code></span>
     </div>
 
-    <!-- ── Reactive State ───────────────────────────────────────────────── -->
-    <LayoutSectionCard title="Reactive State">
-      <div class="overflow-x-auto">
-        <table class="w-full text-sm">
-          <thead>
-            <tr class="border-b border-border text-left">
-              <th class="pb-2 pr-6 font-medium text-text-muted">Property</th>
-              <th class="pb-2 font-medium text-text-muted">Value</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-border">
-            <tr>
-              <td class="py-2 pr-6 font-mono text-xs text-text-muted">colorScheme</td>
-              <td class="py-2">
-                <SharedStatusBadge
-                  :status="colorScheme === 'dark' ? 'info' : 'neutral'"
-                  :label="colorScheme"
-                />
-              </td>
-            </tr>
-            <tr>
-              <td class="py-2 pr-6 font-mono text-xs text-text-muted">direction</td>
-              <td class="py-2 font-mono text-xs text-text">{{ direction }}</td>
-            </tr>
-            <tr>
-              <td class="py-2 pr-6 font-mono text-xs text-text-muted">inheritFromBranding</td>
-              <td class="py-2 font-mono text-xs text-text">{{ String(inheritFromBranding) }}</td>
-            </tr>
-            <tr>
-              <td class="py-2 pr-6 font-mono text-xs text-text-muted">isBrandingLoading</td>
-              <td class="py-2">
-                <SharedStatusBadge :status="isBrandingLoading ? 'warning' : 'neutral'" :label="String(isBrandingLoading)" />
-              </td>
-            </tr>
-            <tr>
-              <td class="py-2 pr-6 font-mono text-xs text-text-muted">brandingError</td>
-              <td class="py-2 font-mono text-xs" :class="brandingError ? 'text-danger' : 'text-text-muted'">
-                {{ brandingError ? (brandingError as Error).message : 'null' }}
-              </td>
-            </tr>
-          </tbody>
-        </table>
+    <LayoutSectionCard
+      title="State Inspection"
+      description="Live reactive state returned by useTheme()."
+    >
+      <StateInspectionTable :rows="stateRows" />
+    </LayoutSectionCard>
+
+    <LayoutSectionCard
+      title="Functions"
+      description="Execute composable functions and inspect returned results."
+    >
+      <div class="space-y-4">
+        <FunctionCard
+          name="toggleTheme"
+          :signature="toggleThemeSpec?.signature || '() => void'"
+          :description="toggleThemeSpec?.description || 'Toggles between light and dark color scheme.'"
+          :is-loading="isToggleThemeLoading"
+          :error="toggleThemeError"
+          @execute="onExecuteToggleTheme"
+        />
       </div>
     </LayoutSectionCard>
 
-    <!-- ── toggleTheme ─────────────────────────────────────────────────── -->
-    <LayoutSectionCard title="toggleTheme()" description="Switch between light and dark color schemes.">
-      <div class="flex items-center gap-4">
-        <button
-          class="px-4 py-2 text-sm font-medium bg-accent-600 text-accent-foreground rounded-md hover:bg-accent-700 transition-colors"
-          @click="toggleTheme"
-        >
-          toggleTheme()
-        </button>
-        <span class="text-sm text-text-muted">
-          Current: <span class="font-medium text-text">{{ colorScheme }}</span>
-        </span>
-      </div>
+    <LayoutSectionCard
+      title="Import & Usage"
+      description="Destructure state and methods from useTheme()."
+    >
+      <LayoutCodeBlock :code="spec.importSnippet" language="ts" />
     </LayoutSectionCard>
-
-    <!-- ── Theme object ────────────────────────────────────────────────── -->
-    <LayoutSectionCard title="theme" description="The full resolved Theme object currently applied." :collapsible="true">
-      <SharedResultPanel :result="theme" />
-    </LayoutSectionCard>
-
-    <!-- ── Visual preview ─────────────────────────────────────────────── -->
-    <LayoutSectionCard title="Live Preview" description="How the current theme scheme looks on Asgardeo components.">
-      <div class="flex flex-wrap items-center gap-4">
-        <AsgardeoSignIn v-if="false" />
-        <div class="rounded-lg border border-border bg-surface p-4 text-sm text-text space-y-2">
-          <p class="font-medium">Sample Surface</p>
-          <p class="text-text-muted text-xs">colorScheme: <span class="font-mono">{{ colorScheme }}</span></p>
-          <div class="flex gap-2 flex-wrap">
-            <span class="inline-block px-2 py-1 rounded text-xs bg-accent-600 text-accent-foreground">Accent</span>
-            <span class="inline-block px-2 py-1 rounded text-xs bg-surface-muted text-text-muted border border-border">Muted</span>
-            <span class="inline-block px-2 py-1 rounded text-xs text-success">Success</span>
-            <span class="inline-block px-2 py-1 rounded text-xs text-danger">Danger</span>
-            <span class="inline-block px-2 py-1 rounded text-xs text-warning">Warning</span>
-          </div>
-        </div>
-        <SharedThemeSwitcher />
-      </div>
-    </LayoutSectionCard>
-
-    <!-- ── Code ────────────────────────────────────────────────────────── -->
-    <LayoutCodeBlock :code="codeSnippet" language="ts" />
   </div>
 </template>

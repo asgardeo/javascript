@@ -30,7 +30,7 @@ export type {
 // `useAsgardeo`. The rest are re-exports of `@asgardeo/vue` composables —
 // their contexts are mounted by `<AsgardeoRoot>` (see runtime/components).
 export {useAsgardeo} from './runtime/composables/useAsgardeo';
-export {useUser, useOrganization, useFlow, useTheme, useBranding} from '@asgardeo/vue';
+export {useUser, useOrganization, useFlow, useFlowMeta, useTheme, useBranding} from '@asgardeo/vue';
 export {useI18n as useAsgardeoI18n} from '@asgardeo/vue';
 
 // ── Components ─────────────────────────────────────────────────────────────

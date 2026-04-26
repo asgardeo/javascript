@@ -107,6 +107,7 @@ export const composables: SdkExport[] = [
   { name: 'useUser',         description: 'User profile data and updates.',                                      path: '/composables/user'         },
   { name: 'useOrganization', description: 'Organization context and switching.',                                 path: '/composables/organization' },
   { name: 'useFlow',         description: 'Authentication flow UI state.',                                       path: '/composables/flow'         },
+  { name: 'useFlowMeta',     description: 'Flow metadata and localized flow resources.',                          path: '/composables/flow-meta'    },
   { name: 'useTheme',        description: 'Theme and color-scheme control.',                                     path: '/composables/theme'        },
   { name: 'useBranding',     description: 'Asgardeo branding preferences.',                                      path: '/composables/branding'     },
   { name: 'useAsgardeoI18n', description: 'Internationalization helpers.',                                       path: '/composables/i18n'         },

@@ -5,40 +5,31 @@ import StateInspectionTable from '~/components/composables/StateInspectionTable.
 import type {StateInspectionRow} from '~/components/composables/StateInspectionTable.vue';
 import {composableSpecByName} from '~/utils/composables-manifest';
 
-const spec = composableSpecByName['useUser'];
+const spec = composableSpecByName['useFlowMeta'];
 
 const {
-  profile,
-  flattenedProfile,
-  schemas,
-  revalidateProfile,
-  updateProfile,
-} = useUser();
+  meta,
+  isLoading,
+  error,
+  fetchFlowMeta,
+  switchLanguage,
+} = useFlowMeta();
+
+const {platform} = useAsgardeo();
 
 const functionLoading = ref<Record<string, boolean>>({});
 const functionErrors = ref<Record<string, string | null>>({});
 const functionResults = ref<Record<string, unknown>>({});
 
-const updateProfileConfigInput = ref(`{
-  "schemas": ["urn:ietf:params:scim:api:messages:2.0:PatchOp"],
-  "Operations": [
-    {
-      "op": "replace",
-      "value": {
-        "name": {
-          "givenName": "Alice"
-        }
-      }
-    }
-  ]
-}`);
-const updateProfileSessionIdInput = ref('');
+const switchLanguageInput = ref('en-US');
+
+const isFlowMetaDisabled = computed(() => platform !== 'AsgardeoV2');
 
 const stateRows = computed<StateInspectionRow[]>(() => {
   const values: Record<string, unknown> = {
-    profile: profile.value,
-    flattenedProfile: flattenedProfile.value,
-    schemas: schemas.value,
+    meta: meta.value,
+    isLoading: isLoading.value,
+    error: error.value ? error.value.message : null,
   };
 
   return spec.state.map((row) => ({
@@ -55,16 +46,15 @@ const runFunction = async (name: string): Promise<void> => {
   functionResults.value[name] = undefined;
 
   try {
-    if (name === 'revalidateProfile') {
-      await revalidateProfile();
-      functionResults.value[name] = profile.value;
+    if (name === 'fetchFlowMeta') {
+      await fetchFlowMeta();
+      functionResults.value[name] = meta.value;
       return;
     }
 
-    if (name === 'updateProfile') {
-      const parsed = JSON.parse(updateProfileConfigInput.value) as Record<string, unknown>;
-      const sessionId = updateProfileSessionIdInput.value.trim() || undefined;
-      functionResults.value[name] = await updateProfile(parsed as any, sessionId);
+    if (name === 'switchLanguage') {
+      await switchLanguage(switchLanguageInput.value);
+      functionResults.value[name] = meta.value;
       return;
     }
 
@@ -80,7 +70,7 @@ const runFunction = async (name: string): Promise<void> => {
 <template>
   <div class="space-y-6">
     <LayoutPageHeader
-      title="useUser"
+      title="useFlowMeta"
       :description="spec.description"
     />
 
@@ -89,9 +79,16 @@ const runFunction = async (name: string): Promise<void> => {
       <span class="text-xs text-text-muted">from <code class="font-mono">@asgardeo/nuxt</code></span>
     </div>
 
+    <div
+      v-if="isFlowMetaDisabled"
+      class="rounded-lg border border-warning/40 bg-warning/10 px-4 py-3 text-sm text-warning"
+    >
+      FlowMeta requires platform: 'AsgardeoV2' - currently disabled in this playground.
+    </div>
+
     <LayoutSectionCard
       title="State Inspection"
-      description="Live reactive state returned by useUser()."
+      description="Live reactive state returned by useFlowMeta()."
     >
       <StateInspectionTable :rows="stateRows" />
     </LayoutSectionCard>
@@ -113,23 +110,14 @@ const runFunction = async (name: string): Promise<void> => {
           @execute="runFunction(fn.name)"
         >
           <template #parameters>
-            <div v-if="fn.name === 'updateProfile'" class="space-y-3">
-              <div>
-                <label class="block text-xs font-medium text-text-muted mb-1">requestConfig (JSON)</label>
-                <textarea
-                  v-model="updateProfileConfigInput"
-                  rows="9"
-                  class="w-full rounded-md border border-border bg-surface px-3 py-2 font-mono text-xs text-text"
-                />
-              </div>
-              <div>
-                <label class="block text-xs font-medium text-text-muted mb-1">sessionId (optional)</label>
-                <input
-                  v-model="updateProfileSessionIdInput"
-                  type="text"
-                  class="w-full rounded-md border border-border bg-surface px-3 py-2 text-sm text-text"
-                />
-              </div>
+            <div v-if="fn.name === 'switchLanguage'" class="space-y-2">
+              <label class="block text-xs font-medium text-text-muted mb-1">language</label>
+              <input
+                v-model="switchLanguageInput"
+                type="text"
+                placeholder="en-US"
+                class="w-full rounded-md border border-border bg-surface px-3 py-2 text-sm text-text"
+              />
             </div>
           </template>
         </FunctionCard>
@@ -138,7 +126,7 @@ const runFunction = async (name: string): Promise<void> => {
 
     <LayoutSectionCard
       title="Import & Usage"
-      description="Destructure state and methods from useUser()."
+      description="Destructure state and methods from useFlowMeta()."
     >
       <LayoutCodeBlock :code="spec.importSnippet" language="ts" />
     </LayoutSectionCard>

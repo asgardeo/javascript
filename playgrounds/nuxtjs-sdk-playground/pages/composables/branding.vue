@@ -1,5 +1,11 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import {computed, ref} from 'vue';
+import FunctionCard from '~/components/composables/FunctionCard.vue';
+import StateInspectionTable from '~/components/composables/StateInspectionTable.vue';
+import type {StateInspectionRow} from '~/components/composables/StateInspectionTable.vue';
+import {composableSpecByName} from '~/utils/composables-manifest';
+
+const spec = composableSpecByName['useBranding'];
 
 const {
   activeTheme,
@@ -11,156 +17,97 @@ const {
   refetch,
 } = useBranding();
 
-// ── fetchBranding ──────────────────────────────────────────────────────────
-const fetchResult   = ref<unknown>(null);
-const fetchError    = ref<string | null>(null);
-const fetchLoading  = ref(false);
+const functionLoading = ref<Record<string, boolean>>({});
+const functionErrors = ref<Record<string, string | null>>({});
+const functionResults = ref<Record<string, unknown>>({});
 
-async function runFetchBranding() {
-  fetchResult.value  = null;
-  fetchError.value   = null;
-  fetchLoading.value = true;
+const stateRows = computed<StateInspectionRow[]>(() => {
+  const values: Record<string, unknown> = {
+    activeTheme: activeTheme.value,
+    brandingPreference: brandingPreference.value,
+    error: error.value ? error.value.message : null,
+    isLoading: isLoading.value,
+    theme: theme.value,
+  };
+
+  return spec.state.map((row) => ({
+    name: row.name,
+    value: values[row.name],
+    type: row.type,
+    description: row.description,
+  }));
+});
+
+const runFunction = async (name: string): Promise<void> => {
+  functionLoading.value[name] = true;
+  functionErrors.value[name] = null;
+  functionResults.value[name] = undefined;
+
   try {
-    await fetchBranding();
-    fetchResult.value = brandingPreference.value;
-  } catch (err) {
-    fetchError.value = err instanceof Error ? err.message : String(err);
+    if (name === 'fetchBranding') {
+      await fetchBranding();
+      functionResults.value[name] = brandingPreference.value;
+      return;
+    }
+
+    if (name === 'refetch') {
+      await refetch();
+      functionResults.value[name] = brandingPreference.value;
+      return;
+    }
+
+    throw new Error(`No execution handler configured for ${name}`);
+  } catch (errorValue) {
+    functionErrors.value[name] = errorValue instanceof Error ? errorValue.message : String(errorValue);
   } finally {
-    fetchLoading.value = false;
+    functionLoading.value[name] = false;
   }
-}
-
-// ── refetch ────────────────────────────────────────────────────────────────
-const refetchResult  = ref<unknown>(null);
-const refetchError   = ref<string | null>(null);
-const refetchLoading = ref(false);
-
-async function runRefetch() {
-  refetchResult.value  = null;
-  refetchError.value   = null;
-  refetchLoading.value = true;
-  try {
-    await refetch();
-    refetchResult.value = brandingPreference.value;
-  } catch (err) {
-    refetchError.value = err instanceof Error ? err.message : String(err);
-  } finally {
-    refetchLoading.value = false;
-  }
-}
-
-const codeSnippet = `const {
-  activeTheme,         // Readonly<Ref<'light' | 'dark' | null>>
-  brandingPreference,  // Readonly<Ref<BrandingPreference | null>>
-  error,               // Readonly<Ref<Error | null>>
-  isLoading,           // Readonly<Ref<boolean>>
-  theme,               // Readonly<Ref<Theme | null>>
-  fetchBranding,       // () => Promise<void>
-  refetch,             // () => Promise<void>  (bypasses dedup)
-} = useBranding();
-
-// Fetch branding preference from the organization
-await fetchBranding();
-
-// Access the resolved theme object
-console.log(theme.value);
-
-// Force a fresh fetch (bypasses deduplication)
-await refetch();`;
+};
 </script>
 
 <template>
   <div class="space-y-6">
     <LayoutPageHeader
       title="useBranding"
-      description="Fetch and access the organization's branding preference and resolved Theme object from the Asgardeo console."
+      :description="spec.description"
     />
+
     <div class="flex items-center gap-2 -mt-2">
       <SharedStatusBadge status="info" label="Auto-imported" />
       <span class="text-xs text-text-muted">from <code class="font-mono">@asgardeo/nuxt</code></span>
     </div>
 
-    <!-- ── Reactive State ───────────────────────────────────────────────── -->
-    <LayoutSectionCard title="Reactive State">
-      <div class="overflow-x-auto">
-        <table class="w-full text-sm">
-          <thead>
-            <tr class="border-b border-border text-left">
-              <th class="pb-2 pr-6 font-medium text-text-muted">Property</th>
-              <th class="pb-2 font-medium text-text-muted">Value</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-border">
-            <tr>
-              <td class="py-2 pr-6 font-mono text-xs text-text-muted">activeTheme</td>
-              <td class="py-2 font-mono text-xs text-text">{{ activeTheme ?? 'null' }}</td>
-            </tr>
-            <tr>
-              <td class="py-2 pr-6 font-mono text-xs text-text-muted">isLoading</td>
-              <td class="py-2">
-                <SharedStatusBadge :status="isLoading ? 'warning' : 'neutral'" :label="String(isLoading)" />
-              </td>
-            </tr>
-            <tr>
-              <td class="py-2 pr-6 font-mono text-xs text-text-muted">error</td>
-              <td class="py-2 font-mono text-xs" :class="error ? 'text-danger' : 'text-text-muted'">
-                {{ error ? (error as Error).message : 'null' }}
-              </td>
-            </tr>
-            <tr>
-              <td class="py-2 pr-6 font-mono text-xs text-text-muted">brandingPreference</td>
-              <td class="py-2 font-mono text-xs text-text">{{ brandingPreference ? 'loaded' : 'null' }}</td>
-            </tr>
-            <tr>
-              <td class="py-2 pr-6 font-mono text-xs text-text-muted">theme</td>
-              <td class="py-2 font-mono text-xs text-text">{{ theme ? 'loaded' : 'null' }}</td>
-            </tr>
-          </tbody>
-        </table>
+    <LayoutSectionCard
+      title="State Inspection"
+      description="Live reactive state returned by useBranding()."
+    >
+      <StateInspectionTable :rows="stateRows" />
+    </LayoutSectionCard>
+
+    <LayoutSectionCard
+      title="Functions"
+      description="Execute composable functions and inspect returned results."
+    >
+      <div class="space-y-4">
+        <FunctionCard
+          v-for="fn in spec.functions"
+          :key="fn.name"
+          :name="fn.name"
+          :signature="fn.signature"
+          :description="fn.description"
+          :is-loading="Boolean(functionLoading[fn.name])"
+          :result="functionResults[fn.name]"
+          :error="functionErrors[fn.name]"
+          @execute="runFunction(fn.name)"
+        />
       </div>
     </LayoutSectionCard>
 
-    <!-- ── fetchBranding ──────────────────────────────────────────────── -->
     <LayoutSectionCard
-      title="fetchBranding()"
-      description="Fetch the organization branding preference from GET /api/auth/branding. Deduplicated — returns cached result if already loaded."
+      title="Import & Usage"
+      description="Destructure state and methods from useBranding()."
     >
-      <button
-        :disabled="fetchLoading"
-        class="mb-4 px-4 py-2 text-sm font-medium bg-accent-600 text-accent-foreground rounded-md hover:bg-accent-700 transition-colors disabled:opacity-50"
-        @click="runFetchBranding"
-      >
-        {{ fetchLoading ? 'Fetching...' : 'fetchBranding()' }}
-      </button>
-      <SharedResultPanel :result="fetchResult" :error="fetchError" :is-loading="fetchLoading" />
+      <LayoutCodeBlock :code="spec.importSnippet" language="ts" />
     </LayoutSectionCard>
-
-    <!-- ── refetch ────────────────────────────────────────────────────── -->
-    <LayoutSectionCard
-      title="refetch()"
-      description="Force a fresh branding fetch via GET /api/auth/branding, bypassing deduplication. Always makes a new network request."
-    >
-      <button
-        :disabled="refetchLoading"
-        class="mb-4 px-4 py-2 text-sm font-medium bg-accent-600 text-accent-foreground rounded-md hover:bg-accent-700 transition-colors disabled:opacity-50"
-        @click="runRefetch"
-      >
-        {{ refetchLoading ? 'Fetching...' : 'refetch()' }}
-      </button>
-      <SharedResultPanel :result="refetchResult" :error="refetchError" :is-loading="refetchLoading" />
-    </LayoutSectionCard>
-
-    <!-- ── brandingPreference viewer ──────────────────────────────────── -->
-    <LayoutSectionCard title="brandingPreference" description="Full BrandingPreference object returned by the API." :collapsible="true">
-      <SharedResultPanel :result="brandingPreference" />
-    </LayoutSectionCard>
-
-    <!-- ── theme viewer ───────────────────────────────────────────────── -->
-    <LayoutSectionCard title="theme (from branding)" description="Resolved Theme object derived from the branding preference." :collapsible="true">
-      <SharedResultPanel :result="theme" />
-    </LayoutSectionCard>
-
-    <!-- ── Code ────────────────────────────────────────────────────────── -->
-    <LayoutCodeBlock :code="codeSnippet" language="ts" />
   </div>
 </template>

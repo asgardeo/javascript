@@ -1,5 +1,11 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import {computed, ref, watch} from 'vue';
+import FunctionCard from '~/components/composables/FunctionCard.vue';
+import StateInspectionTable from '~/components/composables/StateInspectionTable.vue';
+import type {StateInspectionRow} from '~/components/composables/StateInspectionTable.vue';
+import {composableSpecByName} from '~/utils/composables-manifest';
+
+const spec = composableSpecByName['useAsgardeo'];
 
 const {
   isSignedIn,
@@ -7,7 +13,15 @@ const {
   isInitialized,
   clientId,
   baseUrl,
+  applicationId,
+  signInUrl,
+  signUpUrl,
+  instanceId,
   user,
+  organization,
+  organizationHandle,
+  platform,
+  meta,
   signIn,
   signOut,
   signUp,
@@ -15,335 +29,321 @@ const {
   getAccessToken,
   getIdToken,
   getDecodedIdToken,
+  exchangeToken,
+  switchOrganization,
+  clearSession,
+  reInitialize,
   http,
+  resolveFlowTemplateLiterals,
 } = useAsgardeo();
 
-// ── signInSilently ─────────────────────────────────────────────────────────
-const silentResult   = ref<unknown>(null);
-const silentLoading  = ref(false);
-const silentError    = ref<string | null>(null);
+const {myOrganizations} = useOrganization();
 
-async function runSignInSilently() {
-  silentLoading.value = true;
-  silentError.value   = null;
-  silentResult.value  = null;
-  try {
-    const result = await signInSilently();
-    silentResult.value = result ?? 'done';
-  } catch (e: unknown) {
-    silentError.value = e instanceof Error ? e.message : String(e);
-  } finally {
-    silentLoading.value = false;
-  }
-}
+const functionLoading = ref<Record<string, boolean>>({});
+const functionErrors = ref<Record<string, string | null>>({});
+const functionResults = ref<Record<string, unknown>>({});
 
-// ── getAccessToken ─────────────────────────────────────────────────────────
-const accessTokenResult  = ref<unknown>(null);
-const accessTokenLoading = ref(false);
-const accessTokenError   = ref<string | null>(null);
+const signInOptionsInput = ref('{\n  "returnTo": "/composables/asgardeo"\n}');
+const exchangeTokenConfigInput = ref('{}');
+const switchOrganizationIdInput = ref('');
+const reInitializeConfigInput = ref('{}');
+const requestUrlInput = ref('/scim2/Me');
+const requestMethodInput = ref('GET');
+const requestBodyInput = ref('');
+const requestAllConfigsInput = ref('[]');
+const resolveTextInput = ref('Welcome, {{meta(user.name.givenName)}}');
 
-async function runGetAccessToken() {
-  accessTokenLoading.value = true;
-  accessTokenError.value   = null;
-  accessTokenResult.value  = null;
-  try {
-    const token = await getAccessToken();
-    accessTokenResult.value = token.length > 80 ? `${token.slice(0, 80)}…` : token;
-  } catch (e: unknown) {
-    accessTokenError.value = e instanceof Error ? e.message : String(e);
-  } finally {
-    accessTokenLoading.value = false;
-  }
-}
-
-// ── getIdToken ─────────────────────────────────────────────────────────────
-const idTokenResult  = ref<unknown>(null);
-const idTokenLoading = ref(false);
-const idTokenError   = ref<string | null>(null);
-
-async function runGetIdToken() {
-  idTokenLoading.value = true;
-  idTokenError.value   = null;
-  idTokenResult.value  = null;
-  try {
-    const token = await getIdToken();
-    idTokenResult.value = token.length > 80 ? `${token.slice(0, 80)}…` : token;
-  } catch (e: unknown) {
-    idTokenError.value = e instanceof Error ? e.message : String(e);
-  } finally {
-    idTokenLoading.value = false;
-  }
-}
-
-// ── getDecodedIdToken ──────────────────────────────────────────────────────
-const decodedResult  = ref<unknown>(null);
-const decodedLoading = ref(false);
-const decodedError   = ref<string | null>(null);
-
-async function runGetDecodedIdToken() {
-  decodedLoading.value = true;
-  decodedError.value   = null;
-  decodedResult.value  = null;
-  try {
-    decodedResult.value = await getDecodedIdToken();
-  } catch (e: unknown) {
-    decodedError.value = e instanceof Error ? e.message : String(e);
-  } finally {
-    decodedLoading.value = false;
-  }
-}
-
-// ── http.request ───────────────────────────────────────────────────────────
-const httpEndpoint = ref('/scim2/Me');
-const httpMethod   = ref('GET');
-const httpBody     = ref('');
-const httpResult   = ref<unknown>(null);
-const httpLoading  = ref(false);
-const httpError    = ref<string | null>(null);
-
-async function runHttpRequest() {
-  httpLoading.value = true;
-  httpError.value   = null;
-  httpResult.value  = null;
-  try {
-    const cfg: Record<string, unknown> = { url: httpEndpoint.value, method: httpMethod.value };
-    if (['POST','PUT','PATCH'].includes(httpMethod.value) && httpBody.value.trim()) {
-      cfg.data = JSON.parse(httpBody.value);
+watch(
+  () => myOrganizations.value,
+  (organizations) => {
+    if (!switchOrganizationIdInput.value && organizations.length > 0) {
+      switchOrganizationIdInput.value = organizations[0]?.id || '';
     }
-    const res = await http.request(cfg as Parameters<typeof http.request>[0]);
-    httpResult.value = (res as Record<string, unknown>)?.data ?? res;
-  } catch (e: unknown) {
-    httpError.value = e instanceof Error ? e.message : String(e);
+  },
+  {immediate: true},
+);
+
+const organizationOptions = computed(() =>
+  myOrganizations.value.map((org) => ({
+    id: org.id,
+    label: org.name || org.id,
+  })),
+);
+
+const truncateToken = (token: string): string =>
+  token.length > 80 ? `${token.slice(0, 80)}...` : token;
+
+const stateRows = computed<StateInspectionRow[]>(() => {
+  const values: Record<string, unknown> = {
+    isSignedIn: isSignedIn.value,
+    isLoading: isLoading.value,
+    isInitialized: isInitialized.value,
+    clientId,
+    baseUrl,
+    applicationId,
+    signInUrl,
+    signUpUrl,
+    instanceId,
+    user: user.value,
+    organization: organization.value,
+    organizationHandle,
+    platform,
+    meta: meta?.value,
+  };
+
+  return spec.state.map((row) => ({
+    name: row.name,
+    value: values[row.name],
+    type: row.type,
+    description: row.description,
+  }));
+});
+
+const runFunction = async (name: string): Promise<void> => {
+  functionLoading.value[name] = true;
+  functionErrors.value[name] = null;
+  functionResults.value[name] = undefined;
+
+  try {
+    if (name === 'signIn') {
+      const options = signInOptionsInput.value.trim() ? JSON.parse(signInOptionsInput.value) : undefined;
+      functionResults.value[name] = await signIn(options);
+      return;
+    }
+
+    if (name === 'signOut') {
+      functionResults.value[name] = await signOut();
+      return;
+    }
+
+    if (name === 'signUp') {
+      functionResults.value[name] = await signUp();
+      return;
+    }
+
+    if (name === 'signInSilently') {
+      functionResults.value[name] = await signInSilently();
+      return;
+    }
+
+    if (name === 'getAccessToken') {
+      const token = await getAccessToken();
+      functionResults.value[name] = truncateToken(token);
+      return;
+    }
+
+    if (name === 'getIdToken') {
+      const token = await getIdToken();
+      functionResults.value[name] = truncateToken(token);
+      return;
+    }
+
+    if (name === 'getDecodedIdToken') {
+      functionResults.value[name] = await getDecodedIdToken();
+      return;
+    }
+
+    if (name === 'exchangeToken') {
+      const config = JSON.parse(exchangeTokenConfigInput.value);
+      functionResults.value[name] = await exchangeToken(config as any);
+      return;
+    }
+
+    if (name === 'switchOrganization') {
+      const selected = myOrganizations.value.find((org) => org.id === switchOrganizationIdInput.value);
+      if (!selected) {
+        throw new Error('Please select an organization from myOrganizations first.');
+      }
+      await switchOrganization(selected as any);
+      functionResults.value[name] = {switchedTo: selected.name || selected.id};
+      return;
+    }
+
+    if (name === 'clearSession') {
+      functionResults.value[name] = await clearSession();
+      return;
+    }
+
+    if (name === 'reInitialize') {
+      const config = JSON.parse(reInitializeConfigInput.value);
+      functionResults.value[name] = await reInitialize(config as any);
+      return;
+    }
+
+    if (name === 'http.request') {
+      const config: Record<string, unknown> = {
+        url: requestUrlInput.value,
+        method: requestMethodInput.value,
+      };
+      if (['POST', 'PUT', 'PATCH'].includes(requestMethodInput.value) && requestBodyInput.value.trim()) {
+        config.data = JSON.parse(requestBodyInput.value);
+      }
+      const response = await http.request(config as any);
+      functionResults.value[name] = (response as unknown as {data?: unknown})?.data ?? response;
+      return;
+    }
+
+    if (name === 'http.requestAll') {
+      const requestConfigs = JSON.parse(requestAllConfigsInput.value);
+      functionResults.value[name] = await http.requestAll(requestConfigs as any);
+      return;
+    }
+
+    if (name === 'resolveFlowTemplateLiterals') {
+      if (!resolveFlowTemplateLiterals) {
+        throw new Error('resolveFlowTemplateLiterals is not available in this runtime context.');
+      }
+      functionResults.value[name] = resolveFlowTemplateLiterals(resolveTextInput.value);
+      return;
+    }
+
+    throw new Error(`No execution handler configured for ${name}`);
+  } catch (errorValue) {
+    functionErrors.value[name] = errorValue instanceof Error ? errorValue.message : String(errorValue);
   } finally {
-    httpLoading.value = false;
+    functionLoading.value[name] = false;
   }
-}
-
-// ── Code snippet ───────────────────────────────────────────────────────────
-const codeSnippet = `const {
-  isSignedIn, isLoading, isInitialized,
-  clientId, baseUrl, user,
-  signIn, signOut, signUp,
-  signInSilently,
-  getAccessToken, getIdToken, getDecodedIdToken,
-  http,
-} = useAsgardeo();
-
-// Trigger redirect flows
-await signIn();
-await signOut();
-await signUp();
-
-// Silent re-authentication (no redirect)
-await signInSilently();
-
-// Token accessors
-const accessToken  = await getAccessToken();
-const idToken      = await getIdToken();
-const decodedToken = await getDecodedIdToken();
-
-// Authenticated HTTP request (base URL = Asgardeo tenant)
-const res = await http.request({ url: '/scim2/Me', method: 'GET' });`;
+};
 </script>
 
 <template>
   <div class="space-y-6">
     <LayoutPageHeader
       title="useAsgardeo"
-      description="Core composable — reactive auth state, redirect actions, token getters, and authenticated HTTP client."
+      :description="spec.description"
     />
+
     <div class="flex items-center gap-2 -mt-2">
       <SharedStatusBadge status="info" label="Auto-imported" />
       <span class="text-xs text-text-muted">from <code class="font-mono">@asgardeo/nuxt</code></span>
     </div>
 
-    <!-- ── Reactive State ───────────────────────────────────────────────── -->
-    <LayoutSectionCard title="Reactive State">
-      <div class="overflow-x-auto">
-        <table class="w-full text-sm">
-          <thead>
-            <tr class="border-b border-border text-left">
-              <th class="pb-2 pr-6 font-medium text-text-muted">Property</th>
-              <th class="pb-2 font-medium text-text-muted">Value</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-border">
-            <tr>
-              <td class="py-2 pr-6 font-mono text-xs text-text-muted">isSignedIn</td>
-              <td class="py-2">
-                <SharedStatusBadge
-                  :status="isSignedIn ? 'success' : 'neutral'"
-                  :label="String(isSignedIn)"
-                />
-              </td>
-            </tr>
-            <tr>
-              <td class="py-2 pr-6 font-mono text-xs text-text-muted">isLoading</td>
-              <td class="py-2">
-                <SharedStatusBadge
-                  :status="isLoading ? 'warning' : 'neutral'"
-                  :label="String(isLoading)"
-                />
-              </td>
-            </tr>
-            <tr>
-              <td class="py-2 pr-6 font-mono text-xs text-text-muted">isInitialized</td>
-              <td class="py-2">
-                <SharedStatusBadge
-                  :status="isInitialized ? 'info' : 'neutral'"
-                  :label="String(isInitialized)"
-                />
-              </td>
-            </tr>
-            <tr>
-              <td class="py-2 pr-6 font-mono text-xs text-text-muted">clientId</td>
-              <td class="py-2 font-mono text-xs text-text">{{ clientId ?? '—' }}</td>
-            </tr>
-            <tr>
-              <td class="py-2 pr-6 font-mono text-xs text-text-muted">baseUrl</td>
-              <td class="py-2 font-mono text-xs text-text break-all">{{ baseUrl ?? '—' }}</td>
-            </tr>
-            <tr>
-              <td class="py-2 pr-6 font-mono text-xs text-text-muted">user</td>
-              <td class="py-2 font-mono text-xs text-text">
-                {{ user ? (user as Record<string, unknown>)?.['username'] ?? 'signed in' : 'null' }}
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </LayoutSectionCard>
-
-    <!-- ── Auth Actions ─────────────────────────────────────────────────── -->
     <LayoutSectionCard
-      title="Auth Actions (Redirect)"
-      description="These trigger a full-page redirect — the browser navigates away."
+      title="State Inspection"
+      description="Live reactive state returned by useAsgardeo()."
     >
-      <div class="flex flex-wrap gap-3">
-        <button
-          class="px-4 py-2 text-sm font-medium bg-accent-600 text-accent-foreground rounded-md hover:bg-accent-700 transition-colors"
-          @click="signIn()"
-        >
-          signIn()
-        </button>
-        <button
-          class="px-4 py-2 text-sm font-medium bg-surface border border-border text-text rounded-md hover:bg-surface-muted transition-colors"
-          @click="signOut()"
-        >
-          signOut()
-        </button>
-        <button
-          class="px-4 py-2 text-sm font-medium bg-success/10 text-success border border-success/30 rounded-md hover:bg-success/20 transition-colors"
-          @click="signUp()"
-        >
-          signUp()
-        </button>
-      </div>
+      <StateInspectionTable :rows="stateRows" />
     </LayoutSectionCard>
 
-    <!-- ── signInSilently ───────────────────────────────────────────────── -->
     <LayoutSectionCard
-      title="signInSilently()"
-      description="Attempts a silent re-authentication using the existing session. No redirect."
+      title="Functions"
+      description="Execute composable functions and inspect returned results."
     >
-      <button
-        class="px-4 py-2 text-sm font-medium bg-accent-600 text-accent-foreground rounded-md hover:bg-accent-700 transition-colors disabled:opacity-50"
-        :disabled="silentLoading"
-        @click="runSignInSilently"
-      >
-        {{ silentLoading ? 'Running…' : 'signInSilently()' }}
-      </button>
-      <SharedResultPanel class="mt-3" :result="silentResult" :error="silentError" :is-loading="silentLoading" />
-    </LayoutSectionCard>
-
-    <!-- ── Token getters ────────────────────────────────────────────────── -->
-    <LayoutSectionCard title="Token Getters" description="Read the current tokens. Requires an active session.">
       <div class="space-y-4">
-        <!-- getAccessToken -->
-        <div>
-          <button
-            class="px-4 py-2 text-sm font-medium bg-accent-600 text-accent-foreground rounded-md hover:bg-accent-700 transition-colors disabled:opacity-50"
-            :disabled="accessTokenLoading"
-            @click="runGetAccessToken"
-          >
-            {{ accessTokenLoading ? 'Fetching…' : 'getAccessToken()' }}
-          </button>
-          <SharedResultPanel class="mt-2" :result="accessTokenResult" :error="accessTokenError" :is-loading="accessTokenLoading" />
-        </div>
+        <FunctionCard
+          v-for="fn in spec.functions"
+          :key="fn.name"
+          :name="fn.name"
+          :signature="fn.signature"
+          :description="fn.description"
+          :is-loading="Boolean(functionLoading[fn.name])"
+          :result="functionResults[fn.name]"
+          :error="functionErrors[fn.name]"
+          @execute="runFunction(fn.name)"
+        >
+          <template #parameters>
+            <div v-if="fn.name === 'signIn'" class="space-y-2">
+              <label class="block text-xs font-medium text-text-muted mb-1">options (JSON, optional)</label>
+              <textarea
+                v-model="signInOptionsInput"
+                rows="4"
+                class="w-full rounded-md border border-border bg-surface px-3 py-2 font-mono text-xs text-text"
+              />
+            </div>
 
-        <!-- getIdToken -->
-        <div>
-          <button
-            class="px-4 py-2 text-sm font-medium bg-accent-600 text-accent-foreground rounded-md hover:bg-accent-700 transition-colors disabled:opacity-50"
-            :disabled="idTokenLoading"
-            @click="runGetIdToken"
-          >
-            {{ idTokenLoading ? 'Fetching…' : 'getIdToken()' }}
-          </button>
-          <SharedResultPanel class="mt-2" :result="idTokenResult" :error="idTokenError" :is-loading="idTokenLoading" />
-        </div>
+            <div v-else-if="fn.name === 'exchangeToken'" class="space-y-2">
+              <label class="block text-xs font-medium text-text-muted mb-1">config (JSON)</label>
+              <textarea
+                v-model="exchangeTokenConfigInput"
+                rows="7"
+                class="w-full rounded-md border border-border bg-surface px-3 py-2 font-mono text-xs text-text"
+              />
+            </div>
 
-        <!-- getDecodedIdToken -->
-        <div>
-          <button
-            class="px-4 py-2 text-sm font-medium bg-accent-600 text-accent-foreground rounded-md hover:bg-accent-700 transition-colors disabled:opacity-50"
-            :disabled="decodedLoading"
-            @click="runGetDecodedIdToken"
-          >
-            {{ decodedLoading ? 'Fetching…' : 'getDecodedIdToken()' }}
-          </button>
-          <SharedResultPanel class="mt-2" :result="decodedResult" :error="decodedError" :is-loading="decodedLoading" />
-        </div>
+            <div v-else-if="fn.name === 'switchOrganization'" class="space-y-2">
+              <label class="block text-xs font-medium text-text-muted mb-1">organization</label>
+              <select
+                v-model="switchOrganizationIdInput"
+                class="w-full rounded-md border border-border bg-surface px-3 py-2 text-sm text-text"
+              >
+                <option
+                  v-for="option in organizationOptions"
+                  :key="option.id"
+                  :value="option.id"
+                >
+                  {{ option.label }}
+                </option>
+              </select>
+            </div>
+
+            <div v-else-if="fn.name === 'reInitialize'" class="space-y-2">
+              <label class="block text-xs font-medium text-text-muted mb-1">config (JSON)</label>
+              <textarea
+                v-model="reInitializeConfigInput"
+                rows="7"
+                class="w-full rounded-md border border-border bg-surface px-3 py-2 font-mono text-xs text-text"
+              />
+            </div>
+
+            <div v-else-if="fn.name === 'http.request'" class="space-y-3">
+              <div>
+                <label class="block text-xs font-medium text-text-muted mb-1">url</label>
+                <input
+                  v-model="requestUrlInput"
+                  type="text"
+                  class="w-full rounded-md border border-border bg-surface px-3 py-2 text-sm text-text"
+                />
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-text-muted mb-1">method</label>
+                <select
+                  v-model="requestMethodInput"
+                  class="w-full rounded-md border border-border bg-surface px-3 py-2 text-sm text-text"
+                >
+                  <option value="GET">GET</option>
+                  <option value="POST">POST</option>
+                  <option value="PUT">PUT</option>
+                  <option value="PATCH">PATCH</option>
+                  <option value="DELETE">DELETE</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-text-muted mb-1">body (JSON, optional)</label>
+                <textarea
+                  v-model="requestBodyInput"
+                  rows="5"
+                  class="w-full rounded-md border border-border bg-surface px-3 py-2 font-mono text-xs text-text"
+                />
+              </div>
+            </div>
+
+            <div v-else-if="fn.name === 'http.requestAll'" class="space-y-2">
+              <label class="block text-xs font-medium text-text-muted mb-1">requestConfigs (JSON array)</label>
+              <textarea
+                v-model="requestAllConfigsInput"
+                rows="7"
+                class="w-full rounded-md border border-border bg-surface px-3 py-2 font-mono text-xs text-text"
+              />
+            </div>
+
+            <div v-else-if="fn.name === 'resolveFlowTemplateLiterals'" class="space-y-2">
+              <label class="block text-xs font-medium text-text-muted mb-1">text</label>
+              <input
+                v-model="resolveTextInput"
+                type="text"
+                class="w-full rounded-md border border-border bg-surface px-3 py-2 text-sm text-text"
+              />
+            </div>
+          </template>
+        </FunctionCard>
       </div>
     </LayoutSectionCard>
 
-    <!-- ── HTTP Client ──────────────────────────────────────────────────── -->
     <LayoutSectionCard
-      title="http.request()"
-      description="Authenticated HTTP request using the Asgardeo tenant as base URL. Injects the current access token."
+      title="Import & Usage"
+      description="Destructure state and methods from useAsgardeo()."
     >
-      <div class="grid md:grid-cols-3 gap-3 mb-3">
-        <div class="md:col-span-2">
-          <label class="block text-xs font-medium text-text-muted mb-1">Path (relative to baseUrl)</label>
-          <input
-            v-model="httpEndpoint"
-            type="text"
-            class="w-full rounded-md border border-border bg-surface px-3 py-2 text-sm font-mono text-text focus:outline-none focus:ring-1 focus:ring-accent-500"
-          />
-        </div>
-        <div>
-          <label class="block text-xs font-medium text-text-muted mb-1">Method</label>
-          <select
-            v-model="httpMethod"
-            class="w-full rounded-md border border-border bg-surface px-3 py-2 text-sm text-text focus:outline-none focus:ring-1 focus:ring-accent-500"
-          >
-            <option>GET</option>
-            <option>POST</option>
-            <option>PUT</option>
-            <option>PATCH</option>
-            <option>DELETE</option>
-          </select>
-        </div>
-      </div>
-      <div v-if="['POST','PUT','PATCH'].includes(httpMethod)" class="mb-3">
-        <label class="block text-xs font-medium text-text-muted mb-1">Request body (JSON)</label>
-        <textarea
-          v-model="httpBody"
-          rows="4"
-          class="w-full rounded-md border border-border bg-surface px-3 py-2 text-sm font-mono text-text focus:outline-none focus:ring-1 focus:ring-accent-500"
-        />
-      </div>
-      <button
-        class="px-4 py-2 text-sm font-medium bg-accent-600 text-accent-foreground rounded-md hover:bg-accent-700 transition-colors disabled:opacity-50"
-        :disabled="httpLoading"
-        @click="runHttpRequest"
-      >
-        {{ httpLoading ? 'Sending…' : 'http.request()' }}
-      </button>
-      <SharedResultPanel class="mt-3" :result="httpResult" :error="httpError" :is-loading="httpLoading" />
+      <LayoutCodeBlock :code="spec.importSnippet" language="ts" />
     </LayoutSectionCard>
-
-    <!-- ── Code ────────────────────────────────────────────────────────── -->
-    <LayoutCodeBlock :code="codeSnippet" language="ts" />
   </div>
 </template>
