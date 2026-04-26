@@ -28,7 +28,7 @@ export default defineNuxtConfig({
     sessionSecret:  process.env['ASGARDEO_SESSION_SECRET'],
     afterSignInUrl: '/',
     afterSignOutUrl: '/',
-    scopes: ['openid', 'profile', 'email', 'internal_login'],
+    scopes: ['openid', 'profile', 'email', 'internal_login','phone', 'address', 'groups'],
     preferences: {
       user:  { fetchUserProfile: true, fetchOrganizations: true },
       theme: { inheritFromBranding: false, mode: 'light' },
