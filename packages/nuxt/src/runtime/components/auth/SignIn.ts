@@ -66,7 +66,9 @@ const SignIn: Component = defineComponent({
     const {signIn, afterSignInUrl, isInitialized, isLoading, platform} = useAsgardeo();
 
     const handleInitialize = async (): Promise<EmbeddedSignInFlowInitiateResponse> =>
-      (await signIn({response_mode: 'direct'})) as EmbeddedSignInFlowInitiateResponse;
+      // Pass flowId='' to trigger the embedded-flow initiation path in useAsgardeo.
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (await signIn({flowId: ''} as any, {} as any)) as EmbeddedSignInFlowInitiateResponse;
 
     const handleOnSubmit = async (
       payload: EmbeddedSignInFlowHandleRequestPayload,

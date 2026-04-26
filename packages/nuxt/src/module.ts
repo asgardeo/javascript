@@ -47,6 +47,11 @@ export default defineNuxtModule<AsgardeoNuxtConfig>({
         clientId: process.env['NUXT_PUBLIC_ASGARDEO_CLIENT_ID'],
         afterSignInUrl: process.env['NUXT_PUBLIC_ASGARDEO_AFTER_SIGN_IN_URL'] || '/',
         afterSignOutUrl: process.env['NUXT_PUBLIC_ASGARDEO_AFTER_SIGN_OUT_URL'] || '/',
+        // Optional — used by the redirect-based sign-up URL builder and by
+        // <AsgardeoSignUpButton> / <AsgardeoSignInButton> overrides.
+        applicationId: process.env['NUXT_PUBLIC_ASGARDEO_APPLICATION_ID'] || userOptions.applicationId,
+        signInUrl: process.env['NUXT_PUBLIC_ASGARDEO_SIGN_IN_URL'] || userOptions.signInUrl,
+        signUpUrl: process.env['NUXT_PUBLIC_ASGARDEO_SIGN_UP_URL'] || userOptions.signUpUrl,
         scopes: userOptions.scopes || ['openid', 'profile'],
         preferences: userOptions.preferences,
       },
@@ -78,10 +83,23 @@ export default defineNuxtModule<AsgardeoNuxtConfig>({
         clientId: publicConfig.clientId,
         afterSignInUrl: publicConfig.afterSignInUrl,
         afterSignOutUrl: publicConfig.afterSignOutUrl,
+        applicationId: publicConfig.applicationId,
+        signInUrl: publicConfig.signInUrl,
+        signUpUrl: publicConfig.signUpUrl,
         scopes: publicConfig.scopes,
         preferences: publicConfig.preferences,
       },
-    ) as {baseUrl: string; clientId: string; afterSignInUrl: string; afterSignOutUrl: string; scopes: string[]; preferences: AsgardeoNuxtConfig['preferences']};
+    ) as {
+      baseUrl: string;
+      clientId: string;
+      afterSignInUrl: string;
+      afterSignOutUrl: string;
+      applicationId?: string;
+      signInUrl?: string;
+      signUpUrl?: string;
+      scopes: string[];
+      preferences: AsgardeoNuxtConfig['preferences'];
+    };
 
     // Ensure clientSecret never leaks to public config
     const publicAsgardeo = nuxt.options.runtimeConfig.public.asgardeo as Record<string, unknown>;
@@ -98,7 +116,10 @@ export default defineNuxtModule<AsgardeoNuxtConfig>({
     const serverRoutes = [
       // ── Auth flow ──────────────────────────────────────────────────────
       {route: '/api/auth/signin',   handler: resolve('./runtime/server/routes/auth/session/signin.get')},
+      {route: '/api/auth/signin',   handler: resolve('./runtime/server/routes/auth/session/signin.post'),   method: 'post' as const},
+      {route: '/api/auth/signup',   handler: resolve('./runtime/server/routes/auth/session/signup.post'),   method: 'post' as const},
       {route: '/api/auth/callback', handler: resolve('./runtime/server/routes/auth/session/callback.get')},
+      {route: '/api/auth/callback', handler: resolve('./runtime/server/routes/auth/session/callback.post'), method: 'post' as const},
       {route: '/api/auth/signout',  handler: resolve('./runtime/server/routes/auth/session/signout.post'), method: 'post' as const},
       // ── Session / token ───────────────────────────────────────────────
       {route: '/api/auth/session',  handler: resolve('./runtime/server/routes/auth/session/session.get')},
@@ -211,6 +232,9 @@ declare module '@nuxt/schema' {
       clientId: string;
       afterSignInUrl: string;
       afterSignOutUrl: string;
+      applicationId?: string;
+      signInUrl?: string;
+      signUpUrl?: string;
       scopes: string[];
       preferences?: import('./runtime/types').AsgardeoNuxtConfig['preferences'];
     };

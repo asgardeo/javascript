@@ -16,40 +16,29 @@
  * under the License.
  */
 
-import {navigateTo} from '#app';
-import {useAsgardeo} from '#imports';
 import {
-  type EmbeddedFlowExecuteRequestPayload,
-  type EmbeddedFlowExecuteResponse,
+  EmbeddedFlowExecuteRequestPayload,
+  EmbeddedFlowExecuteResponse,
   EmbeddedFlowResponseType,
   EmbeddedFlowType,
 } from '@asgardeo/browser';
-import {BaseSignUp} from '@asgardeo/vue';
-import type {BaseSignUpRenderProps} from '@asgardeo/vue';
 import {type Component, type PropType, type SetupContext, type VNode, defineComponent, h} from 'vue';
+import BaseSignUp from './BaseSignUp';
+import type {BaseSignUpRenderProps} from './BaseSignUp';
+import useAsgardeo from '../../../../composables/useAsgardeo';
 
 export type SignUpRenderProps = BaseSignUpRenderProps;
 
 /**
- * Nuxt-specific SignUp container for the embedded registration flow.
+ * V1 SignUp container — wires `useAsgardeo().signUp` into `BaseSignUpV1` and
+ * handles redirects after the flow completes.
  *
- * Mirrors the Vue SDK's `SignUp` container but replaces all `window.location`
- * redirects with Nuxt's `navigateTo` for SSR-safe navigation after a
- * successful sign-up.
- *
- * Uses `useAsgardeo()` from the Nuxt auto-import layer and delegates all UI
- * rendering to {@link BaseSignUp} from `@asgardeo/vue`.
- *
- * Additionally, `window.location.href` for OAuth redirect URLs is replaced
- * with `navigateTo` so the redirect works in both SSR and CSR contexts.
- *
- * @example
- * ```vue
- * <AsgardeoSignUp @complete="onComplete" @error="onError" />
- * ```
+ * Mirrors `sign-up/v2/.../SignUp.ts` but invokes the V1 base component which
+ * understands the `TYPOGRAPHY` / `INPUT` / `BUTTON` / `FORM` shapes returned by
+ * the V1 flow API.
  */
 const SignUp: Component = defineComponent({
-  name: 'SignUp',
+  name: 'SignUpV1',
   props: {
     afterSignUpUrl: {default: undefined, type: String},
     buttonClassName: {default: '', type: String},
@@ -71,19 +60,13 @@ const SignUp: Component = defineComponent({
     const handleInitialize = async (
       payload?: EmbeddedFlowExecuteRequestPayload,
     ): Promise<EmbeddedFlowExecuteResponse> => {
-      // Guard URL parsing — `window` is only available on the client.
-      let applicationIdFromUrl: string | null = null;
-      if (import.meta.client) {
-        const urlParams: URLSearchParams = new URL(window.location.href).searchParams;
-        applicationIdFromUrl = urlParams.get('applicationId');
-      }
+      // Pull the application id from the URL query (same convention as the
+      // React V1 SignUp), falling back to the configured value from the
+      // Asgardeo context.
+      const applicationIdFromUrl: string | null =
+        typeof window !== 'undefined' ? new URL(window.location.href).searchParams.get('applicationId') : null;
       const effectiveApplicationId: string | undefined = applicationId || applicationIdFromUrl || undefined;
 
-      // Use the EmbeddedFlowType enum (value: 'REGISTRATION') — passing the
-      // string 'Registration' (the enum member *name*) is rejected by
-      // Asgardeo's flow API and yields an empty `data.components` response,
-      // which makes BaseSignUp fall through to the "form is not available"
-      // alert. Matches Next.js SignUp.tsx exactly.
       const initialPayload: any = payload || {
         flowType: EmbeddedFlowType.Registration,
         ...(effectiveApplicationId && {applicationId: effectiveApplicationId}),
@@ -92,16 +75,18 @@ const SignUp: Component = defineComponent({
       return (await signUp(initialPayload)) as EmbeddedFlowExecuteResponse;
     };
 
-    const handleOnSubmit = async (payload: EmbeddedFlowExecuteRequestPayload): Promise<EmbeddedFlowExecuteResponse> =>
-      (await signUp(payload)) as EmbeddedFlowExecuteResponse;
+    const handleOnSubmit = async (
+      payload: EmbeddedFlowExecuteRequestPayload,
+    ): Promise<EmbeddedFlowExecuteResponse> => (await signUp(payload)) as EmbeddedFlowExecuteResponse;
 
-    const handleComplete = async (response: EmbeddedFlowExecuteResponse): Promise<void> => {
+    const handleComplete = (response: EmbeddedFlowExecuteResponse): void => {
       props.onComplete?.(response);
 
       const oauthRedirectUrl: string | undefined = (response as any)?.redirectUrl;
       if (props.shouldRedirectAfterSignUp && oauthRedirectUrl) {
-        // Use navigateTo instead of window.location.href — SSR-safe.
-        await navigateTo(oauthRedirectUrl, {external: true});
+        if (typeof window !== 'undefined') {
+          window.location.href = oauthRedirectUrl;
+        }
         return;
       }
 
@@ -110,17 +95,9 @@ const SignUp: Component = defineComponent({
         response?.type !== EmbeddedFlowResponseType.Redirection &&
         props.afterSignUpUrl
       ) {
-        await navigateTo(props.afterSignUpUrl, {external: true});
-      }
-
-      if (
-        props.shouldRedirectAfterSignUp &&
-        response?.type === EmbeddedFlowResponseType.Redirection &&
-        response?.data?.redirectURL &&
-        !response.data.redirectURL.includes('oauth') &&
-        !response.data.redirectURL.includes('auth')
-      ) {
-        await navigateTo(response.data.redirectURL, {external: true});
+        if (typeof window !== 'undefined') {
+          window.location.href = props.afterSignUpUrl;
+        }
       }
     };
 

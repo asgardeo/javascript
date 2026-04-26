@@ -43,6 +43,17 @@ import {
   updateMeProfile,
   type GetBrandingPreferenceConfig,
   type BrandingPreference,
+  initializeEmbeddedSignInFlow,
+  executeEmbeddedSignInFlow,
+  executeEmbeddedSignUpFlow,
+  type EmbeddedSignInFlowHandleRequestPayload,
+  type EmbeddedFlowExecuteRequestConfig,
+  type EmbeddedSignInFlowHandleResponse,
+  type EmbeddedSignInFlowInitiateResponse,
+  type EmbeddedFlowExecuteRequestPayload,
+  type EmbeddedFlowExecuteResponse,
+  type ExtendedAuthorizeRequestUrlParams,
+  type SignUpOptions,
 } from '@asgardeo/node';
 import type {AsgardeoNuxtConfig, AsgardeoSessionPayload} from '../types';
 
@@ -166,15 +177,100 @@ class AsgardeoNuxtClient extends AsgardeoNodeClient<AsgardeoNuxtConfig> {
   }
 
   /**
-   * Initiates the authorization code flow or exchanges a code for tokens.
+   * Initiates the authorization code flow, handles an embedded sign-in step,
+   * or exchanges a code for tokens.
    *
-   * Legacy call signature (used by the Nuxt route handlers):
+   * Overload 1 — **redirect-flow** (existing callers like `signin.get.ts`):
    * ```
    * signIn(authURLCallback, sessionId, code?, sessionState?, state?, config?)
    * ```
+   * Overload 2 — **embedded flow initiate** (flowId === ''):
+   * ```
+   * signIn({flowId: ''}, request, sessionId)
+   * ```
+   * Dispatches to `initializeEmbeddedSignInFlow`.
+   *
+   * Overload 3 — **embedded flow execute** (flowId set):
+   * ```
+   * signIn(payload, request, sessionId)
+   * ```
+   * Dispatches to `executeEmbeddedSignInFlow`.
+   *
+   * Overload 4 — **code exchange** (completion after embedded flow):
+   * ```
+   * signIn({code, state, session_state}, {}, sessionId)
+   * ```
+   * Falls through to the legacy redirect-flow code-exchange path.
    */
   override signIn(...args: any[]): Promise<any> {
+    const arg0 = args[0];
+
+    // Embedded flow: first argument is a non-null object with a `flowId` property.
+    if (typeof arg0 === 'object' && arg0 !== null && 'flowId' in arg0) {
+      const sessionId: string | undefined = args[2] as string | undefined;
+
+      if (arg0.flowId === '') {
+        // Initialize embedded sign-in flow.
+        return this.getAuthorizeRequestUrl(
+          {client_secret: '{{clientSecret}}', response_mode: 'direct'},
+          sessionId,
+        ).then((authorizeUrl: string) => {
+          const url = new URL(authorizeUrl);
+          return initializeEmbeddedSignInFlow({
+            payload: Object.fromEntries(url.searchParams.entries()),
+            url: `${url.origin}${url.pathname}`,
+          });
+        });
+      }
+
+      // Execute embedded sign-in step.
+      const request: EmbeddedFlowExecuteRequestConfig = args[1] ?? {};
+      return executeEmbeddedSignInFlow({
+        payload: arg0 as EmbeddedSignInFlowHandleRequestPayload,
+        url: request.url,
+      });
+    }
+
+    // Code exchange path: {code, state, session_state} as arg0, {} as arg1, sessionId as arg2.
+    // Falls through to the legacy client mirroring AsgardeoNextClient.
+    if (typeof arg0 === 'object' && arg0 !== null && ('code' in arg0 || 'state' in arg0)) {
+      // args[3] would be onSignInSuccess (undefined), args[2] is sessionId
+      return this.legacy.signIn(args[3], args[2], arg0?.code, arg0?.session_state, arg0?.state, arg0);
+    }
+
+    // Redirect-flow: first argument is a callback function.
     return this.legacy.signIn(args[0], args[1], args[2], args[3], args[4], args[5]);
+  }
+
+  /**
+   * Executes the embedded sign-up flow step.
+   * Mirrors `AsgardeoNextClient.signUp` with an `EmbeddedFlowExecuteRequestPayload`.
+   */
+  override signUp(options?: SignUpOptions): Promise<void>;
+  override signUp(payload: EmbeddedFlowExecuteRequestPayload): Promise<EmbeddedFlowExecuteResponse>;
+  override async signUp(
+    payloadOrOptions?: EmbeddedFlowExecuteRequestPayload | SignUpOptions,
+  ): Promise<void | EmbeddedFlowExecuteResponse> {
+    if (!payloadOrOptions || !('flowType' in payloadOrOptions)) {
+      // Redirect-flow sign-up: not meaningful server-side, but satisfies the interface.
+      return;
+    }
+    const configData = await this.legacy.getConfigData?.() as (AuthClientConfig<AsgardeoNuxtConfig> | undefined);
+    const baseUrl = configData?.baseUrl as string | undefined;
+    return executeEmbeddedSignUpFlow({baseUrl, payload: payloadOrOptions as EmbeddedFlowExecuteRequestPayload});
+  }
+
+  /**
+   * Returns the OAuth2 authorization URL.
+   * Used by the redirect-flow GET handler and the embedded-flow initiation path.
+   *
+   * Mirrors `AsgardeoNextClient.getAuthorizeRequestUrl`.
+   */
+  public async getAuthorizeRequestUrl(
+    customParams: ExtendedAuthorizeRequestUrlParams,
+    userId?: string,
+  ): Promise<string> {
+    return this.legacy.getSignInUrl(customParams, userId);
   }
 
   /**

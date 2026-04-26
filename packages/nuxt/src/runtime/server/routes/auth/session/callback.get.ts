@@ -16,14 +16,12 @@
  * under the License.
  */
 
-import type {IdToken, TokenResponse} from '@asgardeo/node';
-import {defineEventHandler, getQuery, getCookie, setCookie, deleteCookie, sendRedirect, createError} from 'h3';
+import type {TokenResponse} from '@asgardeo/node';
+import {defineEventHandler, getQuery, getCookie, deleteCookie, sendRedirect, createError} from 'h3';
 import AsgardeoNuxtClient from '../../../AsgardeoNuxtClient';
 import {
-  createSessionToken,
+  issueSessionCookie,
   verifyTempSessionToken,
-  getSessionCookieName,
-  getSessionCookieOptions,
   getTempSessionCookieName,
   getTempSessionCookieOptions,
 } from '../../../utils/session';
@@ -112,37 +110,9 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  // Create signed session JWT
+  // Create signed session JWT and set cookie
   try {
-    const idToken: IdToken = await client.getDecodedIdToken(
-      sessionId,
-      tokenResponse.idToken,
-    );
-
-    const userId = (idToken.sub || sessionId) as string;
-    const accessToken = tokenResponse.accessToken;
-    const scopes = tokenResponse.scope || '';
-    const organizationId = (idToken['user_org'] || idToken['organization_id']) as string | undefined;
-
-    // Compute absolute expiry from the token response's expires_in (a string per the SDK type).
-    const expiresInSeconds = parseInt(tokenResponse.expiresIn ?? '3600', 10);
-    const accessTokenExpiresAt = Math.floor(Date.now() / 1000) + (Number.isFinite(expiresInSeconds) ? expiresInSeconds : 3600);
-
-    const sessionToken = await createSessionToken(
-      {
-        accessToken,
-        userId,
-        sessionId,
-        scopes,
-        organizationId,
-        accessTokenExpiresAt,
-        refreshToken: tokenResponse.refreshToken || undefined,
-        idToken: tokenResponse.idToken || undefined,
-      },
-      sessionSecret,
-    );
-
-    setCookie(event, getSessionCookieName(), sessionToken, getSessionCookieOptions());
+    await issueSessionCookie(event, sessionId, tokenResponse, sessionSecret);
     deleteCookie(event, getTempSessionCookieName(), getTempSessionCookieOptions());
   } catch (err: any) {
     console.error('[asgardeo] Failed to create JWT session:', err?.message || err);

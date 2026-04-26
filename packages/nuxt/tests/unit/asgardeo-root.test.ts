@@ -28,6 +28,7 @@ vi.mock('@asgardeo/vue', () => ({
   UserProvider: {name: 'UserProvider'},
   OrganizationProvider: {name: 'OrganizationProvider'},
   FlowProvider: {name: 'FlowProvider'},
+  FlowMetaProvider: {name: 'FlowMetaProvider'},
   I18nProvider: {name: 'I18nProvider'},
 }));
 
@@ -54,6 +55,7 @@ vi.mock('#imports', () => ({
 
 import {
   BrandingProvider,
+  FlowMetaProvider,
   FlowProvider,
   I18nProvider,
   OrganizationProvider,
@@ -161,11 +163,16 @@ describe('AsgardeoRoot component', () => {
 
   // ── Provider tree structure ─────────────────────────────────────────────
 
-  it('renders all six providers in the correct nesting order', () => {
+  it('renders all seven providers in the correct nesting order', () => {
     const renderFn = buildRenderFn();
     const root = renderFn();
 
     expect(root.type).toBe(I18nProvider);
+    const flowMeta = findByType(root, FlowMetaProvider);
+    expect(flowMeta).not.toBeNull();
+    // FlowMetaProvider defaults to V1 (`enabled: false`) — `useFlowMeta()`
+    // still resolves but the provider does not fetch v2 metadata.
+    expect(flowMeta!.props.enabled).toBe(false);
     const branding = findByType(root, BrandingProvider);
     expect(branding).not.toBeNull();
     const theme = findByType(root, ThemeProvider);

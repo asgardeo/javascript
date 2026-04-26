@@ -19,6 +19,7 @@
 import {useState, useRuntimeConfig} from '#imports';
 import {
   BrandingProvider,
+  FlowMetaProvider,
   FlowProvider,
   I18nProvider,
   OrganizationProvider,
@@ -228,10 +229,20 @@ const AsgardeoRoot: Component = defineComponent({
     };
 
     // ── Render tree — mirrors AsgardeoClientProvider (Next.js) ─────────────
+    //
+    // FlowMetaProvider is mounted unconditionally with `enabled: false` (V1
+    // platform default). It still provides `FLOW_META_KEY` to descendants so
+    // `useFlowMeta()` (called by `BaseSignUp`, v2 `BaseSignIn`,
+    // `BaseAcceptInvite`, `BaseInviteUser`) returns a real context with
+    // `meta: null` instead of throwing. When the Nuxt SDK gains a `platform`
+    // config option, derive `enabled` from it the same way `AsgardeoProvider`
+    // does (`enabled: platform === Platform.AsgardeoV2`).
     return (): VNode =>
       h(I18nProvider, {preferences: prefs?.i18n}, {
         default: (): VNode =>
-          h(BrandingProvider, {
+          h(FlowMetaProvider, {enabled: false}, {
+            default: (): VNode =>
+              h(BrandingProvider, {
             // When inheritFromBranding is disabled, pass null so the provider
             // falls back to its own default theme without using SSR-fetched data.
             brandingPreference: shouldFetchBranding ? brandingState.value : null,
@@ -286,6 +297,7 @@ const AsgardeoRoot: Component = defineComponent({
                       }),
                   }),
               }),
+          }),
           }),
       });
   },

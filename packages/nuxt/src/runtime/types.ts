@@ -38,6 +38,23 @@ export interface AsgardeoNuxtConfig {
   /** URL to redirect to after sign-out (default: '/') */
   afterSignOutUrl?: string;
   /**
+   * Asgardeo application id (`spId`) — appended to the redirect-based sign-up
+   * URL when present. Mirrors `applicationId` in the React/Next.js SDKs.
+   */
+  applicationId?: string;
+  /**
+   * Optional override for the redirect-based sign-up URL. When set,
+   * `<AsgardeoSignUpButton>` and `useAsgardeo().signUp()` (no-arg) navigate
+   * here instead of deriving the URL from `baseUrl`/`clientId`.
+   */
+  signUpUrl?: string;
+  /**
+   * Optional override for the redirect-based sign-in URL. Reserved for
+   * parity with the React/Next.js SDKs; not currently used by the redirect
+   * flow (which goes through `/api/auth/signin`).
+   */
+  signInUrl?: string;
+  /**
    * Feature-gating preferences that control which server-side data fetches
    * the Nitro plugin performs on every SSR request.
    */
