@@ -188,8 +188,8 @@ export const serverRoutes: ServerRouteDomain[] = [
 // ── Server utilities ──────────────────────────────────────────────────────
 
 export const serverUtilities: SdkExport[] = [
-  { name: 'useServerSession',     description: 'Read the signed session cookie inside a Nitro handler.',                 path: '/server/utilities/session' },
-  { name: 'requireServerSession', description: 'Assert the session exists; throws 401 if not signed in.',                path: '/server/utilities/session' },
+  { name: 'useServerSession',     description: 'Read the signed session cookie inside a Nitro handler.',                 path: '/server/utilities/session'         },
+  { name: 'requireServerSession', description: 'Assert the session exists; throws 401 if not signed in.',                path: '/server/utilities/require-session' },
   { name: 'getValidAccessToken',  description: 'Return a guaranteed-fresh access token (silent refresh).',               path: '/server/utilities/token'   },
   { name: 'getAsgardeoContext',   description: 'Typed accessor for event.context.asgardeo — session, isSignedIn, ssr.', path: '/server/utilities/context' },
 ];
