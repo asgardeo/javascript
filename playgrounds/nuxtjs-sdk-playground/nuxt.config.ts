@@ -4,6 +4,21 @@ import type { NuxtPage } from '@nuxt/schema';
 export default defineNuxtConfig({
   modules: ['@asgardeo/nuxt', '@nuxtjs/tailwindcss'],
 
+  // Inline script injected into <head> before any CSS is applied.
+  // Reads the persisted theme/mode from localStorage and sets data-theme /
+  // data-theme-mode on <html> synchronously, eliminating the flash-of-wrong-
+  // theme that occurs between the server-rendered HTML (always light) and when
+  // the client JS bundle loads and Vue hydrates.
+  app: {
+    head: {
+      script: [
+        {
+          innerHTML: `(function(){try{var t=localStorage.getItem('asgardeo-playground-theme'),m=localStorage.getItem('asgardeo-playground-mode'),el=document.documentElement;if(t==='orange'||t==='blue')el.setAttribute('data-theme',t);if(m==='dark')el.setAttribute('data-theme-mode','dark');}catch(e){}})();`,
+        },
+      ],
+    },
+  },
+
   // Pages for "Server" demos live under `pages/srv/` on disk because Nuxt's
   // `impound` plugin blocks the Vue layer from importing any path that contains
   // `/server/` — that segment is reserved for Nitro code. We remap the URLs
