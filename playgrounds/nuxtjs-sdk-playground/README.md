@@ -36,7 +36,7 @@ node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 ## Structure
 
 ```
-samples/nuxtjs-sdk-playground/
+playgrounds/nuxtjs-sdk-playground/
 ├── .env.example
 ├── nuxt.config.ts           # SDK config + Tailwind
 ├── app.vue                  # Root — wraps <NuxtPage> in <AsgardeoRoot>
