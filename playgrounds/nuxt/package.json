@@ -1,5 +1,5 @@
 {
-    "name": "nuxtjs-sdk-playground",
+    "name": "nuxt-sdk-playground",
     "private": true,
     "type": "module",
     "scripts": {

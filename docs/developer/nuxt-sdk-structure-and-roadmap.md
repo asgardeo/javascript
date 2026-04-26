@@ -1030,20 +1030,41 @@ Closes the biggest feature gap ([nuxt-vs-nextjs §Organization Management](./nux
 
 ---
 
-### Phase 5 — Embedded sign-in / sign-up flows (1–2 weeks)
+### Phase 5 — Embedded sign-in / sign-up flows ✅ SHIPPED
 
 Addresses [EVALUATION.md §4.5](./nuxt-sdk-implementation-plan/EVALUATION.md), [nuxt-vs-nextjs §Missing 1/8](./nuxt-vs-nextjs-sdk-evaluation.md).
 
-| # | Task | Files |
-|---|---|---|
-| 5.1 | Embedded sign-in step route (Flow Execution API proxy) | `routes/auth/signin.post.ts` |
-| 5.2 | Embedded sign-up route(s) | `routes/auth/signup.get.ts`, `signup.post.ts` |
-| 5.3 | Token exchange route | `routes/auth/token.exchange.post.ts` |
-| 5.4 | `AsgardeoCallback.vue` component for embedded callback handling | `runtime/components/AsgardeoCallback.vue` |
-| 5.5 | `useFlow()` composable returning reactive flow state | auto-import from Vue SDK |
-| 5.6 | Playground: custom `/sign-in` page with embedded form | `playground/pages/sign-in.vue` |
+> **Status:** Implemented. All tasks below are complete. See [nuxtjs-sdk-embedded-flow-plan.md](./nuxtjs-sdk-embedded-flow-plan.md) for the detailed implementation notes.
 
-**Deliverable:** users can render `<AsgardeoSignIn />` inside their own app without redirecting to Asgardeo's hosted page.
+**New server routes (Nitro):**
+
+| Method | Route | File |
+|--------|-------|------|
+| `POST` | `/api/auth/signin` | `runtime/server/routes/auth/session/signin.post.ts` |
+| `POST` | `/api/auth/signup` | `runtime/server/routes/auth/session/signup.post.ts` |
+| `POST` | `/api/auth/callback` | `runtime/server/routes/auth/session/callback.post.ts` |
+
+**New / updated composable overloads (`useAsgardeo`):**
+- `signIn({flowId: '', ...})` — initiates embedded sign-in; returns `{signInUrl}` on first call, flows through steps, navigates on completion.
+- `signIn({flowId: 'xxx', ...})` — advances an embedded sign-in step.
+- `signUp(payload)` — submits an embedded sign-up step; `signUp()` (no args) → navigates to `/sign-up`.
+
+**Updated `AsgardeoNuxtClient` overloads:**
+- `signIn(payload, request, sessionId)` — dispatches to `initializeEmbeddedSignInFlow` or `executeEmbeddedSignInFlow` depending on `flowId`.
+- `signUp(payload: EmbeddedFlowExecuteRequestPayload)` — calls `executeEmbeddedSignUpFlow`.
+
+**Playground page:** `playgrounds/nuxt/pages/callback.vue` — minimal `<AsgardeoCallback>` page for embedded flow callbacks.
+
+| Original task | Status |
+|---|---|
+| 5.1 Embedded sign-in step route | ✅ `signin.post.ts` |
+| 5.2 Embedded sign-up routes | ✅ `signup.post.ts` (POST only; GET redirect deferred) |
+| 5.3 Token exchange route | ✅ `callback.post.ts` + `signin.post.ts` handles code exchange on `SUCCESS_COMPLETED` |
+| 5.4 `AsgardeoCallback.vue` component | ✅ Already existed; `callback.vue` playground page added |
+| 5.5 `useFlow()` composable | ✅ Re-exported from Vue SDK via auto-imports |
+| 5.6 Playground embedded page | ✅ `pages/auth-flows/embedded.vue` + `pages/callback.vue` |
+
+**Deliverable:** ✅ Users can render `<AsgardeoSignIn />` and `<AsgardeoSignUp />` inside their own Nuxt app without redirecting to Asgardeo's hosted page.
 
 ---
 
