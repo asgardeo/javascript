@@ -1,205 +1,200 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import {computed, ref, watch} from 'vue';
+import FunctionCard from '~/components/composables/FunctionCard.vue';
+import StateInspectionTable from '~/components/composables/StateInspectionTable.vue';
+import type {StateInspectionRow} from '~/components/composables/StateInspectionTable.vue';
+import {composableSpecByName} from '~/utils/composables-manifest';
+
+const spec = composableSpecByName['useOrganization'];
 
 const {
   currentOrganization,
   myOrganizations,
   isLoading,
   error,
-  switchOrganization,
   getAllOrganizations,
   revalidateMyOrganizations,
-} = useOrganization();
-
-// ── getAllOrganizations ────────────────────────────────────────────────────
-const allOrgsResult  = ref<unknown>(null);
-const allOrgsLoading = ref(false);
-const allOrgsError   = ref<string | null>(null);
-
-async function runGetAllOrganizations() {
-  allOrgsLoading.value = true;
-  allOrgsError.value   = null;
-  allOrgsResult.value  = null;
-  try {
-    allOrgsResult.value = await getAllOrganizations();
-  } catch (e: unknown) {
-    allOrgsError.value = e instanceof Error ? e.message : String(e);
-  } finally {
-    allOrgsLoading.value = false;
-  }
-}
-
-// ── revalidateMyOrganizations ──────────────────────────────────────────────
-const revalOrgsResult  = ref<unknown>(null);
-const revalOrgsLoading = ref(false);
-const revalOrgsError   = ref<string | null>(null);
-
-async function runRevalidateMyOrganizations() {
-  revalOrgsLoading.value = true;
-  revalOrgsError.value   = null;
-  revalOrgsResult.value  = null;
-  try {
-    const orgs = await revalidateMyOrganizations();
-    revalOrgsResult.value = orgs;
-  } catch (e: unknown) {
-    revalOrgsError.value = e instanceof Error ? e.message : String(e);
-  } finally {
-    revalOrgsLoading.value = false;
-  }
-}
-
-// ── switchOrganization ─────────────────────────────────────────────────────
-const switchResult  = ref<unknown>(null);
-const switchLoading = ref(false);
-const switchError   = ref<string | null>(null);
-
-async function runSwitchOrganization(org: unknown) {
-  switchLoading.value = true;
-  switchError.value   = null;
-  switchResult.value  = null;
-  try {
-    await switchOrganization(org as Parameters<typeof switchOrganization>[0]);
-    switchResult.value = `Switched to: ${(org as Record<string, unknown>)?.['name'] ?? 'unknown'}`;
-  } catch (e: unknown) {
-    switchError.value = e instanceof Error ? e.message : String(e);
-  } finally {
-    switchLoading.value = false;
-  }
-}
-
-// ── Code snippet ───────────────────────────────────────────────────────────
-const codeSnippet = `const {
-  currentOrganization,
-  myOrganizations,
-  isLoading,
-  error,
   switchOrganization,
-  getAllOrganizations,
-  revalidateMyOrganizations,
+  createOrganization,
 } = useOrganization();
 
-// Reactive state
-console.log(currentOrganization.value?.name);
-console.log(myOrganizations.value.length);
+const functionLoading = ref<Record<string, boolean>>({});
+const functionErrors = ref<Record<string, string | null>>({});
+const functionResults = ref<Record<string, unknown>>({});
 
-// Fetch all organizations (paginated)
-const all = await getAllOrganizations();
+const selectedOrganizationId = ref('');
+const createOrganizationPayloadInput = ref(`{
+  "name": "Playground Organization"
+}`);
+const createOrganizationSessionIdInput = ref('');
 
-// Refetch the user's org list
-const updated = await revalidateMyOrganizations();
+watch(
+  () => myOrganizations.value,
+  (organizations) => {
+    if (!selectedOrganizationId.value && organizations.length > 0) {
+      selectedOrganizationId.value = organizations[0]?.id || '';
+    }
+  },
+  {immediate: true},
+);
 
-// Switch to an organization (performs token exchange)
-await switchOrganization(myOrganizations.value[0]);`;
+const organizationOptions = computed(() =>
+  myOrganizations.value.map((organization) => ({
+    id: organization.id,
+    label: organization.name || organization.id,
+  })),
+);
+
+const stateRows = computed<StateInspectionRow[]>(() => {
+  const values: Record<string, unknown> = {
+    currentOrganization: currentOrganization.value,
+    myOrganizations: myOrganizations.value,
+    isLoading: isLoading.value,
+    error: error.value,
+  };
+
+  return spec.state.map((row) => ({
+    name: row.name,
+    value: values[row.name],
+    type: row.type,
+    description: row.description,
+  }));
+});
+
+const runFunction = async (name: string): Promise<void> => {
+  functionLoading.value[name] = true;
+  functionErrors.value[name] = null;
+  functionResults.value[name] = undefined;
+
+  try {
+    if (name === 'getAllOrganizations') {
+      functionResults.value[name] = await getAllOrganizations();
+      return;
+    }
+
+    if (name === 'revalidateMyOrganizations') {
+      functionResults.value[name] = await revalidateMyOrganizations();
+      return;
+    }
+
+    if (name === 'switchOrganization') {
+      const selected = myOrganizations.value.find((org) => org.id === selectedOrganizationId.value);
+      if (!selected) {
+        throw new Error('Please select an organization from myOrganizations first.');
+      }
+      await switchOrganization(selected);
+      functionResults.value[name] = {switchedTo: selected.name || selected.id};
+      return;
+    }
+
+    if (name === 'createOrganization') {
+      if (!createOrganization) {
+        throw new Error('createOrganization is not available in this context.');
+      }
+      const payload = JSON.parse(createOrganizationPayloadInput.value);
+      const sessionId = createOrganizationSessionIdInput.value.trim();
+      if (!sessionId) {
+        throw new Error('sessionId is required for createOrganization.');
+      }
+      functionResults.value[name] = await createOrganization(payload as any, sessionId);
+      return;
+    }
+
+    throw new Error(`No execution handler configured for ${name}`);
+  } catch (errorValue) {
+    functionErrors.value[name] = errorValue instanceof Error ? errorValue.message : String(errorValue);
+  } finally {
+    functionLoading.value[name] = false;
+  }
+};
 </script>
 
 <template>
   <div class="space-y-6">
     <LayoutPageHeader
       title="useOrganization"
-      description="Organization context — currentOrganization, myOrganizations, switchOrganization, getAllOrganizations, revalidateMyOrganizations."
+      :description="spec.description"
     />
+
     <div class="flex items-center gap-2 -mt-2">
       <SharedStatusBadge status="info" label="Auto-imported" />
       <span class="text-xs text-text-muted">from <code class="font-mono">@asgardeo/nuxt</code></span>
     </div>
 
-    <!-- ── Reactive State ───────────────────────────────────────────────── -->
-    <LayoutSectionCard title="Reactive State">
-      <div class="overflow-x-auto">
-        <table class="w-full text-sm">
-          <thead>
-            <tr class="border-b border-border text-left">
-              <th class="pb-2 pr-6 font-medium text-text-muted">Property</th>
-              <th class="pb-2 font-medium text-text-muted">Value</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-border">
-            <tr>
-              <td class="py-2 pr-6 font-mono text-xs text-text-muted">currentOrganization</td>
-              <td class="py-2 font-mono text-xs text-text">
-                {{ currentOrganization ? (currentOrganization as Record<string, unknown>)?.['name'] : 'null' }}
-              </td>
-            </tr>
-            <tr>
-              <td class="py-2 pr-6 font-mono text-xs text-text-muted">myOrganizations.length</td>
-              <td class="py-2 font-mono text-xs text-text">{{ myOrganizations?.length ?? 0 }}</td>
-            </tr>
-            <tr>
-              <td class="py-2 pr-6 font-mono text-xs text-text-muted">isLoading</td>
-              <td class="py-2">
-                <SharedStatusBadge :status="isLoading ? 'warning' : 'neutral'" :label="String(isLoading)" />
-              </td>
-            </tr>
-            <tr>
-              <td class="py-2 pr-6 font-mono text-xs text-text-muted">error</td>
-              <td class="py-2 font-mono text-xs" :class="error ? 'text-danger' : 'text-text-muted'">
-                {{ error ?? 'null' }}
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+    <LayoutSectionCard
+      title="State Inspection"
+      description="Live reactive state returned by useOrganization()."
+    >
+      <StateInspectionTable :rows="stateRows" />
     </LayoutSectionCard>
 
-    <!-- ── myOrganizations list ─────────────────────────────────────────── -->
     <LayoutSectionCard
-      title="myOrganizations"
-      description="List of organizations the signed-in user belongs to. Click one to call switchOrganization()."
+      title="Functions"
+      description="Execute composable functions and inspect returned results."
     >
-      <div v-if="myOrganizations && myOrganizations.length > 0" class="space-y-2">
-        <div
-          v-for="org in myOrganizations"
-          :key="(org as Record<string, unknown>)?.['id'] as string"
-          class="flex items-center justify-between rounded-lg border border-border bg-surface-muted px-4 py-3"
+      <div class="space-y-4">
+        <FunctionCard
+          v-for="fn in spec.functions"
+          :key="fn.name"
+          :name="fn.name"
+          :signature="fn.signature"
+          :description="fn.description"
+          :is-loading="Boolean(functionLoading[fn.name])"
+          :result="functionResults[fn.name]"
+          :error="functionErrors[fn.name]"
+          @execute="runFunction(fn.name)"
         >
-          <div>
-            <p class="text-sm font-medium text-text">{{ (org as Record<string, unknown>)?.['name'] }}</p>
-            <p class="text-xs font-mono text-text-muted">{{ (org as Record<string, unknown>)?.['id'] }}</p>
-          </div>
-          <button
-            class="text-xs px-3 py-1.5 rounded-md bg-accent-600 text-accent-foreground hover:bg-accent-700 transition-colors disabled:opacity-50"
-            :disabled="switchLoading"
-            @click="runSwitchOrganization(org)"
-          >
-            {{ switchLoading ? '…' : 'Switch' }}
-          </button>
-        </div>
-        <SharedResultPanel class="mt-2" :result="switchResult" :error="switchError" :is-loading="switchLoading" />
+          <template #parameters>
+            <div v-if="fn.name === 'switchOrganization'" class="space-y-2">
+              <label class="block text-xs font-medium text-text-muted mb-1">organization</label>
+              <select
+                v-model="selectedOrganizationId"
+                class="w-full rounded-md border border-border bg-surface px-3 py-2 text-sm text-text"
+              >
+                <option
+                  v-for="option in organizationOptions"
+                  :key="option.id"
+                  :value="option.id"
+                >
+                  {{ option.label }}
+                </option>
+              </select>
+            </div>
+
+            <div v-else-if="fn.name === 'createOrganization'" class="space-y-3">
+              <p
+                v-if="!createOrganization"
+                class="text-xs text-warning"
+              >
+                createOrganization is optional and not available in this runtime context.
+              </p>
+              <div>
+                <label class="block text-xs font-medium text-text-muted mb-1">payload (JSON)</label>
+                <textarea
+                  v-model="createOrganizationPayloadInput"
+                  rows="6"
+                  class="w-full rounded-md border border-border bg-surface px-3 py-2 font-mono text-xs text-text"
+                />
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-text-muted mb-1">sessionId</label>
+                <input
+                  v-model="createOrganizationSessionIdInput"
+                  type="text"
+                  class="w-full rounded-md border border-border bg-surface px-3 py-2 text-sm text-text"
+                />
+              </div>
+            </div>
+          </template>
+        </FunctionCard>
       </div>
-      <p v-else class="text-xs text-text-muted italic">No organizations — sign in first or none exist.</p>
     </LayoutSectionCard>
 
-    <!-- ── getAllOrganizations ──────────────────────────────────────────── -->
     <LayoutSectionCard
-      title="getAllOrganizations()"
-      description="Fetch all organizations (paginated). Returns AllOrganizationsApiResponse."
+      title="Import & Usage"
+      description="Destructure state and methods from useOrganization()."
     >
-      <button
-        class="px-4 py-2 text-sm font-medium bg-accent-600 text-accent-foreground rounded-md hover:bg-accent-700 transition-colors disabled:opacity-50"
-        :disabled="allOrgsLoading"
-        @click="runGetAllOrganizations"
-      >
-        {{ allOrgsLoading ? 'Fetching…' : 'getAllOrganizations()' }}
-      </button>
-      <SharedResultPanel class="mt-3" :result="allOrgsResult" :error="allOrgsError" :is-loading="allOrgsLoading" />
+      <LayoutCodeBlock :code="spec.importSnippet" language="ts" />
     </LayoutSectionCard>
-
-    <!-- ── revalidateMyOrganizations ────────────────────────────────────── -->
-    <LayoutSectionCard
-      title="revalidateMyOrganizations()"
-      description="Re-fetches the user-scoped organization list from the server and updates myOrganizations."
-    >
-      <button
-        class="px-4 py-2 text-sm font-medium bg-accent-600 text-accent-foreground rounded-md hover:bg-accent-700 transition-colors disabled:opacity-50"
-        :disabled="revalOrgsLoading"
-        @click="runRevalidateMyOrganizations"
-      >
-        {{ revalOrgsLoading ? 'Refreshing…' : 'revalidateMyOrganizations()' }}
-      </button>
-      <SharedResultPanel class="mt-3" :result="revalOrgsResult" :error="revalOrgsError" :is-loading="revalOrgsLoading" />
-    </LayoutSectionCard>
-
-    <!-- ── Code ────────────────────────────────────────────────────────── -->
-    <LayoutCodeBlock :code="codeSnippet" language="ts" />
   </div>
 </template>

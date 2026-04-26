@@ -163,6 +163,7 @@ export default defineNuxtModule<AsgardeoNuxtConfig>({
       {name: 'useUser',         from: '@asgardeo/vue'},
       {name: 'useOrganization', from: '@asgardeo/vue'},
       {name: 'useFlow',         from: '@asgardeo/vue'},
+      {name: 'useFlowMeta',     from: '@asgardeo/vue'},
       {name: 'useTheme',        from: '@asgardeo/vue'},
       {name: 'useBranding',     from: '@asgardeo/vue'},
       // useI18n aliased to `useAsgardeoI18n` to avoid collision with @nuxtjs/i18n
