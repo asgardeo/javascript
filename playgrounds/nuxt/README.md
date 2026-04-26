@@ -13,7 +13,7 @@ cp .env.example .env
 pnpm install
 
 # 3. Start the dev server
-pnpm --filter nuxtjs-sdk-playground dev
+pnpm --filter nuxt-sdk-playground dev
 ```
 
 Then open [http://localhost:3000](http://localhost:3000).
@@ -36,7 +36,7 @@ node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 ## Structure
 
 ```
-playgrounds/nuxtjs-sdk-playground/
+playgrounds/nuxt/
 ├── .env.example
 ├── nuxt.config.ts           # SDK config + Tailwind
 ├── app.vue                  # Root — wraps <NuxtPage> in <AsgardeoRoot>

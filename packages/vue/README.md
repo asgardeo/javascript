@@ -123,7 +123,7 @@ For complete API documentation including all components, composables, and custom
 ## Examples
 
 Check out our [example applications](../../samples/) to see the Vue SDK in action:
-- [Vue SDK Playground](../../playgrounds/vue-sdk-playground/) - Example application
+- [Vue SDK Playground](../../playgrounds/vue/) - Example application
 
 ## Documentation
 
