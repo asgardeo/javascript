@@ -42,7 +42,7 @@ export default defineNuxtConfig({
     '/routes/**':              { redirect: '/server/routes/**' },
     '/apis':                   { redirect: '/composables' },
     '/apis/**':                { redirect: '/composables/**' },
-    '/debug':                  { redirect: '/tools/state' },
+    '/debug':                  { redirect: '/tools/token-debugger' },
     '/debug/**':               { redirect: '/tools/**' },
     '/server/session':         { redirect: '/server/utilities/session' },
     '/server/token':           { redirect: '/server/utilities/token' },

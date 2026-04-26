@@ -97,8 +97,8 @@ const navItems: NavNode[] = [
     label: 'Tools',
     icon: 'bug',
     children: [
-      { kind: 'leaf', path: '/tools/state',       label: 'State dump' },
-      { kind: 'leaf', path: '/tools/preferences', label: 'Preferences' },
+      { kind: 'leaf', path: '/tools/token-debugger', label: 'Token debugger' },
+      { kind: 'leaf', path: '/tools/config',         label: 'Config inspector' },
     ],
   },
 ];
