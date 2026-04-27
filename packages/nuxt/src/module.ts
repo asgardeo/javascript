@@ -40,22 +40,26 @@ export default defineNuxtModule<AsgardeoNuxtConfig>({
   setup(userOptions, nuxt) {
     const {resolve} = createResolver(import.meta.url);
 
-    // Merge config: env vars -> user options -> runtime config
-    const publicConfig = defu(
+    // Merge config: env vars (highest) -> nuxt.config.ts userOptions -> hard defaults (lowest)
+    const publicConfig: AsgardeoNuxtConfig = defu(
+      // Layer 1: environment variables — only win when actually set
       {
         baseUrl: process.env['NUXT_PUBLIC_ASGARDEO_BASE_URL'],
         clientId: process.env['NUXT_PUBLIC_ASGARDEO_CLIENT_ID'],
-        afterSignInUrl: process.env['NUXT_PUBLIC_ASGARDEO_AFTER_SIGN_IN_URL'] || '/',
-        afterSignOutUrl: process.env['NUXT_PUBLIC_ASGARDEO_AFTER_SIGN_OUT_URL'] || '/',
-        // Optional — used by the redirect-based sign-up URL builder and by
-        // <AsgardeoSignUpButton> / <AsgardeoSignInButton> overrides.
-        applicationId: process.env['NUXT_PUBLIC_ASGARDEO_APPLICATION_ID'] || userOptions.applicationId,
-        signInUrl: process.env['NUXT_PUBLIC_ASGARDEO_SIGN_IN_URL'] || userOptions.signInUrl,
-        signUpUrl: process.env['NUXT_PUBLIC_ASGARDEO_SIGN_UP_URL'] || userOptions.signUpUrl,
-        scopes: userOptions.scopes || ['openid', 'profile'],
-        preferences: userOptions.preferences,
+        afterSignInUrl: process.env['NUXT_PUBLIC_ASGARDEO_AFTER_SIGN_IN_URL'],
+        afterSignOutUrl: process.env['NUXT_PUBLIC_ASGARDEO_AFTER_SIGN_OUT_URL'],
+        applicationId: process.env['NUXT_PUBLIC_ASGARDEO_APPLICATION_ID'],
+        signInUrl: process.env['NUXT_PUBLIC_ASGARDEO_SIGN_IN_URL'],
+        signUpUrl: process.env['NUXT_PUBLIC_ASGARDEO_SIGN_UP_URL'],
       },
+      // Layer 2: nuxt.config.ts options
       userOptions,
+      // Layer 3: hard defaults
+      {
+        afterSignInUrl: '/',
+        afterSignOutUrl: '/',
+        scopes: ['openid', 'profile'],
+      },
     );
 
     const privateConfig = {
