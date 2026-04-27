@@ -2,7 +2,6 @@ packages:
   - 'docs'
   - 'packages/*'
   - 'samples/*'
-  - 'playgrounds/*'
   - '!samples/teamspace-nextjs'
 
 catalog:
