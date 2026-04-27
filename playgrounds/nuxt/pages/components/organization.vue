@@ -1,272 +1,176 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
+import ComponentCard from '~/components/components/ComponentCard.vue';
+import ComponentTabNav from '~/components/components/ComponentTabNav.vue';
+import SlotInspection from '~/components/components/SlotInspection.vue';
+import { componentCategories, type ComponentSpec } from '~/utils/components-manifest';
+
+interface OrganizationSlotPreset {
+  mode: 'name-only' | 'name-id' | 'raw-json' | 'nested-signed-in';
+}
 
 const { currentOrganization, myOrganizations } = useOrganization();
 
-const activeTab = ref('organization');
-const tabs = [
-  { key: 'organization',         label: 'AsgardeoOrganization' },
-  { key: 'organization-list',    label: 'AsgardeoOrganizationList' },
-  { key: 'org-switcher',         label: 'AsgardeoOrganizationSwitcher' },
-  { key: 'org-profile',          label: 'AsgardeoOrganizationProfile' },
-  { key: 'create-org',           label: 'AsgardeoCreateOrganization' },
-];
+const organizationCategory = computed(() => componentCategories.find((category) => category.key === 'organization'));
+const organizationComponents = computed<ComponentSpec[]>(() => organizationCategory.value?.components ?? []);
 
-// ── Code snippets ──────────────────────────────────────────────────────────
-const organizationCode = `<!-- Scoped slot exposes the current organization -->
-<AsgardeoOrganization>
-  <template #default="{ organization }">
-    <p>Current org: {{ organization.name }}</p>
-  </template>
-  <template #fallback>
-    <p>No organization selected.</p>
-  </template>
-</AsgardeoOrganization>`;
+const activeComponentName = ref<string>(organizationComponents.value[0]?.name ?? '');
+const activeSpec = computed<ComponentSpec | undefined>(
+  () => organizationComponents.value.find((c) => c.name === activeComponentName.value) ?? organizationComponents.value[0],
+);
 
-const orgListCode = `<!-- Renders a list of all organizations the user belongs to -->
-<!-- Clicking an org switches the current organization context -->
-<AsgardeoSignedIn>
-  <AsgardeoOrganizationList />
-</AsgardeoSignedIn>`;
+const isOrganizationSlotPreset = (value: unknown): value is OrganizationSlotPreset => {
+  if (!value || typeof value !== 'object') {
+    return false;
+  }
 
-const orgSwitcherCode = `<!-- Compact dropdown to switch between organizations -->
-<AsgardeoSignedIn>
-  <AsgardeoOrganizationSwitcher />
-</AsgardeoSignedIn>`;
+  const mode = (value as OrganizationSlotPreset).mode;
+  return mode === 'name-only' || mode === 'name-id' || mode === 'raw-json' || mode === 'nested-signed-in';
+};
 
-const orgProfileCode = `<!-- Pre-built organization profile card -->
-<AsgardeoSignedIn>
-  <AsgardeoOrganization>
-    <template #default>
-      <AsgardeoOrganizationProfile />
-    </template>
-    <template #fallback>
-      <p>No organization selected.</p>
-    </template>
-  </AsgardeoOrganization>
-</AsgardeoSignedIn>`;
+const resolveOrganizationSlotPreset = (spec: ComponentSpec, slotVariantKey: string): OrganizationSlotPreset => {
+  const selected = spec.slotVariants?.find((variant) => variant.key === slotVariantKey) ?? spec.slotVariants?.[0];
 
-const createOrgCode = `<!-- Form to create a new sub-organization -->
-<AsgardeoSignedIn>
-  <AsgardeoCreateOrganization
-    @success="(org) => console.log('Created:', org)"
-    @error="(err) => console.error(err)"
-  />
-</AsgardeoSignedIn>`;
+  if (!selected) {
+    return {mode: 'name-only'};
+  }
+
+  const payload = selected.render({});
+  return isOrganizationSlotPreset(payload) ? payload : {mode: 'name-only'};
+};
+
+const getOrganizationName = (value: unknown): string => {
+  if (!value || typeof value !== 'object') {
+    return 'Unknown organization';
+  }
+
+  const data = value as Record<string, unknown>;
+  return String(data['name'] ?? 'Unknown organization');
+};
+
+const getOrganizationId = (value: unknown): string | null => {
+  if (!value || typeof value !== 'object') {
+    return null;
+  }
+
+  const data = value as Record<string, unknown>;
+  const id = data['id'];
+
+  return typeof id === 'string' && id.length > 0 ? id : null;
+};
+
+const activeSlotForOrganization = (): 'default' | 'fallback' => (currentOrganization.value ? 'default' : 'fallback');
+
+const organizationListProps = (propsState: Record<string, unknown>) => ({
+  className: typeof propsState['className'] === 'string' ? propsState['className'] : '',
+});
+
+const organizationProfileProps = (propsState: Record<string, unknown>) => ({
+  className: typeof propsState['className'] === 'string' ? propsState['className'] : '',
+  editable: Boolean(propsState['editable']),
+  title: typeof propsState['title'] === 'string' ? propsState['title'] : 'Organization Profile',
+});
+
+const organizationSwitcherProps = (propsState: Record<string, unknown>) => ({
+  className: typeof propsState['className'] === 'string' ? propsState['className'] : '',
+});
+
+const createOrganizationProps = (propsState: Record<string, unknown>) => ({
+  className: typeof propsState['className'] === 'string' ? propsState['className'] : '',
+  title: typeof propsState['title'] === 'string' ? propsState['title'] : 'Create Organization',
+  description:
+    typeof propsState['description'] === 'string' ? propsState['description'] : 'Create a new sub-organization.',
+});
 </script>
 
 <template>
   <div class="space-y-6">
     <LayoutPageHeader
       title="Organization Components"
-      description="AsgardeoOrganization (control), AsgardeoOrganizationList, AsgardeoOrganizationSwitcher, AsgardeoOrganizationProfile, AsgardeoCreateOrganization."
+      description="Manifest-driven cards for organization data and organization management surfaces."
     />
-    <div class="flex items-center gap-2 -mt-2">
-      <SharedStatusBadge status="info" label="Auto-imported" />
-      <span class="text-xs text-text-muted">from <code class="font-mono">@asgardeo/nuxt</code></span>
-    </div>
 
-    <!-- Current org banner -->
-    <div class="flex flex-wrap items-center gap-3 px-4 py-3 rounded-lg bg-surface-muted border border-border text-sm">
+    <div class="flex flex-wrap items-center gap-3 rounded-lg border border-border bg-surface-muted px-4 py-3 text-sm">
       <span class="font-medium text-text">Current organization:</span>
       <SharedStatusBadge
-        v-if="currentOrganization"
-        status="success"
-        :label="(currentOrganization as Record<string, unknown>)?.['name'] as string || 'Selected'"
+        :status="currentOrganization ? 'success' : 'neutral'"
+        :label="currentOrganization ? getOrganizationName(currentOrganization) : 'None selected'"
       />
-      <SharedStatusBadge
-        v-else
-        status="neutral"
-        label="None selected"
-      />
-      <span class="ml-auto text-xs text-text-muted">
-        {{ myOrganizations?.length ?? 0 }} organization(s) in myOrganizations
-      </span>
+      <span class="ml-auto text-xs text-text-muted">{{ myOrganizations?.length ?? 0 }} organization(s) available.</span>
     </div>
 
-    <LayoutTabGroup :tabs="tabs" v-model="activeTab">
+    <div class="space-y-4">
+      <ComponentTabNav :components="organizationComponents" v-model="activeComponentName" />
 
-      <!-- ─── AsgardeoOrganization tab ─── -->
-      <template #organization>
-        <div class="space-y-5">
-          <LayoutSectionCard
-            title="AsgardeoOrganization"
-            description="Control component — exposes the current organization via a scoped slot. Renders #fallback when no org is selected."
-          >
-            <div class="grid md:grid-cols-2 gap-6">
-              <div class="space-y-4">
-                <div>
-                  <p class="text-xs font-semibold text-text-muted uppercase tracking-wide mb-2">Scoped slot</p>
-                  <div class="rounded-lg border border-border bg-surface-muted p-4 min-h-14">
-                    <AsgardeoOrganization>
-                      <template #default="{ organization: org }">
-                        <div class="space-y-1 text-sm">
-                          <p class="font-medium text-text">{{ (org as Record<string, unknown>)?.['name'] ?? 'Organization' }}</p>
-                          <p v-if="(org as Record<string, unknown>)?.['id']" class="text-xs text-text-muted font-mono">
-                            {{ (org as Record<string, unknown>)['id'] }}
-                          </p>
-                        </div>
-                      </template>
-                      <template #fallback>
-                        <p class="text-sm text-text-muted italic">No organization selected.</p>
-                      </template>
-                    </AsgardeoOrganization>
+      <ComponentCard
+        v-if="activeSpec"
+        :key="activeSpec.name"
+        :spec="activeSpec"
+      >
+        <template #preview="{ propsState, slotVariantKey }">
+          <div v-if="activeSpec.name === 'AsgardeoOrganization'" class="space-y-3">
+            <div class="rounded-md border border-border bg-surface p-3">
+              <AsgardeoOrganization>
+                <template #default="{ organization }">
+                  <p v-if="resolveOrganizationSlotPreset(activeSpec, slotVariantKey).mode === 'name-only'" class="text-sm text-text">
+                    {{ getOrganizationName(organization) }}
+                  </p>
+
+                  <div v-else-if="resolveOrganizationSlotPreset(activeSpec, slotVariantKey).mode === 'name-id'" class="space-y-1">
+                    <p class="text-sm font-medium text-text">{{ getOrganizationName(organization) }}</p>
+                    <p class="text-xs font-mono text-text-muted">{{ getOrganizationId(organization) ?? 'No org ID' }}</p>
                   </div>
-                </div>
 
-                <!-- Nested with user -->
-                <div>
-                  <p class="text-xs font-semibold text-text-muted uppercase tracking-wide mb-2">Nested with AsgardeoSignedIn</p>
-                  <div class="rounded-lg border border-border bg-surface-muted p-4 min-h-14">
-                    <AsgardeoSignedIn>
-                      <template #default>
-                        <AsgardeoOrganization>
-                          <template #default="{ organization: org }">
-                            <p class="text-sm text-text">
-                              Signed in + org context:
-                              <span class="font-mono">{{ (org as Record<string, unknown>)?.['name'] }}</span>
-                            </p>
-                          </template>
-                          <template #fallback>
-                            <p class="text-sm text-text-muted italic">Signed in but no org context.</p>
-                          </template>
-                        </AsgardeoOrganization>
-                      </template>
-                      <template #fallback>
-                        <p class="text-sm text-text-muted italic">Sign in first.</p>
-                      </template>
-                    </AsgardeoSignedIn>
-                  </div>
-                </div>
-              </div>
+                  <SharedJsonViewer v-else-if="resolveOrganizationSlotPreset(activeSpec, slotVariantKey).mode === 'raw-json'" :data="organization" />
 
-              <p class="text-xs text-text-muted self-start">
-                <code class="bg-surface-muted px-1 rounded font-mono">&lt;AsgardeoOrganization&gt;</code> reads from
-                <code class="bg-surface-muted px-1 rounded font-mono">useOrganization().currentOrganization</code>.
-                It renders its <code class="bg-surface-muted px-1 rounded font-mono">#fallback</code> slot when no
-                organization is selected — useful for "select an org" prompts.
-              </p>
+                  <AsgardeoSignedIn v-else>
+                    <template #default>
+                      <p class="text-sm text-text">Signed in and organization context is available.</p>
+                    </template>
+                    <template #fallback>
+                      <p class="text-sm text-text-muted">Sign in to use this nested rendering preset.</p>
+                    </template>
+                  </AsgardeoSignedIn>
+                </template>
+
+                <template #fallback>
+                  <p class="text-sm text-text-muted">No organization selected for the current session.</p>
+                </template>
+              </AsgardeoOrganization>
             </div>
-          </LayoutSectionCard>
 
-          <LayoutCodeBlock :code="organizationCode" language="vue" />
-        </div>
-      </template>
+            <SlotInspection
+              :component-name="activeSpec.name"
+              :active-slot="activeSlotForOrganization()"
+              :scoped-payload="currentOrganization ? { organization: currentOrganization } : undefined"
+            />
+          </div>
 
-      <!-- ─── AsgardeoOrganizationList tab ─── -->
-      <template #organization-list>
-        <div class="space-y-5">
-          <LayoutSectionCard
-            title="AsgardeoOrganizationList"
-            description="Displays all organizations the signed-in user belongs to. Clicking one switches the org context."
-          >
-            <AsgardeoSignedIn>
-              <template #default>
-                <AsgardeoOrganizationList />
-              </template>
-              <template #fallback>
-                <div class="rounded-lg border border-border bg-surface-muted p-8 text-center">
-                  <p class="text-sm text-text-muted italic">Sign in to see AsgardeoOrganizationList.</p>
-                  <AsgardeoSignInButton
-                    class="mt-3 px-4 py-2 text-sm font-medium bg-accent-600 text-accent-foreground rounded-md hover:bg-accent-700 transition-colors"
-                  />
-                </div>
-              </template>
-            </AsgardeoSignedIn>
-          </LayoutSectionCard>
+          <div v-else-if="activeSpec.name === 'AsgardeoOrganizationList'" class="space-y-3">
+            <AsgardeoOrganizationList v-bind="organizationListProps(propsState)" />
+          </div>
 
-          <LayoutCodeBlock :code="orgListCode" language="vue" />
-        </div>
-      </template>
+          <div v-else-if="activeSpec.name === 'AsgardeoOrganizationProfile'" class="space-y-3">
+            <AsgardeoOrganizationProfile v-bind="organizationProfileProps(propsState)" />
+            <p
+              v-if="organizationProfileProps(propsState).editable"
+              class="rounded-md border border-warning/30 bg-warning/10 px-3 py-2 text-xs text-warning"
+            >
+              Editable mode can trigger organization updates. Use a non-production tenant while testing.
+            </p>
+          </div>
 
-      <!-- ─── AsgardeoOrganizationSwitcher tab ─── -->
-      <template #org-switcher>
-        <div class="space-y-5">
-          <LayoutSectionCard
-            title="AsgardeoOrganizationSwitcher"
-            description="Compact dropdown to switch between organizations — ideal for top navigation bars."
-          >
-            <AsgardeoSignedIn>
-              <template #default>
-                <div class="flex items-center gap-4 p-4 rounded-lg bg-surface-muted border border-border">
-                  <AsgardeoOrganizationSwitcher />
-                  <p class="text-xs text-text-muted">Select an organization to switch context.</p>
-                </div>
-              </template>
-              <template #fallback>
-                <div class="rounded-lg border border-border bg-surface-muted p-8 text-center">
-                  <p class="text-sm text-text-muted italic">Sign in to see AsgardeoOrganizationSwitcher.</p>
-                  <AsgardeoSignInButton
-                    class="mt-3 px-4 py-2 text-sm font-medium bg-accent-600 text-accent-foreground rounded-md hover:bg-accent-700 transition-colors"
-                  />
-                </div>
-              </template>
-            </AsgardeoSignedIn>
-          </LayoutSectionCard>
+          <div v-else-if="activeSpec.name === 'AsgardeoOrganizationSwitcher'" class="h-full min-h-[12rem] flex items-center justify-center">
+            <AsgardeoOrganizationSwitcher v-bind="organizationSwitcherProps(propsState)" />
+          </div>
 
-          <LayoutCodeBlock :code="orgSwitcherCode" language="vue" />
-        </div>
-      </template>
+          <div v-else-if="activeSpec.name === 'AsgardeoCreateOrganization'" class="w-full max-w-md mx-auto">
+            <AsgardeoCreateOrganization v-bind="createOrganizationProps(propsState)" />
+          </div>
 
-      <!-- ─── AsgardeoOrganizationProfile tab ─── -->
-      <template #org-profile>
-        <div class="space-y-5">
-          <LayoutSectionCard
-            title="AsgardeoOrganizationProfile"
-            description="Pre-built organization profile card — renders details of the currently selected organization."
-          >
-            <AsgardeoSignedIn>
-              <template #default>
-                <AsgardeoOrganization>
-                  <template #default>
-                    <AsgardeoOrganizationProfile />
-                  </template>
-                  <template #fallback>
-                    <p class="text-sm text-text-muted italic p-4">No organization selected. Use the Organization Switcher to select one.</p>
-                  </template>
-                </AsgardeoOrganization>
-              </template>
-              <template #fallback>
-                <div class="rounded-lg border border-border bg-surface-muted p-8 text-center">
-                  <p class="text-sm text-text-muted italic">Sign in to see AsgardeoOrganizationProfile.</p>
-                  <AsgardeoSignInButton
-                    class="mt-3 px-4 py-2 text-sm font-medium bg-accent-600 text-accent-foreground rounded-md hover:bg-accent-700 transition-colors"
-                  />
-                </div>
-              </template>
-            </AsgardeoSignedIn>
-          </LayoutSectionCard>
-
-          <LayoutCodeBlock :code="orgProfileCode" language="vue" />
-        </div>
-      </template>
-
-      <!-- ─── AsgardeoCreateOrganization tab ─── -->
-      <template #create-org>
-        <div class="space-y-5">
-          <LayoutSectionCard
-            title="AsgardeoCreateOrganization"
-            description="Form to create a new sub-organization under the current tenant."
-          >
-            <AsgardeoSignedIn>
-              <template #default>
-                <AsgardeoCreateOrganization />
-              </template>
-              <template #fallback>
-                <div class="rounded-lg border border-border bg-surface-muted p-8 text-center">
-                  <p class="text-sm text-text-muted italic">Sign in to see AsgardeoCreateOrganization.</p>
-                  <AsgardeoSignInButton
-                    class="mt-3 px-4 py-2 text-sm font-medium bg-accent-600 text-accent-foreground rounded-md hover:bg-accent-700 transition-colors"
-                  />
-                </div>
-              </template>
-            </AsgardeoSignedIn>
-          </LayoutSectionCard>
-
-          <LayoutCodeBlock :code="createOrgCode" language="vue" />
-        </div>
-      </template>
-
-    </LayoutTabGroup>
+          <p v-else class="text-sm text-text-muted">Preview unavailable for this organization component.</p>
+        </template>
+      </ComponentCard>
+    </div>
   </div>
 </template>

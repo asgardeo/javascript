@@ -40,11 +40,6 @@ export default defineEventHandler(async (event) => {
       title="requireServerSession"
       description="Assert that a valid session exists in any Nitro server handler. Throws an HTTP 401 automatically when the user is not signed in; returns the decoded session payload as a non-null guarantee."
     />
-    <div class="flex items-center gap-2 -mt-2">
-      <SharedStatusBadge status="neutral" label="Explicit import" />
-      <code class="text-xs font-mono text-text-muted">import { requireServerSession } from '@asgardeo/nuxt/server'</code>
-    </div>
-
     <!-- ── What it does ────────────────────────────────────────────────── -->
     <LayoutSectionCard title="What it does">
       <div class="space-y-2 text-sm text-text-muted leading-relaxed">

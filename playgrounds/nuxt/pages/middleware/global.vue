@@ -43,11 +43,6 @@ export default defineNuxtRouteMiddleware((to) => {
       title="Global middleware"
       description="Use createRouteMatcher from @asgardeo/nuxt/utils together with a Nuxt global middleware file to protect entire route patterns from unauthenticated access."
     />
-    <div class="flex items-center gap-2 -mt-2">
-      <SharedStatusBadge status="neutral" label="Explicit import" />
-      <code class="text-xs font-mono text-text-muted">import { createRouteMatcher } from '@asgardeo/nuxt/utils'</code>
-    </div>
-
     <!-- ── What it does ─────────────────────────────────────────────── -->
     <LayoutSectionCard title="What it does">
       <div class="space-y-2 text-sm text-text-muted leading-relaxed">
