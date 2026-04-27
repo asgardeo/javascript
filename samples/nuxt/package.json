@@ -4,9 +4,8 @@
     "type": "module",
     "scripts": {
         "dev": "nuxi dev",
-        "build": "nuxi build",
+        "build": "nuxi prepare && nuxi build",
         "preview": "nuxi preview",
-        "prepare": "nuxi prepare",
         "typecheck": "nuxi typecheck"
     },
     "dependencies": {
