@@ -17,7 +17,7 @@
  */
 
 import type {H3Event} from 'h3';
-import type {AsgardeoSessionPayload, AsgardeoSSRData} from '../types';
+import type {AsgardeoSessionPayload, AsgardeoSSRData} from '../../types';
 
 /**
  * The typed shape of `event.context.asgardeo` set by the Asgardeo Nitro plugin

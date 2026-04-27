@@ -39,7 +39,7 @@ import {ErrorCode} from './error-codes';
 export class AsgardeoError extends Error {
   readonly code: ErrorCode;
   readonly statusCode?: number;
-  readonly cause?: unknown;
+  override readonly cause?: unknown;
   readonly context?: Record<string, unknown>;
 
   constructor(

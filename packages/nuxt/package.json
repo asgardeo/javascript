@@ -70,7 +70,7 @@
     "build": "nuxt module-build prepare && nuxt module-build build",
     "lint": "nuxt prepare && eslint .",
     "test": "vitest run --passWithNoTests",
-    "typecheck": "nuxt prepare && vue-tsc --noEmit"
+    "typecheck": "nuxt module-build prepare && vue-tsc --noEmit"
   },
   "dependencies": {
     "@asgardeo/browser": "workspace:*",
