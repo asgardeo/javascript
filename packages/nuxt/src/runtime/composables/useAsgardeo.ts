@@ -16,10 +16,11 @@
  * under the License.
  */
 
-import {navigateTo, useState, useRuntimeConfig} from '#app';
 import {EmbeddedSignInFlowStatus, getRedirectBasedSignUpUrl} from '@asgardeo/browser';
 import {useAsgardeo as useAsgardeoVue, type AsgardeoContext} from '@asgardeo/vue';
+import type {Ref} from 'vue';
 import type {AsgardeoAuthState} from '../types';
+import {navigateTo, useState, useRuntimeConfig} from '#app';
 
 /**
  * Nuxt-aware primary composable for Asgardeo authentication.
@@ -41,7 +42,7 @@ import type {AsgardeoAuthState} from '../types';
  * ```
  */
 export function useAsgardeo(): AsgardeoContext {
-  const context = useAsgardeoVue();
+  const context: AsgardeoContext = useAsgardeoVue();
 
   /**
    * Sign in the user.
@@ -57,16 +58,15 @@ export function useAsgardeo(): AsgardeoContext {
    */
   const signIn = async (...args: any[]): Promise<any> => {
     // Embedded-flow path: second arg is a non-null object with `flowId`.
-    const arg0 = args[0];
-    const isEmbedded =
-      typeof arg0 === 'object' && arg0 !== null && 'flowId' in arg0;
+    const arg0: unknown = args[0];
+    const isEmbedded: boolean = typeof arg0 === 'object' && arg0 !== null && 'flowId' in arg0;
 
     if (isEmbedded) {
-      const payload = arg0;
-      const request = args[1] ?? {};
-      const res = await $fetch<{data: any; success: boolean}>('/api/auth/signin', {
-        method: 'POST',
+      const payload: Record<string, unknown> = arg0 as Record<string, unknown>;
+      const request: Record<string, unknown> = (args[1] ?? {}) as Record<string, unknown>;
+      const res: {data: any; success: boolean} = await $fetch<{data: any; success: boolean}>('/api/auth/signin', {
         body: {payload, request},
+        method: 'POST',
       });
 
       // Flow complete — server has set the session cookie. Refresh the client
@@ -83,30 +83,31 @@ export function useAsgardeo(): AsgardeoContext {
       if (res.data?.afterSignInUrl) {
         if (import.meta.client) {
           try {
-            const session = await $fetch<AsgardeoAuthState>('/api/auth/session');
-            const authState = useState<AsgardeoAuthState>('asgardeo:auth');
+            const session: AsgardeoAuthState = await $fetch<AsgardeoAuthState>('/api/auth/session');
+            const authState: Ref<AsgardeoAuthState> = useState<AsgardeoAuthState>('asgardeo:auth');
             authState.value = session;
           } catch {
             // Best-effort — the cookie is set; a navigation will recover state.
           }
         }
         return {
-          flowStatus: EmbeddedSignInFlowStatus.SuccessCompleted,
           authData: {},
+          flowStatus: EmbeddedSignInFlowStatus.SuccessCompleted,
         };
       }
       return res.data;
     }
 
     // Redirect flow.
-    const options = arg0 as Record<string, unknown> | undefined;
-    const returnTo = typeof options?.['returnTo'] === 'string' ? options['returnTo'] : undefined;
-    const url = returnTo ? `/api/auth/signin?returnTo=${encodeURIComponent(returnTo)}` : '/api/auth/signin';
+    const options: Record<string, unknown> | undefined = arg0 as Record<string, unknown> | undefined;
+    const returnTo: string | undefined = typeof options?.['returnTo'] === 'string' ? options['returnTo'] : undefined;
+    const url: string = returnTo ? `/api/auth/signin?returnTo=${encodeURIComponent(returnTo)}` : '/api/auth/signin';
     await navigateTo(url, {external: true});
+    return undefined;
   };
 
   const signOut = async (): Promise<void> => {
-    const res = await $fetch<{redirectUrl: string}>('/api/auth/signout', {method: 'POST'});
+    const res: {redirectUrl: string} = await $fetch<{redirectUrl: string}>('/api/auth/signout', {method: 'POST'});
     await navigateTo(res.redirectUrl || '/', {external: true});
   };
 
@@ -124,47 +125,52 @@ export function useAsgardeo(): AsgardeoContext {
    * `baseUrl` / `clientId` / `applicationId` via `getRedirectBasedSignUpUrl`.
    */
   const signUp = async (...args: any[]): Promise<any> => {
-    const payload = args[0];
+    const payload: unknown = args[0];
 
     // Embedded flow — payload must look like an EmbeddedFlowExecuteRequestPayload
     // (i.e. have a `flowType` field). Plain options objects without `flowType`
     // fall through to the redirect path so `signUp({applicationId: '...'})`
     // still goes to the hosted register page.
     if (payload && typeof payload === 'object' && 'flowType' in payload) {
-      const res = await $fetch<{data: any; success: boolean}>('/api/auth/signup', {
-        method: 'POST',
+      const res: {data: any; success: boolean} = await $fetch<{data: any; success: boolean}>('/api/auth/signup', {
         body: {payload},
+        method: 'POST',
       });
       if (res.data?.afterSignUpUrl) {
         await navigateTo(res.data.afterSignUpUrl as string, {external: false});
-        return;
+        return undefined;
       }
       return res.data;
     }
 
     // Redirect flow.
-    const cfg = (useRuntimeConfig().public.asgardeo ?? {}) as {
+    const cfg: {
+      applicationId?: string;
       baseUrl?: string;
       clientId?: string;
+      signUpUrl?: string;
+    } = (useRuntimeConfig().public.asgardeo ?? {}) as {
       applicationId?: string;
+      baseUrl?: string;
+      clientId?: string;
       signUpUrl?: string;
     };
 
     // Explicit override always wins.
     if (cfg.signUpUrl) {
       await navigateTo(cfg.signUpUrl, {external: true});
-      return;
+      return undefined;
     }
 
     const redirectUrl: string = getRedirectBasedSignUpUrl({
+      applicationId: cfg.applicationId,
       baseUrl: cfg.baseUrl,
       clientId: cfg.clientId,
-      applicationId: cfg.applicationId,
     } as any);
 
     if (redirectUrl) {
       await navigateTo(redirectUrl, {external: true});
-      return;
+      return undefined;
     }
 
     // Last-resort fallback: the embedded sign-up page on the consumer app.
@@ -172,6 +178,7 @@ export function useAsgardeo(): AsgardeoContext {
     // (e.g. self-hosted Identity Server with a non-standard host pattern) and
     // no signUpUrl override was configured.
     await navigateTo('/sign-up', {external: false});
+    return undefined;
   };
 
   return {...context, signIn, signOut, signUp} as AsgardeoContext;

@@ -16,10 +16,10 @@
  * under the License.
  */
 
-import {useOrganization} from '#imports';
 import {withVendorCSSClassPrefix} from '@asgardeo/browser';
 import {BaseCreateOrganization} from '@asgardeo/vue';
 import {type Component, type VNode, defineComponent, h} from 'vue';
+import {useOrganization} from '#imports';
 
 interface CreateOrganizationSetupProps {
   className: string;

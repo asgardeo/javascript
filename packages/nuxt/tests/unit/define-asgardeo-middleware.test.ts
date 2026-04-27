@@ -16,7 +16,14 @@
  * under the License.
  */
 
+/* eslint-disable @typescript-eslint/typedef, sort-keys, @typescript-eslint/explicit-function-return-type, @typescript-eslint/no-unused-vars, @typescript-eslint/naming-convention */
+
 import {describe, it, expect, vi, beforeEach} from 'vitest';
+
+import {
+  defineAsgardeoMiddleware,
+  AsgardeoMiddlewareOptions,
+} from '../../src/runtime/middleware/defineAsgardeoMiddleware';
 
 // ── Mock Nuxt's #app module ────────────────────────────────────────────────
 // defineAsgardeoMiddleware depends on defineNuxtRouteMiddleware, navigateTo,
@@ -44,8 +51,6 @@ vi.mock('#app', () => {
 
   return {navigateTo, useState, defineNuxtRouteMiddleware};
 });
-
-import {defineAsgardeoMiddleware, AsgardeoMiddlewareOptions} from '../../src/runtime/middleware/defineAsgardeoMiddleware';
 
 /** Build a fake `to` route object */
 const makeTo = (fullPath = '/dashboard') => ({fullPath});
@@ -108,7 +113,7 @@ describe('defineAsgardeoMiddleware', () => {
     });
 
     it('redirects when requireOrganization is true but organizationId is absent', async () => {
-      _authState.user = {email: 'user@example.com'};  // no organizationId
+      _authState.user = {email: 'user@example.com'}; // no organizationId
       const middleware = defineAsgardeoMiddleware({requireOrganization: true});
       await (middleware as Function)(makeTo('/org-page'), makeTo('/'));
       expect(_navigateToTarget).toBeDefined();

@@ -45,8 +45,8 @@ declare module 'h3' {
      * `null` when the request is an API route or when the session is absent/invalid.
      */
     asgardeo?: {
-      session: AsgardeoSessionPayload | null;
       isSignedIn: boolean;
+      session: AsgardeoSessionPayload | null;
       /**
        * Rich SSR payload populated by the Nitro `asgardeo-ssr` plugin.
        * Contains the user, userProfile, organisations, and branding data

@@ -18,10 +18,11 @@
 
 import type {BrandingPreference} from '@asgardeo/node';
 import {defineEventHandler, createError} from 'h3';
+import type {H3Event} from 'h3';
+import type {AsgardeoNuxtConfig} from '../../../../types';
 import AsgardeoNuxtClient from '../../../AsgardeoNuxtClient';
 import {verifyAndRehydrateSession} from '../../../utils/serverSession';
 import {useRuntimeConfig} from '#imports';
-import type {AsgardeoNuxtConfig} from '../../../../types';
 
 /**
  * GET /api/auth/branding
@@ -34,23 +35,28 @@ import type {AsgardeoNuxtConfig} from '../../../../types';
  * Used by `AsgardeoRoot.revalidateBranding` to refresh client-side branding
  * state without a full page reload.
  */
-export default defineEventHandler(async (event): Promise<BrandingPreference | null> => {
-  const config = useRuntimeConfig(event);
-  const publicConfig = config.public.asgardeo as (typeof config.public.asgardeo & AsgardeoNuxtConfig);
-  const sessionSecret = config.asgardeo?.sessionSecret;
+export default defineEventHandler(async (event: H3Event): Promise<BrandingPreference | null> => {
+  const config: ReturnType<typeof useRuntimeConfig> = useRuntimeConfig(event);
+  const publicConfig: AsgardeoNuxtConfig = config.public.asgardeo as AsgardeoNuxtConfig;
+  const sessionSecret: string | undefined = config.asgardeo?.sessionSecret;
 
   const baseUrl: string = (publicConfig?.baseUrl ?? '') as string;
   let resolvedBaseUrl: string = baseUrl;
 
   // Attempt to resolve the org-scoped base URL from the session, if present.
   try {
-    const session = await verifyAndRehydrateSession(event, sessionSecret);
+    const session: Awaited<ReturnType<typeof verifyAndRehydrateSession>> = await verifyAndRehydrateSession(
+      event,
+      sessionSecret,
+    );
     if (session) {
       if (session.organizationId) {
         resolvedBaseUrl = `${baseUrl}/o`;
       } else {
-        const client = AsgardeoNuxtClient.getInstance();
-        const idToken = await client.getDecodedIdToken(session.sessionId);
+        const client: AsgardeoNuxtClient = AsgardeoNuxtClient.getInstance();
+        const idToken: Awaited<ReturnType<AsgardeoNuxtClient['getDecodedIdToken']>> = await client.getDecodedIdToken(
+          session.sessionId,
+        );
         if (idToken?.['user_org']) {
           resolvedBaseUrl = `${baseUrl}/o`;
         }
@@ -61,7 +67,7 @@ export default defineEventHandler(async (event): Promise<BrandingPreference | nu
   }
 
   try {
-    const client = AsgardeoNuxtClient.getInstance();
+    const client: AsgardeoNuxtClient = AsgardeoNuxtClient.getInstance();
     return await client.getBrandingPreference({baseUrl: resolvedBaseUrl});
   } catch (err) {
     throw createError({

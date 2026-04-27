@@ -16,7 +16,24 @@
  * under the License.
  */
 
+/* eslint-disable @typescript-eslint/typedef, sort-keys, @typescript-eslint/no-unused-vars, no-restricted-syntax */
+
+import {generateFlattenedUserProfile} from '@asgardeo/node';
+import {
+  BrandingProvider,
+  FlowMetaProvider,
+  FlowProvider,
+  I18nProvider,
+  OrganizationProvider,
+  ThemeProvider,
+  UserProvider,
+} from '@asgardeo/vue';
 import {describe, it, expect, vi, beforeEach} from 'vitest';
+
+// ── Imports (after mocks) ─────────────────────────────────────────────────────
+
+import AsgardeoRoot from '../../src/runtime/components/AsgardeoRoot';
+import {useRuntimeConfig} from '#imports';
 
 // ── Module mocks ──────────────────────────────────────────────────────────────
 
@@ -51,21 +68,6 @@ vi.mock('#imports', () => ({
   })),
 }));
 
-// ── Imports (after mocks) ─────────────────────────────────────────────────────
-
-import {
-  BrandingProvider,
-  FlowMetaProvider,
-  FlowProvider,
-  I18nProvider,
-  OrganizationProvider,
-  ThemeProvider,
-  UserProvider,
-} from '@asgardeo/vue';
-import {useRuntimeConfig} from '#imports';
-import {generateFlattenedUserProfile} from '@asgardeo/node';
-import AsgardeoRoot from '../../src/runtime/components/AsgardeoRoot';
-
 // ── Test fixtures ─────────────────────────────────────────────────────────────
 
 const MOCK_USER_PROFILE = {
@@ -91,11 +93,11 @@ const MOCK_AUTH_STATE = {isSignedIn: true, user: {sub: 'user-123'}, isLoading: f
 function buildRenderFn(
   preferences?: Record<string, any>,
   stateOverrides?: {
-    userProfile?: any;
+    auth?: any;
+    branding?: any;
     currentOrg?: any;
     myOrgs?: any;
-    branding?: any;
-    auth?: any;
+    userProfile?: any;
   },
 ): () => any {
   // Use explicit `in` checks so that passing `null` is honoured as the desired
@@ -310,7 +312,7 @@ describe('AsgardeoRoot component', () => {
     const root = renderFn();
 
     const userProviderVNode = findByType(root, UserProvider);
-    const onUpdateProfile = userProviderVNode!.props.onUpdateProfile;
+    const {onUpdateProfile} = userProviderVNode!.props;
 
     const updatedUser = {sub: 'user-123', email: 'new@example.com'};
     onUpdateProfile(updatedUser);
@@ -318,10 +320,7 @@ describe('AsgardeoRoot component', () => {
     const userProfileState = mockStateStore.get('asgardeo:user-profile')!;
     expect(userProfileState.value.profile).toEqual(updatedUser);
     expect(userProfileState.value.flattenedProfile).toBeDefined();
-    expect(generateFlattenedUserProfile).toHaveBeenCalledWith(
-      updatedUser,
-      MOCK_USER_PROFILE.schemas,
-    );
+    expect(generateFlattenedUserProfile).toHaveBeenCalledWith(updatedUser, MOCK_USER_PROFILE.schemas);
   });
 
   it('onUpdateProfile keeps asgardeo:auth user in sync', () => {
@@ -329,7 +328,7 @@ describe('AsgardeoRoot component', () => {
     const root = renderFn();
 
     const userProviderVNode = findByType(root, UserProvider);
-    const onUpdateProfile = userProviderVNode!.props.onUpdateProfile;
+    const {onUpdateProfile} = userProviderVNode!.props;
 
     const updatedUser = {sub: 'user-123', email: 'synced@example.com'};
     onUpdateProfile(updatedUser);
@@ -345,7 +344,7 @@ describe('AsgardeoRoot component', () => {
     const userProviderVNode = findByType(root, UserProvider);
     // profile prop is null but callbacks are still provided (profile gating
     // checks the preference flag, not the actual state value)
-    const onUpdateProfile = userProviderVNode!.props.onUpdateProfile;
+    const {onUpdateProfile} = userProviderVNode!.props;
     expect(onUpdateProfile).toBeTypeOf('function');
 
     const freshUser = {sub: 'user-456', email: 'fresh@example.com'};

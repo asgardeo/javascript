@@ -75,9 +75,8 @@ const SignUp: Component = defineComponent({
       return (await signUp(initialPayload)) as EmbeddedFlowExecuteResponse;
     };
 
-    const handleOnSubmit = async (
-      payload: EmbeddedFlowExecuteRequestPayload,
-    ): Promise<EmbeddedFlowExecuteResponse> => (await signUp(payload)) as EmbeddedFlowExecuteResponse;
+    const handleOnSubmit = async (payload: EmbeddedFlowExecuteRequestPayload): Promise<EmbeddedFlowExecuteResponse> =>
+      (await signUp(payload)) as EmbeddedFlowExecuteResponse;
 
     const handleComplete = (response: EmbeddedFlowExecuteResponse): void => {
       props.onComplete?.(response);

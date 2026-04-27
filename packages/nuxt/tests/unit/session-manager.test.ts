@@ -16,6 +16,8 @@
  * under the License.
  */
 
+/* eslint-disable @typescript-eslint/typedef, sort-keys */
+
 import {describe, it, expect} from 'vitest';
 import {
   createSessionToken,

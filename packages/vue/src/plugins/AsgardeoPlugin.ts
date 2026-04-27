@@ -16,9 +16,9 @@
  * under the License.
  */
 
-import type { App, Plugin } from 'vue';
+import type {App, Plugin} from 'vue';
 import AsgardeoProvider from '../providers/AsgardeoProvider';
-import { injectStyles } from '../styles/injectStyles';
+import {injectStyles} from '../styles/injectStyles';
 
 /**
  * Options accepted by {@link AsgardeoPlugin}.

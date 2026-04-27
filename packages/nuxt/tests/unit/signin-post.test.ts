@@ -16,7 +16,19 @@
  * under the License.
  */
 
+/* eslint-disable @typescript-eslint/typedef, sort-keys, @typescript-eslint/explicit-function-return-type */
+
+import {readBody, deleteCookie, setCookie} from 'h3';
 import {describe, it, expect, vi, beforeEach} from 'vitest';
+
+// ── Imports (after mocks) ─────────────────────────────────────────────────────
+
+import signinHandler from '../../src/runtime/server/routes/auth/session/signin.post';
+import {
+  issueSessionCookie,
+  createTempSessionToken,
+  verifyTempSessionToken,
+} from '../../src/runtime/server/utils/session';
 
 // ── vi.hoisted — shared mutable state accessible inside mock factories ────────
 const state = vi.hoisted(() => ({
@@ -27,9 +39,9 @@ const state = vi.hoisted(() => ({
 }));
 
 const mockClientInstance = vi.hoisted(() => ({
-  getAuthorizeRequestUrl: vi.fn<() => Promise<string>>().mockResolvedValue(
-    'https://api.asgardeo.io/t/org/oauth2/authorize?code_challenge=x',
-  ),
+  getAuthorizeRequestUrl: vi
+    .fn<() => Promise<string>>()
+    .mockResolvedValue('https://api.asgardeo.io/t/org/oauth2/authorize?code_challenge=x'),
   signIn: vi.fn<() => Promise<any>>().mockResolvedValue(undefined),
 }));
 
@@ -38,9 +50,7 @@ const mockClientInstance = vi.hoisted(() => ({
 vi.mock('h3', () => ({
   defineEventHandler: (fn: Function) => fn,
   readBody: vi.fn(),
-  getCookie: vi.fn((_event: any, name: string) =>
-    name.includes('temp') ? state.tempCookie : undefined,
-  ),
+  getCookie: vi.fn((_event: any, name: string) => (name.includes('temp') ? state.tempCookie : undefined)),
   setCookie: vi.fn((_event: any, name: string, value: string) => {
     state.cookieStore[name] = value;
   }),
@@ -83,13 +93,6 @@ vi.mock('@asgardeo/node', () => ({
   EmbeddedSignInFlowStatus: {SuccessCompleted: 'SUCCESS_COMPLETED'},
 }));
 
-// ── Imports (after mocks) ─────────────────────────────────────────────────────
-
-import {readBody, deleteCookie, setCookie} from 'h3';
-import {issueSessionCookie, createTempSessionToken, verifyTempSessionToken} from '../../src/runtime/server/utils/session';
-import {useServerSession} from '../../src/runtime/server/utils/serverSession';
-import signinHandler from '../../src/runtime/server/routes/auth/session/signin.post';
-
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 const mockEvent = {};
@@ -124,10 +127,7 @@ describe('POST /api/auth/signin', () => {
       await (signinHandler as any)(mockEvent);
 
       // Signature: createTempSessionToken(sessionId, sessionSecret, returnTo?)
-      expect(createTempSessionToken).toHaveBeenCalledWith(
-        expect.any(String),
-        expect.any(String),
-      );
+      expect(createTempSessionToken).toHaveBeenCalledWith(expect.any(String), expect.any(String));
       expect(setCookie).toHaveBeenCalled();
     });
 
@@ -177,7 +177,10 @@ describe('POST /api/auth/signin', () => {
       const flowPayload = {
         flowId: 'flow-abc',
         selectedAuthenticator: {authenticatorId: 'BasicAuthenticator'},
-        flowInputs: [{name: 'username', value: 'user@example.com'}, {name: 'password', value: 'pass'}],
+        flowInputs: [
+          {name: 'username', value: 'user@example.com'},
+          {name: 'password', value: 'pass'},
+        ],
       };
       const completedResponse = {
         flowStatus: 'SUCCESS_COMPLETED',
@@ -190,9 +193,7 @@ describe('POST /api/auth/signin', () => {
       const tokenResponse = {accessToken: 'at-new', idToken: 'id-token'};
 
       // First signIn call → completed flow response; second → token response.
-      mockClientInstance.signIn
-        .mockResolvedValueOnce(completedResponse)
-        .mockResolvedValueOnce(tokenResponse);
+      mockClientInstance.signIn.mockResolvedValueOnce(completedResponse).mockResolvedValueOnce(tokenResponse);
 
       vi.mocked(readBody).mockResolvedValue({payload: flowPayload});
 

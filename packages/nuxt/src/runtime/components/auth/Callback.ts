@@ -16,8 +16,8 @@
  * under the License.
  */
 
-import {navigateTo} from '#app';
 import {type Component, defineComponent, onMounted} from 'vue';
+import {navigateTo} from '#app';
 
 const error = (msg: string, ...args: unknown[]): void => {
   // eslint-disable-next-line no-console

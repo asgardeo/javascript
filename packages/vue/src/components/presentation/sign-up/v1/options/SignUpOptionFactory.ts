@@ -71,19 +71,7 @@ const inferFieldType = (component: any): FieldType => {
  */
 const inferTypographyVariant = (
   component: any,
-):
-  | 'h1'
-  | 'h2'
-  | 'h3'
-  | 'h4'
-  | 'h5'
-  | 'h6'
-  | 'subtitle1'
-  | 'subtitle2'
-  | 'body1'
-  | 'body2'
-  | 'caption'
-  | 'overline' => {
+): 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'subtitle1' | 'subtitle2' | 'body1' | 'body2' | 'caption' | 'overline' => {
   const variant: string = String(component.variant || '').toUpperCase();
   switch (variant) {
     case 'H1':
@@ -117,10 +105,7 @@ const inferTypographyVariant = (
  * Detect whether a BUTTON looks like a known social-login provider so we can
  * render a branded button (matches the React V1 factory's behaviour).
  */
-const matchesSocialProvider = (
-  component: any,
-  provider: 'google' | 'github' | 'microsoft' | 'facebook',
-): boolean => {
+const matchesSocialProvider = (component: any, provider: 'google' | 'github' | 'microsoft' | 'facebook'): boolean => {
   const text: string = String(component?.config?.text || component?.config?.label || '').toLowerCase();
   const variant: string = String(component?.variant || '').toUpperCase();
   return variant === 'SOCIAL' && text.includes(provider);
@@ -168,7 +153,7 @@ export const createSignUpComponent = (props: BaseSignUpOptionProps): VNode | VNo
       const text: string = String(cfg.text || cfg.label || '');
       return h(
         Typography,
-        {variant: inferTypographyVariant(component), style: 'margin-bottom:0.5rem'},
+        {style: 'margin-bottom:0.5rem', variant: inferTypographyVariant(component)},
         {default: () => text},
       );
     }
@@ -249,7 +234,10 @@ export const createSignUpComponent = (props: BaseSignUpOptionProps): VNode | VNo
     }
 
     case EmbeddedFlowComponentType.Divider: {
-      return h('hr', {class: 'asgardeo-signup__divider', style: 'margin:0.75rem 0;border:0;border-top:1px solid #e5e7eb'});
+      return h('hr', {
+        class: 'asgardeo-signup__divider',
+        style: 'margin:0.75rem 0;border:0;border-top:1px solid #e5e7eb',
+      });
     }
 
     case EmbeddedFlowComponentType.Image: {

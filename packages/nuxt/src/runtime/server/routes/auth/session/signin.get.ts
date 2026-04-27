@@ -18,12 +18,9 @@
 
 import {generateSessionId} from '@asgardeo/node';
 import {defineEventHandler, getQuery, sendRedirect, setCookie, createError} from 'h3';
+import type {H3Event} from 'h3';
 import AsgardeoNuxtClient from '../../../AsgardeoNuxtClient';
-import {
-  createTempSessionToken,
-  getTempSessionCookieName,
-  getTempSessionCookieOptions,
-} from '../../../utils/session';
+import {createTempSessionToken, getTempSessionCookieName, getTempSessionCookieOptions} from '../../../utils/session';
 import {useRuntimeConfig} from '#imports';
 
 /**
@@ -36,28 +33,29 @@ import {useRuntimeConfig} from '#imports';
  * Accepts an optional `returnTo` query parameter to redirect
  * the user to a specific page after sign-in.
  */
-export default defineEventHandler(async (event) => {
-  const client = AsgardeoNuxtClient.getInstance();
-  const config = useRuntimeConfig();
-  const sessionSecret = config.asgardeo?.sessionSecret;
+export default defineEventHandler(async (event: H3Event) => {
+  const client: AsgardeoNuxtClient = AsgardeoNuxtClient.getInstance();
+  const config: ReturnType<typeof useRuntimeConfig> = useRuntimeConfig();
+  const sessionSecret: string | undefined = config.asgardeo?.sessionSecret;
 
-  const query = getQuery(event);
-  const returnTo = query['returnTo'] as string | undefined;
+  const query: Record<string, unknown> = getQuery(event) as Record<string, unknown>;
+  const returnTo: string | undefined = query['returnTo'] as string | undefined;
 
   // Validate returnTo is a relative path to prevent open redirect
-  const safeReturnTo = returnTo && returnTo.startsWith('/') && !returnTo.startsWith('//') ? returnTo : undefined;
+  const safeReturnTo: string | undefined =
+    returnTo && returnTo.startsWith('/') && !returnTo.startsWith('//') ? returnTo : undefined;
 
-  const sessionId = generateSessionId();
+  const sessionId: string = generateSessionId();
 
   // Create temp session JWT and set as cookie (includes returnTo if provided)
-  const tempToken = await createTempSessionToken(sessionId, sessionSecret, safeReturnTo);
+  const tempToken: string = await createTempSessionToken(sessionId, sessionSecret, safeReturnTo);
   setCookie(event, getTempSessionCookieName(), tempToken, getTempSessionCookieOptions());
 
   // Get the authorization URL from the Node SDK
   // The signIn method calls the callback with the authorization URL when no code is provided
   let authorizationUrl: string | null = null;
   await client.signIn(
-    (url: string) => {
+    (url: string): void => {
       authorizationUrl = url;
     },
     sessionId,

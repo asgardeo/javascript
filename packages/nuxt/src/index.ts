@@ -19,11 +19,7 @@
 export {default} from './module';
 
 // ── Types ──────────────────────────────────────────────────────────────────
-export type {
-  AsgardeoNuxtConfig,
-  AsgardeoSessionPayload,
-  AsgardeoAuthState,
-} from './runtime/types';
+export type {AsgardeoNuxtConfig, AsgardeoSessionPayload, AsgardeoAuthState} from './runtime/types';
 
 // ── Composables ────────────────────────────────────────────────────────────
 // The Nuxt-specific `useAsgardeo` layers navigation overrides over Vue's

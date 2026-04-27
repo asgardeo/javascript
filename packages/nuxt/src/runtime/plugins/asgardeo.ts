@@ -16,13 +16,16 @@
  * under the License.
  */
 
-import {defineNuxtPlugin, useState, useRequestEvent, useRuntimeConfig, navigateTo} from '#app';
-import {computed} from 'vue';
 import {getRedirectBasedSignUpUrl} from '@asgardeo/browser';
-import {AsgardeoPlugin, ASGARDEO_KEY} from '@asgardeo/vue';
-import AsgardeoRoot from '../components/AsgardeoRoot';
-import type {AsgardeoAuthState} from '../types';
 import type {BrandingPreference, Organization, UserProfile} from '@asgardeo/node';
+import {AsgardeoPlugin, ASGARDEO_KEY} from '@asgardeo/vue';
+import type {H3Event} from 'h3';
+import {computed} from 'vue';
+import type {ComputedRef, Ref} from 'vue';
+import AsgardeoRoot from '../components/AsgardeoRoot';
+import type {AsgardeoAuthState, AsgardeoSSRData} from '../types';
+import {defineNuxtPlugin, useState, useRequestEvent, useRuntimeConfig, navigateTo} from '#app';
+import type {NuxtApp} from '#app';
 
 // Import H3 augmentation so event.context.asgardeo is typed
 import '../types/augments.d';
@@ -47,17 +50,27 @@ import '../types/augments.d';
  *  4. **AsgardeoPlugin (delegated)** — install the Vue SDK plugin in
  *     delegated mode so it skips browser-only initialisation (SSR-safe).
  */
-export default defineNuxtPlugin((nuxtApp) => {
-  const publicConfig = useRuntimeConfig().public.asgardeo as {
-    baseUrl: string;
-    clientId: string;
+export default defineNuxtPlugin((nuxtApp: NuxtApp) => {
+  const publicConfig: {
     afterSignInUrl: string;
     afterSignOutUrl: string;
+    applicationId?: string;
+    baseUrl: string;
+    clientId: string;
+    organizationHandle?: string;
     scopes: string[];
     signInUrl?: string;
     signUpUrl?: string;
-    organizationHandle?: string;
+  } = useRuntimeConfig().public.asgardeo as {
+    afterSignInUrl: string;
+    afterSignOutUrl: string;
     applicationId?: string;
+    baseUrl: string;
+    clientId: string;
+    organizationHandle?: string;
+    scopes: string[];
+    signInUrl?: string;
+    signUpUrl?: string;
   };
 
   // Surface misconfiguration in the browser dev console only. The server
@@ -68,8 +81,8 @@ export default defineNuxtPlugin((nuxtApp) => {
       // eslint-disable-next-line no-console
       console.warn(
         '[@asgardeo/nuxt] Missing baseUrl or clientId. ' +
-        'Set NUXT_PUBLIC_ASGARDEO_BASE_URL and NUXT_PUBLIC_ASGARDEO_CLIENT_ID, ' +
-        'or configure `asgardeo` in nuxt.config. Auth endpoints will not function until this is resolved.',
+          'Set NUXT_PUBLIC_ASGARDEO_BASE_URL and NUXT_PUBLIC_ASGARDEO_CLIENT_ID, ' +
+          'or configure `asgardeo` in nuxt.config. Auth endpoints will not function until this is resolved.',
       );
     }
   }
@@ -79,26 +92,29 @@ export default defineNuxtPlugin((nuxtApp) => {
   //  Nuxt snapshots the values into the `__NUXT__` payload and the client
   //  hydrates automatically — no extra fetch needed.
 
-  const authState = useState<AsgardeoAuthState>('asgardeo:auth', () => ({
+  const authState: Ref<AsgardeoAuthState> = useState<AsgardeoAuthState>('asgardeo:auth', () => ({
+    isLoading: true,
     isSignedIn: false,
     user: null,
-    isLoading: true,
   }));
-  const userProfileState = useState<UserProfile | null>('asgardeo:user-profile', () => null);
-  const currentOrgState = useState<Organization | null>('asgardeo:current-org', () => null);
-  const myOrgsState = useState<Organization[]>('asgardeo:my-orgs', () => []);
-  const brandingState = useState<BrandingPreference | null>('asgardeo:branding', () => null);
+  const userProfileState: Ref<UserProfile | null> = useState<UserProfile | null>('asgardeo:user-profile', () => null);
+  const currentOrgState: Ref<Organization | null> = useState<Organization | null>('asgardeo:current-org', () => null);
+  const myOrgsState: Ref<Organization[]> = useState<Organization[]>('asgardeo:my-orgs', () => []);
+  const brandingState: Ref<BrandingPreference | null> = useState<BrandingPreference | null>(
+    'asgardeo:branding',
+    () => null,
+  );
 
   if (import.meta.server) {
-    const event = useRequestEvent();
-    const ssr = event?.context?.asgardeo?.ssr;
+    const event: H3Event | undefined = useRequestEvent();
+    const ssr: AsgardeoSSRData | undefined = event?.context?.asgardeo?.ssr as AsgardeoSSRData | undefined;
 
     if (ssr) {
       // Seed from the rich SSR payload written by the asgardeo-ssr Nitro plugin.
       authState.value = {
+        isLoading: false,
         isSignedIn: ssr.isSignedIn,
         user: ssr.user,
-        isLoading: false,
       };
       userProfileState.value = ssr.userProfile;
       currentOrgState.value = ssr.currentOrganization;
@@ -106,16 +122,18 @@ export default defineNuxtPlugin((nuxtApp) => {
       brandingState.value = ssr.brandingPreference;
     } else {
       // Backwards-compat: fall back to the legacy context shape (pre-Step-2 plugin).
-      const ssrContext = event?.context?.asgardeo;
+      const ssrContext: {isSignedIn?: boolean; session?: {sub?: string}} | undefined = event?.context?.asgardeo;
       if (ssrContext) {
         authState.value = {
-          isSignedIn: ssrContext.isSignedIn,
-          user: ssrContext.session?.sub ? ({sub: ssrContext.session.sub} as AsgardeoAuthState['user']) : null,
           isLoading: false,
+          isSignedIn: ssrContext.isSignedIn ?? false,
+          user: ssrContext.session?.sub ? ({sub: ssrContext.session.sub} as AsgardeoAuthState['user']) : null,
         };
       } else {
-        const legacyAuth = event?.context?.['__asgardeoAuth'] as AsgardeoAuthState | undefined;
-        authState.value = legacyAuth ?? {isSignedIn: false, user: null, isLoading: false};
+        const legacyAuth: AsgardeoAuthState | undefined = event?.context?.['__asgardeoAuth'] as
+          | AsgardeoAuthState
+          | undefined;
+        authState.value = legacyAuth ?? {isLoading: false, isSignedIn: false, user: null};
       }
     }
   }
@@ -125,25 +143,25 @@ export default defineNuxtPlugin((nuxtApp) => {
   }
 
   // ── 2. Reactive refs over auth state ────────────────────────────────────
-  const isSignedIn = computed(() => authState.value.isSignedIn);
-  const isLoading = computed(() => authState.value.isLoading);
-  const isInitialized = computed(() => !authState.value.isLoading);
+  const isSignedIn: ComputedRef<boolean> = computed(() => authState.value.isSignedIn);
+  const isLoading: ComputedRef<boolean> = computed(() => authState.value.isLoading);
+  const isInitialized: ComputedRef<boolean> = computed(() => !authState.value.isLoading);
   // `user` is backed by the dedicated state key so AsgardeoRoot can read it
   // reactively without going through the ASGARDEO_KEY indirection.
-  const user = computed(() => authState.value.user ?? null);
+  const user: ComputedRef<AsgardeoAuthState['user'] | null> = computed(() => authState.value.user ?? null);
   // `organization` reflects the SSR-resolved current org (hydrated from
   // 'asgardeo:current-org'). Kept readonly at the ASGARDEO_KEY level.
-  const organizationRef = computed(() => currentOrgState.value);
+  const organizationRef: ComputedRef<Organization | null> = computed(() => currentOrgState.value);
 
   // ── 3. Action helpers (Nuxt-aware navigation) ───────────────────────────
   const signIn = async (options?: Record<string, unknown>): Promise<void> => {
-    const returnTo = typeof options?.['returnTo'] === 'string' ? options['returnTo'] : undefined;
-    const url = returnTo ? `/api/auth/signin?returnTo=${encodeURIComponent(returnTo)}` : '/api/auth/signin';
+    const returnTo: string | undefined = typeof options?.['returnTo'] === 'string' ? options['returnTo'] : undefined;
+    const url: string = returnTo ? `/api/auth/signin?returnTo=${encodeURIComponent(returnTo)}` : '/api/auth/signin';
     await navigateTo(url, {external: true});
   };
 
   const signOut = async (): Promise<void> => {
-    const res = await $fetch<{redirectUrl: string}>('/api/auth/signout', {method: 'POST'});
+    const res: {redirectUrl: string} = await $fetch<{redirectUrl: string}>('/api/auth/signout', {method: 'POST'});
     await navigateTo(res.redirectUrl || '/', {external: true});
   };
 
@@ -158,9 +176,9 @@ export default defineNuxtPlugin((nuxtApp) => {
     }
 
     const redirectUrl: string = getRedirectBasedSignUpUrl({
+      applicationId: publicConfig.applicationId,
       baseUrl: publicConfig.baseUrl,
       clientId: publicConfig.clientId,
-      applicationId: publicConfig.applicationId,
     } as any);
 
     if (redirectUrl) {
@@ -176,7 +194,7 @@ export default defineNuxtPlugin((nuxtApp) => {
 
   const getAccessToken = async (): Promise<string> => {
     try {
-      const res = await $fetch<{accessToken: string}>('/api/auth/token');
+      const res: {accessToken: string} = await $fetch<{accessToken: string}>('/api/auth/token');
       return res.accessToken ?? '';
     } catch {
       return '';
@@ -187,37 +205,34 @@ export default defineNuxtPlugin((nuxtApp) => {
 
   // ── 4. Provide ASGARDEO_KEY at the app level ────────────────────────────
   nuxtApp.vueApp.provide(ASGARDEO_KEY, {
-    // Config
     afterSignInUrl: publicConfig.afterSignInUrl,
     applicationId: publicConfig.applicationId,
     baseUrl: publicConfig.baseUrl,
-    clientId: publicConfig.clientId,
-    instanceId: 0,
-    organizationHandle: publicConfig.organizationHandle,
-    platform: undefined,
-    signInOptions: undefined,
-    signInUrl: publicConfig.signInUrl,
-    signUpUrl: publicConfig.signUpUrl,
-    storage: undefined,
-    // Reactive state
-    isInitialized,
-    isLoading,
-    isSignedIn,
-    organization: organizationRef,
-    user,
-    // Actions
     clearSession: noop,
+    clientId: publicConfig.clientId,
     exchangeToken: noop,
     getAccessToken,
     getDecodedIdToken: noop,
     getIdToken: noop,
     http: {request: noop, requestAll: noop},
+    instanceId: 0,
+    isInitialized,
+    isLoading,
+    isSignedIn,
+    organization: organizationRef,
+    organizationHandle: publicConfig.organizationHandle,
+    platform: undefined,
     reInitialize: async () => false,
     signIn,
+    signInOptions: undefined,
     signInSilently: noop,
+    signInUrl: publicConfig.signInUrl,
     signOut,
     signUp,
+    signUpUrl: publicConfig.signUpUrl,
+    storage: undefined,
     switchOrganization: noop,
+    user,
   });
 
   // ── 5. Register AsgardeoRoot + install Vue plugin in delegated mode ─────

@@ -93,15 +93,11 @@ const BaseSignUp: Component = defineComponent({
     },
     onInitialize: {
       default: undefined,
-      type: Function as PropType<
-        (payload?: EmbeddedFlowExecuteRequestPayload) => Promise<EmbeddedFlowExecuteResponse>
-      >,
+      type: Function as PropType<(payload?: EmbeddedFlowExecuteRequestPayload) => Promise<EmbeddedFlowExecuteResponse>>,
     },
     onSubmit: {
       default: undefined,
-      type: Function as PropType<
-        (payload: EmbeddedFlowExecuteRequestPayload) => Promise<EmbeddedFlowExecuteResponse>
-      >,
+      type: Function as PropType<(payload: EmbeddedFlowExecuteRequestPayload) => Promise<EmbeddedFlowExecuteResponse>>,
     },
     shouldRedirectAfterSignUp: {default: true, type: Boolean},
     showLogo: {default: true, type: Boolean},
@@ -526,7 +522,7 @@ const BaseSignUp: Component = defineComponent({
               // Submit-type buttons in the V1 flow are handled inline by the
               // `onSubmit` handler attached to the BUTTON component; the
               // native form submit is a fallback (e.g. enter-key in a field).
-              handleSubmit({type: 'BUTTON', config: {type: 'submit'}});
+              handleSubmit({config: {type: 'submit'}, type: 'BUTTON'});
             },
             style: 'padding: 1rem;display:flex;flex-direction:column;gap:0.75rem',
           },

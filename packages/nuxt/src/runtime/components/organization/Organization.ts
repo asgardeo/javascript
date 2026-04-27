@@ -16,8 +16,8 @@
  * under the License.
  */
 
-import {useOrganization} from '#imports';
 import {type Component, type VNode, Fragment, defineComponent, h} from 'vue';
+import {useOrganization} from '#imports';
 
 /**
  * Nuxt-specific Organization control component.

@@ -16,10 +16,10 @@
  * under the License.
  */
 
-import {useAsgardeo} from '#imports';
 import {AsgardeoRuntimeError} from '@asgardeo/browser';
 import {BaseSignOutButton} from '@asgardeo/vue';
-import {type Component, type SetupContext, type VNode, defineComponent, h, ref} from 'vue';
+import {type Component, type Ref, type SetupContext, type VNode, defineComponent, h, ref} from 'vue';
+import {useAsgardeo} from '#imports';
 
 /**
  * Nuxt-specific SignOutButton container.
@@ -40,7 +40,7 @@ const SignOutButton: Component = defineComponent({
   name: 'SignOutButton',
   setup(_: {}, {slots, emit, attrs}: SetupContext): () => VNode {
     const {signOut} = useAsgardeo();
-    const isLoading = ref(false);
+    const isLoading: Ref<boolean> = ref(false);
 
     const handleSignOut = async (e?: MouseEvent): Promise<void> => {
       try {

@@ -16,16 +16,15 @@
  * under the License.
  */
 
-import {navigateTo} from '#app';
-import {useAsgardeo} from '#imports';
 import {
   type EmbeddedSignInFlowHandleRequestPayload,
   type EmbeddedSignInFlowHandleResponse,
   type EmbeddedSignInFlowInitiateResponse,
-  Platform,
 } from '@asgardeo/browser';
 import {BaseSignIn} from '@asgardeo/vue';
 import {type Component, type PropType, type SetupContext, type VNode, defineComponent, h} from 'vue';
+import {navigateTo} from '#app';
+import {useAsgardeo} from '#imports';
 
 /**
  * Nuxt-specific SignIn container for the embedded (app-native) sign-in flow.
@@ -61,9 +60,9 @@ const SignIn: Component = defineComponent({
   },
   setup(
     props: Readonly<{className: string; size: 'small' | 'medium' | 'large'; variant: 'elevated' | 'outlined' | 'flat'}>,
-    {slots, emit, attrs}: SetupContext,
+    {emit, attrs}: SetupContext,
   ): () => VNode {
-    const {signIn, afterSignInUrl, isInitialized, isLoading, platform} = useAsgardeo();
+    const {signIn, afterSignInUrl, isInitialized, isLoading} = useAsgardeo();
 
     const handleInitialize = async (): Promise<EmbeddedSignInFlowInitiateResponse> =>
       // Pass flowId='' to trigger the embedded-flow initiation path in useAsgardeo.

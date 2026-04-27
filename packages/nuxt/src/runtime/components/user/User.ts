@@ -16,8 +16,8 @@
  * under the License.
  */
 
-import {useAsgardeo} from '#imports';
 import {type Component, type VNode, Fragment, defineComponent, h} from 'vue';
+import {useAsgardeo} from '#imports';
 
 /**
  * Nuxt-specific User control component.

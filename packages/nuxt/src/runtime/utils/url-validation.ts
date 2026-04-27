@@ -43,14 +43,10 @@ import {ErrorCode} from '../errors/error-codes';
  */
 export function validateReturnUrl(url: unknown): string {
   if (typeof url !== 'string' || url.trim() === '') {
-    throw new AsgardeoError(
-      'returnTo must be a non-empty string.',
-      ErrorCode.OpenRedirectBlocked,
-      {statusCode: 400},
-    );
+    throw new AsgardeoError('returnTo must be a non-empty string.', ErrorCode.OpenRedirectBlocked, {statusCode: 400});
   }
 
-  const trimmed = url.trim();
+  const trimmed: string = url.trim();
 
   // Must start with exactly one slash
   if (!trimmed.startsWith('/') || trimmed.startsWith('//')) {
@@ -71,7 +67,7 @@ export function validateReturnUrl(url: unknown): string {
   }
 
   // Reject encoded protocol-relative or absolute indicators in the first segment
-  const decoded = decodeURIComponent(trimmed.slice(1, 5).toLowerCase());
+  const decoded: string = decodeURIComponent(trimmed.slice(1, 5).toLowerCase());
   if (decoded.startsWith('/') || decoded.startsWith('\\')) {
     throw new AsgardeoError(
       `Open redirect blocked: returnTo "${trimmed}" contains an encoded redirect sequence.`,
@@ -91,7 +87,7 @@ export function validateReturnUrl(url: unknown): string {
  * const url = safeReturnUrl(query.returnTo, '/dashboard');
  * ```
  */
-export function safeReturnUrl(url: unknown, fallback = '/'): string {
+export function safeReturnUrl(url: unknown, fallback: string = '/'): string {
   try {
     return validateReturnUrl(url);
   } catch {

@@ -18,25 +18,25 @@
 
 import {getRequestURL, type H3Event} from 'h3';
 import {defineNitroPlugin} from 'nitropack/runtime';
-import {useRuntimeConfig} from '#imports';
-import AsgardeoNuxtClient from '../AsgardeoNuxtClient';
-import {verifyAndRehydrateSession} from '../utils/serverSession';
 import type {AsgardeoAuthState, AsgardeoNuxtConfig, AsgardeoSSRData} from '../../types';
 import {createLogger} from '../../utils/log';
+import AsgardeoNuxtClient from '../AsgardeoNuxtClient';
+import {verifyAndRehydrateSession} from '../utils/serverSession';
+import {useRuntimeConfig} from '#imports';
 
 // Import augmentation so event.context.asgardeo is typed
 import '../../types/augments.d';
 
-const log = createLogger('asgardeo-ssr');
+const log: ReturnType<typeof createLogger> = createLogger('asgardeo-ssr');
 
-const CALLBACK_PATH = '/api/auth/callback';
+const CALLBACK_PATH: string = '/api/auth/callback';
 
 /**
  * Build the OAuth redirect_uri from the incoming request origin.
  * Honors X-Forwarded-* headers so it works correctly behind a reverse proxy.
  */
 function resolveCallbackUrl(event: H3Event): string {
-  const url = getRequestURL(event, {xForwardedHost: true, xForwardedProto: true});
+  const url: URL = getRequestURL(event, {xForwardedHost: true, xForwardedProto: true});
   return `${url.origin}${CALLBACK_PATH}`;
 }
 
@@ -61,19 +61,19 @@ function resolveCallbackUrl(event: H3Event): string {
  * call never crashes SSR — the client layer can recover via the existing
  * `/api/auth/*` routes.
  */
-export default defineNitroPlugin((nitro) => {
-  nitro.hooks.hook('request', async (event) => {
+export default defineNitroPlugin((nitro: {hooks: {hook: Function}}) => {
+  nitro.hooks.hook('request', async (event: H3Event) => {
     // ── 1. Initialise singleton (once per process) ─────────────────────────
-    const client = AsgardeoNuxtClient.getInstance();
+    const client: AsgardeoNuxtClient = AsgardeoNuxtClient.getInstance();
     if (!client.isInitialized) {
-      const config = useRuntimeConfig(event);
-      const publicConfig = config.public.asgardeo as (typeof config.public.asgardeo & AsgardeoNuxtConfig);
-      const privateConfig = config.asgardeo;
+      const config: ReturnType<typeof useRuntimeConfig> = useRuntimeConfig(event);
+      const publicConfig: AsgardeoNuxtConfig = config.public.asgardeo as AsgardeoNuxtConfig;
+      const privateConfig: typeof config.asgardeo = config.asgardeo;
 
       if (!publicConfig?.baseUrl || !publicConfig?.clientId) {
         log.error(
           'Missing required config: baseUrl and clientId. ' +
-          'Set NUXT_PUBLIC_ASGARDEO_BASE_URL and NUXT_PUBLIC_ASGARDEO_CLIENT_ID.',
+            'Set NUXT_PUBLIC_ASGARDEO_BASE_URL and NUXT_PUBLIC_ASGARDEO_CLIENT_ID.',
         );
         return;
       }
@@ -81,28 +81,28 @@ export default defineNitroPlugin((nitro) => {
       // Enforce session secret strictness at server runtime (not at build time).
       // In production the cookie must be signed with a real secret; in dev we
       // allow a warning + fallback so local development is frictionless.
-      const sessionSecret = process.env['ASGARDEO_SESSION_SECRET'] || privateConfig?.sessionSecret;
+      const sessionSecret: string | undefined = process.env['ASGARDEO_SESSION_SECRET'] || privateConfig?.sessionSecret;
       if (!sessionSecret) {
         if (process.env['NODE_ENV'] === 'production') {
           log.error(
             'ASGARDEO_SESSION_SECRET is required in production. Set it to a secure ' +
-            'random string of at least 32 characters. Refusing to initialize Asgardeo client.',
+              'random string of at least 32 characters. Refusing to initialize Asgardeo client.',
           );
           return;
         }
         log.warn(
           'ASGARDEO_SESSION_SECRET is not set. Using an insecure default for development only. ' +
-          'Set ASGARDEO_SESSION_SECRET before deploying.',
+            'Set ASGARDEO_SESSION_SECRET before deploying.',
         );
       }
 
       try {
         await client.initialize({
+          afterSignInUrl: resolveCallbackUrl(event),
+          afterSignOutUrl: publicConfig.afterSignOutUrl || '/',
           baseUrl: publicConfig.baseUrl,
           clientId: publicConfig.clientId,
           clientSecret: privateConfig?.clientSecret || undefined,
-          afterSignInUrl: resolveCallbackUrl(event),
-          afterSignOutUrl: publicConfig.afterSignOutUrl || '/',
           scopes: publicConfig.scopes || ['openid', 'profile'],
         });
       } catch (err) {
@@ -112,20 +112,24 @@ export default defineNitroPlugin((nitro) => {
     }
 
     // Skip SSR data resolution for API routes and Nuxt internals.
-    const url = event.path || '';
+    const url: string = event.path || '';
     if (url.startsWith('/api/') || url.startsWith('/_nuxt/') || url.startsWith('/__nuxt_')) {
       return;
     }
 
     // ── 2. Verify session cookie + rehydrate legacy store ─────────────────
-    const config = useRuntimeConfig(event);
-    const publicConfig = config.public.asgardeo as (typeof config.public.asgardeo & AsgardeoNuxtConfig);
-    const prefs = publicConfig?.preferences;
-    const sessionSecret = process.env['ASGARDEO_SESSION_SECRET'] || config.asgardeo?.sessionSecret;
+    const config: ReturnType<typeof useRuntimeConfig> = useRuntimeConfig(event);
+    const publicConfig: AsgardeoNuxtConfig = config.public.asgardeo as AsgardeoNuxtConfig;
+    const prefs: AsgardeoNuxtConfig['preferences'] | undefined = publicConfig?.preferences;
+    const sessionSecret: string | undefined = process.env['ASGARDEO_SESSION_SECRET'] || config.asgardeo?.sessionSecret;
 
-    const session = await verifyAndRehydrateSession(event, sessionSecret);
+    const session: Awaited<ReturnType<typeof verifyAndRehydrateSession>> = await verifyAndRehydrateSession(
+      event,
+      sessionSecret,
+    );
     if (!session) {
-      event.context.asgardeo = {session: null, isSignedIn: false};
+      const eventContext: H3Event['context'] = event.context;
+      eventContext.asgardeo = {isSignedIn: false, session: null};
       return;
     }
 
@@ -139,7 +143,9 @@ export default defineNitroPlugin((nitro) => {
         resolvedBaseUrl = `${baseUrl}/o`;
       } else {
         // Fall back to inspecting the ID token's `user_org` claim
-        const idToken = await client.getDecodedIdToken(session.sessionId);
+        const idToken: Awaited<ReturnType<AsgardeoNuxtClient['getDecodedIdToken']>> = await client.getDecodedIdToken(
+          session.sessionId,
+        );
         if (idToken?.['user_org']) {
           resolvedBaseUrl = `${baseUrl}/o`;
         }
@@ -149,33 +155,25 @@ export default defineNitroPlugin((nitro) => {
     }
 
     // ── 4. Parallel SSR data fetches (gated by preferences) ───────────────
-    const shouldFetchProfile = prefs?.user?.fetchUserProfile !== false;
-    const shouldFetchOrgs = prefs?.user?.fetchOrganizations !== false;
-    const shouldFetchBranding = prefs?.theme?.inheritFromBranding !== false;
+    const shouldFetchProfile: boolean = prefs?.user?.fetchUserProfile !== false;
+    const shouldFetchOrgs: boolean = prefs?.user?.fetchOrganizations !== false;
+    const shouldFetchBranding: boolean = prefs?.theme?.inheritFromBranding !== false;
 
     const [userResult, userProfileResult, orgsResult, currentOrgResult, brandingResult] = await Promise.allSettled([
       // Always fetch the basic user object (needed for AsgardeoAuthState.user)
       client.getUser(session.sessionId),
 
       // SCIM2 user profile (flattened + schemas)
-      shouldFetchProfile
-        ? client.getUserProfile(session.sessionId)
-        : Promise.resolve(null),
+      shouldFetchProfile ? client.getUserProfile(session.sessionId) : Promise.resolve(null),
 
       // User's organisations
-      shouldFetchOrgs
-        ? client.getMyOrganizations(session.sessionId)
-        : Promise.resolve([] as any[]),
+      shouldFetchOrgs ? client.getMyOrganizations(session.sessionId) : Promise.resolve([] as any[]),
 
       // Current organisation (derived from the ID token)
-      shouldFetchOrgs
-        ? client.getCurrentOrganization(session.sessionId)
-        : Promise.resolve(null),
+      shouldFetchOrgs ? client.getCurrentOrganization(session.sessionId) : Promise.resolve(null),
 
       // Branding preference (does not require a session)
-      shouldFetchBranding
-        ? client.getBrandingPreference({baseUrl: resolvedBaseUrl})
-        : Promise.resolve(null),
+      shouldFetchBranding ? client.getBrandingPreference({baseUrl: resolvedBaseUrl}) : Promise.resolve(null),
     ]);
 
     if (userResult.status === 'rejected') {
@@ -196,25 +194,26 @@ export default defineNitroPlugin((nitro) => {
 
     // ── 5. Write to event context ──────────────────────────────────────────
     const ssrData: AsgardeoSSRData = {
+      brandingPreference: brandingResult.status === 'fulfilled' ? brandingResult.value : null,
+      currentOrganization: currentOrgResult.status === 'fulfilled' ? currentOrgResult.value : null,
       isSignedIn: true,
-      session,
+      myOrganizations: orgsResult.status === 'fulfilled' && Array.isArray(orgsResult.value) ? orgsResult.value : [],
       resolvedBaseUrl,
+      session,
       user: userResult.status === 'fulfilled' ? userResult.value : null,
       userProfile: userProfileResult.status === 'fulfilled' ? userProfileResult.value : null,
-      myOrganizations: orgsResult.status === 'fulfilled' && Array.isArray(orgsResult.value) ? orgsResult.value : [],
-      currentOrganization: currentOrgResult.status === 'fulfilled' ? currentOrgResult.value : null,
-      brandingPreference: brandingResult.status === 'fulfilled' ? brandingResult.value : null,
     };
 
-    event.context.asgardeo = {session, isSignedIn: true, ssr: ssrData};
+    const eventContext: H3Event['context'] = event.context;
+    eventContext.asgardeo = {isSignedIn: true, session, ssr: ssrData};
 
     // Keep legacy __asgardeoAuth in place so the existing Nuxt plugin
     // (Step 3) can be updated independently without a runtime gap.
     const authState: AsgardeoAuthState = {
+      isLoading: false,
       isSignedIn: true,
       user: ssrData.user,
-      isLoading: false,
     };
-    event.context['__asgardeoAuth'] = authState;
+    eventContext['__asgardeoAuth'] = authState;
   });
 });

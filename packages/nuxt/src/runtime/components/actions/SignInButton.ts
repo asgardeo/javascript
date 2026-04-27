@@ -16,11 +16,11 @@
  * under the License.
  */
 
-import {navigateTo} from '#app';
-import {useAsgardeo} from '#imports';
 import {AsgardeoRuntimeError} from '@asgardeo/browser';
 import {BaseSignInButton} from '@asgardeo/vue';
-import {type Component, type PropType, type SetupContext, type VNode, defineComponent, h, ref} from 'vue';
+import {type Component, type PropType, type Ref, type SetupContext, type VNode, defineComponent, h, ref} from 'vue';
+import {navigateTo} from '#app';
+import {useAsgardeo} from '#imports';
 
 /**
  * Nuxt-specific SignInButton container.
@@ -47,7 +47,7 @@ const SignInButton: Component = defineComponent({
   },
   setup(props: {signInOptions?: Record<string, any>}, {slots, emit, attrs}: SetupContext): () => VNode {
     const {signIn, signInUrl, signInOptions: contextSignInOptions} = useAsgardeo();
-    const isLoading = ref(false);
+    const isLoading: Ref<boolean> = ref(false);
 
     const handleSignIn = async (e?: MouseEvent): Promise<void> => {
       try {

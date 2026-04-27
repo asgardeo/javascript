@@ -16,10 +16,10 @@
  * under the License.
  */
 
-import {useUser} from '#imports';
 import {withVendorCSSClassPrefix} from '@asgardeo/browser';
 import {BaseUserProfile} from '@asgardeo/vue';
 import {type Component, type PropType, type SetupContext, type VNode, defineComponent, h} from 'vue';
+import {useUser} from '#imports';
 
 /**
  * Nuxt-specific UserProfile container.

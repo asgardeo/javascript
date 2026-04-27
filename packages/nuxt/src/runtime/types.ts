@@ -16,23 +16,13 @@
  * under the License.
  */
 
-import type {JWTPayload} from 'jose';
 import type {BrandingPreference, I18nPreferences, Organization, User, UserProfile} from '@asgardeo/node';
+import type {JWTPayload} from 'jose';
 
 /**
  * Configuration for the Asgardeo Nuxt module.
  */
 export interface AsgardeoNuxtConfig {
-  /** Base URL of the Asgardeo org tenant (e.g. https://api.asgardeo.io/t/your_org) */
-  baseUrl?: string;
-  /** OAuth2 Client ID */
-  clientId?: string;
-  /** OAuth2 Client Secret (server-only, use ASGARDEO_CLIENT_SECRET env var) */
-  clientSecret?: string;
-  /** Secret for signing session JWTs (use ASGARDEO_SESSION_SECRET env var) */
-  sessionSecret?: string;
-  /** OAuth2 scopes to request */
-  scopes?: string[];
   /** URL to redirect to after sign-in (default: '/') */
   afterSignInUrl?: string;
   /** URL to redirect to after sign-out (default: '/') */
@@ -42,29 +32,19 @@ export interface AsgardeoNuxtConfig {
    * URL when present. Mirrors `applicationId` in the React/Next.js SDKs.
    */
   applicationId?: string;
-  /**
-   * Optional override for the redirect-based sign-up URL. When set,
-   * `<AsgardeoSignUpButton>` and `useAsgardeo().signUp()` (no-arg) navigate
-   * here instead of deriving the URL from `baseUrl`/`clientId`.
-   */
-  signUpUrl?: string;
-  /**
-   * Optional override for the redirect-based sign-in URL. Reserved for
-   * parity with the React/Next.js SDKs; not currently used by the redirect
-   * flow (which goes through `/api/auth/signin`).
-   */
-  signInUrl?: string;
+  /** Base URL of the Asgardeo org tenant (e.g. https://api.asgardeo.io/t/your_org) */
+  baseUrl?: string;
+  /** OAuth2 Client ID */
+  clientId?: string;
+  /** OAuth2 Client Secret (server-only, use ASGARDEO_CLIENT_SECRET env var) */
+  clientSecret?: string;
   /**
    * Feature-gating preferences that control which server-side data fetches
    * the Nitro plugin performs on every SSR request.
    */
   preferences?: {
-    user?: {
-      /** Whether to fetch the SCIM2 user profile during SSR (default: true). */
-      fetchUserProfile?: boolean;
-      /** Whether to fetch the user's organisations during SSR (default: true). */
-      fetchOrganizations?: boolean;
-    };
+    /** i18n configuration forwarded to `I18nProvider`. */
+    i18n?: I18nPreferences;
     theme?: {
       /**
        * When true (default), the Nitro plugin fetches the branding preference
@@ -80,38 +60,58 @@ export interface AsgardeoNuxtConfig {
        */
       mode?: 'light' | 'dark' | 'system' | 'class' | 'branding';
     };
-    /** i18n configuration forwarded to `I18nProvider`. */
-    i18n?: I18nPreferences;
+    user?: {
+      /** Whether to fetch the user's organisations during SSR (default: true). */
+      fetchOrganizations?: boolean;
+      /** Whether to fetch the SCIM2 user profile during SSR (default: true). */
+      fetchUserProfile?: boolean;
+    };
   };
+  /** OAuth2 scopes to request */
+  scopes?: string[];
+  /** Secret for signing session JWTs (use ASGARDEO_SESSION_SECRET env var) */
+  sessionSecret?: string;
+  /**
+   * Optional override for the redirect-based sign-in URL. Reserved for
+   * parity with the React/Next.js SDKs; not currently used by the redirect
+   * flow (which goes through `/api/auth/signin`).
+   */
+  signInUrl?: string;
+  /**
+   * Optional override for the redirect-based sign-up URL. When set,
+   * `<AsgardeoSignUpButton>` and `useAsgardeo().signUp()` (no-arg) navigate
+   * here instead of deriving the URL from `baseUrl`/`clientId`.
+   */
+  signUpUrl?: string;
 }
 
 /**
  * Payload stored in the session JWT cookie.
  */
 export interface AsgardeoSessionPayload extends JWTPayload {
-  sessionId: string;
-  sub: string;
   accessToken: string;
-  scopes: string;
-  organizationId?: string;
   /** Unix timestamp (seconds) when the access token expires. Used for proactive refresh. */
   accessTokenExpiresAt?: number;
-  /** Refresh token for obtaining new access tokens without re-authentication. */
-  refreshToken?: string;
+  exp: number;
+  iat: number;
   /** Raw ID token string (for userinfo derivation without in-memory store). */
   idToken?: string;
-  iat: number;
-  exp: number;
+  organizationId?: string;
+  /** Refresh token for obtaining new access tokens without re-authentication. */
+  refreshToken?: string;
+  scopes: string;
+  sessionId: string;
+  sub: string;
 }
 
 /**
  * Payload stored in the temporary session JWT cookie (during OAuth flow).
  */
 export interface AsgardeoTempSessionPayload extends JWTPayload {
-  sessionId: string;
-  type: 'temp';
   /** URL to redirect to after successful sign-in */
   returnTo?: string;
+  sessionId: string;
+  type: 'temp';
 }
 
 /**
@@ -120,17 +120,13 @@ export interface AsgardeoTempSessionPayload extends JWTPayload {
  * hydrated `useState` keys so the client never re-fetches on first render.
  */
 export interface AsgardeoSSRData {
-  isSignedIn: boolean;
-  session: AsgardeoSessionPayload | null;
-  user: User | null;
-  /** Flattened SCIM2 profile + raw profile + schemas (null when `preferences.user.fetchUserProfile` is false). */
-  userProfile: UserProfile | null;
-  /** The organisation the user is currently acting within (null when not in an org). */
-  currentOrganization: Organization | null;
-  /** All organisations the user is a member of (empty array when `preferences.user.fetchOrganizations` is false). */
-  myOrganizations: Organization[];
   /** Branding preference fetched from Asgardeo (null when `preferences.theme.inheritFromBranding` is false). */
   brandingPreference: BrandingPreference | null;
+  /** The organisation the user is currently acting within (null when not in an org). */
+  currentOrganization: Organization | null;
+  isSignedIn: boolean;
+  /** All organisations the user is a member of (empty array when `preferences.user.fetchOrganizations` is false). */
+  myOrganizations: Organization[];
   /**
    * The base URL actually used for this request.
    * Equals `${baseUrl}/o` when the user is acting within an organisation
@@ -138,13 +134,17 @@ export interface AsgardeoSSRData {
    * the configured `baseUrl`.
    */
   resolvedBaseUrl: string | null;
+  session: AsgardeoSessionPayload | null;
+  user: User | null;
+  /** Flattened SCIM2 profile + raw profile + schemas (null when `preferences.user.fetchUserProfile` is false). */
+  userProfile: UserProfile | null;
 }
 
 /**
  * Auth state hydrated from server to client via useState.
  */
 export interface AsgardeoAuthState {
+  isLoading: boolean;
   isSignedIn: boolean;
   user: User | null;
-  isLoading: boolean;
 }

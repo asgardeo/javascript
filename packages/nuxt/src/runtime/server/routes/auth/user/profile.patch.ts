@@ -18,6 +18,7 @@
 
 import type {UpdateMeProfileConfig, User} from '@asgardeo/node';
 import {defineEventHandler, readBody, createError} from 'h3';
+import type {H3Event} from 'h3';
 import AsgardeoNuxtClient from '../../../AsgardeoNuxtClient';
 import {verifyAndRehydrateSession} from '../../../utils/serverSession';
 import {useRuntimeConfig} from '#imports';
@@ -31,30 +32,35 @@ import {useRuntimeConfig} from '#imports';
  * Request body: {@link UpdateMeProfileConfig} (the SCIM patch payload).
  * Response: `{ data: { user: User }; success: boolean; error: string }`
  */
-export default defineEventHandler(async (event): Promise<{data: {user: User}; success: boolean; error: string}> => {
-  const config = useRuntimeConfig();
-  const sessionSecret = config.asgardeo?.sessionSecret;
+export default defineEventHandler(
+  async (event: H3Event): Promise<{data: {user: User}; error: string; success: boolean}> => {
+    const config: ReturnType<typeof useRuntimeConfig> = useRuntimeConfig();
+    const sessionSecret: string | undefined = config.asgardeo?.sessionSecret;
 
-  const session = await verifyAndRehydrateSession(event, sessionSecret);
-  if (!session) {
-    throw createError({statusCode: 401, statusMessage: 'Unauthorized: Invalid or expired session.'});
-  }
+    const session: Awaited<ReturnType<typeof verifyAndRehydrateSession>> = await verifyAndRehydrateSession(
+      event,
+      sessionSecret,
+    );
+    if (!session) {
+      throw createError({statusCode: 401, statusMessage: 'Unauthorized: Invalid or expired session.'});
+    }
 
-  let payload: UpdateMeProfileConfig;
-  try {
-    payload = await readBody<UpdateMeProfileConfig>(event);
-  } catch {
-    throw createError({statusCode: 400, statusMessage: 'Invalid request body.'});
-  }
+    let payload: UpdateMeProfileConfig;
+    try {
+      payload = await readBody<UpdateMeProfileConfig>(event);
+    } catch {
+      throw createError({statusCode: 400, statusMessage: 'Invalid request body.'});
+    }
 
-  try {
-    const client = AsgardeoNuxtClient.getInstance();
-    const user: User = await client.updateUserProfile(payload, session.sessionId);
-    return {data: {user}, success: true, error: ''};
-  } catch (err) {
-    throw createError({
-      statusCode: 500,
-      statusMessage: `Failed to update user profile: ${err instanceof Error ? err.message : String(err)}`,
-    });
-  }
-});
+    try {
+      const client: AsgardeoNuxtClient = AsgardeoNuxtClient.getInstance();
+      const user: User = await client.updateUserProfile(payload, session.sessionId);
+      return {data: {user}, error: '', success: true};
+    } catch (err) {
+      throw createError({
+        statusCode: 500,
+        statusMessage: `Failed to update user profile: ${err instanceof Error ? err.message : String(err)}`,
+      });
+    }
+  },
+);

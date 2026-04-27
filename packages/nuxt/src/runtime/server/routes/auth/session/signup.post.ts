@@ -18,8 +18,13 @@
 
 import {EmbeddedFlowStatus} from '@asgardeo/node';
 import {defineEventHandler, readBody, createError} from 'h3';
+import type {H3Event} from 'h3';
 import AsgardeoNuxtClient from '../../../AsgardeoNuxtClient';
 import {useRuntimeConfig} from '#imports';
+
+function hasFlowStatus(value: unknown): value is {flowStatus?: EmbeddedFlowStatus} {
+  return typeof value === 'object' && value !== null && 'flowStatus' in value;
+}
 
 /**
  * POST /api/auth/signup
@@ -35,15 +40,15 @@ import {useRuntimeConfig} from '#imports';
  * { "data": { ... }, "success": true }
  * ```
  */
-export default defineEventHandler(async event => {
-  const config = useRuntimeConfig();
+export default defineEventHandler(async (event: H3Event) => {
+  const config: ReturnType<typeof useRuntimeConfig> = useRuntimeConfig();
   // Mirror Next.js: after-sign-up redirect reuses the configured `afterSignInUrl`
   // (the user typically signs in immediately after registering).
   const afterSignUpUrl: string = ((config.public.asgardeo as any)?.afterSignInUrl as string | undefined) || '/';
 
   // ── Parse request body ────────────────────────────────────────────────────
   const body: {payload?: Record<string, unknown>} = await readBody(event);
-  const payload = body?.payload;
+  const payload: Record<string, unknown> | undefined = body?.payload;
 
   // No payload — return an empty signUpUrl so the client can redirect.
   if (!payload) {
@@ -51,9 +56,9 @@ export default defineEventHandler(async event => {
   }
 
   // ── Execute embedded sign-up flow step ────────────────────────────────────
-  const client = AsgardeoNuxtClient.getInstance();
+  const client: AsgardeoNuxtClient = AsgardeoNuxtClient.getInstance();
 
-  let response: any;
+  let response: unknown;
   try {
     response = await client.signUp(payload as any);
   } catch (err: any) {
@@ -64,7 +69,7 @@ export default defineEventHandler(async event => {
   }
 
   // ── Flow complete ─────────────────────────────────────────────────────────
-  if (response?.flowStatus === EmbeddedFlowStatus.Complete) {
+  if (hasFlowStatus(response) && response.flowStatus === EmbeddedFlowStatus.Complete) {
     return {data: {afterSignUpUrl}, success: true};
   }
 

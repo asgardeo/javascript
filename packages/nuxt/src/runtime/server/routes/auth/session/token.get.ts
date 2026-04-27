@@ -17,6 +17,7 @@
  */
 
 import {defineEventHandler} from 'h3';
+import type {H3Event} from 'h3';
 import {getValidAccessToken} from '../../../utils/token-refresh';
 
 /**
@@ -27,7 +28,7 @@ import {getValidAccessToken} from '../../../utils/token-refresh';
  * (requires a refresh token stored in the session JWT).
  * Returns 401 if there is no active session or the token cannot be refreshed.
  */
-export default defineEventHandler(async (event) => {
-  const accessToken = await getValidAccessToken(event);
+export default defineEventHandler(async (event: H3Event): Promise<{accessToken: string}> => {
+  const accessToken: string = await getValidAccessToken(event);
   return {accessToken};
 });

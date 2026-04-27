@@ -19,8 +19,8 @@
 import type {H3Event} from 'h3';
 import {getCookie, createError} from 'h3';
 import {verifySessionToken, getSessionCookieName} from './session';
-import AsgardeoNuxtClient from '../AsgardeoNuxtClient';
 import type {AsgardeoSessionPayload} from '../../types';
+import AsgardeoNuxtClient from '../AsgardeoNuxtClient';
 import {useRuntimeConfig} from '#imports';
 
 /**
@@ -42,10 +42,10 @@ import {useRuntimeConfig} from '#imports';
  * ```
  */
 export async function useServerSession(event: H3Event): Promise<AsgardeoSessionPayload | null> {
-  const config = useRuntimeConfig();
-  const sessionSecret = config.asgardeo?.sessionSecret;
+  const config: ReturnType<typeof useRuntimeConfig> = useRuntimeConfig();
+  const sessionSecret: string | undefined = config.asgardeo?.sessionSecret;
 
-  const sessionCookie = getCookie(event, getSessionCookieName());
+  const sessionCookie: string | undefined = getCookie(event, getSessionCookieName());
   if (!sessionCookie) {
     return null;
   }
@@ -72,7 +72,7 @@ export async function useServerSession(event: H3Event): Promise<AsgardeoSessionP
  * ```
  */
 export async function requireServerSession(event: H3Event): Promise<AsgardeoSessionPayload> {
-  const session = await useServerSession(event);
+  const session: AsgardeoSessionPayload | null = await useServerSession(event);
   if (!session) {
     throw createError({
       statusCode: 401,
@@ -97,7 +97,7 @@ export async function verifyAndRehydrateSession(
   event: H3Event,
   sessionSecret?: string,
 ): Promise<AsgardeoSessionPayload | null> {
-  const sessionCookie = getCookie(event, getSessionCookieName());
+  const sessionCookie: string | undefined = getCookie(event, getSessionCookieName());
   if (!sessionCookie) {
     return null;
   }

@@ -16,10 +16,10 @@
  * under the License.
  */
 
-import {useOrganization} from '#imports';
 import {withVendorCSSClassPrefix} from '@asgardeo/browser';
 import {BaseOrganizationProfile} from '@asgardeo/vue';
 import {type Component, type PropType, type VNode, defineComponent, h} from 'vue';
+import {useOrganization} from '#imports';
 
 /**
  * Nuxt-specific OrganizationProfile container.

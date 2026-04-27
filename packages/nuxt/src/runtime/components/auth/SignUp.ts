@@ -16,8 +16,6 @@
  * under the License.
  */
 
-import {navigateTo} from '#app';
-import {useAsgardeo} from '#imports';
 import {
   type EmbeddedFlowExecuteRequestPayload,
   type EmbeddedFlowExecuteResponse,
@@ -27,6 +25,8 @@ import {
 import {BaseSignUp} from '@asgardeo/vue';
 import type {BaseSignUpRenderProps} from '@asgardeo/vue';
 import {type Component, type PropType, type SetupContext, type VNode, defineComponent, h} from 'vue';
+import {navigateTo} from '#app';
+import {useAsgardeo} from '#imports';
 
 export type SignUpRenderProps = BaseSignUpRenderProps;
 

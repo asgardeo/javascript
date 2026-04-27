@@ -16,6 +16,8 @@
  * under the License.
  */
 
+/* eslint-disable @typescript-eslint/typedef, sort-keys, no-restricted-syntax */
+
 import {describe, it, expect} from 'vitest';
 import {AsgardeoError, ErrorCode} from '../../src/runtime/errors';
 

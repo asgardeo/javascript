@@ -24,10 +24,10 @@ import type {AsgardeoSessionPayload, AsgardeoSSRData} from '../../types';
  * on every SSR request.
  */
 export interface AsgardeoEventContext {
-  /** The decoded session payload, or null when the user is not signed in. */
-  session: AsgardeoSessionPayload | null;
   /** Convenience boolean derived from the session presence. */
   isSignedIn: boolean;
+  /** The decoded session payload, or null when the user is not signed in. */
+  session: AsgardeoSessionPayload | null;
   /** SSR-prefetched data (user profile, orgs, branding). Present only after the SSR plugin runs. */
   ssr?: AsgardeoSSRData;
 }

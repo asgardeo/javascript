@@ -16,10 +16,10 @@
  * under the License.
  */
 
-import {useAsgardeo, useUser} from '#imports';
 import {withVendorCSSClassPrefix} from '@asgardeo/browser';
 import {BaseUserDropdown, UserProfile as UserProfileComponent} from '@asgardeo/vue';
 import {type Component, type Ref, type VNode, defineComponent, h, ref} from 'vue';
+import {useAsgardeo, useUser} from '#imports';
 
 /**
  * Nuxt-specific UserDropdown container.
@@ -47,7 +47,7 @@ const UserDropdown: Component = defineComponent({
   },
   setup(props: {className: string}, {slots, emit}: {emit: any; slots: any}): () => VNode | VNode[] | null {
     const {user, signOut} = useAsgardeo();
-    const {flattenedProfile, schemas, updateProfile} = useUser();
+    useUser();
     const isProfileModalOpen: Ref<boolean> = ref(false);
 
     return (): VNode | VNode[] | null =>

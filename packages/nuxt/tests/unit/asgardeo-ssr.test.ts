@@ -16,7 +16,17 @@
  * under the License.
  */
 
+/* eslint-disable @typescript-eslint/typedef, sort-keys, @typescript-eslint/explicit-function-return-type */
+
+import {getCookie, getRequestURL} from 'h3';
 import {describe, it, expect, vi, beforeAll, beforeEach} from 'vitest';
+
+// ── Imports (must come after vi.mock declarations) ───────────────────────────
+
+import {verifySessionToken} from '../../src/runtime/server/utils/session';
+import {useRuntimeConfig} from '#imports';
+// Side-effect import triggers defineNitroPlugin, capturing the factory
+import '../../src/runtime/server/plugins/asgardeo-ssr';
 
 // ── vi.hoisted — objects that need to be accessible inside vi.mock factories ──
 // (vi.hoisted runs before any mock factory or import, avoiding TDZ issues)
@@ -34,9 +44,9 @@ const mockClient = vi.hoisted(() => ({
     flattenedProfile: {email: 'test@example.com'},
     schemas: [],
   }),
-  getMyOrganizations: vi.fn<(sessionId: string) => Promise<any>>().mockResolvedValue([
-    {id: 'org-1', name: 'Test Org', orgHandle: 'test-org'},
-  ]),
+  getMyOrganizations: vi
+    .fn<(sessionId: string) => Promise<any>>()
+    .mockResolvedValue([{id: 'org-1', name: 'Test Org', orgHandle: 'test-org'}]),
   getCurrentOrganization: vi.fn<(sessionId: string) => Promise<any>>().mockResolvedValue({
     id: 'org-1',
     name: 'Test Org',
@@ -89,14 +99,6 @@ vi.mock('../../src/runtime/utils/log', () => ({
 // augments.d.ts is a pure declaration file — no runtime exports needed
 vi.mock('../../src/runtime/types/augments.d', () => ({}));
 
-// ── Imports (must come after vi.mock declarations) ───────────────────────────
-
-import {getCookie, getRequestURL} from 'h3';
-import {useRuntimeConfig} from '#imports';
-import {verifySessionToken} from '../../src/runtime/server/utils/session';
-// Side-effect import triggers defineNitroPlugin, capturing the factory
-import '../../src/runtime/server/plugins/asgardeo-ssr';
-
 // ── Constants ─────────────────────────────────────────────────────────────────
 
 const MOCK_SESSION = {
@@ -141,9 +143,7 @@ describe('asgardeo-ssr Nitro plugin', () => {
       flattenedProfile: {email: 'test@example.com'},
       schemas: [],
     });
-    mockClient.getMyOrganizations.mockResolvedValue([
-      {id: 'org-1', name: 'Test Org', orgHandle: 'test-org'},
-    ]);
+    mockClient.getMyOrganizations.mockResolvedValue([{id: 'org-1', name: 'Test Org', orgHandle: 'test-org'}]);
     mockClient.getCurrentOrganization.mockResolvedValue({
       id: 'org-1',
       name: 'Test Org',
@@ -158,7 +158,9 @@ describe('asgardeo-ssr Nitro plugin', () => {
 
     // Default runtime config — all preferences enabled (undefined = default true).
     vi.mocked(useRuntimeConfig).mockReturnValue({
-      public: {asgardeo: {baseUrl: 'https://api.asgardeo.io/t/testorg', clientId: 'test-client-id', preferences: undefined}},
+      public: {
+        asgardeo: {baseUrl: 'https://api.asgardeo.io/t/testorg', clientId: 'test-client-id', preferences: undefined},
+      },
     } as any);
 
     // Default session verification — returns the mock session
@@ -211,7 +213,7 @@ describe('asgardeo-ssr Nitro plugin', () => {
     const event = await callHandler('/', 'valid-cookie');
 
     expect(event.context.asgardeo.isSignedIn).toBe(true);
-    const ssr = event.context.asgardeo.ssr;
+    const {ssr} = event.context.asgardeo;
     expect(ssr).toBeDefined();
     expect(ssr.isSignedIn).toBe(true);
     expect(ssr.session).toEqual(MOCK_SESSION);
@@ -345,9 +347,7 @@ describe('asgardeo-ssr Nitro plugin', () => {
 
     const event = await callHandler('/', 'valid-cookie');
 
-    expect(event.context.asgardeo.ssr.resolvedBaseUrl).toBe(
-      'https://api.asgardeo.io/t/testorg/o',
-    );
+    expect(event.context.asgardeo.ssr.resolvedBaseUrl).toBe('https://api.asgardeo.io/t/testorg/o');
   });
 
   it('uses plain baseUrl when session has no organizationId and ID token has no user_org', async () => {
@@ -356,9 +356,7 @@ describe('asgardeo-ssr Nitro plugin', () => {
 
     const event = await callHandler('/', 'valid-cookie');
 
-    expect(event.context.asgardeo.ssr.resolvedBaseUrl).toBe(
-      'https://api.asgardeo.io/t/testorg',
-    );
+    expect(event.context.asgardeo.ssr.resolvedBaseUrl).toBe('https://api.asgardeo.io/t/testorg');
   });
 
   it('sets resolvedBaseUrl to baseUrl/o when ID token contains user_org claim', async () => {
@@ -366,8 +364,6 @@ describe('asgardeo-ssr Nitro plugin', () => {
 
     const event = await callHandler('/', 'valid-cookie');
 
-    expect(event.context.asgardeo.ssr.resolvedBaseUrl).toBe(
-      'https://api.asgardeo.io/t/testorg/o',
-    );
+    expect(event.context.asgardeo.ssr.resolvedBaseUrl).toBe('https://api.asgardeo.io/t/testorg/o');
   });
 });

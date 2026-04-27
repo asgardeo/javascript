@@ -18,11 +18,10 @@
 
 import type {Organization, TokenResponse} from '@asgardeo/node';
 import {defineEventHandler, readBody, createError} from 'h3';
+import type {H3Event} from 'h3';
 import AsgardeoNuxtClient from '../../../AsgardeoNuxtClient';
-import {
-  issueSessionCookie,
-} from '../../../utils/session';
 import {verifyAndRehydrateSession} from '../../../utils/serverSession';
+import {issueSessionCookie} from '../../../utils/session';
 import {useRuntimeConfig} from '#imports';
 
 /**
@@ -36,19 +35,22 @@ import {useRuntimeConfig} from '#imports';
  *
  * Mirrors `switchOrganization` server action in the Next.js SDK.
  */
-export default defineEventHandler(async (event) => {
-  const config = useRuntimeConfig();
-  const sessionSecret = config.asgardeo?.sessionSecret;
+export default defineEventHandler(async (event: H3Event): Promise<{success: boolean}> => {
+  const config: ReturnType<typeof useRuntimeConfig> = useRuntimeConfig();
+  const sessionSecret: string | undefined = config.asgardeo?.sessionSecret;
 
-  const session = await verifyAndRehydrateSession(event, sessionSecret);
+  const session: Awaited<ReturnType<typeof verifyAndRehydrateSession>> = await verifyAndRehydrateSession(
+    event,
+    sessionSecret,
+  );
   if (!session) {
     throw createError({statusCode: 401, statusMessage: 'Unauthorized: Invalid or expired session.'});
   }
-  const sessionId = session.sessionId;
+  const {sessionId} = session;
 
   let organization: Organization;
   try {
-    const body = await readBody<{organization: Organization}>(event);
+    const body: {organization: Organization} = await readBody<{organization: Organization}>(event);
     organization = body.organization;
   } catch {
     throw createError({statusCode: 400, statusMessage: 'Invalid request body.'});
@@ -60,8 +62,8 @@ export default defineEventHandler(async (event) => {
 
   let tokenResponse: TokenResponse;
   try {
-    const client = AsgardeoNuxtClient.getInstance();
-    const response = await client.switchOrganization(organization, sessionId);
+    const client: AsgardeoNuxtClient = AsgardeoNuxtClient.getInstance();
+    const response: TokenResponse | Response = await client.switchOrganization(organization, sessionId);
     tokenResponse = response as TokenResponse;
   } catch (err) {
     throw createError({
@@ -73,13 +75,15 @@ export default defineEventHandler(async (event) => {
   // Re-issue the session cookie with the new token so subsequent SSR requests
   // pick up the switched organisation context — mirrors callback.get.ts.
   try {
-    const config = useRuntimeConfig();
-    const sessionSecret = config.asgardeo?.sessionSecret;
-    await issueSessionCookie(event, sessionId, tokenResponse, sessionSecret);
+    const runtimeConfig: ReturnType<typeof useRuntimeConfig> = useRuntimeConfig();
+    const runtimeSessionSecret: string | undefined = runtimeConfig.asgardeo?.sessionSecret;
+    await issueSessionCookie(event, sessionId, tokenResponse, runtimeSessionSecret);
   } catch (err) {
     throw createError({
       statusCode: 500,
-      statusMessage: `Failed to establish new session after organisation switch: ${err instanceof Error ? err.message : String(err)}`,
+      statusMessage: `Failed to establish new session after organisation switch: ${
+        err instanceof Error ? err.message : String(err)
+      }`,
     });
   }
 

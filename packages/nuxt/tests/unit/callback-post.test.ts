@@ -16,7 +16,15 @@
  * under the License.
  */
 
+/* eslint-disable @typescript-eslint/typedef, sort-keys, @typescript-eslint/explicit-function-return-type */
+
+import {readBody, deleteCookie} from 'h3';
 import {describe, it, expect, vi, beforeEach} from 'vitest';
+
+// ── Imports (after mocks) ─────────────────────────────────────────────────────
+
+import callbackHandler from '../../src/runtime/server/routes/auth/session/callback.post';
+import {issueSessionCookie, verifyTempSessionToken} from '../../src/runtime/server/utils/session';
 
 // ── vi.hoisted ────────────────────────────────────────────────────────────────
 const state = vi.hoisted(() => ({
@@ -33,9 +41,7 @@ const mockClientInstance = vi.hoisted(() => ({
 vi.mock('h3', () => ({
   defineEventHandler: (fn: Function) => fn,
   readBody: vi.fn(),
-  getCookie: vi.fn((_event: any, name: string) =>
-    name.includes('temp') ? state.tempCookie : undefined,
-  ),
+  getCookie: vi.fn((_event: any, name: string) => (name.includes('temp') ? state.tempCookie : undefined)),
   deleteCookie: vi.fn((_event: any, name: string) => {
     delete state.cookieStore[name];
   }),
@@ -63,12 +69,6 @@ vi.mock('../../src/runtime/server/utils/session', () => ({
   getTempSessionCookieName: vi.fn().mockReturnValue('asgardeo-temp-session'),
   getTempSessionCookieOptions: vi.fn().mockReturnValue({httpOnly: true, path: '/'}),
 }));
-
-// ── Imports (after mocks) ─────────────────────────────────────────────────────
-
-import {readBody, deleteCookie} from 'h3';
-import {issueSessionCookie, verifyTempSessionToken} from '../../src/runtime/server/utils/session';
-import callbackHandler from '../../src/runtime/server/routes/auth/session/callback.post';
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 

@@ -16,7 +16,9 @@
  * under the License.
  */
 
-const PREFIX = '@asgardeo/nuxt';
+/* eslint-disable no-console */
+
+const PREFIX: string = '@asgardeo/nuxt';
 
 /**
  * Mask a token so it is safe to include in logs and error messages.
@@ -44,13 +46,21 @@ export function maskToken(token: string): string {
  * log.debug('Full payload', payload); // only logged when ASGARDEO_DEBUG=true
  * ```
  */
-export function createLogger(subsystem: string) {
-  const tag = `[${PREFIX}:${subsystem}]`;
+export function createLogger(subsystem: string): {
+  debug: (...args: unknown[]) => void;
+  error: (...args: unknown[]) => void;
+  info: (...args: unknown[]) => void;
+  warn: (...args: unknown[]) => void;
+} {
+  const tag: string = `[${PREFIX}:${subsystem}]`;
   return {
     debug: (...args: unknown[]): void => {
       if (process.env['ASGARDEO_DEBUG']) {
         console.log(tag, ...args);
       }
+    },
+    error: (...args: unknown[]): void => {
+      console.error(tag, ...args);
     },
     info: (...args: unknown[]): void => {
       console.log(tag, ...args);
@@ -58,8 +68,7 @@ export function createLogger(subsystem: string) {
     warn: (...args: unknown[]): void => {
       console.warn(tag, ...args);
     },
-    error: (...args: unknown[]): void => {
-      console.error(tag, ...args);
-    },
   };
 }
+
+/* eslint-enable no-console */

@@ -18,6 +18,7 @@
 
 import type {Organization} from '@asgardeo/node';
 import {defineEventHandler, createError} from 'h3';
+import type {H3Event} from 'h3';
 import AsgardeoNuxtClient from '../../../AsgardeoNuxtClient';
 import {verifyAndRehydrateSession} from '../../../utils/serverSession';
 import {useRuntimeConfig} from '#imports';
@@ -31,17 +32,20 @@ import {useRuntimeConfig} from '#imports';
  *
  * Used by `AsgardeoRoot.revalidateCurrentOrganization` callback.
  */
-export default defineEventHandler(async (event): Promise<Organization | null> => {
-  const config = useRuntimeConfig();
-  const sessionSecret = config.asgardeo?.sessionSecret;
+export default defineEventHandler(async (event: H3Event): Promise<Organization | null> => {
+  const config: ReturnType<typeof useRuntimeConfig> = useRuntimeConfig();
+  const sessionSecret: string | undefined = config.asgardeo?.sessionSecret;
 
-  const session = await verifyAndRehydrateSession(event, sessionSecret);
+  const session: Awaited<ReturnType<typeof verifyAndRehydrateSession>> = await verifyAndRehydrateSession(
+    event,
+    sessionSecret,
+  );
   if (!session) {
     throw createError({statusCode: 401, statusMessage: 'Unauthorized: Invalid or expired session.'});
   }
 
   try {
-    const client = AsgardeoNuxtClient.getInstance();
+    const client: AsgardeoNuxtClient = AsgardeoNuxtClient.getInstance();
     return await client.getCurrentOrganization(session.sessionId);
   } catch (err) {
     throw createError({

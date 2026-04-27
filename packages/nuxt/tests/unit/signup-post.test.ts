@@ -16,7 +16,14 @@
  * under the License.
  */
 
+/* eslint-disable @typescript-eslint/typedef, sort-keys, @typescript-eslint/explicit-function-return-type */
+
+import {readBody} from 'h3';
 import {describe, it, expect, vi, beforeEach} from 'vitest';
+
+// ── Imports (after mocks) ─────────────────────────────────────────────────────
+
+import signupHandler from '../../src/runtime/server/routes/auth/session/signup.post';
 
 // ── vi.hoisted ────────────────────────────────────────────────────────────────
 const mockClientInstance = vi.hoisted(() => ({
@@ -49,11 +56,6 @@ vi.mock('../../src/runtime/server/AsgardeoNuxtClient', () => ({
 vi.mock('@asgardeo/node', () => ({
   EmbeddedFlowStatus: {Complete: 'COMPLETE'},
 }));
-
-// ── Imports (after mocks) ─────────────────────────────────────────────────────
-
-import {readBody} from 'h3';
-import signupHandler from '../../src/runtime/server/routes/auth/session/signup.post';
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -111,7 +113,9 @@ describe('POST /api/auth/signup', () => {
   });
 
   it('throws 502 when signUp execution fails', async () => {
-    vi.mocked(readBody).mockResolvedValue({payload: {flowType: 'SIGNUP', flowId: 'f', selectedAuthenticator: {}, flowInputs: []}});
+    vi.mocked(readBody).mockResolvedValue({
+      payload: {flowType: 'SIGNUP', flowId: 'f', selectedAuthenticator: {}, flowInputs: []},
+    });
     mockClientInstance.signUp.mockRejectedValueOnce(new Error('upstream error'));
 
     await expect((signupHandler as any)(mockEvent)).rejects.toMatchObject({

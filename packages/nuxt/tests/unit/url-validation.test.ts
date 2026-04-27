@@ -17,9 +17,9 @@
  */
 
 import {describe, it, expect} from 'vitest';
-import {validateReturnUrl, safeReturnUrl} from '../../src/runtime/utils/url-validation';
 import {AsgardeoError} from '../../src/runtime/errors/asgardeo-error';
 import {ErrorCode} from '../../src/runtime/errors/error-codes';
+import {validateReturnUrl, safeReturnUrl} from '../../src/runtime/utils/url-validation';
 
 describe('validateReturnUrl', () => {
   describe('valid paths', () => {
@@ -47,27 +47,37 @@ describe('validateReturnUrl', () => {
   describe('open redirect attacks — absolute URLs', () => {
     it('rejects an https URL', () => {
       expect(() => validateReturnUrl('https://evil.com')).toThrow(AsgardeoError);
-      expect(() => validateReturnUrl('https://evil.com')).toThrow(expect.objectContaining({code: ErrorCode.OpenRedirectBlocked}));
+      expect(() => validateReturnUrl('https://evil.com')).toThrow(
+        expect.objectContaining({code: ErrorCode.OpenRedirectBlocked}),
+      );
     });
 
     it('rejects an http URL', () => {
-      expect(() => validateReturnUrl('http://evil.com/path')).toThrow(expect.objectContaining({code: ErrorCode.OpenRedirectBlocked}));
+      expect(() => validateReturnUrl('http://evil.com/path')).toThrow(
+        expect.objectContaining({code: ErrorCode.OpenRedirectBlocked}),
+      );
     });
   });
 
   describe('open redirect attacks — protocol-relative URLs', () => {
     it('rejects a double-slash URL', () => {
-      expect(() => validateReturnUrl('//evil.com')).toThrow(expect.objectContaining({code: ErrorCode.OpenRedirectBlocked}));
+      expect(() => validateReturnUrl('//evil.com')).toThrow(
+        expect.objectContaining({code: ErrorCode.OpenRedirectBlocked}),
+      );
     });
 
     it('rejects a double-slash URL with a path', () => {
-      expect(() => validateReturnUrl('//evil.com/steal?token=abc')).toThrow(expect.objectContaining({code: ErrorCode.OpenRedirectBlocked}));
+      expect(() => validateReturnUrl('//evil.com/steal?token=abc')).toThrow(
+        expect.objectContaining({code: ErrorCode.OpenRedirectBlocked}),
+      );
     });
   });
 
   describe('open redirect attacks — backslash tricks', () => {
     it('rejects a leading backslash after slash', () => {
-      expect(() => validateReturnUrl('/\\evil.com')).toThrow(expect.objectContaining({code: ErrorCode.OpenRedirectBlocked}));
+      expect(() => validateReturnUrl('/\\evil.com')).toThrow(
+        expect.objectContaining({code: ErrorCode.OpenRedirectBlocked}),
+      );
     });
   });
 
@@ -77,7 +87,9 @@ describe('validateReturnUrl', () => {
     });
 
     it('rejects undefined', () => {
-      expect(() => validateReturnUrl(undefined)).toThrow(expect.objectContaining({code: ErrorCode.OpenRedirectBlocked}));
+      expect(() => validateReturnUrl(undefined)).toThrow(
+        expect.objectContaining({code: ErrorCode.OpenRedirectBlocked}),
+      );
     });
 
     it('rejects an empty string', () => {

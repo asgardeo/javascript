@@ -16,6 +16,8 @@
  * under the License.
  */
 
+/* eslint-disable @typescript-eslint/typedef, sort-keys, @typescript-eslint/explicit-function-return-type */
+
 /**
  * Unit tests for getValidAccessToken (token-refresh.ts).
  *
@@ -28,8 +30,13 @@
  * All four are mocked so no HTTP calls or real Nuxt context is needed.
  */
 
+import {setCookie} from 'h3';
 import {describe, it, expect, vi, beforeEach} from 'vitest';
-import {createSessionToken, verifySessionToken, getSessionCookieName} from '../../src/runtime/server/utils/session';
+import {requireServerSession} from '../../src/runtime/server/utils/serverSession';
+import {verifySessionToken, getSessionCookieName} from '../../src/runtime/server/utils/session';
+
+import {getValidAccessToken} from '../../src/runtime/server/utils/token-refresh';
+import {useRuntimeConfig} from '#imports';
 
 const TEST_SECRET = 'test-secret-at-least-32-characters-long!!';
 
@@ -39,7 +46,7 @@ vi.mock('#imports', () => ({
 }));
 
 // ─── Mock h3 (setCookie) ──────────────────────────────────────────────────
-vi.mock('h3', async (importOriginal) => {
+vi.mock('h3', async importOriginal => {
   const actual = await importOriginal<typeof import('h3')>();
   return {
     ...actual,
@@ -52,11 +59,6 @@ vi.mock('h3', async (importOriginal) => {
 vi.mock('../../src/runtime/server/utils/serverSession', () => ({
   requireServerSession: vi.fn(),
 }));
-
-import {useRuntimeConfig} from '#imports';
-import {setCookie} from 'h3';
-import {requireServerSession} from '../../src/runtime/server/utils/serverSession';
-import {getValidAccessToken} from '../../src/runtime/server/utils/token-refresh';
 
 // Fake H3 event (only needs to satisfy the function signatures)
 const fakeEvent = {} as Parameters<typeof getValidAccessToken>[0];
@@ -81,12 +83,14 @@ beforeEach(() => {
 });
 
 // Helper to build a mock session payload with Phase 2 fields.
-function buildSession(overrides: Partial<{
-  accessToken: string;
-  accessTokenExpiresAt: number | undefined;
-  refreshToken: string | undefined;
-  idToken: string | undefined;
-}> = {}) {
+function buildSession(
+  overrides: Partial<{
+    accessToken: string;
+    accessTokenExpiresAt: number | undefined;
+    idToken: string | undefined;
+    refreshToken: string | undefined;
+  }> = {},
+) {
   const now = Math.floor(Date.now() / 1000);
   return {
     sub: 'user-123',
@@ -190,10 +194,13 @@ describe('getValidAccessToken — successful refresh', () => {
       buildSession({accessTokenExpiresAt: withinSkew, refreshToken: 'rt_original'}) as any,
     );
 
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
-      ok: true,
-      json: async () => ({access_token: 'at_new', expires_in: 3600}),
-    }));
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({access_token: 'at_new', expires_in: 3600}),
+      }),
+    );
 
     const result = await getValidAccessToken(fakeEvent);
     expect(result).toBe('at_new');
@@ -207,10 +214,13 @@ describe('getValidAccessToken — successful refresh', () => {
       buildSession({accessTokenExpiresAt: withinSkew, refreshToken: 'rt_original'}) as any,
     );
 
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
-      ok: true,
-      json: async () => ({access_token: 'at_new', expires_in: 3600, refresh_token: 'rt_rotated'}),
-    }));
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({access_token: 'at_new', expires_in: 3600, refresh_token: 'rt_rotated'}),
+      }),
+    );
 
     await getValidAccessToken(fakeEvent);
 
@@ -227,11 +237,14 @@ describe('getValidAccessToken — successful refresh', () => {
       buildSession({accessTokenExpiresAt: withinSkew, refreshToken: 'rt_kept'}) as any,
     );
 
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
-      ok: true,
-      // No refresh_token in response — server chose not to rotate
-      json: async () => ({access_token: 'at_new', expires_in: 3600}),
-    }));
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        ok: true,
+        // No refresh_token in response — server chose not to rotate
+        json: async () => ({access_token: 'at_new', expires_in: 3600}),
+      }),
+    );
 
     await getValidAccessToken(fakeEvent);
 
@@ -253,11 +266,14 @@ describe('getValidAccessToken — failed refresh', () => {
       buildSession({accessTokenExpiresAt: withinSkew, refreshToken: 'rt_bad'}) as any,
     );
 
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
-      ok: false,
-      status: 400,
-      text: async () => 'invalid_grant',
-    }));
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        ok: false,
+        status: 400,
+        text: async () => 'invalid_grant',
+      }),
+    );
 
     await expect(getValidAccessToken(fakeEvent)).rejects.toMatchObject({statusCode: 401});
 

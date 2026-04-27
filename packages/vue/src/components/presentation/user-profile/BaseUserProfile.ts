@@ -24,14 +24,6 @@ import {
   WellKnownSchemaIds,
   withVendorCSSClassPrefix,
 } from '@asgardeo/browser';
-
-/**
- * Runtime shape produced by `flattenUserSchema` — a `SchemaAttribute` with the
- * owning schema's URN attached. Modelled locally because the published
- * `FlattenedSchema` type incorrectly extends `Schema` instead of
- * `SchemaAttribute` and is therefore missing fields like `multiValued`.
- */
-type FlatSchemaEntry = SchemaAttribute & {schemaId: string};
 import {type Component, type PropType, type Ref, type SetupContext, type VNode, defineComponent, h, ref} from 'vue';
 import Alert from '../../primitives/Alert';
 import Button from '../../primitives/Button';
@@ -41,6 +33,14 @@ import {PencilIcon} from '../../primitives/Icons';
 import Spinner from '../../primitives/Spinner';
 import TextField from '../../primitives/TextField';
 import Typography from '../../primitives/Typography';
+
+/**
+ * Runtime shape produced by `flattenUserSchema` — a `SchemaAttribute` with the
+ * owning schema's URN attached. Modelled locally because the published
+ * `FlattenedSchema` type incorrectly extends `Schema` instead of
+ * `SchemaAttribute` and is therefore missing fields like `multiValued`.
+ */
+type FlatSchemaEntry = SchemaAttribute & {schemaId: string};
 
 export interface BaseUserProfileProps {
   cardLayout?: boolean;
@@ -347,11 +347,7 @@ const BaseUserProfile: Component = defineComponent({
                             onClick: async (): Promise<void> => {
                               if (props.onUpdate) {
                                 await props.onUpdate({
-                                  payload: buildScimPatchValue(
-                                    key,
-                                    editedValues.value[key] ?? '',
-                                    props.schemas,
-                                  ),
+                                  payload: buildScimPatchValue(key, editedValues.value[key] ?? '', props.schemas),
                                 } as UpdateMeProfileConfig);
                               }
                               editingFields.value = {...editingFields.value, [key]: false};

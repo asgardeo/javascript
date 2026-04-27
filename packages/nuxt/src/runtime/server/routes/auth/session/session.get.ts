@@ -17,9 +17,10 @@
  */
 
 import {defineEventHandler} from 'h3';
+import type {H3Event} from 'h3';
+import type {AsgardeoAuthState} from '../../../../types';
 import AsgardeoNuxtClient from '../../../AsgardeoNuxtClient';
 import {verifyAndRehydrateSession} from '../../../utils/serverSession';
-import type {AsgardeoAuthState} from '../../../../types';
 import {useRuntimeConfig} from '#imports';
 
 /**
@@ -28,20 +29,23 @@ import {useRuntimeConfig} from '#imports';
  * Returns the current auth state: { isSignedIn, user, isLoading }.
  * Used by the client-side composable to hydrate auth state.
  */
-export default defineEventHandler(async (event): Promise<AsgardeoAuthState> => {
-  const config = useRuntimeConfig();
-  const sessionSecret = config.asgardeo?.sessionSecret;
+export default defineEventHandler(async (event: H3Event): Promise<AsgardeoAuthState> => {
+  const config: ReturnType<typeof useRuntimeConfig> = useRuntimeConfig();
+  const sessionSecret: string | undefined = config.asgardeo?.sessionSecret;
 
-  const session = await verifyAndRehydrateSession(event, sessionSecret);
+  const session: Awaited<ReturnType<typeof verifyAndRehydrateSession>> = await verifyAndRehydrateSession(
+    event,
+    sessionSecret,
+  );
   if (!session) {
-    return {isSignedIn: false, user: null, isLoading: false};
+    return {isLoading: false, isSignedIn: false, user: null};
   }
 
   try {
-    const client = AsgardeoNuxtClient.getInstance();
-    const user = await client.getUser(session.sessionId);
-    return {isSignedIn: true, user, isLoading: false};
+    const client: AsgardeoNuxtClient = AsgardeoNuxtClient.getInstance();
+    const user: Awaited<ReturnType<AsgardeoNuxtClient['getUser']>> = await client.getUser(session.sessionId);
+    return {isLoading: false, isSignedIn: true, user};
   } catch {
-    return {isSignedIn: false, user: null, isLoading: false};
+    return {isLoading: false, isSignedIn: false, user: null};
   }
 });

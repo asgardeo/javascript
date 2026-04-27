@@ -18,6 +18,7 @@
 
 import type {TokenResponse} from '@asgardeo/node';
 import {defineEventHandler, getQuery, getCookie, deleteCookie, sendRedirect, createError} from 'h3';
+import type {H3Event} from 'h3';
 import AsgardeoNuxtClient from '../../../AsgardeoNuxtClient';
 import {
   issueSessionCookie,
@@ -35,17 +36,17 @@ import {useRuntimeConfig} from '#imports';
  * creates a signed session JWT cookie,
  * and redirects to afterSignInUrl.
  */
-export default defineEventHandler(async (event) => {
-  const config = useRuntimeConfig();
-  const sessionSecret = config.asgardeo?.sessionSecret;
-  const publicConfig = config.public.asgardeo;
+export default defineEventHandler(async (event: H3Event) => {
+  const config: ReturnType<typeof useRuntimeConfig> = useRuntimeConfig();
+  const sessionSecret: string | undefined = config.asgardeo?.sessionSecret;
+  const publicConfig: typeof config.public.asgardeo = config.public.asgardeo;
 
-  const query = getQuery(event);
-  const code = query['code'] as string | undefined;
-  const state = query['state'] as string | undefined;
-  const sessionState = query['session_state'] as string | undefined;
-  const error = query['error'] as string | undefined;
-  const errorDescription = query['error_description'] as string | undefined;
+  const query: Record<string, unknown> = getQuery(event) as Record<string, unknown>;
+  const code: string | undefined = query['code'] as string | undefined;
+  const state: string | undefined = query['state'] as string | undefined;
+  const sessionState: string | undefined = query['session_state'] as string | undefined;
+  const error: string | undefined = query['error'] as string | undefined;
+  const errorDescription: string | undefined = query['error_description'] as string | undefined;
 
   if (error) {
     throw createError({
@@ -62,7 +63,7 @@ export default defineEventHandler(async (event) => {
   }
 
   // Retrieve and verify temp session
-  const tempSessionCookie = getCookie(event, getTempSessionCookieName());
+  const tempSessionCookie: string | undefined = getCookie(event, getTempSessionCookieName());
   if (!tempSessionCookie) {
     throw createError({
       statusCode: 400,
@@ -73,7 +74,10 @@ export default defineEventHandler(async (event) => {
   let sessionId: string;
   let returnTo: string | undefined;
   try {
-    const tempSession = await verifyTempSessionToken(tempSessionCookie, sessionSecret);
+    const tempSession: Awaited<ReturnType<typeof verifyTempSessionToken>> = await verifyTempSessionToken(
+      tempSessionCookie,
+      sessionSecret,
+    );
     sessionId = tempSession.sessionId;
     returnTo = tempSession.returnTo;
   } catch {
@@ -84,7 +88,7 @@ export default defineEventHandler(async (event) => {
   }
 
   // Exchange authorization code for tokens using the Node SDK.
-  const client = AsgardeoNuxtClient.getInstance();
+  const client: AsgardeoNuxtClient = AsgardeoNuxtClient.getInstance();
 
   let tokenResponse: TokenResponse;
   try {
@@ -97,9 +101,9 @@ export default defineEventHandler(async (event) => {
     );
   } catch (err: any) {
     throw createError({
+      data: err?.message || 'An unexpected error occurred during token exchange.',
       statusCode: 500,
       statusMessage: 'Token exchange failed.',
-      data: err?.message || 'An unexpected error occurred during token exchange.',
     });
   }
 
@@ -115,6 +119,7 @@ export default defineEventHandler(async (event) => {
     await issueSessionCookie(event, sessionId, tokenResponse, sessionSecret);
     deleteCookie(event, getTempSessionCookieName(), getTempSessionCookieOptions());
   } catch (err: any) {
+    // eslint-disable-next-line no-console
     console.error('[asgardeo] Failed to create JWT session:', err?.message || err);
     throw createError({
       statusCode: 500,
@@ -123,6 +128,6 @@ export default defineEventHandler(async (event) => {
   }
 
   // Redirect to returnTo (from sign-in request) or configured afterSignInUrl
-  const redirectUrl = returnTo || publicConfig.afterSignInUrl || '/';
+  const redirectUrl: string = returnTo || publicConfig.afterSignInUrl || '/';
   return sendRedirect(event, redirectUrl, 302);
 });

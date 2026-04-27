@@ -16,16 +16,6 @@
  * under the License.
  */
 
-import {useState, useRuntimeConfig} from '#imports';
-import {
-  BrandingProvider,
-  FlowMetaProvider,
-  FlowProvider,
-  I18nProvider,
-  OrganizationProvider,
-  ThemeProvider,
-  UserProvider,
-} from '@asgardeo/vue';
 import {generateFlattenedUserProfile} from '@asgardeo/node';
 import type {
   AllOrganizationsApiResponse,
@@ -37,13 +27,17 @@ import type {
   UserProfile,
 } from '@asgardeo/node';
 import {
-  defineComponent,
-  h,
-  type Component,
-  type SetupContext,
-  type VNode,
-} from 'vue';
+  BrandingProvider,
+  FlowMetaProvider,
+  FlowProvider,
+  I18nProvider,
+  OrganizationProvider,
+  ThemeProvider,
+  UserProvider,
+} from '@asgardeo/vue';
+import {defineComponent, h, type Component, type Ref, type SetupContext, type VNode} from 'vue';
 import type {AsgardeoAuthState, AsgardeoNuxtConfig} from '../types';
+import {useState, useRuntimeConfig} from '#imports';
 
 /**
  * Nuxt root wrapper that mounts the full Asgardeo Vue provider tree.
@@ -79,28 +73,30 @@ import type {AsgardeoAuthState, AsgardeoNuxtConfig} from '../types';
  */
 const AsgardeoRoot: Component = defineComponent({
   name: 'AsgardeoRoot',
-  setup(_props, {slots}: SetupContext): () => VNode {
+  setup(_props: Record<string, unknown>, {slots}: SetupContext): () => VNode {
     // ── Read SSR-hydrated state keys (seeded by the Nuxt plugin) ────────────
-    const userProfileState = useState<UserProfile | null>('asgardeo:user-profile');
-    const currentOrgState = useState<Organization | null>('asgardeo:current-org');
-    const myOrgsState = useState<Organization[]>('asgardeo:my-orgs');
-    const brandingState = useState<BrandingPreference | null>('asgardeo:branding');
+    const userProfileState: Ref<UserProfile | null> = useState<UserProfile | null>('asgardeo:user-profile');
+    const currentOrgState: Ref<Organization | null> = useState<Organization | null>('asgardeo:current-org');
+    const myOrgsState: Ref<Organization[]> = useState<Organization[]>('asgardeo:my-orgs');
+    const brandingState: Ref<BrandingPreference | null> = useState<BrandingPreference | null>('asgardeo:branding');
     // Used by onUpdateProfile to keep the top-level auth user claim in sync.
-    const authState = useState<AsgardeoAuthState>('asgardeo:auth');
+    const authState: Ref<AsgardeoAuthState> = useState<AsgardeoAuthState>('asgardeo:auth');
 
     // ── Preferences from runtime config ────────────────────────────────────
-    const prefs = (useRuntimeConfig().public.asgardeo as {
-      preferences?: AsgardeoNuxtConfig['preferences'];
-    })?.preferences;
+    const prefs: AsgardeoNuxtConfig['preferences'] | undefined = (
+      useRuntimeConfig().public.asgardeo as {
+        preferences?: AsgardeoNuxtConfig['preferences'];
+      }
+    )?.preferences;
 
     // Gate flags — mirror the same checks in asgardeo-ssr.ts so client props
     // always agree with what the Nitro plugin decided to fetch server-side.
-    const shouldFetchProfile = prefs?.user?.fetchUserProfile !== false;
-    const shouldFetchOrgs = prefs?.user?.fetchOrganizations !== false;
-    const shouldFetchBranding = prefs?.theme?.inheritFromBranding !== false;
+    const shouldFetchProfile: boolean = prefs?.user?.fetchUserProfile !== false;
+    const shouldFetchOrgs: boolean = prefs?.user?.fetchOrganizations !== false;
+    const shouldFetchBranding: boolean = prefs?.theme?.inheritFromBranding !== false;
     // Defaults to 'light' — matches the Vue SDK's AsgardeoProvider, which
     // passes no mode and therefore uses ThemeProvider's `DEFAULT_THEME`.
-    const themeMode = prefs?.theme?.mode ?? 'light';
+    const themeMode: string = prefs?.theme?.mode ?? 'light';
 
     // ── Callbacks ──────────────────────────────────────────────────────────
 
@@ -110,7 +106,7 @@ const AsgardeoRoot: Component = defineComponent({
      * successful SCIM2 PATCH without an extra server round-trip.
      */
     const onUpdateProfile = (payload: User): void => {
-      const prev = userProfileState.value;
+      const prev: UserProfile | null = userProfileState.value;
       userProfileState.value = prev
         ? {
             ...prev,
@@ -140,11 +136,14 @@ const AsgardeoRoot: Component = defineComponent({
       requestConfig: UpdateMeProfileConfig,
       _sessionId?: string,
     ): Promise<{data: {user: User}; error: string; success: boolean}> => {
+      if (_sessionId) {
+        // no-op: session is resolved server-side
+      }
       try {
-        const result: {data: {user: User}; error: string; success: boolean} = await $fetch(
-          '/api/auth/user/profile',
-          {method: 'PATCH', body: requestConfig},
-        );
+        const result: {data: {user: User}; error: string; success: boolean} = await $fetch('/api/auth/user/profile', {
+          body: requestConfig,
+          method: 'PATCH',
+        });
         if (result?.success && result.data?.user) {
           onUpdateProfile(result.data.user);
         }
@@ -159,7 +158,7 @@ const AsgardeoRoot: Component = defineComponent({
      */
     const revalidateProfile = async (): Promise<void> => {
       try {
-        const res = await $fetch<UserProfile>('/api/auth/user/profile');
+        const res: UserProfile = await $fetch<UserProfile>('/api/auth/user/profile');
         if (res) userProfileState.value = res;
       } catch {
         // Non-fatal — profile stays stale until the next navigation.
@@ -169,16 +168,14 @@ const AsgardeoRoot: Component = defineComponent({
     /**
      * Token-exchange org switch via the `/api/auth/organizations/switch` Nitro route.
      */
-    const onOrganizationSwitch = async (organization: Organization): Promise<any> => {
-      return $fetch('/api/auth/organizations/switch', {method: 'POST', body: {organization}});
-    };
+    const onOrganizationSwitch = async (organization: Organization): Promise<any> =>
+      $fetch('/api/auth/organizations/switch', {body: {organization}, method: 'POST'});
 
     /**
      * Paginated org list via the `/api/auth/organizations` Nitro route.
      */
-    const getAllOrganizations = async (): Promise<AllOrganizationsApiResponse> => {
-      return $fetch<AllOrganizationsApiResponse>('/api/auth/organizations');
-    };
+    const getAllOrganizations = async (): Promise<AllOrganizationsApiResponse> =>
+      $fetch<AllOrganizationsApiResponse>('/api/auth/organizations');
 
     /**
      * Refresh the user's org membership list and update local state so
@@ -186,7 +183,7 @@ const AsgardeoRoot: Component = defineComponent({
      */
     const revalidateMyOrganizations = async (): Promise<Organization[]> => {
       try {
-        const res = await $fetch<Organization[]>('/api/auth/organizations/me');
+        const res: Organization[] = await $fetch<Organization[]>('/api/auth/organizations/me');
         myOrgsState.value = res ?? [];
         return myOrgsState.value;
       } catch {
@@ -197,9 +194,8 @@ const AsgardeoRoot: Component = defineComponent({
     /**
      * Create a new sub-organisation via the `POST /api/auth/organizations` route.
      */
-    const createOrganization = async (payload: CreateOrganizationPayload): Promise<Organization> => {
-      return $fetch<Organization>('/api/auth/organizations', {method: 'POST', body: payload});
-    };
+    const createOrganization = async (payload: CreateOrganizationPayload): Promise<Organization> =>
+      $fetch<Organization>('/api/auth/organizations', {body: payload, method: 'POST'});
 
     /**
      * Refresh the current organisation from the session's ID token claims
@@ -207,7 +203,7 @@ const AsgardeoRoot: Component = defineComponent({
      */
     const revalidateCurrentOrganization = async (): Promise<Organization | null> => {
       try {
-        const res = await $fetch<Organization | null>('/api/auth/organizations/current');
+        const res: Organization | null = await $fetch<Organization | null>('/api/auth/organizations/current');
         currentOrgState.value = res ?? null;
         return currentOrgState.value;
       } catch {
@@ -221,7 +217,7 @@ const AsgardeoRoot: Component = defineComponent({
      */
     const revalidateBranding = async (): Promise<void> => {
       try {
-        const res = await $fetch<BrandingPreference | null>('/api/auth/branding');
+        const res: BrandingPreference | null = await $fetch<BrandingPreference | null>('/api/auth/branding');
         if (res) brandingState.value = res;
       } catch {
         // Non-fatal — branding stays stale until the next navigation.
@@ -238,68 +234,90 @@ const AsgardeoRoot: Component = defineComponent({
     // config option, derive `enabled` from it the same way `AsgardeoProvider`
     // does (`enabled: platform === Platform.AsgardeoV2`).
     return (): VNode =>
-      h(I18nProvider, {preferences: prefs?.i18n}, {
-        default: (): VNode =>
-          h(FlowMetaProvider, {enabled: false}, {
-            default: (): VNode =>
-              h(BrandingProvider, {
-            // When inheritFromBranding is disabled, pass null so the provider
-            // falls back to its own default theme without using SSR-fetched data.
-            brandingPreference: shouldFetchBranding ? brandingState.value : null,
-            revalidateBranding: shouldFetchBranding ? revalidateBranding : undefined,
-          }, {
-            default: (): VNode =>
-              h(ThemeProvider, {
-                // Mirror the same flag used in the Nitro plugin gate.
-                inheritFromBranding: shouldFetchBranding,
-                mode: themeMode as any,
-              }, {
+      h(
+        I18nProvider,
+        {preferences: prefs?.i18n},
+        {
+          default: (): VNode =>
+            h(
+              FlowMetaProvider,
+              {enabled: false},
+              {
                 default: (): VNode =>
-                  h(FlowProvider, null, {
-                    default: (): VNode =>
-                      h(UserProvider, {
-                        // When fetchUserProfile is false the Nitro plugin
-                        // skips SCIM calls, so we must also pass empty values
-                        // here to keep SSR and client in sync.
-                        profile: shouldFetchProfile ? userProfileState.value : null,
-                        flattenedProfile: shouldFetchProfile
-                          ? (userProfileState.value?.flattenedProfile ?? null)
-                          : null,
-                        schemas: shouldFetchProfile
-                          ? (userProfileState.value?.schemas ?? null)
-                          : null,
-                        onUpdateProfile: shouldFetchProfile ? onUpdateProfile : undefined,
-                        updateProfile: shouldFetchProfile ? updateProfile : undefined,
-                        revalidateProfile: shouldFetchProfile ? revalidateProfile : undefined,
-                      }, {
-                        default: (): VNode | VNode[] | undefined =>
-                          h(OrganizationProvider, {
-                            // When fetchOrganizations is false pass empty
-                            // values so the provider renders without org data.
-                            currentOrganization: shouldFetchOrgs ? currentOrgState.value : null,
-                            myOrganizations: shouldFetchOrgs ? myOrgsState.value : [],
-                            onOrganizationSwitch: shouldFetchOrgs
-                              ? (onOrganizationSwitch as any)
-                              : undefined,
-                            getAllOrganizations: shouldFetchOrgs ? getAllOrganizations : undefined,
-                            revalidateMyOrganizations: shouldFetchOrgs
-                              ? revalidateMyOrganizations
-                              : undefined,
-                            createOrganization: shouldFetchOrgs
-                              ? (createOrganization as any)
-                              : undefined,
-                            revalidateCurrentOrganization: shouldFetchOrgs
-                              ? revalidateCurrentOrganization
-                              : undefined,
-                          }, {
-                            default: (): VNode | VNode[] | undefined => slots['default']?.(),
-                          }),
-                      }),
-                  }),
-              }),
-          }),
-          }),
-      });
+                  h(
+                    BrandingProvider,
+                    {
+                      // When inheritFromBranding is disabled, pass null so the provider
+                      // falls back to its own default theme without using SSR-fetched data.
+                      brandingPreference: shouldFetchBranding ? brandingState.value : null,
+                      revalidateBranding: shouldFetchBranding ? revalidateBranding : undefined,
+                    },
+                    {
+                      default: (): VNode =>
+                        h(
+                          ThemeProvider,
+                          {
+                            // Mirror the same flag used in the Nitro plugin gate.
+                            inheritFromBranding: shouldFetchBranding,
+                            mode: themeMode as any,
+                          },
+                          {
+                            default: (): VNode =>
+                              h(FlowProvider, null, {
+                                default: (): VNode =>
+                                  h(
+                                    UserProvider,
+                                    {
+                                      // When fetchUserProfile is false the Nitro plugin
+                                      // skips SCIM calls, so we must also pass empty values
+                                      // here to keep SSR and client in sync.
+                                      flattenedProfile: shouldFetchProfile
+                                        ? userProfileState.value?.flattenedProfile ?? null
+                                        : null,
+                                      onUpdateProfile: shouldFetchProfile ? onUpdateProfile : undefined,
+                                      profile: shouldFetchProfile ? userProfileState.value : null,
+                                      revalidateProfile: shouldFetchProfile ? revalidateProfile : undefined,
+                                      schemas: shouldFetchProfile ? userProfileState.value?.schemas ?? null : null,
+                                      updateProfile: shouldFetchProfile ? updateProfile : undefined,
+                                    },
+                                    {
+                                      default: (): VNode | VNode[] | undefined =>
+                                        h(
+                                          OrganizationProvider,
+                                          {
+                                            // When fetchOrganizations is false pass empty
+                                            // values so the provider renders without org data.
+                                            createOrganization: shouldFetchOrgs
+                                              ? (createOrganization as any)
+                                              : undefined,
+                                            currentOrganization: shouldFetchOrgs ? currentOrgState.value : null,
+                                            getAllOrganizations: shouldFetchOrgs ? getAllOrganizations : undefined,
+                                            myOrganizations: shouldFetchOrgs ? myOrgsState.value : [],
+                                            onOrganizationSwitch: shouldFetchOrgs
+                                              ? (onOrganizationSwitch as any)
+                                              : undefined,
+                                            revalidateCurrentOrganization: shouldFetchOrgs
+                                              ? revalidateCurrentOrganization
+                                              : undefined,
+                                            revalidateMyOrganizations: shouldFetchOrgs
+                                              ? revalidateMyOrganizations
+                                              : undefined,
+                                          },
+                                          {
+                                            default: (): VNode | VNode[] | undefined => slots['default']?.(),
+                                          },
+                                        ),
+                                    },
+                                  ),
+                              }),
+                          },
+                        ),
+                    },
+                  ),
+              },
+            ),
+        },
+      );
   },
 });
 

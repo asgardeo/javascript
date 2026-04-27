@@ -3,23 +3,30 @@
  *
  * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License.  You may obtain a copy of the
- * License at
+ * in compliance with the License.
+ * You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
- * either express or implied.  See the License for the specific
- * language governing permissions and limitations under the
- * License.
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 
-import {defineNuxtRouteMiddleware, navigateTo, useState} from '#app';
+import type {Ref} from 'vue';
+import type {RouteLocationNormalized} from 'vue-router';
 import type {AsgardeoAuthState} from '../types';
+import {defineNuxtRouteMiddleware, navigateTo, useState} from '#app';
 
 export interface AsgardeoMiddlewareOptions {
+  /**
+   * The path to redirect unauthenticated (or unauthorised) requests to.
+   * Defaults to `'/api/auth/signin'`.
+   */
+  redirectTo?: string;
   /**
    * If `true`, the middleware will also require that the user has an
    * `organizationId` in their session.  Redirects to `redirectTo` if not.
@@ -30,14 +37,9 @@ export interface AsgardeoMiddlewareOptions {
    * is present in the session before allowing access.
    */
   requireScopes?: string[];
-  /**
-   * The path to redirect unauthenticated (or unauthorised) requests to.
-   * Defaults to `'/api/auth/signin'`.
-   */
-  redirectTo?: string;
 }
 
-const DEFAULT_REDIRECT_TO = '/api/auth/signin';
+const DEFAULT_REDIRECT_TO: string = '/api/auth/signin';
 
 /**
  * Typed factory for Asgardeo route middleware.
@@ -56,29 +58,33 @@ const DEFAULT_REDIRECT_TO = '/api/auth/signin';
  * The built-in `'auth'` middleware registered by this module is equivalent
  * to calling `defineAsgardeoMiddleware()` with no options.
  */
-export function defineAsgardeoMiddleware(options: AsgardeoMiddlewareOptions = {}) {
+export function defineAsgardeoMiddleware(
+  options: AsgardeoMiddlewareOptions = {},
+): ReturnType<typeof defineNuxtRouteMiddleware> {
   const {redirectTo = DEFAULT_REDIRECT_TO, requireOrganization = false, requireScopes = []} = options;
 
-  return defineNuxtRouteMiddleware((to) => {
-    const authState = useState<AsgardeoAuthState>('asgardeo:auth');
+  return defineNuxtRouteMiddleware((to: RouteLocationNormalized) => {
+    const authState: Ref<AsgardeoAuthState> = useState<AsgardeoAuthState>('asgardeo:auth');
 
     if (!authState.value?.isSignedIn) {
-      const returnTo = encodeURIComponent(to.fullPath);
+      const returnTo: string = encodeURIComponent(to.fullPath);
       return navigateTo(`${redirectTo}?returnTo=${returnTo}`, {external: true});
     }
 
-    const user = authState.value.user as Record<string, unknown> | null;
+    const user: Record<string, unknown> | null = authState.value.user as Record<string, unknown> | null;
 
     if (requireOrganization && !user?.['organizationId']) {
       return navigateTo(redirectTo, {external: true});
     }
 
     if (requireScopes.length > 0) {
-      const sessionScopes = String(user?.['scopes'] ?? '').split(' ');
-      const hasAllScopes = requireScopes.every((s) => sessionScopes.includes(s));
+      const sessionScopes: string[] = String(user?.['scopes'] ?? '').split(' ');
+      const hasAllScopes: boolean = requireScopes.every((s: string) => sessionScopes.includes(s));
       if (!hasAllScopes) {
         return navigateTo(redirectTo, {external: true});
       }
     }
+
+    return undefined;
   });
 }

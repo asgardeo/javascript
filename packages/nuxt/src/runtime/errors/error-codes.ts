@@ -27,26 +27,24 @@ export enum ErrorCode {
   ConfigMissingClientId = 'config/missing-client-id',
   ConfigMissingSecret = 'config/missing-session-secret',
 
-  // ── Session ────────────────────────────────────────────────────────
-  SessionMissing = 'session/missing',
-  SessionInvalid = 'session/invalid',
-  SessionExpired = 'session/expired',
-  TempSessionInvalid = 'session/temp-invalid',
-
   // ── OAuth ──────────────────────────────────────────────────────────
-  OAuthStateInvalid = 'oauth/state-invalid',
   OAuthCallbackError = 'oauth/callback-error',
+  OAuthStateInvalid = 'oauth/state-invalid',
+  // ── Security ───────────────────────────────────────────────────────
+  OpenRedirectBlocked = 'security/open-redirect-blocked',
+
+  // ── Organization ───────────────────────────────────────────────────
+  OrganizationCreateFailed = 'organization/create-failed',
+  OrganizationSwitchFailed = 'organization/switch-failed',
+  // ── Session ────────────────────────────────────────────────────────
+  SessionExpired = 'session/expired',
+  SessionInvalid = 'session/invalid',
+  SessionMissing = 'session/missing',
+
+  TempSessionInvalid = 'session/temp-invalid',
   TokenExchangeFailed = 'oauth/token-exchange-failed',
   TokenRefreshFailed = 'oauth/token-refresh-failed',
-
   // ── SCIM2 ──────────────────────────────────────────────────────────
   UserProfileFetchFailed = 'scim2/user-profile-fetch-failed',
   UserProfileUpdateFailed = 'scim2/user-profile-update-failed',
-
-  // ── Organization ───────────────────────────────────────────────────
-  OrganizationSwitchFailed = 'organization/switch-failed',
-  OrganizationCreateFailed = 'organization/create-failed',
-
-  // ── Security ───────────────────────────────────────────────────────
-  OpenRedirectBlocked = 'security/open-redirect-blocked',
 }

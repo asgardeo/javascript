@@ -28,8 +28,8 @@ export default defineConfig({
     },
   },
   test: {
-    globals: true,
     environment: 'node',
+    globals: true,
     include: ['tests/**/*.test.ts'],
   },
 });

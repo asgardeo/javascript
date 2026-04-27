@@ -16,29 +16,32 @@
  * under the License.
  */
 
-import {SignJWT, jwtVerify} from 'jose';
 import {CookieConfig} from '@asgardeo/node';
 import type {IdToken, TokenResponse} from '@asgardeo/node';
 import {setCookie} from 'h3';
 import type {H3Event} from 'h3';
-import type {AsgardeoSessionPayload, AsgardeoTempSessionPayload} from '../../types';
+import {SignJWT, jwtVerify} from 'jose';
+import type {AsgardeoSessionPayload} from '../../types';
 
-const DEFAULT_EXPIRY_SECONDS = 3600;
+const DEFAULT_EXPIRY_SECONDS: number = 3600;
 
 /**
  * Get the signing secret from environment or runtime config.
  */
 function getSecret(sessionSecret?: string): Uint8Array {
-  const secret = sessionSecret || process.env['ASGARDEO_SESSION_SECRET'];
+  const secret: string | undefined = sessionSecret || process.env['ASGARDEO_SESSION_SECRET'];
 
   if (!secret) {
     if (process.env['NODE_ENV'] === 'production') {
       throw new Error(
         '[asgardeo] ASGARDEO_SESSION_SECRET environment variable is required in production. ' +
-        'Set it to a secure random string of at least 32 characters.',
+          'Set it to a secure random string of at least 32 characters.',
       );
     }
-    console.warn('[asgardeo] Using default session secret for development. Set ASGARDEO_SESSION_SECRET for production.');
+    // eslint-disable-next-line no-console
+    console.warn(
+      '[asgardeo] Using default session secret for development. Set ASGARDEO_SESSION_SECRET for production.',
+    );
     return new TextEncoder().encode('asgardeo-dev-secret-not-for-production');
   }
 
@@ -51,30 +54,30 @@ function getSecret(sessionSecret?: string): Uint8Array {
 export async function createSessionToken(
   params: {
     accessToken: string;
-    userId: string;
-    sessionId: string;
-    scopes: string;
-    organizationId?: string;
-    expirySeconds?: number;
     /** Unix timestamp (seconds) when the access token expires. */
     accessTokenExpiresAt?: number;
-    /** Refresh token for silent re-auth. */
-    refreshToken?: string;
+    expirySeconds?: number;
     /** Raw ID token string. */
     idToken?: string;
+    organizationId?: string;
+    /** Refresh token for silent re-auth. */
+    refreshToken?: string;
+    scopes: string;
+    sessionId: string;
+    userId: string;
   },
   sessionSecret?: string,
 ): Promise<string> {
-  const secret = getSecret(sessionSecret);
+  const secret: Uint8Array = getSecret(sessionSecret);
 
   return new SignJWT({
     accessToken: params.accessToken,
+    accessTokenExpiresAt: params.accessTokenExpiresAt,
+    idToken: params.idToken,
+    organizationId: params.organizationId,
+    refreshToken: params.refreshToken,
     scopes: params.scopes,
     sessionId: params.sessionId,
-    organizationId: params.organizationId,
-    accessTokenExpiresAt: params.accessTokenExpiresAt,
-    refreshToken: params.refreshToken,
-    idToken: params.idToken,
     type: 'session',
   } as Omit<AsgardeoSessionPayload, 'sub' | 'iat' | 'exp'>)
     .setProtectedHeader({alg: 'HS256'})
@@ -92,7 +95,7 @@ export async function createTempSessionToken(
   sessionSecret?: string,
   returnTo?: string,
 ): Promise<string> {
-  const secret = getSecret(sessionSecret);
+  const secret: Uint8Array = getSecret(sessionSecret);
 
   const payload: Record<string, unknown> = {
     sessionId,
@@ -103,21 +106,14 @@ export async function createTempSessionToken(
     payload['returnTo'] = returnTo;
   }
 
-  return new SignJWT(payload)
-    .setProtectedHeader({alg: 'HS256'})
-    .setIssuedAt()
-    .setExpirationTime('15m')
-    .sign(secret);
+  return new SignJWT(payload).setProtectedHeader({alg: 'HS256'}).setIssuedAt().setExpirationTime('15m').sign(secret);
 }
 
 /**
  * Verify and decode a session JWT.
  */
-export async function verifySessionToken(
-  token: string,
-  sessionSecret?: string,
-): Promise<AsgardeoSessionPayload> {
-  const secret = getSecret(sessionSecret);
+export async function verifySessionToken(token: string, sessionSecret?: string): Promise<AsgardeoSessionPayload> {
+  const secret: Uint8Array = getSecret(sessionSecret);
   const {payload} = await jwtVerify(token, secret);
   return payload as AsgardeoSessionPayload;
 }
@@ -128,8 +124,8 @@ export async function verifySessionToken(
 export async function verifyTempSessionToken(
   token: string,
   sessionSecret?: string,
-): Promise<{sessionId: string; returnTo?: string}> {
-  const secret = getSecret(sessionSecret);
+): Promise<{returnTo?: string; sessionId: string}> {
+  const secret: Uint8Array = getSecret(sessionSecret);
   const {payload} = await jwtVerify(token, secret);
 
   if (payload['type'] !== 'temp') {
@@ -137,8 +133,8 @@ export async function verifyTempSessionToken(
   }
 
   return {
-    sessionId: payload['sessionId'] as string,
     returnTo: payload['returnTo'] as string | undefined,
+    sessionId: payload['sessionId'] as string,
   };
 }
 
@@ -159,7 +155,15 @@ export function getTempSessionCookieName(): string {
 /**
  * Session cookie options.
  */
-export function getSessionCookieOptions() {
+type SessionCookieOptions = {
+  httpOnly: boolean;
+  maxAge: number;
+  path: string;
+  sameSite: 'lax';
+  secure: boolean;
+};
+
+export function getSessionCookieOptions(): SessionCookieOptions {
   return {
     httpOnly: true,
     maxAge: DEFAULT_EXPIRY_SECONDS,
@@ -172,7 +176,7 @@ export function getSessionCookieOptions() {
 /**
  * Temp session cookie options (15 min TTL).
  */
-export function getTempSessionCookieOptions() {
+export function getTempSessionCookieOptions(): SessionCookieOptions {
   return {
     httpOnly: true,
     maxAge: 15 * 60,
@@ -198,26 +202,26 @@ export async function issueSessionCookie(
 ): Promise<void> {
   // Lazy-import to avoid circular dep: session.ts → AsgardeoNuxtClient → session.ts
   const {default: AsgardeoNuxtClient} = await import('../AsgardeoNuxtClient');
-  const client = AsgardeoNuxtClient.getInstance();
+  const client: ReturnType<typeof AsgardeoNuxtClient.getInstance> = AsgardeoNuxtClient.getInstance();
 
   const idToken: IdToken = await client.getDecodedIdToken(sessionId, tokenResponse.idToken);
 
-  const userId = (idToken.sub || sessionId) as string;
-  const organizationId = (idToken['user_org'] || idToken['organization_id']) as string | undefined;
-  const expiresInSeconds = parseInt(tokenResponse.expiresIn ?? '3600', 10);
-  const accessTokenExpiresAt =
+  const userId: string = (idToken.sub || sessionId) as string;
+  const organizationId: string | undefined = (idToken['user_org'] || idToken['organization_id']) as string | undefined;
+  const expiresInSeconds: number = parseInt(tokenResponse.expiresIn ?? '3600', 10);
+  const accessTokenExpiresAt: number =
     Math.floor(Date.now() / 1000) + (Number.isFinite(expiresInSeconds) ? expiresInSeconds : 3600);
 
-  const sessionToken = await createSessionToken(
+  const sessionToken: string = await createSessionToken(
     {
       accessToken: tokenResponse.accessToken,
-      userId,
-      sessionId,
-      scopes: tokenResponse.scope || '',
-      organizationId,
       accessTokenExpiresAt,
-      refreshToken: tokenResponse.refreshToken || undefined,
       idToken: tokenResponse.idToken || undefined,
+      organizationId,
+      refreshToken: tokenResponse.refreshToken || undefined,
+      scopes: tokenResponse.scope || '',
+      sessionId,
+      userId,
     },
     sessionSecret,
   );
