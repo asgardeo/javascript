@@ -55,11 +55,6 @@ export default defineEventHandler(async (event) => {
       title="useServerSession"
       description="Read and verify the Asgardeo session JWT cookie from any Nitro server handler. Returns the decoded payload or null when not signed in."
     />
-    <div class="flex items-center gap-2 -mt-2">
-      <SharedStatusBadge status="neutral" label="Explicit import" />
-      <code class="text-xs font-mono text-text-muted">import { useServerSession } from '@asgardeo/nuxt/server'</code>
-    </div>
-
     <!-- ── What it does ────────────────────────────────────────────────── -->
     <LayoutSectionCard title="What it does">
       <div class="space-y-2 text-sm text-text-muted leading-relaxed">

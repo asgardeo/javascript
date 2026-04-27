@@ -74,11 +74,6 @@ const runFunction = async (name: string): Promise<void> => {
       :description="spec.description"
     />
 
-    <div class="flex items-center gap-2 -mt-2">
-      <SharedStatusBadge status="info" label="Auto-imported" />
-      <span class="text-xs text-text-muted">from <code class="font-mono">@asgardeo/nuxt</code></span>
-    </div>
-
     <div
       v-if="isFlowMetaDisabled"
       class="rounded-lg border border-warning/40 bg-warning/10 px-4 py-3 text-sm text-warning"

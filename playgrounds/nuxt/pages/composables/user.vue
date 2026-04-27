@@ -84,11 +84,6 @@ const runFunction = async (name: string): Promise<void> => {
       :description="spec.description"
     />
 
-    <div class="flex items-center gap-2 -mt-2">
-      <SharedStatusBadge status="info" label="Auto-imported" />
-      <span class="text-xs text-text-muted">from <code class="font-mono">@asgardeo/nuxt</code></span>
-    </div>
-
     <LayoutSectionCard
       title="State Inspection"
       description="Live reactive state returned by useUser()."
