@@ -1,0 +1,2 @@
+# Ignore TypeScript augmentation files from being processed by consuming apps' build tools
+dist/runtime/types/augments.d.ts
