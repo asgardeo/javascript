@@ -24,9 +24,6 @@ import AsgardeoNuxtClient from '../AsgardeoNuxtClient';
 import {verifyAndRehydrateSession} from '../utils/serverSession';
 import {useRuntimeConfig} from '#imports';
 
-// Import augmentation so event.context.asgardeo is typed
-import '../../types/augments.d';
-
 const log: ReturnType<typeof createLogger> = createLogger('asgardeo-ssr');
 
 const CALLBACK_PATH: string = '/api/auth/callback';

@@ -40,7 +40,7 @@ const polyfillPlugin = {
 
     // Buffer polyfill
     build.onResolve({filter: /^buffer$/}, () => ({
-      path: require.resolve('buffer/'),
+      path: require.resolve('buffer/index.js'),
     }));
   },
 };
@@ -48,7 +48,7 @@ const polyfillPlugin = {
 const commonOptions = {
   banner: {
     js: `
-      import { Buffer } from 'buffer/';
+      import { Buffer } from 'buffer/index.js';
       if (typeof window !== 'undefined' && !window.Buffer) {
         window.Buffer = Buffer;
       }
@@ -66,7 +66,7 @@ const commonOptions = {
   footer: {
     js: `
       if (typeof window !== 'undefined' && !window.Buffer) {
-        window.Buffer = require('buffer/').Buffer;
+        window.Buffer = require('buffer/index.js').Buffer;
       }
     `,
   },
