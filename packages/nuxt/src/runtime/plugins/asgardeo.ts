@@ -119,8 +119,9 @@ export default defineNuxtPlugin((nuxtApp: NuxtApp) => {
       brandingState.value = ssr.brandingPreference;
     } else {
       // Backwards-compat: fall back to the legacy context shape (pre-Step-2 plugin).
-      const ssrContext: {isSignedIn?: boolean; session?: {sub?: string}} | undefined = event?.context
-        ?.asgardeo as {isSignedIn?: boolean; session?: {sub?: string}} | undefined;
+      const ssrContext: {isSignedIn?: boolean; session?: {sub?: string}} | undefined = event?.context?.asgardeo as
+        | {isSignedIn?: boolean; session?: {sub?: string}}
+        | undefined;
       if (ssrContext) {
         authState.value = {
           isLoading: false,
