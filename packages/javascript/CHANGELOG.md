@@ -1,5 +1,15 @@
 # @asgardeo/javascript
 
+## 0.19.1
+
+### Patch Changes
+
+- [#479](https://github.com/asgardeo/javascript/pull/479)
+  [`f5044b9`](https://github.com/asgardeo/javascript/commit/f5044b918504af125e955a63e49e774d708384ad) Thanks
+  [@kavindadimuthu](https://github.com/kavindadimuthu)! - Launch Nuxt SDK with comprehensive authentication and identity
+  management integration including composables, components, middleware, and server utilities. Enhance Vue components
+  with improved type definitions and update JavaScript SDK utility functions.
+
 ## 0.19.0
 
 ### Minor Changes
