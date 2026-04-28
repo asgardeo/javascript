@@ -1,12 +1,2 @@
 # Ignore TypeScript augmentation files from being processed by consuming apps' build tools
 dist/runtime/types/augments.d.ts
-
-# Development files
-.eslintrc.cjs
-.gitignore
-vitest.config.ts
-prettier.config.cjs
-tsconfig.json
-
-# Source files (only dist is published)
-src/
