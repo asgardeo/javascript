@@ -397,9 +397,9 @@ export class AuthenticationHelper<T extends MainThreadClientConfig | WebWorkerCl
           })
           .catch(async (error: HttpError) => {
             if (error?.response?.status === 401 || !error?.response) {
-              let refreshTokenResponse: TokenResponse | User;
+              let refreshTokenResponse: User;
               try {
-                refreshTokenResponse = await this._authenticationClient.refreshAccessToken();
+                refreshTokenResponse = await this.refreshAccessToken();
               } catch (refreshError: any) {
                 if (isHttpHandlerEnabled) {
                   if (typeof httpErrorCallback === 'function') {
