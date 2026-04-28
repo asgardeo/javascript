@@ -1,5 +1,13 @@
 # @asgardeo/nuxt
 
+## 0.1.1
+
+### Patch Changes
+
+- [#481](https://github.com/asgardeo/javascript/pull/481)
+  [`0d11c55`](https://github.com/asgardeo/javascript/commit/0d11c550ef8d3d87b5b2b98cd17a9416a1566a83) Thanks
+  [@kavindadimuthu](https://github.com/kavindadimuthu)! - Exclude augments.d.ts from published nuxt npm package
+
 ## 0.1.0
 
 ### Minor Changes
