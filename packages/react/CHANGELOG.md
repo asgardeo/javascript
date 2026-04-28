@@ -1,5 +1,12 @@
 # @asgardeo/react
 
+## 0.23.2
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @asgardeo/browser@0.7.1
+
 ## 0.23.1
 
 ### Patch Changes

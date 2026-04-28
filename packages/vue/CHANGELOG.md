@@ -1,5 +1,17 @@
 # @asgardeo/vue
 
+## 0.3.4
+
+### Patch Changes
+
+- [#479](https://github.com/asgardeo/javascript/pull/479)
+  [`f5044b9`](https://github.com/asgardeo/javascript/commit/f5044b918504af125e955a63e49e774d708384ad) Thanks
+  [@kavindadimuthu](https://github.com/kavindadimuthu)! - Launch Nuxt SDK with comprehensive authentication and identity
+  management integration including composables, components, middleware, and server utilities. Enhance Vue components
+  with improved type definitions and update JavaScript SDK utility functions.
+- Updated dependencies []:
+  - @asgardeo/browser@0.7.1
+
 ## 0.3.3
 
 ### Patch Changes
