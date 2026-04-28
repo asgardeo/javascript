@@ -77,6 +77,26 @@ const generateFlattenedUserProfile = (meResponse: any, processedSchemas: any[]):
 
     let value: any = get(meResponse, name);
 
+    // SCIM2 multi-valued complex attributes (phoneNumbers, emails, ims, ...)
+    // are stored as arrays of typed objects: [{type: "mobile", value: "..."}].
+    // The schema flattens them as `<attr>.<type>` (e.g. "phoneNumbers.mobile"),
+    // so when the dotted lookup misses, fall back to filtering the array by
+    // `type` and reading `.value`.
+    if (value === undefined) {
+      const dotIndex: number = name.indexOf('.');
+      if (dotIndex > 0) {
+        const head: string = name.slice(0, dotIndex);
+        const tail: string = name.slice(dotIndex + 1);
+        const arr: any = meResponse[head];
+        if (Array.isArray(arr)) {
+          const match: any = arr.find((item: any) => item && item.type === tail);
+          if (match && match.value !== undefined) {
+            value = match.value;
+          }
+        }
+      }
+    }
+
     // If value not found at top level, check within schema namespaces
     if (value === undefined) {
       const schemaNamespaces: string[] = [

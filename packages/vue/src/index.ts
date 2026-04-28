@@ -18,6 +18,7 @@
 
 // ── Plugin ──
 export {default as AsgardeoPlugin} from './plugins/AsgardeoPlugin';
+export type {AsgardeoPluginOptions} from './plugins/AsgardeoPlugin';
 
 // ── Components ──
 export {default as AsgardeoProvider} from './providers/AsgardeoProvider';

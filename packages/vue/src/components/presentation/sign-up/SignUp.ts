@@ -16,110 +16,33 @@
  * under the License.
  */
 
-import {
-  EmbeddedFlowExecuteRequestPayload,
-  EmbeddedFlowExecuteResponse,
-  EmbeddedFlowResponseType,
-  EmbeddedFlowType,
-} from '@asgardeo/browser';
-import {type Component, type PropType, type SetupContext, type VNode, defineComponent, h} from 'vue';
-import BaseSignUp from './BaseSignUp';
-import type {BaseSignUpRenderProps} from './BaseSignUp';
+import {Platform} from '@asgardeo/browser';
+import {type Component, type SetupContext, type VNode, defineComponent, h} from 'vue';
+import SignUpV1 from './v1/SignUp';
+import SignUpV2 from './v2/SignUp';
 import useAsgardeo from '../../../composables/useAsgardeo';
 
-export type SignUpRenderProps = BaseSignUpRenderProps;
+export type {SignUpRenderProps} from './v2/SignUp';
 
 /**
- * SignUp — embedded sign-up component that handles API calls and delegates UI to BaseSignUp.
+ * SignUp — platform-aware sign-up container.
+ *
+ * Routes to V1 (default, component-driven V1 flow API) or V2 (`AsgardeoV2`
+ * platform) based on the `platform` value from {@link useAsgardeo}. Mirrors
+ * the existing `SignIn` dispatcher pattern in this package.
  */
 const SignUp: Component = defineComponent({
+  inheritAttrs: false,
   name: 'SignUp',
-  props: {
-    afterSignUpUrl: {default: undefined, type: String},
-    buttonClassName: {default: '', type: String},
-    className: {default: '', type: String},
-    errorClassName: {default: '', type: String},
-    inputClassName: {default: '', type: String},
-    messageClassName: {default: '', type: String},
-    onComplete: {default: undefined, type: Function as PropType<(response: EmbeddedFlowExecuteResponse) => void>},
-    onError: {default: undefined, type: Function as PropType<(error: Error) => void>},
-    shouldRedirectAfterSignUp: {default: true, type: Boolean},
-    showSubtitle: {default: true, type: Boolean},
-    showTitle: {default: true, type: Boolean},
-    size: {default: 'medium', type: String as PropType<'small' | 'medium' | 'large'>},
-    variant: {default: 'outlined', type: String as PropType<'elevated' | 'outlined' | 'flat'>},
-  },
-  setup(props: any, {slots}: SetupContext): () => VNode | null {
-    const {signUp, isInitialized, applicationId} = useAsgardeo();
+  setup(_props: Record<string, unknown>, {attrs, slots}: SetupContext): () => VNode {
+    const {platform} = useAsgardeo();
 
-    const handleInitialize = async (
-      payload?: EmbeddedFlowExecuteRequestPayload,
-    ): Promise<EmbeddedFlowExecuteResponse> => {
-      const urlParams: URLSearchParams = new URL(window.location.href).searchParams;
-      const applicationIdFromUrl: string | null = urlParams.get('applicationId');
-      const effectiveApplicationId: string | undefined = applicationId || applicationIdFromUrl || undefined;
-
-      const initialPayload: any = payload || {
-        flowType: EmbeddedFlowType.Registration,
-        ...(effectiveApplicationId && {applicationId: effectiveApplicationId}),
-      };
-
-      return (await signUp(initialPayload)) as EmbeddedFlowExecuteResponse;
+    return (): VNode => {
+      if (platform === Platform.AsgardeoV2) {
+        return h(SignUpV2, {...attrs}, slots);
+      }
+      return h(SignUpV1, {...attrs}, slots);
     };
-
-    const handleOnSubmit = async (payload: EmbeddedFlowExecuteRequestPayload): Promise<EmbeddedFlowExecuteResponse> =>
-      (await signUp(payload)) as EmbeddedFlowExecuteResponse;
-
-    const handleComplete = (response: EmbeddedFlowExecuteResponse): void => {
-      props.onComplete?.(response);
-
-      const oauthRedirectUrl: string | undefined = (response as any)?.redirectUrl;
-      if (props.shouldRedirectAfterSignUp && oauthRedirectUrl) {
-        window.location.href = oauthRedirectUrl;
-        return;
-      }
-
-      if (
-        props.shouldRedirectAfterSignUp &&
-        response?.type !== EmbeddedFlowResponseType.Redirection &&
-        props.afterSignUpUrl
-      ) {
-        window.location.href = props.afterSignUpUrl;
-      }
-
-      if (
-        props.shouldRedirectAfterSignUp &&
-        response?.type === EmbeddedFlowResponseType.Redirection &&
-        response?.data?.redirectURL &&
-        !response.data.redirectURL.includes('oauth') &&
-        !response.data.redirectURL.includes('auth')
-      ) {
-        window.location.href = response.data.redirectURL;
-      }
-    };
-
-    return (): VNode | null =>
-      h(
-        BaseSignUp,
-        {
-          afterSignUpUrl: props.afterSignUpUrl,
-          buttonClassName: props.buttonClassName,
-          className: props.className,
-          errorClassName: props.errorClassName,
-          inputClassName: props.inputClassName,
-          isInitialized: isInitialized?.value ?? false,
-          messageClassName: props.messageClassName,
-          onComplete: handleComplete,
-          onError: props.onError,
-          onInitialize: handleInitialize,
-          onSubmit: handleOnSubmit,
-          showSubtitle: props.showSubtitle,
-          showTitle: props.showTitle,
-          size: props.size,
-          variant: props.variant,
-        },
-        slots['default'] ? {default: (renderProps: any) => slots['default']!(renderProps)} : undefined,
-      );
   },
 });
 

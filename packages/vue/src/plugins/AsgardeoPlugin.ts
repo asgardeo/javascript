@@ -21,6 +21,32 @@ import AsgardeoProvider from '../providers/AsgardeoProvider';
 import {injectStyles} from '../styles/injectStyles';
 
 /**
+ * Options accepted by {@link AsgardeoPlugin}.
+ *
+ * @example Browser SPA (default behaviour — no options needed)
+ * ```ts
+ * app.use(AsgardeoPlugin);
+ * ```
+ *
+ * @example Delegated mode (e.g. @asgardeo/nuxt)
+ * ```ts
+ * // The host framework is responsible for providing all injection context
+ * // via app.provide().  The plugin skips browser-only initialisation so it
+ * // can run safely in SSR environments.
+ * app.use(AsgardeoPlugin, { mode: 'delegated' });
+ * ```
+ */
+export interface AsgardeoPluginOptions {
+  /**
+   * `'browser'` (default) — full browser PKCE flow, registers `<AsgardeoProvider>`.
+   * `'delegated'` — the host framework (e.g. `@asgardeo/nuxt`) provides all
+   * injection context via `app.provide()`.  The plugin skips browser-only
+   * initialisation so it is safe to call during SSR.
+   */
+  mode?: 'browser' | 'delegated';
+}
+
+/**
  * Vue plugin for Asgardeo authentication.
  *
  * Registers the `<AsgardeoProvider>` component globally so it can be used
@@ -46,9 +72,16 @@ import {injectStyles} from '../styles/injectStyles';
  * </template>
  * ```
  */
-const AsgardeoPlugin: Plugin = {
-  install(app: App): void {
+const AsgardeoPlugin: Plugin<[AsgardeoPluginOptions?]> = {
+  install(app: App, options?: AsgardeoPluginOptions): void {
     injectStyles();
+
+    if (options?.mode === 'delegated') {
+      // In delegated mode the host framework is responsible for providing all
+      // injection context (ASGARDEO_KEY, USER_KEY, …) via app.provide() and
+      // for registering its own root component.
+      return;
+    }
     app.component('AsgardeoProvider', AsgardeoProvider);
   },
 };
