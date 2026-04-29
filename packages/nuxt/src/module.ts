@@ -31,6 +31,8 @@ import type {Nuxt} from '@nuxt/schema';
 import {defu} from 'defu';
 import type {AsgardeoNuxtConfig, AsgardeoSessionPayload, AsgardeoSSRData} from './runtime/types';
 
+type ViteUserConfig = Parameters<Parameters<typeof extendViteConfig>[0]>[0];
+
 const PACKAGE_NAME: string = '@asgardeo/nuxt';
 
 type ServerRoute = {
@@ -302,11 +304,8 @@ export default defineNuxtModule<AsgardeoNuxtConfig>({
     // "Export 'X' is not defined in module" errors when installed from npm.
     // This is only needed for the client Vite build; Nitro handles the server.
     extendViteConfig(
-      config => {
-        config.optimizeDeps ??= {};
-        config.optimizeDeps.include ??= [];
-
-        const deps = [
+      (viteConfig: ViteUserConfig) => {
+        const deps: string[] = [
           '@asgardeo/browser',
           '@asgardeo/javascript',
           '@asgardeo/vue',
@@ -315,11 +314,15 @@ export default defineNuxtModule<AsgardeoNuxtConfig>({
           'fast-sha256',
         ];
 
-        for (const dep of deps) {
-          if (!config.optimizeDeps.include.includes(dep)) {
-            config.optimizeDeps.include.push(dep);
-          }
-        }
+        const existingInclude: string[] = (viteConfig.optimizeDeps?.include as string[]) ?? [];
+        const newDeps: string[] = deps.filter((dep: string) => !existingInclude.includes(dep));
+
+        Object.assign(viteConfig, {
+          optimizeDeps: {
+            ...viteConfig.optimizeDeps,
+            include: [...existingInclude, ...newDeps],
+          },
+        });
       },
       {client: true},
     );
