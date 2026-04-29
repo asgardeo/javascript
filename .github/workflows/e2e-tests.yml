@@ -149,8 +149,22 @@ jobs:
       - name: 🎭 Install Playwright browsers
         run: pnpm e2e:install
 
+      # - name: 🐳 Start Thunder
+      #   run: pnpm e2e:docker:up:thunder
+
       - name: 🐳 Start Thunder
-        run: pnpm e2e:docker:up:thunder
+        run: |
+          set -euxo pipefail
+          pnpm e2e:docker:up:thunder || {
+            echo "Thunder compose failed. Dumping docker state + logs..."
+            docker ps -a || true
+            docker compose -f e2e/docker-compose.yml ps || true
+            docker compose -f e2e/docker-compose.yml logs --no-color --timestamps || true
+            # If thunder-setup is a container name, also dump it directly:
+            docker logs --timestamps asgardeo-e2e-thunder || true
+            docker inspect asgardeo-e2e-thunder || true
+            exit 1
+          }
 
       - name: 🧪 Run E2E redirect tests against Thunder
         run: pnpm e2e -- --idp thunder --mode redirect
