@@ -28,7 +28,7 @@ import {
 } from '@nuxt/kit';
 import type {Nuxt} from '@nuxt/schema';
 import {defu} from 'defu';
-import type {AsgardeoNuxtConfig} from './runtime/types';
+import type {AsgardeoNuxtConfig, AsgardeoSessionPayload, AsgardeoSSRData} from './runtime/types';
 
 const PACKAGE_NAME: string = '@asgardeo/nuxt';
 
@@ -298,6 +298,12 @@ export default defineNuxtModule<AsgardeoNuxtConfig>({
 });
 
 declare module '@nuxt/schema' {
+  interface NuxtConfig {
+    asgardeo?: AsgardeoNuxtConfig;
+  }
+  interface NuxtOptions {
+    asgardeo?: AsgardeoNuxtConfig;
+  }
   interface PublicRuntimeConfig {
     asgardeo: {
       afterSignInUrl: string;
@@ -305,7 +311,7 @@ declare module '@nuxt/schema' {
       applicationId?: string;
       baseUrl: string;
       clientId: string;
-      preferences?: import('./runtime/types').AsgardeoNuxtConfig['preferences'];
+      preferences?: AsgardeoNuxtConfig['preferences'];
       scopes: string[];
       signInUrl?: string;
       signUpUrl?: string;
@@ -316,6 +322,16 @@ declare module '@nuxt/schema' {
     asgardeo: {
       clientSecret: string;
       sessionSecret: string;
+    };
+  }
+}
+
+declare module 'h3' {
+  interface H3EventContext {
+    asgardeo?: {
+      isSignedIn?: boolean;
+      session?: AsgardeoSessionPayload | {sub?: string} | null;
+      ssr?: AsgardeoSSRData;
     };
   }
 }

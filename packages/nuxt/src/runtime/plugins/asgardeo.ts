@@ -27,9 +27,6 @@ import type {AsgardeoAuthState, AsgardeoSSRData} from '../types';
 import {defineNuxtPlugin, useState, useRequestEvent, useRuntimeConfig, navigateTo} from '#app';
 import type {NuxtApp} from '#app';
 
-// Import H3 augmentation so event.context.asgardeo is typed
-import '../types/augments.d';
-
 /**
  * Universal Nuxt plugin (runs on both server and client) that wires up the
  * Asgardeo Vue SDK.
@@ -122,7 +119,9 @@ export default defineNuxtPlugin((nuxtApp: NuxtApp) => {
       brandingState.value = ssr.brandingPreference;
     } else {
       // Backwards-compat: fall back to the legacy context shape (pre-Step-2 plugin).
-      const ssrContext: {isSignedIn?: boolean; session?: {sub?: string}} | undefined = event?.context?.asgardeo;
+      const ssrContext: {isSignedIn?: boolean; session?: {sub?: string}} | undefined = event?.context?.asgardeo as
+        | {isSignedIn?: boolean; session?: {sub?: string}}
+        | undefined;
       if (ssrContext) {
         authState.value = {
           isLoading: false,
