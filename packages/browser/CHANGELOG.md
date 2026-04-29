@@ -1,5 +1,18 @@
 # @asgardeo/browser
 
+## 0.7.2
+
+### Patch Changes
+
+- [#483](https://github.com/asgardeo/javascript/pull/483)
+  [`519fa74`](https://github.com/asgardeo/javascript/commit/519fa746c2dace5446368ad9043e3aec0d152514) Thanks
+  [@kavindadimuthu](https://github.com/kavindadimuthu)! - Fix SSR compatibility and module bundling issues
+
+  - **Browser:** Fixed Node.js ESM import resolution by changing directory imports (`'buffer/'`) to explicit file paths
+    (`'buffer/index.js'`)
+  - **Nuxt:** Fixed Rollup bundling by centralizing module augmentations in `module.ts` and removing `.d.ts` file from
+    dist
+
 ## 0.7.1
 
 ### Patch Changes
