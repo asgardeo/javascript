@@ -312,6 +312,8 @@ export default defineNuxtModule<AsgardeoNuxtConfig>({
           'base64url',
           'cross-fetch',
           'fast-sha256',
+          'memory-cache',
+          'secure-random-bytes',
         ];
 
         const existingInclude: string[] = (viteConfig.optimizeDeps?.include as string[]) ?? [];
