@@ -310,7 +310,6 @@ export default defineNuxtModule<AsgardeoNuxtConfig>({
           '@asgardeo/javascript',
           '@asgardeo/vue',
           'base64url',
-          'cross-fetch',
           'fast-sha256',
         ];
 
