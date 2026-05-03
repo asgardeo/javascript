@@ -19,6 +19,17 @@
 /**
  * Entry point for all public APIs of this SDK.
  */
+
+// Expose Buffer globally so that browser environments that check window.Buffer
+// (e.g. libraries that guard against missing Node polyfills) can find it.
+// `buffer` is bundled inline by esbuild — no external import appears in the dist.
+// eslint-disable-next-line import/no-cycle
+import {Buffer} from 'buffer';
+
+if (typeof window !== 'undefined' && !(window as any).Buffer) {
+  (window as any).Buffer = Buffer;
+}
+
 // eslint-disable-next-line import/no-cycle
 export * from './__legacy__/client';
 // eslint-disable-next-line import/no-cycle

@@ -46,14 +46,6 @@ const polyfillPlugin = {
 };
 
 const commonOptions = {
-  banner: {
-    js: `
-      import { Buffer } from 'buffer/index.js';
-      if (typeof window !== 'undefined' && !window.Buffer) {
-        window.Buffer = Buffer;
-      }
-    `,
-  },
   bundle: true,
   define: {
     global: 'globalThis', // Required by crypto-browserify
@@ -63,13 +55,6 @@ const commonOptions = {
   },
   entryPoints: ['src/index.ts'],
   external: externalDeps,
-  footer: {
-    js: `
-      if (typeof window !== 'undefined' && !window.Buffer) {
-        window.Buffer = require('buffer/index.js').Buffer;
-      }
-    `,
-  },
   platform: 'browser',
   plugins: [
     polyfillPlugin,

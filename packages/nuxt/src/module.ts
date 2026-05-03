@@ -25,10 +25,13 @@ import {
   addServerPlugin,
   createResolver,
   defineNuxtModule,
+  extendViteConfig,
 } from '@nuxt/kit';
 import type {Nuxt} from '@nuxt/schema';
 import {defu} from 'defu';
 import type {AsgardeoNuxtConfig, AsgardeoSessionPayload, AsgardeoSSRData} from './runtime/types';
+
+type ViteUserConfig = Parameters<Parameters<typeof extendViteConfig>[0]>[0];
 
 const PACKAGE_NAME: string = '@asgardeo/nuxt';
 
@@ -294,6 +297,34 @@ export default defineNuxtModule<AsgardeoNuxtConfig>({
 
     // ── Auth callback ────────────────────────────────────────────────────────
     addComponent({filePath: resolve('./runtime/components/auth/Callback'), name: 'AsgardeoCallback'});
+
+    // Tell Vite to pre-bundle the CJS-only packages that @asgardeo/browser,
+    // @asgardeo/javascript, and @asgardeo/vue carry as external dependencies.
+    // Without this, Vite serves them raw from disk via @fs URLs and fails with
+    // "Export 'X' is not defined in module" errors when installed from npm.
+    // This is only needed for the client Vite build; Nitro handles the server.
+    extendViteConfig(
+      (viteConfig: ViteUserConfig) => {
+        const deps: string[] = [
+          '@asgardeo/browser',
+          '@asgardeo/javascript',
+          '@asgardeo/vue',
+          'base64url',
+          'fast-sha256',
+        ];
+
+        const existingInclude: string[] = (viteConfig.optimizeDeps?.include as string[]) ?? [];
+        const newDeps: string[] = deps.filter((dep: string) => !existingInclude.includes(dep));
+
+        Object.assign(viteConfig, {
+          optimizeDeps: {
+            ...viteConfig.optimizeDeps,
+            include: [...existingInclude, ...newDeps],
+          },
+        });
+      },
+      {client: true},
+    );
   },
 });
 

@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import {generateFlattenedUserProfile} from '@asgardeo/node';
+import {generateFlattenedUserProfile} from '@asgardeo/browser';
 import type {
   AllOrganizationsApiResponse,
   BrandingPreference,
