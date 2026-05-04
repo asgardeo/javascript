@@ -81,21 +81,13 @@ ASGARDEO_CLIENT_SECRET="<your-app-client-secret>"
 
 Create a `middleware.ts` file in your project root to handle authentication:
 
+> **Note on Next.js 16 compatibility:**
+> Next.js 16 renamed `middleware.ts` to `proxy.ts`. The `@asgardeo/nextjs` SDK currently supports the `middleware.ts` export pattern. Support for Next.js 16's `proxy.ts` may be added in a future SDK release.
+
 ```bash
-import { AsgardeoNext } from '@asgardeo/nextjs';
-import { NextRequest } from 'next/server';
+import { asgardeoMiddleware } from '@asgardeo/nextjs/server';
 
-const asgardeo = new AsgardeoNext();
-
-asgardeo.initialize({
-  baseUrl: process.env.NEXT_PUBLIC_ASGARDEO_BASE_URL,
-  clientId: process.env.NEXT_PUBLIC_ASGARDEO_CLIENT_ID,
-  clientSecret: process.env.ASGARDEO_CLIENT_SECRET,
-});
-
-export async function middleware(request: NextRequest) {
-  return await asgardeo.middleware(request);
-}
+export default asgardeoMiddleware();
 
 export const config = {
   matcher: [
@@ -219,21 +211,12 @@ If you want to use an embedded login page instead of redirecting to Asgardeo, yo
 Configure the path of the sign-in page in the `middleware.ts` file:
 
 ```diff
-import { AsgardeoNext } from '@asgardeo/nextjs';
-import { NextRequest } from 'next/server';
+import { asgardeoMiddleware } from '@asgardeo/nextjs/server';
 
-const asgardeo = new AsgardeoNext();
-
-asgardeo.initialize({
-  baseUrl: process.env.NEXT_PUBLIC_ASGARDEO_BASE_URL,
-  clientId: process.env.NEXT_PUBLIC_ASGARDEO_CLIENT_ID,
-  clientSecret: process.env.ASGARDEO_CLIENT_SECRET,
+-export default asgardeoMiddleware();
++export default asgardeoMiddleware(undefined, {
 +  signInUrl: '/signin',
-});
-
-export async function middleware(request: NextRequest) {
-  return await asgardeo.middleware(request);
-}
++});
 
 export const config = {
   matcher: [
