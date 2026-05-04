@@ -381,7 +381,10 @@ export interface ThemePreferences {
    */
   direction?: 'ltr' | 'rtl';
   /**
-   * Inherit from Branding from WSO2 Identity Server or Asgardeo.
+   * Inherit branding from WSO2 Identity Server or Asgardeo.
+   * When set to `true`, the SDK will fetch and apply branding preferences from the server.
+   * Defaults to `false` — branding is not fetched unless explicitly enabled.
+   * @default false
    */
   inheritFromBranding?: boolean;
   /**
