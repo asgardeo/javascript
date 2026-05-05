@@ -1,5 +1,14 @@
 # @asgardeo/nuxt
 
+## 0.1.4
+
+### Patch Changes
+
+- [#486](https://github.com/asgardeo/javascript/pull/486)
+  [`3e23a3a`](https://github.com/asgardeo/javascript/commit/3e23a3aa71016c16a50e3e27d586d0bc697f47ea) Thanks
+  [@kavindadimuthu](https://github.com/kavindadimuthu)! - Fix Nuxt Vite pre-bundling and a misplaced
+  generateFlattenedUserProfile import
+
 ## 0.1.3
 
 ### Patch Changes
