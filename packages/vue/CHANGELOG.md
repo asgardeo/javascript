@@ -1,5 +1,17 @@
 # @asgardeo/vue
 
+## 0.3.6
+
+### Patch Changes
+
+- [#488](https://github.com/asgardeo/javascript/pull/488)
+  [`8e164c7`](https://github.com/asgardeo/javascript/commit/8e164c7c646f4fece1d60190093b9e295fa89cd7) Thanks
+  [@DonOmalVindula](https://github.com/DonOmalVindula)! - Fix social signup popup callback handling
+
+  When social signup (Google/GitHub) opens a popup for federated authentication, the Callback component now detects the
+  popup context and sends OAuth parameters back to the parent window via postMessage. Also prevents a race condition
+  where both the postMessage handler and the popup URL monitor could double-process the callback.
+
 ## 0.3.5
 
 ### Patch Changes
