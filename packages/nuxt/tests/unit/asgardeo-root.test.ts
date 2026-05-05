@@ -18,7 +18,7 @@
 
 /* eslint-disable @typescript-eslint/typedef, sort-keys, @typescript-eslint/no-unused-vars, no-restricted-syntax */
 
-import {generateFlattenedUserProfile} from '@asgardeo/node';
+import {generateFlattenedUserProfile} from '@asgardeo/browser';
 import {
   BrandingProvider,
   FlowMetaProvider,
@@ -49,7 +49,7 @@ vi.mock('@asgardeo/vue', () => ({
   I18nProvider: {name: 'I18nProvider'},
 }));
 
-vi.mock('@asgardeo/node', () => ({
+vi.mock('@asgardeo/browser', () => ({
   generateFlattenedUserProfile: vi.fn((_user: any, _schemas: any) => ({email: 'updated@example.com'})),
 }));
 
