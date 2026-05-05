@@ -25,14 +25,16 @@ import {
   EmbeddedFlowType,
   Platform,
 } from '@asgardeo/node';
-import {BaseSignUp, BaseSignUpProps, SignUpV2} from '@asgardeo/react';
-import {FC} from 'react';
+import {BaseSignUp, BaseSignUpProps, SignUpV2, SignUpRenderProps} from '@asgardeo/react';
+import {FC, ReactElement} from 'react';
 import useAsgardeo from '../../../contexts/Asgardeo/useAsgardeo';
 
 /**
  * Props for the SignUp component.
  */
-export type SignUpProps = BaseSignUpProps;
+export type SignUpProps = Pick<BaseSignUpProps, 'className' | 'afterSignUpUrl' | 'onError' | 'variant' | 'size'> & {
+  children?: (props: any) => ReactElement;
+};
 
 /**
  * A styled SignUp component that provides embedded sign-up flow with pre-built styling.
@@ -70,6 +72,7 @@ const SignUp: FC<SignUpProps> = ({
   variant = 'outlined',
   afterSignUpUrl,
   onError,
+  children,
   ...rest
 }: SignUpProps) => {
   const {signUp, platform} = useAsgardeo();
@@ -119,7 +122,9 @@ const SignUp: FC<SignUpProps> = ({
         afterSignUpUrl={afterSignUpUrl}
         onError={onError}
         {...rest}
-      />
+      >
+        {children as any}
+      </SignUpV2>
     );
   }
 
@@ -134,7 +139,9 @@ const SignUp: FC<SignUpProps> = ({
       variant={variant}
       isInitialized={true}
       {...rest}
-    />
+    >
+      {children as any}
+    </BaseSignUp>
   );
 };
 

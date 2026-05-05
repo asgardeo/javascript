@@ -45,6 +45,14 @@ export type {FlowProviderProps} from './contexts/Flow/FlowProvider';
 
 export {default as useFlow} from './contexts/Flow/useFlow';
 
+export {default as FlowMetaContext} from './contexts/FlowMeta/FlowMetaContext';
+export * from './contexts/FlowMeta/FlowMetaContext';
+
+export {default as FlowMetaProvider} from './contexts/FlowMeta/FlowMetaProvider';
+export * from './contexts/FlowMeta/FlowMetaProvider';
+
+export {default as useFlowMeta} from './contexts/FlowMeta/useFlowMeta';
+
 export {default as I18nContext} from './contexts/I18n/I18nContext';
 export * from './contexts/I18n/I18nContext';
 
