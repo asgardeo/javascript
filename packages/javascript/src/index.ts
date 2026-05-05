@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2020, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ * Copyright (c) 2020-2026, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
  *
  * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -47,6 +47,7 @@ export {default as updateMeProfile, UpdateMeProfileConfig} from './api/updateMeP
 export {default as getBrandingPreference, GetBrandingPreferenceConfig} from './api/getBrandingPreference';
 export {default as executeEmbeddedSignInFlowV2} from './api/v2/executeEmbeddedSignInFlowV2';
 export {default as executeEmbeddedSignUpFlowV2} from './api/v2/executeEmbeddedSignUpFlowV2';
+export {default as executeEmbeddedRecoveryFlowV2} from './api/v2/executeEmbeddedRecoveryFlowV2';
 export {
   default as executeEmbeddedUserOnboardingFlowV2,
   EmbeddedUserOnboardingFlowResponse,
@@ -112,6 +113,14 @@ export {
   EmbeddedSignUpFlowRequest as EmbeddedSignUpFlowRequestV2,
   EmbeddedSignUpFlowErrorResponse as EmbeddedSignUpFlowErrorResponseV2,
 } from './models/v2/embedded-signup-flow-v2';
+export {
+  EmbeddedRecoveryFlowStatus as EmbeddedRecoveryFlowStatusV2,
+  EmbeddedRecoveryFlowType as EmbeddedRecoveryFlowTypeV2,
+  EmbeddedRecoveryFlowResponse as EmbeddedRecoveryFlowResponseV2,
+  EmbeddedRecoveryFlowInitiateRequest as EmbeddedRecoveryFlowInitiateRequestV2,
+  EmbeddedRecoveryFlowRequest as EmbeddedRecoveryFlowRequestV2,
+  EmbeddedRecoveryFlowErrorResponse as EmbeddedRecoveryFlowErrorResponseV2,
+} from './models/v2/embedded-recovery-flow-v2';
 export {
   OrganizationUnit,
   OrganizationUnitListResponse,

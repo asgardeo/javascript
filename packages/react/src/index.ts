@@ -121,6 +121,12 @@ export * from './components/presentation/auth/SignUp/BaseSignUp';
 export {default as SignUp} from './components/presentation/auth/SignUp/SignUp';
 export * from './components/presentation/auth/SignUp/SignUp';
 
+export {default as BaseRecovery} from './components/presentation/auth/Recovery/BaseRecovery';
+export * from './components/presentation/auth/Recovery/BaseRecovery';
+
+export {default as Recovery} from './components/presentation/auth/Recovery/Recovery';
+export * from './components/presentation/auth/Recovery/Recovery';
+
 export * from './components/presentation/auth/InviteUser';
 export * from './components/presentation/auth/OrganizationUnitPicker';
 
@@ -329,4 +335,10 @@ export {
   type ComponentRenderContext,
   type ComponentsExtensions,
   type ComponentRenderer,
+  EmbeddedRecoveryFlowStatusV2 as EmbeddedRecoveryFlowStatus,
+  EmbeddedRecoveryFlowTypeV2 as EmbeddedRecoveryFlowType,
+  type EmbeddedRecoveryFlowResponseV2 as EmbeddedRecoveryFlowResponse,
+  type EmbeddedRecoveryFlowInitiateRequestV2 as EmbeddedRecoveryFlowInitiateRequest,
+  type EmbeddedRecoveryFlowRequestV2 as EmbeddedRecoveryFlowRequest,
+  type EmbeddedRecoveryFlowErrorResponseV2 as EmbeddedRecoveryFlowErrorResponse,
 } from '@asgardeo/browser';

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2025, WSO2 LLC. (https://www.wso2.com).
+ * Copyright (c) 2025-2026, WSO2 LLC. (https://www.wso2.com).
  *
  * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -159,6 +159,10 @@ class AsgardeoJavaScriptClient<T = Config> implements AsgardeoClient<T> {
     _sessionIdOrAfterSignOut?: string | ((afterSignOutUrl: string) => void),
     _afterSignOut?: (afterSignOutUrl: string) => void,
   ): Promise<string> {
+    throw new Error('Method not implemented.');
+  }
+
+  recover(_payload: EmbeddedFlowExecuteRequestPayload): Promise<EmbeddedFlowExecuteResponse> {
     throw new Error('Method not implemented.');
   }
 

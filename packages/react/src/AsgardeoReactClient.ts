@@ -50,6 +50,7 @@ import {
   isEmpty,
   EmbeddedSignInFlowResponseV2,
   executeEmbeddedSignUpFlowV2,
+  executeEmbeddedRecoveryFlowV2,
   EmbeddedSignInFlowStatusV2,
   OIDCDiscoveryApiResponse,
 } from '@asgardeo/browser';
@@ -532,6 +533,21 @@ class AsgardeoReactClient<T extends AsgardeoReactConfig = AsgardeoReactConfig> e
 
     navigate(getRedirectBasedSignUpUrl(config as Config));
     return undefined;
+  }
+
+  override async recover(payload: EmbeddedFlowExecuteRequestPayload): Promise<EmbeddedFlowExecuteResponse> {
+    const config: AsgardeoReactConfig = (await this.asgardeo.getConfigData()) as AsgardeoReactConfig;
+    const baseUrl: string = config?.baseUrl;
+    const isV2Platform: boolean = config && config.platform === Platform.AsgardeoV2;
+
+    if (isV2Platform) {
+      return executeEmbeddedRecoveryFlowV2({
+        baseUrl,
+        payload: {...(payload as EmbeddedFlowExecuteRequestPayload), verbose: true},
+      }) as any;
+    }
+
+    return undefined as any;
   }
 
   override async getDiscoveryResponse(): Promise<OIDCDiscoveryApiResponse | null> {
