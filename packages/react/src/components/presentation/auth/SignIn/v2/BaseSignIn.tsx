@@ -24,8 +24,11 @@ import {
   Preferences,
 } from '@asgardeo/browser';
 import {cx} from '@emotion/css';
-import {FC, useState, useCallback, ReactElement, ReactNode} from 'react';
+import {FC, useState, useCallback, useContext, ReactElement, ReactNode} from 'react';
 import useAsgardeo from '../../../../../contexts/Asgardeo/useAsgardeo';
+import ComponentRendererContext, {
+  ComponentRendererMap,
+} from '../../../../../contexts/ComponentRenderer/ComponentRendererContext';
 import FlowProvider from '../../../../../contexts/Flow/FlowProvider';
 import useFlow from '../../../../../contexts/Flow/useFlow';
 import ComponentPreferencesContext from '../../../../../contexts/I18n/ComponentPreferencesContext';
@@ -238,6 +241,7 @@ const BaseSignInContent: FC<BaseSignInProps> = ({
 }: BaseSignInProps): ReactElement => {
   const {meta} = useAsgardeo();
   const {theme} = useTheme();
+  const customRenderers: ComponentRendererMap = useContext(ComponentRendererContext);
   const {t} = useTranslation();
   const {subtitle: flowSubtitle, title: flowTitle, messages: flowMessages, addMessage, clearMessages} = useFlow();
   const styles: any = useStyles(theme, theme.vars.colors.text.primary);
@@ -454,6 +458,8 @@ const BaseSignInContent: FC<BaseSignInProps> = ({
         isFormValid,
         handleInputChange,
         {
+          _customRenderers: customRenderers,
+          _theme: theme,
           additionalData,
           buttonClassName: buttonClasses,
           inputClassName: inputClasses,
@@ -468,12 +474,14 @@ const BaseSignInContent: FC<BaseSignInProps> = ({
       ),
     [
       additionalData,
+      customRenderers,
       formValues,
       touchedFields,
       formErrors,
       isFormValid,
       meta,
       t,
+      theme,
       isLoading,
       size,
       variant,
