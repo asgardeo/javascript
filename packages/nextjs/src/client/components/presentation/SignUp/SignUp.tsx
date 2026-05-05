@@ -23,8 +23,9 @@ import {
   EmbeddedFlowExecuteRequestPayload,
   EmbeddedFlowExecuteResponse,
   EmbeddedFlowType,
+  Platform,
 } from '@asgardeo/node';
-import {BaseSignUp, BaseSignUpProps} from '@asgardeo/react';
+import {BaseSignUp, BaseSignUpProps, SignUpV2} from '@asgardeo/react';
 import {FC} from 'react';
 import useAsgardeo from '../../../contexts/Asgardeo/useAsgardeo';
 
@@ -69,8 +70,9 @@ const SignUp: FC<SignUpProps> = ({
   variant = 'outlined',
   afterSignUpUrl,
   onError,
+  ...rest
 }: SignUpProps) => {
-  const {signUp} = useAsgardeo();
+  const {signUp, platform} = useAsgardeo();
 
   /**
    * Initialize the sign-up flow.
@@ -108,6 +110,19 @@ const SignUp: FC<SignUpProps> = ({
     return (await signUp(payload)) as unknown as Promise<EmbeddedFlowExecuteResponse>;
   };
 
+  if (platform === Platform.AsgardeoV2) {
+    return (
+      <SignUpV2
+        className={className}
+        size={size}
+        variant={variant}
+        afterSignUpUrl={afterSignUpUrl}
+        onError={onError}
+        {...rest}
+      />
+    );
+  }
+
   return (
     <BaseSignUp
       afterSignUpUrl={afterSignUpUrl}
@@ -118,6 +133,7 @@ const SignUp: FC<SignUpProps> = ({
       size={size}
       variant={variant}
       isInitialized={true}
+      {...rest}
     />
   );
 };

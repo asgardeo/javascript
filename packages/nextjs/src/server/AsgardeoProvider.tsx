@@ -238,6 +238,7 @@ const AsgardeoServerProvider: FC<PropsWithChildren<AsgardeoServerProviderProps>>
       switchOrganization={switchOrganization}
       brandingPreference={brandingPreference}
       createOrganization={createOrganization}
+      platform={config?.platform}
     >
       {children}
     </AsgardeoClientProvider>

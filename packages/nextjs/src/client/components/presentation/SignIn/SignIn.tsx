@@ -24,16 +24,26 @@ import {
   EmbeddedSignInFlowHandleRequestPayload,
   EmbeddedSignInFlowHandleResponse,
   EmbeddedSignInFlowInitiateResponse,
+  Platform,
 } from '@asgardeo/node';
-import {BaseSignIn, BaseSignInProps} from '@asgardeo/react';
-import {FC} from 'react';
+import {BaseSignIn, BaseSignInProps, SignInV2, SignInRenderProps} from '@asgardeo/react';
+import {FC, ReactElement} from 'react';
 import useAsgardeo from '../../../contexts/Asgardeo/useAsgardeo';
 
 /**
  * Props for the SignIn component.
  * Extends BaseSignInProps for full compatibility with the React BaseSignIn component
  */
-export type SignInProps = Pick<BaseSignInProps, 'className' | 'onSuccess' | 'onError' | 'variant' | 'size'>;
+export type SignInProps = Pick<BaseSignInProps, 'className' | 'onSuccess' | 'onError' | 'variant' | 'size'> & {
+  /**
+   * Render function for custom UI (render props pattern).
+   */
+  children?: (props: SignInRenderProps) => ReactElement;
+  /**
+   * Component-level preferences to override global i18n and theme settings.
+   */
+  preferences?: any;
+};
 
 /**
  * A SignIn component for Next.js that provides native authentication flow.
@@ -78,8 +88,8 @@ export type SignInProps = Pick<BaseSignInProps, 'className' | 'onSuccess' | 'onE
  * };
  * ```
  */
-const SignIn: FC<SignInProps> = ({size = 'medium', variant = 'outlined', ...rest}: SignInProps) => {
-  const {signIn, afterSignInUrl} = useAsgardeo();
+const SignIn: FC<SignInProps> = ({className, size = 'medium', variant = 'outlined', children, preferences, ...rest}: SignInProps) => {
+  const {signIn, afterSignInUrl, platform} = useAsgardeo();
 
   const handleInitialize = async (): Promise<EmbeddedSignInFlowInitiateResponse> =>
     signIn &&
@@ -106,14 +116,31 @@ const SignIn: FC<SignInProps> = ({size = 'medium', variant = 'outlined', ...rest
     return (await signIn(payload, request)) as Promise<EmbeddedSignInFlowHandleResponse>;
   };
 
+  if (platform === Platform.AsgardeoV2) {
+    return (
+      <SignInV2
+        className={className}
+        size={size}
+        variant={variant}
+        onSuccess={rest.onSuccess}
+        onError={rest.onError}
+        preferences={preferences}
+      >
+        {children}
+      </SignInV2>
+    );
+  }
+
   return (
     <BaseSignIn
       // isLoading={isLoading || !isInitialized}
       afterSignInUrl={afterSignInUrl}
       onInitialize={handleInitialize}
       onSubmit={handleOnSubmit}
+      className={className}
       size={size}
       variant={variant}
+      preferences={preferences}
       {...rest}
     />
   );
