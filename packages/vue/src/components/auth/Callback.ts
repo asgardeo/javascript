@@ -75,7 +75,7 @@ const Callback: Component = defineComponent({
         //     back to the opener via postMessage. The parent window's handler will
         //     close this popup after processing the code.
         if (window.opener) {
-          window.opener.postMessage({code, state, nonce, error: oauthError, errorDescription}, window.location.origin);
+          window.opener.postMessage({code, error: oauthError, errorDescription, nonce, state}, window.location.origin);
           return;
         }
 
