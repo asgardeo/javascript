@@ -561,6 +561,8 @@ const BaseSignUpContent: FC<BaseSignUpProps> = ({
         const {code, state} = event.data;
 
         if (code && state) {
+          hasProcessedCallback = true;
+
           const payload: EmbeddedFlowExecuteRequestPayload = {
             ...((currentFlow as any).executionId && {executionId: (currentFlow as any).executionId}),
             action: '',
