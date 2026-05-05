@@ -1,6 +1,6 @@
 {
   "name": "@asgardeo/nuxt",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Nuxt module for Asgardeo - Authentication and Identity Management",
   "author": "WSO2",
   "license": "Apache-2.0",
