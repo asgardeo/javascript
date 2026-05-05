@@ -85,6 +85,14 @@ export const Callback: FC<CallbackProps> = ({onNavigate, onError}: CallbackProps
         const oauthError: string | null = urlParams.get('error');
         const errorDescription: string | null = urlParams.get('error_description');
 
+        // 1a. If running inside a popup (e.g. social signup), send OAuth params
+        //     back to the opener via postMessage. The parent window's handler will
+        //     close this popup after processing the code.
+        if (window.opener) {
+          window.opener.postMessage({code, error: oauthError, errorDescription, nonce, state}, window.location.origin);
+          return;
+        }
+
         // 2. Validate and retrieve OAuth state from sessionStorage
         if (!state) {
           throw new Error('Missing OAuth state parameter - possible security issue');
