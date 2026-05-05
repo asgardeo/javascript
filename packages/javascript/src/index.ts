@@ -16,7 +16,6 @@
  * under the License.
  */
 
-export {AsgardeoAuthClient} from './__legacy__/client';
 export {
   DefaultAuthClientConfig,
   WellKnownAuthClientConfig,
@@ -24,7 +23,7 @@ export {
   ExplicitAuthClientConfig,
   StrictAuthClientConfig,
   AuthClientConfig,
-} from './__legacy__/models';
+} from './models/auth-client-config';
 
 export {IsomorphicCrypto} from './IsomorphicCrypto';
 

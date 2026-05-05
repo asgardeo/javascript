@@ -17,7 +17,7 @@
  */
 
 // eslint-disable-next-line import/no-cycle
-import {AsgardeoSPAClient} from '../__legacy__/client';
+import {AsgardeoSPAClient} from '../AsgardeoSPAClient';
 
 /**
  * Creates an HTTP utility for making requests using a specific AsgardeoSPAClient instance.

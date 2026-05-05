@@ -16,10 +16,7 @@
  * under the License.
  */
 
-export * from './models';
-
-export {AsgardeoExpressClient as LegacyAsgardeoExpressClient} from './LegacyAsgardeoExpressClient';
-
-export {default as AsgardeoExpressClient} from './AsgardeoExpressClient';
-
-export * from '@asgardeo/node';
+export * from './config';
+export * from './data';
+export * from './express-client-config';
+export * from './protect-route';

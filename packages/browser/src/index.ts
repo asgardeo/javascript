@@ -20,31 +20,31 @@
  * Entry point for all public APIs of this SDK.
  */
 // eslint-disable-next-line import/no-cycle
-export * from './__legacy__/client';
+export * from './AsgardeoSPAClient';
 // eslint-disable-next-line import/no-cycle
-export * from './__legacy__/models';
+export * from './models';
 
 // Utils
 // eslint-disable-next-line import/no-cycle
-export * from './__legacy__/utils/spa-utils';
+export * from './utils/SPAUtils';
 
 // Constants
-export * from './__legacy__/constants/storage';
-export * from './__legacy__/constants/hooks';
+export * from './constants/storage';
+export * from './constants/hooks';
 
 // clients
-export * from './__legacy__/clients/main-thread-client';
-export * from './__legacy__/clients/web-worker-client';
+export * from './clients/mainThreadClient';
+export * from './clients/webWorkerClient';
 
 // models
-export * from './__legacy__/models/request-custom-grant';
+export * from './models/request-custom-grant';
 
 // helpers
-export * from './__legacy__/helpers/authentication-helper';
-export * from './__legacy__/helpers/spa-helper';
+export * from './helpers/authentication-helper';
+export * from './helpers/spa-helper';
 
 // worker receiver
-export * from './__legacy__/worker/worker-receiver';
+export * from './worker/workerReceiver';
 
 export {AsgardeoBrowserConfig} from './models/config';
 

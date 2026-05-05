@@ -26,9 +26,9 @@ if (!globalThis.fetch) {
   globalThis.Response = Response;
 }
 
-export {AsgardeoNodeClient as LegacyAsgardeoNodeClient} from './__legacy__/client';
-export * from './__legacy__/models';
-export * from './__legacy__/utils/logger-utils';
+export {AsgardeoNodeClient as LegacyAsgardeoNodeClient} from './LegacyAsgardeoNodeClient';
+export * from './models';
+export * from './utils/NodeLogger';
 
 export {default as CookieConfig} from './constants/CookieConfig';
 
