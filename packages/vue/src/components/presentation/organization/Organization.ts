@@ -20,7 +20,7 @@ import {type Component, type VNode, defineComponent, h, Fragment} from 'vue';
 import useOrganization from '../../../composables/useOrganization';
 
 /**
- * Organization — control component that exposes the current organization via a scoped slot.
+ * Organization — presentation component that exposes the current organization via a scoped slot.
  *
  * Renders the `default` slot with `{ organization }` when a current organization is available,
  * or the `fallback` slot when none is set.

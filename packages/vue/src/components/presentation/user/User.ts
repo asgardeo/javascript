@@ -20,7 +20,7 @@ import {type Component, type VNode, defineComponent, h, Fragment} from 'vue';
 import useAsgardeo from '../../../composables/useAsgardeo';
 
 /**
- * User — control component that exposes the current user via a scoped slot.
+ * User — presentation component that exposes the current user via a scoped slot.
  *
  * Renders the `default` slot with `{ user }` when a user is signed in,
  * or the `fallback` slot when no user is available.
@@ -29,7 +29,7 @@ import useAsgardeo from '../../../composables/useAsgardeo';
  * ```vue
  * <User>
  *   <template #default="{ user }">
- *     <p>Welcome, {{ user.givenName }}!</p>
+ *     <p>Welcome, {{ user.given_name }}!</p>
  *   </template>
  *   <template #fallback>
  *     <p>No user signed in.</p>
