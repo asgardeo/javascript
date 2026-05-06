@@ -16,6 +16,8 @@
  * under the License.
  */
 
+/* eslint-disable no-underscore-dangle */
+
 import {
   FieldType,
   FlowMetadataResponse,
@@ -35,14 +37,13 @@ import {
 } from '@asgardeo/browser';
 import {css} from '@emotion/css';
 import DOMPurify from 'dompurify';
-import {cloneElement, CSSProperties, ReactElement, useContext} from 'react';
+import {cloneElement, CSSProperties, ReactElement} from 'react';
 import {OrganizationUnitPicker} from './OrganizationUnitPicker';
-import ComponentRendererContext, {
+import {
   ComponentRenderer,
   ComponentRenderContext,
   ComponentRendererMap,
 } from '../../../contexts/ComponentRenderer/ComponentRendererContext';
-import useTheme from '../../../contexts/Theme/useTheme';
 import {UseTranslation} from '../../../hooks/useTranslation';
 import Consent from '../../adapters/Consent';
 import {getConsentOptionalKey} from '../../adapters/ConsentCheckboxList';
@@ -190,6 +191,10 @@ const createAuthComponentFromFlow = (
   onInputChange: (name: string, value: string) => void,
   authType: AuthType,
   options: {
+    /** @internal Passed from the host React component so hooks aren't called inside a loop. */
+    _customRenderers?: ComponentRendererMap;
+    /** @internal Passed from the host React component so hooks aren't called inside a loop. */
+    _theme?: any;
     /** Additional data from the flow response, used for different dynamic data */
     additionalData?: Record<string, any>;
     buttonClassName?: string;
@@ -216,8 +221,8 @@ const createAuthComponentFromFlow = (
     variant?: any;
   } = {},
 ): ReactElement | null => {
-  const {theme} = useTheme();
-  const customRenderers: ComponentRendererMap = useContext(ComponentRendererContext);
+  const theme: any = options._theme;
+  const customRenderers: ComponentRendererMap = options._customRenderers ?? {};
 
   const key: string | number = options.key || component.id;
 
@@ -488,7 +493,7 @@ const createAuthComponentFromFlow = (
         const formStyles: CSSProperties = {
           display: 'flex',
           flexDirection: 'column',
-          gap: `calc(${theme.vars.spacing.unit} * 2)`,
+          gap: `calc(${theme?.vars?.spacing?.unit ?? '4px'} * 2)`,
         };
 
         const blockComponents: any = component.components
@@ -659,6 +664,10 @@ export const renderSignInComponents = (
   isFormValid: boolean,
   onInputChange: (name: string, value: string) => void,
   options?: {
+    /** @internal */
+    _customRenderers?: ComponentRendererMap;
+    /** @internal */
+    _theme?: any;
     /** Additional data from the flow response */
     additionalData?: Record<string, any>;
     buttonClassName?: string;
@@ -706,6 +715,10 @@ export const renderSignUpComponents = (
   isFormValid: boolean,
   onInputChange: (name: string, value: string) => void,
   options?: {
+    /** @internal */
+    _customRenderers?: ComponentRendererMap;
+    /** @internal */
+    _theme?: any;
     /** Additional data from the flow response */
     additionalData?: Record<string, any>;
     buttonClassName?: string;
@@ -752,6 +765,10 @@ export const renderInviteUserComponents = (
   isFormValid: boolean,
   onInputChange: (name: string, value: string) => void,
   options?: {
+    /** @internal */
+    _customRenderers?: ComponentRendererMap;
+    /** @internal */
+    _theme?: any;
     /** Additional data from the flow response */
     additionalData?: Record<string, any>;
     buttonClassName?: string;

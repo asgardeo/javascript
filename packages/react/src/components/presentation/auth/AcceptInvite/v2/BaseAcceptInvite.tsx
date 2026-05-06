@@ -18,9 +18,12 @@
 
 import {FlowMetadataResponse, Preferences} from '@asgardeo/browser';
 import {cx} from '@emotion/css';
-import {FC, ReactElement, ReactNode, useCallback, useEffect, useRef, useState} from 'react';
+import {FC, ReactElement, ReactNode, useCallback, useContext, useEffect, useRef, useState} from 'react';
 import useStyles from './BaseAcceptInvite.styles';
 import useAsgardeo from '../../../../../contexts/Asgardeo/useAsgardeo';
+import ComponentRendererContext, {
+  ComponentRendererMap,
+} from '../../../../../contexts/ComponentRenderer/ComponentRendererContext';
 import useTheme from '../../../../../contexts/Theme/useTheme';
 import useTranslation from '../../../../../hooks/useTranslation';
 import {useOAuthCallback} from '../../../../../hooks/v2/useOAuthCallback';
@@ -266,6 +269,7 @@ const BaseAcceptInvite: FC<BaseAcceptInviteProps> = ({
   const {meta, isInitialized, getStorageManager} = useAsgardeo();
   const {t} = useTranslation(preferences?.i18n);
   const {theme} = useTheme();
+  const customRenderers: ComponentRendererMap = useContext(ComponentRendererContext);
   const styles: any = useStyles(theme, theme.vars.colors.text.primary);
   const [isLoading, setIsLoading] = useState(false);
   const [isValidatingToken, setIsValidatingToken] = useState(true);
@@ -778,6 +782,8 @@ const BaseAcceptInvite: FC<BaseAcceptInviteProps> = ({
                 isFormValid,
                 handleInputChange,
                 {
+                  _customRenderers: customRenderers,
+                  _theme: theme,
                   onInputBlur: handleInputBlur,
                   onSubmit: handleSubmit,
                   size,

@@ -24,9 +24,12 @@ import {
   Preferences,
 } from '@asgardeo/browser';
 import {cx} from '@emotion/css';
-import {FC, ReactElement, ReactNode, useCallback, useEffect, useRef, useState} from 'react';
+import {FC, ReactElement, ReactNode, useCallback, useContext, useEffect, useRef, useState} from 'react';
 import useStyles from './BaseInviteUser.styles';
 import useAsgardeo from '../../../../../contexts/Asgardeo/useAsgardeo';
+import ComponentRendererContext, {
+  ComponentRendererMap,
+} from '../../../../../contexts/ComponentRenderer/ComponentRendererContext';
 import useTheme from '../../../../../contexts/Theme/useTheme';
 import useTranslation from '../../../../../hooks/useTranslation';
 import {normalizeFlowResponse, extractErrorMessage} from '../../../../../utils/v2/flowTransformer';
@@ -258,6 +261,7 @@ const BaseInviteUser: FC<BaseInviteUserProps> = ({
   const {meta, isInitialized: isSdkInitialized, getStorageManager} = useAsgardeo();
   const {t} = useTranslation(preferences?.i18n);
   const {theme} = useTheme();
+  const customRenderers: ComponentRendererMap = useContext(ComponentRendererContext);
   const styles: any = useStyles(theme, theme.vars.colors.text.primary);
   const [isLoading, setIsLoading] = useState(false);
   const [isFlowInitialized, setIsFlowInitialized] = useState(false);
@@ -605,6 +609,8 @@ const BaseInviteUser: FC<BaseInviteUserProps> = ({
         isFormValid,
         handleInputChange,
         {
+          _customRenderers: customRenderers,
+          _theme: theme,
           additionalData: currentFlow?.data?.additionalData,
           fetchOrganizationUnitChildren,
           onInputBlur: handleInputBlur,
@@ -614,6 +620,7 @@ const BaseInviteUser: FC<BaseInviteUserProps> = ({
         },
       ),
     [
+      customRenderers,
       currentFlow?.data?.additionalData,
       fetchOrganizationUnitChildren,
       formValues,
@@ -625,6 +632,7 @@ const BaseInviteUser: FC<BaseInviteUserProps> = ({
       handleInputBlur,
       handleSubmit,
       size,
+      theme,
       variant,
     ],
   );

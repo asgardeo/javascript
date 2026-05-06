@@ -27,8 +27,11 @@ import {
   Preferences,
 } from '@asgardeo/browser';
 import {cx} from '@emotion/css';
-import {FC, ReactElement, ReactNode, useEffect, useState, useCallback, useRef} from 'react';
+import {FC, ReactElement, ReactNode, useCallback, useContext, useEffect, useRef, useState} from 'react';
 import useAsgardeo from '../../../../../contexts/Asgardeo/useAsgardeo';
+import ComponentRendererContext, {
+  ComponentRendererMap,
+} from '../../../../../contexts/ComponentRenderer/ComponentRendererContext';
 import FlowProvider from '../../../../../contexts/Flow/FlowProvider';
 import useFlow from '../../../../../contexts/Flow/useFlow';
 import ComponentPreferencesContext from '../../../../../contexts/I18n/ComponentPreferencesContext';
@@ -272,6 +275,7 @@ const BaseSignUpContent: FC<BaseSignUpProps> = ({
   showSubtitle = true,
 }: BaseSignUpProps): ReactElement => {
   const {theme, colorScheme} = useTheme();
+  const customRenderers: ComponentRendererMap = useContext(ComponentRendererContext);
   const {t} = useTranslation();
   const {subtitle: flowSubtitle, title: flowTitle, messages: flowMessages, addMessage, clearMessages} = useFlow();
   const {meta, isInitialized: isSdkInitialized, getStorageManager} = useAsgardeo();
@@ -870,6 +874,8 @@ const BaseSignUpContent: FC<BaseSignUpProps> = ({
         isFormValid,
         handleInputChange,
         {
+          _customRenderers: customRenderers,
+          _theme: theme,
           buttonClassName: buttonClasses,
           inputClassName: inputClasses,
           onInputBlur: handleInputBlur,
@@ -879,12 +885,14 @@ const BaseSignUpContent: FC<BaseSignUpProps> = ({
         },
       ),
     [
+      customRenderers,
       formValues,
       touchedFields,
       formErrors,
       isFormValid,
       isLoading,
       size,
+      theme,
       variant,
       inputClasses,
       buttonClasses,
