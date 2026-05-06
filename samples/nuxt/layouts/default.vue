@@ -1,20 +1,4 @@
 <script setup lang="ts">
-import { computed } from 'vue';
-
-const { user } = useAsgardeo();
-
-const initials = computed(() => {
-  const profile = user.value as Record<string, unknown> | null;
-  const givenName = String(profile?.givenName ?? profile?.firstName ?? '').trim();
-  const familyName = String(profile?.familyName ?? profile?.lastName ?? '').trim();
-  const username = String(profile?.username ?? profile?.userName ?? '').trim();
-
-  if (givenName || familyName) {
-    return `${givenName.charAt(0)}${familyName.charAt(0)}`.toUpperCase();
-  }
-
-  return username.charAt(0).toUpperCase() || 'U';
-});
 </script>
 
 <template>
@@ -35,11 +19,7 @@ const initials = computed(() => {
 
         <div class="flex items-center gap-3">
           <AsgardeoSignedIn>
-            <span class="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-sm font-bold"
-              :title="String(user?.username ?? user?.userName ?? 'User')">
-              {{ initials }}
-            </span>
-            <AsgardeoSignOutButton class="px-3 py-2 text-sm bg-white text-gray-900 border border-gray-300 rounded hover:bg-gray-50" />
+            <AsgardeoUserDropdown />
           </AsgardeoSignedIn>
           <AsgardeoSignedOut>
             <AsgardeoSignInButton/>
