@@ -1,5 +1,13 @@
 # @asgardeo/vue
 
+## 0.3.7
+
+### Patch Changes
+
+- [#496](https://github.com/asgardeo/javascript/pull/496)
+  [`eb0907f`](https://github.com/asgardeo/javascript/commit/eb0907f19fe23b3a302945cf9a3eeefea9aaa635) Thanks
+  [@brionmario](https://github.com/brionmario)! - Re-export extensions related types
+
 ## 0.3.6
 
 ### Patch Changes
