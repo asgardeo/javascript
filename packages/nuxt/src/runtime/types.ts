@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import type {BrandingPreference, I18nPreferences, Organization, User, UserProfile} from '@asgardeo/node';
+import type {BrandingPreference, I18nPreferences, Organization, Platform, User, UserProfile} from '@asgardeo/node';
 import type {JWTPayload} from 'jose';
 
 /**
@@ -67,6 +67,12 @@ export interface AsgardeoNuxtConfig {
       fetchUserProfile?: boolean;
     };
   };
+  /**
+   * Identity platform variant. Set to `Platform.AsgardeoV2` when connecting to
+   * a Thunder (AsgardeoV2) instance. Forwarded to the underlying Node client so
+   * platform-specific behaviours (e.g. issuer resolution) apply correctly.
+   */
+  platform?: keyof typeof Platform;
   /** OAuth2 scopes to request */
   scopes?: string[];
   /** Secret for signing session JWTs (use ASGARDEO_SESSION_SECRET env var) */
