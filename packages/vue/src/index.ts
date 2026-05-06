@@ -247,4 +247,7 @@ export {
   type EmbeddedSignUpFlowInitiateRequestV2 as EmbeddedSignUpFlowInitiateRequest,
   type EmbeddedSignUpFlowRequestV2 as EmbeddedSignUpFlowRequest,
   type EmbeddedSignUpFlowErrorResponseV2 as EmbeddedSignUpFlowErrorResponse,
+  type ComponentRenderContext,
+  type ComponentsExtensions,
+  type ComponentRenderer,
 } from '@asgardeo/browser';
