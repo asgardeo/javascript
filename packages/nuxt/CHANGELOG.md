@@ -1,5 +1,13 @@
 # @asgardeo/nuxt
 
+## 0.1.5
+
+### Patch Changes
+
+- Updated dependencies
+  [[`eb0907f`](https://github.com/asgardeo/javascript/commit/eb0907f19fe23b3a302945cf9a3eeefea9aaa635)]:
+  - @asgardeo/vue@0.3.7
+
 ## 0.1.4
 
 ### Patch Changes
