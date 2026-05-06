@@ -38,7 +38,7 @@ import Button from '../../primitives/Button';
 import Card from '../../primitives/Card';
 import Spinner from '../../primitives/Spinner';
 import Typography from '../../primitives/Typography';
-import {renderInviteUserComponents} from '../sign-in/AuthOptionFactory';
+import {renderInviteUserComponents} from '../../auth/sign-in/AuthOptionFactory';
 
 /**
  * Flow response from the accept-invite backend.

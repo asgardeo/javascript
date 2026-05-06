@@ -17,154 +17,382 @@
  */
 
 import {type User, withVendorCSSClassPrefix} from '@asgardeo/browser';
-import {type Component, type PropType, type Ref, type VNode, defineComponent, h, ref} from 'vue';
+import {
+  type Component,
+  type PropType,
+  type Ref,
+  type VNode,
+  defineComponent,
+  h,
+  onMounted,
+  onUnmounted,
+  ref,
+} from 'vue';
 import {ChevronDownIcon, LogOutIcon, UserIcon, XIcon} from '../../primitives/Icons';
-import Typography from '../../primitives/Typography';
+import getDisplayName from '../../../utils/getDisplayName';
+import getMappedUserProfileValue from '../../../utils/getMappedUserProfileValue';
+
+// ─── Types ───────────────────────────────────────────────────────────────────
+
+/**
+ * A single item in the dropdown menu.
+ *
+ * @example
+ * ```ts
+ * const items: DropdownMenuItem[] = [
+ *   { label: 'Settings', icon: h(SettingsIcon, { size: 15 }), onClick: () => router.push('/settings') },
+ *   { label: 'Help',     onClick: openHelp, separatorBefore: true },
+ *   { label: 'Delete account', onClick: deleteAccount, danger: true, separatorBefore: true },
+ * ];
+ * ```
+ */
+export interface DropdownMenuItem {
+  /** Renders with red text and red hover background. Use for destructive actions. */
+  danger?: boolean;
+  /** Optional icon VNode rendered to the left of the label. */
+  icon?: VNode | null;
+  /** The visible text label. */
+  label: string;
+  /** Called when the item is clicked (menu closes first). */
+  onClick: () => void;
+  /** When `true`, a thin divider is rendered immediately before this item. */
+  separatorBefore?: boolean;
+}
 
 export interface BaseUserDropdownProps {
   className?: string;
   isProfileModalOpen?: boolean;
+  menuAlign?: 'auto' | 'left' | 'right';
+  menuItems?: DropdownMenuItem[];
   onProfileClick?: () => void;
   onProfileModalClose?: () => void;
   onSignOut?: () => void;
   profileContent?: VNode | null;
+  showChevron?: boolean;
+  size?: 'sm' | 'md' | 'lg';
   user?: User | null;
 }
 
-/**
- * BaseUserDropdown — unstyled user dropdown with avatar, profile link, sign-out.
- */
+// ─── Constants ───────────────────────────────────────────────────────────────
+
+const DEFAULT_ATTRIBUTE_MAPPINGS: Record<string, string | string[]> = {
+  email: ['emails', 'email'],
+  firstName: ['name.givenName', 'given_name'],
+  lastName: ['name.familyName', 'family_name'],
+  username: ['userName', 'username', 'user_name'],
+};
+
+/** Approximate min-width for each size, used for auto-alignment decisions. */
+const MENU_MIN_WIDTHS: Record<string, number> = {lg: 280, md: 220, sm: 180};
+
+const AVATAR_GRADIENTS: string[] = [
+  'linear-gradient(135deg, #4b6ef5 0%, #7c3aed 100%)',
+  'linear-gradient(135deg, #0ea5e9 0%, #4b6ef5 100%)',
+  'linear-gradient(135deg, #10b981 0%, #0ea5e9 100%)',
+  'linear-gradient(135deg, #f59e0b 0%, #ef4444 100%)',
+  'linear-gradient(135deg, #ec4899 0%, #7c3aed 100%)',
+  'linear-gradient(135deg, #8b5cf6 0%, #4b6ef5 100%)',
+  'linear-gradient(135deg, #14b8a6 0%, #0ea5e9 100%)',
+  'linear-gradient(135deg, #f97316 0%, #ec4899 100%)',
+];
+
+// ─── Helpers ─────────────────────────────────────────────────────────────────
+
+function getAvatarGradient(seed: string): string {
+  if (!seed) return AVATAR_GRADIENTS[0];
+  let hash = 0;
+  for (let i = 0; i < seed.length; i += 1) {
+    // eslint-disable-next-line no-bitwise
+    hash = (hash * 31 + seed.charCodeAt(i)) >>> 0;
+  }
+  return AVATAR_GRADIENTS[Math.abs(hash) % AVATAR_GRADIENTS.length];
+}
+
+function resolveUserInfo(user: User | null): {
+  displayName: string;
+  gradient: string;
+  initials: string;
+  subtitle: string;
+} {
+  if (!user) {
+    return {displayName: 'User', gradient: AVATAR_GRADIENTS[0], initials: '?', subtitle: ''};
+  }
+
+  const displayName = getDisplayName(DEFAULT_ATTRIBUTE_MAPPINGS, user) || 'User';
+  const initials =
+    displayName
+      .split(' ')
+      .map((w: string) => w.charAt(0))
+      .slice(0, 2)
+      .join('')
+      .toUpperCase() || '?';
+
+  const seed = String(
+    getMappedUserProfileValue('username', DEFAULT_ATTRIBUTE_MAPPINGS, user) ||
+      getMappedUserProfileValue('email', DEFAULT_ATTRIBUTE_MAPPINGS, user) ||
+      displayName,
+  );
+
+  const subtitle = String(
+    getMappedUserProfileValue('email', DEFAULT_ATTRIBUTE_MAPPINGS, user) ||
+      getMappedUserProfileValue('username', DEFAULT_ATTRIBUTE_MAPPINGS, user) ||
+      '',
+  );
+
+  return {displayName, gradient: getAvatarGradient(seed), initials, subtitle};
+}
+
+// ─── Component ───────────────────────────────────────────────────────────────
+
 const BaseUserDropdown: Component = defineComponent({
   inheritAttrs: false,
   name: 'BaseUserDropdown',
   props: {
     className: {default: '', type: String},
     isProfileModalOpen: {default: false, type: Boolean},
+    /**
+     * How to align the dropdown panel relative to the trigger.
+     * - `'auto'` (default) — opens toward the side with more viewport space.
+     * - `'left'` — panel left edge aligns with trigger left edge.
+     * - `'right'` — panel right edge aligns with trigger right edge.
+     */
+    menuAlign: {default: 'auto', type: String as PropType<'auto' | 'left' | 'right'>},
+    /**
+     * Extra items rendered between the Profile link and Sign Out.
+     * Each item can carry an icon, a danger flag, and a separatorBefore flag.
+     */
+    menuItems: {default: undefined, type: Array as PropType<DropdownMenuItem[]>},
     onProfileClick: {default: undefined, type: Function as PropType<() => void>},
     onProfileModalClose: {default: undefined, type: Function as PropType<() => void>},
     onSignOut: {default: undefined, type: Function as PropType<() => void>},
     profileContent: {default: null, type: Object as PropType<VNode | null>},
+    /** Show the animated chevron on the trigger. Default `false`. */
+    showChevron: {default: false, type: Boolean},
+    /** Controls avatar size on the trigger and spacing density of the menu. */
+    size: {default: 'md', type: String as PropType<'sm' | 'md' | 'lg'>},
     user: {default: null, type: Object as PropType<User | null>},
   },
-  setup(
-    props: {
-      className: string;
-      isProfileModalOpen: boolean;
-      onProfileClick?: () => void;
-      onProfileModalClose?: () => void;
-      onSignOut?: () => void;
-      profileContent: VNode | null;
-      user: User | null;
-    },
-    {slots}: {slots: any},
-  ): () => VNode | VNode[] | null {
+  setup(props: BaseUserDropdownProps, {slots}: {slots: any}): () => VNode | VNode[] | null {
     const isOpen: Ref<boolean> = ref(false);
-    const prefix: typeof withVendorCSSClassPrefix = withVendorCSSClassPrefix;
+    const containerRef: Ref<HTMLElement | null> = ref(null);
+    const px = withVendorCSSClassPrefix;
+
+    // ── Click-outside / Escape ────────────────────────────────────────────────
+
+    function handleClickOutside(event: MouseEvent): void {
+      if (containerRef.value && !containerRef.value.contains(event.target as Node)) {
+        isOpen.value = false;
+      }
+    }
+
+    function handleKeyDown(event: KeyboardEvent): void {
+      if (event.key === 'Escape') isOpen.value = false;
+    }
+
+    onMounted((): void => {
+      document.addEventListener('click', handleClickOutside);
+      document.addEventListener('keydown', handleKeyDown);
+    });
+
+    onUnmounted((): void => {
+      document.removeEventListener('click', handleClickOutside);
+      document.removeEventListener('keydown', handleKeyDown);
+    });
+
+    // ── Auto-alignment ────────────────────────────────────────────────────────
+
+    function resolveMenuAlign(): 'left' | 'right' {
+      if (props.menuAlign !== 'auto') return props.menuAlign as 'left' | 'right';
+      if (!containerRef.value) return 'right';
+      const rect: DOMRect = containerRef.value.getBoundingClientRect();
+      const menuWidth: number = MENU_MIN_WIDTHS[props.size ?? 'md'] ?? 220;
+      // Open toward whichever side has enough room; prefer right.
+      return window.innerWidth - rect.right >= menuWidth ? 'right' : 'left';
+    }
+
+    // ── Render ────────────────────────────────────────────────────────────────
 
     return (): VNode | VNode[] | null => {
       if (slots['default']) {
         return slots['default']({
           isOpen: isOpen.value,
-          toggle: () => {
+          toggle: (): void => {
             isOpen.value = !isOpen.value;
           },
           user: props.user,
         });
       }
 
-      const resolveDisplayName = (): string | undefined => {
-        if (!props.user) return undefined;
-        const {displayName, name, email, username, sub} = props.user as Record<string, unknown>;
-        if (typeof displayName === 'string') return displayName;
-        if (typeof name === 'string') return name;
-        if (typeof name === 'object' && name) {
-          const parts: string[] = [(name as any).givenName, (name as any).familyName].filter(Boolean);
-          if (parts.length > 0) return parts.join(' ');
-        }
-        if (typeof email === 'string') return email;
-        if (typeof username === 'string') return username;
-        if (typeof sub === 'string') return sub;
-        return undefined;
-      };
-      const displayName: string | undefined = resolveDisplayName();
+      const {displayName, initials, gradient, subtitle} = resolveUserInfo(props.user ?? null);
+      const size = props.size ?? 'md';
 
-      const children: VNode[] = [];
+      // ── Trigger ────────────────────────────────────────────────────────────
 
-      // Trigger button
-      children.push(
-        h(
-          'button',
-          {
-            class: prefix('user-dropdown__trigger'),
-            onClick: () => {
-              isOpen.value = !isOpen.value;
-            },
-            type: 'button',
+      const avatarSizeClass = size !== 'md' ? px(`user-dropdown__avatar--${size}`) : '';
+      const triggerClass = [px('user-dropdown__trigger'), isOpen.value ? px('user-dropdown__trigger--open') : '']
+        .filter(Boolean)
+        .join(' ');
+
+      const trigger: VNode = h(
+        'button',
+        {
+          'aria-expanded': isOpen.value,
+          'aria-haspopup': 'true',
+          class: triggerClass,
+          onClick: (e: MouseEvent): void => {
+            e.stopPropagation();
+            isOpen.value = !isOpen.value;
           },
-          [
-            h('span', {class: prefix('user-dropdown__avatar')}, [h(UserIcon, {size: 20})]),
-            displayName
-              ? h(Typography, {class: prefix('user-dropdown__name'), variant: 'body2'}, () => displayName)
-              : null,
-            h(ChevronDownIcon, {size: 16}),
-          ],
-        ),
+          type: 'button',
+        },
+        [
+          h(
+            'span',
+            {class: [px('user-dropdown__avatar'), avatarSizeClass].filter(Boolean).join(' '), style: {background: gradient}},
+            initials,
+          ),
+          props.showChevron
+            ? h('span', {class: px('user-dropdown__chevron')}, [h(ChevronDownIcon, {size: 14})])
+            : null,
+        ],
       );
 
-      // Dropdown menu
+      // ── Menu ───────────────────────────────────────────────────────────────
+
+      let menu: VNode | null = null;
+
       if (isOpen.value) {
-        const menuItems: VNode[] = [];
+        const resolvedAlign = resolveMenuAlign();
+        const alignClass = resolvedAlign === 'left' ? px('user-dropdown__menu--align-left') : '';
+        const sizeClass = size !== 'md' ? px(`user-dropdown__menu--size-${size}`) : '';
+        const menuClass = [px('user-dropdown__menu'), alignClass, sizeClass].filter(Boolean).join(' ');
 
+        // Build menu contents
+        const menuChildren: (VNode | null)[] = [];
+
+        // Header
+        menuChildren.push(
+          h('div', {class: px('user-dropdown__menu-header')}, [
+            h('div', {class: px('user-dropdown__menu-header-avatar'), style: {background: gradient}}, initials),
+            h('div', {class: px('user-dropdown__menu-header-info')}, [
+              h('span', {class: px('user-dropdown__menu-header-name')}, displayName),
+              subtitle ? h('span', {class: px('user-dropdown__menu-header-subtitle')}, subtitle) : null,
+            ]),
+          ]),
+        );
+
+        menuChildren.push(h('div', {class: px('user-dropdown__menu-divider')}));
+
+        // Default Profile item
         if (props.onProfileClick) {
-          menuItems.push(
-            h('button', {class: prefix('user-dropdown__item'), onClick: props.onProfileClick, type: 'button'}, [
-              h(UserIcon, {size: 16}),
-              h('span', null, 'Profile'),
-            ]),
+          menuChildren.push(
+            h(
+              'button',
+              {
+                class: px('user-dropdown__item'),
+                onClick: (): void => {
+                  isOpen.value = false;
+                  props.onProfileClick!();
+                },
+                type: 'button',
+              },
+              [h(UserIcon, {size: 15}), h('span', null, 'Profile')],
+            ),
           );
         }
 
-        if (slots['items']) {
-          menuItems.push(...(slots['items']() ?? []));
-        }
-
-        if (props.onSignOut) {
-          menuItems.push(
-            h('button', {class: prefix('user-dropdown__item'), onClick: props.onSignOut, type: 'button'}, [
-              h(LogOutIcon, {size: 16}),
-              h('span', null, 'Sign Out'),
-            ]),
-          );
-        }
-
-        children.push(h('div', {class: prefix('user-dropdown__menu')}, menuItems));
-      }
-
-      const container: VNode = h(
-        'div',
-        {class: [prefix('user-dropdown'), props.className].filter(Boolean).join(' ')},
-        children,
-      );
-
-      // If profile modal is open, render modal overlay
-      if (props.isProfileModalOpen) {
-        return h('div', [
-          container,
-          h('div', {class: prefix('user-dropdown__modal-overlay')}, [
-            h('div', {class: prefix('user-dropdown__modal-content')}, [
+        // Custom items from prop (with optional separatorBefore per item)
+        if (props.menuItems && props.menuItems.length > 0) {
+          props.menuItems.forEach((item: DropdownMenuItem, idx: number): void => {
+            if (item.separatorBefore) {
+              menuChildren.push(h('div', {class: px('user-dropdown__menu-divider'), key: `sep-${idx}`}));
+            }
+            menuChildren.push(
               h(
                 'button',
                 {
-                  'aria-label': 'Close profile modal',
-                  class: prefix('user-dropdown__modal-close'),
-                  onClick: props.onProfileModalClose,
+                  class: [px('user-dropdown__item'), item.danger ? px('user-dropdown__item--danger') : '']
+                    .filter(Boolean)
+                    .join(' '),
+                  key: `item-${idx}`,
+                  onClick: (): void => {
+                    isOpen.value = false;
+                    item.onClick();
+                  },
                   type: 'button',
                 },
-                [h(XIcon, {size: 24})],
+                [item.icon ?? null, h('span', null, item.label)],
               ),
-              props.profileContent,
-            ]),
-          ]),
+            );
+          });
+        }
+
+        // Legacy slot items (backward compat)
+        if (slots['items']) {
+          menuChildren.push(...(slots['items']() ?? []));
+        }
+
+        // Default Sign Out item (always last, always separated)
+        if (props.onSignOut) {
+          menuChildren.push(h('div', {class: px('user-dropdown__menu-divider')}));
+          menuChildren.push(
+            h(
+              'button',
+              {
+                class: [px('user-dropdown__item'), px('user-dropdown__item--danger')].join(' '),
+                onClick: (): void => {
+                  isOpen.value = false;
+                  props.onSignOut!();
+                },
+                type: 'button',
+              },
+              [h(LogOutIcon, {size: 15}), h('span', null, 'Sign Out')],
+            ),
+          );
+        }
+
+        menu = h('div', {class: menuClass}, menuChildren.filter(Boolean));
+      }
+
+      // ── Container ─────────────────────────────────────────────────────────
+
+      const container: VNode = h(
+        'div',
+        {class: [px('user-dropdown'), props.className].filter(Boolean).join(' '), ref: containerRef},
+        [trigger, menu],
+      );
+
+      // ── Profile modal ──────────────────────────────────────────────────────
+
+      if (props.isProfileModalOpen) {
+        return h('div', [
+          container,
+          h(
+            'div',
+            {
+              class: px('user-dropdown__modal-overlay'),
+              onClick: (e: MouseEvent): void => {
+                if ((e.target as HTMLElement).classList.contains(px('user-dropdown__modal-overlay'))) {
+                  props.onProfileModalClose?.();
+                }
+              },
+            },
+            [
+              h('div', {class: px('user-dropdown__modal-content')}, [
+                h(
+                  'button',
+                  {
+                    'aria-label': 'Close profile',
+                    class: px('user-dropdown__modal-close'),
+                    onClick: props.onProfileModalClose,
+                    type: 'button',
+                  },
+                  [h(XIcon, {size: 18})],
+                ),
+                props.profileContent,
+              ]),
+            ],
+          ),
         ]);
       }
 

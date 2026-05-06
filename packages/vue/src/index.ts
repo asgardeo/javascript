@@ -123,23 +123,23 @@ export {default as BaseSignUpButton} from './components/actions/BaseSignUpButton
 
 // ── UI Components — Auth Flow ──
 export {default as Callback} from './components/auth/Callback';
+export {default as SignIn} from './components/auth/sign-in/SignIn';
+export type {SignInRenderProps} from './components/auth/sign-in/SignIn';
+export {default as BaseSignIn} from './components/auth/sign-in/BaseSignIn';
+export type {BaseSignInRenderProps, BaseSignInProps} from './components/auth/sign-in/BaseSignIn';
+export {default as SignUp} from './components/auth/sign-up/SignUp';
+export type {SignUpRenderProps} from './components/auth/sign-up/SignUp';
+export {default as BaseSignUp} from './components/auth/sign-up/BaseSignUp';
+export type {BaseSignUpRenderProps, BaseSignUpProps} from './components/auth/sign-up/BaseSignUp';
 
 // ── UI Components — Control ──
 export {default as SignedIn} from './components/control/SignedIn';
 export {default as SignedOut} from './components/control/SignedOut';
 export {default as Loading} from './components/control/Loading';
-export {default as UserComponent} from './components/control/user/User';
-export {default as OrganizationComponent} from './components/control/organization/Organization';
 
 // ── UI Components — Presentation ──
-export {default as SignIn} from './components/presentation/sign-in/SignIn';
-export type {SignInRenderProps} from './components/presentation/sign-in/SignIn';
-export {default as BaseSignIn} from './components/presentation/sign-in/BaseSignIn';
-export type {BaseSignInRenderProps, BaseSignInProps} from './components/presentation/sign-in/BaseSignIn';
-export {default as SignUp} from './components/presentation/sign-up/SignUp';
-export type {SignUpRenderProps} from './components/presentation/sign-up/SignUp';
-export {default as BaseSignUp} from './components/presentation/sign-up/BaseSignUp';
-export type {BaseSignUpRenderProps, BaseSignUpProps} from './components/presentation/sign-up/BaseSignUp';
+export {default as User} from './components/presentation/user/User';
+export {default as Organization} from './components/presentation/organization/Organization';
 export {default as UserProfile} from './components/presentation/user-profile/UserProfile';
 export {default as BaseUserProfile} from './components/presentation/user-profile/BaseUserProfile';
 export {default as UserDropdown} from './components/presentation/user-dropdown/UserDropdown';
@@ -195,13 +195,13 @@ export {
   type HttpRequestConfig,
   type HttpResponse,
   type IdToken,
-  type Organization,
+  type Organization as IOrganization,
   type SignInOptions,
   type SignOutOptions,
   type SignUpOptions,
   type TokenExchangeRequestConfig,
   type TokenResponse,
-  type User, // type UserProfile,
+  type User as IUser,
 } from '@asgardeo/browser';
 
 // ── Phase 4 — Utilities ──

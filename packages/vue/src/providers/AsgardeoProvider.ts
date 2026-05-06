@@ -20,6 +20,7 @@ import {
   AllOrganizationsApiResponse,
   AsgardeoRuntimeError,
   extractUserClaimsFromIdToken,
+  generateFlattenedUserProfile,
   hasAuthParamsInUrl,
   hasCalledForThisInstanceInUrl,
   HttpResponse,
@@ -28,7 +29,6 @@ import {
   Platform,
   User,
   UserProfile,
-  Schema,
   SignInOptions,
   TokenResponse,
   EmbeddedSignInFlowResponseV2,
@@ -194,8 +194,6 @@ const AsgardeoProvider: Component = defineComponent({
     const currentOrganization: ShallowRef<Organization | null> = shallowRef<Organization | null>(null);
     const myOrganizations: ShallowRef<Organization[]> = shallowRef<Organization[]>([]);
     const userProfile: ShallowRef<UserProfile | null> = shallowRef<UserProfile | null>(null);
-    const flattenedProfile: ShallowRef<User | null> = shallowRef<User | null>(null);
-    const schemas: ShallowRef<Schema[]> = shallowRef<Schema[]>([]);
     const resolvedBaseUrl: Ref<string> = ref<string>(props.baseUrl);
 
     let isUpdatingSession: boolean = false;
@@ -241,6 +239,12 @@ const AsgardeoProvider: Component = defineComponent({
         if (config.platform === Platform.AsgardeoV2) {
           const claims: User = extractUserClaimsFromIdToken(decodedToken);
           user.value = claims;
+          const profileData: UserProfile = {
+            flattenedProfile: claims as User,
+            profile: claims as User,
+            schemas: [],
+          };
+          userProfile.value = profileData;
         } else {
           try {
             const fetchedUser: User = await asgardeo.getUser({baseUrl});
@@ -268,8 +272,6 @@ const AsgardeoProvider: Component = defineComponent({
           try {
             const profileData: UserProfile = await asgardeo.getUserProfile({baseUrl});
             userProfile.value = profileData;
-            flattenedProfile.value = profileData.flattenedProfile || null;
-            schemas.value = profileData.schemas || [];
           } catch {
             // silent
           }
@@ -549,20 +551,44 @@ const AsgardeoProvider: Component = defineComponent({
                             h(
                               UserProvider,
                               {
-                                flattenedProfile: flattenedProfile.value,
+                                onUpdateProfile: (updatedUser: User): void => {
+                                  user.value = updatedUser;
+                                  userProfile.value = {
+                                    flattenedProfile: generateFlattenedUserProfile(
+                                      updatedUser,
+                                      userProfile.value?.schemas,
+                                    ),
+                                    profile: updatedUser,
+                                    schemas: userProfile.value?.schemas ?? [],
+                                  };
+                                },
                                 profile: userProfile.value,
                                 revalidateProfile: async (): Promise<void> => {
-                                  const baseUrl: string = resolvedBaseUrl.value;
+                                  const revalConfig: AsgardeoVueConfig = buildConfig();
+                                  if (revalConfig.platform === Platform.AsgardeoV2) {
+                                    try {
+                                      const decodedToken: IdToken = await asgardeo.getDecodedIdToken();
+                                      const claims: User = extractUserClaimsFromIdToken(decodedToken);
+                                      user.value = claims;
+                                      userProfile.value = {
+                                        flattenedProfile: claims as User,
+                                        profile: claims as User,
+                                        schemas: [],
+                                      };
+                                    } catch {
+                                      // silent
+                                    }
+                                    return;
+                                  }
                                   try {
-                                    const profileData: UserProfile = await asgardeo.getUserProfile({baseUrl});
+                                    const profileData: UserProfile = await asgardeo.getUserProfile({
+                                      baseUrl: resolvedBaseUrl.value,
+                                    });
                                     userProfile.value = profileData;
-                                    flattenedProfile.value = profileData.flattenedProfile || null;
-                                    schemas.value = profileData.schemas || [];
                                   } catch {
                                     // silent
                                   }
                                 },
-                                schemas: schemas.value,
                               },
                               {
                                 default: (): any =>

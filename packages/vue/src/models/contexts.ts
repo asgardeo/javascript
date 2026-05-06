@@ -120,6 +120,8 @@ export interface AsgardeoContext {
 export interface UserContextValue {
   /** The flattened user profile (top-level attribute map). */
   flattenedProfile: Readonly<Ref<User | null>>;
+  /** Called after a successful profile update to sync state up to AsgardeoProvider. */
+  onUpdateProfile: (payload: User) => void;
   /** The raw nested user profile from the SCIM2/ME endpoint. */
   profile: Readonly<Ref<UserProfile | null>>;
   /** Refetch the user profile from the server. */

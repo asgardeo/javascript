@@ -40,11 +40,9 @@ import type {UserContextValue} from '../models/contexts';
  * @internal — This provider is mounted automatically by `<AsgardeoProvider>`.
  */
 interface UserProviderProps {
-  flattenedProfile: User | null;
   onUpdateProfile: ((payload: User) => void) | undefined;
   profile: UserProfile | null;
   revalidateProfile: () => Promise<void>;
-  schemas: Schema[] | null;
   updateProfile:
     | ((
         requestConfig: UpdateMeProfileConfig,
@@ -56,16 +54,12 @@ interface UserProviderProps {
 const UserProvider: Component = defineComponent({
   name: 'UserProvider',
   props: {
-    /** The flattened profile (top-level attribute map). */
-    flattenedProfile: {default: null, type: Object as PropType<User | null>},
-    /** Optional callback run after the profile is updated locally. */
+    /** Callback to sync a successfully-saved profile back up to AsgardeoProvider. */
     onUpdateProfile: {default: undefined, type: Function as PropType<(payload: User) => void>},
     /** The full user profile data (nested + flat + schemas). */
     profile: {default: null, type: Object as PropType<UserProfile | null>},
     /** Re-fetch the user profile from the server. */
     revalidateProfile: {default: async () => {}, type: Function as PropType<() => Promise<void>>},
-    /** The SCIM2 schemas describing user profile attributes. */
-    schemas: {default: null, type: Array as PropType<Schema[] | null>},
     /** Update the user profile via SCIM2 PATCH. */
     updateProfile: {
       default: undefined,
@@ -78,13 +72,15 @@ const UserProvider: Component = defineComponent({
     },
   },
   setup(props: UserProviderProps, {slots}: SetupContext): () => VNode {
-    // Use computed refs so context stays in sync when props change
-    const flattenedProfileRef: Ref<User | null> = computed(() => props.flattenedProfile);
+    // Derive flattenedProfile and schemas from the single profile prop,
+    // matching the same pattern as the React SDK's UserProvider.
     const profileRef: Ref<UserProfile | null> = computed(() => props.profile);
-    const schemasRef: Ref<Schema[] | null> = computed(() => props.schemas);
+    const flattenedProfileRef: Ref<User | null> = computed(() => props.profile?.flattenedProfile ?? null);
+    const schemasRef: Ref<Schema[] | null> = computed(() => props.profile?.schemas ?? null);
 
     const context: UserContextValue = {
       flattenedProfile: flattenedProfileRef as unknown as Readonly<Ref<User | null>>,
+      onUpdateProfile: props.onUpdateProfile ?? ((): void => {}),
       profile: profileRef as unknown as Readonly<Ref<UserProfile | null>>,
       revalidateProfile: props.revalidateProfile,
       schemas: schemasRef as unknown as Readonly<Ref<Schema[] | null>>,
