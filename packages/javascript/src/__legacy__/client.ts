@@ -414,8 +414,7 @@ export class AsgardeoAuthClient<T> {
     };
 
     if (useBasicAuth) {
-      tokenRequestHeaders['Authorization'] =
-        `Basic ${btoa(`${configData.clientId}:${configData.clientSecret}`)}`;
+      tokenRequestHeaders['Authorization'] = `Basic ${btoa(`${configData.clientId}:${configData.clientSecret}`)}`;
     }
 
     let tokenResponse: Response;

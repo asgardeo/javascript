@@ -33,12 +33,12 @@ import useI18n from '../../../composables/useI18n';
 import {useOAuthCallback} from '../../../composables/useOAuthCallback';
 import {initiateOAuthRedirect} from '../../../utils/oauth';
 import {extractErrorMessage, normalizeFlowResponse} from '../../../utils/v2/flowTransformer';
+import {renderInviteUserComponents} from '../../auth/sign-in/AuthOptionFactory';
 import Alert from '../../primitives/Alert';
 import Button from '../../primitives/Button';
 import Card from '../../primitives/Card';
 import Spinner from '../../primitives/Spinner';
 import Typography from '../../primitives/Typography';
-import {renderInviteUserComponents} from '../../auth/sign-in/AuthOptionFactory';
 
 /**
  * Flow response from the accept-invite backend.

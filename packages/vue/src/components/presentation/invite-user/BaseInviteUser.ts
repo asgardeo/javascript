@@ -31,12 +31,12 @@ import {
 import useFlowMeta from '../../../composables/useFlowMeta';
 import useI18n from '../../../composables/useI18n';
 import {extractErrorMessage, normalizeFlowResponse} from '../../../utils/v2/flowTransformer';
+import {renderInviteUserComponents} from '../../auth/sign-in/AuthOptionFactory';
 import Alert from '../../primitives/Alert';
 import Button from '../../primitives/Button';
 import Card from '../../primitives/Card';
 import Spinner from '../../primitives/Spinner';
 import Typography from '../../primitives/Typography';
-import {renderInviteUserComponents} from '../../auth/sign-in/AuthOptionFactory';
 
 /**
  * Flow response from the invite-user backend.

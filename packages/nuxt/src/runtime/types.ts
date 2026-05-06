@@ -39,6 +39,12 @@ export interface AsgardeoNuxtConfig {
   /** OAuth2 Client Secret (server-only, use ASGARDEO_CLIENT_SECRET env var) */
   clientSecret?: string;
   /**
+   * Identity platform variant. Set to `Platform.AsgardeoV2` when connecting to
+   * a Thunder (AsgardeoV2) instance. Forwarded to the underlying Node client so
+   * platform-specific behaviours (e.g. issuer resolution) apply correctly.
+   */
+  platform?: keyof typeof Platform;
+  /**
    * Feature-gating preferences that control which server-side data fetches
    * the Nitro plugin performs on every SSR request.
    */
@@ -67,12 +73,6 @@ export interface AsgardeoNuxtConfig {
       fetchUserProfile?: boolean;
     };
   };
-  /**
-   * Identity platform variant. Set to `Platform.AsgardeoV2` when connecting to
-   * a Thunder (AsgardeoV2) instance. Forwarded to the underlying Node client so
-   * platform-specific behaviours (e.g. issuer resolution) apply correctly.
-   */
-  platform?: keyof typeof Platform;
   /** OAuth2 scopes to request */
   scopes?: string[];
   /** Secret for signing session JWTs (use ASGARDEO_SESSION_SECRET env var) */

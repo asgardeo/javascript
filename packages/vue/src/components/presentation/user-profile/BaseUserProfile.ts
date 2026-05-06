@@ -16,13 +16,10 @@
  * under the License.
  */
 
-import {
-  type User,
-  type Schema,
-  WellKnownSchemaIds,
-  withVendorCSSClassPrefix,
-} from '@asgardeo/browser';
+import {type User, type Schema, WellKnownSchemaIds, withVendorCSSClassPrefix} from '@asgardeo/browser';
 import {type Component, type PropType, type Ref, type SetupContext, type VNode, defineComponent, h, ref} from 'vue';
+import getDisplayName from '../../../utils/getDisplayName';
+import getMappedUserProfileValue from '../../../utils/getMappedUserProfileValue';
 import Alert from '../../primitives/Alert';
 import Button from '../../primitives/Button';
 import Card from '../../primitives/Card';
@@ -33,8 +30,6 @@ import {PencilIcon} from '../../primitives/Icons';
 import Spinner from '../../primitives/Spinner';
 import TextField from '../../primitives/TextField';
 import Typography from '../../primitives/Typography';
-import getDisplayName from '../../../utils/getDisplayName';
-import getMappedUserProfileValue from '../../../utils/getMappedUserProfileValue';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -118,8 +113,8 @@ const AVATAR_GRADIENTS: string[] = [
 
 function getAvatarGradient(seed: string): string {
   if (!seed) return AVATAR_GRADIENTS[0];
-  let hash = 0;
-  for (let i = 0; i < seed.length; i += 1) {
+  let hash: number = 0;
+  for (let i: number = 0; i < seed.length; i += 1) {
     // eslint-disable-next-line no-bitwise
     hash = (hash * 31 + seed.charCodeAt(i)) >>> 0;
   }
@@ -146,15 +141,21 @@ function buildScimPatchValue(
     };
   }
 
-  const complexMultiValued = new Set([
-    'phoneNumbers', 'emails', 'ims', 'photos', 'addresses',
-    'entitlements', 'roles', 'x509Certificates',
+  const complexMultiValued: Set<string> = new Set([
+    'phoneNumbers',
+    'emails',
+    'ims',
+    'photos',
+    'addresses',
+    'entitlements',
+    'roles',
+    'x509Certificates',
   ]);
 
-  const dotIndex = flatKey.indexOf('.');
+  const dotIndex: number = flatKey.indexOf('.');
   if (dotIndex > 0) {
-    const head = flatKey.slice(0, dotIndex);
-    const tail = flatKey.slice(dotIndex + 1);
+    const head: string = flatKey.slice(0, dotIndex);
+    const tail: string = flatKey.slice(dotIndex + 1);
     if (complexMultiValued.has(head)) {
       return {[head]: [{type: tail, value: rawValue}]};
     }
@@ -166,10 +167,10 @@ function buildScimPatchValue(
     return {[schemaId]: {[flatKey]: value}};
   }
 
-  const segments = flatKey.split('.');
+  const segments: string[] = flatKey.split('.');
   const nested: Record<string, unknown> = {};
   let cursor: Record<string, unknown> = nested;
-  for (let i = 0; i < segments.length - 1; i += 1) {
+  for (let i: number = 0; i < segments.length - 1; i += 1) {
     cursor[segments[i]] = {};
     cursor = cursor[segments[i]] as Record<string, unknown>;
   }
@@ -214,7 +215,7 @@ const BaseUserProfile: Component = defineComponent({
     const editingFields: Ref<Record<string, boolean>> = ref({});
     const editedValues: Ref<Record<string, any>> = ref({});
 
-    const px = withVendorCSSClassPrefix;
+    const px: typeof withVendorCSSClassPrefix = withVendorCSSClassPrefix;
 
     // ── Visibility ────────────────────────────────────────────────────────────
 
@@ -233,16 +234,21 @@ const BaseUserProfile: Component = defineComponent({
     }
 
     function cancelEditing(fieldName: string): void {
-      const data = props.flattenedProfile || props.profile;
-      const originalValue = (data as Record<string, any>)?.[fieldName] ?? '';
+      const data: User | null = props.flattenedProfile || props.profile;
+      const originalValue: any = (data as Record<string, any>)?.[fieldName] ?? '';
       editedValues.value = {...editedValues.value, [fieldName]: originalValue};
       editingFields.value = {...editingFields.value, [fieldName]: false};
     }
 
     function saveField(schema: ExtendedSchema): void {
       if (!props.onUpdate || !schema.name) return;
-      const value = editedValues.value[schema.name] ?? '';
-      const payload = buildScimPatchValue(schema.name, value, schema.schemaId, schema.multiValued);
+      const value: any = editedValues.value[schema.name] ?? '';
+      const payload: Record<string, unknown> = buildScimPatchValue(
+        schema.name,
+        value,
+        schema.schemaId,
+        schema.multiValued,
+      );
       props.onUpdate(payload);
       editingFields.value = {...editingFields.value, [schema.name]: false};
     }
@@ -250,8 +256,8 @@ const BaseUserProfile: Component = defineComponent({
     // ── Input rendering per schema type ───────────────────────────────────────
 
     function renderInput(schema: ExtendedSchema): VNode {
-      const fieldName = schema.name!;
-      const currentValue = editedValues.value[fieldName];
+      const fieldName: string = schema.name!;
+      const currentValue: any = editedValues.value[fieldName];
 
       switch (schema.type) {
         case 'DATE_TIME':
@@ -291,13 +297,24 @@ const BaseUserProfile: Component = defineComponent({
       const {name, displayName, description, mutability, value} = schema;
       if (!name || !shouldShowField(name)) return null;
 
-      const label = displayName || description || formatLabel(name);
-      const isReadonly = mutability === 'READ_ONLY' || READONLY_FIELDS.includes(name);
-      const isEditable = props.editable && !isReadonly;
-      const isEditing = editingFields.value[name];
-      const hasValue = value !== undefined && value !== null && value !== '';
+      const label: string = displayName || description || formatLabel(name);
+      const isReadonly: boolean = mutability === 'READ_ONLY' || READONLY_FIELDS.includes(name);
+      const isEditable: boolean = Boolean(props.editable) && !isReadonly;
+      const isEditing: boolean = Boolean(editingFields.value[name]);
+      const hasValue: boolean = value !== undefined && value !== null && value !== '';
 
       if (!hasValue && !isEditing && !(isEditable && mutability === 'READ_WRITE')) return null;
+
+      const editablePlaceholder: VNode | null = isEditable
+        ? h(
+            'span',
+            {class: px('user-profile__field-placeholder'), onClick: () => startEditing(name, value)},
+            `Enter your ${label.toLowerCase()}`,
+          )
+        : null;
+      const displayValueNode: VNode | null = hasValue
+        ? h(Typography, {class: px('user-profile__field-value'), variant: 'body1'}, () => String(value))
+        : editablePlaceholder;
 
       return h('div', {class: px('user-profile__field'), key: name}, [
         h('div', {class: px('user-profile__field-label-col')}, [
@@ -321,15 +338,7 @@ const BaseUserProfile: Component = defineComponent({
                 ]),
               ])
             : h('div', {class: px('user-profile__field-display')}, [
-                hasValue
-                  ? h(Typography, {class: px('user-profile__field-value'), variant: 'body1'}, () => String(value))
-                  : isEditable
-                    ? h(
-                        'span',
-                        {class: px('user-profile__field-placeholder'), onClick: () => startEditing(name, value)},
-                        `Enter your ${label.toLowerCase()}`,
-                      )
-                    : null,
+                displayValueNode,
                 isEditable
                   ? h(
                       'button',
@@ -350,7 +359,7 @@ const BaseUserProfile: Component = defineComponent({
     // ── Fallback: no schemas ──────────────────────────────────────────────────
 
     function renderProfileWithoutSchemas(): VNode[] {
-      const data = (props.flattenedProfile || props.profile) as Record<string, any> | null;
+      const data: Record<string, any> | null = (props.flattenedProfile || props.profile) as Record<string, any> | null;
       if (!data) return [];
 
       return Object.entries(data)
@@ -376,23 +385,24 @@ const BaseUserProfile: Component = defineComponent({
     // ── Hero section ──────────────────────────────────────────────────────────
 
     function renderHero(currentUser: Record<string, any>): VNode {
-      const displayName = getDisplayName(DEFAULT_ATTRIBUTE_MAPPINGS, currentUser as User);
-      const email =
+      const displayName: string = getDisplayName(DEFAULT_ATTRIBUTE_MAPPINGS, currentUser as User);
+      const email: any =
         getMappedUserProfileValue('email', DEFAULT_ATTRIBUTE_MAPPINGS, currentUser as User) ||
         getMappedUserProfileValue('username', DEFAULT_ATTRIBUTE_MAPPINGS, currentUser as User);
 
-      const avatarSeed = String(
+      const avatarSeed: string = String(
         currentUser['username'] || currentUser['userName'] || currentUser['email'] || currentUser['sub'] || displayName,
       );
-      const avatarGradient = getAvatarGradient(avatarSeed);
-      const initials = displayName
-        .split(' ')
-        .map((w: string) => w.charAt(0))
-        .slice(0, 2)
-        .join('')
-        .toUpperCase() || '?';
+      const avatarGradient: string = getAvatarGradient(avatarSeed);
+      const initials: string =
+        displayName
+          .split(' ')
+          .map((w: string) => w.charAt(0))
+          .slice(0, 2)
+          .join('')
+          .toUpperCase() || '?';
 
-      const avatarSizeClass = px(`user-profile__avatar--${props.avatarSize ?? 'lg'}`);
+      const avatarSizeClass: string = px(`user-profile__avatar--${props.avatarSize ?? 'lg'}`);
 
       return h('div', {class: px('user-profile__hero')}, [
         h('div', {class: px('user-profile__avatar-wrapper')}, [
@@ -412,7 +422,7 @@ const BaseUserProfile: Component = defineComponent({
     // ── Main render ───────────────────────────────────────────────────────────
 
     return (): VNode | VNode[] | null => {
-      const data = props.flattenedProfile || props.profile;
+      const data: User | null = props.flattenedProfile || props.profile;
 
       if (!data && !props.isLoading) {
         return slots['default']
@@ -424,11 +434,11 @@ const BaseUserProfile: Component = defineComponent({
         return slots['default']({error: props.error, isLoading: props.isLoading, profile: data});
       }
 
-      const currentUser = data as Record<string, any>;
-      const schemas = (props.schemas ?? []) as ExtendedSchema[];
-      const hasSchemas = schemas.length > 0;
+      const currentUser: Record<string, any> = data as Record<string, any>;
+      const schemas: ExtendedSchema[] = (props.schemas ?? []) as ExtendedSchema[];
+      const hasSchemas: boolean = schemas.length > 0;
 
-      const rootClasses = [
+      const rootClasses: string = [
         px('user-profile'),
         props.compact ? px('user-profile--compact') : '',
         props.className ?? '',
@@ -453,9 +463,7 @@ const BaseUserProfile: Component = defineComponent({
 
       // Error alert
       if (props.error) {
-        children.push(
-          h(Alert, {class: px('user-profile__error'), severity: 'error' as const}, () => props.error),
-        );
+        children.push(h(Alert, {class: px('user-profile__error'), severity: 'error' as const}, () => props.error));
       }
 
       // Fields
@@ -465,15 +473,15 @@ const BaseUserProfile: Component = defineComponent({
         const fieldRows: VNode[] = schemas
           .filter((s: ExtendedSchema) => s.name && shouldShowField(s.name))
           .sort((a: ExtendedSchema, b: ExtendedSchema) => {
-            const orderA = a.displayOrder ? parseInt(a.displayOrder, 10) : 999;
-            const orderB = b.displayOrder ? parseInt(b.displayOrder, 10) : 999;
+            const orderA: number = a.displayOrder ? parseInt(a.displayOrder, 10) : 999;
+            const orderB: number = b.displayOrder ? parseInt(b.displayOrder, 10) : 999;
             return orderA - orderB;
           })
           .map((schema: ExtendedSchema) => {
-            const value = currentUser && schema.name ? currentUser[schema.name] : undefined;
+            const value: any = currentUser && schema.name ? currentUser[schema.name] : undefined;
             return renderSchemaFieldRow({...schema, value});
           })
-          .filter((node): node is VNode => node !== null);
+          .filter((node: VNode | null): node is VNode => node !== null);
 
         children.push(h('div', {class: px('user-profile__fields')}, fieldRows));
       } else {
@@ -485,11 +493,7 @@ const BaseUserProfile: Component = defineComponent({
       }
 
       if (props.cardLayout) {
-        return h(
-          Card,
-          {class: rootClasses, variant: props.cardVariant ?? 'elevated'},
-          () => children,
-        );
+        return h(Card, {class: rootClasses, variant: props.cardVariant ?? 'elevated'}, () => children);
       }
 
       return h('div', {class: rootClasses}, children);
