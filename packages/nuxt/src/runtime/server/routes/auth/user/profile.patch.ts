@@ -16,11 +16,13 @@
  * under the License.
  */
 
+import {Platform} from '@asgardeo/node';
 import type {UpdateMeProfileConfig, User} from '@asgardeo/node';
 import {defineEventHandler, readBody, createError} from 'h3';
 import type {H3Event} from 'h3';
 import AsgardeoNuxtClient from '../../../AsgardeoNuxtClient';
 import {verifyAndRehydrateSession} from '../../../utils/serverSession';
+import type {AsgardeoNuxtConfig} from '../../../../types';
 import {useRuntimeConfig} from '#imports';
 
 /**
@@ -36,6 +38,11 @@ export default defineEventHandler(
   async (event: H3Event): Promise<{data: {user: User}; error: string; success: boolean}> => {
     const config: ReturnType<typeof useRuntimeConfig> = useRuntimeConfig();
     const sessionSecret: string | undefined = config.asgardeo?.sessionSecret;
+    const publicConfig: AsgardeoNuxtConfig = config.public.asgardeo as AsgardeoNuxtConfig;
+
+    if ((publicConfig?.platform as any) === Platform.AsgardeoV2) {
+      throw createError({statusCode: 501, statusMessage: 'Profile updates are not supported for the AsgardeoV2 (Thunder) platform.'});
+    }
 
     const session: Awaited<ReturnType<typeof verifyAndRehydrateSession>> = await verifyAndRehydrateSession(
       event,

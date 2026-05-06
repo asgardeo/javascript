@@ -100,6 +100,7 @@ export default defineNitroPlugin((nitro: {hooks: {hook: Function}}) => {
           baseUrl: publicConfig.baseUrl,
           clientId: publicConfig.clientId,
           clientSecret: privateConfig?.clientSecret || undefined,
+          platform: publicConfig.platform,
           scopes: publicConfig.scopes || ['openid', 'profile'],
         });
       } catch (err) {
