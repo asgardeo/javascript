@@ -1,5 +1,13 @@
 # @asgardeo/react
 
+## 0.23.5
+
+### Patch Changes
+
+- [#494](https://github.com/asgardeo/javascript/pull/494)
+  [`e1714a9`](https://github.com/asgardeo/javascript/commit/e1714a901aee81cdadd0194e7582030e7d98f348) Thanks
+  [@brionmario](https://github.com/brionmario)! - Fix Infinite loop in custom renderers
+
 ## 0.23.4
 
 ### Patch Changes
