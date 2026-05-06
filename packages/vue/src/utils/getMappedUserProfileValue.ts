@@ -27,7 +27,7 @@ const getMappedUserProfileValue = (key: string, mappings: Record<string, string 
 
   if (Array.isArray(mapping)) {
     let foundValue: any;
-    let found = false;
+    let found: boolean = false;
     mapping.some((path: string) => {
       const value: any = get(user, path);
       if (value !== undefined && value !== null && value !== '') {

@@ -20,9 +20,9 @@ import {Platform} from '@asgardeo/node';
 import type {UpdateMeProfileConfig, User} from '@asgardeo/node';
 import {defineEventHandler, readBody, createError} from 'h3';
 import type {H3Event} from 'h3';
+import type {AsgardeoNuxtConfig} from '../../../../types';
 import AsgardeoNuxtClient from '../../../AsgardeoNuxtClient';
 import {verifyAndRehydrateSession} from '../../../utils/serverSession';
-import type {AsgardeoNuxtConfig} from '../../../../types';
 import {useRuntimeConfig} from '#imports';
 
 /**
@@ -41,7 +41,10 @@ export default defineEventHandler(
     const publicConfig: AsgardeoNuxtConfig = config.public.asgardeo as AsgardeoNuxtConfig;
 
     if ((publicConfig?.platform as any) === Platform.AsgardeoV2) {
-      throw createError({statusCode: 501, statusMessage: 'Profile updates are not supported for the AsgardeoV2 (Thunder) platform.'});
+      throw createError({
+        statusCode: 501,
+        statusMessage: 'Profile updates are not supported for the AsgardeoV2 (Thunder) platform.',
+      });
     }
 
     const session: Awaited<ReturnType<typeof verifyAndRehydrateSession>> = await verifyAndRehydrateSession(

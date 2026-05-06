@@ -28,9 +28,9 @@ import {
   onUnmounted,
   ref,
 } from 'vue';
-import {ChevronDownIcon, LogOutIcon, UserIcon, XIcon} from '../../primitives/Icons';
 import getDisplayName from '../../../utils/getDisplayName';
 import getMappedUserProfileValue from '../../../utils/getMappedUserProfileValue';
+import {ChevronDownIcon, LogOutIcon, UserIcon, XIcon} from '../../primitives/Icons';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -100,8 +100,8 @@ const AVATAR_GRADIENTS: string[] = [
 
 function getAvatarGradient(seed: string): string {
   if (!seed) return AVATAR_GRADIENTS[0];
-  let hash = 0;
-  for (let i = 0; i < seed.length; i += 1) {
+  let hash: number = 0;
+  for (let i: number = 0; i < seed.length; i += 1) {
     // eslint-disable-next-line no-bitwise
     hash = (hash * 31 + seed.charCodeAt(i)) >>> 0;
   }
@@ -118,8 +118,8 @@ function resolveUserInfo(user: User | null): {
     return {displayName: 'User', gradient: AVATAR_GRADIENTS[0], initials: '?', subtitle: ''};
   }
 
-  const displayName = getDisplayName(DEFAULT_ATTRIBUTE_MAPPINGS, user) || 'User';
-  const initials =
+  const displayName: string = getDisplayName(DEFAULT_ATTRIBUTE_MAPPINGS, user) || 'User';
+  const initials: string =
     displayName
       .split(' ')
       .map((w: string) => w.charAt(0))
@@ -127,13 +127,13 @@ function resolveUserInfo(user: User | null): {
       .join('')
       .toUpperCase() || '?';
 
-  const seed = String(
+  const seed: string = String(
     getMappedUserProfileValue('username', DEFAULT_ATTRIBUTE_MAPPINGS, user) ||
       getMappedUserProfileValue('email', DEFAULT_ATTRIBUTE_MAPPINGS, user) ||
       displayName,
   );
 
-  const subtitle = String(
+  const subtitle: string = String(
     getMappedUserProfileValue('email', DEFAULT_ATTRIBUTE_MAPPINGS, user) ||
       getMappedUserProfileValue('username', DEFAULT_ATTRIBUTE_MAPPINGS, user) ||
       '',
@@ -175,7 +175,7 @@ const BaseUserDropdown: Component = defineComponent({
   setup(props: BaseUserDropdownProps, {slots}: {slots: any}): () => VNode | VNode[] | null {
     const isOpen: Ref<boolean> = ref(false);
     const containerRef: Ref<HTMLElement | null> = ref(null);
-    const px = withVendorCSSClassPrefix;
+    const px: typeof withVendorCSSClassPrefix = withVendorCSSClassPrefix;
 
     // ── Click-outside / Escape ────────────────────────────────────────────────
 
@@ -224,12 +224,15 @@ const BaseUserDropdown: Component = defineComponent({
       }
 
       const {displayName, initials, gradient, subtitle} = resolveUserInfo(props.user ?? null);
-      const size = props.size ?? 'md';
+      const size: 'sm' | 'md' | 'lg' = props.size ?? 'md';
 
       // ── Trigger ────────────────────────────────────────────────────────────
 
-      const avatarSizeClass = size !== 'md' ? px(`user-dropdown__avatar--${size}`) : '';
-      const triggerClass = [px('user-dropdown__trigger'), isOpen.value ? px('user-dropdown__trigger--open') : '']
+      const avatarSizeClass: string = size !== 'md' ? px(`user-dropdown__avatar--${size}`) : '';
+      const triggerClass: string = [
+        px('user-dropdown__trigger'),
+        isOpen.value ? px('user-dropdown__trigger--open') : '',
+      ]
         .filter(Boolean)
         .join(' ');
 
@@ -248,12 +251,13 @@ const BaseUserDropdown: Component = defineComponent({
         [
           h(
             'span',
-            {class: [px('user-dropdown__avatar'), avatarSizeClass].filter(Boolean).join(' '), style: {background: gradient}},
+            {
+              class: [px('user-dropdown__avatar'), avatarSizeClass].filter(Boolean).join(' '),
+              style: {background: gradient},
+            },
             initials,
           ),
-          props.showChevron
-            ? h('span', {class: px('user-dropdown__chevron')}, [h(ChevronDownIcon, {size: 14})])
-            : null,
+          props.showChevron ? h('span', {class: px('user-dropdown__chevron')}, [h(ChevronDownIcon, {size: 14})]) : null,
         ],
       );
 
@@ -262,10 +266,10 @@ const BaseUserDropdown: Component = defineComponent({
       let menu: VNode | null = null;
 
       if (isOpen.value) {
-        const resolvedAlign = resolveMenuAlign();
-        const alignClass = resolvedAlign === 'left' ? px('user-dropdown__menu--align-left') : '';
-        const sizeClass = size !== 'md' ? px(`user-dropdown__menu--size-${size}`) : '';
-        const menuClass = [px('user-dropdown__menu'), alignClass, sizeClass].filter(Boolean).join(' ');
+        const resolvedAlign: 'left' | 'right' = resolveMenuAlign();
+        const alignClass: string = resolvedAlign === 'left' ? px('user-dropdown__menu--align-left') : '';
+        const sizeClass: string = size !== 'md' ? px(`user-dropdown__menu--size-${size}`) : '';
+        const menuClass: string = [px('user-dropdown__menu'), alignClass, sizeClass].filter(Boolean).join(' ');
 
         // Build menu contents
         const menuChildren: (VNode | null)[] = [];
