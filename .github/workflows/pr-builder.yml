@@ -20,7 +20,6 @@ jobs:
     strategy:
       matrix:
         node-version: [lts/*]
-        pnpm-version: [latest]
     steps:
       - name: ⬇️ Checkout
         id: checkout
@@ -43,15 +42,11 @@ jobs:
 
       - name: 🥡 Setup pnpm
         id: setup-pnpm
-        uses: pnpm/action-setup@v2.1.0
-        with:
-          version: ${{ matrix.pnpm-version }}
-          run_install: false
+        uses: pnpm/action-setup@v4
 
       - name: 🎈 Get pnpm store directory
         id: get-pnpm-cache-dir
-        run: |
-          echo "::set-output name=pnpm_cache_dir::$(pnpm store path)"
+        run: echo "pnpm_cache_dir=$(pnpm store path)" >> $GITHUB_OUTPUT
 
       - name: 🔆 Cache pnpm modules
         uses: actions/cache@v3
@@ -76,7 +71,6 @@ jobs:
     strategy:
       matrix:
         node-version: [lts/*]
-        pnpm-version: [latest]
     steps:
       - name: ⬇️ Checkout
         id: checkout
@@ -98,15 +92,11 @@ jobs:
           main-branch-name: 'main'
 
       - name: 🥡 Setup pnpm
-        uses: pnpm/action-setup@v2.1.0
-        with:
-          version: ${{ matrix.pnpm-version }}
-          run_install: false
+        uses: pnpm/action-setup@v4
 
       - name: 🎈 Get pnpm store directory
         id: get-pnpm-cache-dir
-        run: |
-          echo "::set-output name=pnpm_cache_dir::$(pnpm store path)"
+        run: echo "pnpm_cache_dir=$(pnpm store path)" >> $GITHUB_OUTPUT
 
       - name: 🔆 Cache pnpm modules
         uses: actions/cache@v3
@@ -135,7 +125,6 @@ jobs:
     strategy:
       matrix:
         node-version: [lts/*]
-        pnpm-version: [latest]
     steps:
       - name: ⬇️ Checkout
         id: checkout
@@ -151,15 +140,11 @@ jobs:
           node-version: ${{ matrix.node-version }}
 
       - name: 🥡 Setup pnpm
-        uses: pnpm/action-setup@v2.1.0
-        with:
-          version: ${{ matrix.pnpm-version }}
-          run_install: false
+        uses: pnpm/action-setup@v4
 
       - name: 🎈 Get pnpm store directory
         id: get-pnpm-cache-dir
-        run: |
-          echo "::set-output name=pnpm_cache_dir::$(pnpm store path)"
+        run: echo "pnpm_cache_dir=$(pnpm store path)" >> $GITHUB_OUTPUT
 
       - name: 🔆 Cache pnpm modules
         uses: actions/cache@v3
@@ -189,7 +174,6 @@ jobs:
     strategy:
       matrix:
         node-version: [lts/*]
-        pnpm-version: [latest]
     steps:
       - name: ⬇️ Checkout
         id: checkout
@@ -202,15 +186,11 @@ jobs:
           node-version: ${{ matrix.node-version }}
 
       - name: 🥡 Setup pnpm
-        uses: pnpm/action-setup@v2.1.0
-        with:
-          version: ${{ matrix.pnpm-version }}
-          run_install: false
+        uses: pnpm/action-setup@v4
 
       - name: 🎈 Get pnpm store directory
         id: get-pnpm-cache-dir
-        run: |
-          echo "::set-output name=pnpm_cache_dir::$(pnpm store path)"
+        run: echo "pnpm_cache_dir=$(pnpm store path)" >> $GITHUB_OUTPUT
 
       - name: 🔆 Cache pnpm modules
         uses: actions/cache@v3
