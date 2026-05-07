@@ -34,6 +34,7 @@ import {Storage, TemporaryStore} from '../models/store';
 import {TokenResponse, IdToken, TokenExchangeRequestConfig} from '../models/token';
 import {User} from '../models/user';
 import StorageManager from '../StorageManager';
+import base64Encode from '../utils/base64Encode';
 import deepMerge from '../utils/deepMerge';
 import extractPkceStorageKeyFromState from '../utils/extractPkceStorageKeyFromState';
 import generatePkceStorageKey from '../utils/generatePkceStorageKey';
@@ -414,7 +415,10 @@ export class AsgardeoAuthClient<T> {
     };
 
     if (useBasicAuth) {
-      tokenRequestHeaders['Authorization'] = `Basic ${btoa(`${configData.clientId}:${configData.clientSecret}`)}`;
+      const credential: string = `${encodeURIComponent(configData.clientId)}:${encodeURIComponent(
+        configData.clientSecret,
+      )}`;
+      tokenRequestHeaders['Authorization'] = `Basic ${base64Encode(credential)}`;
     }
 
     let tokenResponse: Response;
