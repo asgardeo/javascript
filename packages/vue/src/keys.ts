@@ -15,6 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+// This file defines the injection keys for the various contexts used in the Asgardeo Vue SDK.
 
 import type {InjectionKey} from 'vue';
 import type {
