@@ -39,28 +39,6 @@ pnpm add @asgardeo/vue
 yarn add @asgardeo/vue
 ```
 
-## Basic Usage
-
-```vue
-<script setup lang="ts">
-import { useUser } from '@asgardeo/vue'
-
-const { user, isLoading } = useUser()
-</script>
-
-<template>
-  <div>
-    <p v-if="isLoading">Loading...</p>
-    <p v-else-if="user">Welcome, {{ user.username }}</p>
-    <p v-else>Not signed in</p>
-  </div>
-</template>
-```
-
-## API Documentation
-
-For complete API documentation including all components, composables, and customization options, see the [Vue SDK Documentation](https://wso2.com/asgardeo/docs/sdks/vue/overview).
-
 ## Supported Features
 
 ### Composables
@@ -120,23 +98,15 @@ For complete API documentation including all components, composables, and custom
 - `navigate` - Programmatic navigation helper
 - `http` - HTTP client with token management
 
-## Examples
-
-Check out our [example applications](../../samples/) to see the Vue SDK in action:
-- [Vue SDK Playground](../../playgrounds/vue/) - Example application
-
 ## Documentation
 
-- [Getting Started](https://wso2.com/asgardeo/docs/get-started/)
-- [Vue SDK Guide](https://wso2.com/asgardeo/docs/sdks/vue/)
-- [Configuration Options](https://wso2.com/asgardeo/docs/sdks/vue/configuration/)
-- [Composables & Components](https://wso2.com/asgardeo/docs/sdks/vue/api/)
+- [Vue Quick Start](https://wso2.com/asgardeo/docs/quick-starts/vue/)
 
 ## Support
 
 For support and questions:
 - [Asgardeo Documentation](https://wso2.com/asgardeo/docs/)
-- [GitHub Issues](https://github.com/asgardeo/asgardeo-auth-vue-sdk/issues)
+- [GitHub Issues](https://github.com/asgardeo/javascript/issues)
 - [WSO2 Community Forum](https://wso2.com/community/)
 
 ## Contributing

@@ -93,17 +93,10 @@ import { AsgardeoPlugin, AsgardeoProvider } from '@asgardeo/vue'
 
 const app = createApp(App)
 
-app.use(AsgardeoPlugin, {
-  baseUrl: '<your-organization-base-url>',
-  clientId: '<your-app-client-id>',
-})
+app.use(AsgardeoPlugin)
 
 app.mount('#app')
 ```
-
-Replace:
-- `<your-organization-base-url>` with the Base URL you noted in Step 1 (e.g., `https://api.asgardeo.io/t/<your-organization-name>`)
-- `<your-app-client-id>` with the Client ID from Step 1
 
 Then wrap your app component with the `AsgardeoProvider` in `src/App.vue`:
 
@@ -113,11 +106,18 @@ import { AsgardeoProvider } from '@asgardeo/vue'
 </script>
 
 <template>
-  <AsgardeoProvider>
+  <AsgardeoProvider
+    :base-url="'<your-organization-base-url>'"
+    :client-id="'<your-app-client-id>'"
+  >
     <!-- Your application content goes here -->
   </AsgardeoProvider>
 </template>
 ```
+
+Replace:
+- `<your-organization-base-url>` with the Base URL you noted in Step 1 (e.g., `https://api.asgardeo.io/t/<your-organization-name>`)
+- `<your-app-client-id>` with the Client ID from Step 1
 
 ## Step 5: Add Sign-in & Sign-out to Your App
 
@@ -173,25 +173,6 @@ const { user, isLoading } = useUser()
     </SignedOut>
   </div>
 </template>
-
-<style scoped>
-.user-info {
-  padding: 1rem;
-  border: 1px solid #e0e0e0;
-  border-radius: 4px;
-  margin-bottom: 1rem;
-}
-
-h1 {
-  margin: 0 0 0.5rem 0;
-  font-size: 1.5rem;
-}
-
-p {
-  margin: 0;
-  color: #666;
-}
-</style>
 ```
 
 ### Using the User Render Function Pattern
@@ -261,16 +242,6 @@ import { Callback } from '@asgardeo/vue'
 
 🎉 **Congratulations!** You've successfully integrated Asgardeo authentication into your Vue app.
 
-### What to explore next:
-
-- **[API Documentation](https://wso2.com/asgardeo/docs/sdks/vue/overview)** - Learn about all available composables and components
-- **[Composables Guide](https://wso2.com/asgardeo/docs/sdks/vue/composables)** - Master the composable API (`useUser`, `useOrganization`, etc.)
-- **[Custom Styling](https://wso2.com/asgardeo/docs/sdks/vue/customization/styling)** - Customize the appearance of authentication components
-- **[Protected Routes](https://wso2.com/asgardeo/docs/sdks/vue/protected-routes)** - Implement route-level authentication
-- **[Organizations/Workspaces](https://wso2.com/asgardeo/docs/sdks/vue/organizations)** - Implement multi-tenancy features
-- **[User Profile Management](https://wso2.com/asgardeo/docs/sdks/vue/user-profile)** - Access and manage user profile data
-- **[Social Login](https://wso2.com/asgardeo/docs/sdks/vue/social-login)** - Enable sign-in with Google, GitHub, Microsoft, and Facebook
-
 ## Common Issues
 
 ### Redirect URL Mismatch
@@ -287,23 +258,18 @@ import { Callback } from '@asgardeo/vue'
 
 ### Plugin Not Registered
 - **Problem**: Vue warns about plugin not being registered
-- **Solution**: Make sure you've called `app.use(AsgardeoPlugin, { ... })` before mounting your app
-
-### State Not Updating
-- **Problem**: User state doesn't update after sign-in
-- **Solution**: Ensure you're using the composable (`useUser`) inside a component wrapped with `AsgardeoProvider`
+- **Solution**: Make sure you've called `app.use(AsgardeoPlugin)` before mounting your app
 
 ## More Resources
 
 - [Asgardeo Documentation](https://wso2.com/asgardeo/docs/)
 - [Vue.js Documentation](https://vuejs.org/)
-- [SDK Examples](../../samples/)
-- [GitHub Repository](https://github.com/asgardeo/asgardeo-auth-vue-sdk)
+- [GitHub Repository](https://github.com/asgardeo/javascript)
 
 ## Getting Help
 
 If you encounter issues:
 1. Check the [FAQs](https://wso2.com/asgardeo/docs/faq/)
-2. Search [GitHub Issues](https://github.com/asgardeo/asgardeo-auth-vue-sdk/issues)
+2. Search [GitHub Issues](https://github.com/asgardeo/javascript/issues)
 3. Ask on the [WSO2 Community Forum](https://wso2.com/community/)
 4. Contact [Asgardeo Support](https://wso2.com/asgardeo/support/)
