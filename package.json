@@ -52,5 +52,15 @@
   },
   "publishConfig": {
     "access": "restricted"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@parcel/watcher",
+      "@tailwindcss/oxide",
+      "core-js",
+      "esbuild",
+      "nx",
+      "sharp"
+    ]
   }
 }
