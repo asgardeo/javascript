@@ -46,23 +46,36 @@ export class FetchHttpClient extends HttpClient {
 
   // eslint-disable-next-line class-methods-use-this
   protected async transport<T = any>(config: HttpRequestConfig): Promise<HttpResponse<T>> {
-    let url: string = config.url ?? '';
+    const {
+      attachToken,
+      data,
+      headers: configHeaders,
+      method,
+      params,
+      shouldAttachIDPAccessToken,
+      shouldEncodeToFormData,
+      startTimeInMs,
+      url: configUrl,
+      ...fetchOptions
+    } = config;
 
-    if (config.params) {
-      const qs: string = new URLSearchParams(config.params).toString();
+    let url: string = configUrl ?? '';
+
+    if (params) {
+      const qs: string = new URLSearchParams(params).toString();
       if (qs) {
-        url = `${url}?${qs}`;
+        url = `${url}${url.includes('?') ? '&' : '?'}${qs}`;
       }
     }
 
-    const headers: Record<string, string> = {...(config.headers ?? {})};
+    const headers: Record<string, string> = {...(configHeaders ?? {})};
     let body: BodyInit | undefined;
 
-    if (config.data !== undefined) {
-      if (config.data instanceof FormData) {
-        body = config.data;
+    if (data !== undefined) {
+      if (data instanceof FormData) {
+        body = data;
       } else {
-        body = JSON.stringify(config.data);
+        body = JSON.stringify(data);
         if (!headers['Content-Type'] && !headers['content-type']) {
           headers['Content-Type'] = 'application/json';
         }
@@ -73,10 +86,11 @@ export class FetchHttpClient extends HttpClient {
 
     try {
       fetchResponse = await fetch(url, {
-        body,
         credentials: 'include',
+        ...fetchOptions,
+        body,
         headers,
-        method: (config.method ?? 'GET').toUpperCase(),
+        method: (method ?? 'GET').toUpperCase(),
       });
     } catch (networkError: any) {
       throw Object.assign(new Error(networkError.message), {
@@ -86,7 +100,7 @@ export class FetchHttpClient extends HttpClient {
     }
 
     const contentType: string = fetchResponse.headers.get('content-type') ?? '';
-    const data: T = contentType.includes('application/json')
+    const responseData: T = contentType.includes('application/json')
       ? await fetchResponse.json()
       : ((await fetchResponse.text()) as any);
 
@@ -99,7 +113,7 @@ export class FetchHttpClient extends HttpClient {
       throw Object.assign(new Error(fetchResponse.statusText), {
         config,
         response: {
-          data,
+          data: responseData,
           headers: responseHeaders,
           status: fetchResponse.status,
           statusText: fetchResponse.statusText,
@@ -109,7 +123,7 @@ export class FetchHttpClient extends HttpClient {
 
     return {
       config,
-      data,
+      data: responseData,
       headers: responseHeaders,
       status: fetchResponse.status,
       statusText: fetchResponse.statusText,

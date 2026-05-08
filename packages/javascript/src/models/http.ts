@@ -35,7 +35,7 @@ export interface HttpError extends Error {
   };
 }
 
-export interface HttpRequestConfig {
+export interface HttpRequestConfig extends Omit<RequestInit, 'body' | 'headers' | 'method'> {
   attachToken?: boolean;
   data?: any;
   headers?: Record<string, string>;
