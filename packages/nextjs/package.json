@@ -1,6 +1,6 @@
 {
   "name": "@asgardeo/nextjs",
-  "version": "0.3.17",
+  "version": "0.3.18",
   "description": "Next.js implementation of Asgardeo JavaScript SDK.",
   "keywords": [
     "asgardeo",
