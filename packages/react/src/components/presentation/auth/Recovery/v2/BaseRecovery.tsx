@@ -26,8 +26,11 @@ import {
   FlowMetadataResponse,
 } from '@asgardeo/browser';
 import {cx} from '@emotion/css';
-import {FC, ReactElement, ReactNode, useEffect, useState, useCallback, useRef} from 'react';
+import {FC, ReactElement, ReactNode, useContext, useEffect, useState, useCallback, useRef} from 'react';
 import useAsgardeo from '../../../../../contexts/Asgardeo/useAsgardeo';
+import ComponentRendererContext, {
+  ComponentRendererMap,
+} from '../../../../../contexts/ComponentRenderer/ComponentRendererContext';
 import FlowProvider from '../../../../../contexts/Flow/FlowProvider';
 import useFlow from '../../../../../contexts/Flow/useFlow';
 import ComponentPreferencesContext from '../../../../../contexts/I18n/ComponentPreferencesContext';
@@ -121,6 +124,7 @@ const BaseRecoveryContent: FC<BaseRecoveryProps> = ({
   showSubtitle = true,
 }: BaseRecoveryProps): ReactElement => {
   const {theme, colorScheme} = useTheme();
+  const customRenderers: ComponentRendererMap = useContext(ComponentRendererContext);
   const {t} = useTranslation();
   const {subtitle: flowSubtitle, title: flowTitle, messages: flowMessages, addMessage, clearMessages} = useFlow();
   const {meta} = useAsgardeo();
@@ -352,6 +356,7 @@ const BaseRecoveryContent: FC<BaseRecoveryProps> = ({
         isFormValid,
         handleInputChange,
         {
+          _customRenderers: customRenderers,
           _theme: theme,
           buttonClassName: buttonClasses,
           inputClassName: inputClasses,
@@ -363,6 +368,7 @@ const BaseRecoveryContent: FC<BaseRecoveryProps> = ({
         },
       ),
     [
+      customRenderers,
       buttonClasses,
       formErrors,
       formValues,
