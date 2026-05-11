@@ -17,9 +17,9 @@
  */
 
 import {I18nBundle} from '@asgardeo/i18n';
-import {ComponentsExtensions} from './v2/extensions/components';
 import {Platform} from './platforms';
 import {RecursivePartial} from './utility-types';
+import {ComponentsExtensions} from './v2/extensions/components';
 import {ThemeConfig, ThemeMode} from '../theme/types';
 
 /**

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2025, WSO2 LLC. (https://www.wso2.com).
+ * Copyright (c) 2025-2026, WSO2 LLC. (https://www.wso2.com).
  *
  * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -18,6 +18,7 @@
 
 export enum EmbeddedFlowType {
   Authentication = 'AUTHENTICATION',
+  Recovery = 'RECOVERY',
   Registration = 'REGISTRATION',
   UserOnboarding = 'USER_ONBOARDING',
 }
@@ -166,7 +167,7 @@ export interface EmbeddedFlowExecuteErrorResponse {
    * Currently only supports 'REGISTRATION' but may be extended to
    * include other flow types (e.g., 'LOGIN', 'PASSWORD_RESET') in the future.
    */
-  flowType: 'REGISTRATION';
+  flowType: 'REGISTRATION' | 'RECOVERY';
 
   /**
    * Brief error message describing what went wrong.
