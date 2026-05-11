@@ -24,7 +24,7 @@ The Asgardeo Vue SDK provides a streamlined way to integrate secure authenticati
 
 ## Quick Start
 
-Get started with Asgardeo in your Vue application in minutes. Follow our [Vue Quick Start Guide](./QUICKSTART.md) for step-by-step instructions on integrating authentication into your app.
+Get started with Asgardeo in your Vue application in minutes. Follow our [Vue Quick Start Guide](https://wso2.com/asgardeo/docs/quick-starts/vue/) for step-by-step instructions on integrating authentication into your app.
 
 ## Installation
 
