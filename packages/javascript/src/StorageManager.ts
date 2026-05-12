@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import {AuthClientConfig} from './__legacy__/models';
+import {AuthClientConfig} from './models/auth-client-config';
 import {OIDCDiscoveryApiResponse} from './models/oidc-discovery';
 import {SessionData} from './models/session';
 import {Stores, Storage, TemporaryStore, TemporaryStoreValue} from './models/store';

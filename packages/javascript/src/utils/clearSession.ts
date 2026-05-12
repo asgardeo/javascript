@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2025, WSO2 LLC. (https://www.wso2.com).
+ * Copyright (c) 2020, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
  *
  * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -16,8 +16,9 @@
  * under the License.
  */
 
-export * from './models';
+import StorageManager from '../StorageManager';
 
-export {AsgardeoExpressClient} from './AsgardeoExpressClient';
-
-export * from '@asgardeo/node';
+export default async function clearSession<T>(storageManager: StorageManager<T>, userId?: string): Promise<void> {
+  await storageManager.removeTemporaryData(userId);
+  await storageManager.removeSessionData(userId);
+}

@@ -101,7 +101,7 @@ class AuthAPI {
     return this.client.getConfigData();
   }
 
-  public async getStorageManager(): Promise<any> {
+  public getStorageManager(): any {
     return this.client.getStorageManager();
   }
 

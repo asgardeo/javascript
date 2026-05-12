@@ -16,12 +16,12 @@
  * under the License.
  */
 
-import {AsgardeoAuthClient} from '@asgardeo/javascript';
+import {AsgardeoJavaScriptClient} from '@asgardeo/javascript';
 import {Buffer} from 'buffer/';
 // eslint-disable-next-line import/no-cycle
-import {AuthenticationHelper, SPAHelper} from './__legacy__/helpers';
-import {WebWorkerClientConfig} from './__legacy__/models';
-import {workerReceiver} from './__legacy__/worker/worker-receiver';
+import {AuthenticationHelper, SPAHelper} from './helpers';
+import {WebWorkerClientConfig} from './models';
+import {workerReceiver} from './worker/workerReceiver';
 
 /* eslint-disable no-restricted-globals */
 // Set up global polyfills
@@ -39,7 +39,7 @@ if (typeof self !== 'undefined') {
 /* eslint-enable no-restricted-globals */
 
 workerReceiver(
-  (authClient: AsgardeoAuthClient<WebWorkerClientConfig>, spaHelper: SPAHelper<WebWorkerClientConfig>) =>
+  (authClient: AsgardeoJavaScriptClient<WebWorkerClientConfig>, spaHelper: SPAHelper<WebWorkerClientConfig>) =>
     new AuthenticationHelper(authClient, spaHelper),
 );
 

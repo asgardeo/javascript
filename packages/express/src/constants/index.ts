@@ -16,8 +16,5 @@
  * under the License.
  */
 
-export * from './models';
-
-export {AsgardeoExpressClient} from './AsgardeoExpressClient';
-
-export * from '@asgardeo/node';
+export * from './default-options';
+export * from './logger-config';

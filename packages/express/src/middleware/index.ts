@@ -16,8 +16,5 @@
  * under the License.
  */
 
-export * from './models';
-
-export {AsgardeoExpressClient} from './AsgardeoExpressClient';
-
-export * from '@asgardeo/node';
+export * from './authentication';
+export * from './protect-route';
