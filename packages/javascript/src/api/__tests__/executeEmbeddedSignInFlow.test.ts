@@ -141,7 +141,7 @@ describe('executeEmbeddedSignInFlow', (): void => {
     expect(fetch).toHaveBeenCalledWith(`${baseUrl}/oauth2/authn`, expect.objectContaining({method: 'PUT'}));
   });
 
-  it('should handle HTTP error responses', async (): Promise<void> => {
+  it('should handle HTTP error responses with plain-text body', async (): Promise<void> => {
     global.fetch = vi.fn().mockResolvedValue({
       ok: false,
       status: 401,
@@ -153,8 +153,31 @@ describe('executeEmbeddedSignInFlow', (): void => {
     const baseUrl: string = 'https://api.asgardeo.io/t/demo';
 
     await expect(executeEmbeddedSignInFlow({baseUrl, payload})).rejects.toThrow(AsgardeoAPIError);
+    await expect(executeEmbeddedSignInFlow({baseUrl, payload})).rejects.toThrow('Invalid credentials');
+  });
+
+  it('should extract description.defaultValue from a structured error response body', async (): Promise<void> => {
+    const structuredError = JSON.stringify({
+      code: 'SSE-5000',
+      description: {
+        defaultValue: 'An unexpected error occurred while processing the request',
+        key: 'error.internal_server_error_description',
+      },
+      message: {defaultValue: 'Internal server error', key: 'error.internal_server_error'},
+    });
+
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: false,
+      status: 500,
+      statusText: 'Internal Server Error',
+      text: () => Promise.resolve(structuredError),
+    });
+
+    const payload: Record<string, string> = {password: 'pass', username: 'user'};
+    const baseUrl: string = 'https://api.asgardeo.io/t/demo';
+
     await expect(executeEmbeddedSignInFlow({baseUrl, payload})).rejects.toThrow(
-      'Authorization request failed: Invalid credentials',
+      'An unexpected error occurred while processing the request',
     );
   });
 

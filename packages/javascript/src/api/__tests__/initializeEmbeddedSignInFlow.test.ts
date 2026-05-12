@@ -140,7 +140,7 @@ describe('initializeEmbeddedSignInFlow', (): void => {
     await expect(initializeEmbeddedSignInFlow({baseUrl} as any)).rejects.toThrow('Authorization payload is required');
   });
 
-  it('should handle HTTP error responses', async (): Promise<void> => {
+  it('should handle HTTP error responses with plain-text body', async (): Promise<void> => {
     global.fetch = vi.fn().mockResolvedValue({
       ok: false,
       status: 400,
@@ -152,8 +152,31 @@ describe('initializeEmbeddedSignInFlow', (): void => {
     const payload: Record<string, string> = {client_id: 'cid', response_type: 'code'};
 
     await expect(initializeEmbeddedSignInFlow({baseUrl, payload})).rejects.toThrow(AsgardeoAPIError);
+    await expect(initializeEmbeddedSignInFlow({baseUrl, payload})).rejects.toThrow('invalid request');
+  });
+
+  it('should extract description.defaultValue from a structured error response body', async (): Promise<void> => {
+    const structuredError = JSON.stringify({
+      code: 'SSE-5000',
+      description: {
+        defaultValue: 'An unexpected error occurred while processing the request',
+        key: 'error.internal_server_error_description',
+      },
+      message: {defaultValue: 'Internal server error', key: 'error.internal_server_error'},
+    });
+
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: false,
+      status: 500,
+      statusText: 'Internal Server Error',
+      text: () => Promise.resolve(structuredError),
+    });
+
+    const baseUrl: string = 'https://api.asgardeo.io/t/demo';
+    const payload: Record<string, string> = {client_id: 'cid', response_type: 'code'};
+
     await expect(initializeEmbeddedSignInFlow({baseUrl, payload})).rejects.toThrow(
-      'Authorization request failed: invalid request',
+      'An unexpected error occurred while processing the request',
     );
   });
 

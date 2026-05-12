@@ -19,6 +19,7 @@
 import AsgardeoAPIError from '../errors/AsgardeoAPIError';
 import {EmbeddedFlowExecuteRequestConfig} from '../models/embedded-flow';
 import {EmbeddedSignInFlowHandleResponse} from '../models/embedded-signin-flow';
+import parseApiErrorMessage from '../utils/parseApiErrorMessage';
 
 const executeEmbeddedSignInFlow = async ({
   url,
@@ -65,7 +66,7 @@ const executeEmbeddedSignInFlow = async ({
       const errorText: string = await response.text();
 
       throw new AsgardeoAPIError(
-        `Authorization request failed: ${errorText}`,
+        parseApiErrorMessage(errorText),
         'initializeEmbeddedSignInFlow-ResponseError-001',
         'javascript',
         response.status,

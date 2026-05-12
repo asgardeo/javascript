@@ -19,6 +19,7 @@
 import AsgardeoAPIError from '../errors/AsgardeoAPIError';
 import {EmbeddedFlowExecuteRequestConfig} from '../models/embedded-flow';
 import {EmbeddedSignInFlowInitiateResponse} from '../models/embedded-signin-flow';
+import parseApiErrorMessage from '../utils/parseApiErrorMessage';
 
 /**
  * Sends an authorization request to the specified OAuth2/OIDC authorization endpoint.
@@ -102,7 +103,7 @@ const initializeEmbeddedSignInFlow = async ({
       const errorText: string = await response.text();
 
       throw new AsgardeoAPIError(
-        `Authorization request failed: ${errorText}`,
+        parseApiErrorMessage(errorText),
         'initializeEmbeddedSignInFlow-ResponseError-001',
         'javascript',
         response.status,
