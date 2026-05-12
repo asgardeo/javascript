@@ -32,6 +32,7 @@ import {Platform} from '../models/platforms';
 import {SessionData, UserSession} from '../models/session';
 import {Storage, TemporaryStore} from '../models/store';
 import {TokenResponse, IdToken, TokenExchangeRequestConfig} from '../models/token';
+import {TokenEndpointAuthMethod} from '../models/token-endpoint-auth';
 import {User} from '../models/user';
 import StorageManager from '../StorageManager';
 import base64Encode from '../utils/base64Encode';
@@ -378,12 +379,12 @@ export class AsgardeoAuthClient<T> {
 
     body.set('client_id', configData.clientId);
 
-    // AsgardeoV2 (Thunder) requires client_secret_basic: credentials in the Authorization header.
-    // All other platforms use client_secret_post: credentials in the request body.
     const hasSecret: boolean = Boolean(configData.clientSecret && configData.clientSecret.trim().length > 0);
-    const useBasicAuth: boolean = hasSecret && (configData as any).platform === Platform.AsgardeoV2;
+    const tokenEndpointAuthMethod: TokenEndpointAuthMethod =
+      configData.tokenRequest?.authMethod ??
+      ((configData as any).platform === Platform.AsgardeoV2 ? 'client_secret_basic' : 'client_secret_post');
 
-    if (hasSecret && !useBasicAuth) {
+    if (hasSecret && tokenEndpointAuthMethod === 'client_secret_post') {
       body.set('client_secret', configData.clientSecret);
     }
 
@@ -414,7 +415,7 @@ export class AsgardeoAuthClient<T> {
       'Content-Type': 'application/x-www-form-urlencoded',
     };
 
-    if (useBasicAuth) {
+    if (hasSecret && tokenEndpointAuthMethod === 'client_secret_basic') {
       const credential: string = `${encodeURIComponent(configData.clientId)}:${encodeURIComponent(
         configData.clientSecret,
       )}`;

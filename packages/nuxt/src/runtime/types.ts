@@ -16,7 +16,15 @@
  * under the License.
  */
 
-import type {BrandingPreference, I18nPreferences, Organization, Platform, User, UserProfile} from '@asgardeo/node';
+import type {
+  BrandingPreference,
+  I18nPreferences,
+  Organization,
+  Platform,
+  TokenEndpointAuthMethod,
+  User,
+  UserProfile,
+} from '@asgardeo/node';
 import type {JWTPayload} from 'jose';
 
 /**
@@ -89,6 +97,17 @@ export interface AsgardeoNuxtConfig {
    * here instead of deriving the URL from `baseUrl`/`clientId`.
    */
   signUpUrl?: string;
+  /**
+   * Configuration for the token endpoint request.
+   */
+  tokenRequest?: {
+    /**
+     * OAuth 2.0 client authentication method used at the token endpoint.
+     * Defaults to `client_secret_basic` for AsgardeoV2 and `client_secret_post`
+     * for all other platforms when not specified.
+     */
+    authMethod?: TokenEndpointAuthMethod;
+  };
 }
 
 /**

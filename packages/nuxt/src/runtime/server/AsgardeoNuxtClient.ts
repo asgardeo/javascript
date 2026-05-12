@@ -120,6 +120,7 @@ class AsgardeoNuxtClient extends AsgardeoNodeClient<AsgardeoNuxtConfig> {
       enablePKCE: true,
       platform: config.platform,
       scopes: config.scopes || ['openid', 'profile'],
+      tokenRequest: config.tokenRequest,
     } as AuthClientConfig<AsgardeoNuxtConfig>;
 
     const result: boolean = await this.legacy.initialize(authConfig, storage);

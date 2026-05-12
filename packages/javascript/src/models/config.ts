@@ -18,6 +18,7 @@
 
 import {I18nBundle} from '@asgardeo/i18n';
 import {Platform} from './platforms';
+import {TokenEndpointAuthMethod} from './token-endpoint-auth';
 import {RecursivePartial} from './utility-types';
 import {ComponentsExtensions} from './v2/extensions/components';
 import {ThemeConfig, ThemeMode} from '../theme/types';
@@ -321,6 +322,24 @@ export interface BaseConfig<T = unknown> extends WithPreferences, WithExtensions
        */
       autoRefresh?: boolean;
     };
+  };
+
+  /**
+   * Configuration for the token endpoint request.
+   */
+  tokenRequest?: {
+    /**
+     * OAuth 2.0 client authentication method used at the token endpoint.
+     * Maps to `token_endpoint_auth_method` in OIDC Discovery.
+     *
+     * - `client_secret_basic` — Credentials in the `Authorization: Basic` header.
+     * - `client_secret_post` — Credentials in the POST body.
+     * - `none` — No client authentication (public clients).
+     *
+     * When omitted the SDK applies its platform-based default:
+     * AsgardeoV2 → `client_secret_basic`; all others → `client_secret_post`.
+     */
+    authMethod?: TokenEndpointAuthMethod;
   };
 
   /**

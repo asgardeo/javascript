@@ -102,6 +102,7 @@ export default defineNitroPlugin((nitro: {hooks: {hook: Function}}) => {
           clientSecret: privateConfig?.clientSecret || undefined,
           platform: publicConfig.platform,
           scopes: publicConfig.scopes || ['openid', 'profile'],
+          tokenRequest: publicConfig.tokenRequest,
         });
       } catch (err) {
         log.error('Failed to initialize Asgardeo client:', err);

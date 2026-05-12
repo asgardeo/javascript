@@ -105,6 +105,7 @@ export default defineNuxtModule<AsgardeoNuxtConfig>({
         scopes: publicConfig.scopes,
         signInUrl: publicConfig.signInUrl,
         signUpUrl: publicConfig.signUpUrl,
+        tokenRequest: publicConfig.tokenRequest,
       },
     ) as {
       afterSignInUrl: string;
@@ -117,6 +118,7 @@ export default defineNuxtModule<AsgardeoNuxtConfig>({
       scopes: string[];
       signInUrl?: string;
       signUpUrl?: string;
+      tokenRequest?: AsgardeoNuxtConfig['tokenRequest'];
     };
 
     // Ensure clientSecret never leaks to public config
