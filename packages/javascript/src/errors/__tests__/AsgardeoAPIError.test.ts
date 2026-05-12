@@ -113,7 +113,13 @@ describe('AsgardeoAPIError.fromResponseText', (): void => {
       description: {defaultValue: 'An unexpected error occurred', key: 'error.desc'},
       message: {defaultValue: 'Internal server error', key: 'error.msg'},
     });
-    const error: AsgardeoAPIError = AsgardeoAPIError.fromResponseText(errorText, 'CODE', 'javascript', 500, 'Internal Server Error');
+    const error: AsgardeoAPIError = AsgardeoAPIError.fromResponseText(
+      errorText,
+      'CODE',
+      'javascript',
+      500,
+      'Internal Server Error',
+    );
     expect(error.message).toBe('An unexpected error occurred');
     expect(error.statusCode).toBe(500);
     expect(error.statusText).toBe('Internal Server Error');
@@ -129,7 +135,13 @@ describe('AsgardeoAPIError.fromResponseText', (): void => {
   });
 
   it('should use raw text when response is not structured JSON', (): void => {
-    const error: AsgardeoAPIError = AsgardeoAPIError.fromResponseText('Unauthorized', 'CODE', 'javascript', 401, 'Unauthorized');
+    const error: AsgardeoAPIError = AsgardeoAPIError.fromResponseText(
+      'Unauthorized',
+      'CODE',
+      'javascript',
+      401,
+      'Unauthorized',
+    );
     expect(error.message).toBe('Unauthorized');
   });
 
@@ -148,12 +160,26 @@ describe('AsgardeoAPIError.fromResponseText', (): void => {
     const errorText: string = JSON.stringify({
       description: {defaultValue: 'Invalid credentials provided'},
     });
-    const error: AsgardeoAPIError = AsgardeoAPIError.fromResponseText(errorText, 'CODE', 'javascript', 401, 'Unauthorized', 'Authorization request failed');
+    const error: AsgardeoAPIError = AsgardeoAPIError.fromResponseText(
+      errorText,
+      'CODE',
+      'javascript',
+      401,
+      'Unauthorized',
+      'Authorization request failed',
+    );
     expect(error.message).toBe('Authorization request failed: Invalid credentials provided');
   });
 
   it('should prepend prefix to raw text when response is not structured JSON', (): void => {
-    const error: AsgardeoAPIError = AsgardeoAPIError.fromResponseText('Unauthorized', 'CODE', 'javascript', 401, 'Unauthorized', 'Authorization request failed');
+    const error: AsgardeoAPIError = AsgardeoAPIError.fromResponseText(
+      'Unauthorized',
+      'CODE',
+      'javascript',
+      401,
+      'Unauthorized',
+      'Authorization request failed',
+    );
     expect(error.message).toBe('Authorization request failed: Unauthorized');
   });
 

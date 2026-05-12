@@ -21,7 +21,7 @@ import parseApiErrorMessage from '../parseApiErrorMessage';
 
 describe('parseApiErrorMessage', () => {
   it('should return description.defaultValue when present', () => {
-    const errorText = JSON.stringify({
+    const errorText: string = JSON.stringify({
       code: 'SSE-5000',
       description: {defaultValue: 'An unexpected error occurred while processing the request', key: 'error.desc'},
       message: {defaultValue: 'Internal server error', key: 'error.msg'},
@@ -30,7 +30,7 @@ describe('parseApiErrorMessage', () => {
   });
 
   it('should fall back to message.defaultValue when description is absent', () => {
-    const errorText = JSON.stringify({
+    const errorText: string = JSON.stringify({
       code: 'SSE-5000',
       message: {defaultValue: 'Internal server error', key: 'error.msg'},
     });
@@ -42,12 +42,12 @@ describe('parseApiErrorMessage', () => {
   });
 
   it('should return raw text when JSON does not contain known fields', () => {
-    const errorText = JSON.stringify({code: 'ERR-001', error: 'something'});
+    const errorText: string = JSON.stringify({code: 'ERR-001', error: 'something'});
     expect(parseApiErrorMessage(errorText)).toBe(errorText);
   });
 
   it('should return raw text when description.defaultValue is an empty string', () => {
-    const errorText = JSON.stringify({
+    const errorText: string = JSON.stringify({
       code: 'SSE-5000',
       description: {defaultValue: '', key: 'error.desc'},
       message: {defaultValue: 'Internal server error', key: 'error.msg'},
@@ -56,7 +56,7 @@ describe('parseApiErrorMessage', () => {
   });
 
   it('should return raw text when both defaultValue fields are absent', () => {
-    const errorText = JSON.stringify({
+    const errorText: string = JSON.stringify({
       code: 'SSE-5000',
       description: {key: 'error.desc'},
       message: {key: 'error.msg'},

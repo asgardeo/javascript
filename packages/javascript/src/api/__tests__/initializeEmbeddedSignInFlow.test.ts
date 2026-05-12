@@ -156,7 +156,7 @@ describe('initializeEmbeddedSignInFlow', (): void => {
   });
 
   it('should extract description.defaultValue from a structured error response body', async (): Promise<void> => {
-    const structuredError = JSON.stringify({
+    const structuredError: string = JSON.stringify({
       code: 'SSE-5000',
       description: {
         defaultValue: 'An unexpected error occurred while processing the request',

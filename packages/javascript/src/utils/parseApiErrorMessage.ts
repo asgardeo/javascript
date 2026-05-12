@@ -27,9 +27,11 @@
  */
 const parseApiErrorMessage = (errorText: string): string => {
   try {
-    const parsed = JSON.parse(errorText) as Record<string, unknown>;
-    const description = parsed["description"] as {defaultValue?: string} | undefined;
-    const message = parsed["message"] as {defaultValue?: string} | undefined;
+    const parsed: Record<string, unknown> = JSON.parse(errorText) as Record<string, unknown>;
+    const description: {defaultValue?: string} | undefined = parsed['description'] as
+      | {defaultValue?: string}
+      | undefined;
+    const message: {defaultValue?: string} | undefined = parsed['message'] as {defaultValue?: string} | undefined;
     if (description?.defaultValue) return description.defaultValue;
     if (message?.defaultValue) return message.defaultValue;
   } catch {
