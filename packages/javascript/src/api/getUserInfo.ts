@@ -64,7 +64,7 @@ const getUserInfo = async ({url, ...requestConfig}: Partial<Request>): Promise<U
     if (!response.ok) {
       const errorText: string = await response.text();
 
-      throw AsgardeoAPIError.fromResponseText(
+      throw new AsgardeoAPIError(
         errorText,
         'getUserInfo-ResponseError-001',
         'javascript',

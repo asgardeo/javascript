@@ -155,7 +155,7 @@ const getBrandingPreference = async ({
     if (!response?.ok) {
       const errorText: string = await response.text();
 
-      throw AsgardeoAPIError.fromResponseText(
+      throw new AsgardeoAPIError(
         errorText,
         'getBrandingPreference-ResponseError-001',
         'javascript',

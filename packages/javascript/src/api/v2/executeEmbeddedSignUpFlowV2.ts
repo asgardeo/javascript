@@ -81,7 +81,7 @@ const executeEmbeddedSignUpFlowV2 = async ({
   if (!response.ok) {
     const errorText: string = await response.text();
 
-    throw AsgardeoAPIError.fromResponseText(
+    throw new AsgardeoAPIError(
       errorText,
       'executeEmbeddedSignUpFlow-ResponseError-001',
       'javascript',

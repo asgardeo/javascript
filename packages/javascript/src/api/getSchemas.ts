@@ -122,7 +122,7 @@ const getSchemas = async ({url, baseUrl, fetcher, ...requestConfig}: GetSchemasC
     if (!response?.ok) {
       const errorText: string = await response.text();
 
-      throw AsgardeoAPIError.fromResponseText(
+      throw new AsgardeoAPIError(
         errorText,
         'getSchemas-ResponseError-001',
         'javascript',

@@ -106,20 +106,14 @@ describe('AsgardeoAPIError', (): void => {
   });
 });
 
-describe('AsgardeoAPIError.fromResponseText', (): void => {
+describe('AsgardeoAPIError — structured response body parsing', (): void => {
   it('should extract description.defaultValue from a structured error body', (): void => {
     const errorText: string = JSON.stringify({
       code: 'SSE-5000',
       description: {defaultValue: 'An unexpected error occurred', key: 'error.desc'},
       message: {defaultValue: 'Internal server error', key: 'error.msg'},
     });
-    const error: AsgardeoAPIError = AsgardeoAPIError.fromResponseText(
-      errorText,
-      'CODE',
-      'javascript',
-      500,
-      'Internal Server Error',
-    );
+    const error: AsgardeoAPIError = new AsgardeoAPIError(errorText, 'CODE', 'javascript', 500, 'Internal Server Error');
     expect(error.message).toBe('An unexpected error occurred');
     expect(error.statusCode).toBe(500);
     expect(error.statusText).toBe('Internal Server Error');
@@ -130,37 +124,26 @@ describe('AsgardeoAPIError.fromResponseText', (): void => {
       code: 'SSE-5000',
       message: {defaultValue: 'Internal server error', key: 'error.msg'},
     });
-    const error: AsgardeoAPIError = AsgardeoAPIError.fromResponseText(errorText, 'CODE', 'javascript', 500);
+    const error: AsgardeoAPIError = new AsgardeoAPIError(errorText, 'CODE', 'javascript', 500);
     expect(error.message).toBe('Internal server error');
   });
 
   it('should use raw text when response is not structured JSON', (): void => {
-    const error: AsgardeoAPIError = AsgardeoAPIError.fromResponseText(
-      'Unauthorized',
-      'CODE',
-      'javascript',
-      401,
-      'Unauthorized',
-    );
+    const error: AsgardeoAPIError = new AsgardeoAPIError('Unauthorized', 'CODE', 'javascript', 401, 'Unauthorized');
     expect(error.message).toBe('Unauthorized');
   });
 
   it('should use raw text when JSON does not match the known error shape', (): void => {
     const errorText: string = JSON.stringify({error: 'something_went_wrong'});
-    const error: AsgardeoAPIError = AsgardeoAPIError.fromResponseText(errorText, 'CODE', 'javascript', 400);
+    const error: AsgardeoAPIError = new AsgardeoAPIError(errorText, 'CODE', 'javascript', 400);
     expect(error.message).toBe(errorText);
-  });
-
-  it('should produce an instance of AsgardeoAPIError', (): void => {
-    const error: AsgardeoAPIError = AsgardeoAPIError.fromResponseText('raw', 'CODE', 'javascript');
-    expect(error).toBeInstanceOf(AsgardeoAPIError);
   });
 
   it('should prepend prefix to a structured description.defaultValue', (): void => {
     const errorText: string = JSON.stringify({
       description: {defaultValue: 'Invalid credentials provided'},
     });
-    const error: AsgardeoAPIError = AsgardeoAPIError.fromResponseText(
+    const error: AsgardeoAPIError = new AsgardeoAPIError(
       errorText,
       'CODE',
       'javascript',
@@ -172,7 +155,7 @@ describe('AsgardeoAPIError.fromResponseText', (): void => {
   });
 
   it('should prepend prefix to raw text when response is not structured JSON', (): void => {
-    const error: AsgardeoAPIError = AsgardeoAPIError.fromResponseText(
+    const error: AsgardeoAPIError = new AsgardeoAPIError(
       'Unauthorized',
       'CODE',
       'javascript',
@@ -187,7 +170,7 @@ describe('AsgardeoAPIError.fromResponseText', (): void => {
     const errorText: string = JSON.stringify({
       description: {defaultValue: 'Invalid credentials provided'},
     });
-    const error: AsgardeoAPIError = AsgardeoAPIError.fromResponseText(errorText, 'CODE', 'javascript', 401);
+    const error: AsgardeoAPIError = new AsgardeoAPIError(errorText, 'CODE', 'javascript', 401);
     expect(error.message).toBe('Invalid credentials provided');
   });
 });
