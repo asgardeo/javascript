@@ -6,8 +6,8 @@ on:
   pull_request:
     branches: [main]
     paths-ignore:
-      - '**.md'
-      - 'LICENSE'
+      - "**.md"
+      - "LICENSE"
   workflow_dispatch:
 
 env:
@@ -20,7 +20,7 @@ jobs:
     strategy:
       matrix:
         node-version: [lts/*]
-        pnpm-version: [latest]
+        pnpm-version: [v10]
     steps:
       - name: ⬇️ Checkout
         id: checkout
@@ -39,7 +39,7 @@ jobs:
         id: set-shas
         uses: nrwl/nx-set-shas@v3
         with:
-          main-branch-name: 'main'
+          main-branch-name: "main"
 
       - name: 🥡 Setup pnpm
         id: setup-pnpm
@@ -95,7 +95,7 @@ jobs:
         id: set-shas
         uses: nrwl/nx-set-shas@v3
         with:
-          main-branch-name: 'main'
+          main-branch-name: "main"
 
       - name: 🥡 Setup pnpm
         uses: pnpm/action-setup@v2.1.0

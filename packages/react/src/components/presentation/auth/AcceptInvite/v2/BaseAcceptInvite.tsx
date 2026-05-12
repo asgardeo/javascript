@@ -395,8 +395,14 @@ const BaseAcceptInvite: FC<BaseAcceptInviteProps> = ({
     },
     onFlowChange: (response: any) => {
       onFlowChange?.(response);
-      // Initialize currentFlow for next steps if not complete
-      if (response.flowStatus !== 'COMPLETE') {
+      if (response.flowStatus === 'COMPLETE') {
+        setIsComplete(true);
+        const completionComponents: any[] = response.data?.components || response.data?.meta?.components || [];
+        if (completionComponents.length > 0) {
+          setCurrentFlow(response);
+        }
+      } else {
+        // Initialize currentFlow for next steps if not complete
         setCurrentFlow(response);
         setFormValues({});
         setFormErrors({});
@@ -581,6 +587,13 @@ const BaseAcceptInvite: FC<BaseAcceptInviteProps> = ({
   useEffect(() => {
     // Skip validation if already validated
     if (tokenValidationAttemptedRef.current) {
+      return;
+    }
+
+    // If an OAuth code is present, this is a return from an OAuth redirect.
+    // useOAuthCallback will handle the code — skip the initial invite validation.
+    const urlParams: URLSearchParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('code')) {
       return;
     }
 
