@@ -90,12 +90,13 @@ const executeEmbeddedSignUpFlow = async ({
     if (!response.ok) {
       const errorText: string = await response.text();
 
-      throw new AsgardeoAPIError(
-        `Embedded SignUp flow execution failed: ${errorText}`,
+      throw AsgardeoAPIError.fromResponseText(
+        errorText,
         'javascript-executeEmbeddedSignUpFlow-ResponseError-100',
         'javascript',
         response.status,
         response.statusText,
+        'Embedded SignUp flow execution failed',
       );
     }
 

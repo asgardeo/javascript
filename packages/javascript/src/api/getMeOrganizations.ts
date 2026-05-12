@@ -175,12 +175,13 @@ const getMeOrganizations = async ({
     if (!response?.ok) {
       const errorText: string = await response.text();
 
-      throw new AsgardeoAPIError(
-        `Failed to fetch associated organizations of the user: ${errorText}`,
+      throw AsgardeoAPIError.fromResponseText(
+        errorText,
         'getMeOrganizations-ResponseError-001',
         'javascript',
         response.status,
         response.statusText,
+        'Failed to fetch associated organizations of the user',
       );
     }
 

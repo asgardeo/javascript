@@ -133,12 +133,13 @@ const updateMeProfile = async ({
     if (!response?.ok) {
       const errorText: string = await response.text();
 
-      throw new AsgardeoAPIError(
-        `Failed to update user profile: ${errorText}`,
+      throw AsgardeoAPIError.fromResponseText(
+        errorText,
         'updateMeProfile-ResponseError-001',
         'javascript',
         response.status,
         response.statusText,
+        'Failed to update user profile',
       );
     }
 

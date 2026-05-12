@@ -153,12 +153,13 @@ const getAllOrganizations = async ({
     if (!response?.ok) {
       const errorText: string = await response.text();
 
-      throw new AsgardeoAPIError(
-        `Failed to get organizations: ${errorText}`,
+      throw AsgardeoAPIError.fromResponseText(
+        errorText,
         'getAllOrganizations-ResponseError-001',
         'javascript',
         response.status,
         response.statusText,
+        'Failed to get organizations',
       );
     }
 

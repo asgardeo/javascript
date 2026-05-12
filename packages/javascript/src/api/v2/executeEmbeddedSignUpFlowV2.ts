@@ -81,12 +81,13 @@ const executeEmbeddedSignUpFlowV2 = async ({
   if (!response.ok) {
     const errorText: string = await response.text();
 
-    throw new AsgardeoAPIError(
-      `Registration request failed: ${errorText}`,
+    throw AsgardeoAPIError.fromResponseText(
+      errorText,
       'executeEmbeddedSignUpFlow-ResponseError-001',
       'javascript',
       response.status,
       response.statusText,
+      'Registration request failed',
     );
   }
 

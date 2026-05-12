@@ -78,12 +78,13 @@ const getOrganizationUnitChildren = async ({
   if (!response.ok) {
     const errorText: string = await response.text();
 
-    throw new AsgardeoAPIError(
-      `Failed to fetch organization unit children: ${errorText}`,
+    throw AsgardeoAPIError.fromResponseText(
+      errorText,
       'getOrganizationUnitChildren-ResponseError-001',
       'javascript',
       response.status,
       response.statusText,
+      'Failed to fetch organization unit children',
     );
   }
 

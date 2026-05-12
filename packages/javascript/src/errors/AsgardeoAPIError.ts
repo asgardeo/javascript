@@ -17,6 +17,7 @@
  */
 
 import AsgardeoError from './AsgardeoError';
+import parseApiErrorMessage from '../utils/parseApiErrorMessage';
 
 /**
  * Base class for all API-related errors in Asgardeo. This class extends AsgardeoError
@@ -57,6 +58,26 @@ export default class AsgardeoAPIError extends AsgardeoError {
       value: 'AsgardeoAPIError',
       writable: true,
     });
+  }
+
+  /**
+   * Creates an AsgardeoAPIError from a raw HTTP response error body, extracting a
+   * human-readable message from Asgardeo's structured error format when possible.
+   *
+   * Falls back to the raw `errorText` if the body is not a recognised structured error.
+   * An optional `prefix` is prepended to the resolved message (e.g. "Failed to fetch user profile").
+   */
+  static fromResponseText(
+    errorText: string,
+    code: string,
+    origin: string,
+    statusCode?: number,
+    statusText?: string,
+    prefix?: string,
+  ): AsgardeoAPIError {
+    const parsed: string = parseApiErrorMessage(errorText);
+    const message: string = prefix ? `${prefix}: ${parsed}` : parsed;
+    return new AsgardeoAPIError(message, code, origin, statusCode, statusText);
   }
 
   /**

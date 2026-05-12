@@ -123,12 +123,13 @@ const getScim2Me = async ({url, baseUrl, fetcher, ...requestConfig}: GetScim2MeC
     if (!response?.ok) {
       const errorText: string = await response.text();
 
-      throw new AsgardeoAPIError(
-        `Failed to fetch user profile: ${errorText}`,
+      throw AsgardeoAPIError.fromResponseText(
+        errorText,
         'getScim2Me-ResponseError-001',
         'javascript',
         response.status,
         response.statusText,
+        'Failed to fetch user profile',
       );
     }
 
