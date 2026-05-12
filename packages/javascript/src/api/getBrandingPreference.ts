@@ -156,11 +156,12 @@ const getBrandingPreference = async ({
       const errorText: string = await response.text();
 
       throw new AsgardeoAPIError(
-        `Failed to get branding preference: ${errorText}`,
+        errorText,
         'getBrandingPreference-ResponseError-001',
         'javascript',
         response.status,
         response.statusText,
+        'Failed to get branding preference',
       );
     }
 

@@ -102,11 +102,12 @@ const initializeEmbeddedSignInFlow = async ({
       const errorText: string = await response.text();
 
       throw new AsgardeoAPIError(
-        `Authorization request failed: ${errorText}`,
+        errorText,
         'initializeEmbeddedSignInFlow-ResponseError-001',
         'javascript',
         response.status,
         response.statusText,
+        'Authorization request failed',
       );
     }
 

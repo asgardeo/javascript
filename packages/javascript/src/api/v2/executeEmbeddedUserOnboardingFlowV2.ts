@@ -160,11 +160,12 @@ const executeEmbeddedUserOnboardingFlowV2 = async ({
     const errorText: string = await response.text();
 
     throw new AsgardeoAPIError(
-      `User onboarding request failed: ${errorText}`,
+      errorText,
       'executeEmbeddedUserOnboardingFlow-ResponseError-001',
       'javascript',
       response.status,
       response.statusText,
+      'User onboarding request failed',
     );
   }
 

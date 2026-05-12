@@ -159,11 +159,12 @@ const getOrganization = async ({
       const errorText: string = await response.text();
 
       throw new AsgardeoAPIError(
-        `Failed to fetch organization details: ${errorText}`,
+        errorText,
         'getOrganization-ResponseError-001',
         'javascript',
         response.status,
         response.statusText,
+        'Failed to fetch organization details',
       );
     }
 

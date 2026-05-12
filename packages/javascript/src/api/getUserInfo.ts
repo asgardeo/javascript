@@ -65,11 +65,12 @@ const getUserInfo = async ({url, ...requestConfig}: Partial<Request>): Promise<U
       const errorText: string = await response.text();
 
       throw new AsgardeoAPIError(
-        `Failed to fetch user info: ${errorText}`,
+        errorText,
         'getUserInfo-ResponseError-001',
         'javascript',
         response.status,
         response.statusText,
+        'Failed to fetch user info',
       );
     }
 

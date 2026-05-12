@@ -168,11 +168,12 @@ const updateOrganization = async ({
       const errorText: string = await response.text();
 
       throw new AsgardeoAPIError(
-        `Failed to update organization: ${errorText}`,
+        errorText,
         'updateOrganization-ResponseError-001',
         'javascript',
         response.status,
         response.statusText,
+        'Failed to update organization',
       );
     }
 

@@ -123,11 +123,12 @@ const getSchemas = async ({url, baseUrl, fetcher, ...requestConfig}: GetSchemasC
       const errorText: string = await response.text();
 
       throw new AsgardeoAPIError(
-        `Failed to fetch SCIM2 schemas: ${errorText}`,
+        errorText,
         'getSchemas-ResponseError-001',
         'javascript',
         response.status,
         response.statusText,
+        'Failed to fetch SCIM2 schemas',
       );
     }
 

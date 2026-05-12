@@ -186,11 +186,12 @@ const createOrganization = async ({
       const errorText: string = await response.text();
 
       throw new AsgardeoAPIError(
-        `Failed to create organization: ${errorText}`,
+        errorText,
         'createOrganization-ResponseError-001',
         'javascript',
         response.status,
         response.statusText,
+        'Failed to create organization',
       );
     }
 

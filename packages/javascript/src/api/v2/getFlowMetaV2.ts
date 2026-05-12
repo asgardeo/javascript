@@ -86,11 +86,12 @@ const getFlowMetaV2 = async ({
     const errorText: string = await response.text();
 
     throw new AsgardeoAPIError(
-      `Flow metadata request failed: ${errorText}`,
+      errorText,
       'getFlowMetaV2-ResponseError-001',
       'javascript',
       response.status,
       response.statusText,
+      'Flow metadata request failed',
     );
   }
 

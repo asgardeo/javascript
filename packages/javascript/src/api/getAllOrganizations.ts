@@ -154,11 +154,12 @@ const getAllOrganizations = async ({
       const errorText: string = await response.text();
 
       throw new AsgardeoAPIError(
-        `Failed to get organizations: ${errorText}`,
+        errorText,
         'getAllOrganizations-ResponseError-001',
         'javascript',
         response.status,
         response.statusText,
+        'Failed to get organizations',
       );
     }
 
