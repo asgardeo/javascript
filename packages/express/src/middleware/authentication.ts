@@ -16,9 +16,9 @@
  * under the License.
  */
 
-import {AsgardeoAuthException, Logger, TokenResponse} from '@asgardeo/node';
+import {AsgardeoRuntimeError, Logger, TokenResponse} from '@asgardeo/node';
 import express from 'express';
-import {AsgardeoExpressClient} from '../LegacyAsgardeoExpressClient';
+import {AsgardeoExpressClient} from '../AsgardeoExpressClient';
 import {DEFAULT_LOGIN_PATH, DEFAULT_LOGOUT_PATH} from '../constants';
 import {ExpressClientConfig} from '../models';
 
@@ -27,7 +27,7 @@ export const asgardeoExpressAuth = (
   config: ExpressClientConfig,
   onSignIn: (res: express.Response, tokenResponse: TokenResponse) => void,
   onSignOut: (res: express.Response) => void,
-  onError: (res: express.Response, exception: AsgardeoAuthException) => void,
+  onError: (res: express.Response, exception: AsgardeoRuntimeError) => void,
 ): any => {
   const router = new express.Router();
 
@@ -64,9 +64,10 @@ export const asgardeoExpressAuth = (
       if (req.cookies.ASGARDEO_SESSION_ID === undefined) {
         onError(
           res,
-          new AsgardeoAuthException(
-            'EXPRESS-AUTH_MW-LOGOUT-NF01',
+          new AsgardeoRuntimeError(
             'No cookie found in the request',
+            'EXPRESS-AUTH_MW-LOGOUT-NF01',
+            '@asgardeo/express',
             'No cookie was sent with the request. The user may not have signed in yet.',
           ),
         );

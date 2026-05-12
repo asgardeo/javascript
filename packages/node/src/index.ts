@@ -26,7 +26,6 @@ if (!globalThis.fetch) {
   globalThis.Response = Response;
 }
 
-export {AsgardeoNodeClient as LegacyAsgardeoNodeClient} from './LegacyAsgardeoNodeClient';
 export * from './models';
 export * from './utils/NodeLogger';
 

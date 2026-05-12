@@ -92,7 +92,7 @@ class AsgardeoReactClient<T extends AsgardeoReactConfig = AsgardeoReactConfig> e
    * Get the instance ID for this client.
    * @returns The instance ID used for multi-auth context support.
    */
-  public getInstanceId(): number {
+  public override getInstanceId(): number {
     return this.clientInstanceId;
   }
 
@@ -182,11 +182,11 @@ class AsgardeoReactClient<T extends AsgardeoReactConfig = AsgardeoReactConfig> e
     }
   }
 
-  async getDecodedIdToken(sessionId?: string): Promise<IdToken> {
+  override async getDecodedIdToken(sessionId?: string): Promise<IdToken> {
     return this.asgardeo.getDecodedIdToken(sessionId);
   }
 
-  async getIdToken(): Promise<string> {
+  override async getIdToken(): Promise<string> {
     return this.withLoading(async () => this.asgardeo.getIdToken());
   }
 
@@ -576,7 +576,7 @@ class AsgardeoReactClient<T extends AsgardeoReactConfig = AsgardeoReactConfig> e
     return (await this.asgardeo.getStorageManager()).setSessionData(sessionData, sessionId);
   }
 
-  async getStorageManager(): Promise<any> {
+  override getStorageManager(): any {
     return this.asgardeo.getStorageManager();
   }
 

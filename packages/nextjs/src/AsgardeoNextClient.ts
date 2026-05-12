@@ -22,19 +22,15 @@ import {
   AsgardeoRuntimeError,
   AuthClientConfig,
   CreateOrganizationPayload,
-  EmbeddedFlowExecuteRequestConfig,
   EmbeddedFlowExecuteRequestPayload,
   EmbeddedFlowExecuteResponse,
-  EmbeddedSignInFlowHandleRequestPayload,
   ExtendedAuthorizeRequestUrlParams,
   FlattenedSchema,
   IdToken,
-  LegacyAsgardeoNodeClient,
   Organization,
   OrganizationDetails,
   Schema,
   SignInOptions,
-  SignOutOptions,
   SignUpOptions,
   Storage,
   TokenExchangeRequestConfig,
@@ -63,7 +59,7 @@ import getSessionId from './server/actions/getSessionId';
 import decorateConfigWithNextEnv from './utils/decorateConfigWithNextEnv';
 
 /**
- * Client for mplementing Asgardeo in Next.js applications.
+ * Client for implementing Asgardeo in Next.js applications.
  * This class provides the core functionality for managing user authentication and sessions.
  *
  * This class is implemented as a singleton to ensure a single instance across the application.
@@ -73,14 +69,10 @@ import decorateConfigWithNextEnv from './utils/decorateConfigWithNextEnv';
 class AsgardeoNextClient<T extends AsgardeoNextConfig = AsgardeoNextConfig> extends AsgardeoNodeClient<T> {
   private static instance: AsgardeoNextClient<any>;
 
-  private asgardeo: LegacyAsgardeoNodeClient<T>;
-
   public isInitialized: boolean = false;
 
   private constructor() {
     super();
-
-    this.asgardeo = new LegacyAsgardeoNodeClient();
   }
 
   /**
@@ -132,7 +124,7 @@ class AsgardeoNextClient<T extends AsgardeoNextConfig = AsgardeoNextConfig> exte
 
     const origin: string = await getClientOrigin();
 
-    return this.asgardeo.initialize(
+    return super.initialize(
       {
         afterSignInUrl: afterSignInUrl ?? origin,
         afterSignOutUrl: afterSignOutUrl ?? origin,
@@ -144,7 +136,7 @@ class AsgardeoNextClient<T extends AsgardeoNextConfig = AsgardeoNextConfig> exte
         signInUrl,
         signUpUrl,
         ...rest,
-      } as any,
+      } as unknown as T,
       storage,
     );
   }
@@ -153,7 +145,7 @@ class AsgardeoNextClient<T extends AsgardeoNextConfig = AsgardeoNextConfig> exte
     let isInitialized: boolean = false;
 
     try {
-      await this.asgardeo.reInitialize(config as any);
+      await super.reInitialize(config);
 
       isInitialized = true;
     } catch (error) {
@@ -173,7 +165,7 @@ class AsgardeoNextClient<T extends AsgardeoNextConfig = AsgardeoNextConfig> exte
     const resolvedSessionId: string = userId || ((await getSessionId()) as string);
 
     try {
-      const configData: AuthClientConfig<T> = await this.asgardeo.getConfigData();
+      const configData: AuthClientConfig<T> = await this.getConfigData();
       const baseUrl: string | undefined = configData?.baseUrl;
 
       const profile: User = await getScim2Me({
@@ -192,7 +184,7 @@ class AsgardeoNextClient<T extends AsgardeoNextConfig = AsgardeoNextConfig> exte
 
       return generateUserProfile(profile, flattenUserSchema(schemas));
     } catch (error) {
-      return this.asgardeo.getUser(resolvedSessionId);
+      return super.getUser(resolvedSessionId);
     }
   }
 
@@ -200,7 +192,7 @@ class AsgardeoNextClient<T extends AsgardeoNextConfig = AsgardeoNextConfig> exte
     await this.ensureInitialized();
 
     try {
-      const configData: AuthClientConfig<T> = await this.asgardeo.getConfigData();
+      const configData: AuthClientConfig<T> = await this.getConfigData();
       const baseUrl: string | undefined = configData?.baseUrl;
 
       const profile: User = await getScim2Me({
@@ -228,8 +220,8 @@ class AsgardeoNextClient<T extends AsgardeoNextConfig = AsgardeoNextConfig> exte
       return output;
     } catch (error) {
       return {
-        flattenedProfile: extractUserClaimsFromIdToken(await this.asgardeo.getDecodedIdToken(userId)),
-        profile: extractUserClaimsFromIdToken(await this.asgardeo.getDecodedIdToken(userId)),
+        flattenedProfile: extractUserClaimsFromIdToken(await super.getDecodedIdToken(userId)),
+        profile: extractUserClaimsFromIdToken(await super.getDecodedIdToken(userId)),
         schemas: [],
       };
     }
@@ -239,7 +231,7 @@ class AsgardeoNextClient<T extends AsgardeoNextConfig = AsgardeoNextConfig> exte
     await this.ensureInitialized();
 
     try {
-      const configData: AuthClientConfig<T> = await this.asgardeo.getConfigData();
+      const configData: AuthClientConfig<T> = await this.getConfigData();
       const baseUrl: string | undefined = configData?.baseUrl;
 
       const userProfile: User = await updateMeProfile({
@@ -255,7 +247,7 @@ class AsgardeoNextClient<T extends AsgardeoNextConfig = AsgardeoNextConfig> exte
       throw new AsgardeoRuntimeError(
         `Failed to update user profile: ${error instanceof Error ? error.message : String(error)}`,
         'AsgardeoNextClient-UpdateProfileError-001',
-        'react',
+        'nextjs',
         'An error occurred while updating the user profile. Please check your configuration and network connection.',
       );
     }
@@ -263,7 +255,7 @@ class AsgardeoNextClient<T extends AsgardeoNextConfig = AsgardeoNextConfig> exte
 
   async createOrganization(payload: CreateOrganizationPayload, userId?: string): Promise<Organization> {
     try {
-      const configData: AuthClientConfig<T> = await this.asgardeo.getConfigData();
+      const configData: AuthClientConfig<T> = await this.getConfigData();
       const baseUrl: string = configData?.baseUrl as string;
 
       const createdOrg: Organization = await createOrganization({
@@ -287,7 +279,7 @@ class AsgardeoNextClient<T extends AsgardeoNextConfig = AsgardeoNextConfig> exte
 
   async getOrganization(organizationId: string, userId?: string): Promise<OrganizationDetails> {
     try {
-      const configData: AuthClientConfig<T> = await this.asgardeo.getConfigData();
+      const configData: AuthClientConfig<T> = await this.getConfigData();
       const baseUrl: string = configData?.baseUrl as string;
 
       const organization: OrganizationDetails = await getOrganization({
@@ -311,7 +303,7 @@ class AsgardeoNextClient<T extends AsgardeoNextConfig = AsgardeoNextConfig> exte
 
   override async getMyOrganizations(options?: any, userId?: string): Promise<Organization[]> {
     try {
-      const configData: AuthClientConfig<T> = await this.asgardeo.getConfigData();
+      const configData: AuthClientConfig<T> = await this.getConfigData();
       const baseUrl: string = configData?.baseUrl as string;
 
       const myOrganizations: Organization[] = await getMeOrganizations({
@@ -336,7 +328,7 @@ class AsgardeoNextClient<T extends AsgardeoNextConfig = AsgardeoNextConfig> exte
 
   override async getAllOrganizations(options?: any, userId?: string): Promise<AllOrganizationsApiResponse> {
     try {
-      const configData: AuthClientConfig<T> = await this.asgardeo.getConfigData();
+      const configData: AuthClientConfig<T> = await this.getConfigData();
       const baseUrl: string = configData?.baseUrl as string;
 
       const allOrganizations: AllOrganizationsApiResponse = await getAllOrganizations({
@@ -358,7 +350,7 @@ class AsgardeoNextClient<T extends AsgardeoNextConfig = AsgardeoNextConfig> exte
   }
 
   override async getCurrentOrganization(userId?: string): Promise<Organization | null> {
-    const idToken: IdToken = await this.asgardeo.getDecodedIdToken(userId);
+    const idToken: IdToken = await super.getDecodedIdToken(userId);
 
     return {
       id: idToken?.org_id as string,
@@ -393,9 +385,7 @@ class AsgardeoNextClient<T extends AsgardeoNextConfig = AsgardeoNextConfig> exte
         signInRequired: true,
       };
 
-      const tokenResponse: TokenResponse | Response = await this.asgardeo.exchangeToken(exchangeConfig, userId);
-
-      return tokenResponse;
+      return super.exchangeToken(exchangeConfig, userId);
     } catch (error) {
       throw new AsgardeoRuntimeError(
         `Failed to switch organization: ${error instanceof Error ? error.message : String(JSON.stringify(error))}`,
@@ -412,17 +402,13 @@ class AsgardeoNextClient<T extends AsgardeoNextConfig = AsgardeoNextConfig> exte
   }
 
   override isSignedIn(sessionId?: string): Promise<boolean> {
-    return this.asgardeo.isSignedIn(sessionId as string);
+    return super.isSignedIn(sessionId);
   }
 
   override exchangeToken(config: TokenExchangeRequestConfig, sessionId?: string): Promise<TokenResponse | Response> {
-    return this.asgardeo.exchangeToken(config, sessionId);
+    return super.exchangeToken(config, sessionId);
   }
 
-  /**
-   * Gets the access token from the session cookie if no sessionId is provided,
-   * otherwise falls back to legacy client method.
-   */
   // eslint-disable-next-line class-methods-use-this, @typescript-eslint/no-unused-vars
   override async getAccessToken(_sessionId?: string): Promise<string> {
     const {default: getAccessToken} = await import('./server/actions/getAccessToken');
@@ -440,30 +426,16 @@ class AsgardeoNextClient<T extends AsgardeoNextConfig = AsgardeoNextConfig> exte
     return token;
   }
 
-  /**
-   * Get the decoded ID token for a session
-   */
-  async getDecodedIdToken(sessionId?: string, idToken?: string): Promise<IdToken> {
+  override async getDecodedIdToken(sessionId?: string, idToken?: string): Promise<IdToken> {
     await this.ensureInitialized();
-    return this.asgardeo.getDecodedIdToken(sessionId as string, idToken);
+    return super.getDecodedIdToken(sessionId, idToken);
   }
 
   override getConfiguration(): T {
-    return this.asgardeo.getConfigData() as unknown as T;
+    return this.getConfigData() as unknown as T;
   }
 
-  override signIn(
-    options?: SignInOptions,
-    sessionId?: string,
-    onSignInSuccess?: (afterSignInUrl: string) => void,
-  ): Promise<User>;
-  override signIn(
-    payload: EmbeddedSignInFlowHandleRequestPayload,
-    request: EmbeddedFlowExecuteRequestConfig,
-    sessionId?: string,
-    onSignInSuccess?: (afterSignInUrl: string) => void,
-  ): Promise<User>;
-  override async signIn(...args: any[]): Promise<User> {
+  override async signIn(...args: any[]): Promise<any> {
     const arg1: any = args[0];
     const arg2: any = args[1];
     const arg3: any = args[2];
@@ -490,7 +462,7 @@ class AsgardeoNextClient<T extends AsgardeoNextConfig = AsgardeoNextConfig> exte
       });
     }
 
-    return this.asgardeo.signIn(
+    return super.signIn(
       arg4,
       arg3,
       arg1?.code,
@@ -500,12 +472,6 @@ class AsgardeoNextClient<T extends AsgardeoNextConfig = AsgardeoNextConfig> exte
     ) as unknown as Promise<User>;
   }
 
-  override signOut(options?: SignOutOptions, afterSignOut?: (afterSignOutUrl: string) => void): Promise<string>;
-  override signOut(
-    options?: SignOutOptions,
-    sessionId?: string,
-    afterSignOut?: (afterSignOutUrl: string) => void,
-  ): Promise<string>;
   override async signOut(...args: any[]): Promise<string> {
     if (args[1] && typeof args[1] !== 'string') {
       throw new Error('The second argument must be a string.');
@@ -513,7 +479,7 @@ class AsgardeoNextClient<T extends AsgardeoNextConfig = AsgardeoNextConfig> exte
 
     const resolvedSessionId: string = args[1] || ((await getSessionId()) as string);
 
-    return Promise.resolve(await this.asgardeo.signOut(resolvedSessionId));
+    return super.signOut(resolvedSessionId);
   }
 
   override async signUp(options?: SignUpOptions): Promise<void>;
@@ -531,7 +497,7 @@ class AsgardeoNextClient<T extends AsgardeoNextConfig = AsgardeoNextConfig> exte
     const firstArg: any = args[0];
 
     if (typeof firstArg === 'object' && 'flowType' in firstArg) {
-      const configData: AuthClientConfig<T> = await this.asgardeo.getConfigData();
+      const configData: AuthClientConfig<T> = await this.getConfigData();
       const baseUrl: string | undefined = configData?.baseUrl;
 
       return executeEmbeddedSignUpFlow({
@@ -557,31 +523,16 @@ class AsgardeoNextClient<T extends AsgardeoNextConfig = AsgardeoNextConfig> exte
     );
   }
 
-  /**
-   * Gets the sign-in URL for authentication.
-   * Ensures the client is initialized before making the call.
-   *
-   * @param customParams - Custom parameters to include in the sign-in URL.
-   * @param userId - The user ID
-   * @returns Promise that resolves to the sign-in URL
-   */
   public async getAuthorizeRequestUrl(
     customParams: ExtendedAuthorizeRequestUrlParams,
     userId?: string,
   ): Promise<string> {
     await this.ensureInitialized();
-    return this.asgardeo.getSignInUrl(customParams, userId);
+    return super.getSignInUrl(customParams, userId);
   }
 
-  /**
-   * Gets the storage manager from the underlying Asgardeo client.
-   * Ensures the client is initialized before making the call.
-   *
-   * @returns Promise that resolves to the storage manager
-   */
-  public async getStorageManager(): Promise<any> {
-    await this.ensureInitialized();
-    return this.asgardeo.getStorageManager();
+  public override getStorageManager(): any {
+    return super.getStorageManager();
   }
 
   // eslint-disable-next-line class-methods-use-this
@@ -595,11 +546,11 @@ class AsgardeoNextClient<T extends AsgardeoNextConfig = AsgardeoNextConfig> exte
   }
 
   override async setSession(sessionData: Record<string, unknown>, sessionId?: string): Promise<void> {
-    return (await this.asgardeo.getStorageManager()).setSessionData(sessionData, sessionId);
+    return super.getStorageManager().setSessionData(sessionData, sessionId);
   }
 
   override decodeJwtToken<R = Record<string, unknown>>(token: string): Promise<R> {
-    return this.asgardeo.decodeJwtToken<R>(token);
+    return super.decodeJwtToken<R>(token);
   }
 }
 

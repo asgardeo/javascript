@@ -80,7 +80,7 @@ class AsgardeoVueClient<T extends AsgardeoVueConfig = AsgardeoVueConfig> extends
     this.asgardeo = new AuthAPI(undefined, instanceId);
   }
 
-  public getInstanceId(): number {
+  public override getInstanceId(): number {
     return this.clientInstanceId;
   }
 
@@ -153,11 +153,11 @@ class AsgardeoVueClient<T extends AsgardeoVueConfig = AsgardeoVueConfig> extends
     }
   }
 
-  async getDecodedIdToken(sessionId?: string): Promise<IdToken> {
+  override async getDecodedIdToken(sessionId?: string): Promise<IdToken> {
     return this.asgardeo.getDecodedIdToken(sessionId);
   }
 
-  async getIdToken(): Promise<string> {
+  override async getIdToken(): Promise<string> {
     return this.withLoading(async () => this.asgardeo.getIdToken());
   }
 

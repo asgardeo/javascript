@@ -18,7 +18,7 @@
 
 import {Logger} from '@asgardeo/node';
 import express from 'express';
-import {AsgardeoExpressClient} from '../LegacyAsgardeoExpressClient';
+import {AsgardeoExpressClient} from '../AsgardeoExpressClient';
 import {UnauthenticatedCallback} from '../models';
 
 export const protectRoute = (

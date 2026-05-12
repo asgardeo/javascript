@@ -18,13 +18,13 @@
 
 import {
   AsgardeoNodeClient,
-  LegacyAsgardeoNodeClient,
   type AuthClientConfig,
   type IdToken,
   type Organization,
   type OrganizationDetails,
   type CreateOrganizationPayload,
   type Storage,
+  type StorageManager,
   type TokenExchangeRequestConfig,
   type TokenResponse,
   type User,
@@ -46,7 +46,6 @@ import {
   initializeEmbeddedSignInFlow,
   executeEmbeddedSignInFlow,
   executeEmbeddedSignUpFlow,
-  type EmbeddedSignInFlowHandleRequestPayload,
   type EmbeddedFlowExecuteRequestConfig,
   type EmbeddedFlowExecuteRequestPayload,
   type EmbeddedFlowExecuteResponse,
@@ -58,14 +57,7 @@ import type {AsgardeoNuxtConfig, AsgardeoSessionPayload} from '../types';
 /**
  * Singleton Asgardeo client for Nuxt applications.
  *
- * Mirrors the {@link AsgardeoNextClient} pattern: a single shared instance per
- * server process that delegates OAuth/OIDC operations to an internal
- * {@link LegacyAsgardeoNodeClient}. The legacy client provisions its own default
- * in-memory store (`MemoryCacheStore`) for PKCE state and tokens so that state
- * persists across the sign-in → callback boundary.
- *
- * Consumers call {@link getInstance} directly from server routes and plugins —
- * there is no per-request wrapper factory. Initialization happens once per
+ * Extends {@link AsgardeoNodeClient} directly — initialization happens once per
  * process (guarded by {@link isInitialized}) from the `asgardeo-init` Nitro
  * plugin on the first request.
  *
@@ -81,13 +73,10 @@ import type {AsgardeoNuxtConfig, AsgardeoSessionPayload} from '../types';
 class AsgardeoNuxtClient extends AsgardeoNodeClient<AsgardeoNuxtConfig> {
   private static instance: AsgardeoNuxtClient;
 
-  private legacy: LegacyAsgardeoNodeClient<AsgardeoNuxtConfig>;
-
   public isInitialized: boolean = false;
 
   private constructor() {
     super();
-    this.legacy = new LegacyAsgardeoNodeClient<AsgardeoNuxtConfig>();
   }
 
   /**
@@ -101,9 +90,9 @@ class AsgardeoNuxtClient extends AsgardeoNodeClient<AsgardeoNuxtConfig> {
   }
 
   /**
-   * Initializes the underlying legacy client with OAuth/OIDC settings derived
-   * from the Nuxt module config. Idempotent — repeated calls are no-ops after
-   * the first successful initialization.
+   * Initializes the client with OAuth/OIDC settings derived from the Nuxt
+   * module config. Idempotent — repeated calls are no-ops after the first
+   * successful initialization.
    */
   override async initialize(config: AsgardeoNuxtConfig, storage?: Storage): Promise<boolean> {
     if (this.isInitialized) {
@@ -120,40 +109,30 @@ class AsgardeoNuxtClient extends AsgardeoNodeClient<AsgardeoNuxtConfig> {
       scopes: config.scopes || ['openid', 'profile'],
     } as AuthClientConfig<AsgardeoNuxtConfig>;
 
-    const result: boolean = await this.legacy.initialize(authConfig, storage);
+    const result: boolean = await super.initialize(authConfig as unknown as AsgardeoNuxtConfig, storage);
     this.isInitialized = true;
     return result;
   }
 
   override async reInitialize(config: Partial<AsgardeoNuxtConfig>): Promise<boolean> {
-    await this.legacy.reInitialize(config as any);
+    await super.reInitialize(config);
     return true;
   }
 
   /**
-   * Seeds the legacy in-memory token store from a verified session JWT payload.
+   * Seeds the in-memory token store from a verified session JWT payload.
    *
-   * The signed session cookie is the source of truth for tokens in this SDK — it
-   * survives server restarts and new worker processes. The underlying
-   * {@link LegacyAsgardeoNodeClient}, however, keeps tokens in a
-   * {@link MemoryCacheStore} keyed by `sessionId`, and its
-   * `getAccessToken` / `getUser` / `getDecodedIdToken` / `signOut` paths all
-   * read from that store. Without rehydration, those calls fail whenever the
-   * in-memory store and the cookie diverge (the classic case: `nuxi dev`
-   * restart while the browser still holds a valid session cookie).
-   *
-   * Writes the snake_case token shape the legacy helper expects
-   * (see `AuthenticationHelper.processTokenResponse`). Safe to call on every
-   * request — it's an in-memory write and the cookie always reflects the
-   * freshest tokens (the refresh path re-issues the cookie too).
+   * The signed session cookie is the source of truth for tokens — it survives
+   * server restarts and new worker processes. Without rehydration, token
+   * lookups fail whenever the in-memory store and the cookie diverge (e.g.
+   * after a `nuxi dev` restart while the browser still holds a valid cookie).
    */
   async rehydrateSessionFromPayload(session: AsgardeoSessionPayload): Promise<void> {
     if (!this.isInitialized || !session?.sessionId || !session?.accessToken) {
       return;
     }
 
-    type StorageManager = Awaited<ReturnType<LegacyAsgardeoNodeClient<AsgardeoNuxtConfig>['getStorageManager']>>;
-    const storageManager: StorageManager = await this.legacy.getStorageManager();
+    const storageManager: StorageManager<AsgardeoNuxtConfig> = this.getStorageManager();
     const iatSeconds: number = typeof session.iat === 'number' ? session.iat : Math.floor(Date.now() / 1000);
     const expiresInSeconds: number =
       typeof session.accessTokenExpiresAt === 'number' ? Math.max(0, session.accessTokenExpiresAt - iatSeconds) : 3600;
@@ -176,38 +155,14 @@ class AsgardeoNuxtClient extends AsgardeoNodeClient<AsgardeoNuxtConfig> {
   /**
    * Initiates the authorization code flow, handles an embedded sign-in step,
    * or exchanges a code for tokens.
-   *
-   * Overload 1 — **redirect-flow** (existing callers like `signin.get.ts`):
-   * ```
-   * signIn(authURLCallback, sessionId, code?, sessionState?, state?, config?)
-   * ```
-   * Overload 2 — **embedded flow initiate** (flowId === ''):
-   * ```
-   * signIn({flowId: ''}, request, sessionId)
-   * ```
-   * Dispatches to `initializeEmbeddedSignInFlow`.
-   *
-   * Overload 3 — **embedded flow execute** (flowId set):
-   * ```
-   * signIn(payload, request, sessionId)
-   * ```
-   * Dispatches to `executeEmbeddedSignInFlow`.
-   *
-   * Overload 4 — **code exchange** (completion after embedded flow):
-   * ```
-   * signIn({code, state, session_state}, {}, sessionId)
-   * ```
-   * Falls through to the legacy redirect-flow code-exchange path.
    */
-  override signIn(...args: any[]): Promise<any> {
+  override async signIn(...args: any[]): Promise<any> {
     const arg0: unknown = args[0];
 
-    // Embedded flow: first argument is a non-null object with a `flowId` property.
     if (typeof arg0 === 'object' && arg0 !== null && 'flowId' in arg0) {
       const sessionId: string | undefined = args[2] as string | undefined;
 
       if (arg0.flowId === '') {
-        // Initialize embedded sign-in flow.
         return this.getAuthorizeRequestUrl(
           {client_secret: '{{clientSecret}}', response_mode: 'direct'},
           sessionId,
@@ -220,49 +175,33 @@ class AsgardeoNuxtClient extends AsgardeoNodeClient<AsgardeoNuxtConfig> {
         });
       }
 
-      // Execute embedded sign-in step.
       const request: EmbeddedFlowExecuteRequestConfig = args[1] ?? {};
       return executeEmbeddedSignInFlow({
-        payload: arg0 as EmbeddedSignInFlowHandleRequestPayload,
+        payload: arg0 as any,
         url: request.url,
       });
     }
 
-    // Code exchange path: {code, state, session_state} as arg0, {} as arg1, sessionId as arg2.
-    // Falls through to the legacy client mirroring AsgardeoNextClient.
     if (typeof arg0 === 'object' && arg0 !== null && ('code' in arg0 || 'state' in arg0)) {
-      const payload: {code?: unknown; session_state?: unknown; state?: unknown} = arg0 as {
-        code?: unknown;
-        session_state?: unknown;
-        state?: unknown;
-      };
+      const payload: {code?: unknown; session_state?: unknown; state?: unknown} = arg0 as any;
       const code: string | undefined = typeof payload.code === 'string' ? payload.code : undefined;
       const sessionState: string | undefined =
         typeof payload.session_state === 'string' ? payload.session_state : undefined;
       const state: string | undefined = typeof payload.state === 'string' ? payload.state : undefined;
       const extraParams: Record<string, string | boolean> = {};
 
-      if (code) {
-        extraParams.code = code;
-      }
-      if (sessionState) {
-        extraParams.session_state = sessionState;
-      }
-      if (state) {
-        extraParams.state = state;
-      }
+      if (code) extraParams.code = code;
+      if (sessionState) extraParams.session_state = sessionState;
+      if (state) extraParams.state = state;
 
-      // args[3] would be onSignInSuccess (undefined), args[2] is sessionId
-      return this.legacy.signIn(args[3], args[2], code, sessionState, state, extraParams);
+      return super.signIn(args[3], args[2], code, sessionState, state, extraParams);
     }
 
-    // Redirect-flow: first argument is a callback function.
-    return this.legacy.signIn(args[0], args[1], args[2], args[3], args[4], args[5]);
+    return super.signIn(args[0], args[1], args[2], args[3], args[4], args[5]);
   }
 
   /**
    * Executes the embedded sign-up flow step.
-   * Mirrors `AsgardeoNextClient.signUp` with an `EmbeddedFlowExecuteRequestPayload`.
    */
   override signUp(options?: SignUpOptions): Promise<void>;
   override signUp(payload: EmbeddedFlowExecuteRequestPayload): Promise<EmbeddedFlowExecuteResponse>;
@@ -270,78 +209,54 @@ class AsgardeoNuxtClient extends AsgardeoNodeClient<AsgardeoNuxtConfig> {
     payloadOrOptions?: EmbeddedFlowExecuteRequestPayload | SignUpOptions,
   ): Promise<void | EmbeddedFlowExecuteResponse> {
     if (!payloadOrOptions || !('flowType' in payloadOrOptions)) {
-      // Redirect-flow sign-up: not meaningful server-side, but satisfies the interface.
       return undefined;
     }
-    const configData: AuthClientConfig<AsgardeoNuxtConfig> | undefined = (await this.legacy.getConfigData?.()) as
-      | AuthClientConfig<AsgardeoNuxtConfig>
-      | undefined;
+    const configData: AuthClientConfig<AsgardeoNuxtConfig> = await this.getConfigData();
     const baseUrl: string | undefined = configData?.baseUrl as string | undefined;
-    const response: EmbeddedFlowExecuteResponse = await executeEmbeddedSignUpFlow({
+    return executeEmbeddedSignUpFlow({
       baseUrl,
       payload: payloadOrOptions as EmbeddedFlowExecuteRequestPayload,
     });
-    return response;
   }
 
   /**
    * Returns the OAuth2 authorization URL.
-   * Used by the redirect-flow GET handler and the embedded-flow initiation path.
-   *
-   * Mirrors `AsgardeoNextClient.getAuthorizeRequestUrl`.
    */
   public async getAuthorizeRequestUrl(
     customParams: ExtendedAuthorizeRequestUrlParams,
     userId?: string,
   ): Promise<string> {
-    return this.legacy.getSignInUrl(customParams, userId);
+    return super.getSignInUrl(customParams, userId);
   }
 
-  /**
-   * Clears the session and returns the RP-Initiated Logout URL.
-   * Accepts either `(sessionId: string)` or `(options?, sessionId?, callback?)`.
-   */
   override async signOut(...args: any[]): Promise<string> {
     const sessionId: string = typeof args[0] === 'string' ? args[0] : (args[1] as string);
-    return this.legacy.signOut(sessionId);
+    return super.signOut(sessionId);
   }
 
   override getUser(sessionId?: string): Promise<User> {
-    return this.legacy.getUser(sessionId as string);
+    return super.getUser(sessionId);
   }
 
   override getAccessToken(sessionId?: string): Promise<string> {
-    return this.legacy.getAccessToken(sessionId as string);
+    return super.getAccessToken(sessionId);
   }
 
-  /**
-   * Decodes and returns the ID token claims for the given session.
-   * Exposed here (as on {@link AsgardeoNextClient}) so route handlers can
-   * access ID token claims without falling back to the legacy client.
-   */
-  getDecodedIdToken(sessionId?: string, idToken?: string): Promise<IdToken> {
-    return this.legacy.getDecodedIdToken(sessionId as string, idToken);
+  override getDecodedIdToken(sessionId?: string, idToken?: string): Promise<IdToken> {
+    return super.getDecodedIdToken(sessionId, idToken);
   }
 
   override isSignedIn(sessionId?: string): Promise<boolean> {
-    return this.legacy.isSignedIn(sessionId as string);
+    return super.isSignedIn(sessionId);
   }
 
   override exchangeToken(config: TokenExchangeRequestConfig, sessionId?: string): Promise<TokenResponse | Response> {
-    return this.legacy.exchangeToken(config, sessionId);
+    return super.exchangeToken(config, sessionId);
   }
 
-  /**
-   * Fetches the flattened SCIM2 user profile for the given session.
-   * Mirrors `AsgardeoNextClient.getUserProfile` — calls `getScim2Me` +
-   * `getSchemas` + `generateFlattenedUserProfile` and falls back to
-   * `getUser` claims if SCIM2 is unavailable.
-   */
   override async getUserProfile(sessionId: string): Promise<UserProfile> {
     const accessToken: string = await this.getAccessToken(sessionId);
-    const configData: AuthClientConfig<AsgardeoNuxtConfig> | undefined = (await this.legacy.getConfigData?.()) as
-      | AuthClientConfig<AsgardeoNuxtConfig>
-      | undefined;
+    const configData: AuthClientConfig<AsgardeoNuxtConfig> = await this.getConfigData();
     const baseUrl: string = (configData?.baseUrl ?? '') as string;
 
     try {
@@ -360,16 +275,11 @@ class AsgardeoNuxtClient extends AsgardeoNodeClient<AsgardeoNuxtConfig> {
         schemas: processedSchemas,
       };
     } catch {
-      // Fall back to user claims from the ID token
       const user: User = await this.getUser(sessionId);
       return {flattenedProfile: user, profile: user, schemas: []};
     }
   }
 
-  /**
-   * Extracts the current organisation from the decoded ID token.
-   * Returns null when the user is not acting within an organisation.
-   */
   override async getCurrentOrganization(sessionId: string): Promise<Organization | null> {
     try {
       const idToken: IdToken = await this.getDecodedIdToken(sessionId);
@@ -386,14 +296,9 @@ class AsgardeoNuxtClient extends AsgardeoNodeClient<AsgardeoNuxtConfig> {
     }
   }
 
-  /**
-   * Returns the list of organisations the authenticated user is a member of.
-   */
   override async getMyOrganizations(sessionId: string): Promise<Organization[]> {
     const accessToken: string = await this.getAccessToken(sessionId);
-    const configData: AuthClientConfig<AsgardeoNuxtConfig> | undefined = (await this.legacy.getConfigData?.()) as
-      | AuthClientConfig<AsgardeoNuxtConfig>
-      | undefined;
+    const configData: AuthClientConfig<AsgardeoNuxtConfig> = await this.getConfigData();
     const baseUrl: string = (configData?.baseUrl ?? '') as string;
 
     return getMeOrganizations({
@@ -402,44 +307,27 @@ class AsgardeoNuxtClient extends AsgardeoNodeClient<AsgardeoNuxtConfig> {
     });
   }
 
-  /**
-   * Fetches the branding preference for the tenant / application.
-   * Delegates to the standalone `getBrandingPreference` API helper from
-   * `@asgardeo/node`, which does not require an authenticated session.
-   */
   // eslint-disable-next-line class-methods-use-this
   async getBrandingPreference(config: GetBrandingPreferenceConfig): Promise<BrandingPreference> {
     return getBrandingPreference(config);
   }
 
-  /**
-   * Updates the SCIM2 /Me profile for the authenticated user.
-   * Mirrors `AsgardeoNextClient.updateUserProfile`.
-   */
   override async updateUserProfile(config: UpdateMeProfileConfig, sessionId: string): Promise<User> {
     const accessToken: string = await this.getAccessToken(sessionId);
-    const configData: AuthClientConfig<AsgardeoNuxtConfig> | undefined = (await this.legacy.getConfigData?.()) as
-      | AuthClientConfig<AsgardeoNuxtConfig>
-      | undefined;
+    const configData: AuthClientConfig<AsgardeoNuxtConfig> = await this.getConfigData();
     const baseUrl: string = (configData?.baseUrl ?? '') as string;
 
     return updateMeProfile({
-      ...config, // pass-through, includes payload
+      ...config,
       baseUrl,
       headers: {...config.headers, Authorization: `Bearer ${accessToken}`},
     });
   }
 
-  /**
-   * Retrieves all organisations accessible to the authenticated user
-   * (paginated). Mirrors `AsgardeoNextClient.getAllOrganizations`.
-   */
   override async getAllOrganizations(options?: any, sessionId?: string): Promise<AllOrganizationsApiResponse> {
     const resolvedSessionId: string = sessionId ?? '';
     const accessToken: string = await this.getAccessToken(resolvedSessionId);
-    const configData: AuthClientConfig<AsgardeoNuxtConfig> | undefined = (await this.legacy.getConfigData?.()) as
-      | AuthClientConfig<AsgardeoNuxtConfig>
-      | undefined;
+    const configData: AuthClientConfig<AsgardeoNuxtConfig> = await this.getConfigData();
     const baseUrl: string = (configData?.baseUrl ?? '') as string;
 
     return getAllOrganizations({
@@ -448,14 +336,9 @@ class AsgardeoNuxtClient extends AsgardeoNodeClient<AsgardeoNuxtConfig> {
     });
   }
 
-  /**
-   * Creates a new sub-organisation. Mirrors `AsgardeoNextClient.createOrganization`.
-   */
   async createOrganization(payload: CreateOrganizationPayload, sessionId: string): Promise<Organization> {
     const accessToken: string = await this.getAccessToken(sessionId);
-    const configData: AuthClientConfig<AsgardeoNuxtConfig> | undefined = (await this.legacy.getConfigData?.()) as
-      | AuthClientConfig<AsgardeoNuxtConfig>
-      | undefined;
+    const configData: AuthClientConfig<AsgardeoNuxtConfig> = await this.getConfigData();
     const baseUrl: string = (configData?.baseUrl ?? '') as string;
 
     return createOrganization({
@@ -465,15 +348,9 @@ class AsgardeoNuxtClient extends AsgardeoNodeClient<AsgardeoNuxtConfig> {
     });
   }
 
-  /**
-   * Fetches the details of a single organisation by ID.
-   * Mirrors `AsgardeoNextClient.getOrganization`.
-   */
   async getOrganization(organizationId: string, sessionId: string): Promise<OrganizationDetails> {
     const accessToken: string = await this.getAccessToken(sessionId);
-    const configData: AuthClientConfig<AsgardeoNuxtConfig> | undefined = (await this.legacy.getConfigData?.()) as
-      | AuthClientConfig<AsgardeoNuxtConfig>
-      | undefined;
+    const configData: AuthClientConfig<AsgardeoNuxtConfig> = await this.getConfigData();
     const baseUrl: string = (configData?.baseUrl ?? '') as string;
 
     return getOrganization({
@@ -483,13 +360,6 @@ class AsgardeoNuxtClient extends AsgardeoNodeClient<AsgardeoNuxtConfig> {
     });
   }
 
-  /**
-   * Performs an organisation-switch token exchange and returns the new
-   * `TokenResponse`. The caller (the Nitro route) is responsible for
-   * persisting the new session cookie.
-   *
-   * Mirrors `AsgardeoNextClient.switchOrganization`.
-   */
   override async switchOrganization(organization: Organization, sessionId: string): Promise<TokenResponse | Response> {
     if (!organization.id) {
       throw new Error('Organization ID is required for switching organizations.');
@@ -510,7 +380,7 @@ class AsgardeoNuxtClient extends AsgardeoNodeClient<AsgardeoNuxtConfig> {
       signInRequired: true,
     };
 
-    return this.legacy.exchangeToken(exchangeConfig, sessionId);
+    return super.exchangeToken(exchangeConfig, sessionId);
   }
 }
 
