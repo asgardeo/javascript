@@ -1,5 +1,17 @@
 # @asgardeo/browser
 
+## 0.7.3
+
+### Patch Changes
+
+- [#502](https://github.com/asgardeo/javascript/pull/502)
+  [`94fe825`](https://github.com/asgardeo/javascript/commit/94fe825ad8f642fd55738a3e000ad2661272ec7e) Thanks
+  [@brionmario](https://github.com/brionmario)! - Fix request config passing issues with Fetch
+
+- Updated dependencies
+  [[`94fe825`](https://github.com/asgardeo/javascript/commit/94fe825ad8f642fd55738a3e000ad2661272ec7e)]:
+  - @asgardeo/javascript@0.19.2
+
 ## 0.7.2
 
 ### Patch Changes

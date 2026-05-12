@@ -141,6 +141,11 @@ export type AsgardeoContextProps = {
   reInitialize: (config: Partial<AsgardeoReactConfig>) => Promise<boolean>;
 
   /**
+   * Recovery function to initiate the account/password recovery flow.
+   */
+  recover: (...args: any[]) => Promise<any>;
+
+  /**
    * Resolves `{{ t(key) }}` and `{{ meta(path) }}` template expressions in a string,
    * using the current i18n translation function and flow metadata from context.
    *
@@ -185,6 +190,7 @@ export type AsgardeoContextProps = {
    * FIXME: Fix the types.
    */
   signOut: any;
+
   /**
    * Sign-up function to initiate the registration process.
    * @remark This is the programmatic version of the `SignUpButton` component.
@@ -228,6 +234,7 @@ const AsgardeoContext: Context<AsgardeoContextProps | null> = createContext<null
   organizationHandle: undefined,
   platform: undefined,
   reInitialize: null,
+  recover: () => Promise.resolve({} as any),
   resolveFlowTemplateLiterals: (text: string | undefined) => text ?? '',
   signIn: () => Promise.resolve({} as any),
   signInOptions: {},

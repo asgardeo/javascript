@@ -591,6 +591,11 @@ const AsgardeoProvider: FC<PropsWithChildren<AsgardeoProviderProps>> = ({
     [asgardeo],
   );
 
+  const recover: (payload: any) => Promise<any> = useCallback(
+    async (payload: any): Promise<any> => asgardeo.recover(payload),
+    [asgardeo],
+  );
+
   const signUp: (...args: any[]) => Promise<any> = useCallback(
     async (...args: any[]): Promise<any> => asgardeo.signUp(...args),
     [asgardeo],
@@ -634,6 +639,7 @@ const AsgardeoProvider: FC<PropsWithChildren<AsgardeoProviderProps>> = ({
       organizationHandle: config?.organizationHandle,
       platform: config?.platform,
       reInitialize,
+      recover,
       signIn,
       signInOptions,
       signInSilently,
@@ -666,17 +672,18 @@ const AsgardeoProvider: FC<PropsWithChildren<AsgardeoProviderProps>> = ({
       syncSession,
       switchOrganization,
       getDecodedIdToken,
+      clearSession,
+      exchangeToken,
       getAccessToken,
       getStorageManager,
-      request,
-      requestAll,
-      exchangeToken,
-      signOut,
-      signUp,
-      clearSession,
-      reInitialize,
       instanceId,
       organizationChain,
+      recover,
+      reInitialize,
+      request,
+      requestAll,
+      signOut,
+      signUp,
     ],
   );
 

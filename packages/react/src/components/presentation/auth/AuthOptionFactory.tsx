@@ -107,7 +107,7 @@ const richTextClass: string = css`
   }
 `;
 
-export type AuthType = 'signin' | 'signup';
+export type AuthType = 'signin' | 'signup' | 'recovery';
 
 /**
  * Get the appropriate FieldType for an input component.
@@ -744,6 +744,57 @@ export const renderSignUpComponents = (
         isFormValid,
         onInputChange,
         'signup',
+        {
+          ...options,
+          key: component.id || index,
+        },
+      ),
+    )
+    .filter(Boolean);
+
+/**
+ * Processes an array of components and renders them as React elements for recovery flow.
+ */
+export const renderRecoveryComponents = (
+  components: EmbeddedFlowComponent[],
+  formValues: Record<string, string>,
+  touchedFields: Record<string, boolean>,
+  formErrors: Record<string, string>,
+  isLoading: boolean,
+  isFormValid: boolean,
+  onInputChange: (name: string, value: string) => void,
+  options?: {
+    /** @internal */
+    _customRenderers?: ComponentRendererMap;
+    /** @internal */
+    _theme?: any;
+    /** Additional data from the flow response */
+    additionalData?: Record<string, any>;
+    buttonClassName?: string;
+    inputClassName?: string;
+    /** Flag to determine if the step timeline has expired */
+    isTimeoutDisabled?: boolean;
+    /** Flow metadata for resolving {{meta(...)}} expressions at render time */
+    meta?: FlowMetadataResponse | null;
+    onInputBlur?: (name: string) => void;
+    onSubmit?: (component: EmbeddedFlowComponent, data?: Record<string, any>, skipValidation?: boolean) => void;
+    size?: 'small' | 'medium' | 'large';
+    /** Translation function for resolving {{t(...)}} expressions at render time */
+    t?: UseTranslation['t'];
+    variant?: any;
+  },
+): ReactElement[] =>
+  components
+    .map((component: any, index: any) =>
+      createAuthComponentFromFlow(
+        component,
+        formValues,
+        touchedFields,
+        formErrors,
+        isLoading,
+        isFormValid,
+        onInputChange,
+        'recovery',
         {
           ...options,
           key: component.id || index,

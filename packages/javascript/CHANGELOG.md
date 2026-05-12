@@ -1,5 +1,13 @@
 # @asgardeo/javascript
 
+## 0.19.2
+
+### Patch Changes
+
+- [#502](https://github.com/asgardeo/javascript/pull/502)
+  [`94fe825`](https://github.com/asgardeo/javascript/commit/94fe825ad8f642fd55738a3e000ad2661272ec7e) Thanks
+  [@brionmario](https://github.com/brionmario)! - Fix request config passing issues with Fetch
+
 ## 0.19.1
 
 ### Patch Changes
