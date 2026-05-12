@@ -389,7 +389,9 @@ const BaseAcceptInvite: FC<BaseAcceptInviteProps> = ({
       onComplete?.();
     },
     onError: (error: any) => {
-      setIsTokenInvalid(true);
+      if (!error?.flowStatus) {
+        setIsTokenInvalid(true);
+      }
       setIsValidatingToken(false);
       handleError(error);
     },
