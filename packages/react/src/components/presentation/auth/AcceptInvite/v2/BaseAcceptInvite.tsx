@@ -634,6 +634,15 @@ const BaseAcceptInvite: FC<BaseAcceptInviteProps> = ({
 
         await setChallengeToken(response.challengeToken ?? null);
 
+        if (response.type === 'REDIRECTION') {
+          const redirectURL: any = response.data?.redirectURL || (response as any)?.redirectURL;
+
+          if (redirectURL && typeof window !== 'undefined') {
+            initiateOAuthRedirect(redirectURL);
+            return;
+          }
+        }
+
         // Check for error (invalid token)
         if (response.flowStatus === 'ERROR') {
           setIsTokenInvalid(true);
