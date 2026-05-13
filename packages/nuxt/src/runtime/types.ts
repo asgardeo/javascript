@@ -16,7 +16,15 @@
  * under the License.
  */
 
-import type {BrandingPreference, I18nPreferences, Organization, User, UserProfile} from '@asgardeo/node';
+import type {
+  BrandingPreference,
+  I18nPreferences,
+  Organization,
+  Platform,
+  TokenEndpointAuthMethod,
+  User,
+  UserProfile,
+} from '@asgardeo/node';
 import type {JWTPayload} from 'jose';
 
 /**
@@ -38,6 +46,12 @@ export interface AsgardeoNuxtConfig {
   clientId?: string;
   /** OAuth2 Client Secret (server-only, use ASGARDEO_CLIENT_SECRET env var) */
   clientSecret?: string;
+  /**
+   * Identity platform variant. Set to `Platform.AsgardeoV2` when connecting to
+   * a Thunder (AsgardeoV2) instance. Forwarded to the underlying Node client so
+   * platform-specific behaviours (e.g. issuer resolution) apply correctly.
+   */
+  platform?: keyof typeof Platform;
   /**
    * Feature-gating preferences that control which server-side data fetches
    * the Nitro plugin performs on every SSR request.
@@ -83,6 +97,17 @@ export interface AsgardeoNuxtConfig {
    * here instead of deriving the URL from `baseUrl`/`clientId`.
    */
   signUpUrl?: string;
+  /**
+   * Configuration for the token endpoint request.
+   */
+  tokenRequest?: {
+    /**
+     * OAuth 2.0 client authentication method used at the token endpoint.
+     * Defaults to `client_secret_basic` for AsgardeoV2 and `client_secret_post`
+     * for all other platforms when not specified.
+     */
+    authMethod?: TokenEndpointAuthMethod;
+  };
 }
 
 /**

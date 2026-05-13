@@ -100,10 +100,12 @@ export default defineNuxtModule<AsgardeoNuxtConfig>({
         applicationId: publicConfig.applicationId,
         baseUrl: publicConfig.baseUrl,
         clientId: publicConfig.clientId,
+        platform: publicConfig.platform,
         preferences: publicConfig.preferences,
         scopes: publicConfig.scopes,
         signInUrl: publicConfig.signInUrl,
         signUpUrl: publicConfig.signUpUrl,
+        tokenRequest: publicConfig.tokenRequest,
       },
     ) as {
       afterSignInUrl: string;
@@ -111,10 +113,12 @@ export default defineNuxtModule<AsgardeoNuxtConfig>({
       applicationId?: string;
       baseUrl: string;
       clientId: string;
+      platform?: AsgardeoNuxtConfig['platform'];
       preferences: AsgardeoNuxtConfig['preferences'];
       scopes: string[];
       signInUrl?: string;
       signUpUrl?: string;
+      tokenRequest?: AsgardeoNuxtConfig['tokenRequest'];
     };
 
     // Ensure clientSecret never leaks to public config
@@ -342,6 +346,7 @@ declare module '@nuxt/schema' {
       applicationId?: string;
       baseUrl: string;
       clientId: string;
+      platform?: AsgardeoNuxtConfig['platform'];
       preferences?: AsgardeoNuxtConfig['preferences'];
       scopes: string[];
       signInUrl?: string;

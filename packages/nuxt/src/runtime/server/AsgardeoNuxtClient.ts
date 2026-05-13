@@ -19,6 +19,7 @@
 import {
   AsgardeoNodeClient,
   LegacyAsgardeoNodeClient,
+  Platform,
   type AuthClientConfig,
   type IdToken,
   type Organization,
@@ -117,7 +118,9 @@ class AsgardeoNuxtClient extends AsgardeoNodeClient<AsgardeoNuxtConfig> {
       clientId: config.clientId as string,
       clientSecret: config.clientSecret || undefined,
       enablePKCE: true,
+      platform: config.platform,
       scopes: config.scopes || ['openid', 'profile'],
+      tokenRequest: config.tokenRequest,
     } as AuthClientConfig<AsgardeoNuxtConfig>;
 
     const result: boolean = await this.legacy.initialize(authConfig, storage);
@@ -300,9 +303,22 @@ class AsgardeoNuxtClient extends AsgardeoNodeClient<AsgardeoNuxtConfig> {
   /**
    * Clears the session and returns the RP-Initiated Logout URL.
    * Accepts either `(sessionId: string)` or `(options?, sessionId?, callback?)`.
+   *
+   * For AsgardeoV2 (Thunder), RP-Initiated Logout is not yet supported by the platform.
+   * Skip the /oidc/logout call and return afterSignOutUrl directly — the caller
+   * (signout.post.ts) is responsible for clearing session cookies.
    */
   override async signOut(...args: any[]): Promise<string> {
     const sessionId: string = typeof args[0] === 'string' ? args[0] : (args[1] as string);
+
+    const configData: AuthClientConfig<AsgardeoNuxtConfig> | undefined = (await this.legacy.getConfigData?.()) as
+      | AuthClientConfig<AsgardeoNuxtConfig>
+      | undefined;
+
+    if ((configData as any)?.platform === Platform.AsgardeoV2) {
+      return (configData?.afterSignOutUrl as string) || (configData?.afterSignInUrl as string) || '/';
+    }
+
     return this.legacy.signOut(sessionId);
   }
 
@@ -343,6 +359,12 @@ class AsgardeoNuxtClient extends AsgardeoNodeClient<AsgardeoNuxtConfig> {
       | AuthClientConfig<AsgardeoNuxtConfig>
       | undefined;
     const baseUrl: string = (configData?.baseUrl ?? '') as string;
+
+    // AsgardeoV2 (Thunder) does not support SCIM2 — return ID token claims directly.
+    if ((configData as any)?.platform === Platform.AsgardeoV2) {
+      const user: User = await this.getUser(sessionId);
+      return {flattenedProfile: user, profile: user, schemas: []};
+    }
 
     try {
       const authHeaders: Record<string, string> = {Authorization: `Bearer ${accessToken}`};
@@ -422,6 +444,11 @@ class AsgardeoNuxtClient extends AsgardeoNodeClient<AsgardeoNuxtConfig> {
       | AuthClientConfig<AsgardeoNuxtConfig>
       | undefined;
     const baseUrl: string = (configData?.baseUrl ?? '') as string;
+
+    // AsgardeoV2 (Thunder) does not support SCIM2 profile updates.
+    if ((configData as any)?.platform === Platform.AsgardeoV2) {
+      throw new Error('Profile updates are not supported for the AsgardeoV2 (Thunder) platform.');
+    }
 
     return updateMeProfile({
       ...config, // pass-through, includes payload

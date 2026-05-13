@@ -171,6 +171,7 @@ export {
   SignOutOptions,
   SignUpOptions,
 } from './models/config';
+export {TokenEndpointAuthMethod} from './models/token-endpoint-auth';
 export type {ComponentRenderContext, ComponentRenderer, ComponentsExtensions} from './models/v2/extensions/components';
 export {TokenResponse, IdToken, TokenExchangeRequestConfig} from './models/token';
 export {AgentConfig} from './models/agent';

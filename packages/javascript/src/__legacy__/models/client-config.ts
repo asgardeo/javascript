@@ -19,6 +19,7 @@
 import {OAuthResponseMode} from '../../models/oauth-response';
 import {OIDCEndpoints} from '../../models/oidc-endpoints';
 import {Platform} from '../../models/platforms';
+import {TokenEndpointAuthMethod} from '../../models/token-endpoint-auth';
 
 export interface DefaultAuthClientConfig {
   afterSignInUrl: string;
@@ -59,6 +60,14 @@ export interface DefaultAuthClientConfig {
    */
   sendCookiesInRequests?: boolean;
   sendIdTokenInLogoutRequest?: boolean;
+  tokenRequest?: {
+    /**
+     * OAuth 2.0 client authentication method used at the token endpoint.
+     * When omitted, defaults to `client_secret_basic` for AsgardeoV2 and
+     * `client_secret_post` for all other platforms.
+     */
+    authMethod?: TokenEndpointAuthMethod;
+  };
   tokenValidation?: {
     /**
      * ID token validation config.

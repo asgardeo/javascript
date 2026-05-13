@@ -21,16 +21,26 @@
  *
  * BEM block: `.asgardeo-user-dropdown`
  *
- * The root element is a plain `div` (no Card wrapper), so this file
- * is responsible for all layout. The dropdown is absolute-positioned
- * relative to the root using `position: relative`.
+ * Trigger modifiers:
+ *   __trigger--open               – ring + border while menu is visible
+ *   __avatar--sm / --lg           – trigger avatar size variants (default is 32 px)
+ *
+ * Menu modifiers:
+ *   __menu--align-left            – panel opens to the left of the trigger
+ *   __menu--size-sm               – compact menu (180 px min-width, tighter padding)
+ *   __menu--size-lg               – spacious menu (280 px min-width, more padding)
+ *
+ * Item modifiers:
+ *   __item--danger                – destructive action (red text/hover)
  *
  * Elements:
- *   __trigger  – pill-shaped trigger button (avatar + name + chevron)
- *   __avatar   – circular icon container inside the trigger
- *   __name     – display-name Typography inside the trigger
- *   __menu     – absolute-positioned dropdown panel
- *   __item     – each action row inside the menu
+ *   __chevron                     – rotates 180° when menu is open
+ *   __menu-header                 – user identity section at top of menu
+ *   __menu-header-avatar          – gradient avatar circle in header
+ *   __menu-header-info            – name + subtitle column
+ *   __menu-header-name            – bold display name
+ *   __menu-header-subtitle        – muted email / username
+ *   __menu-divider                – thin horizontal separator
  */
 const USER_DROPDOWN_CSS: string = `
 /* ============================================================
@@ -43,68 +53,90 @@ const USER_DROPDOWN_CSS: string = `
   font-family: var(--asgardeo-typography-fontFamily);
 }
 
-/* Trigger ---------------------------------------------------- */
+/* ── Trigger ─────────────────────────────────────────────────── */
 
 .asgardeo-user-dropdown__trigger {
   display: inline-flex;
   align-items: center;
-  gap: calc(var(--asgardeo-spacing-unit) * 0.75);
-  padding: calc(var(--asgardeo-spacing-unit) * 0.5) calc(var(--asgardeo-spacing-unit) * 1)
-    calc(var(--asgardeo-spacing-unit) * 0.5) calc(var(--asgardeo-spacing-unit) * 0.5);
+  gap: calc(var(--asgardeo-spacing-unit) * 0.5);
+  padding: 3px;
   background: none;
-  border: 1px solid var(--asgardeo-color-border);
-  border-radius: 9999px;
+  border: 2px solid transparent;
+  border-radius: var(--asgardeo-border-radius-full);
   cursor: pointer;
   color: var(--asgardeo-color-text-primary);
-  font-family: var(--asgardeo-typography-fontFamily);
-  font-size: var(--asgardeo-typography-fontSize-md);
   transition:
-    background-color var(--asgardeo-transition-fast),
     border-color var(--asgardeo-transition-fast),
     box-shadow var(--asgardeo-transition-fast);
   box-sizing: border-box;
+  outline: none;
 }
 
 .asgardeo-user-dropdown__trigger:hover {
-  background-color: var(--asgardeo-color-action-hover);
   border-color: var(--asgardeo-color-primary-main);
 }
 
+.asgardeo-user-dropdown__trigger--open {
+  border-color: var(--asgardeo-color-primary-main);
+  box-shadow: 0 0 0 3px var(--asgardeo-focus-ring-color);
+}
+
 .asgardeo-user-dropdown__trigger:focus-visible {
-  outline: none;
+  border-color: var(--asgardeo-color-primary-main);
   box-shadow: 0 0 0 var(--asgardeo-focus-ring-width) var(--asgardeo-focus-ring-color);
 }
 
-/* Avatar ---------------------------------------------------- */
+/* ── Trigger avatar ──────────────────────────────────────────── */
 
 .asgardeo-user-dropdown__avatar {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: calc(var(--asgardeo-spacing-unit) * 3);
-  height: calc(var(--asgardeo-spacing-unit) * 3);
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
-  background-color: var(--asgardeo-color-primary-main);
-  color: var(--asgardeo-color-primary-contrastText);
+  color: #ffffff;
   flex-shrink: 0;
   font-size: var(--asgardeo-typography-fontSize-sm);
-  font-weight: var(--asgardeo-typography-fontWeight-medium);
+  font-weight: var(--asgardeo-typography-fontWeight-semibold);
+  line-height: 1;
+  user-select: none;
+  pointer-events: none;
 }
 
-/* Name ------------------------------------------------------ */
-
-.asgardeo-user-dropdown__name {
-  max-width: 140px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+/* sm — 28 px */
+.asgardeo-user-dropdown__avatar--sm {
+  width: 28px;
+  height: 28px;
+  font-size: var(--asgardeo-typography-fontSize-xs);
 }
 
-/* Dropdown menu --------------------------------------------- */
+/* lg — 38 px */
+.asgardeo-user-dropdown__avatar--lg {
+  width: 38px;
+  height: 38px;
+  font-size: var(--asgardeo-typography-fontSize-md);
+}
+
+/* ── Chevron ─────────────────────────────────────────────────── */
+
+.asgardeo-user-dropdown__chevron {
+  display: inline-flex;
+  align-items: center;
+  color: var(--asgardeo-color-text-secondary);
+  transition: transform var(--asgardeo-transition-normal);
+  padding-right: calc(var(--asgardeo-spacing-unit) * 0.25);
+}
+
+.asgardeo-user-dropdown__trigger--open .asgardeo-user-dropdown__chevron {
+  transform: rotate(180deg);
+}
+
+/* ── Dropdown menu ───────────────────────────────────────────── */
 
 .asgardeo-user-dropdown__menu {
   position: absolute;
-  top: calc(100% + calc(var(--asgardeo-spacing-unit) * 0.5));
+  top: calc(100% + calc(var(--asgardeo-spacing-unit) * 0.75));
   right: 0;
   z-index: 1000;
   background-color: var(--asgardeo-color-background-surface);
@@ -112,20 +144,141 @@ const USER_DROPDOWN_CSS: string = `
   border-radius: var(--asgardeo-dropdown-borderRadius);
   box-shadow: var(--asgardeo-dropdown-shadow);
   overflow: hidden;
-  min-width: 160px;
+  min-width: 220px;
   display: flex;
   flex-direction: column;
-  padding: calc(var(--asgardeo-spacing-unit) * 0.5) 0;
+  animation: asgardeo-dropdown-enter var(--asgardeo-transition-fast) ease;
 }
 
-/* Menu items ------------------------------------------------ */
+/* Alignment */
+
+.asgardeo-user-dropdown__menu--align-left {
+  right: auto;
+  left: 0;
+}
+
+/* Size: sm */
+
+.asgardeo-user-dropdown__menu--size-sm {
+  min-width: 180px;
+}
+
+.asgardeo-user-dropdown__menu--size-sm .asgardeo-user-dropdown__menu-header {
+  padding: calc(var(--asgardeo-spacing-unit) * 1.25) calc(var(--asgardeo-spacing-unit) * 1.5);
+  gap: calc(var(--asgardeo-spacing-unit) * 1);
+}
+
+.asgardeo-user-dropdown__menu--size-sm .asgardeo-user-dropdown__menu-header-avatar {
+  width: 30px;
+  height: 30px;
+  font-size: var(--asgardeo-typography-fontSize-sm);
+}
+
+.asgardeo-user-dropdown__menu--size-sm .asgardeo-user-dropdown__item {
+  padding: calc(var(--asgardeo-spacing-unit) * 0.75) calc(var(--asgardeo-spacing-unit) * 1.5);
+  font-size: var(--asgardeo-typography-fontSize-xs);
+}
+
+/* Size: lg */
+
+.asgardeo-user-dropdown__menu--size-lg {
+  min-width: 280px;
+}
+
+.asgardeo-user-dropdown__menu--size-lg .asgardeo-user-dropdown__menu-header {
+  padding: calc(var(--asgardeo-spacing-unit) * 2) calc(var(--asgardeo-spacing-unit) * 2);
+  gap: calc(var(--asgardeo-spacing-unit) * 1.5);
+}
+
+.asgardeo-user-dropdown__menu--size-lg .asgardeo-user-dropdown__menu-header-avatar {
+  width: 42px;
+  height: 42px;
+  font-size: var(--asgardeo-typography-fontSize-lg);
+}
+
+.asgardeo-user-dropdown__menu--size-lg .asgardeo-user-dropdown__item {
+  padding: calc(var(--asgardeo-spacing-unit) * 1.25) calc(var(--asgardeo-spacing-unit) * 2);
+  font-size: var(--asgardeo-typography-fontSize-md);
+}
+
+@keyframes asgardeo-dropdown-enter {
+  from {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* ── Menu header (user identity) ─────────────────────────────── */
+
+.asgardeo-user-dropdown__menu-header {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--asgardeo-spacing-unit) * 1.25);
+  padding: calc(var(--asgardeo-spacing-unit) * 1.5) calc(var(--asgardeo-spacing-unit) * 1.75);
+}
+
+.asgardeo-user-dropdown__menu-header-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  color: #ffffff;
+  flex-shrink: 0;
+  font-size: var(--asgardeo-typography-fontSize-md);
+  font-weight: var(--asgardeo-typography-fontWeight-semibold);
+  line-height: 1;
+  user-select: none;
+}
+
+.asgardeo-user-dropdown__menu-header-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.asgardeo-user-dropdown__menu-header-name {
+  font-size: var(--asgardeo-typography-fontSize-sm);
+  font-weight: var(--asgardeo-typography-fontWeight-semibold);
+  color: var(--asgardeo-color-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: var(--asgardeo-typography-lineHeight-tight);
+}
+
+.asgardeo-user-dropdown__menu-header-subtitle {
+  font-size: var(--asgardeo-typography-fontSize-xs);
+  color: var(--asgardeo-color-text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: var(--asgardeo-typography-lineHeight-normal);
+}
+
+/* ── Menu divider ────────────────────────────────────────────── */
+
+.asgardeo-user-dropdown__menu-divider {
+  height: 1px;
+  background-color: var(--asgardeo-color-border);
+  margin: calc(var(--asgardeo-spacing-unit) * 0.5) 0;
+  flex-shrink: 0;
+}
+
+/* ── Menu items ──────────────────────────────────────────────── */
 
 .asgardeo-user-dropdown__item {
   display: flex;
   align-items: center;
-  gap: calc(var(--asgardeo-spacing-unit) * 0.75);
+  gap: calc(var(--asgardeo-spacing-unit) * 1);
   width: 100%;
-  padding: var(--asgardeo-dropdown-itemPaddingY) var(--asgardeo-dropdown-itemPaddingX);
+  padding: calc(var(--asgardeo-spacing-unit) * 1) calc(var(--asgardeo-spacing-unit) * 1.75);
   background: none;
   border: none;
   cursor: pointer;
@@ -146,36 +299,61 @@ const USER_DROPDOWN_CSS: string = `
   background-color: var(--asgardeo-color-action-focus);
 }
 
-/* Modal overlay ------------------------------------------------ */
+/* Danger variant (sign-out) */
+
+.asgardeo-user-dropdown__item--danger {
+  color: var(--asgardeo-color-error-main);
+}
+
+.asgardeo-user-dropdown__item--danger:hover {
+  background-color: var(--asgardeo-color-error-light);
+}
+
+/* ── Modal overlay ───────────────────────────────────────────── */
 
 .asgardeo-user-dropdown__modal-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.4);
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.45);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 9999;
-  backdrop-filter: blur(2px);
+  backdrop-filter: blur(3px);
+  animation: asgardeo-overlay-enter var(--asgardeo-transition-fast) ease;
 }
 
-/* Modal content ------------------------------------------------ */
+@keyframes asgardeo-overlay-enter {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ── Modal content ───────────────────────────────────────────── */
 
 .asgardeo-user-dropdown__modal-content {
   background: var(--asgardeo-color-background-surface);
-  border-radius: var(--asgardeo-border-radius-medium);
+  border-radius: var(--asgardeo-border-radius-large);
   box-shadow: var(--asgardeo-shadow-large);
-  max-width: 460px;
-  width: 90%;
+  max-width: 480px;
+  width: 92%;
   max-height: 90vh;
   overflow-y: auto;
   position: relative;
+  animation: asgardeo-modal-enter var(--asgardeo-transition-normal) ease;
 }
 
-/* Modal close button ------------------------------------------ */
+@keyframes asgardeo-modal-enter {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* ── Modal close button ──────────────────────────────────────── */
 
 .asgardeo-user-dropdown__modal-close {
   position: absolute;
@@ -188,7 +366,7 @@ const USER_DROPDOWN_CSS: string = `
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: calc(var(--asgardeo-spacing-unit) * 0.5);
+  padding: calc(var(--asgardeo-spacing-unit) * 0.625);
   border-radius: var(--asgardeo-border-radius-small);
   z-index: 10001;
   transition:
