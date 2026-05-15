@@ -17,9 +17,9 @@
  */
 
 import {
-  EmbeddedFlowExecuteRequestPayload,
-  EmbeddedFlowExecuteResponse,
-  EmbeddedFlowStatus,
+  EmbeddedRecoveryFlowRequestV2,
+  EmbeddedRecoveryFlowResponseV2,
+  EmbeddedRecoveryFlowStatusV2,
   EmbeddedFlowComponentTypeV2 as EmbeddedFlowComponentType,
   withVendorCSSClassPrefix,
   Preferences,
@@ -83,11 +83,11 @@ export interface BaseRecoveryProps {
   inputClassName?: string;
   isInitialized?: boolean;
   messageClassName?: string;
-  onComplete?: (response: EmbeddedFlowExecuteResponse) => void;
+  onComplete?: (response: EmbeddedRecoveryFlowResponseV2) => void;
   onError?: (error: Error) => void;
-  onFlowChange?: (response: EmbeddedFlowExecuteResponse) => void;
-  onInitialize?: (payload?: EmbeddedFlowExecuteRequestPayload) => Promise<EmbeddedFlowExecuteResponse>;
-  onSubmit?: (payload: EmbeddedFlowExecuteRequestPayload) => Promise<EmbeddedFlowExecuteResponse>;
+  onFlowChange?: (response: EmbeddedRecoveryFlowResponseV2) => void;
+  onInitialize?: (payload?: EmbeddedRecoveryFlowRequestV2) => Promise<EmbeddedRecoveryFlowResponseV2>;
+  onSubmit?: (payload: EmbeddedRecoveryFlowRequestV2) => Promise<EmbeddedRecoveryFlowResponseV2>;
   /**
    * Component-level preferences to override global i18n and theme settings.
    */
@@ -132,7 +132,7 @@ const BaseRecoveryContent: FC<BaseRecoveryProps> = ({
 
   const [isLoading, setIsLoading] = useState(false);
   const [isFlowInitialized, setIsFlowInitialized] = useState(false);
-  const [currentFlow, setCurrentFlow] = useState<EmbeddedFlowExecuteResponse | null>(null);
+  const [currentFlow, setCurrentFlow] = useState<EmbeddedRecoveryFlowResponseV2 | null>(null);
   const [apiError, setApiError] = useState<Error | null>(null);
 
   const initializationAttemptedRef: any = useRef(false);
@@ -149,8 +149,8 @@ const BaseRecoveryContent: FC<BaseRecoveryProps> = ({
   );
 
   const normalizeFlowResponseLocal: any = useCallback(
-    (response: EmbeddedFlowExecuteResponse): EmbeddedFlowExecuteResponse => {
-      if (response?.data?.components && Array.isArray(response.data.components)) {
+    (response: EmbeddedRecoveryFlowResponseV2): EmbeddedRecoveryFlowResponseV2 => {
+      if ((response?.data as any)?.components && Array.isArray((response.data as any).components)) {
         return response;
       }
 
@@ -215,7 +215,7 @@ const BaseRecoveryContent: FC<BaseRecoveryProps> = ({
     [t],
   );
 
-  const formFields: any = currentFlow?.data?.components ? extractFormFields(currentFlow.data.components) : [];
+  const formFields: any = (currentFlow?.data as any)?.components ? extractFormFields((currentFlow.data as any).components) : [];
 
   const form: any = useForm<Record<string, string>>({
     fields: formFields,
@@ -238,8 +238,8 @@ const BaseRecoveryContent: FC<BaseRecoveryProps> = ({
   } = form;
 
   const setupFormFields: any = useCallback(
-    (flowResponse: EmbeddedFlowExecuteResponse) => {
-      const fields: any = extractFormFields(flowResponse.data?.components || []);
+    (flowResponse: EmbeddedRecoveryFlowResponseV2) => {
+      const fields: any = extractFormFields((flowResponse.data as any)?.components || []);
       const initialValues: Record<string, string> = {};
       fields.forEach((field: any) => {
         initialValues[field.name] = field.initialValue || '';
@@ -281,7 +281,7 @@ const BaseRecoveryContent: FC<BaseRecoveryProps> = ({
         });
       }
 
-      const payload: EmbeddedFlowExecuteRequestPayload = {
+      const payload: EmbeddedRecoveryFlowRequestV2 = {
         ...((currentFlow as any).executionId && {executionId: (currentFlow as any).executionId}),
         flowType: (currentFlow as any).flowType || 'RECOVERY',
         ...(component.id && {action: component.id}),
@@ -298,12 +298,12 @@ const BaseRecoveryContent: FC<BaseRecoveryProps> = ({
         challengeTokenRef.current = response.challengeToken ?? null;
       }
 
-      if (response.flowStatus === EmbeddedFlowStatus.Complete) {
+      if (response.flowStatus === EmbeddedRecoveryFlowStatusV2.Complete) {
         onComplete?.(response);
         return;
       }
 
-      if (response.flowStatus === EmbeddedFlowStatus.Incomplete) {
+      if (response.flowStatus === EmbeddedRecoveryFlowStatusV2.Incomplete) {
         setCurrentFlow(response);
         setupFormFields(response);
       }
@@ -407,12 +407,12 @@ const BaseRecoveryContent: FC<BaseRecoveryProps> = ({
           setIsFlowInitialized(true);
           onFlowChange?.(response);
 
-          if (response.flowStatus === EmbeddedFlowStatus.Complete) {
+          if (response.flowStatus === EmbeddedRecoveryFlowStatusV2.Complete) {
             onComplete?.(response);
             return;
           }
 
-          if (response.flowStatus === EmbeddedFlowStatus.Incomplete) {
+          if (response.flowStatus === EmbeddedRecoveryFlowStatusV2.Incomplete) {
             setupFormFields(response);
           }
         } catch (err) {
@@ -488,7 +488,7 @@ const BaseRecoveryContent: FC<BaseRecoveryProps> = ({
     );
   }
 
-  const componentsToRender: any = currentFlow.data?.components || [];
+  const componentsToRender: any = (currentFlow.data as any)?.components || [];
   const {title, subtitle, componentsWithoutHeadings} = getAuthComponentHeadings(
     componentsToRender,
     flowTitle,

@@ -117,6 +117,7 @@ export {
 export {
   EmbeddedRecoveryFlowStatus as EmbeddedRecoveryFlowStatusV2,
   EmbeddedRecoveryFlowType as EmbeddedRecoveryFlowTypeV2,
+  ExtendedEmbeddedRecoveryFlowResponse as ExtendedEmbeddedRecoveryFlowResponseV2,
   EmbeddedRecoveryFlowResponse as EmbeddedRecoveryFlowResponseV2,
   EmbeddedRecoveryFlowInitiateRequest as EmbeddedRecoveryFlowInitiateRequestV2,
   EmbeddedRecoveryFlowRequest as EmbeddedRecoveryFlowRequestV2,

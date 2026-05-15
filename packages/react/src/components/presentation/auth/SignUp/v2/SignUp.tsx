@@ -17,10 +17,10 @@
  */
 
 import {
-  EmbeddedFlowExecuteRequestPayload,
-  EmbeddedFlowExecuteResponse,
-  EmbeddedFlowResponseType,
   EmbeddedFlowType,
+  EmbeddedSignUpFlowRequestV2,
+  EmbeddedSignUpFlowResponseV2,
+  EmbeddedSignUpFlowTypeV2,
 } from '@asgardeo/browser';
 import {FC, ReactElement, ReactNode} from 'react';
 // eslint-disable-next-line import/no-named-as-default
@@ -62,10 +62,10 @@ const SignUp: FC<SignUpProps> = ({
    * Initialize the sign-up flow.
    */
   const handleInitialize = async (
-    payload?: EmbeddedFlowExecuteRequestPayload,
-  ): Promise<EmbeddedFlowExecuteResponse> => {
+    payload?: EmbeddedSignUpFlowRequestV2,
+  ): Promise<EmbeddedSignUpFlowResponseV2> => {
     const urlParams: URLSearchParams = new URL(window.location.href).searchParams;
-    const applicationIdFromUrl: string = urlParams.get('applicationId');
+    const applicationIdFromUrl: string | null = urlParams.get('applicationId');
 
     // Priority order: applicationId from context > applicationId from URL
     const effectiveApplicationId: any = applicationId || applicationIdFromUrl;
@@ -75,44 +75,44 @@ const SignUp: FC<SignUpProps> = ({
       ...(effectiveApplicationId && {applicationId: effectiveApplicationId}),
     };
 
-    return (await signUp(initialPayload)) as EmbeddedFlowExecuteResponse;
+    return (await signUp(initialPayload)) as EmbeddedSignUpFlowResponseV2;
   };
 
   /**
    * Handle sign-up steps.
    */
-  const handleOnSubmit = async (payload: EmbeddedFlowExecuteRequestPayload): Promise<EmbeddedFlowExecuteResponse> =>
-    (await signUp(payload)) as EmbeddedFlowExecuteResponse;
+  const handleOnSubmit = async (payload: EmbeddedSignUpFlowRequestV2): Promise<EmbeddedSignUpFlowResponseV2> =>
+    (await signUp(payload)) as EmbeddedSignUpFlowResponseV2;
 
   /**
    * Handle successful sign-up and redirect.
    */
-  const handleComplete = (response: EmbeddedFlowExecuteResponse): any => {
+  const handleComplete = (response: EmbeddedSignUpFlowResponseV2): any => {
     onComplete?.(response);
 
     // Check if OAuth flow completed and we have a redirect URL with authorization code
     // This happens when registration completes with assertion and OAuth authorize succeeds
-    const oauthRedirectUrl: any = (response as any)?.redirectUrl;
-    if (shouldRedirectAfterSignUp && oauthRedirectUrl) {
-      window.location.href = oauthRedirectUrl;
+    if (shouldRedirectAfterSignUp && response?.redirectUrl) {
+      window.location.href = response.redirectUrl;
       return;
     }
 
     // For non-redirection responses (regular sign-up completion), handle redirect if configured
-    if (shouldRedirectAfterSignUp && response?.type !== EmbeddedFlowResponseType.Redirection && afterSignUpUrl) {
+    if (shouldRedirectAfterSignUp && response?.type !== EmbeddedSignUpFlowTypeV2.Redirection && afterSignUpUrl) {
       window.location.href = afterSignUpUrl;
     }
 
     // For redirection responses (social sign-up), they are handled by BaseSignUp's popup mechanism
     // and we only redirect after the OAuth flow is complete if shouldRedirectAfterSignUp is true
+    const redirectURL: string | undefined = (response?.data as any)?.redirectURL;
     if (
       shouldRedirectAfterSignUp &&
-      response?.type === EmbeddedFlowResponseType.Redirection &&
-      response?.data?.redirectURL &&
-      !response.data.redirectURL.includes('oauth') && // Not a social provider redirect
-      !response.data.redirectURL.includes('auth') // Not an auth provider redirect
+      response?.type === EmbeddedSignUpFlowTypeV2.Redirection &&
+      redirectURL &&
+      !redirectURL.includes('oauth') && // Not a social provider redirect
+      !redirectURL.includes('auth') // Not an auth provider redirect
     ) {
-      window.location.href = response.data.redirectURL;
+      window.location.href = redirectURL;
     }
   };
 
