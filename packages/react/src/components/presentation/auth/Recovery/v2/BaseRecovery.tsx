@@ -140,7 +140,7 @@ const BaseRecoveryContent: FC<BaseRecoveryProps> = ({
 
   const handleError: any = useCallback(
     (error: any) => {
-      const errorMessage: string = error?.failureReason || extractErrorMessage(error, t);
+      const errorMessage: string = extractErrorMessage(error, t);
       setApiError(error instanceof Error ? error : new Error(errorMessage));
       clearMessages();
       addMessage({message: errorMessage, type: 'error'});

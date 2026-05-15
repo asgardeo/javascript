@@ -533,6 +533,20 @@ export interface ConsentPromptData {
 }
 
 /**
+ * Structured error detail returned by the flow/execute endpoint when flowStatus is ERROR.
+ *
+ * @experimental Part of the new Asgardeo API
+ */
+export interface FlowExecuteError {
+  /** Machine-readable error code (e.g. "FEE-60005"). */
+  code: string;
+  /** Localizable description with translation key and English default. */
+  description: {default: string; key: string};
+  /** Localizable short message with translation key and English default. */
+  message: {default: string; key: string};
+}
+
+/**
  * Extended request configuration for Asgardeo V2 embedded flow operations.
  *
  * This interface extends the base request configuration with V2-specific

@@ -17,6 +17,7 @@
  */
 
 import {EmbeddedFlowType} from '../embedded-flow';
+import {FlowExecuteError} from './embedded-flow-v2';
 
 /**
  * Status enumeration for the embedded recovery flow operations.
@@ -97,9 +98,9 @@ export interface EmbeddedRecoveryFlowResponse {
   executionId: string;
 
   /**
-   * Optional reason for failure when flowStatus is ERROR.
+   * Structured error detail present when flowStatus is ERROR.
    */
-  failureReason?: string;
+  error?: FlowExecuteError;
 
   /**
    * Current status of the recovery flow.
@@ -151,9 +152,9 @@ export interface EmbeddedRecoveryFlowErrorResponse {
   executionId: string;
 
   /**
-   * Human-readable explanation of why the recovery operation failed.
+   * Structured error detail describing why the recovery operation failed.
    */
-  failureReason: string;
+  error: FlowExecuteError;
 
   /**
    * Status of the recovery flow — always ERROR for this interface.

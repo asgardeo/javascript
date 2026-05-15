@@ -20,6 +20,7 @@ import {
   EmbeddedFlowResponseType as EmbeddedFlowResponseTypeV1,
   EmbeddedFlowType as EmbeddedFlowTypeV1,
 } from '../embedded-flow';
+import {FlowExecuteError} from './embedded-flow-v2';
 
 /**
  * Status enumeration for Asgardeo embedded sign-up flow operations.
@@ -176,10 +177,9 @@ export interface EmbeddedSignUpFlowResponse extends ExtendedEmbeddedSignUpFlowRe
   executionId: string;
 
   /**
-   * Optional reason for flow failure in case of an error.
-   * Provides additional context when flowStatus is set to ERROR.
+   * Structured error detail present when flowStatus is ERROR.
    */
-  failureReason?: string;
+  error?: FlowExecuteError;
 
   /**
    * Current status of the sign-up flow.
@@ -284,7 +284,10 @@ export interface EmbeddedSignUpFlowErrorResponse {
    */
   executionId: string;
 
-  failureReason: string;
+  /**
+   * Structured error detail describing why the sign-up operation failed.
+   */
+  error: FlowExecuteError;
 
   /**
    * Status of the sign-up flow, which will be `EmbeddedSignUpFlowStatus.Error`
