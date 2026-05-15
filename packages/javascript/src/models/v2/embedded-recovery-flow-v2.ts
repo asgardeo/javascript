@@ -17,6 +17,7 @@
  */
 
 import {EmbeddedFlowType} from '../embedded-flow';
+import {EmbeddedFlowResponseData as EmbeddedFlowResponseDataV2, FlowExecuteError} from './embedded-flow-v2';
 
 /**
  * Status enumeration for the embedded recovery flow operations.
@@ -60,11 +61,23 @@ export enum EmbeddedRecoveryFlowType {
 }
 
 /**
+ * Extended response structure for the embedded recovery flow.
+ * @remarks This response is only done from the SDK level.
+ * @experimental
+ */
+export interface ExtendedEmbeddedRecoveryFlowResponse {
+  /**
+   * The URL to redirect the user after completing the recovery flow.
+   */
+  redirectUrl?: string;
+}
+
+/**
  * Response structure for the embedded recovery flow.
  *
  * @experimental Part of the new Asgardeo API
  */
-export interface EmbeddedRecoveryFlowResponse {
+export interface EmbeddedRecoveryFlowResponse extends ExtendedEmbeddedRecoveryFlowResponse {
   /**
    * Per-step challenge token for replay protection.
    * Must be included in the next request to continue this flow.
@@ -72,24 +85,9 @@ export interface EmbeddedRecoveryFlowResponse {
   challengeToken?: string;
 
   /**
-   * Flow data containing UI components for the current step.
+   * Core response data containing UI components and flow metadata.
    */
-  data: {
-    /**
-     * Additional data from the flow step.
-     */
-    additionalData?: Record<string, any>;
-
-    /**
-     * UI components to render for the current step.
-     */
-    components?: any[];
-
-    /**
-     * Redirect URL if type is REDIRECTION.
-     */
-    redirectURL?: string;
-  };
+  data: EmbeddedFlowResponseDataV2;
 
   /**
    * Unique identifier for this recovery flow execution.
@@ -97,9 +95,9 @@ export interface EmbeddedRecoveryFlowResponse {
   executionId: string;
 
   /**
-   * Optional reason for failure when flowStatus is ERROR.
+   * Structured error detail present when flowStatus is ERROR.
    */
-  failureReason?: string;
+  error?: FlowExecuteError;
 
   /**
    * Current status of the recovery flow.
@@ -151,9 +149,9 @@ export interface EmbeddedRecoveryFlowErrorResponse {
   executionId: string;
 
   /**
-   * Human-readable explanation of why the recovery operation failed.
+   * Structured error detail describing why the recovery operation failed.
    */
-  failureReason: string;
+  error: FlowExecuteError;
 
   /**
    * Status of the recovery flow — always ERROR for this interface.

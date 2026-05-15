@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import {EmbeddedFlowResponseData as EmbeddedFlowResponseDataV2} from './embedded-flow-v2';
+import {EmbeddedFlowResponseData as EmbeddedFlowResponseDataV2, FlowExecuteError} from './embedded-flow-v2';
 import {
   EmbeddedFlowResponseType as EmbeddedFlowResponseTypeV1,
   EmbeddedFlowType as EmbeddedFlowTypeV1,
@@ -209,10 +209,9 @@ export interface EmbeddedSignInFlowResponse extends ExtendedEmbeddedSignInFlowRe
   executionId: string;
 
   /**
-   * Optional reason for flow failure in case of an error.
-   * Provides additional context when flowStatus is set to ERROR.
+   * Structured error detail present when flowStatus is ERROR.
    */
-  failureReason?: string;
+  error?: FlowExecuteError;
 
   /**
    * Current status of the sign-in flow.

@@ -50,8 +50,8 @@ export interface AcceptInviteFlowResponse {
     };
     redirectURL?: string;
   };
+  error?: {code: string; description?: {default: string; key: string}; message?: {default: string; key: string}};
   executionId: string;
-  failureReason?: string;
   flowStatus: 'INCOMPLETE' | 'COMPLETE' | 'ERROR';
   type?: 'VIEW' | 'REDIRECTION';
 }
@@ -329,8 +329,7 @@ const BaseAcceptInvite: FC<BaseAcceptInviteProps> = ({
   const handleError: any = useCallback(
     (error: any) => {
       // Extract error message from response failureReason or use extractErrorMessage
-      const errorMessage: string =
-        error?.failureReason || extractErrorMessage(error, t, 'components.acceptInvite.errors.generic');
+      const errorMessage: string = extractErrorMessage(error, t, 'components.acceptInvite.errors.generic');
 
       // Set the API error state
       setApiError(error instanceof Error ? error : new Error(errorMessage));

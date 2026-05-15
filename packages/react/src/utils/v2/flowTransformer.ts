@@ -50,8 +50,8 @@ import {UseTranslation} from '../../hooks/useTranslation';
  * Generic flow error response interface that covers common error structure
  */
 export interface FlowErrorResponse {
+  error?: {code: string; description?: {defaultValue: string; key: string}; message?: {defaultValue: string; key: string}};
   executionId: string;
-  failureReason?: string;
   flowStatus: 'ERROR';
 }
 
@@ -244,9 +244,15 @@ export const extractErrorMessage = (
   t: UseTranslation['t'],
   defaultErrorKey: string = 'errors.flow.generic',
 ): string => {
-  // Check for failureReason in the error object
-  if (error && typeof error === 'object' && error.failureReason) {
-    return error.failureReason;
+  // Check for structured error object
+  if (error && typeof error === 'object' && error.error) {
+    return (
+      (error.error.message?.key && t(error.error.message.key)) ||
+      error.error.message?.defaultValue ||
+      (error.error.description?.key && t(error.error.description.key)) ||
+      error.error.description?.defaultValue ||
+      t(defaultErrorKey)
+    );
   }
 
   // Check if error is a standard Error object with a message

@@ -18,7 +18,10 @@
 
 import AsgardeoAPIError from '../../errors/AsgardeoAPIError';
 import {EmbeddedFlowType} from '../../models/embedded-flow';
-import {EmbeddedFlowExecuteRequestConfig as EmbeddedFlowExecuteRequestConfigV2} from '../../models/v2/embedded-flow-v2';
+import {
+  EmbeddedFlowExecuteRequestConfig as EmbeddedFlowExecuteRequestConfigV2,
+  FlowExecuteError,
+} from '../../models/v2/embedded-flow-v2';
 
 /**
  * Response from the user onboarding flow execution.
@@ -45,9 +48,9 @@ export interface EmbeddedUserOnboardingFlowResponse {
   executionId: string;
 
   /**
-   * Reason for failure if flowStatus is ERROR.
+   * Structured error detail present when flowStatus is ERROR.
    */
-  failureReason?: string;
+  error?: FlowExecuteError;
 
   /**
    * Current status of the flow.

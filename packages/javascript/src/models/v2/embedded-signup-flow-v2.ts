@@ -20,6 +20,7 @@ import {
   EmbeddedFlowResponseType as EmbeddedFlowResponseTypeV1,
   EmbeddedFlowType as EmbeddedFlowTypeV1,
 } from '../embedded-flow';
+import {EmbeddedFlowResponseData as EmbeddedFlowResponseDataV2, FlowExecuteError} from './embedded-flow-v2';
 
 /**
  * Status enumeration for Asgardeo embedded sign-up flow operations.
@@ -148,12 +149,13 @@ export interface EmbeddedSignUpFlowResponse extends ExtendedEmbeddedSignUpFlowRe
   challengeToken?: string;
 
   /**
-   * Flow data containing form inputs and available actions.
+   * Core response data containing UI components and flow metadata.
    * This is transformed to component-driven format by the React transformer.
    */
-  data: {
+  data: EmbeddedFlowResponseDataV2 & {
     /**
      * Available actions the user can take (e.g., form submission, social sign-up).
+     * @deprecated Use data.meta.components for new implementations
      */
     actions?: {
       id: string;
@@ -162,6 +164,7 @@ export interface EmbeddedSignUpFlowResponse extends ExtendedEmbeddedSignUpFlowRe
 
     /**
      * Input fields required for the current step of the sign-up flow.
+     * @deprecated Use data.meta.components for new implementations
      */
     inputs?: {
       name: string;
@@ -176,10 +179,9 @@ export interface EmbeddedSignUpFlowResponse extends ExtendedEmbeddedSignUpFlowRe
   executionId: string;
 
   /**
-   * Optional reason for flow failure in case of an error.
-   * Provides additional context when flowStatus is set to ERROR.
+   * Structured error detail present when flowStatus is ERROR.
    */
-  failureReason?: string;
+  error?: FlowExecuteError;
 
   /**
    * Current status of the sign-up flow.
@@ -284,7 +286,10 @@ export interface EmbeddedSignUpFlowErrorResponse {
    */
   executionId: string;
 
-  failureReason: string;
+  /**
+   * Structured error detail describing why the sign-up operation failed.
+   */
+  error: FlowExecuteError;
 
   /**
    * Status of the sign-up flow, which will be `EmbeddedSignUpFlowStatus.Error`

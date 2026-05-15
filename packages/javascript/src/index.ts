@@ -93,6 +93,7 @@ export {
   ConsentDecisions as ConsentDecisionsV2,
   ConsentPurposeData as ConsentPurposeDataV2,
   ConsentPromptData as ConsentPromptDataV2,
+  FlowExecuteError,
 } from './models/v2/embedded-flow-v2';
 export {
   EmbeddedSignInFlowStatus as EmbeddedSignInFlowStatusV2,
@@ -116,6 +117,7 @@ export {
 export {
   EmbeddedRecoveryFlowStatus as EmbeddedRecoveryFlowStatusV2,
   EmbeddedRecoveryFlowType as EmbeddedRecoveryFlowTypeV2,
+  ExtendedEmbeddedRecoveryFlowResponse as ExtendedEmbeddedRecoveryFlowResponseV2,
   EmbeddedRecoveryFlowResponse as EmbeddedRecoveryFlowResponseV2,
   EmbeddedRecoveryFlowInitiateRequest as EmbeddedRecoveryFlowInitiateRequestV2,
   EmbeddedRecoveryFlowRequest as EmbeddedRecoveryFlowRequestV2,

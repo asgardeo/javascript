@@ -17,10 +17,10 @@
  */
 
 import {
-  EmbeddedFlowExecuteRequestPayload,
-  EmbeddedFlowExecuteResponse,
-  EmbeddedFlowStatus,
-  EmbeddedFlowResponseType,
+  EmbeddedSignUpFlowRequestV2,
+  EmbeddedSignUpFlowResponseV2,
+  EmbeddedSignUpFlowStatusV2,
+  EmbeddedSignUpFlowTypeV2,
   withVendorCSSClassPrefix,
   EmbeddedFlowComponentTypeV2 as EmbeddedFlowComponentType,
   createPackageComponentLogger,
@@ -187,7 +187,7 @@ export interface BaseSignUpProps {
    * This allows platform-specific handling of redirects (e.g., Next.js router.push).
    * @param response - The response from the sign-up flow containing the redirect URL, etc.
    */
-  onComplete?: (response: EmbeddedFlowExecuteResponse) => void;
+  onComplete?: (response: EmbeddedSignUpFlowResponseV2) => void;
 
   /**
    * Callback function called when sign-up fails.
@@ -199,20 +199,20 @@ export interface BaseSignUpProps {
    * Callback function called when sign-up flow status changes.
    * @param response - The current sign-up response.
    */
-  onFlowChange?: (response: EmbeddedFlowExecuteResponse) => void;
+  onFlowChange?: (response: EmbeddedSignUpFlowResponseV2) => void;
 
   /**
    * Function to initialize sign-up flow.
    * @returns Promise resolving to the initial sign-up response.
    */
-  onInitialize?: (payload?: EmbeddedFlowExecuteRequestPayload) => Promise<EmbeddedFlowExecuteResponse>;
+  onInitialize?: (payload?: EmbeddedSignUpFlowRequestV2) => Promise<EmbeddedSignUpFlowResponseV2>;
 
   /**
    * Function to handle sign-up steps.
    * @param payload - The sign-up payload.
    * @returns Promise resolving to the sign-up response.
    */
-  onSubmit?: (payload: EmbeddedFlowExecuteRequestPayload) => Promise<EmbeddedFlowExecuteResponse>;
+  onSubmit?: (payload: EmbeddedSignUpFlowRequestV2) => Promise<EmbeddedSignUpFlowResponseV2>;
   /**
    * Component-level preferences to override global i18n and theme settings.
    * Preferences are deep-merged with global ones, with component preferences
@@ -283,7 +283,7 @@ const BaseSignUpContent: FC<BaseSignUpProps> = ({
 
   const [isLoading, setIsLoading] = useState(false);
   const [isFlowInitialized, setIsFlowInitialized] = useState(false);
-  const [currentFlow, setCurrentFlow] = useState<EmbeddedFlowExecuteResponse | null>(null);
+  const [currentFlow, setCurrentFlow] = useState<EmbeddedSignUpFlowResponseV2 | null>(null);
   const [apiError, setApiError] = useState<Error | null>(null);
   const [passkeyState, setPasskeyState] = useState<PasskeyState>({
     actionId: null,
@@ -343,7 +343,7 @@ const BaseSignUpContent: FC<BaseSignUpProps> = ({
   const handleError: any = useCallback(
     (error: any) => {
       // Extract error message from response failureReason or use extractErrorMessage
-      const errorMessage: string = error?.failureReason || extractErrorMessage(error, t);
+      const errorMessage: string = extractErrorMessage(error, t);
 
       // Set the API error state
       setApiError(error instanceof Error ? error : new Error(errorMessage));
@@ -363,16 +363,16 @@ const BaseSignUpContent: FC<BaseSignUpProps> = ({
    * Uses normalizeFlowResponse for modern API format responses
    */
   const normalizeFlowResponseLocal: any = useCallback(
-    (response: EmbeddedFlowExecuteResponse): EmbeddedFlowExecuteResponse => {
+    (response: EmbeddedSignUpFlowResponseV2): EmbeddedSignUpFlowResponseV2 => {
       // If response already has components, return as-is
-      if (response?.data?.components && Array.isArray(response.data.components)) {
+      if ((response?.data as any)?.components && Array.isArray((response.data as any).components)) {
         return response;
       }
 
       // Use the transformer to handle meta.components structure
       if (response?.data) {
         const {components} = normalizeFlowResponse(
-          response,
+          response as any,
           t,
           {
             defaultErrorKey: 'components.signUp.errors.generic',
@@ -385,8 +385,8 @@ const BaseSignUpContent: FC<BaseSignUpProps> = ({
           ...response,
           data: {
             ...response.data,
-            components: components as any,
-          },
+            ...(components && {components: components as any}),
+          } as any,
         };
       }
 
@@ -449,7 +449,7 @@ const BaseSignUpContent: FC<BaseSignUpProps> = ({
     [t],
   );
 
-  const formFields: any = currentFlow?.data?.components ? extractFormFields(currentFlow.data.components) : [];
+  const formFields: any = (currentFlow?.data as any)?.components ? extractFormFields((currentFlow.data as any).components) : [];
 
   const form: any = useForm<Record<string, string>>({
     fields: formFields,
@@ -475,8 +475,8 @@ const BaseSignUpContent: FC<BaseSignUpProps> = ({
    * Setup form fields based on the current flow.
    */
   const setupFormFields: any = useCallback(
-    (flowResponse: EmbeddedFlowExecuteResponse) => {
-      const fields: any = extractFormFields(flowResponse.data?.components || []);
+    (flowResponse: EmbeddedSignUpFlowResponseV2) => {
+      const fields: any = extractFormFields((flowResponse.data as any)?.components || []);
       const initialValues: Record<string, string> = {};
 
       fields.forEach((field: any) => {
@@ -514,12 +514,12 @@ const BaseSignUpContent: FC<BaseSignUpProps> = ({
    * @param response - The sign-up response
    * @returns true if a redirect was performed, false otherwise
    */
-  const handleRedirectionIfNeeded = (response: EmbeddedFlowExecuteResponse): boolean => {
-    if (response?.type === EmbeddedFlowResponseType.Redirection && response?.data?.redirectURL) {
+  const handleRedirectionIfNeeded = (response: EmbeddedSignUpFlowResponseV2): boolean => {
+    if (response?.type === EmbeddedSignUpFlowTypeV2.Redirection && (response?.data as any)?.redirectURL) {
       /**
        * Open a popup window to handle redirection prompts for social sign-up
        */
-      const redirectUrl: any = response.data.redirectURL;
+      const redirectUrl: any = (response.data as any).redirectURL;
       const popup: any = window.open(redirectUrl, 'oauth_popup', 'width=500,height=600,scrollbars=yes,resizable=yes');
 
       if (!popup) {
@@ -567,7 +567,7 @@ const BaseSignUpContent: FC<BaseSignUpProps> = ({
         if (code && state) {
           hasProcessedCallback = true;
 
-          const payload: EmbeddedFlowExecuteRequestPayload = {
+          const payload: EmbeddedSignUpFlowRequestV2 = {
             ...((currentFlow as any).executionId && {executionId: (currentFlow as any).executionId}),
             action: '',
             flowType: (currentFlow as any).flowType || 'REGISTRATION',
@@ -582,9 +582,9 @@ const BaseSignUpContent: FC<BaseSignUpProps> = ({
             const continueResponse: any = await onSubmit(payload);
             onFlowChange?.(continueResponse);
 
-            if (continueResponse.flowStatus === EmbeddedFlowStatus.Complete) {
+            if (continueResponse.flowStatus === EmbeddedSignUpFlowStatusV2.Complete) {
               onComplete?.(continueResponse);
-            } else if (continueResponse.flowStatus === EmbeddedFlowStatus.Incomplete) {
+            } else if (continueResponse.flowStatus === EmbeddedSignUpFlowStatusV2.Incomplete) {
               setCurrentFlow(continueResponse);
               setupFormFields(continueResponse);
             }
@@ -639,7 +639,7 @@ const BaseSignUpContent: FC<BaseSignUpProps> = ({
               }
 
               if (code && state) {
-                const payload: EmbeddedFlowExecuteRequestPayload = {
+                const payload: EmbeddedSignUpFlowRequestV2 = {
                   ...((currentFlow as any).executionId && {executionId: (currentFlow as any).executionId}),
                   action: '',
                   flowType: (currentFlow as any).flowType || 'REGISTRATION',
@@ -654,9 +654,9 @@ const BaseSignUpContent: FC<BaseSignUpProps> = ({
                   const continueResponse: any = await onSubmit(payload);
                   onFlowChange?.(continueResponse);
 
-                  if (continueResponse.flowStatus === EmbeddedFlowStatus.Complete) {
+                  if (continueResponse.flowStatus === EmbeddedSignUpFlowStatusV2.Complete) {
                     onComplete?.(continueResponse);
-                  } else if (continueResponse.flowStatus === EmbeddedFlowStatus.Incomplete) {
+                  } else if (continueResponse.flowStatus === EmbeddedSignUpFlowStatusV2.Incomplete) {
                     setCurrentFlow(continueResponse);
                     setupFormFields(continueResponse);
                   }
@@ -719,7 +719,7 @@ const BaseSignUpContent: FC<BaseSignUpProps> = ({
         });
       }
 
-      const payload: EmbeddedFlowExecuteRequestPayload = {
+      const payload: EmbeddedSignUpFlowRequestV2 = {
         ...((currentFlow as any).executionId && {executionId: (currentFlow as any).executionId}),
         flowType: (currentFlow as any).flowType || 'REGISTRATION',
         ...(component.id && {action: component.id}),
@@ -733,12 +733,12 @@ const BaseSignUpContent: FC<BaseSignUpProps> = ({
 
       await setChallengeToken(response.challengeToken ?? null);
 
-      if (response.flowStatus === EmbeddedFlowStatus.Complete) {
+      if (response.flowStatus === EmbeddedSignUpFlowStatusV2.Complete) {
         onComplete?.(response);
         return;
       }
 
-      if (response.flowStatus === EmbeddedFlowStatus.Incomplete) {
+      if (response.flowStatus === EmbeddedSignUpFlowStatusV2.Incomplete) {
         if (handleRedirectionIfNeeded(response)) {
           return;
         }
@@ -798,8 +798,8 @@ const BaseSignUpContent: FC<BaseSignUpProps> = ({
       };
 
       // After successful registration, submit the result to the server
-      const payload: EmbeddedFlowExecuteRequestPayload = {
-        actionId: passkeyState.actionId || 'submit',
+      const payload: EmbeddedSignUpFlowRequestV2 = {
+        action: passkeyState.actionId || 'submit',
         executionId: passkeyState.executionId as string,
         flowType: (currentFlow as any)?.flowType || 'REGISTRATION',
         inputs,
@@ -810,7 +810,7 @@ const BaseSignUpContent: FC<BaseSignUpProps> = ({
       const processedResponse: any = normalizeFlowResponseLocal(nextResponse);
       onFlowChange?.(processedResponse);
 
-      if (processedResponse.flowStatus === EmbeddedFlowStatus.Complete) {
+      if (processedResponse.flowStatus === EmbeddedSignUpFlowStatusV2.Complete) {
         onComplete?.(processedResponse);
       } else {
         setCurrentFlow(processedResponse);
@@ -938,12 +938,12 @@ const BaseSignUpContent: FC<BaseSignUpProps> = ({
           setIsFlowInitialized(true);
           onFlowChange?.(response);
 
-          if (response.flowStatus === EmbeddedFlowStatus.Complete) {
+          if (response.flowStatus === EmbeddedSignUpFlowStatusV2.Complete) {
             onComplete?.(response);
             return;
           }
 
-          if (response.flowStatus === EmbeddedFlowStatus.Incomplete) {
+          if (response.flowStatus === EmbeddedSignUpFlowStatusV2.Incomplete) {
             setupFormFields(response);
           }
         } catch (err) {
@@ -970,7 +970,7 @@ const BaseSignUpContent: FC<BaseSignUpProps> = ({
   // If render props are provided, use them
   if (children) {
     const renderProps: BaseSignUpRenderProps = {
-      components: currentFlow?.data?.components || [],
+      components: (currentFlow?.data as any)?.components || [],
       error: apiError,
       fieldErrors: formErrors,
       handleInputChange,
@@ -1017,7 +1017,7 @@ const BaseSignUpContent: FC<BaseSignUpProps> = ({
   }
 
   // Extract heading and subheading components and filter them from the main components
-  const componentsToRender: any = currentFlow.data?.components || [];
+  const componentsToRender: any = (currentFlow.data as any)?.components || [];
   const {title, subtitle, componentsWithoutHeadings} = getAuthComponentHeadings(
     componentsToRender,
     flowTitle,
