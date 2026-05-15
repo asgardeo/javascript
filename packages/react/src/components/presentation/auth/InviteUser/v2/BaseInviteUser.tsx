@@ -18,7 +18,9 @@
 
 import {
   EmbeddedFlowType,
+  FieldErrorV2 as FieldError,
   FlowMetadataResponse,
+  buildValidatorFromRules,
   logger,
   OrganizationUnitListResponse,
   Preferences,
@@ -48,6 +50,7 @@ export interface InviteUserFlowResponse {
   data?: {
     additionalData?: Record<string, any>;
     components?: any[];
+    fieldErrors?: FieldError[];
     meta?: {
       components?: any[];
     };
@@ -273,6 +276,28 @@ const BaseInviteUser: FC<BaseInviteUserProps> = ({
   const [isFormValid, setIsFormValid] = useState(true);
   const challengeTokenRef: any = useRef<string | null>(null);
 
+  /**
+   * Project server-side validation errors from the most recent flow response into the
+   * local formErrors state so they render alongside client-side errors. First error
+   * per field wins, matching the SDK's single-string-per-field render-prop shape.
+   */
+  useEffect(() => {
+    const responseFieldErrors: FieldError[] | undefined = (currentFlow?.data as any)?.fieldErrors;
+    if (!responseFieldErrors || responseFieldErrors.length === 0) {
+      return;
+    }
+    const errors: Record<string, string> = {};
+    const touched: Record<string, boolean> = {};
+    for (const fe of responseFieldErrors) {
+      if (!(fe.identifier in errors)) {
+        errors[fe.identifier] = fe.message;
+        touched[fe.identifier] = true;
+      }
+    }
+    setFormErrors(errors);
+    setTouchedFields((prev: Record<string, boolean>) => ({...prev, ...touched}));
+  }, [currentFlow]);
+
   const initializationAttemptedRef: any = useRef(false);
 
   /**
@@ -404,16 +429,26 @@ const BaseInviteUser: FC<BaseInviteUserProps> = ({
               comp.type === 'SELECT' ||
               comp.type === 'PHONE_INPUT' ||
               comp.type === 'OTP_INPUT') &&
-            comp.required &&
             comp.ref
           ) {
             const value: any = formValues[comp.ref];
-            if (!value || value.trim() === '') {
+            if (comp.required && (!value || value.trim() === '')) {
               errors[comp.ref] = `${comp.label || comp.ref} is required`;
-            }
-            // Email validation
-            if (comp.type === 'EMAIL_INPUT' && value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
-              errors[comp.ref] = 'Please enter a valid email address';
+            } else {
+              // Email validation
+              if (comp.type === 'EMAIL_INPUT' && value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+                errors[comp.ref] = 'Please enter a valid email address';
+              }
+              // Evaluate declarative validation rules from meta.components[].validation.
+              if (value && !errors[comp.ref]) {
+                const ruleValidator = buildValidatorFromRules(comp.validation);
+                if (ruleValidator) {
+                  const message = ruleValidator(value);
+                  if (message) {
+                    errors[comp.ref] = message;
+                  }
+                }
+              }
             }
           }
           if (comp.components && Array.isArray(comp.components)) {

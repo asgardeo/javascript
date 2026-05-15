@@ -24,6 +24,7 @@ import {
   EmbeddedSignInFlowRequestV2,
   EmbeddedSignInFlowStatusV2,
   EmbeddedSignInFlowTypeV2,
+  FieldErrorV2 as FieldError,
   FlowMetadataResponse,
   Preferences,
   logger,
@@ -57,6 +58,14 @@ export interface SignInRenderProps {
    * Current error if any
    */
   error: Error | null;
+
+  /**
+   * Server-side field-level validation errors from the most recent flow response,
+   * collapsed to one message per field (first error wins). Empty when no validation
+   * failures are active. Render-prop consumers should display these alongside their
+   * own client-side validation errors.
+   */
+  fieldErrors: Record<string, string>;
 
   /**
    * Function to manually initialize the flow
@@ -223,6 +232,9 @@ const SignIn: FC<SignInProps> = ({
   // State management for the flow
   const [components, setComponents] = useState<EmbeddedFlowComponent[]>([]);
   const [additionalData, setAdditionalData] = useState<Record<string, any>>({});
+  // Server-side validation errors from the most recent flow response. Updated on every
+  // submission; cleared when the next submission begins so stale errors don't linger.
+  const [serverFieldErrors, setServerFieldErrors] = useState<FieldError[] | null>(null);
   const [currentExecutionId, setCurrentExecutionId] = useState<string | null>(null);
   const challengeTokenRef: any = useRef<string | null>(null);
   const [isStorageReady, setIsStorageReady] = useState(false);
@@ -637,6 +649,8 @@ const SignIn: FC<SignInProps> = ({
     try {
       setIsSubmitting(true);
       setFlowError(null);
+      // Clear any field errors from the previous response before the new round-trip.
+      setServerFieldErrors(null);
 
       const response: EmbeddedSignInFlowResponseV2 = (await signIn({
         executionId: effectiveExecutionId,
@@ -745,6 +759,13 @@ const SignIn: FC<SignInProps> = ({
         setIsFlowInitialized(true);
         // Clean up executionId from URL after setting it in state
         cleanupFlowUrlParams();
+
+        // Surface server-side validation failures so BaseSignIn can inject them into
+        // the form-level fieldErrors state used by the render-prop / default UI.
+        const responseFieldErrors: FieldError[] | undefined = (response.data as any)?.fieldErrors;
+        if (responseFieldErrors && responseFieldErrors.length > 0) {
+          setServerFieldErrors(responseFieldErrors);
+        }
 
         // Display failure reason from INCOMPLETE response
         if ((response as any)?.failureReason) {
@@ -856,10 +877,25 @@ const SignIn: FC<SignInProps> = ({
   }, [passkeyState.isActive, passkeyState.challenge, passkeyState.creationOptions, passkeyState.executionId]);
 
   if (children) {
+    // Collapse the server FieldError[] array to a single message per field map for
+    // render-prop consumers. First error per field wins. Multi-error cases per
+    // field are rare in practice (server typically returns one rule failure per
+    // field in current flows) and consumers needing the full array can still read
+    // it from the raw flow response.
+    const renderPropFieldErrors: Record<string, string> = {};
+    if (serverFieldErrors) {
+      for (const fe of serverFieldErrors) {
+        if (!(fe.identifier in renderPropFieldErrors)) {
+          renderPropFieldErrors[fe.identifier] = fe.message;
+        }
+      }
+    }
+
     const renderProps: SignInRenderProps = {
       additionalData,
       components,
       error: flowError,
+      fieldErrors: renderPropFieldErrors,
       initialize: initializeFlow,
       isInitialized: isFlowInitialized,
       isLoading: isLoading || isSubmitting || !isInitialized,
@@ -884,6 +920,7 @@ const SignIn: FC<SignInProps> = ({
       size={size}
       variant={variant}
       preferences={preferences}
+      serverFieldErrors={serverFieldErrors}
     />
   );
 };
