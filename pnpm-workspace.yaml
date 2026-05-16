@@ -2,6 +2,7 @@ packages:
   - 'docs'
   - 'packages/*'
   - 'samples/*'
+  - '!samples/teamspace-nextjs'
 
 allowBuilds:
   '@parcel/watcher': true
