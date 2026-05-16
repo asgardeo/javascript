@@ -16,6 +16,7 @@
  * under the License.
  */
 
+import {Platform} from '@asgardeo/node';
 import {AsgardeoNextConfig} from '../models/config';
 
 const decorateConfigWithNextEnv = (config: AsgardeoNextConfig): AsgardeoNextConfig => {
@@ -31,6 +32,7 @@ const decorateConfigWithNextEnv = (config: AsgardeoNextConfig): AsgardeoNextConf
     afterSignInUrl,
     afterSignOutUrl,
     sessionCookieExpiryTime,
+    platform,
     ...rest
   } = config;
 
@@ -43,6 +45,7 @@ const decorateConfigWithNextEnv = (config: AsgardeoNextConfig): AsgardeoNextConf
     clientId: clientId || (process.env['NEXT_PUBLIC_ASGARDEO_CLIENT_ID'] as string),
     clientSecret: clientSecret || (process.env['ASGARDEO_CLIENT_SECRET'] as string),
     organizationHandle: organizationHandle || (process.env['NEXT_PUBLIC_ASGARDEO_ORGANIZATION_HANDLE'] as string),
+    platform: platform || (process.env['NEXT_PUBLIC_ASGARDEO_PLATFORM'] as keyof typeof Platform | undefined),
     scopes: scopes || (process.env['NEXT_PUBLIC_ASGARDEO_SCOPES'] as string),
     sessionCookieExpiryTime:
       sessionCookieExpiryTime ||

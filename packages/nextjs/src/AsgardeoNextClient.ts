@@ -139,7 +139,7 @@ class AsgardeoNextClient<T extends AsgardeoNextConfig = AsgardeoNextConfig> exte
         baseUrl,
         clientId,
         clientSecret,
-        enablePKCE: false,
+        enablePKCE: !clientSecret,
         organizationHandle: resolvedOrganizationHandle,
         signInUrl,
         signUpUrl,
