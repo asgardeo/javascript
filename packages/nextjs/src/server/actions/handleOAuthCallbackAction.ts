@@ -151,8 +151,14 @@ const handleOAuthCallbackAction = async (
       success: true,
     };
   } catch (error) {
+    const message =
+      error instanceof Error
+        ? error.message
+        : typeof error === 'object' && error !== null && 'message' in error && typeof (error as any).message === 'string'
+          ? (error as any).message
+          : 'Authentication failed';
     return {
-      error: error instanceof Error ? error.message : 'Authentication failed',
+      error: message,
       success: false,
     };
   }

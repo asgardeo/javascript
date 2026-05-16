@@ -45,6 +45,14 @@ export type {FlowProviderProps} from './contexts/Flow/FlowProvider';
 
 export {default as useFlow} from './contexts/Flow/useFlow';
 
+export {default as FlowMetaContext} from './contexts/FlowMeta/FlowMetaContext';
+export * from './contexts/FlowMeta/FlowMetaContext';
+
+export {default as FlowMetaProvider} from './contexts/FlowMeta/FlowMetaProvider';
+export * from './contexts/FlowMeta/FlowMetaProvider';
+
+export {default as useFlowMeta} from './contexts/FlowMeta/useFlowMeta';
+
 export {default as I18nContext} from './contexts/I18n/I18nContext';
 export * from './contexts/I18n/I18nContext';
 
@@ -112,11 +120,15 @@ export * from './components/control/OrganizationContext/OrganizationContext';
 export {default as BaseSignIn} from './components/presentation/auth/SignIn/BaseSignIn';
 export * from './components/presentation/auth/SignIn/BaseSignIn';
 
+export {default as SignInV2, type SignInRenderProps} from './components/presentation/auth/SignIn/v2/SignIn';
+
 export {default as SignIn} from './components/presentation/auth/SignIn/SignIn';
 export * from './components/presentation/auth/SignIn/SignIn';
 
 export {default as BaseSignUp} from './components/presentation/auth/SignUp/BaseSignUp';
 export * from './components/presentation/auth/SignUp/BaseSignUp';
+
+export {default as SignUpV2, type SignUpRenderProps} from './components/presentation/auth/SignUp/v2/SignUp';
 
 export {default as SignUp} from './components/presentation/auth/SignUp/SignUp';
 export * from './components/presentation/auth/SignUp/SignUp';

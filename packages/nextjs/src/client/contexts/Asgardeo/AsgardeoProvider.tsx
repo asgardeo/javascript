@@ -35,6 +35,7 @@ import {
 } from '@asgardeo/node';
 import {
   I18nProvider,
+  FlowMetaProvider,
   FlowProvider,
   UserProvider,
   ThemeProvider,
@@ -70,6 +71,7 @@ export type AsgardeoClientProviderProps = Partial<Omit<AsgardeoProviderProps, 'b
     isSignedIn: boolean;
     myOrganizations: Organization[];
     organizationHandle: AsgardeoContextProps['organizationHandle'];
+    platform?: AsgardeoContextProps['platform']
     refreshToken: () => Promise<RefreshResult>;
     revalidateMyOrganizations?: (sessionId?: string) => Promise<Organization[]>;
     signIn: AsgardeoContextProps['signIn'];
@@ -109,6 +111,7 @@ const AsgardeoClientProvider: FC<PropsWithChildren<AsgardeoClientProviderProps>>
   getAllOrganizations,
   switchOrganization,
   brandingPreference,
+  platform,
 }: PropsWithChildren<AsgardeoClientProviderProps>) => {
   const reRenderCheckRef: RefObject<boolean> = useRef(false);
   const router: AppRouterInstance = useRouter();
@@ -301,6 +304,7 @@ const AsgardeoClientProvider: FC<PropsWithChildren<AsgardeoClientProviderProps>>
       isLoading,
       isSignedIn,
       organizationHandle,
+      platform,
       refreshToken,
       signIn: handleSignIn,
       signInUrl,
@@ -309,7 +313,7 @@ const AsgardeoClientProvider: FC<PropsWithChildren<AsgardeoClientProviderProps>>
       signUpUrl,
       user,
     }),
-    [baseUrl, user, isSignedIn, isLoading, signInUrl, signUpUrl, applicationId, organizationHandle],
+    [baseUrl, user, isSignedIn, isLoading, signInUrl, signUpUrl, applicationId, organizationHandle, platform],
   );
 
   const handleProfileUpdate = (payload: User): void => {
@@ -330,20 +334,22 @@ const AsgardeoClientProvider: FC<PropsWithChildren<AsgardeoClientProviderProps>>
             mode={getActiveTheme(preferences?.theme?.mode as any)}
             inheritFromBranding
           >
-            <FlowProvider>
-              <UserProvider profile={userProfile} onUpdateProfile={handleProfileUpdate} updateProfile={updateProfile}>
-                <OrganizationProvider
-                  createOrganization={createOrganization}
-                  getAllOrganizations={getAllOrganizations}
-                  myOrganizations={myOrganizations}
-                  currentOrganization={currentOrganization}
-                  onOrganizationSwitch={switchOrganization as any}
-                  revalidateMyOrganizations={revalidateMyOrganizations as any}
-                >
-                  {children}
-                </OrganizationProvider>
-              </UserProvider>
-            </FlowProvider>
+            <FlowMetaProvider enabled={preferences?.resolveFromMeta !== false}>
+              <FlowProvider>
+                <UserProvider profile={userProfile} onUpdateProfile={handleProfileUpdate} updateProfile={updateProfile}>
+                  <OrganizationProvider
+                    createOrganization={createOrganization}
+                    getAllOrganizations={getAllOrganizations}
+                    myOrganizations={myOrganizations}
+                    currentOrganization={currentOrganization}
+                    onOrganizationSwitch={switchOrganization as any}
+                    revalidateMyOrganizations={revalidateMyOrganizations as any}
+                  >
+                    {children}
+                  </OrganizationProvider>
+                </UserProvider>
+              </FlowProvider>
+            </FlowMetaProvider>
           </ThemeProvider>
         </BrandingProvider>
       </I18nProvider>
