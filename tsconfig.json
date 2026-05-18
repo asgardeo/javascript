@@ -3,6 +3,7 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
+      "@asgardeo/javascript": ["packages/javascript/src/index.ts"],
       "@asgardeo/react": ["packages/react/src/index.ts"],
     }
   }

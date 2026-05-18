@@ -17,7 +17,7 @@
  */
 
 export {AsgardeoAuthClient} from './__legacy__/client';
-export {
+export type {
   DefaultAuthClientConfig,
   WellKnownAuthClientConfig,
   BaseURLAuthClientConfig,
@@ -32,23 +32,25 @@ export {default as initializeEmbeddedSignInFlow} from './api/initializeEmbeddedS
 export {default as executeEmbeddedSignInFlow} from './api/executeEmbeddedSignInFlow';
 export {default as executeEmbeddedSignUpFlow} from './api/executeEmbeddedSignUpFlow';
 export {default as getUserInfo} from './api/getUserInfo';
-export {default as getScim2Me, GetScim2MeConfig} from './api/getScim2Me';
-export {default as getSchemas, GetSchemasConfig} from './api/getSchemas';
-export {default as getAllOrganizations, GetAllOrganizationsConfig} from './api/getAllOrganizations';
-export {
+export type {default as getScim2Me, GetScim2MeConfig} from './api/getScim2Me';
+export type {default as getSchemas, GetSchemasConfig} from './api/getSchemas';
+export type {default as getAllOrganizations, GetAllOrganizationsConfig} from './api/getAllOrganizations';
+export type {
   default as createOrganization,
   CreateOrganizationPayload,
   CreateOrganizationConfig,
 } from './api/createOrganization';
-export {default as getMeOrganizations, GetMeOrganizationsConfig} from './api/getMeOrganizations';
-export {default as getOrganization, OrganizationDetails, GetOrganizationConfig} from './api/getOrganization';
-export {default as updateOrganization, createPatchOperations, UpdateOrganizationConfig} from './api/updateOrganization';
-export {default as updateMeProfile, UpdateMeProfileConfig} from './api/updateMeProfile';
-export {default as getBrandingPreference, GetBrandingPreferenceConfig} from './api/getBrandingPreference';
+export type {default as getMeOrganizations, GetMeOrganizationsConfig} from './api/getMeOrganizations';
+export type {default as getOrganization, OrganizationDetails, GetOrganizationConfig} from './api/getOrganization';
+export {default as updateOrganization, createPatchOperations} from './api/updateOrganization';
+export type {UpdateOrganizationConfig} from './api/updateOrganization';
+export {default as updateMeProfile} from './api/updateMeProfile';
+export type {UpdateMeProfileConfig} from './api/updateMeProfile';
+export type {default as getBrandingPreference, GetBrandingPreferenceConfig} from './api/getBrandingPreference';
 export {default as executeEmbeddedSignInFlowV2} from './api/v2/executeEmbeddedSignInFlowV2';
 export {default as executeEmbeddedSignUpFlowV2} from './api/v2/executeEmbeddedSignUpFlowV2';
 export {default as executeEmbeddedRecoveryFlowV2} from './api/v2/executeEmbeddedRecoveryFlowV2';
-export {
+export type {
   default as executeEmbeddedUserOnboardingFlowV2,
   EmbeddedUserOnboardingFlowResponse,
 } from './api/v2/executeEmbeddedUserOnboardingFlowV2';
@@ -65,9 +67,9 @@ export {default as AsgardeoAPIError} from './errors/AsgardeoAPIError';
 export {default as AsgardeoRuntimeError} from './errors/AsgardeoRuntimeError';
 export {AsgardeoAuthException} from './errors/exception';
 
-export {AllOrganizationsApiResponse} from './models/organization';
+export type {AllOrganizationsApiResponse} from './models/organization';
 export {Platform} from './models/platforms';
-export {
+export type {
   EmbeddedSignInFlowInitiateResponse,
   EmbeddedSignInFlowStatus,
   EmbeddedSignInFlowType,
@@ -80,7 +82,7 @@ export {
   EmbeddedSignInFlowAuthenticatorPromptType,
   EmbeddedSignInFlowAuthenticatorKnownIdPType,
 } from './models/embedded-signin-flow';
-export {
+export type {
   EmbeddedFlowComponentType as EmbeddedFlowComponentTypeV2,
   EmbeddedFlowActionVariant as EmbeddedFlowActionVariantV2,
   EmbeddedFlowTextVariant as EmbeddedFlowTextVariantV2,
@@ -94,7 +96,7 @@ export {
   ConsentPurposeData as ConsentPurposeDataV2,
   ConsentPromptData as ConsentPromptDataV2,
 } from './models/v2/embedded-flow-v2';
-export {
+export type {
   EmbeddedSignInFlowStatus as EmbeddedSignInFlowStatusV2,
   EmbeddedSignInFlowType as EmbeddedSignInFlowTypeV2,
   ExtendedEmbeddedSignInFlowResponse as ExtendedEmbeddedSignInFlowResponseV2,
@@ -103,7 +105,7 @@ export {
   EmbeddedSignInFlowInitiateRequest as EmbeddedSignInFlowInitiateRequestV2,
   EmbeddedSignInFlowRequest as EmbeddedSignInFlowRequestV2,
 } from './models/v2/embedded-signin-flow-v2';
-export {
+export type {
   EmbeddedSignUpFlowStatus as EmbeddedSignUpFlowStatusV2,
   EmbeddedSignUpFlowType as EmbeddedSignUpFlowTypeV2,
   ExtendedEmbeddedSignUpFlowResponse as ExtendedEmbeddedSignUpFlowResponseV2,
@@ -113,7 +115,7 @@ export {
   EmbeddedSignUpFlowRequest as EmbeddedSignUpFlowRequestV2,
   EmbeddedSignUpFlowErrorResponse as EmbeddedSignUpFlowErrorResponseV2,
 } from './models/v2/embedded-signup-flow-v2';
-export {
+export type {
   EmbeddedRecoveryFlowStatus as EmbeddedRecoveryFlowStatusV2,
   EmbeddedRecoveryFlowType as EmbeddedRecoveryFlowTypeV2,
   EmbeddedRecoveryFlowResponse as EmbeddedRecoveryFlowResponseV2,
@@ -121,12 +123,12 @@ export {
   EmbeddedRecoveryFlowRequest as EmbeddedRecoveryFlowRequestV2,
   EmbeddedRecoveryFlowErrorResponse as EmbeddedRecoveryFlowErrorResponseV2,
 } from './models/v2/embedded-recovery-flow-v2';
-export {
+export type {
   OrganizationUnit,
   OrganizationUnitListResponse,
   GetOrganizationUnitChildrenConfig,
 } from './models/v2/organization-unit';
-export {
+export type {
   FlowMetaType,
   ApplicationMetadata,
   OUMetadata,
@@ -143,7 +145,7 @@ export {
   FlowMetaThemeShape,
   FlowMetaThemeTypography,
 } from './models/v2/flow-meta-v2';
-export {
+export type {
   EmbeddedFlowType,
   EmbeddedFlowStatus,
   EmbeddedFlowExecuteResponse,
@@ -156,8 +158,8 @@ export {
   EmbeddedFlowExecuteErrorResponse,
 } from './models/embedded-flow';
 export {FlowMode} from './models/flow';
-export {AsgardeoClient} from './models/client';
-export {
+export type {AsgardeoClient} from './models/client';
+export type {
   BaseConfig,
   Config,
   Preferences,
@@ -171,27 +173,27 @@ export {
   SignOutOptions,
   SignUpOptions,
 } from './models/config';
-export {TokenEndpointAuthMethod} from './models/token-endpoint-auth';
+export type {TokenEndpointAuthMethod} from './models/token-endpoint-auth';
 export type {ComponentRenderContext, ComponentRenderer, ComponentsExtensions} from './models/v2/extensions/components';
-export {TokenResponse, IdToken, TokenExchangeRequestConfig} from './models/token';
-export {AgentConfig} from './models/agent';
-export {AuthCodeResponse} from './models/auth-code-response';
-export {Crypto, JWKInterface} from './models/crypto';
-export {OAuthResponseMode} from './models/oauth-response';
-export {
+export type {TokenResponse, IdToken, TokenExchangeRequestConfig} from './models/token';
+export type {AgentConfig} from './models/agent';
+export type {AuthCodeResponse} from './models/auth-code-response';
+export type {Crypto, JWKInterface} from './models/crypto';
+export type {OAuthResponseMode} from './models/oauth-response';
+export type {
   AuthorizeRequestUrlParams,
   KnownExtendedAuthorizeRequestUrlParams,
   ExtendedAuthorizeRequestUrlParams,
 } from './models/oauth-request';
-export {OIDCEndpoints} from './models/oidc-endpoints';
-export {OIDCDiscoveryApiResponse} from './models/oidc-discovery';
-export {Storage, TemporaryStore} from './models/store';
-export {User, UserProfile} from './models/user';
-export {SessionData} from './models/session';
-export {Organization} from './models/organization';
-export {TranslationFn} from './models/v2/translation';
-export {ResolveFlowTemplateLiteralsOptions} from './models/v2/vars';
-export {
+export type {OIDCEndpoints} from './models/oidc-endpoints';
+export type {OIDCDiscoveryApiResponse} from './models/oidc-discovery';
+export type {Storage, TemporaryStore} from './models/store';
+export type {User, UserProfile} from './models/user';
+export type {SessionData} from './models/session';
+export type {Organization} from './models/organization';
+export type {TranslationFn} from './models/v2/translation';
+export type {ResolveFlowTemplateLiteralsOptions} from './models/v2/vars';
+export type {
   BrandingPreference,
   BrandingPreferenceConfig,
   BrandingLayout,
@@ -203,14 +205,14 @@ export {
   BrandingOrganizationDetails,
   UrlsConfig,
 } from './models/branding-preference';
-export {Schema, SchemaAttribute, WellKnownSchemaIds, FlattenedSchema} from './models/scim2-schema';
-export {RecursivePartial} from './models/utility-types';
+export type {Schema, SchemaAttribute, WellKnownSchemaIds, FlattenedSchema} from './models/scim2-schema';
+export type {RecursivePartial} from './models/utility-types';
 export {FieldType} from './models/field';
 
 export {default as AsgardeoJavaScriptClient} from './AsgardeoJavaScriptClient';
 
 export {default as createTheme, DEFAULT_THEME} from './theme/createTheme';
-export {ThemeColors, ThemeConfig, Theme, ThemeMode, ThemeDetection} from './theme/types';
+export type {ThemeColors, ThemeConfig, Theme, ThemeMode, ThemeDetection} from './theme/types';
 
 export {default as arrayBufferToBase64url} from './utils/arrayBufferToBase64url';
 export {default as base64urlToArrayBuffer} from './utils/base64urlToArrayBuffer';
@@ -245,7 +247,7 @@ export {default as processOpenIDScopes} from './utils/processOpenIDScopes';
 export {default as withVendorCSSClassPrefix} from './utils/withVendorCSSClassPrefix';
 export {default as transformBrandingPreferenceToTheme} from './utils/transformBrandingPreferenceToTheme';
 
-export {
+export type {
   default as logger,
   createLogger,
   createComponentLogger,
@@ -263,4 +265,4 @@ export type {LoggerConfig} from './utils/logger';
 export {default as StorageManager} from './StorageManager';
 
 export {HttpClient} from './HttpClient';
-export {HttpError, HttpRequestConfig, HttpResponse} from './models/http';
+export type {HttpError, HttpRequestConfig, HttpResponse} from './models/http';
