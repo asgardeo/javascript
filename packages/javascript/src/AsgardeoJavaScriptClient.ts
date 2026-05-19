@@ -341,7 +341,7 @@ class AsgardeoJavaScriptClient<T = Config> implements AsgardeoClient<T> {
    * (`emailDomain`).
    *
    * @param orgDiscoveryType - The organization discovery strategy to use.
-   * @param discoveryValue   - The identifier whose meaning depends on
+   * @param discoveryInput   - The identifier whose meaning depends on
    *                            `orgDiscoveryType` (UUID, handle, name or email).
    * @param options          - Optional state, resource, agent delegation and
    *                            additional query parameters.
@@ -349,13 +349,13 @@ class AsgardeoJavaScriptClient<T = Config> implements AsgardeoClient<T> {
    */
   public async getOrgAuthorizationUrl(
     orgDiscoveryType: OrgDiscoveryType,
-    discoveryValue: string,
+    discoveryInput: string,
     options: OrgAuthorizationUrlOptions = {},
   ): Promise<string> {
     await this.ensureInitialized();
     const customParam: Record<string, string> = AsgardeoJavaScriptClient.buildOrgAuthorizationParams(
       orgDiscoveryType,
-      discoveryValue,
+      discoveryInput,
       options,
     );
 
@@ -409,6 +409,9 @@ class AsgardeoJavaScriptClient<T = Config> implements AsgardeoClient<T> {
 
     const body: URLSearchParams = new URLSearchParams();
     const {clientId, clientSecret} = configData as unknown as {clientId: string; clientSecret?: string};
+    if (!clientId || clientId.trim().length === 0) {
+      throw new Error('clientId is required in the client configuration for organization switch.');
+    }
     const hasSecret: boolean = Boolean(clientSecret && clientSecret.trim().length > 0);
 
     body.set('grant_type', 'organization_switch');
@@ -523,13 +526,13 @@ class AsgardeoJavaScriptClient<T = Config> implements AsgardeoClient<T> {
    */
   private static buildOrgAuthorizationParams(
     orgDiscoveryType: OrgDiscoveryType,
-    discoveryValue: string,
+    discoveryInput: string,
     options: OrgAuthorizationUrlOptions,
   ): Record<string, string> {
-    const trimmedValue: string = (discoveryValue ?? '').trim();
+    const trimmedValue: string = (discoveryInput ?? '').trim();
 
     if (!trimmedValue) {
-      throw new Error('discoveryValue is required.');
+      throw new Error('discoveryInput is required.');
     }
 
     const customParam: Record<string, string> = {};
@@ -565,6 +568,9 @@ class AsgardeoJavaScriptClient<T = Config> implements AsgardeoClient<T> {
     }
 
     if (options.agentConfig) {
+      if (!options.agentConfig.agentID || options.agentConfig.agentID.trim().length === 0) {
+        throw new Error('agentConfig.agentID is required when agentConfig is provided.');
+      }
       customParam['requested_actor'] = options.agentConfig.agentID;
     }
 

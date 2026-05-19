@@ -32,28 +32,29 @@ export {default as initializeEmbeddedSignInFlow} from './api/initializeEmbeddedS
 export {default as executeEmbeddedSignInFlow} from './api/executeEmbeddedSignInFlow';
 export {default as executeEmbeddedSignUpFlow} from './api/executeEmbeddedSignUpFlow';
 export {default as getUserInfo} from './api/getUserInfo';
-export type {default as getScim2Me, GetScim2MeConfig} from './api/getScim2Me';
-export type {default as getSchemas, GetSchemasConfig} from './api/getSchemas';
-export type {default as getAllOrganizations, GetAllOrganizationsConfig} from './api/getAllOrganizations';
-export type {
-  default as createOrganization,
-  CreateOrganizationPayload,
-  CreateOrganizationConfig,
-} from './api/createOrganization';
-export type {default as getMeOrganizations, GetMeOrganizationsConfig} from './api/getMeOrganizations';
-export type {default as getOrganization, OrganizationDetails, GetOrganizationConfig} from './api/getOrganization';
+export {default as getScim2Me} from './api/getScim2Me';
+export type {GetScim2MeConfig} from './api/getScim2Me';
+export {default as getSchemas} from './api/getSchemas';
+export type {GetSchemasConfig} from './api/getSchemas';
+export {default as getAllOrganizations} from './api/getAllOrganizations';
+export type {GetAllOrganizationsConfig} from './api/getAllOrganizations';
+export {default as createOrganization} from './api/createOrganization';
+export type {CreateOrganizationPayload, CreateOrganizationConfig} from './api/createOrganization';
+export {default as getMeOrganizations} from './api/getMeOrganizations';
+export type {GetMeOrganizationsConfig} from './api/getMeOrganizations';
+export {default as getOrganization} from './api/getOrganization';
+export type {OrganizationDetails, GetOrganizationConfig} from './api/getOrganization';
 export {default as updateOrganization, createPatchOperations} from './api/updateOrganization';
 export type {UpdateOrganizationConfig} from './api/updateOrganization';
 export {default as updateMeProfile} from './api/updateMeProfile';
 export type {UpdateMeProfileConfig} from './api/updateMeProfile';
-export type {default as getBrandingPreference, GetBrandingPreferenceConfig} from './api/getBrandingPreference';
+export {default as getBrandingPreference} from './api/getBrandingPreference';
+export type {GetBrandingPreferenceConfig} from './api/getBrandingPreference';
 export {default as executeEmbeddedSignInFlowV2} from './api/v2/executeEmbeddedSignInFlowV2';
 export {default as executeEmbeddedSignUpFlowV2} from './api/v2/executeEmbeddedSignUpFlowV2';
 export {default as executeEmbeddedRecoveryFlowV2} from './api/v2/executeEmbeddedRecoveryFlowV2';
-export type {
-  default as executeEmbeddedUserOnboardingFlowV2,
-  EmbeddedUserOnboardingFlowResponse,
-} from './api/v2/executeEmbeddedUserOnboardingFlowV2';
+export {default as executeEmbeddedUserOnboardingFlowV2} from './api/v2/executeEmbeddedUserOnboardingFlowV2';
+export type {EmbeddedUserOnboardingFlowResponse} from './api/v2/executeEmbeddedUserOnboardingFlowV2';
 export {default as getFlowMetaV2} from './api/v2/getFlowMetaV2';
 export {default as getOrganizationUnitChildren} from './api/v2/getOrganizationUnitChildren';
 
@@ -69,24 +70,30 @@ export {AsgardeoAuthException} from './errors/exception';
 
 export type {AllOrganizationsApiResponse} from './models/organization';
 export {Platform} from './models/platforms';
-export type {
-  EmbeddedSignInFlowInitiateResponse,
+export {
   EmbeddedSignInFlowStatus,
   EmbeddedSignInFlowType,
   EmbeddedSignInFlowStepType,
-  EmbeddedSignInFlowAuthenticator,
-  EmbeddedSignInFlowLink,
-  EmbeddedSignInFlowHandleRequestPayload,
-  EmbeddedSignInFlowHandleResponse,
   EmbeddedSignInFlowAuthenticatorParamType,
   EmbeddedSignInFlowAuthenticatorPromptType,
   EmbeddedSignInFlowAuthenticatorKnownIdPType,
 } from './models/embedded-signin-flow';
 export type {
+  EmbeddedSignInFlowInitiateResponse,
+  EmbeddedSignInFlowAuthenticator,
+  EmbeddedSignInFlowLink,
+  EmbeddedSignInFlowHandleRequestPayload,
+  EmbeddedSignInFlowHandleResponse,
+} from './models/embedded-signin-flow';
+export {
   EmbeddedFlowComponentType as EmbeddedFlowComponentTypeV2,
+  EmbeddedFlowEventType as EmbeddedFlowEventTypeV2,
+} from './models/v2/embedded-flow-v2';
+export {
   EmbeddedFlowActionVariant as EmbeddedFlowActionVariantV2,
   EmbeddedFlowTextVariant as EmbeddedFlowTextVariantV2,
-  EmbeddedFlowEventType as EmbeddedFlowEventTypeV2,
+} from './models/v2/embedded-flow-v2';
+export type {
   EmbeddedFlowComponent as EmbeddedFlowComponentV2,
   EmbeddedFlowResponseData as EmbeddedFlowResponseDataV2,
   EmbeddedFlowExecuteRequestConfig as EmbeddedFlowExecuteRequestConfigV2,
@@ -96,18 +103,22 @@ export type {
   ConsentPurposeData as ConsentPurposeDataV2,
   ConsentPromptData as ConsentPromptDataV2,
 } from './models/v2/embedded-flow-v2';
-export type {
+export {
   EmbeddedSignInFlowStatus as EmbeddedSignInFlowStatusV2,
   EmbeddedSignInFlowType as EmbeddedSignInFlowTypeV2,
+} from './models/v2/embedded-signin-flow-v2';
+export type {
   ExtendedEmbeddedSignInFlowResponse as ExtendedEmbeddedSignInFlowResponseV2,
   EmbeddedSignInFlowResponse as EmbeddedSignInFlowResponseV2,
   EmbeddedSignInFlowCompleteResponse as EmbeddedSignInFlowCompleteResponseV2,
   EmbeddedSignInFlowInitiateRequest as EmbeddedSignInFlowInitiateRequestV2,
   EmbeddedSignInFlowRequest as EmbeddedSignInFlowRequestV2,
 } from './models/v2/embedded-signin-flow-v2';
-export type {
+export {
   EmbeddedSignUpFlowStatus as EmbeddedSignUpFlowStatusV2,
   EmbeddedSignUpFlowType as EmbeddedSignUpFlowTypeV2,
+} from './models/v2/embedded-signup-flow-v2';
+export type {
   ExtendedEmbeddedSignUpFlowResponse as ExtendedEmbeddedSignUpFlowResponseV2,
   EmbeddedSignUpFlowResponse as EmbeddedSignUpFlowResponseV2,
   EmbeddedSignUpFlowCompleteResponse as EmbeddedSignUpFlowCompleteResponseV2,
@@ -115,9 +126,11 @@ export type {
   EmbeddedSignUpFlowRequest as EmbeddedSignUpFlowRequestV2,
   EmbeddedSignUpFlowErrorResponse as EmbeddedSignUpFlowErrorResponseV2,
 } from './models/v2/embedded-signup-flow-v2';
-export type {
+export {
   EmbeddedRecoveryFlowStatus as EmbeddedRecoveryFlowStatusV2,
   EmbeddedRecoveryFlowType as EmbeddedRecoveryFlowTypeV2,
+} from './models/v2/embedded-recovery-flow-v2';
+export type {
   EmbeddedRecoveryFlowResponse as EmbeddedRecoveryFlowResponseV2,
   EmbeddedRecoveryFlowInitiateRequest as EmbeddedRecoveryFlowInitiateRequestV2,
   EmbeddedRecoveryFlowRequest as EmbeddedRecoveryFlowRequestV2,
@@ -128,8 +141,8 @@ export type {
   OrganizationUnitListResponse,
   GetOrganizationUnitChildrenConfig,
 } from './models/v2/organization-unit';
+export {FlowMetaType} from './models/v2/flow-meta-v2';
 export type {
-  FlowMetaType,
   ApplicationMetadata,
   OUMetadata,
   DesignMetadata,
@@ -145,14 +158,16 @@ export type {
   FlowMetaThemeShape,
   FlowMetaThemeTypography,
 } from './models/v2/flow-meta-v2';
-export type {
+export {
+  EmbeddedFlowComponentType,
   EmbeddedFlowType,
   EmbeddedFlowStatus,
-  EmbeddedFlowExecuteResponse,
   EmbeddedFlowResponseType,
+} from './models/embedded-flow';
+export type {
+  EmbeddedFlowExecuteResponse,
   EmbeddedSignUpFlowData,
   EmbeddedFlowComponent,
-  EmbeddedFlowComponentType,
   EmbeddedFlowExecuteRequestPayload,
   EmbeddedFlowExecuteRequestConfig,
   EmbeddedFlowExecuteErrorResponse,
@@ -205,7 +220,8 @@ export type {
   BrandingOrganizationDetails,
   UrlsConfig,
 } from './models/branding-preference';
-export type {Schema, SchemaAttribute, WellKnownSchemaIds, FlattenedSchema} from './models/scim2-schema';
+export {WellKnownSchemaIds} from './models/scim2-schema';
+export type {Schema, SchemaAttribute, FlattenedSchema} from './models/scim2-schema';
 export type {RecursivePartial} from './models/utility-types';
 export {FieldType} from './models/field';
 
@@ -247,20 +263,19 @@ export {default as processOpenIDScopes} from './utils/processOpenIDScopes';
 export {default as withVendorCSSClassPrefix} from './utils/withVendorCSSClassPrefix';
 export {default as transformBrandingPreferenceToTheme} from './utils/transformBrandingPreferenceToTheme';
 
-export type {
+export {
   default as logger,
   createLogger,
   createComponentLogger,
   createPackageLogger,
   createPackageComponentLogger,
-  LogLevel,
   configure as configureLogger,
   debug,
   info,
   warn,
   error,
 } from './utils/logger';
-export type {LoggerConfig} from './utils/logger';
+export type {LogLevel, LoggerConfig} from './utils/logger';
 
 export {default as StorageManager} from './StorageManager';
 
