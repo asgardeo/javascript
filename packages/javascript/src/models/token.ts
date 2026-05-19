@@ -33,7 +33,7 @@ export interface TokenResponse {
   accessToken: string;
 
   /**
-   * Unix timestamp (in seconds) when the token was created.
+   * Unix timestamp (in milliseconds) when the token was created.
    * Used in combination with expiresIn to determine when
    * the token needs to be refreshed.
    */

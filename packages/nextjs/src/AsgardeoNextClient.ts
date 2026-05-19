@@ -97,7 +97,7 @@ class AsgardeoNextClient<T extends AsgardeoNextConfig = AsgardeoNextConfig> exte
    * Ensures the client is initialized before using it.
    * Throws an error if the client is not initialized.
    */
-  private async ensureInitialized(): Promise<void> {
+  protected override async ensureInitialized(): Promise<void> {
     if (!this.isInitialized) {
       throw new Error(
         '[AsgardeoNextClient] Client is not initialized. Make sure you have wrapped your app with AsgardeoProvider and provided the required configuration (baseUrl, clientId, etc.).',

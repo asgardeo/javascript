@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2025, WSO2 LLC. (https://www.wso2.com).
+ * Copyright (c) 2025-2026, WSO2 LLC. (https://www.wso2.com).
  *
  * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -33,3 +33,14 @@ export interface AllOrganizationsApiResponse {
   organizations: Organization[];
   totalCount?: number;
 }
+
+/**
+ * Supported organization discovery types used when building an
+ * organization-scoped authorization URL.
+ *
+ * - `orgID`       : organization UUID
+ * - `orgHandle`   : organization handle
+ * - `org`         : organization name
+ * - `emailDomain` : user email address
+ */
+export type OrgDiscoveryType = 'orgID' | 'orgHandle' | 'org' | 'emailDomain';

@@ -21,13 +21,13 @@
  */
 export interface AgentConfig {
   /**
-   * The unique identifier for the agent
+   * The unique identifier for the agent.
    */
   agentID: string;
   /**
-   * The secret credential for the agent
+   * The secret credential for the agent.
    */
-  agentSecret: string;
+  agentSecret?: string;
   /**
    * The authenticator name to match during the embedded sign-in flow.
    * Defaults to {@link AgentConfig.DEFAULT_AUTHENTICATOR_NAME} if not provided.
