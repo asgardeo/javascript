@@ -18,16 +18,22 @@
 
 'use server';
 
-import {EmbeddedFlowExecuteRequestPayload, EmbeddedFlowExecuteResponse, EmbeddedFlowStatus} from '@asgardeo/node';
+import {
+  Config,
+  EmbeddedFlowExecuteRequestPayload,
+  EmbeddedFlowExecuteResponse,
+  EmbeddedFlowStatus,
+  getRedirectBasedSignUpUrl,
+  isEmpty,
+} from '@asgardeo/node';
 import AsgardeoNextClient from '../../AsgardeoNextClient';
 
 /**
- * Server action for signing in a user.
- * Handles the embedded sign-in flow and manages session cookies.
+ * Server action for signing up a user.
+ * Handles the embedded sign-up flow.
  *
- * @param payload - The embedded sign-in flow payload
- * @param request - The embedded flow execute request config
- * @returns Promise that resolves when sign-in is complete
+ * @param payload - The embedded sign-up flow payload
+ * @returns Promise that resolves when sign-up is complete
  */
 const signUpAction = async (
   payload?: EmbeddedFlowExecuteRequestPayload,
@@ -44,12 +50,14 @@ const signUpAction = async (
   try {
     const client: AsgardeoNextClient = AsgardeoNextClient.getInstance();
 
-    // If no payload provided, redirect to sign-in URL for redirect-based sign-in.
-    // If there's a payload, handle the embedded sign-in flow.
-    if (!payload) {
-      const defaultSignUpUrl: string = '';
+    // If no payload provided, redirect to sign-up URL for redirect-based sign-up.
+    // If there's a payload, handle the embedded sign-up flow.
+    if (!payload || isEmpty(payload)) {
+      const storageManager: any = await client.getStorageManager();
+      const config: Config = (await storageManager.getConfigData()) as Config;
+      const signUpUrl: string = config.signUpUrl || getRedirectBasedSignUpUrl(config);
 
-      return {data: {signUpUrl: String(defaultSignUpUrl)}, success: true};
+      return {data: {signUpUrl}, success: true};
     }
     const response: any = await client.signUp(payload);
 
