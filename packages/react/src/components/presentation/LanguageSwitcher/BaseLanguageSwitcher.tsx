@@ -177,7 +177,7 @@ const BaseLanguageSwitcher: FC<BaseLanguageSwitcherProps> = ({
                   role="option"
                   aria-selected={lang.code === currentLanguage}
                   className={cx(styles['option'], lang.code === currentLanguage && styles['optionActive'])}
-                  onClick={() => {
+                  onClick={(): void => {
                     onLanguageChange(lang.code);
                     setIsOpen(false);
                   }}

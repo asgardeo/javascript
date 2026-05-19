@@ -39,8 +39,8 @@ This guide walks you through setting up the development environment and other im
 To build and write code, make sure you have the following set of tools on your local environment:
 
 - [Git](https://git-scm.com/downloads) - Open source distributed version control system. For install instructions, refer [this](https://www.atlassian.com/git/tutorials/install-git).
-- [Node.js](https://nodejs.org/en/download/) - JavaScript runtime. (`v18 or higher`)
-- [pnpm](https://pnpm.io/) - Alternate npm client for faster package installs. (`v9 or higher`)
+- [Node.js](https://nodejs.org/en/download/) - JavaScript runtime. (`v20.12 or higher` — Node 20 LTS or 22 LTS recommended; see [`.nvmrc`](./.nvmrc))
+- [pnpm](https://pnpm.io/) - Alternate npm client for faster package installs. (`v10 or higher`)
 
 ## Development Tools
 

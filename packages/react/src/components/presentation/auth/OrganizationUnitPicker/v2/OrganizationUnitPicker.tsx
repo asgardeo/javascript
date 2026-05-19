@@ -173,8 +173,8 @@ const OrganizationUnitPicker = ({
           role="treeitem"
           aria-selected={isSelected}
           aria-expanded={hasChildren ? isExpanded : undefined}
-          onClick={() => onSelect(ou.id)}
-          onKeyDown={(e: React.KeyboardEvent) => {
+          onClick={(): void => onSelect(ou.id)}
+          onKeyDown={(e: React.KeyboardEvent): void => {
             if (e.key === 'Enter' || e.key === ' ') {
               e.preventDefault();
               onSelect(ou.id);
@@ -185,7 +185,7 @@ const OrganizationUnitPicker = ({
           {hasChildren ? (
             <button
               className={styles['toggleButton']}
-              onClick={(e: React.MouseEvent) => {
+              onClick={(e: React.MouseEvent): void => {
                 e.stopPropagation();
                 handleToggle(ou.id);
               }}
@@ -208,7 +208,7 @@ const OrganizationUnitPicker = ({
           <button
             className={styles['loadMoreButton']}
             style={{paddingLeft: `${(depth + 1) * 20 + 12}px`}}
-            onClick={() => handleLoadMore(ou.id)}
+            onClick={(): void => handleLoadMore(ou.id)}
             disabled={isLoading}
             type="button"
           >
@@ -231,7 +231,7 @@ const OrganizationUnitPicker = ({
       {rootState?.hasMore && (
         <button
           className={styles['loadMoreButton']}
-          onClick={() => handleLoadMore(rootOuId)}
+          onClick={(): void => handleLoadMore(rootOuId)}
           disabled={rootState?.loading}
           type="button"
         >

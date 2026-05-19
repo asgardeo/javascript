@@ -10,7 +10,7 @@
     },
     "dependencies": {
         "@asgardeo/nuxt": "workspace:*",
-        "nuxt": "^3.9.0",
+        "nuxt": "3.16.2",
         "vue": "^3.4.0"
     },
     "devDependencies": {

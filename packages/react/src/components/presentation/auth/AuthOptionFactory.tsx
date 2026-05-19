@@ -482,7 +482,7 @@ const createAuthComponentFromFlow = (
           key={key}
           rootOuId={rootOuId}
           selectedOuId={formValues[identifier] || null}
-          onSelect={(ouId: string) => onInputChange(identifier, ouId)}
+          onSelect={(ouId: string): void => onInputChange(identifier, ouId)}
           fetchChildren={options.fetchOrganizationUnitChildren}
         />
       );
