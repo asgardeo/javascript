@@ -162,7 +162,7 @@ export const OrganizationSwitcher: FC<OrganizationSwitcherProps> = ({
         mode="popup"
         open={isCreateOrgOpen}
         onOpenChange={setIsCreateOrgOpen}
-        onSuccess={(org: Organization) => {
+        onSuccess={(org: Organization): void => {
           if (org && onOrganizationSwitch) {
             onOrganizationSwitch(org);
           }
@@ -185,7 +185,7 @@ export const OrganizationSwitcher: FC<OrganizationSwitcherProps> = ({
         open={isOrganizationListOpen}
         onOpenChange={setIsOrganizationListOpen}
         title={t('organization.switcher.manage.organizations')}
-        onOrganizationSelect={(organization: Organization) => {
+        onOrganizationSelect={(organization: Organization): void => {
           if (onOrganizationSwitch) {
             onOrganizationSwitch(organization);
           }

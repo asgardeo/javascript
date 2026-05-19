@@ -69,8 +69,8 @@ const CopyableText: FC<CopyableTextProps> = ({label, value}: CopyableTextProps):
           variant="outline"
           size="small"
           className={styles['copyButton']}
-          onClick={() => {
-            handleCopy().catch(() => undefined);
+          onClick={(): void => {
+            handleCopy().catch((): undefined => undefined);
           }}
         >
           {copied ? t('elements.display.copyable_text.copied') : t('elements.display.copyable_text.copy')}
