@@ -68,7 +68,7 @@
     "esbuild": "0.25.9",
     "esbuild-plugin-preserve-directives": "0.0.11",
     "eslint": "8.57.0",
-    "next": "15.5.12",
+    "next": "15.5.18",
     "prettier": "2.6.2",
     "react": "catalog:",
     "rimraf": "6.1.0",
