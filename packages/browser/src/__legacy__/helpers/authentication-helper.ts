@@ -706,6 +706,28 @@ export class AuthenticationHelper<T extends MainThreadClientConfig | WebWorkerCl
   }
 
   public async isSignedIn(): Promise<boolean> {
-    return this._authenticationClient.isSignedIn();
+    if (await this._authenticationClient.isSignedIn()) {
+      return true;
+    }
+
+    // A refresh is already in progress — wait for it to finish then re-check.
+    if (this._isTokenRefreshing) {
+      await SPAUtils.until(() => !this._isTokenRefreshing);
+
+      return this._authenticationClient.isSignedIn();
+    }
+
+    // Token may be expired — attempt a silent refresh before giving up.
+    try {
+      this._isTokenRefreshing = true;
+      await this.refreshAccessToken();
+      this._isTokenRefreshing = false;
+
+      return true;
+    } catch {
+      this._isTokenRefreshing = false;
+
+      return false;
+    }
   }
 }
