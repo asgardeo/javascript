@@ -65,6 +65,7 @@ export class AuthenticationHelper<T extends MainThreadClientConfig | WebWorkerCl
   protected _spaHelper: SPAHelper<T>;
   protected _instanceId: number;
   protected _isTokenRefreshing: boolean;
+  protected _refreshAccessTokenPromise?: Promise<User>;
 
   public constructor(authClient: AsgardeoAuthClient<T>, spaHelper: SPAHelper<T>) {
     this._authenticationClient = authClient;
@@ -72,6 +73,7 @@ export class AuthenticationHelper<T extends MainThreadClientConfig | WebWorkerCl
     this._spaHelper = spaHelper;
     this._instanceId = this._authenticationClient.getInstanceId();
     this._isTokenRefreshing = false;
+    this._refreshAccessTokenPromise = undefined;
   }
 
   public enableHttpHandler(httpClient: HttpClient): void {
@@ -174,23 +176,33 @@ export class AuthenticationHelper<T extends MainThreadClientConfig | WebWorkerCl
   public async refreshAccessToken(
     enableRetrievingSignOutURLFromSession?: (config: SPACustomGrantConfig) => void,
   ): Promise<User> {
-    try {
-      await this._authenticationClient.refreshAccessToken();
-      const customGrantConfig = await this.getCustomGrantConfigData();
-      if (customGrantConfig) {
-        await this.exchangeToken(customGrantConfig, enableRetrievingSignOutURLFromSession);
-      }
-      this._spaHelper.refreshAccessTokenAutomatically(this);
-
-      return this._authenticationClient.getUser();
-    } catch (error) {
-      const refreshTokenError: Message<string> = {
-        type: REFRESH_ACCESS_TOKEN_ERR0R,
-      };
-
-      window.postMessage(refreshTokenError);
-      return Promise.reject(error);
+    if (this._refreshAccessTokenPromise) {
+      return this._refreshAccessTokenPromise;
     }
+
+    this._refreshAccessTokenPromise = (async (): Promise<User> => {
+      try {
+        await this._authenticationClient.refreshAccessToken();
+        const customGrantConfig = await this.getCustomGrantConfigData();
+        if (customGrantConfig) {
+          await this.exchangeToken(customGrantConfig, enableRetrievingSignOutURLFromSession);
+        }
+        this._spaHelper.refreshAccessTokenAutomatically(this);
+
+        return this._authenticationClient.getUser();
+      } catch (error) {
+        const refreshTokenError: Message<string> = {
+          type: REFRESH_ACCESS_TOKEN_ERR0R,
+        };
+
+        window.postMessage(refreshTokenError);
+        throw error;
+      } finally {
+        this._refreshAccessTokenPromise = undefined;
+      }
+    })();
+
+    return this._refreshAccessTokenPromise;
   }
 
   protected async retryFailedRequests(failedRequest: HttpRequestInterface): Promise<HttpResponse> {
@@ -385,9 +397,9 @@ export class AuthenticationHelper<T extends MainThreadClientConfig | WebWorkerCl
           })
           .catch(async (error: HttpError) => {
             if (error?.response?.status === 401 || !error?.response) {
-              let refreshTokenResponse: TokenResponse | User;
+              let refreshTokenResponse: User;
               try {
-                refreshTokenResponse = await this._authenticationClient.refreshAccessToken();
+                refreshTokenResponse = await this.refreshAccessToken();
               } catch (refreshError: any) {
                 if (isHttpHandlerEnabled) {
                   if (typeof httpErrorCallback === 'function') {
