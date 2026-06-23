@@ -52,6 +52,15 @@ describe('getDisplayName', () => {
     const result = getDisplayName(mergedMappings, user, ['firstName']);
     expect(result).toBe('John');
   });
+  it('returns name when firstName, lastName, username, and email are missing', () => {
+    mockGet.mockReturnValueOnce(undefined); // firstName
+    mockGet.mockReturnValueOnce(undefined); // lastName
+    mockGet.mockReturnValueOnce(undefined); // username
+    mockGet.mockReturnValueOnce(undefined); // email
+    mockGet.mockReturnValueOnce('Jane Fullname'); // name
+    const result = getDisplayName(mergedMappings, user);
+    expect(result).toBe('Jane Fullname');
+  });
 
   it('skips empty displayAttributes and uses firstName and lastName', () => {
     mockGet.mockReturnValueOnce('Jane');
