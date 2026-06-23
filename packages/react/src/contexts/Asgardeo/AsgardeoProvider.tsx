@@ -388,6 +388,23 @@ const AsgardeoProvider: FC<PropsWithChildren<AsgardeoProviderProps>> = ({
     };
   }, [asgardeo]);
 
+  // When the refresh token is expired or revoked, the browser SDK posts a
+  // 'refresh-access-token-error' message. Sync the React context so components
+  // stop calling auth methods and the user is redirected to sign in again.
+  useEffect(() => {
+    const handleRefreshTokenError = (event: MessageEvent): void => {
+      if (event?.data?.type === 'refresh-access-token-error') {
+        setIsSignedInSync(false);
+      }
+    };
+
+    window.addEventListener('message', handleRefreshTokenError);
+
+    return (): void => {
+      window.removeEventListener('message', handleRefreshTokenError);
+    };
+  }, []);
+
   useEffect(() => {
     (async (): Promise<void> => {
       try {

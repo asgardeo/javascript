@@ -65,6 +65,7 @@ export class AuthenticationHelper<T extends MainThreadClientConfig | WebWorkerCl
   protected _spaHelper: SPAHelper<T>;
   protected _instanceId: number;
   protected _isTokenRefreshing: boolean;
+  protected _hasRefreshFailed: boolean;
 
   public constructor(authClient: AsgardeoAuthClient<T>, spaHelper: SPAHelper<T>) {
     this._authenticationClient = authClient;
@@ -72,6 +73,11 @@ export class AuthenticationHelper<T extends MainThreadClientConfig | WebWorkerCl
     this._spaHelper = spaHelper;
     this._instanceId = this._authenticationClient.getInstanceId();
     this._isTokenRefreshing = false;
+    this._hasRefreshFailed = false;
+  }
+
+  public hasRefreshFailed(): boolean {
+    return this._hasRefreshFailed;
   }
 
   public enableHttpHandler(httpClient: HttpClient): void {
@@ -180,6 +186,7 @@ export class AuthenticationHelper<T extends MainThreadClientConfig | WebWorkerCl
       if (customGrantConfig) {
         await this.exchangeToken(customGrantConfig, enableRetrievingSignOutURLFromSession);
       }
+      this._hasRefreshFailed = false;
       this._spaHelper.refreshAccessTokenAutomatically(this);
 
       return this._authenticationClient.getUser();
@@ -481,6 +488,7 @@ export class AuthenticationHelper<T extends MainThreadClientConfig | WebWorkerCl
       return this._authenticationClient
         .requestAccessToken(authorizationCode, sessionState ?? '', state ?? '', undefined, tokenRequestConfig)
         .then(async () => {
+          this._hasRefreshFailed = false;
           // Disable this temporarily
           /* if (config.storage === Storage.BrowserMemory) {
                         SPAUtils.setSignOutURL(await _authenticationClient.getSignOutUrl());
@@ -717,6 +725,13 @@ export class AuthenticationHelper<T extends MainThreadClientConfig | WebWorkerCl
       return this._authenticationClient.isSignedIn();
     }
 
+    // Skip the refresh attempt if a previous one already failed with this session's
+    // tokens — avoids an infinite loop of refresh grant requests when the refresh
+    // token is expired or revoked (flag is cleared on fresh sign-in or successful refresh).
+    if (this._hasRefreshFailed) {
+      return false;
+    }
+
     // Token may be expired — attempt a silent refresh before giving up.
     try {
       this._isTokenRefreshing = true;
@@ -726,6 +741,7 @@ export class AuthenticationHelper<T extends MainThreadClientConfig | WebWorkerCl
       return true;
     } catch {
       this._isTokenRefreshing = false;
+      this._hasRefreshFailed = true;
 
       return false;
     }

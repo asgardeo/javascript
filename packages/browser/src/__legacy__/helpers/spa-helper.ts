@@ -54,6 +54,7 @@ export class SPAHelper<T extends MainThreadClientConfig | WebWorkerClientConfig>
 
       if (timeUntilRefresh <= 0) {
         if (this._isTokenRefreshLoading) return;
+        if (authenticationHelper.hasRefreshFailed()) return;
 
         this._isTokenRefreshLoading = true;
         try {
