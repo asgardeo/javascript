@@ -67,12 +67,6 @@ export default defineNitroPlugin((nitro: {hooks: {hook: Function}}) => {
         });
       }
 
-      // eslint-disable-next-line no-console
-      console.log('[ASGARDEO CONFIG]', {
-        ...resolvedConfig,
-        clientSecret: resolvedConfig.clientSecret ? '[REDACTED]' : resolvedConfig.clientSecret,
-      });
-
       try {
         await client.initialize(resolvedConfig);
       } catch (err) {
