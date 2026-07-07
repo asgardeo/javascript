@@ -16,26 +16,16 @@
  * under the License.
  */
 
-import {getRequestURL, type H3Event} from 'h3';
+import {createError, type H3Event} from 'h3';
 import {defineNitroPlugin} from 'nitropack/runtime';
 import type {AsgardeoAuthState, AsgardeoNuxtConfig, AsgardeoSSRData} from '../../types';
 import {createLogger} from '../../utils/log';
 import AsgardeoNuxtClient from '../AsgardeoNuxtClient';
+import {resolveAsgardeoServerConfig} from '../utils/config';
 import {verifyAndRehydrateSession} from '../utils/serverSession';
 import {useRuntimeConfig} from '#imports';
 
 const log: ReturnType<typeof createLogger> = createLogger('asgardeo-ssr');
-
-const CALLBACK_PATH: string = '/api/auth/callback';
-
-/**
- * Build the OAuth redirect_uri from the incoming request origin.
- * Honors X-Forwarded-* headers so it works correctly behind a reverse proxy.
- */
-function resolveCallbackUrl(event: H3Event): string {
-  const url: URL = getRequestURL(event, {xForwardedHost: true, xForwardedProto: true});
-  return `${url.origin}${CALLBACK_PATH}`;
-}
 
 /**
  * Nitro server plugin — the Nuxt equivalent of `AsgardeoServerProvider` in the
@@ -63,47 +53,28 @@ export default defineNitroPlugin((nitro: {hooks: {hook: Function}}) => {
     // ── 1. Initialise singleton (once per process) ─────────────────────────
     const client: AsgardeoNuxtClient = AsgardeoNuxtClient.getInstance();
     if (!client.isInitialized) {
-      const config: ReturnType<typeof useRuntimeConfig> = useRuntimeConfig(event);
-      const publicConfig: AsgardeoNuxtConfig = config.public.asgardeo as AsgardeoNuxtConfig;
-      const privateConfig: typeof config.asgardeo = config.asgardeo;
+      const resolvedConfig: AsgardeoNuxtConfig = resolveAsgardeoServerConfig(event);
 
-      if (!publicConfig?.baseUrl || !publicConfig?.clientId) {
-        log.error(
-          'Missing required config: baseUrl and clientId. ' +
-            'Set NUXT_PUBLIC_ASGARDEO_BASE_URL and NUXT_PUBLIC_ASGARDEO_CLIENT_ID.',
-        );
-        return;
+      // Defense-in-depth: resolveAsgardeoServerConfig() throws on invalid config, so
+      // this should be unreachable today, but client.initialize() must never run with
+      // a falsy config — a regression here previously caused signIn() to run against
+      // an uninitialized legacy client, surfacing as an opaque `callback.not.match`
+      // OAuth error instead of a clear startup failure.
+      if (!resolvedConfig) {
+        throw createError({
+          statusCode: 500,
+          statusMessage: 'Asgardeo config missing. Check NUXT_PUBLIC_ASGARDEO_BASE_URL and NUXT_PUBLIC_ASGARDEO_CLIENT_ID',
+        });
       }
 
-      // Enforce session secret strictness at server runtime (not at build time).
-      // In production the cookie must be signed with a real secret; in dev we
-      // allow a warning + fallback so local development is frictionless.
-      const sessionSecret: string | undefined = process.env['ASGARDEO_SESSION_SECRET'] || privateConfig?.sessionSecret;
-      if (!sessionSecret) {
-        if (process.env['NODE_ENV'] === 'production') {
-          log.error(
-            'ASGARDEO_SESSION_SECRET is required in production. Set it to a secure ' +
-              'random string of at least 32 characters. Refusing to initialize Asgardeo client.',
-          );
-          return;
-        }
-        log.warn(
-          'ASGARDEO_SESSION_SECRET is not set. Using an insecure default for development only. ' +
-            'Set ASGARDEO_SESSION_SECRET before deploying.',
-        );
-      }
+      // eslint-disable-next-line no-console
+      console.log('[ASGARDEO CONFIG]', {
+        ...resolvedConfig,
+        clientSecret: resolvedConfig.clientSecret ? '[REDACTED]' : resolvedConfig.clientSecret,
+      });
 
       try {
-        await client.initialize({
-          afterSignInUrl: resolveCallbackUrl(event),
-          afterSignOutUrl: publicConfig.afterSignOutUrl || '/',
-          baseUrl: publicConfig.baseUrl,
-          clientId: publicConfig.clientId,
-          clientSecret: privateConfig?.clientSecret || undefined,
-          platform: publicConfig.platform,
-          scopes: publicConfig.scopes || ['openid', 'profile'],
-          tokenRequest: publicConfig.tokenRequest,
-        });
+        await client.initialize(resolvedConfig);
       } catch (err) {
         log.error('Failed to initialize Asgardeo client:', err);
         return;

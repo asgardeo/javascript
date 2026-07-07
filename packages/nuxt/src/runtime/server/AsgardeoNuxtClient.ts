@@ -260,7 +260,18 @@ class AsgardeoNuxtClient extends AsgardeoNodeClient<AsgardeoNuxtConfig> {
     }
 
     // Redirect-flow: first argument is a callback function.
-    return this.legacy.signIn(args[0], args[1], args[2], args[3], args[4], args[5]);
+    return this.legacy.signIn(
+      (url: string) => {
+        // eslint-disable-next-line no-console
+        console.log('🔥 ACTUAL AUTH URL:', url);
+        return args[0](url);
+      },
+      args[1],
+      args[2],
+      args[3],
+      args[4],
+      args[5],
+    );
   }
 
   /**
