@@ -92,6 +92,7 @@ const useStyles = (theme: Theme, colorScheme: string): Record<string, string> =>
         color: ${theme.vars.colors.text.secondary};
         margin: 0;
         font-family: monospace;
+        text-align: left;
       `,
       header: css`
         display: flex;
@@ -99,6 +100,11 @@ const useStyles = (theme: Theme, colorScheme: string): Record<string, string> =>
         gap: calc(${theme.vars.spacing.unit} * 2);
         margin-bottom: calc(${theme.vars.spacing.unit} * 3);
         padding-bottom: calc(${theme.vars.spacing.unit} * 2);
+      `,
+      headerContainer: css`
+        margin-bottom: calc(${theme.vars.spacing.unit} * 3);
+        padding-bottom: calc(${theme.vars.spacing.unit} * 2);
+        border-bottom: 1px solid ${theme.vars.colors.border};
       `,
       infoContainer: css`
         display: flex;
@@ -109,18 +115,26 @@ const useStyles = (theme: Theme, colorScheme: string): Record<string, string> =>
         font-size: 0.875rem;
         font-weight: 500;
         color: ${theme.vars.colors.text.secondary};
-        width: 120px;
+        width: 200px;
+        min-width: 200px;
         flex-shrink: 0;
         line-height: 28px;
+        text-align: left;
+        white-space: nowrap;
       `,
       name: css`
         font-size: 1.5rem;
         font-weight: 600;
         margin: 0 0 8px 0;
         color: ${theme.vars.colors.text.primary};
+        text-align: left;
       `,
       orgInfo: css`
         flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        text-align: left;
       `,
       permissionBadge: css`
         padding: calc(${theme.vars.spacing.unit} / 4) ${theme.vars.spacing.unit};
@@ -159,6 +173,17 @@ const useStyles = (theme: Theme, colorScheme: string): Record<string, string> =>
         color: white;
         text-transform: uppercase;
         letter-spacing: 0.5px;
+      `,
+      subtitle: css`
+        font-size: 0.875rem;
+        color: ${theme.vars.colors.text.secondary};
+        margin: 0;
+      `,
+      title: css`
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: ${theme.vars.colors.text.primary};
+        margin: 0 0 calc(${theme.vars.spacing.unit} * 0.5) 0;
       `,
       value: css`
         color: ${theme.vars.colors.text.primary};

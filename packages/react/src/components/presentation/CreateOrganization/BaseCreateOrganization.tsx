@@ -28,6 +28,7 @@ import DialogPrimitive from '../../primitives/Dialog/Dialog';
 import FormControl from '../../primitives/FormControl/FormControl';
 import InputLabel from '../../primitives/InputLabel/InputLabel';
 import TextField from '../../primitives/TextField/TextField';
+import Typography from '../../primitives/Typography/Typography';
 
 const logger: ReturnType<typeof createPackageComponentLogger> = createPackageComponentLogger(
   '@asgardeo/react',
@@ -194,9 +195,24 @@ export const BaseCreateOrganization: FC<BaseCreateOrganizationProps> = ({
     }
   };
 
+  const getTranslation = (key: string, fallback: string): string => {
+    const text: string = t(key);
+    return text && text !== key ? text : fallback;
+  };
+
   const createOrganizationContent: ReactElement = (
     <div className={cx(styles['root'], cardLayout && styles['card'], className)} style={style}>
       <div className={cx(styles['content'])}>
+        {mode !== 'popup' && (
+          <div className={cx(styles['headerContainer'])}>
+            <Typography variant="h5" component="h1" className={cx(styles['title'])}>
+              {getTranslation('organization.create.heading', title || 'Create organization')}
+            </Typography>
+            <Typography variant="body2" color="textSecondary" className={cx(styles['subtitle'])}>
+              {getTranslation('organization.create.subheading', 'Set up a new organization workspace.')}
+            </Typography>
+          </div>
+        )}
         <form id="create-organization-form" className={cx(styles['form'])} onSubmit={handleSubmit}>
           {error && (
             <AlertPrimitive variant="error" className={styles['errorAlert']}>
@@ -204,46 +220,65 @@ export const BaseCreateOrganization: FC<BaseCreateOrganizationProps> = ({
               <AlertPrimitive.Description>{error}</AlertPrimitive.Description>
             </AlertPrimitive>
           )}
-          <div className={cx(styles['fieldGroup'])}>
-            <TextField
-              label={`${t('elements.fields.organization.name.label')}`}
-              placeholder={t('elements.fields.organization.name.placeholder')}
-              value={formData.name}
-              onChange={(e: ChangeEvent<HTMLInputElement>): void => handleNameChange(e.target.value)}
-              disabled={loading}
-              required
-              error={formErrors.name}
-              className={cx(styles['input'])}
-            />
-          </div>
-          <div className={cx(styles['fieldGroup'])}>
-            <TextField
-              label={`${t('elements.fields.organization.handle.label') || 'Organization Handle'}`}
-              placeholder={t('elements.fields.organization.handle.placeholder') || 'my-organization'}
-              value={formData.handle}
-              onChange={(e: ChangeEvent<HTMLInputElement>): void => handleInputChange('handle', e.target.value)}
-              disabled={loading}
-              required
-              error={formErrors.handle}
-              helperText="This will be your organization's unique identifier. Only lowercase letters, numbers, and hyphens are allowed."
-              className={cx(styles['input'])}
-            />
-          </div>
-          <div className={cx(styles['fieldGroup'])}>
-            <FormControl error={formErrors.description}>
-              <InputLabel required>{t('elements.fields.organization.description.label')}</InputLabel>
-              <textarea
-                className={cx(styles['textarea'], formErrors.description && styles['textareaError'])}
-                placeholder={t('organization.create.description.placeholder')}
-                value={formData.description}
-                onChange={(e: ChangeEvent<HTMLTextAreaElement>): void =>
-                  handleInputChange('description', e.target.value)
-                }
+
+          <div className={cx(styles['field'])}>
+            <InputLabel required className={cx(styles['label'])}>
+              {getTranslation('elements.fields.organization.name.label', 'Organization Name')}
+            </InputLabel>
+            <div className={cx(styles['fieldGroup'])}>
+              <TextField
+                placeholder={getTranslation('elements.fields.organization.name.placeholder', 'Organization Name')}
+                value={formData.name}
+                onChange={(e: ChangeEvent<HTMLInputElement>): void => handleNameChange(e.target.value)}
                 disabled={loading}
                 required
+                error={formErrors.name}
+                className={cx(styles['input'])}
               />
-            </FormControl>
+            </div>
           </div>
+
+          <div className={cx(styles['field'])}>
+            <InputLabel required className={cx(styles['label'])}>
+              {getTranslation('elements.fields.organization.handle.label', 'Organization Handle')}
+            </InputLabel>
+            <div className={cx(styles['fieldGroup'])}>
+              <TextField
+                placeholder={getTranslation('elements.fields.organization.handle.placeholder', 'my-organization')}
+                value={formData.handle}
+                onChange={(e: ChangeEvent<HTMLInputElement>): void => handleInputChange('handle', e.target.value)}
+                disabled={loading}
+                required
+                error={formErrors.handle}
+                helperText="This will be your organization's unique identifier. Only lowercase letters, numbers, and hyphens are allowed."
+                className={cx(styles['input'])}
+              />
+            </div>
+          </div>
+
+          <div className={cx(styles['field'])}>
+            <InputLabel required className={cx(styles['label'])}>
+              {getTranslation('elements.fields.organization.description.label', 'Organization Description')}
+            </InputLabel>
+            <div className={cx(styles['fieldGroup'])}>
+              <FormControl error={formErrors.description}>
+                <textarea
+                  className={cx(styles['textarea'], formErrors.description && styles['textareaError'])}
+                  placeholder={getTranslation(
+                    'organization.create.description.placeholder',
+                    'Enter organization description',
+                  )}
+                  value={formData.description}
+                  onChange={(e: ChangeEvent<HTMLTextAreaElement>): void =>
+                    handleInputChange('description', e.target.value)
+                  }
+                  disabled={loading}
+                  required
+                />
+              </FormControl>
+            </div>
+          </div>
+
           {renderAdditionalFields && renderAdditionalFields()}
         </form>
         <div className={cx(styles['actions'])}>
