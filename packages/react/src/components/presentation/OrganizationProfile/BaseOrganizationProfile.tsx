@@ -21,12 +21,14 @@ import {cx} from '@emotion/css';
 import {FC, ReactElement, ReactNode, useState, useCallback} from 'react';
 import useStyles from './BaseOrganizationProfile.styles';
 import useTheme from '../../../contexts/Theme/useTheme';
+import useTranslation from '../../../hooks/useTranslation';
 import {Avatar} from '../../primitives/Avatar/Avatar';
 import Button from '../../primitives/Button/Button';
 import CardPrimitive from '../../primitives/Card/Card';
 import DialogPrimitive from '../../primitives/Dialog/Dialog';
 import KeyValueInput from '../../primitives/KeyValueInput/KeyValueInput';
 import TextField from '../../primitives/TextField/TextField';
+import Typography from '../../primitives/Typography/Typography';
 
 export interface BaseOrganizationProfileProps {
   /**
@@ -112,6 +114,11 @@ export interface BaseOrganizationProfileProps {
   saveButtonText?: string;
 
   /**
+   * Custom subheading for the profile.
+   */
+  subheading?: string;
+
+  /**
    * Custom title for the profile.
    */
   title?: string;
@@ -187,7 +194,9 @@ const BaseOrganizationProfile: FC<BaseOrganizationProfileProps> = ({
   className = '',
   cardLayout = true,
   organization,
-  title = 'Organization Profile',
+  preferences,
+  title,
+  subheading,
   mode = 'inline',
   editable = true,
   onOpenChange,
@@ -227,6 +236,7 @@ const BaseOrganizationProfile: FC<BaseOrganizationProfileProps> = ({
   ],
 }: BaseOrganizationProfileProps): ReactElement => {
   const {theme, colorScheme} = useTheme();
+  const {t} = useTranslation(preferences?.i18n);
   const styles: Record<string, string> = useStyles(theme, colorScheme);
   const [editedOrganization, setEditedOrganization] = useState(organization);
   const [editingFields, setEditingFields] = useState<Record<string, boolean>>({});
@@ -507,8 +517,24 @@ const BaseOrganizationProfile: FC<BaseOrganizationProfileProps> = ({
     return fallback;
   }
 
+  const getTranslation = (key: string, fallback: string): string => {
+    const text: string = t(key);
+    return text && text !== key ? text : fallback;
+  };
+
   const profileContent: ReactElement = (
     <CardPrimitive className={cx(styles['root'], cardLayout && styles['card'], className)}>
+      {mode !== 'popup' && (
+        <div className={cx(styles['headerContainer'])}>
+          <Typography variant="h5" component="h1" className={cx(styles['title'])}>
+            {getTranslation('organization.profile.heading', title || 'Organization Profile')}
+          </Typography>
+          <Typography variant="body2" color="textSecondary" className={cx(styles['subtitle'])}>
+            {getTranslation('organization.profile.subheading', subheading || 'Manage your organization details.')}
+          </Typography>
+        </div>
+      )}
+
       <div className={cx(styles['header'])}>
         <Avatar name={getOrgInitials(organization.name)} size={80} alt={`${organization.name} logo`} />
         <div className={cx(styles['orgInfo'])}>

@@ -56,7 +56,9 @@ export interface I18nTranslations {
   'elements.fields.email.label': string;
   'elements.fields.email.placeholder': string;
   'elements.fields.organization.name.label': string;
+  'elements.fields.organization.name.placeholder'?: string;
   'elements.fields.organization.handle.label': string;
+  'elements.fields.organization.handle.placeholder'?: string;
   'elements.fields.organization.description.label': string;
   'elements.fields.organization.select.label': string;
   'elements.fields.organization.select.placeholder': string;
@@ -135,7 +137,10 @@ export interface I18nTranslations {
   'organization.switcher.loading.more': string;
   'organization.switcher.no.organizations': string;
   'organization.switcher.error.prefix': string;
+  'organization.list.heading'?: string;
+  'organization.list.subheading'?: string;
   'organization.profile.heading': string;
+  'organization.profile.subheading'?: string;
   'organization.profile.loading': string;
   'organization.profile.error': string;
 
@@ -144,6 +149,8 @@ export interface I18nTranslations {
   /* |---------------------------------------------------------------| */
 
   'organization.create.heading': string;
+  'organization.create.subheading'?: string;
+  'organization.create.description.placeholder'?: string;
   'organization.create.buttons.create_organization.text': string;
   'organization.create.buttons.create_organization.loading.text': string;
   'organization.create.buttons.cancel.text': string;

@@ -124,6 +124,11 @@ export interface BaseOrganizationListProps {
   style?: CSSProperties;
 
   /**
+   * Subtitle for the component
+   */
+  subheading?: string;
+
+  /**
    * Title for the popup dialog (only used in popup mode)
    */
   title?: string;
@@ -274,7 +279,8 @@ export const BaseOrganizationList: FC<BaseOrganizationListProps> = ({
   renderLoadMore,
   renderOrganization,
   style,
-  title = 'Organizations',
+  title,
+  subheading,
   showStatus,
   preferences,
 }: BaseOrganizationListProps): ReactElement => {
@@ -371,8 +377,24 @@ export const BaseOrganizationList: FC<BaseOrganizationListProps> = ({
     return emptyContent;
   }
 
+  const getTranslation = (key: string, fallback: string): string => {
+    const text: string = t(key);
+    return text && text !== key ? text : fallback;
+  };
+
   const organizationListContent: ReactElement = (
     <div className={cx(styles['root'], className)} style={style}>
+      {mode !== 'popup' && (
+        <div className={cx(styles['headerContainer'])}>
+          <Typography variant="h5" component="h1" className={cx(styles['title'])}>
+            {getTranslation('organization.list.heading', title || 'Organizations List')}
+          </Typography>
+          <Typography variant="body2" color="textSecondary" className={cx(styles['subtitle'])}>
+            {getTranslation('organization.list.subheading', subheading || 'View list of organizations.')}
+          </Typography>
+        </div>
+      )}
+
       {/* Header with total count and refresh button */}
       <div className={cx(styles['header'])}>
         <div className={cx(styles['headerInfo'])}>

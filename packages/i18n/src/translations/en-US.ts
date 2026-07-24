@@ -59,7 +59,9 @@ const translations: I18nTranslations = {
   'elements.fields.email.label': 'Email',
   'elements.fields.email.placeholder': 'Enter your email',
   'elements.fields.organization.name.label': 'Organization Name',
+  'elements.fields.organization.name.placeholder': 'Organization Name',
   'elements.fields.organization.handle.label': 'Organization Handle',
+  'elements.fields.organization.handle.placeholder': 'my-organization',
   'elements.fields.organization.description.label': 'Organization Description',
   'elements.fields.organization.select.label': 'Select Organization',
   'elements.fields.organization.select.placeholder': 'Choose an organization',
@@ -139,11 +141,17 @@ const translations: I18nTranslations = {
   'organization.switcher.no.organizations': 'No organizations found',
   'organization.switcher.error.prefix': 'Error:',
 
+  'organization.list.heading': 'Organizations List',
+  'organization.list.subheading': 'View list of organizations.',
+
   'organization.profile.heading': 'Organization Profile',
+  'organization.profile.subheading': 'Manage your organization details.',
   'organization.profile.loading': 'Loading organization...',
   'organization.profile.error': 'Failed to load organization',
 
   'organization.create.heading': 'Create Organization',
+  'organization.create.subheading': 'Set up a new organization workspace.',
+  'organization.create.description.placeholder': 'Enter organization description',
   'organization.create.buttons.create_organization.text': 'Create Organization',
   'organization.create.buttons.create_organization.loading.text': 'Creating...',
   'organization.create.buttons.cancel.text': 'Cancel',

@@ -47,6 +47,26 @@ const useStyles = (theme: Theme, colorScheme: string): Record<string, string> =>
       gap: calc(${theme.vars.spacing.unit} * 2);
     `;
 
+    const headerContainer: string = css`
+      margin-bottom: calc(${theme.vars.spacing.unit} * 3);
+      padding-bottom: calc(${theme.vars.spacing.unit} * 2);
+      border-bottom: 1px solid ${theme.vars.colors.border};
+    `;
+
+    const title: string = css`
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: ${theme.vars.colors.text.primary};
+      margin: 0 0 6px 0;
+      letter-spacing: -0.01em;
+    `;
+
+    const subtitle: string = css`
+      font-size: 0.875rem;
+      color: ${theme.vars.colors.text.secondary};
+      margin: 0;
+    `;
+
     const form: string = css`
       display: flex;
       flex-direction: column;
@@ -63,13 +83,27 @@ const useStyles = (theme: Theme, colorScheme: string): Record<string, string> =>
 
     const field: string = css`
       display: flex;
-      align-items: center;
+      align-items: flex-start;
       padding: ${theme.vars.spacing.unit} 0;
-      border-bottom: 1px solid ${theme.vars.colors.border};
       min-height: 32px;
     `;
 
+    const label: string = css`
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: ${theme.vars.colors.text.primary};
+      width: 200px;
+      min-width: 200px;
+      flex-shrink: 0;
+      text-align: left;
+      padding-right: calc(${theme.vars.spacing.unit} * 2);
+      padding-top: calc(${theme.vars.spacing.unit} * 0.75);
+      white-space: nowrap;
+      line-height: 1.4;
+    `;
+
     const fieldGroup: string = css`
+      flex: 1;
       display: flex;
       flex-direction: column;
       gap: calc(${theme.vars.spacing.unit} * 0.5);
@@ -87,6 +121,8 @@ const useStyles = (theme: Theme, colorScheme: string): Record<string, string> =>
       min-height: 80px;
       resize: vertical;
       outline: none;
+      box-sizing: border-box;
+      transition: border-color 0.2s, box-shadow 0.2s;
       &:focus {
         border-color: ${theme.vars.colors.primary.main};
         box-shadow: 0 0 0 2px ${theme.vars.colors.primary.main}20;
@@ -153,12 +189,16 @@ const useStyles = (theme: Theme, colorScheme: string): Record<string, string> =>
       fieldGroup,
       form,
       header,
+      headerContainer,
       infoContainer,
       input,
+      label,
       popup,
       root,
+      subtitle,
       textarea,
       textareaError,
+      title,
       value,
     };
   }, [

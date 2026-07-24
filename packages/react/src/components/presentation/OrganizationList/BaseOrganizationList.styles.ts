@@ -46,15 +46,21 @@ const useStyles = (theme: Theme, colorScheme: string): Record<string, string> =>
       border-bottom: 1px solid ${theme.vars.colors.border};
     `;
 
+    const headerContainer: string = css`
+      margin-bottom: calc(${theme.vars.spacing.unit} * 3);
+      padding-bottom: calc(${theme.vars.spacing.unit} * 2);
+      border-bottom: 1px solid ${theme.vars.colors.border};
+    `;
+
     const headerInfo: string = css`
       flex: 1;
     `;
 
     const title: string = css`
-      font-size: 1.5rem;
-      font-weight: 600;
-      margin: 0 0 8px 0;
+      font-size: 1.75rem;
+      font-weight: 700;
       color: ${theme.vars.colors.text.primary};
+      margin: 0 0 calc(${theme.vars.spacing.unit} * 0.5) 0;
     `;
 
     const subtitle: string = css`
@@ -239,7 +245,7 @@ const useStyles = (theme: Theme, colorScheme: string): Record<string, string> =>
       errorContainer,
       errorMargin,
       header,
-      headerInfo,
+      headerContainer,
       listContainer,
       loadMoreButton,
       loadMoreMargin,
