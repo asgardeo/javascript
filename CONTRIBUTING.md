@@ -239,8 +239,10 @@ export {default as fr_FR} from './fr-FR';
 Build the package and test the new language in a sample application to ensure all translations are working correctly:
 
 ```bash
-pnpm build --filter @asgardeo/i18n
+pnpm nx build @asgardeo/i18n
 ```
+
+> **Note:** This repo uses [Nx](https://nx.dev/), so build a single package with the Nx syntax above. Don't use `pnpm build --filter @asgardeo/i18n` — Nx doesn't recognize `--filter` and passes it to `tsc`, which fails with `error TS5023: Unknown compiler option '--filter'`.
 
 To test your new language translation, you have two options:
 
@@ -306,9 +308,50 @@ pnpm install
 # The sample will automatically use your local i18n package changes
 ```
 
+The samples reference the workspace packages via `workspace:*`, so `pnpm install` symlinks them to your local `packages/*` and your changes are picked up without any extra configuration.
+
+> [!IMPORTANT]
+> After changing translation files, rebuild the i18n package so the sample (which imports the built `dist/`, not the source) sees your changes:
+>
+> ```bash
+> npx nx build @asgardeo/i18n
+> ```
+
+###### Configure the sample with a `.env.local` file
+
+The sample apps don't ship with any Asgardeo credentials — they read their configuration from environment variables at runtime (e.g. `import.meta.env.VITE_ASGARDEO_BASE_URL`). These values are specific to **your** Asgardeo organization and application, so they must not be committed. For that reason, `.env.local` is git-ignored (only a `.env.local.example` template is committed), and you need to create your own before the sample can connect to Asgardeo.
+
+Vite automatically loads `.env.local` on `pnpm dev` and exposes every `VITE_`-prefixed variable to the app. Without this file, the base URL and client ID are `undefined` and sign-in/sign-up won't work.
+
+1. Copy the template:
+
+```bash
+cp .env.local.example .env.local
+```
+
+2. Fill in the values from your Asgardeo application (Console → **Applications → your app → Protocol / Info**):
+
+```bash
+VITE_ASGARDEO_BASE_URL='https://api.asgardeo.io/t/<your_organization_name>'
+VITE_ASGARDEO_CLIENT_ID='<client_id>'
+```
+
+3. Start the dev server (from the sample directory):
+
+```bash
+pnpm dev
+```
+
+###### Explore the running app and confirm your translations
+
+Open the URL the dev server prints (`teamspace-react` runs on `https://localhost:[host-number]`. If you get a warning on the site just accept the self-signed cert warning the first time) and walk through the auth screens.
+
+> [!NOTE]
+> In the embedded sign-in/sign-up flows, most in-form text — headings, subtitles, input field labels, and the form's own submit/social buttons — is served by the Asgardeo server, not your bundle, so it stays in English regardless of your translation. Your bundle reliably translates error/validation messages and standalone SDK buttons (like the Sign In / Sign Up call-to-action buttons). Getting that server-driven text into your language is something you'll need to explore separately in the Asgardeo Console (its text/branding and flow settings) while testing. 
+
 ##### Testing with AsgardeoProvider
 
-Once you have your testing environment set up (using either option above), configure the AsgardeoProvider to use your new language:
+Once you have your testing environment set up (using either option above), configure the AsgardeoProvider to use your new language. The following steps take place in `samples/teamspace-react/src/main.tsx`:
 
 - **Import your new language bundle**
 
@@ -339,6 +382,9 @@ import {fr_FR} from '@asgardeo/i18n';
 For more details on the i18n preferences interface, see the [`I18nPreferences`](packages/javascript/src/models/config.ts#L232).
 
 - **Verify the translations**
+
+> [!NOTE]
+> This checklist is aspirational — it assumes every string comes from your bundle. As noted under [Explore the running app](#explore-the-running-app-and-confirm-your-translations), most in-form auth text is server-driven and won't reflect your bundle, so don't expect "all UI text" to change. Focus verification on the bundle-driven strings (errors, validation, standalone SDK buttons, post-login UI).
 
 - Navigate through your application's authentication flows
 - Check that all UI text appears in your new language
