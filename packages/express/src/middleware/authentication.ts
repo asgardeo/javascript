@@ -18,7 +18,7 @@
 
 import { AsgardeoAuthException, Storage, TokenResponse, Logger } from "@asgardeo/node";
 import express from "express";
-import { AsgardeoExpressClient } from "../client";
+import { AsgardeoExpressClient } from "../LegacyAsgardeoExpressClient";
 import { DEFAULT_LOGIN_PATH, DEFAULT_LOGOUT_PATH } from "../constants";
 import { ExpressClientConfig } from "../models";
 

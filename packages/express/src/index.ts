@@ -16,7 +16,8 @@
  * under the License.
  */
 
-export * from './__legacy__/models';
-export * from './__legacy__/client';
+export * from './models';
+export {AsgardeoExpressClient as LegacyAsgardeoExpressClient} from './LegacyAsgardeoExpressClient';
+export {default as AsgardeoExpressClient} from './AsgardeoExpressClient';
 
 export * from '@asgardeo/node';

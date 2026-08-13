@@ -19,9 +19,9 @@
 import {AsgardeoAuthClient} from '@asgardeo/javascript';
 import {Buffer} from 'buffer/';
 // eslint-disable-next-line import/no-cycle
-import {AuthenticationHelper, SPAHelper} from './__legacy__/helpers';
-import {WebWorkerClientConfig} from './__legacy__/models';
-import {workerReceiver} from './__legacy__/worker/worker-receiver';
+import {AuthenticationHelper, SPAHelper} from './helpers';
+import {WebWorkerClientConfig} from './models';
+import {workerReceiver} from './worker/worker-receiver';
 
 /* eslint-disable no-restricted-globals */
 // Set up global polyfills

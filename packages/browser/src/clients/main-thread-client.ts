@@ -35,7 +35,7 @@ import {SILENT_SIGN_IN_STATE, TOKEN_REQUEST_CONFIG_KEY} from '../constants';
 import {AuthenticationHelper} from '../helpers/authentication-helper';
 import {SessionManagementHelper} from '../helpers/session-management-helper';
 import {SPAHelper} from '../helpers/spa-helper';
-import {FetchHttpClient} from '../../FetchHttpClient';
+import {FetchHttpClient} from '../FetchHttpClient';
 import {HttpError, HttpRequestConfig, HttpResponse, MainThreadClientConfig, MainThreadClientInterface} from '../models';
 import {SPACustomGrantConfig} from '../models/request-custom-grant';
 import {BrowserStorage} from '../models/storage';

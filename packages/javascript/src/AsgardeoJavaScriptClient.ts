@@ -16,8 +16,8 @@
  * under the License.
  */
 
-import {AsgardeoAuthClient} from './__legacy__/client';
-import {AuthClientConfig} from './__legacy__/models/client-config';
+import {AsgardeoAuthClient} from './AsgardeoAuthClient';
+import {AuthClientConfig} from './models/auth-client-config';
 import executeEmbeddedSignInFlow from './api/executeEmbeddedSignInFlow';
 import initializeEmbeddedSignInFlow from './api/initializeEmbeddedSignInFlow';
 import {DefaultCacheStore} from './DefaultCacheStore';
