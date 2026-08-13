@@ -27,7 +27,7 @@ const rootDir = process.cwd();
 const outputFile = path.join(rootDir, 'CHANGELOG.md');
 
 // List of package or directory names to skip when aggregating changelogs
-const SKIP_PACKAGES = ['__legacy__', 'node_modules', 'dist', 'build', 'coverage', 'scripts', 'docs'];
+const SKIP_PACKAGES = ['node_modules', 'dist', 'build', 'coverage', 'scripts', 'docs'];
 
 const findChangelogs = dir => {
   let changelogs = [];

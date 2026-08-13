@@ -17,7 +17,7 @@
  */
 
 import express from 'express';
-import {AsgardeoExpressClient} from '../client';
+import {AsgardeoExpressClient} from '../LegacyAsgardeoExpressClient';
 import {UnauthenticatedCallback} from '../models';
 import {Logger} from '@asgardeo/node';
 

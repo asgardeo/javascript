@@ -16,10 +16,10 @@
  * under the License.
  */
 
-import {OAuthResponseMode} from '../../models/oauth-response';
-import {OIDCEndpoints} from '../../models/oidc-endpoints';
-import {Platform} from '../../models/platforms';
-import {TokenEndpointAuthMethod} from '../../models/token-endpoint-auth';
+import {OAuthResponseMode} from './oauth-response';
+import {OIDCEndpoints} from './oidc-endpoints';
+import {Platform} from './platforms';
+import {TokenEndpointAuthMethod} from './token-endpoint-auth';
 
 export interface DefaultAuthClientConfig {
   afterSignInUrl: string;

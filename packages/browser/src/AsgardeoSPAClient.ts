@@ -28,7 +28,7 @@ import {
   User,
   createPackageComponentLogger,
 } from '@asgardeo/javascript';
-import WorkerFile from '../web.worker';
+import WorkerFile from './web.worker';
 import {MainThreadClient, WebWorkerClient} from './clients';
 import {Hooks, REFRESH_ACCESS_TOKEN_ERR0R} from './constants';
 import {AuthenticationHelper, SPAHelper} from './helpers';

@@ -30,7 +30,7 @@ import {
   Storage,
 } from '@asgardeo/javascript';
 import {AuthenticationHelper, SPAHelper} from '../helpers';
-import {FetchHttpClient} from '../../FetchHttpClient';
+import {FetchHttpClient} from '../FetchHttpClient';
 import {
   AuthorizationResponse,
   HttpRequestConfig,
