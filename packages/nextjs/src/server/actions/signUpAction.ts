@@ -20,6 +20,7 @@
 
 import {EmbeddedFlowExecuteRequestPayload, EmbeddedFlowExecuteResponse, EmbeddedFlowStatus} from '@asgardeo/node';
 import AsgardeoNextClient from '../../AsgardeoNextClient';
+import autoSignInAfterSignUp, {extractSignUpCredentials, SignUpCredentials} from '../../utils/autoSignInAfterSignUp';
 
 /**
  * Server action for signing in a user.
@@ -37,7 +38,7 @@ const signUpAction = async (
         afterSignUpUrl?: string;
         signUpUrl?: string;
       }
-    | EmbeddedFlowExecuteResponse;
+    | (EmbeddedFlowExecuteResponse & {afterSignUpUrl?: string; signedIn?: boolean});
   error?: string;
   success: boolean;
 }> => {
@@ -54,9 +55,21 @@ const signUpAction = async (
     const response: any = await client.signUp(payload);
 
     if (response.flowStatus === EmbeddedFlowStatus.Complete) {
-      const afterSignUpUrl: string = await (await client.getStorageManager()).getConfigDataParameter('afterSignInUrl');
+      const storageManager: Awaited<ReturnType<typeof client.getStorageManager>> = await client.getStorageManager();
+      const afterSignUpUrl: string = String(
+        (await storageManager.getConfigDataParameter('afterSignUpUrl')) ??
+          (await storageManager.getConfigDataParameter('afterSignInUrl')),
+      );
 
-      return {data: {afterSignUpUrl: String(afterSignUpUrl)}, success: true};
+      // Sign the new user in with the credentials they just submitted so they land inside the app.
+      // When that is not possible (MFA, app-native auth disabled, multi-step registration), they are
+      // sent to `afterSignUpUrl` without a session and can sign in manually.
+      const credentials: SignUpCredentials | undefined = extractSignUpCredentials(payload.inputs);
+      const signedIn: boolean = credentials ? await autoSignInAfterSignUp(credentials) : false;
+
+      // Return the completed flow response along with the URL so that client components
+      // (e.g. `<SignUp />`) can finish their own lifecycle instead of receiving nothing.
+      return {data: {...response, afterSignUpUrl: String(afterSignUpUrl), signedIn}, success: true};
     }
 
     return {data: response as EmbeddedFlowExecuteResponse, success: true};

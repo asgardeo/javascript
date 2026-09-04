@@ -46,10 +46,11 @@ const FormContainer: FC<AdapterProps> = (props: AdapterProps) => {
 
     return (
       <form key={component.id} onSubmit={handleFormSubmit} style={{display: 'flex', flexDirection: 'column'}}>
-        {component.components.map((childComponent: any) =>
+        {component.components.map((childComponent: any, index: number) =>
           createSignUpComponent({
             ...props,
             component: childComponent,
+            key: childComponent.id || index,
           }),
         )}
       </form>

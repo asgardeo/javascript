@@ -728,6 +728,12 @@ const BaseSignUpContent: FC<BaseSignUpProps> = ({
       } as any;
 
       const rawResponse: any = await onSubmit(payload);
+
+      // `onSubmit` may resolve without a response when the host has already taken over (e.g. a redirect).
+      if (!rawResponse) {
+        return;
+      }
+
       const response: any = normalizeFlowResponseLocal(rawResponse);
       onFlowChange?.(response);
 

@@ -78,6 +78,7 @@ const translations: I18nTranslations = {
   /* Base Sign Up */
   'signup.heading': 'Registar-se',
   'signup.subheading': 'Crie uma nova conta para começar.',
+  'signup.success': 'A sua conta foi criada com sucesso.',
 
   /* Email OTP */
   'email.otp.heading': 'Verificação OTP',

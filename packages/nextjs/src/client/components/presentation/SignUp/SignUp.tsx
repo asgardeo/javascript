@@ -105,7 +105,7 @@ const SignUp: FC<SignUpProps> = ({
       );
     }
 
-    return (await signUp(payload)) as unknown as Promise<EmbeddedFlowExecuteResponse>;
+    return (await signUp(payload, undefined, {afterSignUpUrl})) as unknown as Promise<EmbeddedFlowExecuteResponse>;
   };
 
   return (

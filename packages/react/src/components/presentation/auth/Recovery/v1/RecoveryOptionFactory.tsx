@@ -18,7 +18,7 @@
 
 import {EmbeddedFlowComponent, EmbeddedFlowComponentType} from '@asgardeo/browser';
 import {AdapterProps} from 'packages/react/src/models/adapters';
-import {ReactElement} from 'react';
+import {Key, ReactElement, cloneElement} from 'react';
 import CheckboxInput from '../../../../adapters/CheckboxInput';
 import DateInput from '../../../../adapters/DateInput';
 import DividerComponent from '../../../../adapters/DividerComponent';
@@ -41,9 +41,9 @@ import TextInput from '../../../../adapters/TextInput';
 import Typography from '../../../../adapters/Typography';
 
 /**
- * Creates the appropriate recovery component based on the component type.
+ * Builds the recovery element for a flow component. Keys are applied by `createRecoveryComponent`.
  */
-export const createRecoveryComponent = ({component, onSubmit, ...rest}: AdapterProps): ReactElement => {
+const createRecoveryElement = ({component, onSubmit, ...rest}: AdapterProps): ReactElement => {
   switch (component.type) {
     case EmbeddedFlowComponentType.Typography:
       return <Typography component={component} onSubmit={onSubmit} {...rest} />;
@@ -155,6 +155,18 @@ export const createRecoveryComponent = ({component, onSubmit, ...rest}: AdapterP
     default:
       return <div />;
   }
+};
+
+/**
+ * Creates the appropriate recovery component based on the component type.
+ *
+ * `key` is intentionally pulled out of the props and applied via `cloneElement`,
+ * because React does not allow `key` to be passed through a props spread.
+ */
+export const createRecoveryComponent = ({key, ...props}: AdapterProps & {key?: Key}): ReactElement => {
+  const element: ReactElement = createRecoveryElement(props);
+
+  return key === undefined || key === null ? element : cloneElement(element, {key});
 };
 
 /**
