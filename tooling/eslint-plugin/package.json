@@ -1,0 +1,53 @@
+{
+  "name": "@wso2/eslint-plugin",
+  "version": "0.1.0",
+  "description": "Shareable ESLint configurations & rules used in WSO2 code bases. Vendored from https://github.com/brionmario/wso2-ui-configs at commit d3041825 (packages/eslint-plugin).",
+  "license": "Apache-2.0",
+  "author": "WSO2",
+  "main": "./lib/index.js",
+  "exports": "./lib/index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/wso2/ui-configs",
+    "directory": "packages/eslint-plugin"
+  },
+  "dependencies": {
+    "@babel/core": "^7.20.2",
+    "@babel/eslint-parser": "^7.19.1",
+    "@next/eslint-plugin-next": "^13.0.6",
+    "@typescript-eslint/eslint-plugin": "^5.44.0",
+    "@typescript-eslint/parser": "^5.44.0",
+    "eslint-config-airbnb": "^19.0.4",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-config-airbnb-typescript": "^17.0.0",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-plugin-eslint-plugin": "^5.0.0",
+    "eslint-plugin-header": "^3.1.1",
+    "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-jest": "^27.1.5",
+    "eslint-plugin-jsx-a11y": "^6.6.1",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-prettier": "^4.2.1",
+    "eslint-plugin-react": "^7.31.11",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "eslint-plugin-testing-library": "^5.9.1",
+    "eslint-plugin-tsdoc": "^0.2.16",
+    "eslint-plugin-typescript-sort-keys": "^2.1.0",
+    "prettier": "^2.8.0",
+    "requireindex": "^1.2.0",
+    "@wso2/prettier-config": "workspace:*"
+  },
+  "peerDependencies": {
+    "eslint": ">=8.0.0",
+    "typescript": ">=4.0.0"
+  },
+  "peerDependenciesMeta": {
+    "typescript": {
+      "optional": true
+    }
+  },
+  "engines": {
+    "node": "^14.17.0 || ^16.0.0 || >= 18.0.0"
+  },
+  "private": true
+}

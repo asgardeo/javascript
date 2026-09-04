@@ -1,0 +1,26 @@
+{
+  "name": "@wso2/prettier-config",
+  "version": "0.1.0",
+  "description": "Shareable Prettier configuration used in WSO2 code bases. Vendored from https://github.com/brionmario/wso2-ui-configs at commit d3041825 (packages/prettier-config).",
+  "license": "Apache-2.0",
+  "author": "WSO2",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/wso2/ui-configs",
+    "directory": "packages/prettier-config"
+  },
+  "peerDependencies": {
+    "prettier": ">=2.0.0",
+    "typescript": ">=4.0.0"
+  },
+  "peerDependenciesMeta": {
+    "typescript": {
+      "optional": true
+    }
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "private": true
+}

@@ -63,8 +63,8 @@
   },
   "devDependencies": {
     "@types/node": "22.15.3",
-    "@wso2/eslint-plugin": "catalog:",
-    "@wso2/prettier-config": "catalog:",
+    "@wso2/eslint-plugin": "workspace:*",
+    "@wso2/prettier-config": "workspace:*",
     "esbuild": "0.25.9",
     "esbuild-plugin-preserve-directives": "0.0.11",
     "eslint": "8.57.0",
