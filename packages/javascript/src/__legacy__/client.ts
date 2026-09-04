@@ -541,7 +541,15 @@ export class AsgardeoAuthClient<T> {
    * @preserve
    */
   public async getSignOutUrl(userId?: string): Promise<string> {
-    const logoutEndpoint: string | undefined = (await this.oidcProviderMetaDataProvider())?.end_session_endpoint;
+    let logoutEndpoint: string | undefined = (await this.oidcProviderMetaDataProvider())?.end_session_endpoint;
+
+    if (!logoutEndpoint) {
+      // The provider metadata may not have been resolved yet in this process (e.g. a fresh server
+      // instance, or an app-native sign-in that never built an authorize URL). Resolve it on demand.
+      await this.loadOpenIDProviderConfiguration(false);
+      logoutEndpoint = (await this.oidcProviderMetaDataProvider())?.end_session_endpoint;
+    }
+
     const configData: StrictAuthClientConfig = await this.configProvider();
 
     if (!logoutEndpoint || logoutEndpoint.trim().length === 0) {

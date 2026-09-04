@@ -116,6 +116,14 @@ const fieldsToSkip: string[] = [
 // Fields that should be readonly
 const readonlyFields: string[] = ['username', 'userName', 'user_name'];
 
+/**
+ * SCIM2 schemas report mutability as `readWrite` / `readOnly` / `immutable` (camelCase), while some
+ * older payloads use `READ_WRITE` / `READ_ONLY`. Normalize so both are handled.
+ */
+const normalizeMutability = (mutability?: string): string => (mutability ?? '').replace(/_/g, '').toLowerCase();
+const isReadOnlyMutability = (mutability?: string): boolean => normalizeMutability(mutability) === 'readonly';
+const isReadWriteMutability = (mutability?: string): boolean => normalizeMutability(mutability) === 'readwrite';
+
 const BaseUserProfile: FC<BaseUserProfileProps> = ({
   fallback = null,
   className = '',
@@ -371,7 +379,7 @@ const BaseUserProfile: FC<BaseUserProfileProps> = ({
       const hasValues: any = Array.isArray(value)
         ? value.length > 0
         : value !== undefined && value !== null && value !== '';
-      const isEditable: any = editable && mutability !== 'READ_ONLY' && !readonlyFields.includes(name || '');
+      const isEditable: any = editable && !isReadOnlyMutability(mutability) && !readonlyFields.includes(name || '');
 
       if (isEditing && onEditValue && isEditable) {
         let currentValue: any;
@@ -456,7 +464,7 @@ const BaseUserProfile: FC<BaseUserProfileProps> = ({
       return <ObjectDisplay data={value} />;
     }
 
-    if (isEditing && onEditValue && mutability !== 'READ_ONLY' && !readonlyFields.includes(name || '')) {
+    if (isEditing && onEditValue && !isReadOnlyMutability(mutability) && !readonlyFields.includes(name || '')) {
       let fieldValue: any;
       if (editedUser && name && editedUser[name] !== undefined) {
         fieldValue = editedUser[name];
@@ -516,7 +524,7 @@ const BaseUserProfile: FC<BaseUserProfileProps> = ({
     }
 
     const hasValue: any = value !== undefined && value !== null && value !== '';
-    const isEditable: any = editable && mutability !== 'READ_ONLY' && !readonlyFields.includes(name || '');
+    const isEditable: any = editable && !isReadOnlyMutability(mutability) && !readonlyFields.includes(name || '');
 
     let displayValue: string;
     if (hasValue) {
@@ -557,7 +565,7 @@ const BaseUserProfile: FC<BaseUserProfileProps> = ({
     const isFieldEditing: any = editingFields[schema.name];
     const isReadonlyField: any = readonlyFields.includes(schema.name);
 
-    const shouldShow: any = hasValue || isFieldEditing || (editable && schema.mutability === 'READ_WRITE');
+    const shouldShow: any = hasValue || isFieldEditing || (editable && isReadWriteMutability(schema.mutability));
 
     if (!shouldShow) {
       return null;
@@ -577,7 +585,7 @@ const BaseUserProfile: FC<BaseUserProfileProps> = ({
             () => toggleFieldEdit(schema.name!),
           )}
         </div>
-        {editable && schema.mutability !== 'READ_ONLY' && !isReadonlyField && (
+        {editable && !isReadOnlyMutability(schema.mutability) && !isReadonlyField && (
           <div className={styles.fieldActions}>
             {isFieldEditing && (
               <>

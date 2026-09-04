@@ -32,6 +32,7 @@ import getSessionPayload from './actions/getSessionPayload';
 import getUserAction from './actions/getUserAction';
 import getUserProfileAction from './actions/getUserProfileAction';
 import handleOAuthCallbackAction from './actions/handleOAuthCallbackAction';
+import httpRequestAction from './actions/httpRequestAction';
 import isSignedIn from './actions/isSignedIn';
 import refreshToken from './actions/refreshToken';
 import signInAction from './actions/signInAction';
@@ -84,8 +85,6 @@ export type AsgardeoServerProviderProps = Partial<AsgardeoProviderProps> & {
  */
 const AsgardeoServerProvider: FC<PropsWithChildren<AsgardeoServerProviderProps>> = async ({
   children,
-  afterSignInUrl,
-  afterSignOutUrl,
   ..._config
 }: PropsWithChildren<AsgardeoServerProviderProps>): Promise<ReactElement> => {
   const asgardeoClient: AsgardeoNextClient = AsgardeoNextClient.getInstance();
@@ -226,6 +225,8 @@ const AsgardeoServerProvider: FC<PropsWithChildren<AsgardeoServerProviderProps>>
       handleOAuthCallback={handleOAuthCallbackAction}
       signInUrl={config?.signInUrl}
       signUpUrl={config?.signUpUrl}
+      afterSignInUrl={config?.afterSignInUrl}
+      httpRequest={httpRequestAction}
       preferences={config?.preferences}
       clientId={config?.clientId}
       user={user}

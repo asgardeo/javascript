@@ -18,7 +18,7 @@
 
 import {EmbeddedFlowComponent, EmbeddedFlowComponentType} from '@asgardeo/browser';
 import {AdapterProps} from 'packages/react/src/models/adapters';
-import {ReactElement} from 'react';
+import {Key, ReactElement, cloneElement} from 'react';
 import CheckboxInput from '../../../../adapters/CheckboxInput';
 import DateInput from '../../../../adapters/DateInput';
 import DividerComponent from '../../../../adapters/DividerComponent';
@@ -41,9 +41,9 @@ import TextInput from '../../../../adapters/TextInput';
 import Typography from '../../../../adapters/Typography';
 
 /**
- * Creates the appropriate sign-up component based on the component type.
+ * Builds the sign-up element for a flow component. Keys are applied by `createSignUpComponent`.
  */
-export const createSignUpComponent = ({component, onSubmit, ...rest}: AdapterProps): ReactElement => {
+const createSignUpElement = ({component, onSubmit, ...rest}: AdapterProps): ReactElement => {
   switch (component.type) {
     case EmbeddedFlowComponentType.Typography:
       return <Typography component={component} onSubmit={onSubmit} {...rest} />;
@@ -155,6 +155,18 @@ export const createSignUpComponent = ({component, onSubmit, ...rest}: AdapterPro
     default:
       return <div />;
   }
+};
+
+/**
+ * Creates the appropriate sign-up component based on the component type.
+ *
+ * `key` is intentionally pulled out of the props and applied via `cloneElement`,
+ * because React does not allow `key` to be passed through a props spread.
+ */
+export const createSignUpComponent = ({key, ...props}: AdapterProps & {key?: Key}): ReactElement => {
+  const element: ReactElement = createSignUpElement(props);
+
+  return key === undefined || key === null ? element : cloneElement(element, {key});
 };
 
 /**

@@ -32,6 +32,9 @@ import {
   TokenResponse,
   CreateOrganizationPayload,
   AsgardeoRuntimeError,
+  EmbeddedFlowStatus,
+  HttpRequestConfig,
+  HttpResponse,
 } from '@asgardeo/node';
 import {
   I18nProvider,
@@ -48,6 +51,7 @@ import {AppRouterInstance} from 'next/dist/shared/lib/app-router-context.shared-
 import {useRouter, useSearchParams} from 'next/navigation';
 import {FC, PropsWithChildren, RefObject, useEffect, useMemo, useRef, useState} from 'react';
 import AsgardeoContext, {AsgardeoContextProps} from './AsgardeoContext';
+import {HttpRequestActionResult} from '../../../server/actions/httpRequestAction';
 import {RefreshResult} from '../../../server/actions/refreshToken';
 import logger from '../../../utils/logger';
 
@@ -56,6 +60,7 @@ import logger from '../../../utils/logger';
  */
 export type AsgardeoClientProviderProps = Partial<Omit<AsgardeoProviderProps, 'baseUrl' | 'clientId'>> &
   Pick<AsgardeoProviderProps, 'baseUrl' | 'clientId'> & {
+    afterSignInUrl?: string;
     applicationId: AsgardeoContextProps['applicationId'];
     brandingPreference?: BrandingPreference | null;
     clearSession: () => Promise<void>;
@@ -67,6 +72,7 @@ export type AsgardeoClientProviderProps = Partial<Omit<AsgardeoProviderProps, 'b
       state: string,
       sessionState?: string,
     ) => Promise<{error?: string; redirectUrl?: string; success: boolean}>;
+    httpRequest?: (requestConfig: HttpRequestConfig) => Promise<HttpRequestActionResult>;
     isSignedIn: boolean;
     myOrganizations: Organization[];
     organizationHandle: AsgardeoContextProps['organizationHandle'];
@@ -109,6 +115,8 @@ const AsgardeoClientProvider: FC<PropsWithChildren<AsgardeoClientProviderProps>>
   getAllOrganizations,
   switchOrganization,
   brandingPreference,
+  afterSignInUrl,
+  httpRequest,
 }: PropsWithChildren<AsgardeoClientProviderProps>) => {
   const reRenderCheckRef: RefObject<boolean> = useRef(false);
   const router: AppRouterInstance = useRouter();
@@ -229,6 +237,7 @@ const AsgardeoClientProvider: FC<PropsWithChildren<AsgardeoClientProviderProps>>
   const handleSignUp = async (
     payload: EmbeddedFlowExecuteRequestPayload,
     request: EmbeddedFlowExecuteRequestConfig,
+    options?: {afterSignUpUrl?: string},
   ): Promise<any> => {
     if (!signUp) {
       throw new AsgardeoRuntimeError(
@@ -249,9 +258,19 @@ const AsgardeoClientProvider: FC<PropsWithChildren<AsgardeoClientProviderProps>>
 
     // After the Embedded flow is successful, the URL to navigate next is sent as `afterSignUpUrl` in the response.
     if (result?.data?.afterSignUpUrl) {
-      router.push(result.data.afterSignUpUrl);
+      const {afterSignUpUrl, signedIn, ...flowResponse}: any = result.data;
 
-      return undefined;
+      // A URL passed by the caller (e.g. the `afterSignUpUrl` prop of `<SignUp />`) wins over the configured one.
+      router.push(options?.afterSignUpUrl || afterSignUpUrl);
+
+      if (signedIn) {
+        // A session cookie was set during sign-up; re-render server components so the signed-in state is picked up.
+        router.refresh();
+      }
+
+      // Hand the completed flow back to the caller (e.g. `<SignUp />`) so it can finish its lifecycle
+      // while the navigation is in flight, instead of receiving `undefined` and crashing.
+      return {...flowResponse, flowStatus: flowResponse.flowStatus ?? EmbeddedFlowStatus.Complete};
     }
 
     if (result?.error) {
@@ -293,11 +312,45 @@ const AsgardeoClientProvider: FC<PropsWithChildren<AsgardeoClientProviderProps>>
     }
   };
 
+  /**
+   * Performs an authenticated HTTP request through a server action so the access token stays on the server.
+   * Mirrors `http.request` of the React SDK: resolves with the response, rejects with an `Error` carrying `response`.
+   */
+  const handleHttpRequest = async (requestConfig?: HttpRequestConfig): Promise<HttpResponse> => {
+    if (!httpRequest) {
+      throw new AsgardeoRuntimeError(
+        '`http.request` is not available. Make sure the component is rendered inside `<AsgardeoProvider>`.',
+        'AsgardeoClientProvider-handleHttpRequest-RuntimeError-001',
+        'nextjs',
+      );
+    }
+
+    const result: HttpRequestActionResult = await httpRequest(requestConfig ?? {});
+
+    if (!result.success) {
+      const error: Error & {response?: HttpResponse} = new Error(result.error ?? 'HTTP request failed.');
+
+      error.response = result.data;
+
+      throw error;
+    }
+
+    return result.data as HttpResponse;
+  };
+
+  const handleHttpRequestAll = async (requestConfigs?: HttpRequestConfig[]): Promise<HttpResponse[]> =>
+    Promise.all((requestConfigs ?? []).map((requestConfig: HttpRequestConfig) => handleHttpRequest(requestConfig)));
+
   const contextValue: AsgardeoContextProps = useMemo(
     () => ({
+      afterSignInUrl,
       applicationId,
       baseUrl,
       clearSession,
+      http: {
+        request: handleHttpRequest,
+        requestAll: handleHttpRequestAll,
+      },
       isLoading,
       isSignedIn,
       organizationHandle,
@@ -309,7 +362,18 @@ const AsgardeoClientProvider: FC<PropsWithChildren<AsgardeoClientProviderProps>>
       signUpUrl,
       user,
     }),
-    [baseUrl, user, isSignedIn, isLoading, signInUrl, signUpUrl, applicationId, organizationHandle],
+    [
+      baseUrl,
+      user,
+      isSignedIn,
+      isLoading,
+      signInUrl,
+      signUpUrl,
+      applicationId,
+      organizationHandle,
+      afterSignInUrl,
+      httpRequest,
+    ],
   );
 
   const handleProfileUpdate = (payload: User): void => {

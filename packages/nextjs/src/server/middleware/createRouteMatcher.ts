@@ -39,11 +39,16 @@ import {NextRequest} from 'next/server';
  */
 const createRouteMatcher = (patterns: string[]): ((req: NextRequest) => boolean) => {
   const regexPatterns: RegExp[] = patterns.map((pattern: string): RegExp => {
-    // Convert glob-like patterns to regex
+    // Convert glob-like patterns to regex.
+    // `(.*)` is a wildcard group and must be protected before dots and stars are rewritten,
+    // otherwise `/dashboard(.*)` becomes `^/dashboard(\\..*)$` and never matches `/dashboard`.
+    const WILDCARD_GROUP: string = '__WILDCARD_GROUP__';
     const regexPattern: string = pattern
+      .replace(/\(\.\*\)/g, WILDCARD_GROUP)
       .replace(/\./g, '\\.') // Escape dots
       .replace(/\*/g, '.*') // Convert * to .*
-      .replace(/\(\.\*\)/g, '(.*)'); // Handle explicit (.*) patterns
+      .split(WILDCARD_GROUP)
+      .join('(.*)');
 
     return new RegExp(`^${regexPattern}$`);
   });

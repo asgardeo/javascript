@@ -24,7 +24,6 @@ import {
   EmbeddedSignInFlowStatus,
   EmbeddedSignInFlowAuthenticatorPromptType,
   ApplicationNativeAuthenticationConstants,
-  AsgardeoAPIError,
   withVendorCSSClassPrefix,
   EmbeddedSignInFlowHandleRequestPayload,
   EmbeddedFlowExecuteRequestConfig,
@@ -39,6 +38,7 @@ import useFlow from '../../../../../contexts/Flow/useFlow';
 import useTheme from '../../../../../contexts/Theme/useTheme';
 import {useForm, FormField} from '../../../../../hooks/useForm';
 import useTranslation from '../../../../../hooks/useTranslation';
+import resolveFlowErrorMessage from '../../../../../utils/resolveFlowErrorMessage';
 import AlertPrimitive, {AlertVariant} from '../../../../primitives/Alert/Alert';
 import CardPrimitive, {CardProps} from '../../../../primitives/Card/Card';
 import Divider from '../../../../primitives/Divider/Divider';
@@ -510,7 +510,7 @@ const BaseSignInContent: FC<BaseSignInProps> = ({
         }
       }
     } catch (err) {
-      const errorMessage: string = err instanceof AsgardeoAPIError ? err.message : t('errors.signin.flow.failure');
+      const errorMessage: string = resolveFlowErrorMessage(err, t('errors.signin.flow.failure'));
       setError(errorMessage);
       onError?.(err as Error);
     } finally {
@@ -800,7 +800,7 @@ const BaseSignInContent: FC<BaseSignInProps> = ({
         }
       }
     } catch (err) {
-      const errorMessage: string = err instanceof AsgardeoAPIError ? err?.message : 'Authenticator selection failed';
+      const errorMessage: string = resolveFlowErrorMessage(err, 'Authenticator selection failed');
       setError(errorMessage);
       onError?.(err as Error);
     } finally {
@@ -926,7 +926,7 @@ const BaseSignInContent: FC<BaseSignInProps> = ({
           );
         }
       } catch (err) {
-        const errorMessage: string = err instanceof AsgardeoAPIError ? err.message : t('errors.signin.initialization');
+        const errorMessage: string = resolveFlowErrorMessage(err, t('errors.signin.initialization'));
         setError(errorMessage);
         onError?.(err as Error);
       } finally {

@@ -34,6 +34,7 @@ import useFlow from '../../../../../contexts/Flow/useFlow';
 import useTheme from '../../../../../contexts/Theme/useTheme';
 import {useForm, FormField} from '../../../../../hooks/useForm';
 import useTranslation from '../../../../../hooks/useTranslation';
+import resolveFlowErrorMessage from '../../../../../utils/resolveFlowErrorMessage';
 import AlertPrimitive from '../../../../primitives/Alert/Alert';
 // eslint-disable-next-line import/no-named-as-default
 import CardPrimitive, {CardProps} from '../../../../primitives/Card/Card';
@@ -220,6 +221,19 @@ export interface BaseSignUpProps {
  *
  * @internal
  */
+/**
+ * Maps a flow message type to an Alert variant, defaulting to `info` for unknown types.
+ */
+const resolveAlertVariant = (type?: string): 'success' | 'error' | 'warning' | 'info' => {
+  const normalized: string = type?.toLowerCase() ?? '';
+
+  if (normalized === 'success' || normalized === 'error' || normalized === 'warning') {
+    return normalized;
+  }
+
+  return 'info';
+};
+
 const BaseSignUpContent: FC<BaseSignUpProps> = ({
   afterSignUpUrl,
   onInitialize,
@@ -247,31 +261,7 @@ const BaseSignUpContent: FC<BaseSignUpProps> = ({
 
   const handleError: any = useCallback(
     (error: any) => {
-      let errorMessage: string = t('errors.signup.flow.failure');
-
-      if (error && typeof error === 'object') {
-        // Handle Asgardeo error format with code and description/message
-        if (error.code && (error.message || error.description)) {
-          errorMessage = error.description || error.message;
-        } else if (error instanceof Error && error.name === 'AsgardeoAPIError') {
-          try {
-            const errorResponse: any = JSON.parse(error.message);
-            if (errorResponse.description) {
-              errorMessage = errorResponse.description;
-            } else if (errorResponse.message) {
-              errorMessage = errorResponse.message;
-            } else {
-              errorMessage = error.message;
-            }
-          } catch {
-            errorMessage = error.message;
-          }
-        } else if (error.message) {
-          errorMessage = error.message;
-        }
-      } else if (typeof error === 'string') {
-        errorMessage = error;
-      }
+      const errorMessage: string = resolveFlowErrorMessage(error, t('errors.signup.flow.failure'));
 
       // Clear existing messages and add the error message
       clearMessages();
@@ -285,9 +275,28 @@ const BaseSignUpContent: FC<BaseSignUpProps> = ({
 
   const [isLoading, setIsLoading] = useState(false);
   const [isFlowInitialized, setIsFlowInitialized] = useState(false);
+  const [isFlowComplete, setIsFlowComplete] = useState(false);
   const [currentFlow, setCurrentFlow] = useState<EmbeddedFlowExecuteResponse | null>(null);
 
   const initializationAttemptedRef: any = useRef(false);
+
+  /**
+   * Marks the flow as complete: hides the form, shows a success message and notifies the host.
+   * Hosts that redirect afterwards (e.g. Next.js) still get a meaningful screen while navigation is in flight.
+   */
+  const handleFlowComplete: (response: EmbeddedFlowExecuteResponse) => void = useCallback(
+    (response: EmbeddedFlowExecuteResponse): void => {
+      setCurrentFlow(response);
+      setIsFlowComplete(true);
+      clearMessages();
+      addMessage({
+        message: t('signup.success'),
+        type: 'success',
+      });
+      onComplete?.(response);
+    },
+    [t, addMessage, clearMessages, onComplete],
+  );
 
   /**
    * Extract form fields from flow components
@@ -451,10 +460,17 @@ const BaseSignUpContent: FC<BaseSignUpProps> = ({
 
           try {
             const continueResponse: any = await onSubmit(payload);
+
+            if (!continueResponse) {
+              popup.close();
+              cleanup();
+              return;
+            }
+
             onFlowChange?.(continueResponse);
 
             if (continueResponse.flowStatus === EmbeddedFlowStatus.Complete) {
-              onComplete?.(continueResponse);
+              handleFlowComplete(continueResponse);
             } else if (continueResponse.flowStatus === EmbeddedFlowStatus.Incomplete) {
               setCurrentFlow(continueResponse);
               setupFormFields(continueResponse);
@@ -522,10 +538,16 @@ const BaseSignUpContent: FC<BaseSignUpProps> = ({
 
                 try {
                   const continueResponse: any = await onSubmit(payload);
+
+                  if (!continueResponse) {
+                    popup.close();
+                    return;
+                  }
+
                   onFlowChange?.(continueResponse);
 
                   if (continueResponse.flowStatus === EmbeddedFlowStatus.Complete) {
-                    onComplete?.(continueResponse);
+                    handleFlowComplete(continueResponse);
                   } else if (continueResponse.flowStatus === EmbeddedFlowStatus.Incomplete) {
                     setCurrentFlow(continueResponse);
                     setupFormFields(continueResponse);
@@ -586,10 +608,16 @@ const BaseSignUpContent: FC<BaseSignUpProps> = ({
       } as any;
 
       const response: any = await onSubmit(payload);
+
+      // `onSubmit` may resolve without a response when the host has already taken over (e.g. a redirect).
+      if (!response) {
+        return;
+      }
+
       onFlowChange?.(response);
 
       if (response.flowStatus === EmbeddedFlowStatus.Complete) {
-        onComplete?.(response);
+        handleFlowComplete(response);
         return;
       }
 
@@ -600,6 +628,14 @@ const BaseSignUpContent: FC<BaseSignUpProps> = ({
 
         setCurrentFlow(response);
         setupFormFields(response);
+
+        // Surface server-side validation failures (e.g. password policy) that arrive with an INCOMPLETE flow.
+        const flowError: unknown = response.data?.additionalData?.['error'];
+
+        if (flowError) {
+          clearMessages();
+          addMessage({message: String(flowError), type: 'error'});
+        }
       }
     } catch (err) {
       handleError(err);
@@ -687,12 +723,16 @@ const BaseSignUpContent: FC<BaseSignUpProps> = ({
         try {
           const response: any = await onInitialize();
 
+          if (!response) {
+            return;
+          }
+
           setCurrentFlow(response);
           setIsFlowInitialized(true);
           onFlowChange?.(response);
 
           if (response.flowStatus === EmbeddedFlowStatus.Complete) {
-            onComplete?.(response);
+            handleFlowComplete(response);
             return;
           }
 
@@ -711,7 +751,7 @@ const BaseSignUpContent: FC<BaseSignUpProps> = ({
     isInitialized,
     isFlowInitialized,
     onInitialize,
-    onComplete,
+    handleFlowComplete,
     onError,
     onFlowChange,
     setupFormFields,
@@ -786,7 +826,7 @@ const BaseSignUpContent: FC<BaseSignUpProps> = ({
             {flowMessages.map((message: any, index: number) => (
               <AlertPrimitive
                 key={message.id || index}
-                variant={message.type?.toLowerCase() === 'error' ? 'error' : 'info'}
+                variant={resolveAlertVariant(message.type)}
                 className={cx(styles.flowMessageItem, messageClasses)}
               >
                 <AlertPrimitive.Description>{message.message}</AlertPrimitive.Description>
@@ -794,15 +834,17 @@ const BaseSignUpContent: FC<BaseSignUpProps> = ({
             ))}
           </div>
         )}
-        <div className={styles.contentContainer}>
-          {currentFlow.data?.components && currentFlow.data.components.length > 0 ? (
-            renderComponents(currentFlow.data.components)
-          ) : (
-            <AlertPrimitive variant="warning">
-              <Typography variant="body1">{t('errors.signup.components.not.available')}</Typography>
-            </AlertPrimitive>
-          )}
-        </div>
+        {!isFlowComplete && (
+          <div className={styles.contentContainer}>
+            {currentFlow.data?.components && currentFlow.data.components.length > 0 ? (
+              renderComponents(currentFlow.data.components)
+            ) : (
+              <AlertPrimitive variant="warning">
+                <Typography variant="body1">{t('errors.signup.components.not.available')}</Typography>
+              </AlertPrimitive>
+            )}
+          </div>
+        )}
       </CardPrimitive.Content>
     </CardPrimitive>
   );

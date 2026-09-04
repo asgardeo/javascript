@@ -61,6 +61,7 @@ import {AsgardeoNextConfig} from './models/config';
 import getClientOrigin from './server/actions/getClientOrigin';
 import getSessionId from './server/actions/getSessionId';
 import decorateConfigWithNextEnv from './utils/decorateConfigWithNextEnv';
+import logger from './utils/logger';
 
 /**
  * Client for mplementing Asgardeo in Next.js applications.
@@ -118,6 +119,7 @@ class AsgardeoNextClient<T extends AsgardeoNextConfig = AsgardeoNextConfig> exte
       signInUrl,
       afterSignInUrl,
       afterSignOutUrl,
+      afterSignUpUrl,
       signUpUrl,
       ...rest
     } = decorateConfigWithNextEnv(config);
@@ -132,10 +134,29 @@ class AsgardeoNextClient<T extends AsgardeoNextConfig = AsgardeoNextConfig> exte
 
     const origin: string = await getClientOrigin();
 
+    /**
+     * `afterSignInUrl` / `afterSignOutUrl` are sent to the identity server as OAuth redirect URIs, so a
+     * relative value such as "/dashboard" has to be resolved against the app origin first.
+     */
+    const resolveAgainstOrigin = (url: string | undefined): string | undefined => {
+      if (!url) {
+        return undefined;
+      }
+
+      try {
+        return new URL(url, origin).toString();
+      } catch {
+        return url;
+      }
+    };
+
+    const resolvedAfterSignInUrl: string = resolveAgainstOrigin(afterSignInUrl) ?? origin;
+
     return this.asgardeo.initialize(
       {
-        afterSignInUrl: afterSignInUrl ?? origin,
-        afterSignOutUrl: afterSignOutUrl ?? origin,
+        afterSignInUrl: resolvedAfterSignInUrl,
+        afterSignOutUrl: resolveAgainstOrigin(afterSignOutUrl) ?? origin,
+        afterSignUpUrl: afterSignUpUrl ?? resolvedAfterSignInUrl,
         baseUrl,
         clientId,
         clientSecret,
@@ -227,6 +248,18 @@ class AsgardeoNextClient<T extends AsgardeoNextConfig = AsgardeoNextConfig> exte
 
       return output;
     } catch (error) {
+      const statusCode: number | undefined = (error as {statusCode?: number})?.statusCode;
+      const scopeHint: string =
+        statusCode === 401 || statusCode === 403
+          ? ' The request was rejected; make sure the `internal_login` scope is included in `scopes` (it is required by the SCIM2 /Me endpoint).'
+          : '';
+
+      logger.warn(
+        `[AsgardeoNextClient] Could not load the user profile from SCIM2, falling back to the ID token claims. ` +
+          `Only attributes shared with the application will be shown and profile editing is disabled.${scopeHint} ` +
+          `Reason: ${error instanceof Error ? error.message : String(error)}`,
+      );
+
       return {
         flattenedProfile: extractUserClaimsFromIdToken(await this.asgardeo.getDecodedIdToken(userId)),
         profile: extractUserClaimsFromIdToken(await this.asgardeo.getDecodedIdToken(userId)),
