@@ -85,7 +85,7 @@
     "vue": ">=3.5.0"
   },
   "devDependencies": {
-    "@nuxt/devtools": "2.4.0",
+    "@nuxt/devtools": "3.4.2",
     "@nuxt/module-builder": "1.0.1",
     "@nuxt/schema": "3.16.2",
     "@nuxt/test-utils": "3.17.2",
@@ -94,9 +94,9 @@
     "cookie-es": "2.0.0",
     "eslint": "8.57.0",
     "h3": "1.15.11",
-    "nuxt": "3.16.2",
+    "nuxt": "3.21.11",
     "typescript": "5.8.3",
-    "vitest": "3.1.1",
+    "vitest": "3.2.7",
     "vue-tsc": "2.2.8"
   },
   "publishConfig": {

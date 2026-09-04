@@ -34,7 +34,7 @@ jobs:
     strategy:
       matrix:
         node-version: [lts/*]
-        pnpm-version: [latest]
+        pnpm-version: [11.17.0]
     steps:
       - name: ⬇️ Checkout
         id: checkout

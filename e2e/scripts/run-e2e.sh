@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Usage: ./e2e/scripts/run-e2e.sh [--idp is|thunder] [--mode redirect|embedded|all] [--headed]
+# Usage: ./e2e/scripts/run-e2e.sh [--idp is] [--mode redirect|embedded|all] [--headed]
 #
 # Defaults: --idp is --mode redirect
 
@@ -27,17 +27,11 @@ run_suite() {
   IDP_TARGET="$idp" npx playwright test --config "e2e/playwright.${mode}.config.ts" $EXTRA_ARGS
 }
 
-if [[ "$IDP" == "all" && "$MODE" == "all" ]]; then
-  for idp in is thunder; do
-    for mode in redirect embedded; do
-      run_suite "$idp" "$mode"
-    done
-  done
-elif [[ "$IDP" == "all" ]]; then
-  for idp in is thunder; do
-    run_suite "$idp" "$MODE"
-  done
-elif [[ "$MODE" == "all" ]]; then
+if [[ "$IDP" == "all" ]]; then
+  IDP="is"
+fi
+
+if [[ "$MODE" == "all" ]]; then
   for mode in redirect embedded; do
     run_suite "$IDP" "$mode"
   done

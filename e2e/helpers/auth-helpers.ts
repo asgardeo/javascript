@@ -2,32 +2,20 @@
  * Authentication helpers for e2e tests.
  *
  * This module provides IDP-agnostic public APIs that delegate to
- * IDP-specific implementations in helpers/is/ and helpers/thunder/.
+ * IDP-specific implementations in helpers/is/.
  */
 
 import {type Page} from '@playwright/test';
 import {TEST_USER, getIdpTarget} from '../setup/constants';
-import {THUNDER_CONFIG} from '../setup/thunder/constants';
 import {SELECTORS} from './selectors';
 import {performIsSignIn, handleIsLogoutConsent} from './is/auth-helpers';
-import {performThunderSignIn} from './thunder/auth-helpers';
 
 /**
  * Returns the credentials to use for sign-in based on the IDP target.
  *
  * - IS: Uses the provisioned test user (e2e-test-user)
- * - Thunder: Uses the pre-created admin user (admin/admin)
  */
 function getSignInCredentials(): {username: string; password: string} {
-  const idpTarget = getIdpTarget();
-
-  if (idpTarget === 'thunder') {
-    return {
-      username: THUNDER_CONFIG.adminUsername,
-      password: THUNDER_CONFIG.adminPassword,
-    };
-  }
-
   return {
     username: TEST_USER.username,
     password: TEST_USER.password,
@@ -38,17 +26,11 @@ function getSignInCredentials(): {username: string; password: string} {
  * Performs the full sign-in flow via redirect-based OAuth2.
  * Delegates to the appropriate IDP login page based on the IDP target:
  * - IS: WSO2 IS authentication endpoint
- * - Thunder: Thunder's Gate login page
  */
 export async function performSignIn(page: Page): Promise<void> {
-  const idpTarget = getIdpTarget();
   const credentials = getSignInCredentials();
 
-  if (idpTarget === 'thunder') {
-    await performThunderSignIn(page, credentials);
-  } else {
-    await performIsSignIn(page, credentials);
-  }
+  await performIsSignIn(page, credentials);
 }
 
 /**

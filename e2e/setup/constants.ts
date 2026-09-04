@@ -1,7 +1,7 @@
 /**
  * Shared e2e test configuration constants.
  *
- * IDP-specific configuration lives in setup/is/constants.ts and setup/thunder/constants.ts.
+ * IDP-specific configuration lives in setup/is/constants.ts.
  */
 
 export const SAMPLE_APP = {
@@ -20,13 +20,13 @@ export const TEST_USER = {
   lastName: 'TestUser',
 } as const;
 
-export type IdpTarget = 'is' | 'thunder';
+export type IdpTarget = 'is';
 
 export function getIdpTarget(): IdpTarget {
   const target = process.env.IDP_TARGET ?? 'is';
 
-  if (target !== 'is' && target !== 'thunder') {
-    throw new Error(`Invalid IDP_TARGET: "${target}". Must be "is" or "thunder".`);
+  if (target !== 'is') {
+    throw new Error(`Invalid IDP_TARGET: "${target}". Must be "is".`);
   }
 
   return target;
