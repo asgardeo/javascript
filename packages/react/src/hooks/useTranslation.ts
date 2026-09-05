@@ -16,11 +16,12 @@
  * under the License.
  */
 
-import {deepMerge, I18nPreferences, Preferences} from '@asgardeo/browser';
+import {deepMerge, I18nBundleOverride, I18nPreferences, Preferences} from '@asgardeo/browser';
 import {I18nBundle, I18nTranslations, normalizeTranslations} from '@asgardeo/i18n';
 import {useContext, useMemo} from 'react';
 import ComponentPreferencesContext from '../contexts/I18n/ComponentPreferencesContext';
 import I18nContext from '../contexts/I18n/I18nContext';
+import bundleFromOverride from '../utils/bundleFromOverride';
 
 export interface UseTranslation {
   /**
@@ -89,7 +90,7 @@ const useTranslation = (componentPreferences?: I18nPreferences): UseTranslationW
     });
 
     // Merge component-level bundles using deepMerge for better merging
-    Object.entries(effectivePreferences.bundles).forEach(([key, componentBundle]: [string, I18nBundle]) => {
+    Object.entries(effectivePreferences.bundles).forEach(([key, componentBundle]: [string, I18nBundleOverride]) => {
       const normalizedTranslations: I18nTranslations = normalizeTranslations(
         componentBundle.translations as unknown as Record<string, string | Record<string, string>>,
       );
@@ -103,8 +104,8 @@ const useTranslation = (componentPreferences?: I18nPreferences): UseTranslationW
           translations: deepMerge(merged[key].translations, normalizedTranslations),
         };
       } else {
-        // No global bundle for this language, use component bundle as-is
-        merged[key] = {...componentBundle, translations: normalizedTranslations};
+        // No global bundle for this language, build one from the component bundle
+        merged[key] = bundleFromOverride(key, componentBundle, normalizedTranslations);
       }
     });
 

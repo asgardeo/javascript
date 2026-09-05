@@ -29,6 +29,7 @@ import {
   EmbeddedFlowExecuteRequestConfig,
   handleWebAuthnAuthentication,
   createPackageComponentLogger,
+  WithPreferences,
 } from '@asgardeo/browser';
 import {cx} from '@emotion/css';
 import {FC, FormEvent, RefObject, useEffect, useState, useCallback, useRef, ReactElement} from 'react';
@@ -63,7 +64,7 @@ const isPasskeyAuthenticator = (authenticator: EmbeddedSignInFlowAuthenticator):
 /**
  * Props for the BaseSignIn component.
  */
-export interface BaseSignInProps {
+export interface BaseSignInProps extends WithPreferences {
   afterSignInUrl?: string;
 
   /**
@@ -182,6 +183,7 @@ const BaseSignInContent: FC<BaseSignInProps> = ({
   variant = 'outlined',
   showTitle = true,
   showSubtitle = true,
+  preferences,
 }: BaseSignInProps): ReactElement => {
   const {theme} = useTheme();
   const {t} = useTranslation();
@@ -1067,6 +1069,7 @@ const BaseSignInContent: FC<BaseSignInProps> = ({
                       buttonClassName: buttonClasses,
                       error,
                       inputClassName: inputClasses,
+                      preferences,
                     },
                   )}
                 </form>
@@ -1092,6 +1095,7 @@ const BaseSignInContent: FC<BaseSignInProps> = ({
                     buttonClassName: buttonClasses,
                     error,
                     inputClassName: inputClasses,
+                    preferences,
                   },
                 )}
               </div>
@@ -1222,6 +1226,7 @@ const BaseSignInContent: FC<BaseSignInProps> = ({
               buttonClassName: buttonClasses,
               error,
               inputClassName: inputClasses,
+              preferences,
             },
           )}
         </form>

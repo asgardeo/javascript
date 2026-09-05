@@ -16,7 +16,13 @@
  * under the License.
  */
 
-import {deepMerge, I18nPreferences, I18nStorageStrategy, createPackageComponentLogger} from '@asgardeo/browser';
+import {
+  deepMerge,
+  I18nBundleOverride,
+  I18nPreferences,
+  I18nStorageStrategy,
+  createPackageComponentLogger,
+} from '@asgardeo/browser';
 import {
   I18nBundle,
   I18nTranslations,
@@ -26,6 +32,7 @@ import {
 } from '@asgardeo/i18n';
 import {FC, PropsWithChildren, ReactElement, useCallback, useEffect, useMemo, useState} from 'react';
 import I18nContext, {I18nContextValue} from './I18nContext';
+import bundleFromOverride from '../../utils/bundleFromOverride';
 
 const logger: ReturnType<typeof createPackageComponentLogger> = createPackageComponentLogger(
   '@asgardeo/react',
@@ -226,7 +233,7 @@ const I18nProvider: FC<PropsWithChildren<I18nProviderProps>> = ({
 
     // 3. User-provided bundles (from props) — highest priority, override everything
     if (preferences?.bundles) {
-      Object.entries(preferences.bundles).forEach(([key, userBundle]: [string, I18nBundle]) => {
+      Object.entries(preferences.bundles).forEach(([key, userBundle]: [string, I18nBundleOverride]) => {
         const normalizedTranslations: I18nTranslations = normalizeTranslations(
           userBundle.translations as unknown as Record<string, string | Record<string, string>>,
         );
@@ -237,7 +244,7 @@ const I18nProvider: FC<PropsWithChildren<I18nProviderProps>> = ({
             translations: deepMerge(merged[key].translations, normalizedTranslations),
           };
         } else {
-          merged[key] = {...userBundle, translations: normalizedTranslations};
+          merged[key] = bundleFromOverride(key, userBundle, normalizedTranslations);
         }
       });
     }

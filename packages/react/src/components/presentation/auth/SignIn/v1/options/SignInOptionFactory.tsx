@@ -20,6 +20,7 @@ import {
   EmbeddedSignInFlowAuthenticator,
   EmbeddedSignInFlowAuthenticatorKnownIdPType,
   ApplicationNativeAuthenticationConstants,
+  Preferences,
   WithPreferences,
 } from '@asgardeo/browser';
 import {ReactElement} from 'react';
@@ -249,6 +250,7 @@ export const createSignInOptionFromAuthenticator = (
     buttonClassName?: string;
     error?: string | null;
     inputClassName?: string;
+    preferences?: Preferences;
   },
 ): ReactElement =>
   createSignInOption({
