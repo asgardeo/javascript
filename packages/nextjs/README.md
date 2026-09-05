@@ -54,6 +54,8 @@ email address, relabel the identifier field:
     },
   }}
 >
+  {children}
+</AsgardeoProvider>
 ```
 
 The available keys are listed in the `@asgardeo/i18n` package (`I18nTranslations`).

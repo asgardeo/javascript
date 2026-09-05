@@ -17,7 +17,18 @@
  */
 
 import {I18nBundleOverride} from '@asgardeo/browser';
-import {I18nBundle, I18nMetadata, I18nTranslations} from '@asgardeo/i18n';
+import {I18nBundle, I18nMetadata, I18nTextDirection, I18nTranslations} from '@asgardeo/i18n';
+
+/**
+ * Languages written right-to-left, by ISO 639-1 code.
+ */
+const RTL_LANGUAGES: Set<string> = new Set(['ar', 'dv', 'fa', 'he', 'ks', 'ku', 'ps', 'sd', 'ug', 'ur', 'yi']);
+
+/**
+ * Derives the text direction for a locale from its language code.
+ */
+export const deriveTextDirection = (locale: string): I18nTextDirection =>
+  RTL_LANGUAGES.has(locale.split(/[-_]/)[0].toLowerCase()) ? 'rtl' : 'ltr';
 
 /**
  * Builds a complete bundle from an application-supplied partial override for a locale that has
@@ -28,12 +39,12 @@ const bundleFromOverride = (
   override: I18nBundleOverride,
   translations: I18nTranslations,
 ): I18nBundle => {
-  const [languageCode, countryCode = '']: string[] = locale.split('-');
+  const [languageCode, countryCode = '']: string[] = locale.split(/[-_]/);
 
   return {
     metadata: {
       countryCode,
-      direction: 'ltr',
+      direction: deriveTextDirection(locale),
       displayName: locale,
       languageCode,
       localeCode: locale,
