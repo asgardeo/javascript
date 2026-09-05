@@ -54,6 +54,17 @@ const UsernamePassword: FC<BaseSignInOptionProps> = ({
     setSubtitle(t('username.password.subheading'));
   }, [setTitle, setSubtitle, t]);
 
+  /**
+   * Field texts can be customised through the i18n bundle (e.g. label the identifier "Email" for
+   * organizations whose users sign in with an email address). Falls back to the text supplied by
+   * the identity server when no translation exists for the field.
+   */
+  const resolveFieldText = (key: string, fallback: string): string => {
+    const translated: string = t(key);
+
+    return translated && translated !== key ? translated : fallback;
+  };
+
   return (
     <>
       {formFields.map((param: any) => (
@@ -61,12 +72,15 @@ const UsernamePassword: FC<BaseSignInOptionProps> = ({
           {createField({
             className: inputClassName,
             disabled: isLoading,
-            label: param.displayName,
+            label: resolveFieldText(`elements.fields.${param.param}.label`, param.displayName),
             name: param.param,
             onChange: (value: any) => onInputChange(param.param, value),
-            placeholder: t(`elements.fields.generic.placeholder`, {
-              field: (param.displayName || param.param).toLowerCase(),
-            }),
+            placeholder: resolveFieldText(
+              `elements.fields.${param.param}.placeholder`,
+              t(`elements.fields.generic.placeholder`, {
+                field: (param.displayName || param.param).toLowerCase(),
+              }),
+            ),
             required: authenticator.requiredParams.includes(param.param),
             touched: touchedFields[param.param] || false,
             type:

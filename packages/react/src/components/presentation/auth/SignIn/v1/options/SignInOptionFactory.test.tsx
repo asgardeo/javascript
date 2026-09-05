@@ -130,14 +130,38 @@ vi.mock('../../../../../../contexts/Theme/useTheme', () => ({
   }),
 }));
 
+const translations: Record<string, string> = {
+  'elements.fields.username.label': 'Email',
+  'elements.fields.username.placeholder': 'Enter your email',
+};
+
+vi.mock('../../../../../../contexts/Flow/useFlow', () => ({
+  default: () => ({setSubtitle: vi.fn(), setTitle: vi.fn()}),
+}));
+
 vi.mock('../../../../../../hooks/useTranslation', () => ({
   default: () => ({
-    t: (key: string) => key,
+    t: (key: string) => translations[key] ?? key,
     currentLanguage: 'en',
     setLanguage: vi.fn(),
     availableLanguages: ['en'],
   }),
 }));
+
+const basicAuthenticator: any = {
+  authenticator: 'Username & Password',
+  authenticatorId: 'QmFzaWNBdXRoZW50aWNhdG9yOkxPQ0FM',
+  idp: 'LOCAL',
+  metadata: {
+    i18nKey: 'authenticator.basic',
+    params: [
+      {confidential: false, displayName: 'Username', order: 0, param: 'username', type: 'STRING'},
+      {confidential: true, displayName: 'Password', order: 1, param: 'password', type: 'STRING'},
+    ],
+    promptType: 'USER_PROMPT',
+  },
+  requiredParams: ['username', 'password'],
+};
 
 const googleAuthenticator: any = {
   authenticator: 'Google',
@@ -179,6 +203,22 @@ describe('createSignInOptionFromAuthenticator', () => {
       .filter((message: string) => /does not recognize|Unknown event handler/.test(message));
 
     expect(domWarnings).toEqual([]);
+  });
+
+  it('lets the i18n bundle override username/password labels and falls back to the server text', () => {
+    const {container} = render(
+      createSignInOptionFromAuthenticator(basicAuthenticator, {}, {}, false, vi.fn(), vi.fn(), {}),
+    );
+
+    const username = container.querySelector('input[name="username"]') as HTMLInputElement;
+    const password = container.querySelector('input[name="password"]') as HTMLInputElement;
+
+    // Overridden through the bundle.
+    expect(container.textContent).toContain('Email');
+    expect(username.getAttribute('placeholder')).toBe('Enter your email');
+    // No translation for the password field: the identity server's displayName is used.
+    expect(container.textContent).toContain('Password');
+    expect(password.getAttribute('placeholder')).toBe('elements.fields.generic.placeholder');
   });
 
   it('does not leak form-state props onto a social button rendered by the sign-up factory', () => {
