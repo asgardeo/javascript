@@ -69,6 +69,7 @@ const SignUp: FC<SignUpProps> = ({
   variant = 'outlined',
   afterSignUpUrl,
   onError,
+  ...rest
 }: SignUpProps) => {
   const {signUp} = useAsgardeo();
 
@@ -118,6 +119,7 @@ const SignUp: FC<SignUpProps> = ({
       size={size}
       variant={variant}
       isInitialized={true}
+      {...rest}
     />
   );
 };

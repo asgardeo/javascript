@@ -33,6 +33,7 @@ import LinkedInButton from '../../../../adapters/LinkedInButton';
 import MicrosoftButton from '../../../../adapters/MicrosoftButton';
 import NumberInput from '../../../../adapters/NumberInput';
 import PasswordInput from '../../../../adapters/PasswordInput';
+import RichText from '../../../../adapters/RichText';
 import SelectInput from '../../../../adapters/SelectInput';
 import SignInWithEthereumButton from '../../../../adapters/SignInWithEthereumButton';
 import ButtonComponent from '../../../../adapters/SubmitButton';
@@ -151,6 +152,10 @@ const createSignUpElement = ({component, onSubmit, ...rest}: AdapterProps): Reac
 
     case EmbeddedFlowComponentType.Image:
       return <ImageComponent component={component} onSubmit={onSubmit} {...rest} />;
+
+    // `RICH_TEXT` (e.g. terms of service under the form) is not part of the v1 enum but is sent by the server.
+    case 'RICH_TEXT':
+      return <RichText component={component} onSubmit={onSubmit} {...rest} />;
 
     default:
       return <div />;

@@ -17,6 +17,7 @@
  */
 
 import {FC, FormEvent} from 'react';
+import useTheme from '../../contexts/Theme/useTheme';
 import {AdapterProps} from '../../models/adapters';
 // eslint-disable-next-line import/no-cycle
 import {createSignUpComponent} from '../presentation/auth/SignUp/v1/SignUpOptionFactory';
@@ -26,6 +27,7 @@ import {createSignUpComponent} from '../presentation/auth/SignUp/v1/SignUpOption
  */
 const FormContainer: FC<AdapterProps> = (props: AdapterProps) => {
   const {component} = props;
+  const {theme} = useTheme();
 
   // If the form has child components, render them wrapped in a form element
   if (component.components && component.components.length > 0) {
@@ -45,7 +47,12 @@ const FormContainer: FC<AdapterProps> = (props: AdapterProps) => {
     };
 
     return (
-      <form key={component.id} onSubmit={handleFormSubmit} style={{display: 'flex', flexDirection: 'column'}}>
+      <form
+        key={component.id}
+        onSubmit={handleFormSubmit}
+        // Same vertical rhythm as the sign-in form: fields, text and buttons are evenly spaced.
+        style={{display: 'flex', flexDirection: 'column', gap: `calc(${theme.vars.spacing.unit} * 2)`}}
+      >
         {component.components.map((childComponent: any, index: number) =>
           createSignUpComponent({
             ...props,
