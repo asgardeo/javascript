@@ -89,7 +89,7 @@ const createSignUpElement = ({component, onSubmit, ...rest}: AdapterProps): Reac
       if (buttonVariant === 'SOCIAL') {
         if (buttonText.toLowerCase().includes('google')) {
           return (
-            <GoogleButton onClick={(): any => onSubmit(component, {})} isLoading={rest.isLoading} className={rest.buttonClassName}>
+            <GoogleButton onClick={(): any => onSubmit(component, {})} isLoading={rest.isLoading} className={rest.buttonClassName} preferences={rest.preferences}>
               {buttonText}
             </GoogleButton>
           );
@@ -97,7 +97,7 @@ const createSignUpElement = ({component, onSubmit, ...rest}: AdapterProps): Reac
 
         if (buttonText.toLowerCase().includes('github')) {
           return (
-            <GitHubButton onClick={(): any => onSubmit(component, {})} isLoading={rest.isLoading} className={rest.buttonClassName}>
+            <GitHubButton onClick={(): any => onSubmit(component, {})} isLoading={rest.isLoading} className={rest.buttonClassName} preferences={rest.preferences}>
               {buttonText}
             </GitHubButton>
           );
@@ -105,7 +105,7 @@ const createSignUpElement = ({component, onSubmit, ...rest}: AdapterProps): Reac
 
         if (buttonText.toLowerCase().includes('microsoft')) {
           return (
-            <MicrosoftButton onClick={(): any => onSubmit(component, {})} isLoading={rest.isLoading} className={rest.buttonClassName}>
+            <MicrosoftButton onClick={(): any => onSubmit(component, {})} isLoading={rest.isLoading} className={rest.buttonClassName} preferences={rest.preferences}>
               {buttonText}
             </MicrosoftButton>
           );
@@ -113,7 +113,7 @@ const createSignUpElement = ({component, onSubmit, ...rest}: AdapterProps): Reac
 
         if (buttonText.toLowerCase().includes('facebook')) {
           return (
-            <FacebookButton onClick={(): any => onSubmit(component, {})} isLoading={rest.isLoading} className={rest.buttonClassName}>
+            <FacebookButton onClick={(): any => onSubmit(component, {})} isLoading={rest.isLoading} className={rest.buttonClassName} preferences={rest.preferences}>
               {buttonText}
             </FacebookButton>
           );
@@ -121,7 +121,7 @@ const createSignUpElement = ({component, onSubmit, ...rest}: AdapterProps): Reac
 
         if (buttonText.toLowerCase().includes('linkedin')) {
           return (
-            <LinkedInButton onClick={(): any => onSubmit(component, {})} isLoading={rest.isLoading} className={rest.buttonClassName}>
+            <LinkedInButton onClick={(): any => onSubmit(component, {})} isLoading={rest.isLoading} className={rest.buttonClassName} preferences={rest.preferences}>
               {buttonText}
             </LinkedInButton>
           );
@@ -129,7 +129,7 @@ const createSignUpElement = ({component, onSubmit, ...rest}: AdapterProps): Reac
 
         if (buttonText.toLowerCase().includes('ethereum')) {
           return (
-            <SignInWithEthereumButton onClick={(): any => onSubmit(component, {})} isLoading={rest.isLoading} className={rest.buttonClassName}>
+            <SignInWithEthereumButton onClick={(): any => onSubmit(component, {})} isLoading={rest.isLoading} className={rest.buttonClassName} preferences={rest.preferences}>
               {buttonText}
             </SignInWithEthereumButton>
           );

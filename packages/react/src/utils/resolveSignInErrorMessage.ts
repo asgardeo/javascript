@@ -34,6 +34,24 @@ export interface ResolveSignInErrorMessageOptions {
 }
 
 /**
+ * Returns the URL the SDK sent as the OAuth `redirect_uri`. `afterSignInUrl` may be relative (e.g. `/dashboard`),
+ * in which case it is resolved against the current origin, exactly as the sign-in request does.
+ */
+const resolveRedirectUri = (afterSignInUrl?: string): string => {
+  const origin: string = typeof window !== 'undefined' ? window.location.origin : '';
+
+  if (!afterSignInUrl) {
+    return origin;
+  }
+
+  try {
+    return origin ? new URL(afterSignInUrl, origin).href : afterSignInUrl;
+  } catch {
+    return afterSignInUrl;
+  }
+};
+
+/**
  * Resolves the message to show for an error raised by the embedded sign-in flow.
  * Known identity server rejections map to translated, actionable messages; anything else falls back to
  * {@link resolveFlowErrorMessage}.
@@ -45,11 +63,7 @@ const resolveSignInErrorMessage = (
   const message: string = resolveFlowErrorMessage(error, '');
 
   if (REDIRECT_URI_MISMATCH.test(message)) {
-    const origin: string = typeof window !== 'undefined' ? window.location.origin : '';
-    // `afterSignInUrl` may be relative (e.g. `/dashboard`); the redirect URI the server saw is origin-resolved.
-    const url: string = afterSignInUrl && origin ? new URL(afterSignInUrl, origin).href : afterSignInUrl || origin;
-
-    return t('errors.signin.redirect.uri.mismatch', {url});
+    return t('errors.signin.redirect.uri.mismatch', {url: resolveRedirectUri(afterSignInUrl)});
   }
 
   return message || fallback;

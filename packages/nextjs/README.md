@@ -18,8 +18,7 @@ The SDK sends `afterSignInUrl` (`NEXT_PUBLIC_ASGARDEO_AFTER_SIGN_IN_URL`, or the
 `<AsgardeoProvider>`) to the identity server as the OAuth `redirect_uri`. A relative value such as `/dashboard` is
 resolved against your app's origin. Register the resolved URL, for example `http://localhost:3000/dashboard` and its
 production equivalent, under the application's **Authorized redirect URLs** in the console; the bare origin is not
-enough. If it is missing, the embedded `<SignIn />` fails to initialise and the sign-in action logs the exact URL to
-register.
+enough. If it is missing, the embedded `<SignIn />` fails to initialise and shows the exact URL to register.
 
 Social login with app-native authentication needs two more redirect URIs on the social provider's OAuth client (for
 Google: the OAuth client's **Authorized redirect URIs**), because the identity server sends different callbacks for
