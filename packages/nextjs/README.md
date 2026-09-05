@@ -32,6 +32,15 @@ A missing entry surfaces as Google's `Error 400: redirect_uri_mismatch`.
 
 `afterSignOutUrl` (default: the app origin) is sent as the post-logout redirect URI and must be registered as well.
 
+## Logging
+
+The SDK logs at `error` level by default. Set `ASGARDEO_LOG_LEVEL` to `warn`, `info` or `debug` to see more,
+for example why a user's profile fell back to the ID token claims:
+
+```bash
+ASGARDEO_LOG_LEVEL=warn
+```
+
 ## API Documentation
 
 For complete API documentation including all components, hooks, and customization options, see the [Next.js SDK Documentation](https://wso2.com/asgardeo/docs/sdks/nextjs/overview).
