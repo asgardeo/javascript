@@ -111,6 +111,7 @@ const SignUp: FC<SignUpProps> = ({
 
   return (
     <BaseSignUp
+      {...rest}
       afterSignUpUrl={afterSignUpUrl}
       onInitialize={handleInitialize}
       onSubmit={handleOnSubmit}
@@ -119,7 +120,6 @@ const SignUp: FC<SignUpProps> = ({
       size={size}
       variant={variant}
       isInitialized={true}
-      {...rest}
     />
   );
 };

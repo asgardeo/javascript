@@ -33,6 +33,14 @@ describe('resolveSignInErrorMessage', () => {
     );
   });
 
+  it('resolves a relative afterSignInUrl against the current origin', () => {
+    const error: Error = new Error('Failed: {"code":"ABA-60001","description":"invalid_callback - callback.not.match"}');
+
+    expect(resolveSignInErrorMessage(error, {afterSignInUrl: '/dashboard', fallback: 'x', t})).toBe(
+      `Register ${window.location.origin}/dashboard`,
+    );
+  });
+
   it('passes other server errors through', () => {
     const error: Error = new Error('Failed: {"code":"ABA-60007","description":"App native authentication is not enabled."}');
 

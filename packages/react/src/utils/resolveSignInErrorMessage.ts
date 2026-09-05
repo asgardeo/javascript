@@ -45,7 +45,9 @@ const resolveSignInErrorMessage = (
   const message: string = resolveFlowErrorMessage(error, '');
 
   if (REDIRECT_URI_MISMATCH.test(message)) {
-    const url: string = afterSignInUrl || (typeof window !== 'undefined' ? window.location.origin : '');
+    const origin: string = typeof window !== 'undefined' ? window.location.origin : '';
+    // `afterSignInUrl` may be relative (e.g. `/dashboard`); the redirect URI the server saw is origin-resolved.
+    const url: string = afterSignInUrl && origin ? new URL(afterSignInUrl, origin).href : afterSignInUrl || origin;
 
     return t('errors.signin.redirect.uri.mismatch', {url});
   }
