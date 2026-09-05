@@ -161,6 +161,7 @@ const translations: I18nTranslations = {
 
   'errors.heading': 'Erro',
   'errors.signin.initialization': 'Ocorreu um erro ao inicializar. Tente novamente mais tarde.',
+  'errors.signin.redirect.uri.mismatch': 'O URI de redirecionamento "{url}" não está registrado para este aplicativo. Adicione-o às URLs de redirecionamento autorizadas do aplicativo no console e, se usar login social nativo, também ao seu provedor de login social.',
   'errors.signin.flow.failure': 'Ocorreu um erro durante o login. Tente novamente mais tarde.',
   'errors.signin.flow.completion.failure': 'Ocorreu um erro ao completar o login. Tente novamente mais tarde.',
   'errors.signin.flow.passkeys.failure':

@@ -12,6 +12,27 @@
 
 Get started with Asgardeo in your Next.js application in minutes. Follow our [Next.js Quick Start Guide](https://wso2.com/asgardeo/docs/quick-starts/nextjs/) for step-by-step instructions on integrating authentication into your app.
 
+## Redirect URLs
+
+The SDK sends `afterSignInUrl` (`NEXT_PUBLIC_ASGARDEO_AFTER_SIGN_IN_URL`, or the `afterSignInUrl` prop of
+`<AsgardeoProvider>`) to the identity server as the OAuth `redirect_uri`. A relative value such as `/dashboard` is
+resolved against your app's origin. Register the resolved URL, for example `http://localhost:3000/dashboard` and its
+production equivalent, under the application's **Authorized redirect URLs** in the console; the bare origin is not
+enough. If it is missing, the embedded `<SignIn />` fails to initialise and the sign-in action logs the exact URL to
+register.
+
+Social login with app-native authentication needs two more redirect URIs on the social provider's OAuth client (for
+Google: the OAuth client's **Authorized redirect URIs**), because the identity server sends different callbacks for
+the two flows:
+
+- sign-in: the same resolved `afterSignInUrl`, e.g. `http://localhost:3000/dashboard`
+- sign-up (self registration): the identity server's registration callback,
+  `https://accounts.asgardeo.io/t/<organization>/accounts/register`
+
+A missing entry surfaces as Google's `Error 400: redirect_uri_mismatch`.
+
+`afterSignOutUrl` (default: the app origin) is sent as the post-logout redirect URI and must be registered as well.
+
 ## API Documentation
 
 For complete API documentation including all components, hooks, and customization options, see the [Next.js SDK Documentation](https://wso2.com/asgardeo/docs/sdks/nextjs/overview).

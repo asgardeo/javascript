@@ -168,6 +168,7 @@ export interface I18nTranslations {
 
   'errors.heading': string;
   'errors.signin.initialization': string;
+  'errors.signin.redirect.uri.mismatch': string;
   'errors.signin.flow.failure': string;
   'errors.signin.flow.completion.failure': string;
   'errors.signin.flow.passkeys.failure': string;

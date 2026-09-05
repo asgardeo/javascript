@@ -170,6 +170,7 @@ const translations: I18nTranslations = {
   'errors.heading': 'Error',
   'errors.signin.components.not.available': 'Sign-in form is not available at the moment. Please try again later.',
   'errors.signin.initialization': 'An error occurred while initializing. Please try again later.',
+  'errors.signin.redirect.uri.mismatch': 'The redirect URI "{url}" is not registered for this application. Add it to the application\'s authorized redirect URLs in the console, and to your social login provider if you use app-native social sign-in.',
   'errors.signin.flow.failure': 'An error occurred during the sign-in flow. Please try again later.',
   'errors.signin.flow.completion.failure':
     'An error occurred while completing the sign-in flow. Please try again later.',
