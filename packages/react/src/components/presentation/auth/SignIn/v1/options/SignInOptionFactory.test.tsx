@@ -208,9 +208,9 @@ describe('createSignInOptionFromAuthenticator', () => {
     const button = container.querySelector('button');
 
     expect(button).not.toBeNull();
-    for (const attr of ['formvalues', 'formerrors', 'touchedfields', 'isformvalid', 'inputclassname']) {
+    ['formvalues', 'formerrors', 'touchedfields', 'isformvalid', 'inputclassname'].forEach((attr: string) => {
       expect(button?.getAttribute(attr)).toBeNull();
-    }
+    });
 
     const domWarnings = consoleError.mock.calls
       .map((call: unknown[]) => String(call[0]))

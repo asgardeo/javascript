@@ -510,7 +510,11 @@ const BaseSignInContent: FC<BaseSignInProps> = ({
         }
       }
     } catch (err) {
-      const errorMessage: string = resolveSignInErrorMessage(err, {afterSignInUrl, fallback: t('errors.signin.flow.failure'), t});
+      const errorMessage: string = resolveSignInErrorMessage(err, {
+        afterSignInUrl,
+        fallback: t('errors.signin.flow.failure'),
+        t,
+      });
       setError(errorMessage);
       onError?.(err as Error);
     } finally {
@@ -800,7 +804,11 @@ const BaseSignInContent: FC<BaseSignInProps> = ({
         }
       }
     } catch (err) {
-      const errorMessage: string = resolveSignInErrorMessage(err, {afterSignInUrl, fallback: 'Authenticator selection failed', t});
+      const errorMessage: string = resolveSignInErrorMessage(err, {
+        afterSignInUrl,
+        fallback: 'Authenticator selection failed',
+        t,
+      });
       setError(errorMessage);
       onError?.(err as Error);
     } finally {
@@ -926,7 +934,11 @@ const BaseSignInContent: FC<BaseSignInProps> = ({
           );
         }
       } catch (err) {
-        const errorMessage: string = resolveSignInErrorMessage(err, {afterSignInUrl, fallback: t('errors.signin.initialization'), t});
+        const errorMessage: string = resolveSignInErrorMessage(err, {
+          afterSignInUrl,
+          fallback: t('errors.signin.initialization'),
+          t,
+        });
         setError(errorMessage);
         onError?.(err as Error);
       } finally {

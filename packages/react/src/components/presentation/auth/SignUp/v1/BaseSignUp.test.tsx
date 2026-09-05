@@ -18,7 +18,7 @@
 
 /* eslint-disable sort-keys, @typescript-eslint/typedef, @typescript-eslint/explicit-function-return-type, testing-library/no-container, testing-library/no-node-access */
 
-import {act, cleanup, fireEvent, render, waitFor} from '@testing-library/react';
+import {cleanup, fireEvent, render, waitFor} from '@testing-library/react';
 import {afterEach, describe, expect, it, vi} from 'vitest';
 import BaseSignUp from './BaseSignUp';
 
@@ -49,7 +49,15 @@ const mockColors = {
 
 const mockTypography = {
   fontFamily: 'Arial, sans-serif',
-  fontSizes: {xs: '0.75rem', sm: '0.875rem', md: '1rem', lg: '1.125rem', xl: '1.25rem', '2xl': '1.5rem', '3xl': '1.875rem'},
+  fontSizes: {
+    xs: '0.75rem',
+    sm: '0.875rem',
+    md: '1rem',
+    lg: '1.125rem',
+    xl: '1.25rem',
+    '2xl': '1.5rem',
+    '3xl': '1.875rem',
+  },
   fontWeights: {normal: 400, medium: 500, semibold: 600, bold: 700},
   lineHeights: {tight: 1.25, normal: 1.5, relaxed: 1.75},
 };
@@ -59,16 +67,31 @@ const mockTheme = {
   typography: mockTypography,
   spacing: {unit: 8},
   borderRadius: {small: '2px', medium: '4px', large: '8px'},
-  shadows: {small: '0 1px 2px rgba(0,0,0,0.1)', medium: '0 2px 4px rgba(0,0,0,0.1)', large: '0 4px 8px rgba(0,0,0,0.1)'},
+  shadows: {
+    small: '0 1px 2px rgba(0,0,0,0.1)',
+    medium: '0 2px 4px rgba(0,0,0,0.1)',
+    large: '0 4px 8px rgba(0,0,0,0.1)',
+  },
   cssVariables: {},
   vars: {
     colors: {
       ...mockColors,
-      action: {...mockColors.action, hoverOpacity: '0.08', selectedOpacity: '0.12', disabledOpacity: '0.38', focusOpacity: '0.12', activatedOpacity: '0.12'},
+      action: {
+        ...mockColors.action,
+        hoverOpacity: '0.08',
+        selectedOpacity: '0.12',
+        disabledOpacity: '0.38',
+        focusOpacity: '0.12',
+        activatedOpacity: '0.12',
+      },
     },
     spacing: {unit: '8px'},
     borderRadius: {small: '2px', medium: '4px', large: '8px'},
-    shadows: {small: '0 1px 2px rgba(0,0,0,0.1)', medium: '0 2px 4px rgba(0,0,0,0.1)', large: '0 4px 8px rgba(0,0,0,0.1)'},
+    shadows: {
+      small: '0 1px 2px rgba(0,0,0,0.1)',
+      medium: '0 2px 4px rgba(0,0,0,0.1)',
+      large: '0 4px 8px rgba(0,0,0,0.1)',
+    },
     typography: {
       ...mockTypography,
       fontWeights: {normal: '400', medium: '500', semibold: '600', bold: '700'},
@@ -151,9 +174,7 @@ describe('BaseSignUp (v1) after a server-side validation error', () => {
 
     fireEvent.change(username, {target: {value: 'sdk-test@example.com'}});
     fireEvent.change(password, {target: {value: 'weak'}});
-    await act(async () => {
-      fireEvent.click(submit);
-    });
+    fireEvent.click(submit);
 
     // The server rejected the password: the message is shown, the values stay, and the form is still usable.
     await waitFor(() => expect(container.textContent).toContain(SERVER_ERROR));
@@ -169,11 +190,9 @@ describe('BaseSignUp (v1) after a server-side validation error', () => {
     // Correct the password and resubmit.
     fireEvent.change(password, {target: {value: 'Str0ng!Passw0rd'}});
     expect(submit.disabled).toBe(false);
-    await act(async () => {
-      fireEvent.click(submit);
-    });
+    fireEvent.click(submit);
 
-    expect(onSubmit).toHaveBeenCalledTimes(2);
+    await waitFor(() => expect(onSubmit).toHaveBeenCalledTimes(2));
     expect(onSubmit.mock.calls[1][0].inputs).toEqual({
       'http://wso2.org/claims/username': 'sdk-test@example.com',
       password: 'Str0ng!Passw0rd',

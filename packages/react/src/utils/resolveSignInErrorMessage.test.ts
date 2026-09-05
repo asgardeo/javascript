@@ -28,13 +28,15 @@ describe('resolveSignInErrorMessage', () => {
       '[AsgardeoAPIError] (code="initializeEmbeddedSignInFlow-ResponseError-001") (HTTP 400 - Bad Request)\nMessage: Authorization request failed: {"code":"ABA-60001","message":"Invalid authentication request.","description":"invalid_callback - callback.not.match"}',
     );
 
-    expect(resolveSignInErrorMessage(error, {afterSignInUrl: 'http://localhost:3000/dashboard', fallback: 'x', t})).toBe(
-      'Register http://localhost:3000/dashboard',
-    );
+    expect(
+      resolveSignInErrorMessage(error, {afterSignInUrl: 'http://localhost:3000/dashboard', fallback: 'x', t}),
+    ).toBe('Register http://localhost:3000/dashboard');
   });
 
   it('resolves a relative afterSignInUrl against the current origin', () => {
-    const error: Error = new Error('Failed: {"code":"ABA-60001","description":"invalid_callback - callback.not.match"}');
+    const error: Error = new Error(
+      'Failed: {"code":"ABA-60001","description":"invalid_callback - callback.not.match"}',
+    );
 
     expect(resolveSignInErrorMessage(error, {afterSignInUrl: '/dashboard', fallback: 'x', t})).toBe(
       `Register ${window.location.origin}/dashboard`,
@@ -42,7 +44,9 @@ describe('resolveSignInErrorMessage', () => {
   });
 
   it('passes other server errors through', () => {
-    const error: Error = new Error('Failed: {"code":"ABA-60007","description":"App native authentication is not enabled."}');
+    const error: Error = new Error(
+      'Failed: {"code":"ABA-60007","description":"App native authentication is not enabled."}',
+    );
 
     expect(resolveSignInErrorMessage(error, {fallback: 'x', t})).toBe('App native authentication is not enabled.');
   });

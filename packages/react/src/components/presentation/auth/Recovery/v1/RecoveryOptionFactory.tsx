@@ -88,7 +88,12 @@ const createRecoveryElement = ({component, onSubmit, ...rest}: AdapterProps): Re
       if (buttonVariant === 'SOCIAL') {
         if (buttonText.toLowerCase().includes('google')) {
           return (
-            <GoogleButton onClick={(): any => onSubmit(component, {})} isLoading={rest.isLoading} className={rest.buttonClassName} preferences={rest.preferences}>
+            <GoogleButton
+              onClick={(): any => onSubmit(component, {})}
+              isLoading={rest.isLoading}
+              className={rest.buttonClassName}
+              preferences={rest.preferences}
+            >
               {buttonText}
             </GoogleButton>
           );
@@ -96,7 +101,12 @@ const createRecoveryElement = ({component, onSubmit, ...rest}: AdapterProps): Re
 
         if (buttonText.toLowerCase().includes('github')) {
           return (
-            <GitHubButton onClick={(): any => onSubmit(component, {})} isLoading={rest.isLoading} className={rest.buttonClassName} preferences={rest.preferences}>
+            <GitHubButton
+              onClick={(): any => onSubmit(component, {})}
+              isLoading={rest.isLoading}
+              className={rest.buttonClassName}
+              preferences={rest.preferences}
+            >
               {buttonText}
             </GitHubButton>
           );
@@ -104,7 +114,12 @@ const createRecoveryElement = ({component, onSubmit, ...rest}: AdapterProps): Re
 
         if (buttonText.toLowerCase().includes('microsoft')) {
           return (
-            <MicrosoftButton onClick={(): any => onSubmit(component, {})} isLoading={rest.isLoading} className={rest.buttonClassName} preferences={rest.preferences}>
+            <MicrosoftButton
+              onClick={(): any => onSubmit(component, {})}
+              isLoading={rest.isLoading}
+              className={rest.buttonClassName}
+              preferences={rest.preferences}
+            >
               {buttonText}
             </MicrosoftButton>
           );
@@ -112,7 +127,12 @@ const createRecoveryElement = ({component, onSubmit, ...rest}: AdapterProps): Re
 
         if (buttonText.toLowerCase().includes('facebook')) {
           return (
-            <FacebookButton onClick={(): any => onSubmit(component, {})} isLoading={rest.isLoading} className={rest.buttonClassName} preferences={rest.preferences}>
+            <FacebookButton
+              onClick={(): any => onSubmit(component, {})}
+              isLoading={rest.isLoading}
+              className={rest.buttonClassName}
+              preferences={rest.preferences}
+            >
               {buttonText}
             </FacebookButton>
           );
@@ -120,7 +140,12 @@ const createRecoveryElement = ({component, onSubmit, ...rest}: AdapterProps): Re
 
         if (buttonText.toLowerCase().includes('linkedin')) {
           return (
-            <LinkedInButton onClick={(): any => onSubmit(component, {})} isLoading={rest.isLoading} className={rest.buttonClassName} preferences={rest.preferences}>
+            <LinkedInButton
+              onClick={(): any => onSubmit(component, {})}
+              isLoading={rest.isLoading}
+              className={rest.buttonClassName}
+              preferences={rest.preferences}
+            >
               {buttonText}
             </LinkedInButton>
           );
@@ -128,7 +153,12 @@ const createRecoveryElement = ({component, onSubmit, ...rest}: AdapterProps): Re
 
         if (buttonText.toLowerCase().includes('ethereum')) {
           return (
-            <SignInWithEthereumButton onClick={(): any => onSubmit(component, {})} isLoading={rest.isLoading} className={rest.buttonClassName} preferences={rest.preferences}>
+            <SignInWithEthereumButton
+              onClick={(): any => onSubmit(component, {})}
+              isLoading={rest.isLoading}
+              className={rest.buttonClassName}
+              preferences={rest.preferences}
+            >
               {buttonText}
             </SignInWithEthereumButton>
           );

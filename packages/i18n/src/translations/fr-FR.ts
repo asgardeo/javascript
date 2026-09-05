@@ -163,7 +163,8 @@ const translations: I18nTranslations = {
 
   'errors.heading': 'Erreur',
   'errors.signin.initialization': "Une erreur est survenue lors de l'initialisation. Veuillez réessayer plus tard.",
-  'errors.signin.redirect.uri.mismatch': 'L\'URI de redirection "{url}" n\'est pas enregistrée pour cette application. Ajoutez-la aux URL de redirection autorisées de l\'application dans la console, ainsi qu\'à votre fournisseur de connexion sociale si vous utilisez la connexion sociale native.',
+  'errors.signin.redirect.uri.mismatch':
+    "L'URI de redirection \"{url}\" n'est pas enregistrée pour cette application. Ajoutez-la aux URL de redirection autorisées de l'application dans la console, ainsi qu'à votre fournisseur de connexion sociale si vous utilisez la connexion sociale native.",
   'errors.signin.flow.failure': 'Une erreur est survenue lors du flux de connexion. Veuillez réessayer plus tard.',
   'errors.signin.flow.completion.failure':
     'Une erreur est survenue lors de la finalisation du flux de connexion. Veuillez réessayer plus tard.',

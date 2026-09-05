@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import {useState, useCallback, useRef, FormEvent} from 'react';
+import {useState, useCallback, useRef, FormEvent, MutableRefObject} from 'react';
 
 /**
  * Generic form field configuration
@@ -209,7 +209,7 @@ export const useForm = <T extends Record<string, string>>(config: UseFormConfig<
   const [values, setFormValues] = useState<T>({...initialValues} as T);
   // Mirrors `values` synchronously so that validation triggered in the same event as a value change
   // (e.g. `setValue` followed by `setTouched`) sees the new value rather than the previous render's state.
-  const valuesRef = useRef<T>({...initialValues} as T);
+  const valuesRef: MutableRefObject<T> = useRef<T>({...initialValues} as T);
   const [touched, setFormTouched] = useState<Record<keyof T, boolean>>({} as Record<keyof T, boolean>);
   const [errors, setFormErrors] = useState<Record<keyof T, string>>({} as Record<keyof T, string>);
   const [isSubmitted, setIsSubmitted] = useState(false);

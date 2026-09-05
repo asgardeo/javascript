@@ -161,7 +161,8 @@ const translations: I18nTranslations = {
 
   'errors.heading': 'エラー',
   'errors.signin.initialization': '初期化中にエラーが発生しました。後でもう一度お試しください。',
-  'errors.signin.redirect.uri.mismatch': 'リダイレクト URI「{url}」はこのアプリケーションに登録されていません。コンソールでアプリケーションの承認済みリダイレクト URL に追加してください。アプリネイティブのソーシャルサインインを使用する場合は、ソーシャルログインプロバイダーにも追加してください。',
+  'errors.signin.redirect.uri.mismatch':
+    'リダイレクト URI「{url}」はこのアプリケーションに登録されていません。コンソールでアプリケーションの承認済みリダイレクト URL に追加してください。アプリネイティブのソーシャルサインインを使用する場合は、ソーシャルログインプロバイダーにも追加してください。',
   'errors.signin.flow.failure': 'サインイン処理中にエラーが発生しました。後でもう一度お試しください。',
   'errors.signin.flow.completion.failure': 'サインイン処理の完了中にエラーが発生しました。後でもう一度お試しください。',
   'errors.signin.flow.passkeys.failure': 'パスキーでのサインイン中にエラーが発生しました。後でもう一度お試しください。',
