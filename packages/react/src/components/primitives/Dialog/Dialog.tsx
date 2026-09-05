@@ -188,9 +188,17 @@ export const DialogContent: ForwardRefExoticComponent<HTMLProps<HTMLDivElement> 
             className={cx(withVendorCSSClassPrefix(bem('dialog', 'overlay')), styles['overlay'])}
             lockScroll
           >
-            <FloatingFocusManager context={floatingContext} initialFocus={-1}>
+            {/*
+              Move focus onto the dialog itself when it opens. The focus manager marks everything outside the
+              dialog `aria-hidden`, so leaving focus on the trigger (e.g. the user dropdown in a page header)
+              hides a focused element from assistive technology, which browsers flag as an accessibility error.
+              Focusing the container rather than the first field keeps the previous behaviour of not
+              auto-focusing an input.
+            */}
+            <FloatingFocusManager context={floatingContext} initialFocus={context.refs.floating}>
               <div
                 ref={ref}
+                tabIndex={-1}
                 className={cx(withVendorCSSClassPrefix(bem('dialog', 'content')), styles['content'], props.className)}
                 aria-labelledby={context.labelId}
                 aria-describedby={context.descriptionId}
