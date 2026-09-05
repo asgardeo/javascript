@@ -54,6 +54,7 @@ import AsgardeoContext, {AsgardeoContextProps} from './AsgardeoContext';
 import {HttpRequestActionResult} from '../../../server/actions/httpRequestAction';
 import {RefreshResult} from '../../../server/actions/refreshToken';
 import logger from '../../../utils/logger';
+import navigateTo from '../../../utils/navigateTo';
 
 /**
  * Props interface of {@link AsgardeoClientProvider}
@@ -177,7 +178,7 @@ const AsgardeoClientProvider: FC<PropsWithChildren<AsgardeoClientProviderProps>>
           if (result.success) {
             // Redirect to the success URL
             if (result.redirectUrl) {
-              router.push(result.redirectUrl);
+              navigateTo(router, result.redirectUrl);
             } else {
               // Refresh the page to update authentication state
               window.location.reload();
@@ -215,14 +216,14 @@ const AsgardeoClientProvider: FC<PropsWithChildren<AsgardeoClientProviderProps>>
 
     // Redirect based flow URL is sent as `signInUrl` in the response.
     if (result?.data?.signInUrl) {
-      router.push(result.data.signInUrl);
+      navigateTo(router, result.data.signInUrl);
 
       return undefined;
     }
 
     // After the Embedded flow is successful, the URL to navigate next is sent as `afterSignInUrl` in the response.
     if (result?.data?.afterSignInUrl) {
-      router.push(result.data.afterSignInUrl);
+      navigateTo(router, result.data.afterSignInUrl);
 
       return undefined;
     }
@@ -251,7 +252,7 @@ const AsgardeoClientProvider: FC<PropsWithChildren<AsgardeoClientProviderProps>>
 
     // Redirect based flow URL is sent as `signUpUrl` in the response.
     if (result?.data?.signUpUrl) {
-      router.push(result.data.signUpUrl);
+      navigateTo(router, result.data.signUpUrl);
 
       return undefined;
     }
@@ -261,7 +262,7 @@ const AsgardeoClientProvider: FC<PropsWithChildren<AsgardeoClientProviderProps>>
       const {afterSignUpUrl, autoSignInSkippedReason, signedIn, ...flowResponse}: any = result.data;
 
       // A URL passed by the caller (e.g. the `afterSignUpUrl` prop of `<SignUp />`) wins over the configured one.
-      router.push(options?.afterSignUpUrl || afterSignUpUrl);
+      navigateTo(router, options?.afterSignUpUrl || afterSignUpUrl);
 
       if (signedIn) {
         // A session cookie was set during sign-up; re-render server components so the signed-in state is picked up.
@@ -295,7 +296,7 @@ const AsgardeoClientProvider: FC<PropsWithChildren<AsgardeoClientProviderProps>>
       logger.debug('[AsgardeoClientProvider][handleSignOut] Sign out result:', result);
 
       if (result?.data?.afterSignOutUrl) {
-        router.push(result.data.afterSignOutUrl);
+        navigateTo(router, result.data.afterSignOutUrl);
 
         return {location: result.data.afterSignOutUrl, redirected: true};
       }
