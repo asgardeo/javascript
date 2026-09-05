@@ -126,7 +126,7 @@ export const createSignInOption = ({
           className={buttonClassName}
           onClick={(): any => onSubmit(authenticator)}
           preferences={preferences}
-          {...rest}
+          isLoading={rest.isLoading}
         />
       );
 
@@ -136,7 +136,7 @@ export const createSignInOption = ({
           preferences={preferences}
           className={buttonClassName}
           onClick={(): any => onSubmit(authenticator)}
-          {...rest}
+          isLoading={rest.isLoading}
         />
       );
 
@@ -146,7 +146,7 @@ export const createSignInOption = ({
           preferences={preferences}
           className={buttonClassName}
           onClick={(): any => onSubmit(authenticator)}
-          {...rest}
+          isLoading={rest.isLoading}
         />
       );
 
@@ -156,7 +156,7 @@ export const createSignInOption = ({
           preferences={preferences}
           className={buttonClassName}
           onClick={(): any => onSubmit(authenticator)}
-          {...rest}
+          isLoading={rest.isLoading}
         />
       );
 
@@ -166,7 +166,7 @@ export const createSignInOption = ({
           preferences={preferences}
           className={buttonClassName}
           onClick={(): any => onSubmit(authenticator)}
-          {...rest}
+          isLoading={rest.isLoading}
         />
       );
 
@@ -176,7 +176,7 @@ export const createSignInOption = ({
           preferences={preferences}
           className={buttonClassName}
           onClick={(): any => onSubmit(authenticator)}
-          {...rest}
+          isLoading={rest.isLoading}
         />
       );
 

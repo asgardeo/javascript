@@ -161,6 +161,8 @@ const translations: I18nTranslations = {
 
   'errors.heading': 'Erro',
   'errors.signin.initialization': 'Ocorreu um erro ao inicializar. Tente novamente mais tarde.',
+  'errors.signin.redirect.uri.mismatch':
+    'O URI de redirecionamento "{url}" não está registado para esta aplicação. Adicione-o aos URLs de redirecionamento autorizados da aplicação na consola e, se utilizar início de sessão social nativo, também ao seu fornecedor de início de sessão social.',
   'errors.signin.flow.failure': 'Ocorreu um erro durante o início de sessão. Tente novamente mais tarde.',
   'errors.signin.flow.completion.failure':
     'Ocorreu um erro ao completar o início de sessão. Tente novamente mais tarde.',

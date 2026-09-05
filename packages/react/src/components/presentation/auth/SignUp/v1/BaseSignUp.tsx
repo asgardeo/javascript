@@ -311,19 +311,15 @@ const BaseSignUpContent: FC<BaseSignUpProps> = ({
             const config: any = component.config || {};
             fields.push({
               initialValue: config.defaultValue || '',
-              name: config.name || component.id,
+              // Must match the key the input adapters read/write values under, otherwise validation
+              // errors are recorded for names no input can ever clear and the submit button locks up.
+              name: config.identifier || config.name || component.id,
               required: config.required || false,
+              // Format and policy rules (email syntax, password strength) are enforced by the identity
+              // server, which reports failures in `additionalData.error`; only presence is checked here.
               validator: (value: string) => {
                 if (config.required && (!value || value.trim() === '')) {
                   return t('validations.required.field.error');
-                }
-                // Add email validation if it's an email field
-                if (config.type === 'email' && value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
-                  return t('field.email.invalid');
-                }
-                // Add password strength validation if it's a password field
-                if (config.type === 'password' && value && value.length < 8) {
-                  return t('field.password.weak');
                 }
                 return null;
               },
@@ -358,6 +354,7 @@ const BaseSignUpContent: FC<BaseSignUpProps> = ({
     errors: formErrors,
     isValid: isFormValid,
     setValue: setFormValue,
+    setValues: setFormValues,
     setTouched: setFormTouched,
     validateForm,
     reset: resetForm,
@@ -376,13 +373,32 @@ const BaseSignUpContent: FC<BaseSignUpProps> = ({
       });
 
       resetForm();
-
-      Object.keys(initialValues).forEach((key: any) => {
-        setFormValue(key, initialValues[key]);
-      });
+      // Populate defaults without running the on-change validation: a freshly rendered step must not
+      // start out with "required" errors that disable the submit button before the user has typed.
+      setFormValues(initialValues);
     },
-    [extractFormFields, resetForm, setFormValue],
+    [extractFormFields, resetForm, setFormValues],
   );
+
+  /**
+   * Whether two flow responses render the same set of input fields (e.g. the same step re-rendered
+   * with a validation error), in which case the values the user already entered are kept.
+   */
+  const rendersSameFields: (a: EmbeddedFlowExecuteResponse | null, b: EmbeddedFlowExecuteResponse) => boolean =
+    useCallback(
+      (a: EmbeddedFlowExecuteResponse | null, b: EmbeddedFlowExecuteResponse): boolean => {
+        const names: (response: EmbeddedFlowExecuteResponse | null) => string = (
+          response: EmbeddedFlowExecuteResponse | null,
+        ): string =>
+          extractFormFields(response?.data?.components || [])
+            .map((field: FormField) => field.name)
+            .sort()
+            .join('|');
+
+        return names(a) === names(b);
+      },
+      [extractFormFields],
+    );
 
   /**
    * Handle input value changes.
@@ -626,8 +642,15 @@ const BaseSignUpContent: FC<BaseSignUpProps> = ({
           return;
         }
 
+        // Keep what the user typed when the same step comes back (typically with a validation error),
+        // so they can correct a single field instead of filling in the whole form again.
+        const sameStep: boolean = rendersSameFields(currentFlow, response);
+
         setCurrentFlow(response);
-        setupFormFields(response);
+
+        if (!sameStep) {
+          setupFormFields(response);
+        }
 
         // Surface server-side validation failures (e.g. password policy) that arrive with an INCOMPLETE flow.
         const flowError: unknown = response.data?.additionalData?.['error'];

@@ -39,6 +39,14 @@ export interface SignUpCredentials {
 }
 
 /**
+ * Outcome of an automatic sign-in attempt. `reason` explains why it was skipped or failed.
+ */
+export interface AutoSignInResult {
+  reason?: string;
+  signedIn: boolean;
+}
+
+/**
  * Extracts the username and password from the inputs of a registration flow submission, if present.
  */
 export const extractSignUpCredentials = (inputs?: Record<string, unknown>): SignUpCredentials | undefined => {
@@ -62,11 +70,12 @@ export const extractSignUpCredentials = (inputs?: Record<string, unknown>): Sign
  * submitted, through the app-native (embedded) sign-in flow. On success the session cookie is set exactly
  * as for a regular sign-in.
  *
- * Returns `false` (without throwing) whenever an automatic sign-in is not possible, for example when
- * app-native authentication is disabled for the application or the login flow needs more than a
- * username/password step. The caller should then fall back to sending the user to the sign-in page.
+ * Never throws: whenever an automatic sign-in is not possible, for example when app-native authentication
+ * is disabled for the application, the redirect URI is not registered, or the login flow needs more than a
+ * username/password step, the result carries `signedIn: false` and a `reason`. The caller should then fall
+ * back to sending the user to the sign-in page.
  */
-const autoSignInAfterSignUp = async ({username, password}: SignUpCredentials): Promise<boolean> => {
+const autoSignInAfterSignUp = async ({username, password}: SignUpCredentials): Promise<AutoSignInResult> => {
   try {
     const initiation: Awaited<ReturnType<typeof signInAction>> = await signInAction({
       flowId: '',
@@ -77,13 +86,11 @@ const autoSignInAfterSignUp = async ({username, password}: SignUpCredentials): P
       | undefined;
 
     if (!initiation.success || !flow || !('nextStep' in flow)) {
-      logger.warn(
-        `[autoSignInAfterSignUp] Could not start the sign-in flow after registration, the user has to sign in manually. ${
-          initiation.error ?? ''
-        }`,
-      );
+      const reason: string = `Could not start the sign-in flow after registration. ${initiation.error ?? ''}`.trim();
 
-      return false;
+      logger.warn(`[autoSignInAfterSignUp] ${reason} The user has to sign in manually.`);
+
+      return {reason, signedIn: false};
     }
 
     const basicAuthenticator: EmbeddedSignInFlowAuthenticator | undefined = flow.nextStep?.authenticators?.find(
@@ -94,11 +101,11 @@ const autoSignInAfterSignUp = async ({username, password}: SignUpCredentials): P
     );
 
     if (!basicAuthenticator) {
-      logger.warn(
-        '[autoSignInAfterSignUp] The first login step has no username/password authenticator, the user has to sign in manually.',
-      );
+      const reason: string = 'The first login step has no username/password authenticator.';
 
-      return false;
+      logger.warn(`[autoSignInAfterSignUp] ${reason} The user has to sign in manually.`);
+
+      return {reason, signedIn: false};
     }
 
     const link: {href: string; method: string} | undefined = flow.links?.[0];
@@ -111,24 +118,22 @@ const autoSignInAfterSignUp = async ({username, password}: SignUpCredentials): P
     );
 
     if (completion.success && completion.data && 'afterSignInUrl' in completion.data) {
-      return true;
+      return {signedIn: true};
     }
 
-    logger.warn(
-      `[autoSignInAfterSignUp] Sign-in did not complete in a single step (status: ${
-        (completion.data as {flowStatus?: string})?.flowStatus ?? 'unknown'
-      }), the user has to sign in manually. ${completion.error ?? ''}`,
-    );
+    const reason: string = `Sign-in did not complete in a single step (status: ${
+      (completion.data as {flowStatus?: string})?.flowStatus ?? 'unknown'
+    }). ${completion.error ?? ''}`.trim();
 
-    return false;
+    logger.warn(`[autoSignInAfterSignUp] ${reason} The user has to sign in manually.`);
+
+    return {reason, signedIn: false};
   } catch (error) {
-    logger.warn(
-      `[autoSignInAfterSignUp] Automatic sign-in failed, the user has to sign in manually: ${
-        error instanceof Error ? error.message : String(error)
-      }`,
-    );
+    const reason: string = `Automatic sign-in failed: ${error instanceof Error ? error.message : String(error)}`;
 
-    return false;
+    logger.warn(`[autoSignInAfterSignUp] ${reason} The user has to sign in manually.`);
+
+    return {reason, signedIn: false};
   }
 };
 

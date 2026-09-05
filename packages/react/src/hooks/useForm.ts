@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import {useState, useCallback, FormEvent} from 'react';
+import {useState, useCallback, useRef, FormEvent, MutableRefObject} from 'react';
 
 /**
  * Generic form field configuration
@@ -141,7 +141,7 @@ export interface UseFormReturn<T extends Record<string, string>> {
   /**
    * Validate a single field
    */
-  validateField: (name: keyof T) => string | null;
+  validateField: (name: keyof T, value?: string) => string | null;
   /**
    * Validate all fields
    */
@@ -207,6 +207,9 @@ export const useForm = <T extends Record<string, string>>(config: UseFormConfig<
 
   // Initialize form state
   const [values, setFormValues] = useState<T>({...initialValues} as T);
+  // Mirrors `values` synchronously so that validation triggered in the same event as a value change
+  // (e.g. `setValue` followed by `setTouched`) sees the new value rather than the previous render's state.
+  const valuesRef: MutableRefObject<T> = useRef<T>({...initialValues} as T);
   const [touched, setFormTouched] = useState<Record<keyof T, boolean>>({} as Record<keyof T, boolean>);
   const [errors, setFormErrors] = useState<Record<keyof T, string>>({} as Record<keyof T, string>);
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -218,9 +221,11 @@ export const useForm = <T extends Record<string, string>>(config: UseFormConfig<
   );
 
   // Validate a single field
-  const validateField: (name: keyof T) => string | null = useCallback(
-    (name: keyof T): string | null => {
-      const value: string = values[name] || '';
+  const validateField: (name: keyof T, valueOverride?: string) => string | null = useCallback(
+    (name: keyof T, valueOverride?: string): string | null => {
+      // `values` is the state of the render this callback was created in, so callers that are
+      // changing the field (e.g. `setValue`) pass the new value explicitly.
+      const value: string = (valueOverride !== undefined ? valueOverride : valuesRef.current[name]) || '';
       const fieldConfig: FormField | undefined = getFieldConfig(name);
 
       // Check required validation
@@ -236,7 +241,7 @@ export const useForm = <T extends Record<string, string>>(config: UseFormConfig<
 
       return null;
     },
-    [values, getFieldConfig, requiredMessage],
+    [getFieldConfig, requiredMessage],
   );
 
   // Validate the entire form
@@ -253,7 +258,7 @@ export const useForm = <T extends Record<string, string>>(config: UseFormConfig<
 
     // Run global validator if provided
     if (validator) {
-      const globalErrors: Record<string, string> = validator(values);
+      const globalErrors: Record<string, string> = validator(valuesRef.current);
       Object.keys(globalErrors).forEach((key: string) => {
         if (globalErrors[key]) {
           newErrors[key as keyof T] = globalErrors[key];
@@ -265,7 +270,7 @@ export const useForm = <T extends Record<string, string>>(config: UseFormConfig<
       errors: newErrors,
       isValid: Object.keys(newErrors).length === 0,
     };
-  }, [fields, validateField, validator, values]);
+  }, [fields, validateField, validator]);
 
   // Check if form is currently valid
   const isValid: boolean = Object.keys(errors).length === 0;
@@ -273,6 +278,7 @@ export const useForm = <T extends Record<string, string>>(config: UseFormConfig<
   // Set a single field value
   const setValue: (name: keyof T, value: string) => void = useCallback(
     (name: keyof T, value: string): void => {
+      valuesRef.current = {...valuesRef.current, [name]: value};
       setFormValues((prev: T) => ({
         ...prev,
         [name]: value,
@@ -280,7 +286,7 @@ export const useForm = <T extends Record<string, string>>(config: UseFormConfig<
 
       // Validate on change if enabled
       if (validateOnChange) {
-        const error: string | null = validateField(name);
+        const error: string | null = validateField(name, value);
         setFormErrors((prev: Record<keyof T, string>) => {
           const newErrors: Record<keyof T, string> = {...prev};
           if (error) {
@@ -297,6 +303,7 @@ export const useForm = <T extends Record<string, string>>(config: UseFormConfig<
 
   // Set multiple field values
   const setValues: (newValues: Partial<T>) => void = useCallback((newValues: Partial<T>): void => {
+    valuesRef.current = {...valuesRef.current, ...newValues};
     setFormValues((prev: T) => ({
       ...prev,
       ...newValues,
@@ -379,6 +386,7 @@ export const useForm = <T extends Record<string, string>>(config: UseFormConfig<
 
   // Reset form to initial state
   const reset: () => void = useCallback((): void => {
+    valuesRef.current = {...initialValues} as T;
     setFormValues({...initialValues} as T);
     setFormTouched({} as Record<keyof T, boolean>);
     setFormErrors({} as Record<keyof T, string>);

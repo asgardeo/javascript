@@ -33,6 +33,7 @@ import LinkedInButton from '../../../../adapters/LinkedInButton';
 import MicrosoftButton from '../../../../adapters/MicrosoftButton';
 import NumberInput from '../../../../adapters/NumberInput';
 import PasswordInput from '../../../../adapters/PasswordInput';
+import RichText from '../../../../adapters/RichText';
 import SelectInput from '../../../../adapters/SelectInput';
 import SignInWithEthereumButton from '../../../../adapters/SignInWithEthereumButton';
 import ButtonComponent from '../../../../adapters/SubmitButton';
@@ -88,7 +89,12 @@ const createSignUpElement = ({component, onSubmit, ...rest}: AdapterProps): Reac
       if (buttonVariant === 'SOCIAL') {
         if (buttonText.toLowerCase().includes('google')) {
           return (
-            <GoogleButton onClick={(): any => onSubmit(component, {})} {...rest}>
+            <GoogleButton
+              onClick={(): any => onSubmit(component, {})}
+              isLoading={rest.isLoading}
+              className={rest.buttonClassName}
+              preferences={rest.preferences}
+            >
               {buttonText}
             </GoogleButton>
           );
@@ -96,7 +102,12 @@ const createSignUpElement = ({component, onSubmit, ...rest}: AdapterProps): Reac
 
         if (buttonText.toLowerCase().includes('github')) {
           return (
-            <GitHubButton onClick={(): any => onSubmit(component, {})} {...rest}>
+            <GitHubButton
+              onClick={(): any => onSubmit(component, {})}
+              isLoading={rest.isLoading}
+              className={rest.buttonClassName}
+              preferences={rest.preferences}
+            >
               {buttonText}
             </GitHubButton>
           );
@@ -104,7 +115,12 @@ const createSignUpElement = ({component, onSubmit, ...rest}: AdapterProps): Reac
 
         if (buttonText.toLowerCase().includes('microsoft')) {
           return (
-            <MicrosoftButton onClick={(): any => onSubmit(component, {})} {...rest}>
+            <MicrosoftButton
+              onClick={(): any => onSubmit(component, {})}
+              isLoading={rest.isLoading}
+              className={rest.buttonClassName}
+              preferences={rest.preferences}
+            >
               {buttonText}
             </MicrosoftButton>
           );
@@ -112,7 +128,12 @@ const createSignUpElement = ({component, onSubmit, ...rest}: AdapterProps): Reac
 
         if (buttonText.toLowerCase().includes('facebook')) {
           return (
-            <FacebookButton onClick={(): any => onSubmit(component, {})} {...rest}>
+            <FacebookButton
+              onClick={(): any => onSubmit(component, {})}
+              isLoading={rest.isLoading}
+              className={rest.buttonClassName}
+              preferences={rest.preferences}
+            >
               {buttonText}
             </FacebookButton>
           );
@@ -120,7 +141,12 @@ const createSignUpElement = ({component, onSubmit, ...rest}: AdapterProps): Reac
 
         if (buttonText.toLowerCase().includes('linkedin')) {
           return (
-            <LinkedInButton onClick={(): any => onSubmit(component, {})} {...rest}>
+            <LinkedInButton
+              onClick={(): any => onSubmit(component, {})}
+              isLoading={rest.isLoading}
+              className={rest.buttonClassName}
+              preferences={rest.preferences}
+            >
               {buttonText}
             </LinkedInButton>
           );
@@ -128,7 +154,12 @@ const createSignUpElement = ({component, onSubmit, ...rest}: AdapterProps): Reac
 
         if (buttonText.toLowerCase().includes('ethereum')) {
           return (
-            <SignInWithEthereumButton onClick={(): any => onSubmit(component, {})} {...rest}>
+            <SignInWithEthereumButton
+              onClick={(): any => onSubmit(component, {})}
+              isLoading={rest.isLoading}
+              className={rest.buttonClassName}
+              preferences={rest.preferences}
+            >
               {buttonText}
             </SignInWithEthereumButton>
           );
@@ -151,6 +182,10 @@ const createSignUpElement = ({component, onSubmit, ...rest}: AdapterProps): Reac
 
     case EmbeddedFlowComponentType.Image:
       return <ImageComponent component={component} onSubmit={onSubmit} {...rest} />;
+
+    // `RICH_TEXT` (e.g. terms of service under the form) is not part of the v1 enum but is sent by the server.
+    case 'RICH_TEXT':
+      return <RichText component={component} onSubmit={onSubmit} {...rest} />;
 
     default:
       return <div />;

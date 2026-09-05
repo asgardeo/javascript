@@ -258,7 +258,7 @@ const AsgardeoClientProvider: FC<PropsWithChildren<AsgardeoClientProviderProps>>
 
     // After the Embedded flow is successful, the URL to navigate next is sent as `afterSignUpUrl` in the response.
     if (result?.data?.afterSignUpUrl) {
-      const {afterSignUpUrl, signedIn, ...flowResponse}: any = result.data;
+      const {afterSignUpUrl, autoSignInSkippedReason, signedIn, ...flowResponse}: any = result.data;
 
       // A URL passed by the caller (e.g. the `afterSignUpUrl` prop of `<SignUp />`) wins over the configured one.
       router.push(options?.afterSignUpUrl || afterSignUpUrl);
@@ -266,6 +266,12 @@ const AsgardeoClientProvider: FC<PropsWithChildren<AsgardeoClientProviderProps>>
       if (signedIn) {
         // A session cookie was set during sign-up; re-render server components so the signed-in state is picked up.
         router.refresh();
+      } else if (autoSignInSkippedReason) {
+        // Make the fallback visible where developers look first, not only in the server log.
+        logger.warn(
+          `[AsgardeoClientProvider] The user was registered but not signed in automatically: ${autoSignInSkippedReason} ` +
+            'They will have to sign in manually.',
+        );
       }
 
       // Hand the completed flow back to the caller (e.g. `<SignUp />`) so it can finish its lifecycle

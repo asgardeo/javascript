@@ -20,7 +20,11 @@
 
 import {EmbeddedFlowExecuteRequestPayload, EmbeddedFlowExecuteResponse, EmbeddedFlowStatus} from '@asgardeo/node';
 import AsgardeoNextClient from '../../AsgardeoNextClient';
-import autoSignInAfterSignUp, {extractSignUpCredentials, SignUpCredentials} from '../../utils/autoSignInAfterSignUp';
+import autoSignInAfterSignUp, {
+  AutoSignInResult,
+  extractSignUpCredentials,
+  SignUpCredentials,
+} from '../../utils/autoSignInAfterSignUp';
 
 /**
  * Server action for signing in a user.
@@ -38,7 +42,7 @@ const signUpAction = async (
         afterSignUpUrl?: string;
         signUpUrl?: string;
       }
-    | (EmbeddedFlowExecuteResponse & {afterSignUpUrl?: string; signedIn?: boolean});
+    | (EmbeddedFlowExecuteResponse & {afterSignUpUrl?: string; autoSignInSkippedReason?: string; signedIn?: boolean});
   error?: string;
   success: boolean;
 }> => {
@@ -65,11 +69,25 @@ const signUpAction = async (
       // When that is not possible (MFA, app-native auth disabled, multi-step registration), they are
       // sent to `afterSignUpUrl` without a session and can sign in manually.
       const credentials: SignUpCredentials | undefined = extractSignUpCredentials(payload.inputs);
-      const signedIn: boolean = credentials ? await autoSignInAfterSignUp(credentials) : false;
+      const autoSignIn: AutoSignInResult = credentials
+        ? await autoSignInAfterSignUp(credentials)
+        : {
+            reason:
+              'The final registration step did not include a username and password (e.g. a multi-step registration flow).',
+            signedIn: false,
+          };
 
       // Return the completed flow response along with the URL so that client components
       // (e.g. `<SignUp />`) can finish their own lifecycle instead of receiving nothing.
-      return {data: {...response, afterSignUpUrl: String(afterSignUpUrl), signedIn}, success: true};
+      return {
+        data: {
+          ...response,
+          afterSignUpUrl: String(afterSignUpUrl),
+          autoSignInSkippedReason: autoSignIn.reason,
+          signedIn: autoSignIn.signedIn,
+        },
+        success: true,
+      };
     }
 
     return {data: response as EmbeddedFlowExecuteResponse, success: true};
