@@ -151,6 +151,11 @@ const AsgardeoClientProvider: FC<PropsWithChildren<AsgardeoClientProviderProps>>
     // Don't handle callback if already signed in
     if (isSignedIn) return;
 
+    // The embedded sign-in/sign-up flows open the identity provider in a popup named `oauth_popup` and
+    // read the `code`/`state` from this window's URL themselves. Handling the callback here as well would
+    // try to exchange a code that belongs to the embedded flow and log a spurious "Authentication failed".
+    if (typeof window !== 'undefined' && window.opener && window.name === 'oauth_popup') return;
+
     (async (): Promise<void> => {
       try {
         const code: string | null = searchParams.get('code');
