@@ -517,9 +517,9 @@ const BaseOrganizationProfile: FC<BaseOrganizationProfileProps> = ({
     return fallback;
   }
 
-  const getTranslation = (key: string, fallback: string): string => {
+  const getTranslation = (key: string, defaultText: string): string => {
     const text: string = t(key);
-    return text && text !== key ? text : fallback;
+    return text && text !== key ? text : defaultText;
   };
 
   const profileContent: ReactElement = (

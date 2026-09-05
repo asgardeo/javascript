@@ -2,6 +2,7 @@ packages:
   - 'docs'
   - 'packages/*'
   - 'samples/*'
+  - 'tooling/*'
   - '!samples/teamspace-nextjs'
 
 allowBuilds:
@@ -18,61 +19,93 @@ auditConfig:
     - CVE-2026-26996
 
 autoInstallPeers: true
-strictPeerDependencies: false
-strictStorePkgContentCheck: false
 
 catalog:
   '@eslint/js': '9.25.0'
   '@types/react': '19.2.14'
   '@types/react-dom': '19.2.3'
-  '@wso2/eslint-plugin': 'git+https://github.com/brionmario/wso2-ui-configs.git#d3041825a4f8f235c8f9fa36b55cf29d54e791c8&path:packages/eslint-plugin'
-  '@wso2/prettier-config': 'git+https://github.com/brionmario/wso2-ui-configs.git#d3041825a4f8f235c8f9fa36b55cf29d54e791c8&path:packages/prettier-config'
   '@wso2/stylelint-config': 'git+https://github.com/brionmario/wso2-ui-configs.git#d3041825a4f8f235c8f9fa36b55cf29d54e791c8&path:packages/stylelint-config'
   dompurify: '3.3.1'
   react: '19.2.4'
   react-dom: '19.2.4'
 
 overrides:
-  '@asgardeo/auth-spa>axios': 1.16.1
+  '@asgardeo/auth-spa>axios': 1.20.0
+  '@babel/core@<7.29.6': 7.29.7
   '@eslint/plugin-kit': 0.3.4
   '@isaacs/brace-expansion': 5.0.1
-  '@nuxt/kit': 3.16.2
-  '@nuxt/schema': 3.16.2
+  '@nuxt/devtools@<3.3.1': 3.4.2
+  '@nuxt/kit': 3.21.11
+  '@nuxt/schema': 3.21.11
   '@types/react': 19.1.5
   '@types/react-dom': 19.1.5
   '@vitejs/plugin-vue>vite': 7.1.12
+  '@vitest/browser@<3.2.7': 3.2.7
   '@vue/language-core': 2.2.8
   '@wso2/eslint-plugin>@typescript-eslint/eslint-plugin': 6.21.0
   '@wso2/eslint-plugin>@typescript-eslint/parser': 6.21.0
   '@wso2/eslint-plugin>@typescript-eslint/type-utils': 6.21.0
   '@wso2/eslint-plugin>@typescript-eslint/utils': 6.21.0
+  'ajv@>=6.0.0 <6.14.0': 6.15.0
+  'axios@<1.18.0': 1.20.0
+  autoprefixer: 10.5.4
+  'body-parser@>=2.0.0 <2.3.0': 2.3.0
+  'brace-expansion@<2.0.0': 1.1.18
+  'brace-expansion@>=2.0.0 <3.0.0': 2.1.4
+  'brace-expansion@>=3.0.0 <5.0.9': 5.0.9
+  'browserslist@<4.28.8': 4.28.8
+  'diff@>=6.0.0 <8.0.3': 8.0.4
+  'dompurify@<3.4.13': 3.4.14
+  'esbuild@>=0.27.3 <0.28.1': 0.28.2
+  'form-data@>=4.0.0 <4.0.6': 4.0.6
+  'js-yaml@>=4.0.0 <4.3.1': 4.3.2
+  'launch-editor@<2.14.1': 2.14.1
+  'minimatch@<3.1.4': 3.1.5
+  'minimatch@>=10.0.0 <10.2.3': 10.2.5
+  'minimatch@>=9.0.0 <9.0.7': 9.0.9
+  'nanoid@<3.3.18': 3.3.18
+  'nanoid@>=4.0.0 <5.1.16': 5.1.16
+  'next@>=12.0.0 <15.5.21': 15.5.25
+  'nx@>=17.0.4 <22.7.7': 22.7.9
+  'path-to-regexp@>=8.0.0 <8.4.0': 8.4.2
+  'picomatch@<2.3.2': 2.3.2
+  'picomatch@>=4.0.0 <4.0.4': 4.0.4
+  'postcss-selector-parser@>=6.1.0 <6.1.3': 6.1.4
+  'postcss-selector-parser@>=7.1.0 <7.1.3': 7.1.6
+  'postcss@<8.5.23': 8.5.28
+  'react-router@>=6.0.0 <7.18.2': 7.18.3
+  'rollup@>=4.0.0 <4.59.0': 4.60.4
+  'seroval@<1.5.3': 1.6.4
+  'sharp@<0.35.0': 0.35.4
+  'shell-quote@<1.9.0': 1.10.0
+  'svgo@>=4.0.0 <4.0.2': 4.1.0
+  'undici@>=7.0.0 <7.29.0': 7.29.0
+  'vite@>=6.0.0 <6.4.3': 6.4.3
+  'vitest@<3.2.6': 3.2.7
+  'ws@>=8.0.0 <8.21.0': 8.21.3
   baseline-browser-mapping: 2.10.20
   defu: 6.1.7
   devalue: 5.8.1
+  electron-to-chromium: 1.5.420
   enhanced-resolve: 5.18.1
   flatted: 3.4.2
   js-beautify>glob: 10.5.0
-  js-yaml: 4.1.1
   lodash: 4.18.1
-  'minimatch@<3.1.4': 3.1.5
-  'minimatch@>=9.0.0 <9.0.7': 9.0.9
-  'minimatch@>=10.0.0 <10.2.3': 10.2.5
   min-document: 2.19.1
-  nuxt: 3.16.2
-  nx>axios: 1.16.1
-  'path-to-regexp@>=8.0.0 <8.4.0': 8.4.2
+  nuxt: 3.21.11
+  nx>axios: 1.20.0
   pbkdf2: 3.1.3
-  'picomatch@<2.3.2': 2.3.2
-  'picomatch@>=4.0.0 <4.0.4': 4.0.4
   prettier: 2.6.2
-  qs: 6.14.1
+  qs: 6.16.0
   read-yaml-file: 2.1.0
-  'rollup@>=4.0.0 <4.59.0': 4.60.4
-  seroval: 1.4.1
   sha.js: 2.4.12
-  tar: 7.5.15
+  tar: 7.5.22
   test-exclude>glob: 10.5.0
-  tmp: 0.2.4
+  tmp: 0.2.7
   tsx: 4.21.0
-  'undici@>=7.0.0 <7.24.0': 7.24.0
-  'vite@>=6.0.0 <=6.4.1': 6.4.2
+
+strictPeerDependencies: false
+strictStorePkgContentCheck: false
+
+# Match the CI supply-chain policy: only install versions published at least 24h ago.
+minimumReleaseAge: 1440

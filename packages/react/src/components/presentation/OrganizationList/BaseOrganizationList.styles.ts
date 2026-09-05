@@ -52,10 +52,6 @@ const useStyles = (theme: Theme, colorScheme: string): Record<string, string> =>
       border-bottom: 1px solid ${theme.vars.colors.border};
     `;
 
-    const headerInfo: string = css`
-      flex: 1;
-    `;
-
     const title: string = css`
       font-size: 1.75rem;
       font-weight: 700;

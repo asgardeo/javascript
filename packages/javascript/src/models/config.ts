@@ -69,15 +69,6 @@ export interface BaseConfig<T = unknown> extends WithPreferences, WithExtensions
   afterSignInUrl?: string | undefined;
 
   /**
-   * Optional URL to navigate to after a successful embedded sign-up.
-   * Falls back to `afterSignInUrl` when not provided.
-   *
-   * @example
-   * "/welcome" or "https://your-app.com/welcome"
-   */
-  afterSignUpUrl?: string | undefined;
-
-  /**
    * Optional URL where the authorization server should redirect after sign out.
    * This must match one of the allowed post logout redirect URIs configured in your IdP
    * and is used to redirect the user after they have signed out.
@@ -88,6 +79,15 @@ export interface BaseConfig<T = unknown> extends WithPreferences, WithExtensions
    * For production: "https://your-app.com/api/auth/signout"
    */
   afterSignOutUrl?: string | undefined;
+
+  /**
+   * Optional URL to navigate to after a successful embedded sign-up.
+   * Falls back to `afterSignInUrl` when not provided.
+   *
+   * @example
+   * "/welcome" or "https://your-app.com/welcome"
+   */
+  afterSignUpUrl?: string | undefined;
 
   /**
    * A list of external API base URLs that the SDK is allowed to attach access tokens to when making HTTP requests.

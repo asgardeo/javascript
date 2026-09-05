@@ -1,7 +1,7 @@
 /**
  * Shared selectors for SDK components used in e2e tests.
  *
- * IDP-specific selectors live in helpers/is/selectors.ts and helpers/thunder/selectors.ts.
+ * IDP-specific selectors live in helpers/is/selectors.ts.
  */
 
 export const SELECTORS = {

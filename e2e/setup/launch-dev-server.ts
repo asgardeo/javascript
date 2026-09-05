@@ -10,12 +10,9 @@ import {writeFileSync} from 'fs';
 import path from 'path';
 import {getIdpTarget, SAMPLE_APP} from './constants';
 import {IS_CONFIG} from './is/constants';
-import {THUNDER_CONFIG} from './thunder/constants';
 import {waitForIdp} from './wait-for-idp';
 import {registerIsApp} from './is/app-registration';
-import {getThunderAppClientId} from './thunder/app-registration';
 import {provisionIsTestUser} from './is/user-provisioning';
-import {provisionThunderTestUser} from './thunder/user-provisioning';
 
 function writeSampleAppEnv(vars: Record<string, string>): void {
   const envPath = path.resolve(__dirname, '../../samples/teamspace-react/.env');
@@ -53,34 +50,6 @@ async function setup(): Promise<void> {
     // Only set signInUrl for embedded mode — its presence tells the app to render <SignIn /> inline
     if (signInMode === 'embedded') {
       envVars.VITE_ASGARDEO_SIGN_IN_URL = `${SAMPLE_APP.url}${SAMPLE_APP.signInPath}`;
-    }
-
-    writeSampleAppEnv(envVars);
-  } else {
-    const {baseUrl, healthCheckPath} = THUNDER_CONFIG;
-
-    await waitForIdp(`${baseUrl}${healthCheckPath}`);
-
-    const {clientId, applicationId} = await getThunderAppClientId();
-
-    await provisionThunderTestUser();
-
-    const envVars: Record<string, string> = {
-      VITE_ASGARDEO_BASE_URL: baseUrl,
-      VITE_ASGARDEO_CLIENT_ID: clientId,
-      VITE_ASGARDEO_PLATFORM: 'AsgardeoV2',
-      VITE_ASGARDEO_AFTER_SIGN_IN_URL: `${SAMPLE_APP.url}${SAMPLE_APP.afterSignInPath}`,
-      VITE_ASGARDEO_AFTER_SIGN_OUT_URL: `${SAMPLE_APP.url}${SAMPLE_APP.afterSignOutPath}`,
-      VITE_ASGARDEO_SIGN_UP_URL: `${SAMPLE_APP.url}${SAMPLE_APP.signUpPath}`,
-    };
-
-    // Only set signInUrl for embedded mode — its presence tells the app to render <SignIn /> inline
-    if (signInMode === 'embedded') {
-      envVars.VITE_ASGARDEO_SIGN_IN_URL = `${SAMPLE_APP.url}${SAMPLE_APP.signInPath}`;
-    }
-
-    if (applicationId) {
-      envVars.VITE_ASGARDEO_APPLICATION_ID = applicationId;
     }
 
     writeSampleAppEnv(envVars);

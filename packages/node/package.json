@@ -42,14 +42,14 @@
   },
   "devDependencies": {
     "@types/node": "22.15.3",
-    "@wso2/eslint-plugin": "catalog:",
-    "@wso2/prettier-config": "catalog:",
+    "@wso2/eslint-plugin": "workspace:*",
+    "@wso2/prettier-config": "workspace:*",
     "esbuild": "0.25.9",
     "eslint": "8.57.0",
     "prettier": "2.6.2",
     "rimraf": "6.1.0",
     "typescript": "5.7.2",
-    "vitest": "3.1.3"
+    "vitest": "3.2.7"
   },
   "dependencies": {
     "@asgardeo/javascript": "workspace:*",

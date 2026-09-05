@@ -33,22 +33,21 @@
     "e2e:docker:up": "docker compose -f e2e/docker-compose.yml up -d",
     "e2e:docker:down": "docker compose -f e2e/docker-compose.yml down -v",
     "e2e:docker:up:is": "docker compose -f e2e/docker-compose.yml up -d wso2is",
-    "e2e:docker:up:thunder": "docker compose -f e2e/docker-compose.yml up -d thunder",
     "e2e:install": "playwright install chromium",
     "symlink": "node scripts/symlink.js"
   },
   "devDependencies": {
     "@changesets/changelog-github": "0.5.1",
-    "@changesets/cli": "2.29.8",
+    "@changesets/cli": "2.31.1",
     "@playwright/test": "^1.58.2",
-    "@wso2/eslint-plugin": "catalog:",
-    "@wso2/prettier-config": "catalog:",
+    "@wso2/eslint-plugin": "workspace:*",
+    "@wso2/prettier-config": "workspace:*",
     "eslint": "8.57.0",
-    "nx": "20.8.1",
+    "nx": "22.7.9",
     "prettier": "2.6.2",
     "tsx": "^4.21.0",
     "typescript": "5.7.2",
-    "undici": "^7.24.0"
+    "undici": "7.29.0"
   },
   "publishConfig": {
     "access": "restricted"
