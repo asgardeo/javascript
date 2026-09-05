@@ -4,45 +4,20 @@ ESLint plugin containing configurations & custom rules used in WSO2 code bases.
 
 ## Installation
 
-You'll first need to install [ESLint](https://eslint.org/):
+This is a private workspace package (`"private": true`) vendored from
+[`brionmario/wso2-ui-configs`](https://github.com/brionmario/wso2-ui-configs); it is not published to a registry.
+Packages in this monorepo consume it with a `workspace:*` dependency:
 
-### With npm
-
-```sh
-npm i eslint --save-dev
+```json
+{
+  "devDependencies": {
+    "@wso2/eslint-plugin": "workspace:*",
+    "eslint": "8.57.0"
+  }
+}
 ```
 
-### With pnpm
-
-```sh
-pnpm add --save-dev eslint
-```
-
-### With Yarn
-
-```sh
-yard add --dev eslint
-```
-
-Next, install `@wso2/eslint-plugin`:
-
-### With npm
-
-```sh
-npm i @wso2/eslint-plugin --save-dev
-```
-
-### With pnpm
-
-```sh
-pnpm add --save-dev @wso2/eslint-plugin
-```
-
-### With Yarn
-
-```sh
-yard add --dev @wso2/eslint-plugin
-```
+See [`../README.md`](../README.md) for provenance and how to update the vendored copy.
 
 ## Usage
 
@@ -88,10 +63,7 @@ If you're working on a React project, do the following extension in your `eslint
 
 ```json
 {
-  "extends": [
-    "plugin:@wso2/javascript"
-    "plugin:@wso2/react",
-  ]
+  "extends": ["plugin:@wso2/javascript", "plugin:@wso2/react"]
 }
 ```
 
@@ -99,10 +71,7 @@ If you're working on a React project, do the following extension in your `eslint
 
 ```json
 {
-  "extends": [
-    "plugin:@wso2/typescript"
-    "plugin:@wso2/react",
-  ]
+  "extends": ["plugin:@wso2/typescript", "plugin:@wso2/react"]
 }
 ```
 

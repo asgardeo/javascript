@@ -4,45 +4,20 @@ Shareable Prettier configurations used in WSO2 code bases.
 
 ## Installation
 
-You'll first need to install [Prettier](https://prettier.io/):
+This is a private workspace package (`"private": true`) vendored from
+[`brionmario/wso2-ui-configs`](https://github.com/brionmario/wso2-ui-configs); it is not published to a registry.
+Packages in this monorepo consume it with a `workspace:*` dependency:
 
-### With npm
-
-```sh
-npm i prettier --save-dev
+```json
+{
+  "devDependencies": {
+    "@wso2/prettier-config": "workspace:*",
+    "prettier": "2.6.2"
+  }
+}
 ```
 
-### With pnpm
-
-```sh
-pnpm add --save-dev prettier
-```
-
-### With Yarn
-
-```sh
-yard add --dev prettier
-```
-
-Next, install `@wso2/prettier-config`:
-
-### With npm
-
-```sh
-npm i @wso2/prettier-config --save-dev
-```
-
-### With pnpm
-
-```sh
-pnpm add --save-dev @wso2/prettier-config
-```
-
-### With Yarn
-
-```sh
-yard add --dev @wso2/prettier-config
-```
+See [`../README.md`](../README.md) for provenance and how to update the vendored copy.
 
 ## Usage
 

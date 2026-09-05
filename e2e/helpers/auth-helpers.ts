@@ -28,6 +28,9 @@ function getSignInCredentials(): {username: string; password: string} {
  * - IS: WSO2 IS authentication endpoint
  */
 export async function performSignIn(page: Page): Promise<void> {
+  // Fail fast on an invalid IDP_TARGET instead of silently running the IS flow.
+  getIdpTarget();
+
   const credentials = getSignInCredentials();
 
   await performIsSignIn(page, credentials);
