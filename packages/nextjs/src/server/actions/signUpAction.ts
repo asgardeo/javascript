@@ -27,12 +27,14 @@ import autoSignInAfterSignUp, {
 } from '../../utils/autoSignInAfterSignUp';
 
 /**
- * Server action for signing in a user.
- * Handles the embedded sign-in flow and manages session cookies.
+ * Server action for signing up a user.
  *
- * @param payload - The embedded sign-in flow payload
- * @param request - The embedded flow execute request config
- * @returns Promise that resolves when sign-in is complete
+ * Without a payload it resolves the URL of the redirect-based sign-up page (the configured `signUpUrl`, or
+ * the identity server's self-registration page). With an embedded-flow payload it drives the embedded
+ * sign-up flow and signs the new user in when the flow completes.
+ *
+ * @param payload - The embedded sign-up flow payload
+ * @returns Promise that resolves with the sign-up URL, the next step of the embedded flow, or its completion
  */
 const signUpAction = async (
   payload?: EmbeddedFlowExecuteRequestPayload,
@@ -49,13 +51,21 @@ const signUpAction = async (
   try {
     const client: AsgardeoNextClient = AsgardeoNextClient.getInstance();
 
-    // If no payload provided, redirect to sign-in URL for redirect-based sign-in.
-    // If there's a payload, handle the embedded sign-in flow.
+    // Without a payload, hand back the URL of the redirect-based sign-up page for the browser to navigate to.
     if (!payload) {
-      const defaultSignUpUrl: string = '';
+      const signUpUrl: string = await client.getSignUpUrl();
 
-      return {data: {signUpUrl: String(defaultSignUpUrl)}, success: true};
+      if (!signUpUrl) {
+        return {
+          error:
+            'No sign-up URL could be resolved for the configured `baseUrl`. Configure `signUpUrl` (or `NEXT_PUBLIC_ASGARDEO_SIGN_UP_URL`) to point at your sign-up page.',
+          success: false,
+        };
+      }
+
+      return {data: {signUpUrl}, success: true};
     }
+
     const response: any = await client.signUp(payload);
 
     if (response.flowStatus === EmbeddedFlowStatus.Complete) {
