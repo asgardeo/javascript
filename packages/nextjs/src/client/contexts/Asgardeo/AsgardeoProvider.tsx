@@ -78,7 +78,11 @@ export type AsgardeoClientProviderProps = Partial<Omit<AsgardeoProviderProps, 'b
     myOrganizations: Organization[];
     organizationHandle: AsgardeoContextProps['organizationHandle'];
     refreshToken: () => Promise<RefreshResult>;
-    revalidateMyOrganizations?: (sessionId?: string) => Promise<Organization[]>;
+    /**
+     * Server action that re-fetches the organizations of the signed-in user (same signature as the
+     * `getMyOrganizations` action). The provider stores the result so every consumer sees the new list.
+     */
+    revalidateMyOrganizations?: (options?: any, sessionId?: string) => Promise<Organization[]>;
     signIn: AsgardeoContextProps['signIn'];
     signOut: AsgardeoContextProps['signOut'];
     signUp: AsgardeoContextProps['signUp'];
@@ -111,7 +115,7 @@ const AsgardeoClientProvider: FC<PropsWithChildren<AsgardeoClientProviderProps>>
   updateProfile,
   applicationId,
   organizationHandle,
-  myOrganizations,
+  myOrganizations: _myOrganizations,
   revalidateMyOrganizations,
   getAllOrganizations,
   switchOrganization,
@@ -125,10 +129,15 @@ const AsgardeoClientProvider: FC<PropsWithChildren<AsgardeoClientProviderProps>>
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [user, setUser] = useState<User | null>(_user);
   const [userProfile, setUserProfile] = useState<UserProfile>(_userProfile);
+  const [myOrganizations, setMyOrganizations] = useState<Organization[]>(_myOrganizations);
 
   useEffect(() => {
     setUserProfile(_userProfile);
   }, [_userProfile]);
+
+  useEffect(() => {
+    setMyOrganizations(_myOrganizations);
+  }, [_myOrganizations]);
 
   useEffect(() => {
     setUser(_user);
@@ -397,6 +406,22 @@ const AsgardeoClientProvider: FC<PropsWithChildren<AsgardeoClientProviderProps>>
     }));
   };
 
+  /**
+   * Re-fetches the user's organizations through the server action and stores them, so components such as
+   * `CreateOrganization` and `OrganizationSwitcher` reflect a newly created organization without a reload.
+   */
+  const handleRevalidateMyOrganizations = async (): Promise<Organization[]> => {
+    if (!revalidateMyOrganizations) {
+      return myOrganizations;
+    }
+
+    const organizations: Organization[] = await revalidateMyOrganizations();
+
+    setMyOrganizations(organizations);
+
+    return organizations;
+  };
+
   return (
     <AsgardeoContext.Provider value={contextValue}>
       <I18nProvider preferences={preferences?.i18n}>
@@ -414,7 +439,7 @@ const AsgardeoClientProvider: FC<PropsWithChildren<AsgardeoClientProviderProps>>
                   myOrganizations={myOrganizations}
                   currentOrganization={currentOrganization}
                   onOrganizationSwitch={switchOrganization as any}
-                  revalidateMyOrganizations={revalidateMyOrganizations as any}
+                  revalidateMyOrganizations={handleRevalidateMyOrganizations}
                 >
                   {children}
                 </OrganizationProvider>
