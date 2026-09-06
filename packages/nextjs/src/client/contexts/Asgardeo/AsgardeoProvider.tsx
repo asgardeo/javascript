@@ -35,6 +35,7 @@ import {
   EmbeddedFlowStatus,
   HttpRequestConfig,
   HttpResponse,
+  IdToken,
 } from '@asgardeo/node';
 import {
   I18nProvider,
@@ -66,8 +67,14 @@ export type AsgardeoClientProviderProps = Partial<Omit<AsgardeoProviderProps, 'b
     brandingPreference?: BrandingPreference | null;
     clearSession: () => Promise<void>;
     createOrganization: (payload: CreateOrganizationPayload, sessionId: string) => Promise<Organization>;
-    currentOrganization: Organization;
+    currentOrganization: Organization | null;
     getAllOrganizations: (options?: any, sessionId?: string) => Promise<AllOrganizationsApiResponse>;
+    /**
+     * Server action returning the decoded ID token of the signed-in user.
+     */
+    getDecodedIdToken?: (
+      sessionId?: string,
+    ) => Promise<{data: {idToken?: IdToken}; error: string | null; success: boolean}>;
     handleOAuthCallback: (
       code: string,
       state: string,
@@ -118,6 +125,9 @@ const AsgardeoClientProvider: FC<PropsWithChildren<AsgardeoClientProviderProps>>
   brandingPreference,
   afterSignInUrl,
   httpRequest,
+  getDecodedIdToken,
+  signInOptions,
+  clientId,
 }: PropsWithChildren<AsgardeoClientProviderProps>) => {
   const reRenderCheckRef: RefObject<boolean> = useRef(false);
   const router: AppRouterInstance = useRouter();
@@ -353,25 +363,69 @@ const AsgardeoClientProvider: FC<PropsWithChildren<AsgardeoClientProviderProps>>
   const handleHttpRequestAll = async (requestConfigs?: HttpRequestConfig[]): Promise<HttpResponse[]> =>
     Promise.all((requestConfigs ?? []).map((requestConfig: HttpRequestConfig) => handleHttpRequest(requestConfig)));
 
+  /**
+   * Returns the decoded ID token through the server action; the raw token stays in the HttpOnly cookie.
+   */
+  const handleGetDecodedIdToken = async (): Promise<IdToken> => {
+    if (!getDecodedIdToken) {
+      throw new AsgardeoRuntimeError(
+        '`getDecodedIdToken` is not available. Make sure the component is rendered inside `<AsgardeoProvider>`.',
+        'AsgardeoClientProvider-handleGetDecodedIdToken-RuntimeError-001',
+        'nextjs',
+      );
+    }
+
+    const result: {data: {idToken?: IdToken}; error: string | null; success: boolean} = await getDecodedIdToken();
+
+    if (!result.success || !result.data.idToken) {
+      throw new AsgardeoRuntimeError(
+        result.error ?? 'Failed to get the decoded ID token.',
+        'AsgardeoClientProvider-handleGetDecodedIdToken-RuntimeError-002',
+        'nextjs',
+      );
+    }
+
+    return result.data.idToken;
+  };
+
+  /**
+   * Switches the session to `organization` and re-renders the server components, which re-read the session
+   * cookie and hand the new organization, user and organization list down.
+   */
+  const handleSwitchOrganization = async (organization: Organization): Promise<TokenResponse | Response> => {
+    const response: TokenResponse | Response = await switchOrganization(organization);
+
+    router.refresh();
+
+    return response;
+  };
+
   const contextValue: AsgardeoContextProps = useMemo(
     () => ({
       afterSignInUrl,
       applicationId,
       baseUrl,
       clearSession,
+      clientId,
+      getDecodedIdToken: handleGetDecodedIdToken,
       http: {
         request: handleHttpRequest,
         requestAll: handleHttpRequestAll,
       },
+      // The server provider only renders this provider once the client has been initialized.
+      isInitialized: true,
       isLoading,
       isSignedIn,
+      organization: currentOrganization,
       organizationHandle,
       refreshToken,
       signIn: handleSignIn,
+      signInOptions: signInOptions ?? {},
       signInUrl,
       signOut: handleSignOut,
       signUp: handleSignUp,
       signUpUrl,
+      switchOrganization: handleSwitchOrganization,
       user,
     }),
     [
@@ -385,6 +439,11 @@ const AsgardeoClientProvider: FC<PropsWithChildren<AsgardeoClientProviderProps>>
       organizationHandle,
       afterSignInUrl,
       httpRequest,
+      clientId,
+      currentOrganization,
+      signInOptions,
+      getDecodedIdToken,
+      switchOrganization,
     ],
   );
 
@@ -413,7 +472,7 @@ const AsgardeoClientProvider: FC<PropsWithChildren<AsgardeoClientProviderProps>>
                   getAllOrganizations={getAllOrganizations}
                   myOrganizations={myOrganizations}
                   currentOrganization={currentOrganization}
-                  onOrganizationSwitch={switchOrganization as any}
+                  onOrganizationSwitch={handleSwitchOrganization}
                   revalidateMyOrganizations={revalidateMyOrganizations as any}
                 >
                   {children}
