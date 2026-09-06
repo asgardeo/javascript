@@ -39,6 +39,7 @@ import {
   Storage,
   TokenExchangeRequestConfig,
   TokenResponse,
+  UpdateOrganizationConfig,
   User,
   UserProfile,
   createOrganization,
@@ -56,6 +57,7 @@ import {
   getSchemas,
   initializeEmbeddedSignInFlow,
   updateMeProfile,
+  updateOrganization,
 } from '@asgardeo/node';
 import {AsgardeoNextConfig} from './models/config';
 import getClientOrigin from './server/actions/getClientOrigin';
@@ -338,6 +340,45 @@ class AsgardeoNextClient<T extends AsgardeoNextConfig = AsgardeoNextConfig> exte
         'AsgardeoReactClient-getOrganization-RuntimeError-001',
         'nextjs',
         `An error occurred while fetching the organization with the id: ${organizationId}.`,
+      );
+    }
+  }
+
+  /**
+   * Updates an organization with a set of patch operations, using the access token of the session.
+   *
+   * @param organizationId - The ID of the organization to update.
+   * @param operations - The patch operations to apply.
+   * @param userId - Optional session ID.
+   * @returns The updated organization.
+   */
+  async updateOrganization(
+    organizationId: string,
+    operations: UpdateOrganizationConfig['operations'],
+    userId?: string,
+  ): Promise<OrganizationDetails> {
+    try {
+      const configData: AuthClientConfig<T> = await this.asgardeo.getConfigData();
+      const baseUrl: string = configData?.baseUrl as string;
+
+      const organization: OrganizationDetails = await updateOrganization({
+        baseUrl,
+        headers: {
+          Authorization: `Bearer ${await this.getAccessToken(userId)}`,
+        },
+        operations,
+        organizationId,
+      });
+
+      return organization;
+    } catch (error) {
+      throw new AsgardeoRuntimeError(
+        `Failed to update the organization ${organizationId}: ${
+          error instanceof Error ? error.message : String(error)
+        }`,
+        'AsgardeoNextClient-updateOrganization-RuntimeError-001',
+        'nextjs',
+        `An error occurred while updating the organization with the id: ${organizationId}.`,
       );
     }
   }
