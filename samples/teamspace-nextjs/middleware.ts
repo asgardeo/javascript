@@ -1,4 +1,4 @@
-import {asgardeoMiddleware, createRouteMatcher} from '@asgardeo/nextjs/server';
+import {asgardeoMiddleware, createRouteMatcher} from '@asgardeo/nextjs/middleware';
 
 const isProtectedRoute = createRouteMatcher(['/dashboard', '/dashboard/(.*)']);
 
