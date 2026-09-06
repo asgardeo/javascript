@@ -24,18 +24,22 @@ import {
   BrandingPreference,
   getBrandingPreference as baseGetBrandingPreference,
 } from '@asgardeo/node';
+import {withBrandingPreferenceCache} from '../../utils/brandingPreferenceCache';
 
 /**
  * Server action to get branding preferences.
+ *
+ * The result is cached in memory for a few minutes per base URL, type, name and locale: the provider needs
+ * it on every server render and it changes rarely.
  */
 const getBrandingPreference = async (
   config: GetBrandingPreferenceConfig,
   sessionId?: string | undefined, // eslint-disable-line @typescript-eslint/no-unused-vars
 ): Promise<BrandingPreference> => {
   try {
-    const brandingPreference: BrandingPreference = await baseGetBrandingPreference(config);
+    const cacheKey: string = [config.baseUrl, config.type ?? '', config.name ?? '', config.locale ?? ''].join('|');
 
-    return brandingPreference;
+    return await withBrandingPreferenceCache(cacheKey, () => baseGetBrandingPreference(config));
   } catch (error) {
     throw new AsgardeoAPIError(
       `Failed to get branding preferences: ${error instanceof Error ? error.message : String(error)}`,
