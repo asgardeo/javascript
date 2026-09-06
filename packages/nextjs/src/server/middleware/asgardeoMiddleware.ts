@@ -36,11 +36,14 @@ export type AsgardeoMiddlewareContext = {
   /**
    * Protect a route by redirecting unauthenticated users.
    * Redirect URL fallback order:
-   * 1. options.redirect
-   * 2. resolvedOptions.signInUrl
-   * 3. resolvedOptions.defaultRedirect
-   * 4. referer (if from same origin)
+   * 1. routeOptions.redirect
+   * 2. the configured `signInUrl`
+   * 3. the referer, when it is a same-origin page other than the requested one
    * If none are available, falls back to '/'.
+   *
+   * When the resolved target is the protected route itself (for example the sign-in page is covered by the
+   * protected matcher, or `/` is protected without a `signInUrl`), a `401` response is returned instead of a
+   * redirect, since redirecting would loop until the browser gives up.
    */
   protectRoute: (routeOptions?: {redirect?: string}) => Promise<NextResponse | void>;
 };
@@ -265,14 +268,18 @@ const asgardeoMiddleware =
         }
 
         if (!isAuthenticated) {
+          const requestUrl: URL = new URL(request.url);
           const referer: string | null = request.headers.get('referer');
           let fallbackRedirect: string = '/';
 
           if (referer) {
             try {
               const refererUrl: URL = new URL(referer);
-              const requestUrl: URL = new URL(request.url);
-              if (refererUrl.origin === requestUrl.origin) {
+
+              // Only go "back" to a same-origin page other than the one being protected. Browsers keep the
+              // referer of the page that started the navigation across a redirect chain, so redirecting to a
+              // referer equal to the request would bounce between the two until the browser gives up.
+              if (refererUrl.origin === requestUrl.origin && refererUrl.pathname !== requestUrl.pathname) {
                 fallbackRedirect = refererUrl.pathname + refererUrl.search;
               }
             } catch {
@@ -282,8 +289,19 @@ const asgardeoMiddleware =
 
           const redirectUrl: string =
             routeOptions?.redirect ?? (resolvedConfig.signInUrl as string) ?? fallbackRedirect;
+          const redirectTarget: URL = new URL(redirectUrl, request.url);
 
-          return NextResponse.redirect(new URL(redirectUrl, request.url));
+          if (redirectTarget.origin === requestUrl.origin && redirectTarget.pathname === requestUrl.pathname) {
+            // Redirecting to the protected route itself would loop (ERR_TOO_MANY_REDIRECTS). This happens when
+            // the sign-in page is covered by the protected matcher, or `/` is protected without a `signInUrl`.
+            return new NextResponse(
+              `Unauthorized. The sign-in redirect (${redirectTarget.pathname}) points at the protected route itself. ` +
+                'Configure `signInUrl` (NEXT_PUBLIC_ASGARDEO_SIGN_IN_URL) or exclude the sign-in page from the protected routes.',
+              {headers: {'Content-Type': 'text/plain'}, status: 401},
+            );
+          }
+
+          return NextResponse.redirect(redirectTarget);
         }
 
         return undefined;
