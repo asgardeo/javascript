@@ -35,6 +35,7 @@ import {
   EmbeddedFlowStatus,
   HttpRequestConfig,
   HttpResponse,
+  I18nPreferences,
 } from '@asgardeo/node';
 import {
   I18nProvider,
@@ -75,6 +76,11 @@ export type AsgardeoClientProviderProps = Partial<Omit<AsgardeoProviderProps, 'b
     ) => Promise<{error?: string; redirectUrl?: string; success: boolean}>;
     httpRequest?: (requestConfig: HttpRequestConfig) => Promise<HttpRequestActionResult>;
     isSignedIn: boolean;
+    /**
+     * UI language resolved on the server from the request (persisted cookie, then `Accept-Language`).
+     * Combined with the `lang` URL parameter here so the server and client renders agree on the language.
+     */
+    language?: string;
     myOrganizations: Organization[];
     organizationHandle: AsgardeoContextProps['organizationHandle'];
     refreshToken: () => Promise<RefreshResult>;
@@ -118,10 +124,22 @@ const AsgardeoClientProvider: FC<PropsWithChildren<AsgardeoClientProviderProps>>
   brandingPreference,
   afterSignInUrl,
   httpRequest,
+  language,
 }: PropsWithChildren<AsgardeoClientProviderProps>) => {
   const reRenderCheckRef: RefObject<boolean> = useRef(false);
   const router: AppRouterInstance = useRouter();
   const searchParams: ReadonlyURLSearchParams = useSearchParams();
+
+  // The i18n provider would detect the language from the browser and its cookie on the client only, which
+  // differs from the server render. Resolve it identically on both sides instead: an explicitly configured
+  // language, then the `lang` URL parameter (visible to both renders), then the language the server resolved
+  // from the request.
+  const i18nPreferences: I18nPreferences = useMemo(() => {
+    const urlParam: string | false = preferences?.i18n?.urlParam === undefined ? 'lang' : preferences.i18n.urlParam;
+    const languageFromUrl: string | null = urlParam === false ? null : searchParams.get(urlParam);
+
+    return {...preferences?.i18n, language: preferences?.i18n?.language ?? languageFromUrl ?? language};
+  }, [preferences?.i18n, searchParams, language]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [user, setUser] = useState<User | null>(_user);
   const [userProfile, setUserProfile] = useState<UserProfile>(_userProfile);
@@ -399,7 +417,7 @@ const AsgardeoClientProvider: FC<PropsWithChildren<AsgardeoClientProviderProps>>
 
   return (
     <AsgardeoContext.Provider value={contextValue}>
-      <I18nProvider preferences={preferences?.i18n}>
+      <I18nProvider preferences={i18nPreferences}>
         <BrandingProvider brandingPreference={brandingPreference}>
           <ThemeProvider
             theme={preferences?.theme?.overrides}
