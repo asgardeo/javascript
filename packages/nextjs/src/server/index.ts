@@ -22,3 +22,24 @@ export {default as asgardeo} from './asgardeo';
 
 export {default as AsgardeoProvider} from './AsgardeoProvider.js';
 export * from './AsgardeoProvider.js';
+
+// Server actions, for use in Server Components, Route Handlers and other Server Actions.
+export {default as clearSession} from './actions/clearSession';
+export {default as createOrganization} from './actions/createOrganization';
+export {default as getAccessToken} from './actions/getAccessToken';
+export {default as getAllOrganizations} from './actions/getAllOrganizations';
+export {default as getMyOrganizations} from './actions/getMyOrganizations';
+export {default as getOrganization} from './actions/getOrganizationAction';
+export {default as getSessionId} from './actions/getSessionId';
+export {default as getSessionPayload} from './actions/getSessionPayload';
+export {default as getUser} from './actions/getUserAction';
+export {default as getUserProfile} from './actions/getUserProfileAction';
+export {default as httpRequest} from './actions/httpRequestAction';
+export type {HttpRequestActionResult} from './actions/httpRequestAction';
+export {default as isSignedIn} from './actions/isSignedIn';
+export {default as refreshToken} from './actions/refreshToken';
+export type {RefreshResult} from './actions/refreshToken';
+export {default as signOut} from './actions/signOutAction';
+export {default as switchOrganization} from './actions/switchOrganization';
+export {default as updateUserProfile} from './actions/updateUserProfileAction';
+export type {SessionTokenPayload} from '../utils/SessionManager';
