@@ -1,5 +1,12 @@
 # @asgardeo/vue
 
+## 0.4.7
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @asgardeo/browser@0.7.14
+
 ## 0.4.6
 
 ### Patch Changes

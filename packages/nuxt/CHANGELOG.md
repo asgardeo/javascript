@@ -1,5 +1,14 @@
 # @asgardeo/nuxt
 
+## 0.2.7
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @asgardeo/browser@0.7.14
+  - @asgardeo/node@0.0.86
+  - @asgardeo/vue@0.4.7
+
 ## 0.2.6
 
 ### Patch Changes
