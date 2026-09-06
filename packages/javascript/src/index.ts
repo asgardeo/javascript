@@ -179,6 +179,7 @@ export type {
   Config,
   Preferences,
   ThemePreferences,
+  I18nBundleOverride,
   I18nPreferences,
   I18nStorageStrategy,
   WithPreferences,

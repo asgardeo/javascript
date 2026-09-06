@@ -33,7 +33,10 @@ import useAsgardeo from '../../../contexts/Asgardeo/useAsgardeo';
  * Props for the SignIn component.
  * Extends BaseSignInProps for full compatibility with the React BaseSignIn component
  */
-export type SignInProps = Pick<BaseSignInProps, 'className' | 'onSuccess' | 'onError' | 'variant' | 'size'>;
+export type SignInProps = Pick<
+  BaseSignInProps,
+  'className' | 'onSuccess' | 'onError' | 'variant' | 'size' | 'preferences'
+>;
 
 /**
  * A SignIn component for Next.js that provides native authentication flow.

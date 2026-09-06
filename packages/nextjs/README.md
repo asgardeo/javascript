@@ -32,6 +32,34 @@ A missing entry surfaces as Google's `Error 400: redirect_uri_mismatch`.
 
 `afterSignOutUrl` (default: the app origin) is sent as the post-logout redirect URI and must be registered as well.
 
+## Customising texts
+
+Every text the embedded components render can be overridden through `preferences.i18n.bundles`, either globally on
+`<AsgardeoProvider>` or per component through the `preferences` prop of `<SignIn />` and `<SignUp />`. Only the keys
+you change need to be present; the rest come from the built-in bundle. For example, if your users sign in with an
+email address, relabel the identifier field:
+
+```tsx
+<AsgardeoProvider
+  preferences={{
+    i18n: {
+      bundles: {
+        'en-US': {
+          translations: {
+            'elements.fields.username.label': 'Email',
+            'elements.fields.username.placeholder': 'Enter your email',
+          },
+        },
+      },
+    },
+  }}
+>
+  {children}
+</AsgardeoProvider>
+```
+
+The available keys are listed in the `@asgardeo/i18n` package (`I18nTranslations`).
+
 ## Logging
 
 The SDK logs at `error` level by default. Set `ASGARDEO_LOG_LEVEL` to `warn`, `info` or `debug` to see more,

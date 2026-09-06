@@ -130,14 +130,53 @@ vi.mock('../../../../../../contexts/Theme/useTheme', () => ({
   }),
 }));
 
+const signInPreferences: any = {
+  i18n: {
+    bundles: {
+      'en-US': {
+        translations: {
+          'elements.fields.username.label': 'Email',
+          'elements.fields.username.placeholder': 'Enter your email',
+        },
+      },
+    },
+  },
+};
+
+vi.mock('../../../../../../contexts/Flow/useFlow', () => ({
+  default: () => ({setSubtitle: vi.fn(), setTitle: vi.fn()}),
+}));
+
+// Resolves keys from the i18n preferences handed to the hook, like the real hook does for
+// component-level bundles, so the test fails if `preferences` is not forwarded.
 vi.mock('../../../../../../hooks/useTranslation', () => ({
-  default: () => ({
-    t: (key: string) => key,
-    currentLanguage: 'en',
+  default: (preferences?: any) => ({
+    t: (key: string, params?: Record<string, string>) => {
+      const override: string | undefined = preferences?.bundles?.['en-US']?.translations?.[key];
+      if (override) return override;
+      if (key === 'elements.fields.generic.placeholder') return `Enter your ${params?.['field']}`;
+      return key;
+    },
+    currentLanguage: 'en-US',
     setLanguage: vi.fn(),
-    availableLanguages: ['en'],
+    availableLanguages: ['en-US'],
   }),
 }));
+
+const basicAuthenticator: any = {
+  authenticator: 'Username & Password',
+  authenticatorId: 'QmFzaWNBdXRoZW50aWNhdG9yOkxPQ0FM',
+  idp: 'LOCAL',
+  metadata: {
+    i18nKey: 'authenticator.basic',
+    params: [
+      {confidential: false, displayName: 'Username', order: 0, param: 'username', type: 'STRING'},
+      {confidential: true, displayName: 'Password', order: 1, param: 'password', type: 'STRING'},
+    ],
+    promptType: 'USER_PROMPT',
+  },
+  requiredParams: ['username', 'password'],
+};
 
 const googleAuthenticator: any = {
   authenticator: 'Google',
@@ -179,6 +218,24 @@ describe('createSignInOptionFromAuthenticator', () => {
       .filter((message: string) => /does not recognize|Unknown event handler/.test(message));
 
     expect(domWarnings).toEqual([]);
+  });
+
+  it('lets the i18n bundle override username/password labels and falls back to the server text', () => {
+    const {container} = render(
+      createSignInOptionFromAuthenticator(basicAuthenticator, {}, {}, false, vi.fn(), vi.fn(), {
+        preferences: signInPreferences,
+      }),
+    );
+
+    const username = container.querySelector('input[name="username"]') as HTMLInputElement;
+    const password = container.querySelector('input[name="password"]') as HTMLInputElement;
+
+    // Overridden through the bundle.
+    expect(container.textContent).toContain('Email');
+    expect(username.getAttribute('placeholder')).toBe('Enter your email');
+    // No translation for the password field: the identity server's displayName and the generic placeholder are used.
+    expect(container.textContent).toContain('Password');
+    expect(password.getAttribute('placeholder')).toBe('Enter your password');
   });
 
   it('does not leak form-state props onto a social button rendered by the sign-up factory', () => {

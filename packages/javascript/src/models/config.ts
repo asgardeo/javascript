@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import {I18nBundle} from '@asgardeo/i18n';
+import {I18nMetadata, I18nTranslations} from '@asgardeo/i18n';
 import {Platform} from './platforms';
 import {TokenEndpointAuthMethod} from './token-endpoint-auth';
 import {RecursivePartial} from './utility-types';
@@ -436,12 +436,22 @@ export interface ThemePreferences {
  */
 export type I18nStorageStrategy = 'cookie' | 'localStorage' | 'none';
 
+/**
+ * A partial translation bundle supplied by the application to override built-in texts.
+ */
+export interface I18nBundleOverride {
+  metadata?: Partial<I18nMetadata>;
+  translations: Partial<I18nTranslations> | Record<string, string>;
+}
+
 export interface I18nPreferences {
   /**
-   * Custom translations to override default ones.
+   * Custom translations to override default ones, keyed by locale code (e.g. `en-US`).
+   * Only the keys you want to change need to be present; everything else is taken from the
+   * built-in bundle for that locale.
    */
   bundles?: {
-    [key: string]: I18nBundle;
+    [key: string]: I18nBundleOverride;
   };
   /**
    * The domain to use when setting the language cookie.
