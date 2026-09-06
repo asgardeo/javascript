@@ -55,13 +55,16 @@ import {
   getScim2Me,
   getSchemas,
   initializeEmbeddedSignInFlow,
+  processOpenIDScopes,
   updateMeProfile,
 } from '@asgardeo/node';
 import {AsgardeoNextConfig} from './models/config';
 import getClientOrigin from './server/actions/getClientOrigin';
 import getSessionId from './server/actions/getSessionId';
+import getSessionPayload from './server/actions/getSessionPayload';
 import decorateConfigWithNextEnv from './utils/decorateConfigWithNextEnv';
 import logger from './utils/logger';
+import {SessionTokenPayload} from './utils/SessionManager';
 
 /**
  * Client for mplementing Asgardeo in Next.js applications.
@@ -213,7 +216,8 @@ class AsgardeoNextClient<T extends AsgardeoNextConfig = AsgardeoNextConfig> exte
 
       return generateUserProfile(profile, flattenUserSchema(schemas));
     } catch (error) {
-      return this.asgardeo.getUser(resolvedSessionId);
+      // Same fallback as the React SDK: the claims of the ID token, read from the session cookie.
+      return extractUserClaimsFromIdToken(await this.getDecodedIdToken(resolvedSessionId)) as User;
     }
   }
 
@@ -260,9 +264,11 @@ class AsgardeoNextClient<T extends AsgardeoNextConfig = AsgardeoNextConfig> exte
           `Reason: ${error instanceof Error ? error.message : String(error)}`,
       );
 
+      const idTokenClaims: Record<string, unknown> = extractUserClaimsFromIdToken(await this.getDecodedIdToken(userId));
+
       return {
-        flattenedProfile: extractUserClaimsFromIdToken(await this.asgardeo.getDecodedIdToken(userId)),
-        profile: extractUserClaimsFromIdToken(await this.asgardeo.getDecodedIdToken(userId)),
+        flattenedProfile: idTokenClaims,
+        profile: idTokenClaims,
         schemas: [],
       };
     }
@@ -391,7 +397,7 @@ class AsgardeoNextClient<T extends AsgardeoNextConfig = AsgardeoNextConfig> exte
   }
 
   override async getCurrentOrganization(userId?: string): Promise<Organization | null> {
-    const idToken: IdToken = await this.asgardeo.getDecodedIdToken(userId);
+    const idToken: IdToken = await this.getDecodedIdToken(userId);
 
     return {
       id: idToken?.org_id as string,
@@ -400,6 +406,13 @@ class AsgardeoNextClient<T extends AsgardeoNextConfig = AsgardeoNextConfig> exte
     };
   }
 
+  /**
+   * Exchanges the current access token for one scoped to `organization` (the `organization_switch` grant).
+   *
+   * The current access token is read from the session cookie rather than the legacy in-memory session, so the
+   * switch works on any server instance and after the middleware has refreshed the tokens. The in-memory
+   * session is updated afterwards, best-effort, for the code paths that still read it.
+   */
   override async switchOrganization(organization: Organization, userId?: string): Promise<TokenResponse | Response> {
     try {
       if (!organization.id) {
@@ -411,22 +424,72 @@ class AsgardeoNextClient<T extends AsgardeoNextConfig = AsgardeoNextConfig> exte
         );
       }
 
-      const exchangeConfig: TokenExchangeRequestConfig = {
-        attachToken: false,
-        data: {
-          client_id: '{{clientId}}',
-          client_secret: '{{clientSecret}}',
-          grant_type: 'organization_switch',
-          scope: '{{scopes}}',
-          switching_organization: organization.id,
-          token: '{{accessToken}}',
+      const configData: AuthClientConfig<T> = await this.asgardeo.getConfigData();
+      const accessToken: string = await this.getAccessToken(userId);
+      const clientId: string = configData?.clientId ?? '';
+      const clientSecret: string | undefined = configData?.clientSecret || undefined;
+      const tokenEndpoint: string = configData?.endpoints?.token || `${configData?.baseUrl}/oauth2/token`;
+      const useBasicAuth: boolean = !!clientSecret && configData?.tokenRequest?.authMethod === 'client_secret_basic';
+
+      const body: URLSearchParams = new URLSearchParams({
+        client_id: clientId,
+        grant_type: 'organization_switch',
+        scope: processOpenIDScopes(configData?.scopes),
+        switching_organization: organization.id,
+        token: accessToken,
+      });
+
+      if (clientSecret && !useBasicAuth) {
+        body.set('client_secret', clientSecret);
+      }
+
+      const response: Response = await fetch(tokenEndpoint, {
+        body: body.toString(),
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/x-www-form-urlencoded',
+          ...(useBasicAuth ? {Authorization: `Basic ${btoa(`${clientId}:${clientSecret}`)}`} : {}),
         },
-        id: 'organization-switch',
-        returnsSession: true,
-        signInRequired: true,
+        method: 'POST',
+      });
+
+      if (!response.ok) {
+        throw new Error(
+          `The token endpoint rejected the organization switch (HTTP ${response.status}): ${await response.text()}`,
+        );
+      }
+
+      const tokenData: Record<string, unknown> = (await response.json()) as Record<string, unknown>;
+      const tokenResponse: TokenResponse = {
+        accessToken: tokenData['access_token'] as string,
+        createdAt: Date.now(),
+        expiresIn: String(tokenData['expires_in']),
+        idToken: (tokenData['id_token'] as string | undefined) ?? '',
+        refreshToken: (tokenData['refresh_token'] as string | undefined) ?? '',
+        scope: (tokenData['scope'] as string | undefined) ?? '',
+        tokenType: (tokenData['token_type'] as string | undefined) ?? 'Bearer',
       };
 
-      const tokenResponse: TokenResponse | Response = await this.asgardeo.exchangeToken(exchangeConfig, userId);
+      try {
+        await this.setSession(
+          {
+            access_token: tokenResponse.accessToken,
+            created_at: tokenResponse.createdAt,
+            expires_in: tokenResponse.expiresIn,
+            id_token: tokenResponse.idToken,
+            refresh_token: tokenResponse.refreshToken,
+            scope: tokenResponse.scope,
+            token_type: tokenResponse.tokenType,
+          },
+          userId,
+        );
+      } catch (error) {
+        logger.debug(
+          `[AsgardeoNextClient] Could not update the in-memory session after the organization switch: ${
+            error instanceof Error ? error.message : String(error)
+          }`,
+        );
+      }
 
       return tokenResponse;
     } catch (error) {
@@ -474,11 +537,26 @@ class AsgardeoNextClient<T extends AsgardeoNextConfig = AsgardeoNextConfig> exte
   }
 
   /**
-   * Get the decoded ID token for a session
+   * Gets the decoded ID token.
+   *
+   * When `idToken` is given it is decoded as is. Otherwise the claims kept in the session cookie are
+   * returned, so the lookup works on any server instance and after the middleware has refreshed the
+   * tokens. The legacy in-memory session is only consulted for sessions that predate the cookie claims.
    */
   async getDecodedIdToken(sessionId?: string, idToken?: string): Promise<IdToken> {
     await this.ensureInitialized();
-    return this.asgardeo.getDecodedIdToken(sessionId as string, idToken);
+
+    if (idToken) {
+      return this.asgardeo.decodeJwtToken<IdToken>(idToken);
+    }
+
+    const session: SessionTokenPayload | undefined = await getSessionPayload();
+
+    if (session?.idTokenClaims) {
+      return {sub: session.sub, ...session.idTokenClaims} as IdToken;
+    }
+
+    return this.asgardeo.getDecodedIdToken(sessionId as string);
   }
 
   override getConfiguration(): T {

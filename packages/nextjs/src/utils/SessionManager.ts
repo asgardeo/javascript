@@ -28,6 +28,12 @@ export interface SessionTokenPayload extends JWTPayload {
   exp: number;
   /** Issued at timestamp */
   iat: number;
+  /**
+   * Claims of the ID token that was issued together with the access token, minus the
+   * single-use protocol claims (see {@link SessionManager.toIdTokenClaims}). Lets the
+   * server read the user's organization and identity claims without an in-memory session.
+   */
+  idTokenClaims?: Record<string, unknown>;
   /** Organization ID if applicable */
   organizationId?: string;
   /** The refresh token; empty string if not provided by the auth server */
@@ -115,6 +121,43 @@ class SessionManager {
     return DEFAULT_SESSION_COOKIE_EXPIRY_TIME;
   }
 
+  /**
+   * ID token claims that are only meaningful while the token is being validated (hashes, nonce,
+   * session identifiers). They are dropped before the claims are stored in the session cookie
+   * to keep the cookie small; everything else, including the organization claims (`org_id`,
+   * `org_name`, `org_handle`, `user_org`) and the user attributes, is kept.
+   */
+  private static readonly TRANSIENT_ID_TOKEN_CLAIMS: string[] = [
+    'acr',
+    'amr',
+    'at_hash',
+    'azp',
+    'c_hash',
+    'isk',
+    'jti',
+    'nbf',
+    'nonce',
+    'sid',
+  ];
+
+  /**
+   * Reduces a decoded ID token to the claims worth keeping in the session cookie.
+   *
+   * @param decodedIdToken - The decoded ID token payload, if one was issued.
+   * @returns The claims to persist, or `undefined` when there is no ID token.
+   */
+  static toIdTokenClaims(decodedIdToken?: Record<string, unknown> | null): Record<string, unknown> | undefined {
+    if (!decodedIdToken || typeof decodedIdToken !== 'object') {
+      return undefined;
+    }
+
+    return Object.fromEntries(
+      Object.entries(decodedIdToken).filter(
+        ([claim, value]: [string, unknown]) => value !== undefined && !this.TRANSIENT_ID_TOKEN_CLAIMS.includes(claim),
+      ),
+    );
+  }
+
   static async createSessionToken(
     accessToken: string,
     userId: string,
@@ -123,11 +166,13 @@ class SessionManager {
     accessTokenTtlSeconds: number,
     refreshToken: string,
     organizationId?: string,
+    idTokenClaims?: Record<string, unknown>,
   ): Promise<string> {
     const secret: Uint8Array = this.getSecret();
 
     const jwt: string = await new SignJWT({
       accessToken,
+      idTokenClaims,
       organizationId,
       refreshToken,
       scopes,

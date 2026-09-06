@@ -17,6 +17,7 @@
  */
 
 import type {TokenResponse} from '@asgardeo/node';
+import {decodeJwt} from 'jose';
 import SessionManager, {SessionTokenPayload} from './SessionManager';
 
 /**
@@ -51,7 +52,7 @@ const handleRefreshToken = async (
   config: HandleRefreshTokenConfig,
 ): Promise<HandleRefreshTokenResult> => {
   const {baseUrl, clientId, clientSecret, sessionCookieExpiryTime: configuredExpiry} = config;
-  const {refreshToken: storedRefreshToken, sessionId, sub, scopes, organizationId} = sessionPayload;
+  const {refreshToken: storedRefreshToken, sessionId, sub, scopes, organizationId, idTokenClaims} = sessionPayload;
 
   if (!storedRefreshToken) {
     throw new Error('No refresh token found in session payload.');
@@ -98,6 +99,18 @@ const handleRefreshToken = async (
   const newScopes: string =
     (tokenData['scope'] as string | undefined) ?? (Array.isArray(scopes) ? scopes.join(' ') : (scopes as string) ?? '');
 
+  const newIdToken: string | undefined = tokenData['id_token'] as string | undefined;
+  // A refreshed ID token carries the latest claims; when the server did not issue one, keep the existing claims.
+  let newIdTokenClaims: Record<string, unknown> | undefined = idTokenClaims;
+
+  if (newIdToken) {
+    try {
+      newIdTokenClaims = SessionManager.toIdTokenClaims(decodeJwt(newIdToken));
+    } catch {
+      // Malformed ID token in the refresh response; the existing claims are still the best we have.
+    }
+  }
+
   const resolvedSessionCookieExpiry: number = SessionManager.resolveSessionCookieExpiry(configuredExpiry);
 
   const newSessionToken: string = await SessionManager.createSessionToken(
@@ -108,6 +121,7 @@ const handleRefreshToken = async (
     expiresIn,
     newRefreshToken,
     organizationId,
+    newIdTokenClaims,
   );
 
   return {
