@@ -66,7 +66,7 @@ export type AsgardeoClientProviderProps = Partial<Omit<AsgardeoProviderProps, 'b
     brandingPreference?: BrandingPreference | null;
     clearSession: () => Promise<void>;
     createOrganization: (payload: CreateOrganizationPayload, sessionId: string) => Promise<Organization>;
-    currentOrganization: Organization;
+    currentOrganization: Organization | null;
     getAllOrganizations: (options?: any, sessionId?: string) => Promise<AllOrganizationsApiResponse>;
     handleOAuthCallback: (
       code: string,
