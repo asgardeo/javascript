@@ -19,22 +19,22 @@
 export {default as useAsgardeo} from './contexts/Asgardeo/useAsgardeo';
 
 export {default as Organization} from './components/presentation/Organization/Organization';
-export {OrganizationProps} from './components/presentation/Organization/Organization';
+export type {OrganizationProps} from './components/presentation/Organization/Organization';
 
 export {default as CreateOrganization} from './components/presentation/CreateOrganization/CreateOrganization';
-export {CreateOrganizationProps} from './components/presentation/CreateOrganization/CreateOrganization';
+export type {CreateOrganizationProps} from './components/presentation/CreateOrganization/CreateOrganization';
 
 export {default as OrganizationProfile} from './components/presentation/OrganizationProfile/OrganizationProfile';
-export {OrganizationProfileProps} from './components/presentation/OrganizationProfile/OrganizationProfile';
+export type {OrganizationProfileProps} from './components/presentation/OrganizationProfile/OrganizationProfile';
 
 export {default as OrganizationSwitcher} from './components/presentation/OrganizationSwitcher/OrganizationSwitcher';
-export {OrganizationSwitcherProps} from './components/presentation/OrganizationSwitcher/OrganizationSwitcher';
+export type {OrganizationSwitcherProps} from './components/presentation/OrganizationSwitcher/OrganizationSwitcher';
 
 export {default as SignedIn} from './components/control/SignedIn/SignedIn';
-export {SignedInProps} from './components/control/SignedIn/SignedIn';
+export type {SignedInProps} from './components/control/SignedIn/SignedIn';
 
 export {default as SignedOut} from './components/control/SignedOut/SignedOut';
-export {SignedOutProps} from './components/control/SignedOut/SignedOut';
+export type {SignedOutProps} from './components/control/SignedOut/SignedOut';
 
 export {default as SignInButton} from './components/actions/SignInButton/SignInButton';
 export type {SignInButtonProps} from './components/actions/SignInButton/SignInButton';
