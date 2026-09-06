@@ -19,8 +19,8 @@
 'use client';
 
 import {Schema, User} from '@asgardeo/node';
-import {BaseUserProfile, BaseUserProfileProps, useUser} from '@asgardeo/react';
-import {FC, ReactElement} from 'react';
+import {BaseUserProfile, BaseUserProfileProps, useTranslation, useUser} from '@asgardeo/react';
+import {FC, ReactElement, useState} from 'react';
 import getSessionId from '../../../../server/actions/getSessionId';
 
 /**
@@ -52,15 +52,37 @@ export type UserProfileProps = Omit<BaseUserProfileProps, 'user' | 'profile' | '
  * />
  * ```
  */
-const UserProfile: FC<UserProfileProps> = ({...rest}: UserProfileProps): ReactElement => {
+const UserProfile: FC<UserProfileProps> = ({preferences, ...rest}: UserProfileProps): ReactElement => {
   const {profile, flattenedProfile, schemas, onUpdateProfile, updateProfile} = useUser();
+  const {t} = useTranslation(preferences?.i18n);
+
+  const [error, setError] = useState<string | null>(null);
 
   const handleProfileUpdate = async (payload: any): Promise<void> => {
-    const result: {data: {user: User}; error: string; success: boolean} = await updateProfile(
-      payload,
-      (await getSessionId()) as string,
-    );
-    onUpdateProfile(result?.data?.user);
+    setError(null);
+
+    try {
+      const result: {data: {user: User}; error: string; success: boolean} = await updateProfile(
+        payload,
+        (await getSessionId()) as string,
+      );
+
+      // The server action reports failures as a result instead of throwing. Keep the current profile on
+      // screen and show the reason; the empty `user` it returns must not replace the profile.
+      if (!result?.success) {
+        setError(result?.error || t('user.profile.update.generic.error'));
+
+        return;
+      }
+
+      onUpdateProfile(result.data.user);
+    } catch (caughtError: unknown) {
+      setError(
+        caughtError instanceof Error && caughtError.message
+          ? caughtError.message
+          : t('user.profile.update.generic.error'),
+      );
+    }
   };
 
   return (
@@ -69,6 +91,8 @@ const UserProfile: FC<UserProfileProps> = ({...rest}: UserProfileProps): ReactEl
       flattenedProfile={flattenedProfile as User}
       schemas={schemas as Schema[]}
       onUpdate={handleProfileUpdate}
+      error={error}
+      preferences={preferences}
       {...rest}
     />
   );

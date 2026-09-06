@@ -22,8 +22,10 @@ import {UpdateMeProfileConfig, User} from '@asgardeo/node';
 import AsgardeoNextClient from '../../AsgardeoNextClient';
 
 /**
- * Server action to get the current user.
- * Returns the user profile if signed in.
+ * Server action to update the signed-in user's profile.
+ *
+ * Failures are reported through the result (`success: false` and `error`) rather than thrown, so that
+ * client components can show the reason without losing the profile they display.
  */
 const updateUserProfileAction = async (
   payload: UpdateMeProfileConfig,
@@ -38,7 +40,7 @@ const updateUserProfileAction = async (
       data: {
         user: {},
       },
-      error: `Failed to get user profile: ${error instanceof Error ? error.message : String(error)}`,
+      error: error instanceof Error ? error.message : String(error),
       success: false,
     };
   }
