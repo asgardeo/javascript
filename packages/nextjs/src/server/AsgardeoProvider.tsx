@@ -26,6 +26,7 @@ import createOrganization from './actions/createOrganization';
 import getAllOrganizations from './actions/getAllOrganizations';
 import getBrandingPreference from './actions/getBrandingPreference';
 import getCurrentOrganizationAction from './actions/getCurrentOrganizationAction';
+import getDecodedIdTokenAction from './actions/getDecodedIdTokenAction';
 import getMyOrganizations from './actions/getMyOrganizations';
 import getSessionId from './actions/getSessionId';
 import getSessionPayload from './actions/getSessionPayload';
@@ -227,6 +228,8 @@ const AsgardeoServerProvider: FC<PropsWithChildren<AsgardeoServerProviderProps>>
       signUpUrl={config?.signUpUrl}
       afterSignInUrl={config?.afterSignInUrl}
       httpRequest={httpRequestAction}
+      getDecodedIdToken={getDecodedIdTokenAction}
+      signInOptions={config?.signInOptions}
       preferences={config?.preferences}
       clientId={config?.clientId}
       user={user}
