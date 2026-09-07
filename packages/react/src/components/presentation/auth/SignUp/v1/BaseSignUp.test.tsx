@@ -281,8 +281,14 @@ describe('BaseSignUp (v1) when the registration completes without a session', ()
       signedIn: true,
     });
 
+    // `signInUrl` is set as well: the button must still stay hidden because the host signed the user in.
     const {container} = render(
-      <BaseSignUp isInitialized onInitialize={vi.fn().mockResolvedValue(registrationStep())} onSubmit={onSubmit} />,
+      <BaseSignUp
+        isInitialized
+        signInUrl="/sign-in"
+        onInitialize={vi.fn().mockResolvedValue(registrationStep())}
+        onSubmit={onSubmit}
+      />,
     );
 
     const submit = await waitFor(() => {

@@ -285,6 +285,7 @@ const BaseSignUpContent: FC<BaseSignUpProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [isFlowInitialized, setIsFlowInitialized] = useState(false);
   const [isFlowComplete, setIsFlowComplete] = useState(false);
+  const [isSignedIn, setIsSignedIn] = useState(false);
   const [currentFlow, setCurrentFlow] = useState<EmbeddedFlowExecuteResponse | null>(null);
 
   const initializationAttemptedRef: any = useRef(false);
@@ -301,6 +302,7 @@ const BaseSignUpContent: FC<BaseSignUpProps> = ({
       // Hosts that sign the user in right after registration (e.g. Next.js) flag it on the response,
       // so the message can say what happens next instead of leaving the user on a finished form.
       const isSigningIn: boolean = (response as EmbeddedFlowExecuteResponse & {signedIn?: boolean}).signedIn === true;
+      setIsSignedIn(isSigningIn);
       addMessage({
         message: t(isSigningIn ? 'signup.success.signing.in' : 'signup.success'),
         type: 'success',
@@ -869,7 +871,7 @@ const BaseSignUpContent: FC<BaseSignUpProps> = ({
             ))}
           </div>
         )}
-        {isFlowComplete && signInUrl && (
+        {isFlowComplete && !isSignedIn && signInUrl && (
           <div className={styles.contentContainer}>
             <ButtonPrimitive
               type="button"
