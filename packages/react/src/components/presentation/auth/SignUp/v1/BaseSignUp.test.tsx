@@ -270,4 +270,35 @@ describe('BaseSignUp (v1) when the registration completes without a session', ()
     expect(assign).toHaveBeenCalledWith('/sign-in');
     vi.unstubAllGlobals();
   });
+
+  it('says that the user is being signed in when the host created a session', async () => {
+    const onSubmit = vi.fn().mockResolvedValue({
+      flowId: 'flow-1',
+      flowStatus: 'COMPLETE',
+      flowType: 'REGISTRATION',
+      type: 'VIEW',
+      data: {},
+      signedIn: true,
+    });
+
+    const {container} = render(
+      <BaseSignUp isInitialized onInitialize={vi.fn().mockResolvedValue(registrationStep())} onSubmit={onSubmit} />,
+    );
+
+    const submit = await waitFor(() => {
+      const button = container.querySelector('form button[type="submit"]') as HTMLButtonElement | null;
+      expect(button).not.toBeNull();
+      return button as HTMLButtonElement;
+    });
+    fireEvent.change(container.querySelector('input[name="http://wso2.org/claims/username"]') as HTMLInputElement, {
+      target: {value: 'sdk-test@example.com'},
+    });
+    fireEvent.change(container.querySelector('input[name="password"]') as HTMLInputElement, {
+      target: {value: 'Str0ng!Passw0rd'},
+    });
+    fireEvent.click(submit);
+
+    await waitFor(() => expect(container.textContent).toContain('signup.success.signing.in'));
+    expect(container.textContent).not.toContain('elements.buttons.signin.text');
+  });
 });

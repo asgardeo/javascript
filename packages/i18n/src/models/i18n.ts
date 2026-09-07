@@ -78,6 +78,7 @@ export interface I18nTranslations {
   'signup.heading': string;
   'signup.subheading': string;
   'signup.success': string;
+  'signup.success.signing.in': string;
 
   /* Email OTP */
   'email.otp.heading': string;

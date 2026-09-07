@@ -298,8 +298,11 @@ const BaseSignUpContent: FC<BaseSignUpProps> = ({
       setCurrentFlow(response);
       setIsFlowComplete(true);
       clearMessages();
+      // Hosts that sign the user in right after registration (e.g. Next.js) flag it on the response,
+      // so the message can say what happens next instead of leaving the user on a finished form.
+      const isSigningIn: boolean = (response as EmbeddedFlowExecuteResponse & {signedIn?: boolean}).signedIn === true;
       addMessage({
-        message: t('signup.success'),
+        message: t(isSigningIn ? 'signup.success.signing.in' : 'signup.success'),
         type: 'success',
       });
       onComplete?.(response);

@@ -79,6 +79,7 @@ const translations: I18nTranslations = {
   'signup.heading': 'பதிவு செய்',
   'signup.subheading': 'தொடங்க புதிய கணக்கை உருவாக்கவும்.',
   'signup.success': 'உங்கள் கணக்கு வெற்றிகரமாக உருவாக்கப்பட்டது.',
+  'signup.success.signing.in': 'உங்கள் கணக்கு உருவாக்கப்பட்டது. உள்நுழைக்கப்படுகிறது…',
 
   /* Email OTP */
   'email.otp.heading': 'OTP சரிபார்ப்பு',
