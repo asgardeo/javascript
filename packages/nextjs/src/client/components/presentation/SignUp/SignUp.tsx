@@ -22,10 +22,11 @@ import {
   AsgardeoRuntimeError,
   EmbeddedFlowExecuteRequestPayload,
   EmbeddedFlowExecuteResponse,
+  EmbeddedFlowStatus,
   EmbeddedFlowType,
 } from '@asgardeo/node';
 import {BaseSignUp, BaseSignUpProps} from '@asgardeo/react';
-import {FC} from 'react';
+import {FC, useState} from 'react';
 import useAsgardeo from '../../../contexts/Asgardeo/useAsgardeo';
 
 /**
@@ -72,6 +73,9 @@ const SignUp: FC<SignUpProps> = ({
   ...rest
 }: SignUpProps) => {
   const {signUp, signInUrl} = useAsgardeo();
+  // Set when the registration completed without creating a session (e.g. a social sign-up): the card then
+  // shows a sign-in button instead of the user being redirected to a protected page.
+  const [needsManualSignIn, setNeedsManualSignIn] = useState<boolean>(false);
 
   /**
    * Initialize the sign-up flow.
@@ -106,14 +110,20 @@ const SignUp: FC<SignUpProps> = ({
       );
     }
 
-    return (await signUp(payload, undefined, {afterSignUpUrl})) as unknown as Promise<EmbeddedFlowExecuteResponse>;
+    const response: any = await signUp(payload, undefined, {afterSignUpUrl});
+
+    if (response?.flowStatus === EmbeddedFlowStatus.Complete && response?.signedIn === false) {
+      setNeedsManualSignIn(true);
+    }
+
+    return response as EmbeddedFlowExecuteResponse;
   };
 
   return (
     <BaseSignUp
       {...rest}
       afterSignUpUrl={afterSignUpUrl}
-      signInUrl={signInUrl}
+      signInUrl={needsManualSignIn ? signInUrl : undefined}
       onInitialize={handleInitialize}
       onSubmit={handleOnSubmit}
       onError={onError}

@@ -285,8 +285,13 @@ const AsgardeoClientProvider: FC<PropsWithChildren<AsgardeoClientProviderProps>>
       }
 
       // Hand the completed flow back to the caller (e.g. `<SignUp />`) so it can finish its lifecycle
-      // while the navigation is in flight, instead of receiving `undefined` and crashing.
-      return {...flowResponse, flowStatus: flowResponse.flowStatus ?? EmbeddedFlowStatus.Complete};
+      // while the navigation is in flight, instead of receiving `undefined` and crashing. `signedIn` tells
+      // it whether the user still has to sign in manually.
+      return {
+        ...flowResponse,
+        flowStatus: flowResponse.flowStatus ?? EmbeddedFlowStatus.Complete,
+        signedIn: !!signedIn,
+      };
     }
 
     if (result?.error) {
