@@ -71,7 +71,7 @@ const SignUp: FC<SignUpProps> = ({
   onError,
   ...rest
 }: SignUpProps) => {
-  const {signUp} = useAsgardeo();
+  const {signUp, signInUrl} = useAsgardeo();
 
   /**
    * Initialize the sign-up flow.
@@ -113,6 +113,7 @@ const SignUp: FC<SignUpProps> = ({
     <BaseSignUp
       {...rest}
       afterSignUpUrl={afterSignUpUrl}
+      signInUrl={signInUrl}
       onInitialize={handleInitialize}
       onSubmit={handleOnSubmit}
       onError={onError}

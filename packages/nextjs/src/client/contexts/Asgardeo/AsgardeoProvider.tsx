@@ -266,17 +266,21 @@ const AsgardeoClientProvider: FC<PropsWithChildren<AsgardeoClientProviderProps>>
     if (result?.data?.afterSignUpUrl) {
       const {afterSignUpUrl, autoSignInSkippedReason, signedIn, ...flowResponse}: any = result.data;
 
-      // A URL passed by the caller (e.g. the `afterSignUpUrl` prop of `<SignUp />`) wins over the configured one.
-      navigateTo(router, options?.afterSignUpUrl || afterSignUpUrl);
-
       if (signedIn) {
+        // A URL passed by the caller (e.g. the `afterSignUpUrl` prop of `<SignUp />`) wins over the configured one.
+        navigateTo(router, options?.afterSignUpUrl || afterSignUpUrl);
         // A session cookie was set during sign-up; re-render server components so the signed-in state is picked up.
         router.refresh();
-      } else if (autoSignInSkippedReason) {
-        // Make the fallback visible where developers look first, not only in the server log.
+      } else if (options?.afterSignUpUrl) {
+        // The caller chose where to go next; honour it even without a session.
+        navigateTo(router, options.afterSignUpUrl);
+      } else {
+        // No session was created (e.g. a social sign-up, or a multi-step registration), and the configured
+        // `afterSignUpUrl` is normally a protected page that would only bounce the user to the sign-in page.
+        // Stay on the sign-up form instead: it shows the success message and a link to sign in.
         logger.warn(
           `[AsgardeoClientProvider] The user was registered but not signed in automatically: ${autoSignInSkippedReason} ` +
-            'They will have to sign in manually.',
+            'The sign-up form shows a success message and a sign-in button instead of redirecting.',
         );
       }
 

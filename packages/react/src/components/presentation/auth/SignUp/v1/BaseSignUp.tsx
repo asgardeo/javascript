@@ -36,6 +36,7 @@ import {useForm, FormField} from '../../../../../hooks/useForm';
 import useTranslation from '../../../../../hooks/useTranslation';
 import resolveFlowErrorMessage from '../../../../../utils/resolveFlowErrorMessage';
 import AlertPrimitive from '../../../../primitives/Alert/Alert';
+import ButtonPrimitive from '../../../../primitives/Button/Button';
 // eslint-disable-next-line import/no-named-as-default
 import CardPrimitive, {CardProps} from '../../../../primitives/Card/Card';
 import Logo from '../../../../primitives/Logo/Logo';
@@ -206,6 +207,13 @@ export interface BaseSignUpProps {
   showTitle?: boolean;
 
   /**
+   * URL of the sign-in page. When the registration completes without signing the user in
+   * (for example after a social sign-up), a sign-in button pointing here is shown under the
+   * success message so the user is not left on a finished form.
+   */
+  signInUrl?: string;
+
+  /**
    * Size variant for the component.
    */
   size?: 'small' | 'medium' | 'large';
@@ -236,6 +244,7 @@ const resolveAlertVariant = (type?: string): 'success' | 'error' | 'warning' | '
 
 const BaseSignUpContent: FC<BaseSignUpProps> = ({
   afterSignUpUrl,
+  signInUrl,
   onInitialize,
   onSubmit,
   onError,
@@ -855,6 +864,20 @@ const BaseSignUpContent: FC<BaseSignUpProps> = ({
                 <AlertPrimitive.Description>{message.message}</AlertPrimitive.Description>
               </AlertPrimitive>
             ))}
+          </div>
+        )}
+        {isFlowComplete && signInUrl && (
+          <div className={styles.contentContainer}>
+            <ButtonPrimitive
+              type="button"
+              fullWidth
+              className={buttonClassName}
+              onClick={(): void => {
+                window.location.assign(signInUrl);
+              }}
+            >
+              {t('elements.buttons.signin.text')}
+            </ButtonPrimitive>
           </div>
         )}
         {!isFlowComplete && (
