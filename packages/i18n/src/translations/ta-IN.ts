@@ -117,6 +117,8 @@ const translations: I18nTranslations = {
 
   'user.profile.heading': 'சுயவிவரம்',
 
+  'user.profile.loading': 'சுயவிவரம் ஏற்றப்படுகிறது',
+
   'user.profile.readonly.federated':
     'இந்தச் சுயவிவரம் உங்கள் {provider} கணக்கால் நிர்வகிக்கப்படுகிறது, இங்கே திருத்த முடியாது.',
 

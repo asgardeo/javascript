@@ -15,4 +15,4 @@ Asgardeo rejects attribute updates for accounts provisioned from a social or ent
 - A rejected update is now reported in plain words instead of the raw SCIM error, and switches the profile to read-only for the rest of the session. The Next.js `<UserProfile />` previously ignored update failures entirely.
 - New API `getMeFederatedAssociations` in `@asgardeo/javascript` and `@asgardeo/react`, plus the `signup`-style texts `user.profile.readonly.federated` and `user.profile.update.not.allowed.error` in all i18n bundles.
 
-While `auto` is resolving the profile stays read-only, so a managed account never briefly shows edit controls; in popup mode the lookup is deferred until the profile is actually opened.
+While `auto` is resolving, the profile shows a loading state rather than edit controls it may have to take away; `BaseUserProfile` now renders that state whenever `isLoading` is set, in both inline and popup modes. In popup mode the lookup is deferred until the profile is actually opened.

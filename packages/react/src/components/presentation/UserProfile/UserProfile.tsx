@@ -158,6 +158,10 @@ const UserProfile: FC<UserProfileProps> = ({preferences, editable, ...rest}: Use
   const resolvedEditable: BaseUserProfileProps['editable'] =
     editable === 'auto' ? isFederatedAccount === false : editable;
 
+  // The profile is still being resolved: show the loading state instead of a read-only
+  // profile that may turn out to be editable.
+  const isResolvingEditable: boolean = editable === 'auto' && isFederatedAccount === undefined;
+
   const resolveReadOnlyNote = (): string | undefined => {
     if (isFederatedAccount !== true) {
       return undefined;
@@ -178,6 +182,7 @@ const UserProfile: FC<UserProfileProps> = ({preferences, editable, ...rest}: Use
       onUpdate={handleProfileUpdate}
       error={error}
       editable={resolvedEditable}
+      isLoading={isResolvingEditable}
       readOnlyNote={readOnlyNote}
       preferences={preferences}
       {...rest}

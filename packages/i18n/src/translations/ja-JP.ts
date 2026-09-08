@@ -117,6 +117,8 @@ const translations: I18nTranslations = {
 
   'user.profile.heading': 'プロフィール',
 
+  'user.profile.loading': 'プロフィールを読み込んでいます',
+
   'user.profile.readonly.federated':
     'このプロフィールは {provider} アカウントで管理されているため、ここでは編集できません。',
 

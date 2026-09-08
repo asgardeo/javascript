@@ -117,6 +117,8 @@ const translations: I18nTranslations = {
 
   'user.profile.heading': 'प्रोफ़ाइल',
 
+  'user.profile.loading': 'प्रोफ़ाइल लोड हो रही है',
+
   'user.profile.readonly.federated':
     'यह प्रोफ़ाइल आपके {provider} खाते द्वारा प्रबंधित है और इसे यहाँ संपादित नहीं किया जा सकता।',
 

@@ -118,6 +118,8 @@ const translations: I18nTranslations = {
 
   'user.profile.heading': 'ప్రొఫైల్',
 
+  'user.profile.loading': 'ప్రొఫైల్ లోడ్ అవుతోంది',
+
   'user.profile.readonly.federated': 'ఈ ప్రొఫైల్ మీ {provider} ఖాతా ద్వారా నిర్వహించబడుతుంది, ఇక్కడ సవరించలేరు.',
 
   'user.profile.update.not.allowed.error':

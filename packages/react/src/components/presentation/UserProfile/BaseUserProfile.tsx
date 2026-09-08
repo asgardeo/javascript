@@ -31,6 +31,7 @@ import CardPrimitive from '../../primitives/Card/Card';
 import Checkbox from '../../primitives/Checkbox/Checkbox';
 import DatePicker from '../../primitives/DatePicker/DatePicker';
 import DialogPrimitive from '../../primitives/Dialog/Dialog';
+import Spinner from '../../primitives/Spinner/Spinner';
 import Divider from '../../primitives/Divider/Divider';
 import MultiInput from '../../primitives/MultiInput/MultiInput';
 import TextField from '../../primitives/TextField/TextField';
@@ -697,6 +698,19 @@ const BaseUserProfile: FC<BaseUserProfileProps> = ({
     );
   };
 
+  const loadingContent: any = (
+    <CardPrimitive className={containerClasses}>
+      <div
+        className={styles.loading}
+        role="status"
+        aria-live="polite"
+        aria-label={t('user.profile.loading') || 'Loading profile'}
+      >
+        <Spinner size="medium" />
+      </div>
+    </CardPrimitive>
+  );
+
   const profileContent: any = (
     <CardPrimitive className={containerClasses}>
       {!isProfileEditable && readOnlyNote && (
@@ -768,13 +782,13 @@ const BaseUserProfile: FC<BaseUserProfileProps> = ({
       <DialogPrimitive open={open} onOpenChange={onOpenChange}>
         <DialogPrimitive.Content>
           <DialogPrimitive.Heading>{title ?? t('user.profile.heading')}</DialogPrimitive.Heading>
-          <div className={styles.popup}>{profileContent}</div>
+          <div className={styles.popup}>{isLoading ? loadingContent : profileContent}</div>
         </DialogPrimitive.Content>
       </DialogPrimitive>
     );
   }
 
-  return profileContent;
+  return isLoading ? loadingContent : profileContent;
 };
 
 export default BaseUserProfile;

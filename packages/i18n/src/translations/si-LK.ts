@@ -117,6 +117,8 @@ const translations: I18nTranslations = {
 
   'user.profile.heading': 'පැතිකඩ',
 
+  'user.profile.loading': 'පැතිකඩ පූරණය වෙමින්',
+
   'user.profile.readonly.federated':
     'මෙම පැතිකඩ ඔබගේ {provider} ගිණුම මගින් කළමනාකරණය වන අතර මෙහිදී සංස්කරණය කළ නොහැක.',
 

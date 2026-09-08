@@ -124,6 +124,10 @@ const UserProfile: FC<UserProfileProps> = ({editable, preferences, ...rest}: Use
   const resolvedEditable: BaseUserProfileProps['editable'] =
     editable === 'auto' ? lock !== undefined && !lock.readOnly : editable;
 
+  // The profile is still being resolved: show the loading state instead of a read-only
+  // profile that may turn out to be editable.
+  const isResolvingEditable: boolean = editable === 'auto' && lock === undefined;
+
   const resolveReadOnlyNote = (): string | undefined => {
     if (!lock?.readOnly) {
       return undefined;
@@ -143,6 +147,7 @@ const UserProfile: FC<UserProfileProps> = ({editable, preferences, ...rest}: Use
       schemas={schemas as Schema[]}
       onUpdate={handleProfileUpdate}
       editable={resolvedEditable}
+      isLoading={isResolvingEditable}
       readOnlyNote={readOnlyNote}
       error={error}
       preferences={preferences}
