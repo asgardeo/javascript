@@ -48,17 +48,16 @@ export interface UserDropdownRenderProps {
  */
 export type UserDropdownProps = Omit<BaseUserDropdownProps, 'user' | 'onManageProfile'> & {
   /**
+   * Render prop function that receives user state and actions.
+   * When provided, this completely replaces the default dropdown rendering.
+   */
+  children?: (props: UserDropdownRenderProps) => ReactNode;
+  /**
    * Whether the profile shown by the "Manage profile" item can be edited. Forwarded to
    * `<UserProfile />`, so `'auto'` renders a read-only profile for accounts whose attributes
    * are owned by an identity provider.
    */
   editable?: UserProfileProps['editable'];
-
-  /**
-   * Render prop function that receives user state and actions.
-   * When provided, this completely replaces the default dropdown rendering.
-   */
-  children?: (props: UserDropdownRenderProps) => ReactNode;
   /**
    * Custom render function for the dropdown content.
    * When provided, this replaces just the dropdown content while keeping the trigger.
