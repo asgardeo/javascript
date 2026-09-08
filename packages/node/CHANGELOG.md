@@ -1,5 +1,12 @@
 # @asgardeo/node
 
+## 0.0.87
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @asgardeo/javascript@0.23.5
+
 ## 0.0.86
 
 ### Patch Changes
