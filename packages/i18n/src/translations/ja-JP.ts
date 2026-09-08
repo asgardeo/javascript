@@ -116,6 +116,12 @@ const translations: I18nTranslations = {
   /* |---------------------------------------------------------------| */
 
   'user.profile.heading': 'プロフィール',
+
+  'user.profile.readonly.federated':
+    'このプロフィールは {provider} アカウントで管理されているため、ここでは編集できません。',
+
+  'user.profile.update.not.allowed.error':
+    'プロフィールは ID プロバイダーによって管理されているため、ここでは変更できません。',
   'user.profile.update.generic.error': 'プロフィール更新中にエラーが発生しました。もう一度お試しください。',
 
   /* |---------------------------------------------------------------| */

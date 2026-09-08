@@ -177,4 +177,36 @@ describe('BaseUserProfile with SCIM2 schemas', () => {
     expect(text).not.toContain('Last Name');
     expect(container.querySelectorAll('button[title="Edit"]').length).toBe(0);
   });
+
+  it('accepts a predicate for `editable` and shows the read-only note when it returns false', () => {
+    const editable = vi.fn().mockReturnValue(false);
+
+    const {container} = render(
+      <BaseUserProfile
+        profile={profile}
+        flattenedProfile={flattenedProfile}
+        schemas={schemas}
+        editable={editable}
+        readOnlyNote="Managed by your Google account."
+      />,
+    );
+
+    expect(editable).toHaveBeenCalledWith(flattenedProfile);
+    expect(container.textContent).toContain('Managed by your Google account.');
+    expect(container.querySelector('input')).toBeNull();
+  });
+
+  it('does not show the read-only note while the profile is editable', () => {
+    const {container} = render(
+      <BaseUserProfile
+        profile={profile}
+        flattenedProfile={flattenedProfile}
+        schemas={schemas}
+        editable={() => true}
+        readOnlyNote="Managed by your Google account."
+      />,
+    );
+
+    expect(container.textContent).not.toContain('Managed by your Google account.');
+  });
 });

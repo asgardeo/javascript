@@ -34,6 +34,9 @@ export {default as executeEmbeddedSignUpFlow} from './api/executeEmbeddedSignUpF
 export {default as getUserInfo} from './api/getUserInfo';
 export {default as getScim2Me} from './api/getScim2Me';
 export type {GetScim2MeConfig} from './api/getScim2Me';
+export {default as getMeFederatedAssociations} from './api/getMeFederatedAssociations';
+export type {GetMeFederatedAssociationsConfig} from './api/getMeFederatedAssociations';
+export type {FederatedAssociation} from './models/federated-association';
 export {default as getSchemas} from './api/getSchemas';
 export type {GetSchemasConfig} from './api/getSchemas';
 export {default as getAllOrganizations} from './api/getAllOrganizations';
