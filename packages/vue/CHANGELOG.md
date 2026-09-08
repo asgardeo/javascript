@@ -1,5 +1,14 @@
 # @asgardeo/vue
 
+## 0.4.9
+
+### Patch Changes
+
+- Updated dependencies
+  [[`9a156a9`](https://github.com/asgardeo/javascript/commit/9a156a948a0a3c36f504954e1b87a6ef39f13d3a)]:
+  - @asgardeo/i18n@0.4.10
+  - @asgardeo/browser@0.7.16
+
 ## 0.4.8
 
 ### Patch Changes
