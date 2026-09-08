@@ -1,5 +1,28 @@
 # @asgardeo/nextjs
 
+## 0.3.34
+
+### Patch Changes
+
+- [#567](https://github.com/asgardeo/javascript/pull/567)
+  [`d559499`](https://github.com/asgardeo/javascript/commit/d559499b123d1de2c66e50b6d1242f07db457745) Thanks
+  [@DonOmalVindula](https://github.com/DonOmalVindula)! - Show a success message and a sign-in button when a
+  registration completes without signing the user in.
+
+  - `BaseSignUp` accepts a `signInUrl` prop. When the flow completes and the prop is set, the card keeps showing the
+    "account created" message and renders a Sign In button that takes the user to that URL.
+  - The Next.js `<SignUp />` passes the configured `signInUrl` automatically, and the provider no longer navigates to
+    `afterSignUpUrl` when no session was created (for example after a social sign-up, or a multi-step registration).
+    Previously the user was sent to a protected page and bounced straight to the sign-in form without ever seeing that
+    the account had been created. A per-component `afterSignUpUrl` prop is still honoured.
+  - When the host does sign the user in (the Next.js auto sign-in), the message reads "Your account has been created.
+    Signing you in…" (new i18n key `signup.success.signing.in`) instead of leaving the user wondering what happens next.
+
+- Updated dependencies
+  [[`d559499`](https://github.com/asgardeo/javascript/commit/d559499b123d1de2c66e50b6d1242f07db457745)]:
+  - @asgardeo/react@0.25.12
+  - @asgardeo/node@0.0.87
+
 ## 0.3.33
 
 ### Patch Changes
