@@ -117,6 +117,13 @@ const translations: I18nTranslations = {
   /* |---------------------------------------------------------------| */
 
   'user.profile.heading': 'Perfil',
+
+  'user.profile.loading': 'A carregar o perfil',
+
+  'user.profile.readonly.federated': 'Este perfil é gerido pela sua conta {provider} e não pode ser editado aqui.',
+
+  'user.profile.update.not.allowed.error':
+    'O seu perfil é gerido pelo seu fornecedor de identidade, pelo que estes dados não podem ser alterados aqui.',
   'user.profile.update.generic.error': 'Ocorreu um erro ao actualizar o seu perfil. Tente novamente.',
 
   /* |---------------------------------------------------------------| */

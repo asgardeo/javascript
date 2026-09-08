@@ -20,7 +20,7 @@ import {FlowMetadataResponse} from '@asgardeo/browser';
 import {FC, ReactElement, ReactNode, useState} from 'react';
 import {BaseUserDropdown as BaseUserDropdownComponent, BaseUserDropdownProps} from './BaseUserDropdown';
 import useAsgardeo from '../../../contexts/Asgardeo/useAsgardeo';
-import UserProfile from '../UserProfile/UserProfile';
+import UserProfile, {UserProfileProps} from '../UserProfile/UserProfile';
 
 /**
  * Render props data passed to the children function
@@ -52,6 +52,12 @@ export type UserDropdownProps = Omit<BaseUserDropdownProps, 'user' | 'onManagePr
    * When provided, this completely replaces the default dropdown rendering.
    */
   children?: (props: UserDropdownRenderProps) => ReactNode;
+  /**
+   * Whether the profile shown by the "Manage profile" item can be edited. Forwarded to
+   * `<UserProfile />`, so `'auto'` renders a read-only profile for accounts whose attributes
+   * are owned by an identity provider.
+   */
+  editable?: UserProfileProps['editable'];
   /**
    * Custom render function for the dropdown content.
    * When provided, this replaces just the dropdown content while keeping the trigger.
@@ -115,6 +121,7 @@ const UserDropdown: FC<UserDropdownProps> = ({
   renderTrigger,
   renderDropdown,
   onSignOut,
+  editable,
   ...rest
 }: UserDropdownProps): ReactElement => {
   const {user, isLoading, signOut, meta} = useAsgardeo();
@@ -151,7 +158,7 @@ const UserDropdown: FC<UserDropdownProps> = ({
     return (
       <>
         {children(renderProps)}
-        <UserProfile mode="popup" open={isProfileOpen} onOpenChange={setIsProfileOpen} />
+        <UserProfile mode="popup" editable={editable} open={isProfileOpen} onOpenChange={setIsProfileOpen} />
       </>
     );
   }
@@ -174,7 +181,7 @@ const UserDropdown: FC<UserDropdownProps> = ({
           />
         )}
         {/* Note: renderDropdown would need BaseUserDropdown modifications to implement properly */}
-        <UserProfile mode="popup" open={isProfileOpen} onOpenChange={setIsProfileOpen} />
+        <UserProfile mode="popup" editable={editable} open={isProfileOpen} onOpenChange={setIsProfileOpen} />
       </>
     );
   }
@@ -189,7 +196,9 @@ const UserDropdown: FC<UserDropdownProps> = ({
         onSignOut={handleSignOut}
         {...rest}
       />
-      {isProfileOpen && <UserProfile mode="popup" open={isProfileOpen} onOpenChange={setIsProfileOpen} />}
+      {isProfileOpen && (
+        <UserProfile mode="popup" editable={editable} open={isProfileOpen} onOpenChange={setIsProfileOpen} />
+      )}
     </>
   );
 };

@@ -119,7 +119,12 @@ const translations: I18nTranslations = {
   /* |---------------------------------------------------------------| */
 
   'user.profile.heading': 'Profile',
+
+  'user.profile.loading': 'Loading profile',
   'user.profile.update.generic.error': 'An error occurred while updating your profile. Please try again.',
+  'user.profile.readonly.federated': 'This profile is managed by your {provider} account and cannot be edited here.',
+  'user.profile.update.not.allowed.error':
+    'Your profile is managed by your identity provider, so these details cannot be changed here.',
 
   /* |---------------------------------------------------------------| */
   /* |                     Organization Switcher                     | */

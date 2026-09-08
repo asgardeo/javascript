@@ -31,6 +31,7 @@ import CardPrimitive from '../../primitives/Card/Card';
 import Checkbox from '../../primitives/Checkbox/Checkbox';
 import DatePicker from '../../primitives/DatePicker/DatePicker';
 import DialogPrimitive from '../../primitives/Dialog/Dialog';
+import Spinner from '../../primitives/Spinner/Spinner';
 import Divider from '../../primitives/Divider/Divider';
 import MultiInput from '../../primitives/MultiInput/MultiInput';
 import TextField from '../../primitives/TextField/TextField';
@@ -68,7 +69,11 @@ export interface BaseUserProfileProps {
   cardLayout?: boolean;
   className?: string;
   displayNameAttributes?: string[];
-  editable?: boolean;
+  /**
+   * Whether the profile can be edited. Pass a predicate to decide from the profile itself, for example
+   * to render a read-only profile for accounts whose attributes are owned by an identity provider.
+   */
+  editable?: boolean | ((profile?: User) => boolean);
   error?: string | null;
   fallback?: ReactElement;
   flattenedProfile?: User;
@@ -85,6 +90,11 @@ export interface BaseUserProfileProps {
    */
   preferences?: Preferences;
   profile?: User;
+  /**
+   * Explanation shown above a read-only profile, for example when the account is managed by an
+   * identity provider. Ignored while the profile is editable.
+   */
+  readOnlyNote?: string;
   schemas?: Schema[];
   showFields?: string[];
 
@@ -135,6 +145,7 @@ const BaseUserProfile: FC<BaseUserProfileProps> = ({
   title,
   attributeMapping = {},
   editable = true,
+  readOnlyNote,
   onOpenChange,
   onUpdate,
   open = false,
@@ -146,6 +157,9 @@ const BaseUserProfile: FC<BaseUserProfileProps> = ({
   displayNameAttributes = [],
 }: BaseUserProfileProps): ReactElement => {
   const {theme, colorScheme} = useTheme();
+  // `editable` may be a predicate so callers can decide per user; resolve it once for the render.
+  const isProfileEditable: boolean =
+    typeof editable === 'function' ? editable(flattenedProfile ?? profile) !== false : editable !== false;
   const [editedUser, setEditedUser] = useState(flattenedProfile || profile);
   const [editingFields, setEditingFields] = useState<Record<string, boolean>>({});
   const {t} = useTranslation(preferences?.i18n);
@@ -379,7 +393,8 @@ const BaseUserProfile: FC<BaseUserProfileProps> = ({
       const hasValues: any = Array.isArray(value)
         ? value.length > 0
         : value !== undefined && value !== null && value !== '';
-      const isEditable: any = editable && !isReadOnlyMutability(mutability) && !readonlyFields.includes(name || '');
+      const isEditable: any =
+        isProfileEditable && !isReadOnlyMutability(mutability) && !readonlyFields.includes(name || '');
 
       if (isEditing && onEditValue && isEditable) {
         let currentValue: any;
@@ -524,7 +539,8 @@ const BaseUserProfile: FC<BaseUserProfileProps> = ({
     }
 
     const hasValue: any = value !== undefined && value !== null && value !== '';
-    const isEditable: any = editable && !isReadOnlyMutability(mutability) && !readonlyFields.includes(name || '');
+    const isEditable: any =
+      isProfileEditable && !isReadOnlyMutability(mutability) && !readonlyFields.includes(name || '');
 
     let displayValue: string;
     if (hasValue) {
@@ -565,7 +581,8 @@ const BaseUserProfile: FC<BaseUserProfileProps> = ({
     const isFieldEditing: any = editingFields[schema.name];
     const isReadonlyField: any = readonlyFields.includes(schema.name);
 
-    const shouldShow: any = hasValue || isFieldEditing || (editable && isReadWriteMutability(schema.mutability));
+    const shouldShow: any =
+      hasValue || isFieldEditing || (isProfileEditable && isReadWriteMutability(schema.mutability));
 
     if (!shouldShow) {
       return null;
@@ -585,7 +602,7 @@ const BaseUserProfile: FC<BaseUserProfileProps> = ({
             () => toggleFieldEdit(schema.name!),
           )}
         </div>
-        {editable && !isReadOnlyMutability(schema.mutability) && !isReadonlyField && (
+        {isProfileEditable && !isReadOnlyMutability(schema.mutability) && !isReadonlyField && (
           <div className={styles.fieldActions}>
             {isFieldEditing && (
               <>
@@ -681,8 +698,29 @@ const BaseUserProfile: FC<BaseUserProfileProps> = ({
     );
   };
 
+  const loadingContent: any = (
+    <CardPrimitive className={containerClasses}>
+      <div
+        className={styles.loading}
+        role="status"
+        aria-live="polite"
+        aria-label={t('user.profile.loading') || 'Loading profile'}
+      >
+        <Spinner size="medium" />
+      </div>
+    </CardPrimitive>
+  );
+
   const profileContent: any = (
     <CardPrimitive className={containerClasses}>
+      {!isProfileEditable && readOnlyNote && (
+        <AlertPrimitive
+          variant="info"
+          className={cx(withVendorCSSClassPrefix(bem('user-profile', 'alert')), styles.alert)}
+        >
+          <AlertPrimitive.Description>{readOnlyNote}</AlertPrimitive.Description>
+        </AlertPrimitive>
+      )}
       {error && (
         <AlertPrimitive
           variant="error"
@@ -709,7 +747,7 @@ const BaseUserProfile: FC<BaseUserProfileProps> = ({
               .filter((schema: any) => {
                 if (!schema.name || !shouldShowField(schema.name)) return false;
 
-                if (!editable) {
+                if (!isProfileEditable) {
                   const value: any = flattenedProfile && schema.name ? flattenedProfile[schema.name] : undefined;
                   return value !== undefined && value !== '' && value !== null;
                 }
@@ -744,13 +782,13 @@ const BaseUserProfile: FC<BaseUserProfileProps> = ({
       <DialogPrimitive open={open} onOpenChange={onOpenChange}>
         <DialogPrimitive.Content>
           <DialogPrimitive.Heading>{title ?? t('user.profile.heading')}</DialogPrimitive.Heading>
-          <div className={styles.popup}>{profileContent}</div>
+          <div className={styles.popup}>{isLoading ? loadingContent : profileContent}</div>
         </DialogPrimitive.Content>
       </DialogPrimitive>
     );
   }
 
-  return profileContent;
+  return isLoading ? loadingContent : profileContent;
 };
 
 export default BaseUserProfile;

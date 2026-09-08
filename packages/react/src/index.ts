@@ -293,6 +293,8 @@ export {default as getSchemas, GetSchemasConfig} from './api/getSchemas';
 export {default as updateMeProfile, UpdateMeProfileConfig} from './api/updateMeProfile';
 export {default as getMeProfile} from './api/getScim2Me';
 export * from './api/getScim2Me';
+export {default as getMeFederatedAssociations} from './api/getMeFederatedAssociations';
+export type {GetMeFederatedAssociationsConfig} from './api/getMeFederatedAssociations';
 
 export {
   AsgardeoRuntimeError,

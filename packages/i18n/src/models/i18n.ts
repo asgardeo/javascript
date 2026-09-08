@@ -117,6 +117,9 @@ export interface I18nTranslations {
 
   'user.profile.heading': string;
   'user.profile.update.generic.error': string;
+  'user.profile.loading': string;
+  'user.profile.readonly.federated': string;
+  'user.profile.update.not.allowed.error': string;
 
   /* |---------------------------------------------------------------| */
   /* |                     Organization Switcher                     | */

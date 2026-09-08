@@ -16,10 +16,11 @@
  * under the License.
  */
 
-import {AsgardeoError, User} from '@asgardeo/browser';
-import {FC, ReactElement, useState} from 'react';
+import {AsgardeoError, Config, FederatedAssociation, Platform, User, identifyPlatform} from '@asgardeo/browser';
+import {FC, ReactElement, useEffect, useState} from 'react';
 // eslint-disable-next-line import/no-named-as-default
 import BaseUserProfile, {BaseUserProfileProps} from './BaseUserProfile';
+import getMeFederatedAssociations from '../../../api/getMeFederatedAssociations';
 import updateMeProfile from '../../../api/updateMeProfile';
 import useAsgardeo from '../../../contexts/Asgardeo/useAsgardeo';
 import useUser from '../../../contexts/User/useUser';
@@ -29,7 +30,19 @@ import useTranslation from '../../../hooks/useTranslation';
  * Props for the UserProfile component.
  * Extends BaseUserProfileProps but makes the user prop optional since it will be obtained from useAsgardeo
  */
-export type UserProfileProps = Omit<BaseUserProfileProps, 'user' | 'profile' | 'flattenedProfile' | 'schemas'>;
+export type UserProfileProps = Omit<
+  BaseUserProfileProps,
+  'user' | 'profile' | 'flattenedProfile' | 'schemas' | 'editable'
+> & {
+  /**
+   * Whether the profile can be edited.
+   *
+   * `'auto'` decides per user: on Asgardeo, an account provisioned from a social or enterprise
+   * connection is rendered read-only, because the identity provider owns its attributes and the
+   * server rejects updates to them. Everywhere else the profile stays editable.
+   */
+  editable?: BaseUserProfileProps['editable'] | 'auto';
+};
 
 /**
  * UserProfile component displays the authenticated user's profile information in a
@@ -64,12 +77,57 @@ export type UserProfileProps = Omit<BaseUserProfileProps, 'user' | 'profile' | '
  * />
  * ```
  */
-const UserProfile: FC<UserProfileProps> = ({preferences, ...rest}: UserProfileProps): ReactElement => {
+const UserProfile: FC<UserProfileProps> = ({preferences, editable, ...rest}: UserProfileProps): ReactElement => {
   const {baseUrl, instanceId} = useAsgardeo();
   const {profile, flattenedProfile, schemas, onUpdateProfile} = useUser();
   const {t} = useTranslation(preferences?.i18n);
 
   const [error, setError] = useState<string | null>(null);
+  /**
+   * Resolved value of `editable="auto"`: `undefined` until the lookup finishes, so the profile stays
+   * editable rather than flickering into a read-only state and back.
+   */
+  const [isFederatedAccount, setIsFederatedAccount] = useState<boolean | undefined>(undefined);
+  const [identityProviderName, setIdentityProviderName] = useState<string | undefined>(undefined);
+
+  // In popup mode the profile is mounted with the dropdown; don't spend a request until it is opened.
+  const {mode: profileMode, open: isProfileOpen} = rest as {mode?: string; open?: boolean};
+
+  useEffect((): (() => void) | undefined => {
+    if (editable !== 'auto' || (profileMode === 'popup' && !isProfileOpen)) {
+      return undefined;
+    }
+
+    // Only Asgardeo refuses these updates; on Identity Server the same account is editable.
+    if (identifyPlatform({baseUrl} as Config) !== Platform.Asgardeo) {
+      setIsFederatedAccount(false);
+      return undefined;
+    }
+
+    let isStale: boolean = false;
+
+    (async (): Promise<void> => {
+      try {
+        const associations: FederatedAssociation[] = await getMeFederatedAssociations({baseUrl, instanceId});
+
+        if (isStale) {
+          return;
+        }
+
+        setIsFederatedAccount(associations.length > 0);
+        setIdentityProviderName(associations[0]?.idp?.displayName || associations[0]?.idp?.name);
+      } catch {
+        // The lookup is a convenience; if it fails, leave the profile editable and let the server decide.
+        if (!isStale) {
+          setIsFederatedAccount(false);
+        }
+      }
+    })();
+
+    return (): void => {
+      isStale = true;
+    };
+  }, [editable, baseUrl, instanceId, profileMode, isProfileOpen]);
 
   const handleProfileUpdate = async (payload: any): Promise<void> => {
     setError(null);
@@ -84,9 +142,37 @@ const UserProfile: FC<UserProfileProps> = ({preferences, ...rest}: UserProfilePr
         message = caughtError?.message;
       }
 
+      // The server owns the attributes of accounts linked to an identity provider and rejects the
+      // update. Say so in plain words and stop offering edits for the rest of the session.
+      if (String(message).includes('User attribute update is not allowed')) {
+        message = t('user.profile.update.not.allowed.error');
+        setIsFederatedAccount(true);
+      }
+
       setError(message);
     }
   };
+
+  // Until the lookup resolves the profile stays read-only, so a managed account never flashes
+  // edit controls that the server would refuse.
+  const resolvedEditable: BaseUserProfileProps['editable'] =
+    editable === 'auto' ? isFederatedAccount === false : editable;
+
+  // The profile is still being resolved: show the loading state instead of a read-only
+  // profile that may turn out to be editable.
+  const isResolvingEditable: boolean = editable === 'auto' && isFederatedAccount === undefined;
+
+  const resolveReadOnlyNote = (): string | undefined => {
+    if (isFederatedAccount !== true) {
+      return undefined;
+    }
+
+    return identityProviderName
+      ? t('user.profile.readonly.federated', {provider: identityProviderName})
+      : t('user.profile.update.not.allowed.error');
+  };
+
+  const readOnlyNote: string | undefined = resolveReadOnlyNote();
 
   return (
     <BaseUserProfile
@@ -95,6 +181,9 @@ const UserProfile: FC<UserProfileProps> = ({preferences, ...rest}: UserProfilePr
       schemas={schemas}
       onUpdate={handleProfileUpdate}
       error={error}
+      editable={resolvedEditable}
+      isLoading={isResolvingEditable}
+      readOnlyNote={readOnlyNote}
       preferences={preferences}
       {...rest}
     />

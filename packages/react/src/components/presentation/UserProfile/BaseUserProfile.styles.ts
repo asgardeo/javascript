@@ -90,6 +90,16 @@ const useStyles = (theme: Theme, colorScheme: string): Record<string, string> =>
       border-radius: ${theme.vars.borderRadius.large};
     `;
 
+    const loading: string = css`
+      align-items: center;
+
+      display: flex;
+
+      justify-content: center;
+
+      min-height: 180px;
+    `;
+
     const header: string = css`
       display: flex;
       align-items: center;
@@ -223,6 +233,7 @@ const useStyles = (theme: Theme, colorScheme: string): Record<string, string> =>
       infoContainer,
       label,
       lastField,
+      loading,
       name,
       objectKey,
       objectValue,
