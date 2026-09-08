@@ -90,8 +90,11 @@ const UserProfile: FC<UserProfileProps> = ({preferences, editable, ...rest}: Use
   const [isFederatedAccount, setIsFederatedAccount] = useState<boolean | undefined>(undefined);
   const [identityProviderName, setIdentityProviderName] = useState<string | undefined>(undefined);
 
+  // In popup mode the profile is mounted with the dropdown; don't spend a request until it is opened.
+  const {mode: profileMode, open: isProfileOpen} = rest as {mode?: string; open?: boolean};
+
   useEffect((): (() => void) | undefined => {
-    if (editable !== 'auto') {
+    if (editable !== 'auto' || (profileMode === 'popup' && !isProfileOpen)) {
       return undefined;
     }
 
@@ -124,7 +127,7 @@ const UserProfile: FC<UserProfileProps> = ({preferences, editable, ...rest}: Use
     return (): void => {
       isStale = true;
     };
-  }, [editable, baseUrl, instanceId]);
+  }, [editable, baseUrl, instanceId, profileMode, isProfileOpen]);
 
   const handleProfileUpdate = async (payload: any): Promise<void> => {
     setError(null);
@@ -150,8 +153,10 @@ const UserProfile: FC<UserProfileProps> = ({preferences, editable, ...rest}: Use
     }
   };
 
+  // Until the lookup resolves the profile stays read-only, so a managed account never flashes
+  // edit controls that the server would refuse.
   const resolvedEditable: BaseUserProfileProps['editable'] =
-    editable === 'auto' ? isFederatedAccount !== true : editable;
+    editable === 'auto' ? isFederatedAccount === false : editable;
 
   const resolveReadOnlyNote = (): string | undefined => {
     if (isFederatedAccount !== true) {
