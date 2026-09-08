@@ -81,6 +81,7 @@ const translations: I18nTranslations = {
   'signup.heading': 'Sign Up',
   'signup.subheading': 'Create a new account to get started.',
   'signup.success': 'Your account has been created successfully.',
+  'signup.success.signing.in': 'Your account has been created. Signing you in…',
 
   /* Email OTP */
   'email.otp.heading': 'OTP Verification',

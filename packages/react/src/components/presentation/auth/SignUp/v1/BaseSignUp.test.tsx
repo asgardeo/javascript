@@ -222,3 +222,89 @@ describe('BaseSignUp (v1) after a server-side validation error', () => {
     expect(container.textContent).not.toContain('validations.required.field.error');
   });
 });
+
+describe('BaseSignUp (v1) when the registration completes without a session', () => {
+  afterEach(() => cleanup());
+
+  it('shows the success message and a sign-in button pointing at signInUrl', async () => {
+    const assign = vi.fn();
+    vi.stubGlobal('location', {...window.location, assign});
+    const onSubmit = vi.fn().mockResolvedValue({
+      flowId: 'flow-1',
+      flowStatus: 'COMPLETE',
+      flowType: 'REGISTRATION',
+      type: 'VIEW',
+      data: {},
+    });
+
+    const {container} = render(
+      <BaseSignUp
+        isInitialized
+        signInUrl="/sign-in"
+        onInitialize={vi.fn().mockResolvedValue(registrationStep())}
+        onSubmit={onSubmit}
+      />,
+    );
+
+    const submit = await waitFor(() => {
+      const button = container.querySelector('form button[type="submit"]') as HTMLButtonElement | null;
+      expect(button).not.toBeNull();
+      return button as HTMLButtonElement;
+    });
+    fireEvent.change(container.querySelector('input[name="http://wso2.org/claims/username"]') as HTMLInputElement, {
+      target: {value: 'sdk-test@example.com'},
+    });
+    fireEvent.change(container.querySelector('input[name="password"]') as HTMLInputElement, {
+      target: {value: 'Str0ng!Passw0rd'},
+    });
+    fireEvent.click(submit);
+
+    // The form is gone, the success message is shown, and the sign-in button takes the user to signInUrl.
+    await waitFor(() => expect(container.textContent).toContain('signup.success'));
+    expect(container.querySelector('form')).toBeNull();
+    const signIn = Array.from(container.querySelectorAll('button')).find((button: HTMLButtonElement) =>
+      button.textContent?.includes('elements.buttons.signin.text'),
+    ) as HTMLButtonElement | undefined;
+    expect(signIn).toBeDefined();
+    fireEvent.click(signIn as HTMLButtonElement);
+    expect(assign).toHaveBeenCalledWith('/sign-in');
+    vi.unstubAllGlobals();
+  });
+
+  it('says that the user is being signed in when the host created a session', async () => {
+    const onSubmit = vi.fn().mockResolvedValue({
+      flowId: 'flow-1',
+      flowStatus: 'COMPLETE',
+      flowType: 'REGISTRATION',
+      type: 'VIEW',
+      data: {},
+      signedIn: true,
+    });
+
+    // `signInUrl` is set as well: the button must still stay hidden because the host signed the user in.
+    const {container} = render(
+      <BaseSignUp
+        isInitialized
+        signInUrl="/sign-in"
+        onInitialize={vi.fn().mockResolvedValue(registrationStep())}
+        onSubmit={onSubmit}
+      />,
+    );
+
+    const submit = await waitFor(() => {
+      const button = container.querySelector('form button[type="submit"]') as HTMLButtonElement | null;
+      expect(button).not.toBeNull();
+      return button as HTMLButtonElement;
+    });
+    fireEvent.change(container.querySelector('input[name="http://wso2.org/claims/username"]') as HTMLInputElement, {
+      target: {value: 'sdk-test@example.com'},
+    });
+    fireEvent.change(container.querySelector('input[name="password"]') as HTMLInputElement, {
+      target: {value: 'Str0ng!Passw0rd'},
+    });
+    fireEvent.click(submit);
+
+    await waitFor(() => expect(container.textContent).toContain('signup.success.signing.in'));
+    expect(container.textContent).not.toContain('elements.buttons.signin.text');
+  });
+});

@@ -79,6 +79,7 @@ const translations: I18nTranslations = {
   'signup.heading': 'సైన్ అప్ చేయండి',
   'signup.subheading': 'కొత్త అకౌంట్ సృష్టించండి.',
   'signup.success': 'మీ ఖాతా విజయవంతంగా సృష్టించబడింది.',
+  'signup.success.signing.in': 'మీ ఖాతా సృష్టించబడింది. మీరు సైన్ ఇన్ చేయబడుతున్నారు…',
 
   /* Email OTP */
   'email.otp.heading': 'OTP వెరిఫికేషన్',
