@@ -18,6 +18,7 @@
 
 import {AsgardeoRuntimeError, CookieConfig} from '@asgardeo/node';
 import {SignJWT, jwtVerify, compactVerify, JWTPayload} from 'jose';
+import logger from './logger';
 import {DEFAULT_SESSION_COOKIE_EXPIRY_TIME} from '../constants/sessionConstants';
 
 /**
@@ -28,6 +29,14 @@ export interface SessionTokenPayload extends JWTPayload {
   exp: number;
   /** Issued at timestamp */
   iat: number;
+  /**
+   * Claims of the ID token that was issued together with the access token, minus the
+   * single-use protocol claims (see {@link SessionManager.toIdTokenClaims}). Lets the
+   * server read the user's organization and identity claims without an in-memory session.
+   * Reduced to the essential claims, or left out, when the full set would not fit into the
+   * cookie (see {@link SessionManager.createSessionToken}).
+   */
+  idTokenClaims?: Record<string, unknown>;
   /** Organization ID if applicable */
   organizationId?: string;
   /** The refresh token; empty string if not provided by the auth server */
@@ -115,6 +124,133 @@ class SessionManager {
     return DEFAULT_SESSION_COOKIE_EXPIRY_TIME;
   }
 
+  /**
+   * ID token claims that are only meaningful while the token is being validated (hashes, nonce,
+   * session identifiers). They are dropped before the claims are stored in the session cookie
+   * to keep the cookie small; everything else, including the organization claims (`org_id`,
+   * `org_name`, `org_handle`, `user_org`) and the user attributes, is kept.
+   */
+  private static readonly TRANSIENT_ID_TOKEN_CLAIMS: string[] = [
+    'acr',
+    'amr',
+    'at_hash',
+    'azp',
+    'c_hash',
+    'isk',
+    'jti',
+    'nbf',
+    'nonce',
+    'sid',
+  ];
+
+  /**
+   * Reduces a decoded ID token to the claims worth keeping in the session cookie.
+   *
+   * @param decodedIdToken - The decoded ID token payload, if one was issued.
+   * @returns The claims to persist, or `undefined` when there is no ID token.
+   */
+  static toIdTokenClaims(decodedIdToken?: Record<string, unknown> | null): Record<string, unknown> | undefined {
+    if (!decodedIdToken || typeof decodedIdToken !== 'object') {
+      return undefined;
+    }
+
+    return Object.fromEntries(
+      Object.entries(decodedIdToken).filter(
+        ([claim, value]: [string, unknown]) => value !== undefined && !this.TRANSIENT_ID_TOKEN_CLAIMS.includes(claim),
+      ),
+    );
+  }
+
+  /**
+   * Browsers store at most 4096 bytes per cookie (name, value and attributes together) and drop
+   * larger ones, so the session token has to stay within that budget.
+   */
+  private static readonly MAX_COOKIE_BYTES: number = 4096;
+
+  /**
+   * Room left for the cookie attributes (`Path`, `Max-Age`, `HttpOnly`, `Secure`, `SameSite`)
+   * that accompany the session token.
+   */
+  private static readonly COOKIE_ATTRIBUTES_HEADROOM_BYTES: number = 128;
+
+  /**
+   * ID token claims the SDK itself reads: the organization claims behind `getCurrentOrganization()`
+   * and the basic identity claims behind the ID-token fallback of `getUser()`. When the full claim
+   * set does not fit into the session cookie, the persisted claims are reduced to these.
+   */
+  private static readonly ESSENTIAL_ID_TOKEN_CLAIMS: string[] = [
+    'aud',
+    'email',
+    'exp',
+    'family_name',
+    'given_name',
+    'iat',
+    'iss',
+    'name',
+    'org_handle',
+    'org_id',
+    'org_name',
+    'preferred_username',
+    'sub',
+    'user_org',
+    'username',
+  ];
+
+  /**
+   * The largest session token, in bytes, that still fits into a browser cookie together with the
+   * cookie name and attributes.
+   */
+  static getSessionCookieValueBudget(): number {
+    return this.MAX_COOKIE_BYTES - this.getSessionCookieName().length - this.COOKIE_ATTRIBUTES_HEADROOM_BYTES;
+  }
+
+  /**
+   * The organization claims behind `getCurrentOrganization()`: the smallest claim set worth keeping
+   * when not even the essential claims fit into the session cookie.
+   */
+  private static readonly ORGANIZATION_ID_TOKEN_CLAIMS: string[] = [
+    'org_handle',
+    'org_id',
+    'org_name',
+    'sub',
+    'user_org',
+  ];
+
+  private static pickIdTokenClaims(
+    idTokenClaims: Record<string, unknown>,
+    claimNames: string[],
+  ): Record<string, unknown> {
+    return Object.fromEntries(
+      Object.entries(idTokenClaims).filter(([claim]: [string, unknown]) => claimNames.includes(claim)),
+    );
+  }
+
+  /**
+   * Reduces persisted ID token claims to the ones the SDK itself reads
+   * (see {@link SessionManager.ESSENTIAL_ID_TOKEN_CLAIMS}).
+   */
+  static toEssentialIdTokenClaims(idTokenClaims: Record<string, unknown>): Record<string, unknown> {
+    return this.pickIdTokenClaims(idTokenClaims, this.ESSENTIAL_ID_TOKEN_CLAIMS);
+  }
+
+  /**
+   * Reduces persisted ID token claims to the organization claims only
+   * (see {@link SessionManager.ORGANIZATION_ID_TOKEN_CLAIMS}).
+   */
+  static toOrganizationIdTokenClaims(idTokenClaims: Record<string, unknown>): Record<string, unknown> {
+    return this.pickIdTokenClaims(idTokenClaims, this.ORGANIZATION_ID_TOKEN_CLAIMS);
+  }
+
+  /**
+   * Creates the signed session token that is stored in the session cookie.
+   *
+   * A cookie above the browser limit is dropped silently, which would leave the user without a
+   * session right after signing in or refreshing. The ID token claims are the only part of the
+   * payload whose size the SDK controls, so when the token exceeds the cookie budget they are
+   * narrowed step by step: to the essential identity and organization claims, then to the
+   * organization claims alone, and finally left out entirely. Any reduction is logged at `warn`
+   * level. The session stays cookie-only on purpose; there is no server-side store to fall back to.
+   */
   static async createSessionToken(
     accessToken: string,
     userId: string,
@@ -123,22 +259,56 @@ class SessionManager {
     accessTokenTtlSeconds: number,
     refreshToken: string,
     organizationId?: string,
+    idTokenClaims?: Record<string, unknown>,
   ): Promise<string> {
     const secret: Uint8Array = this.getSecret();
+    const expirationTime: number = Math.floor(Date.now() / 1000) + accessTokenTtlSeconds;
+    const budget: number = this.getSessionCookieValueBudget();
 
-    const jwt: string = await new SignJWT({
-      accessToken,
-      organizationId,
-      refreshToken,
-      scopes,
-      sessionId,
-      type: 'session',
-    } as Omit<SessionTokenPayload, 'sub' | 'iat' | 'exp'>)
-      .setProtectedHeader({alg: 'HS256'})
-      .setSubject(userId)
-      .setIssuedAt()
-      .setExpirationTime(Math.floor(Date.now() / 1000) + accessTokenTtlSeconds)
-      .sign(secret);
+    const sign = (claims?: Record<string, unknown>): Promise<string> =>
+      new SignJWT({
+        accessToken,
+        idTokenClaims: claims,
+        organizationId,
+        refreshToken,
+        scopes,
+        sessionId,
+        type: 'session',
+      } as Omit<SessionTokenPayload, 'sub' | 'iat' | 'exp'>)
+        .setProtectedHeader({alg: 'HS256'})
+        .setSubject(userId)
+        .setIssuedAt()
+        .setExpirationTime(expirationTime)
+        .sign(secret);
+
+    // A compact JWT is ASCII, so its length is its size in bytes.
+    let jwt: string = await sign(idTokenClaims);
+
+    if (idTokenClaims && jwt.length > budget) {
+      let keptClaims: string = 'only the essential ID token claims';
+      jwt = await sign(this.toEssentialIdTokenClaims(idTokenClaims));
+
+      if (jwt.length > budget) {
+        keptClaims = 'only the organization claims of the ID token';
+        jwt = await sign(this.toOrganizationIdTokenClaims(idTokenClaims));
+      }
+
+      if (jwt.length > budget) {
+        // Without claims, the ID token fallbacks behave as they did before the claims were persisted.
+        keptClaims = 'none of the ID token claims';
+        jwt = await sign(undefined);
+      }
+
+      logger.warn(
+        `[SessionManager] The ID token claims do not fit into the session cookie (budget: ${budget} bytes); ${keptClaims} are kept in the session.`,
+      );
+    }
+
+    if (jwt.length > budget) {
+      logger.warn(
+        `[SessionManager] The session cookie value is ${jwt.length} bytes, above the ${budget}-byte budget; the browser may drop the cookie.`,
+      );
+    }
 
     return jwt;
   }

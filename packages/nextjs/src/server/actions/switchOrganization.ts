@@ -63,6 +63,7 @@ const switchOrganization = async (
         expiresIn,
         tokenResponse.refreshToken ?? '',
         organizationId,
+        SessionManager.toIdTokenClaims(idToken),
       );
 
       logger.debug('[switchOrganization] Session token created successfully.');

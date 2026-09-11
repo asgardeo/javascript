@@ -127,6 +127,7 @@ const handleOAuthCallbackAction = async (
           expiresIn,
           refreshToken,
           organizationId,
+          SessionManager.toIdTokenClaims(idToken),
         );
 
         cookieStore.set(

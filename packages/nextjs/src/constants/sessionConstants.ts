@@ -24,6 +24,13 @@
 export const REFRESH_BUFFER_SECONDS: number = 25;
 
 /**
+ * Upper bound, in milliseconds, for a token request the SDK sends from a server action
+ * (for example the `organization_switch` grant). Without it a token endpoint that accepts
+ * the request but never answers keeps the server action pending and ties up request capacity.
+ */
+export const TOKEN_REQUEST_TIMEOUT_MS: number = 30_000;
+
+/**
  * Default session cookie lifetime in seconds (24 hours).
  *
  * Used when no explicit session cookie expiry is configured. The session cookie
