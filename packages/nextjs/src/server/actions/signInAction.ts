@@ -148,6 +148,7 @@ const signInAction = async (
           expiresIn,
           refreshToken,
           organizationId,
+          SessionManager.toIdTokenClaims(idToken),
         );
 
         cookieStore.set(
