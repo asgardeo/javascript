@@ -19,7 +19,11 @@ export default function Home() {
             </>
           ) : (
             <SignInButton>
-              {({isLoading}) => <button disabled={isLoading}>{isLoading ? 'Loading...' : 'Sign In'}</button>}
+              {({isLoading, signIn}) => (
+                <button onClick={signIn} disabled={isLoading}>
+                  {isLoading ? 'Loading...' : 'Sign In'}
+                </button>
+              )}
             </SignInButton>
           )}
         </div>
@@ -34,7 +38,11 @@ export default function Home() {
         {!isSignedIn && (
           <div>
             <SignInButton>
-              {({isLoading}) => <button disabled={isLoading}>{isLoading ? 'Loading...' : 'Get Started'}</button>}
+              {({isLoading, signIn}) => (
+                <button onClick={signIn} disabled={isLoading}>
+                  {isLoading ? 'Loading...' : 'Get Started'}
+                </button>
+              )}
             </SignInButton>
           </div>
         )}
