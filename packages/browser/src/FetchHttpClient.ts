@@ -99,10 +99,9 @@ export class FetchHttpClient extends HttpClient {
       } as Partial<HttpError>);
     }
 
-    const contentType: string = fetchResponse.headers.get('content-type') ?? '';
-    const responseData: T = contentType.includes('application/json')
-      ? await fetchResponse.json()
-      : ((await fetchResponse.text()) as any);
+    const contentType: string = (fetchResponse.headers.get('content-type') ?? '').split(';')[0].trim().toLowerCase();
+    const isJson: boolean = contentType === 'application/json' || contentType.endsWith('+json');
+    const responseData: T = isJson ? await fetchResponse.json() : ((await fetchResponse.text()) as any);
 
     const responseHeaders: Record<string, string> = {};
     fetchResponse.headers.forEach((value: string, key: string) => {
