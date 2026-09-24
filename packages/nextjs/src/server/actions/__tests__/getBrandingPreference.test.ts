@@ -21,6 +21,7 @@ import {AsgardeoAPIError, getBrandingPreference as baseGetBrandingPreference} fr
 import {describe, it, expect, vi, beforeEach, afterEach, type Mock} from 'vitest';
 
 // Now import SUT and mocked exports
+import {clearBrandingPreferenceCache} from '../../../utils/brandingPreferenceCache';
 import getBrandingPreference from '../getBrandingPreference';
 
 // Mock the upstream module first. Keep all dependencies inside the factory.
@@ -62,6 +63,7 @@ describe('getBrandingPreference (Next.js server action)', () => {
 
   beforeEach(() => {
     vi.resetAllMocks();
+    clearBrandingPreferenceCache();
     (baseGetBrandingPreference as unknown as Mock).mockResolvedValue(mockPref);
   });
 
@@ -80,6 +82,16 @@ describe('getBrandingPreference (Next.js server action)', () => {
     expect(call.length).toBe(1);
 
     expect(result).toBe(mockPref);
+  });
+
+  it('should serve the cached preference for the same base URL, type, name and locale', async () => {
+    const config: Cfg = {baseUrl: 'https://api.asgardeo.io/t/acme', locale: 'en-US', name: 'app-1', type: 'APP'};
+
+    await getBrandingPreference(config);
+    await getBrandingPreference({...config});
+    await getBrandingPreference({...config, locale: 'fr-FR'});
+
+    expect(baseGetBrandingPreference).toHaveBeenCalledTimes(2);
   });
 
   it('should wrap an AsgardeoAPIError from upstream, preserving statusCode', async () => {

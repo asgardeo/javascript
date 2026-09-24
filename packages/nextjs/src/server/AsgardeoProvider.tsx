@@ -18,7 +18,15 @@
 
 'use server';
 
-import {BrandingPreference, AsgardeoRuntimeError, IdToken, Organization, User, UserProfile} from '@asgardeo/node';
+import {
+  BrandingPreference,
+  AsgardeoRuntimeError,
+  IdToken,
+  Organization,
+  User,
+  UserProfile,
+  generateUserProfile,
+} from '@asgardeo/node';
 import {AsgardeoProviderProps} from '@asgardeo/react';
 import {FC, PropsWithChildren, ReactElement} from 'react';
 import clearSession from './actions/clearSession';
@@ -29,7 +37,6 @@ import getCurrentOrganizationAction from './actions/getCurrentOrganizationAction
 import getMyOrganizations from './actions/getMyOrganizations';
 import getSessionId from './actions/getSessionId';
 import getSessionPayload from './actions/getSessionPayload';
-import getUserAction from './actions/getUserAction';
 import getUserProfileAction from './actions/getUserProfileAction';
 import handleOAuthCallbackAction from './actions/handleOAuthCallbackAction';
 import httpRequestAction from './actions/httpRequestAction';
@@ -155,19 +162,19 @@ const AsgardeoServerProvider: FC<PropsWithChildren<AsgardeoServerProviderProps>>
 
     if (shouldFetchUserProfile) {
       try {
-        const userResponse: {
-          data: {user: User | null};
-          error: string | null;
-          success: boolean;
-        } = await getUserAction(sessionId);
         const userProfileResponse: {
           data: {userProfile: UserProfile};
           error: string | null;
           success: boolean;
         } = await getUserProfileAction(sessionId);
 
-        user = userResponse.data?.user || {};
         userProfile = userProfileResponse.data?.userProfile ?? userProfile;
+
+        // `getUser()` would request the same SCIM2 resources a second time; derive the user from the profile
+        // instead. Without schemas the profile already holds the ID token claims used as the fallback.
+        user = userProfile.schemas?.length
+          ? generateUserProfile(userProfile.profile, userProfile.schemas)
+          : userProfile.profile ?? {};
       } catch (error) {
         logger.warn('[AsgardeoServerProvider] Failed to fetch user profile from SCIM2:', error?.toString());
       }
@@ -194,21 +201,21 @@ const AsgardeoServerProvider: FC<PropsWithChildren<AsgardeoServerProviderProps>>
     }
   }
 
-  // Fetch branding preference if branding is enabled in config
+  // Fetch branding preference if branding is enabled in config. The action caches the result for a few
+  // minutes, so this does not cost a request to the identity server on every render.
   if (config?.preferences?.theme?.inheritFromBranding !== false) {
     try {
       brandingPreference = await getBrandingPreference(
         {
           baseUrl: config?.baseUrl as string,
-          locale: 'en-US',
+          locale: config?.preferences?.i18n?.language ?? 'en-US',
           name: config.applicationId || config.organizationHandle,
           type: config.applicationId ? 'APP' : 'ORG',
         },
         sessionId,
       );
     } catch (error) {
-      // eslint-disable-next-line no-console
-      console.warn('[AsgardeoServerProvider] Failed to fetch branding preference:', error);
+      logger.warn('[AsgardeoServerProvider] Failed to fetch branding preference:', error?.toString());
     }
   }
 
