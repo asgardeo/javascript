@@ -21,6 +21,7 @@
 import {AsgardeoAPIError, logger} from '@asgardeo/node';
 import {cookies} from 'next/headers';
 import AsgardeoNextClient from '../../AsgardeoNextClient';
+import {REFRESH_BUFFER_SECONDS} from '../../constants/sessionConstants';
 import {AsgardeoNextConfig} from '../../models/config';
 import handleRefreshToken, {HandleRefreshTokenResult} from '../../utils/handleRefreshToken';
 import SessionManager, {SessionTokenPayload} from '../../utils/SessionManager';
@@ -43,17 +44,29 @@ export interface RefreshResult {
 }
 
 /**
+ * Options of {@link refreshToken}.
+ */
+export interface RefreshTokenOptions {
+  /**
+   * Only exchange the refresh token when the access token expires within the refresh buffer.
+   * Used by the scheduled refresh in the client provider: when the middleware has already refreshed the
+   * session for a recent request, the current expiry is returned without a second token request.
+   */
+  onlyIfExpiring?: boolean;
+}
+
+/**
  * Server action to refresh the access token using the stored refresh token.
  * Exchanges the refresh token for a new token set and updates the session cookie.
  *
  * Delegates the HTTP exchange to handleRefreshToken so the same logic is shared
  * with the middleware token refresh path.
  *
- * Called from the client side (e.g. AsgardeoClientProvider refreshOnMount) where
- * Next.js allows cookie mutation. When invoked during SSR rendering the cookie
- * write is silently skipped and a warning is logged.
+ * Called from the client side (the client provider schedules it shortly before the access token expires,
+ * and `useAsgardeo().refreshToken()` exposes it) where Next.js allows cookie mutation. When invoked during
+ * SSR rendering the cookie write is silently skipped and a warning is logged.
  */
-const refreshToken = async (): Promise<RefreshResult> => {
+const refreshToken = async (options?: RefreshTokenOptions): Promise<RefreshResult> => {
   try {
     const cookieStore: RequestCookies = await cookies();
     const sessionToken: string | undefined = cookieStore.get(SessionManager.getSessionCookieName())?.value;
@@ -68,6 +81,14 @@ const refreshToken = async (): Promise<RefreshResult> => {
     }
 
     const sessionPayload: SessionTokenPayload = await SessionManager.verifySessionTokenForRefresh(sessionToken);
+    const now: number = Math.floor(Date.now() / 1000);
+
+    if (options?.onlyIfExpiring && sessionPayload.exp > now + REFRESH_BUFFER_SECONDS) {
+      logger.debug('[refreshToken] The session is not close to expiry; skipping the refresh.');
+
+      return {expiresAt: sessionPayload.exp};
+    }
+
     const client: AsgardeoNextClient = AsgardeoNextClient.getInstance();
     const config: AsgardeoNextConfig = await client.getConfiguration();
 

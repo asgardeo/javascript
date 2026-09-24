@@ -51,10 +51,17 @@ import {AppRouterInstance} from 'next/dist/shared/lib/app-router-context.shared-
 import {useRouter, useSearchParams} from 'next/navigation';
 import {FC, PropsWithChildren, RefObject, useEffect, useMemo, useRef, useState} from 'react';
 import AsgardeoContext, {AsgardeoContextProps} from './AsgardeoContext';
+import {REFRESH_BUFFER_SECONDS} from '../../../constants/sessionConstants';
 import {HttpRequestActionResult} from '../../../server/actions/httpRequestAction';
-import {RefreshResult} from '../../../server/actions/refreshToken';
+import {RefreshResult, RefreshTokenOptions} from '../../../server/actions/refreshToken';
 import logger from '../../../utils/logger';
 import navigateTo from '../../../utils/navigateTo';
+
+/**
+ * Lower bound for the delay of a scheduled refresh, so that a token that is already expired (for example
+ * after the tab was suspended) is refreshed right away without hammering the server in a tight loop.
+ */
+const MIN_REFRESH_DELAY_MS: number = 5_000;
 
 /**
  * Props interface of {@link AsgardeoClientProvider}
@@ -77,8 +84,13 @@ export type AsgardeoClientProviderProps = Partial<Omit<AsgardeoProviderProps, 'b
     isSignedIn: boolean;
     myOrganizations: Organization[];
     organizationHandle: AsgardeoContextProps['organizationHandle'];
-    refreshToken: () => Promise<RefreshResult>;
+    refreshToken: (options?: RefreshTokenOptions) => Promise<RefreshResult>;
     revalidateMyOrganizations?: (sessionId?: string) => Promise<Organization[]>;
+    /**
+     * Expiry of the current access token (epoch seconds), taken from the session cookie on the server.
+     * The provider schedules a refresh shortly before it so the session stays alive while the page is open.
+     */
+    sessionExpiresAt?: number;
     signIn: AsgardeoContextProps['signIn'];
     signOut: AsgardeoContextProps['signOut'];
     signUp: AsgardeoContextProps['signUp'];
@@ -118,6 +130,7 @@ const AsgardeoClientProvider: FC<PropsWithChildren<AsgardeoClientProviderProps>>
   brandingPreference,
   afterSignInUrl,
   httpRequest,
+  sessionExpiresAt,
 }: PropsWithChildren<AsgardeoClientProviderProps>) => {
   const reRenderCheckRef: RefObject<boolean> = useRef(false);
   const router: AppRouterInstance = useRouter();
@@ -204,6 +217,53 @@ const AsgardeoClientProvider: FC<PropsWithChildren<AsgardeoClientProviderProps>>
     // Set loading to false when server has resolved authentication state
     setIsLoading(false);
   }, [isSignedIn, user]);
+
+  // Keep the session alive while the page stays open, as the React SDK does: refresh the access token
+  // shortly before it expires and schedule the next refresh from the result. The middleware refreshes on
+  // navigation only, so without this a long-lived page (or an app without the middleware) silently lost
+  // its session once the access token expired although the refresh token was still valid.
+  useEffect(() => {
+    if (!isSignedIn || !sessionExpiresAt || !refreshToken) {
+      return undefined;
+    }
+
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    let cancelled: boolean = false;
+
+    const schedule = (expiresAt: number): void => {
+      const delay: number = Math.max((expiresAt - REFRESH_BUFFER_SECONDS) * 1000 - Date.now(), MIN_REFRESH_DELAY_MS);
+
+      timer = setTimeout(async (): Promise<void> => {
+        try {
+          // `onlyIfExpiring` makes this a no-op when the middleware already refreshed the session.
+          const result: RefreshResult = await refreshToken({onlyIfExpiring: true});
+
+          if (!cancelled) {
+            schedule(result.expiresAt);
+          }
+        } catch (error) {
+          logger.warn(
+            '[AsgardeoClientProvider] Could not refresh the session; re-rendering the server components so the signed-out state is picked up.',
+            error,
+          );
+
+          if (!cancelled) {
+            router.refresh();
+          }
+        }
+      }, delay);
+    };
+
+    schedule(sessionExpiresAt);
+
+    return (): void => {
+      cancelled = true;
+
+      if (timer) {
+        clearTimeout(timer);
+      }
+    };
+  }, [isSignedIn, sessionExpiresAt]);
 
   const handleSignIn = async (
     payload: EmbeddedSignInFlowHandleRequestPayload,
