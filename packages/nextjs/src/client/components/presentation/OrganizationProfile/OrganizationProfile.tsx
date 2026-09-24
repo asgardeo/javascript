@@ -18,11 +18,12 @@
 
 'use client';
 
-import {OrganizationDetails, updateOrganization, createPatchOperations} from '@asgardeo/node';
+import {OrganizationDetails, createPatchOperations} from '@asgardeo/node';
 import {BaseOrganizationProfile, BaseOrganizationProfileProps, useTranslation} from '@asgardeo/react';
 import {FC, ReactElement, useEffect, useState} from 'react';
 import getOrganizationAction from '../../../../server/actions/getOrganizationAction';
 import getSessionId from '../../../../server/actions/getSessionId';
+import updateOrganizationAction from '../../../../server/actions/updateOrganizationAction';
 import logger from '../../../../utils/logger';
 import useAsgardeo from '../../../contexts/Asgardeo/useAsgardeo';
 
@@ -188,11 +189,15 @@ const OrganizationProfile: FC<OrganizationProfileProps> = ({
       const operations: Array<{operation: 'REPLACE' | 'REMOVE'; path: string; value?: any}> =
         createPatchOperations(payload);
 
-      await updateOrganization({
-        baseUrl,
-        operations,
-        organizationId,
-      });
+      // The access token only exists on the server (HttpOnly session cookie), so the update goes through
+      // a server action rather than calling the Organizations API from the browser.
+      const result: {data: {organization?: OrganizationDetails}; error: string | null; success: boolean} =
+        await updateOrganizationAction(organizationId, operations, (await getSessionId()) as string);
+
+      if (!result.success) {
+        throw new Error(result.error ?? 'Failed to update organization');
+      }
+
       // Refetch organization data after update
       await fetchOrganization();
 
