@@ -18,11 +18,11 @@
 
 'use client';
 
-import {AsgardeoRuntimeError} from '@asgardeo/node';
+import {AsgardeoRuntimeError, SignInOptions} from '@asgardeo/node';
 import {BaseSignInButton, BaseSignInButtonProps, useTranslation} from '@asgardeo/react';
 import {AppRouterInstance} from 'next/dist/shared/lib/app-router-context.shared-runtime';
 import {useRouter} from 'next/navigation';
-import {forwardRef, ForwardRefExoticComponent, ReactElement, Ref, RefAttributes, MouseEvent} from 'react';
+import {forwardRef, ForwardRefExoticComponent, ReactElement, Ref, RefAttributes, MouseEvent, useState} from 'react';
 import useAsgardeo from '../../../contexts/Asgardeo/useAsgardeo';
 
 /**
@@ -30,9 +30,13 @@ import useAsgardeo from '../../../contexts/Asgardeo/useAsgardeo';
  */
 export type SignInButtonProps = BaseSignInButtonProps & {
   /**
-   * Additional parameters to pass to the `authorize` request.
+   * Additional parameters to pass to the `authorize` request, on top of the `signInOptions` configured
+   * on the provider.
+   *
+   * @example
+   * signInOptions: { prompt: "login", fidp: "OrganizationSSO" }
    */
-  signInOptions?: Record<string, any>;
+  signInOptions?: SignInOptions;
 };
 
 /**
@@ -41,8 +45,8 @@ export type SignInButtonProps = BaseSignInButtonProps & {
  * @example Using render props
  * ```tsx
  * <SignInButton>
- *   {({isLoading}) => (
- *     <button type="submit" disabled={isLoading}>
+ *   {({signIn, isLoading}) => (
+ *     <button onClick={signIn} disabled={isLoading}>
  *       {isLoading ? 'Signing in...' : 'Sign In'}
  *     </button>
  *   )}
@@ -54,10 +58,10 @@ export type SignInButtonProps = BaseSignInButtonProps & {
  * <SignInButton className="custom-button">Sign In</SignInButton>
  * ```
  *
- * @remarks
- * In Next.js with server actions, the sign-in is handled via the server action.
- * When using render props, the custom button should use `type="submit"` instead of `onClick={signIn}`.
- * The `signIn` function in render props is provided for API consistency but should not be used directly.
+ * @example Passing additional authorize request parameters
+ * ```tsx
+ * <SignInButton signInOptions={{prompt: 'login'}}>Sign In</SignInButton>
+ * ```
  */
 const SignInButton: ForwardRefExoticComponent<SignInButtonProps & RefAttributes<HTMLButtonElement>> = forwardRef<
   HTMLButtonElement,
@@ -71,8 +75,12 @@ const SignInButton: ForwardRefExoticComponent<SignInButtonProps & RefAttributes<
     const router: AppRouterInstance = useRouter();
     const {t} = useTranslation(preferences?.i18n);
 
-    const handleOnClick = async (e: MouseEvent<HTMLButtonElement>): Promise<void> => {
+    const [isLoading, setIsLoading] = useState<boolean>(false);
+
+    const handleSignIn = async (e?: MouseEvent<HTMLButtonElement>): Promise<void> => {
       try {
+        setIsLoading(true);
+
         // If a custom `signInUrl` is provided, use it for navigation.
         if (signInUrl) {
           router.push(signInUrl);
@@ -81,7 +89,7 @@ const SignInButton: ForwardRefExoticComponent<SignInButtonProps & RefAttributes<
         }
 
         if (onClick) {
-          onClick(e);
+          onClick(e as MouseEvent<HTMLButtonElement>);
         }
       } catch (error) {
         throw new AsgardeoRuntimeError(
@@ -90,6 +98,8 @@ const SignInButton: ForwardRefExoticComponent<SignInButtonProps & RefAttributes<
           'nextjs',
           'Something went wrong while trying to sign in. Please try again later.',
         );
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -99,7 +109,9 @@ const SignInButton: ForwardRefExoticComponent<SignInButtonProps & RefAttributes<
         style={style}
         ref={ref}
         preferences={preferences}
-        onClick={handleOnClick}
+        onClick={handleSignIn}
+        isLoading={isLoading}
+        signIn={handleSignIn}
         {...rest}
       >
         {children ?? t('elements.buttons.signin.text')}
