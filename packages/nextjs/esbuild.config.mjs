@@ -16,11 +16,33 @@
  * under the License.
  */
 
+import {mkdirSync, readdirSync, writeFileSync} from 'fs';
+import {join} from 'path';
 import {build} from 'esbuild';
+
+/**
+ * Collects every source file under `directory`, skipping tests.
+ *
+ * Unlike the sibling packages this one cannot be bundled: Next.js needs the `'use client'` /
+ * `'use server'` directives on the module that defines each component or server action, and a
+ * bundle cannot keep them per module. Every file is therefore transpiled on its own and the
+ * output mirrors the `src` tree for both formats.
+ */
+const collectSourceFiles = directory =>
+  readdirSync(directory, {withFileTypes: true}).flatMap(entry => {
+    const path = join(directory, entry.name);
+
+    if (entry.isDirectory()) {
+      return entry.name === '__tests__' ? [] : collectSourceFiles(path);
+    }
+
+    return /\.tsx?$/.test(entry.name) && !/\.(test|spec)\.tsx?$/.test(entry.name) ? [path] : [];
+  });
 
 const commonOptions = {
   bundle: false,
-  entryPoints: ['src/index.ts', 'src/server/index.ts', 'src/middleware.ts'],
+  entryPoints: collectSourceFiles('src'),
+  outbase: 'src',
   platform: 'node',
   target: ['node18'],
 };
@@ -38,3 +60,7 @@ await build({
   outdir: 'dist/cjs',
   sourcemap: true,
 });
+
+// The package is `"type": "module"`, so Node would otherwise parse the CommonJS output as ESM.
+mkdirSync('dist/cjs', {recursive: true});
+writeFileSync('dist/cjs/package.json', `${JSON.stringify({type: 'commonjs'}, null, 2)}\n`);
