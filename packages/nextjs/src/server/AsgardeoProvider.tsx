@@ -18,8 +18,17 @@
 
 'use server';
 
-import {BrandingPreference, AsgardeoRuntimeError, IdToken, Organization, User, UserProfile} from '@asgardeo/node';
+import {
+  BrandingPreference,
+  AsgardeoRuntimeError,
+  I18nPreferences,
+  IdToken,
+  Organization,
+  User,
+  UserProfile,
+} from '@asgardeo/node';
 import {AsgardeoProviderProps} from '@asgardeo/react';
+import {cookies, headers} from 'next/headers';
 import {FC, PropsWithChildren, ReactElement} from 'react';
 import clearSession from './actions/clearSession';
 import createOrganization from './actions/createOrganization';
@@ -44,7 +53,10 @@ import AsgardeoNextClient from '../AsgardeoNextClient';
 import AsgardeoClientProvider from '../client/contexts/Asgardeo/AsgardeoProvider.js';
 import {AsgardeoNextConfig} from '../models/config';
 import logger from '../utils/logger';
+import resolveRequestLanguage from '../utils/resolveRequestLanguage';
 import {SessionTokenPayload} from '../utils/SessionManager';
+
+const DEFAULT_I18N_STORAGE_KEY: string = 'asgardeo-i18n-language';
 
 /**
  * Props interface of {@link AsgardeoServerProvider}
@@ -109,6 +121,21 @@ const AsgardeoServerProvider: FC<PropsWithChildren<AsgardeoServerProviderProps>>
 
   if (!asgardeoClient.isInitialized) {
     return <></>;
+  }
+
+  // Resolve the UI language on the server the way the client-side i18n provider detects it (persisted
+  // cookie, then the browser's Accept-Language), so both renders use the same translations and hydration
+  // does not fail on translated texts. An explicitly configured language always wins.
+  const i18nPreferences: I18nPreferences | undefined = config?.preferences?.i18n;
+  let language: string | undefined = i18nPreferences?.language;
+
+  if (!language) {
+    const storedLanguage: string | undefined =
+      (i18nPreferences?.storageStrategy ?? 'cookie') === 'cookie'
+        ? (await cookies()).get(i18nPreferences?.storageKey ?? DEFAULT_I18N_STORAGE_KEY)?.value
+        : undefined;
+
+    language = resolveRequestLanguage({acceptLanguage: (await headers()).get('accept-language'), storedLanguage});
   }
 
   // Try to get session information from JWT first, then fall back to legacy
@@ -228,6 +255,7 @@ const AsgardeoServerProvider: FC<PropsWithChildren<AsgardeoServerProviderProps>>
       afterSignInUrl={config?.afterSignInUrl}
       httpRequest={httpRequestAction}
       preferences={config?.preferences}
+      language={language}
       clientId={config?.clientId}
       user={user}
       currentOrganization={currentOrganization}
