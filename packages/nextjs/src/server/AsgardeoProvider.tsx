@@ -235,6 +235,7 @@ const AsgardeoServerProvider: FC<PropsWithChildren<AsgardeoServerProviderProps>>
       updateProfile={updateUserProfileAction}
       isSignedIn={signedIn}
       myOrganizations={myOrganizations}
+      revalidateMyOrganizations={getMyOrganizations}
       getAllOrganizations={getAllOrganizations}
       switchOrganization={switchOrganization}
       brandingPreference={brandingPreference}
