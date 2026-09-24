@@ -18,16 +18,36 @@
 
 'use client';
 
+import {IdToken, Organization, TokenResponse} from '@asgardeo/node';
 import {AsgardeoContextProps as AsgardeoReactContextProps} from '@asgardeo/react';
 import {Context, createContext} from 'react';
 import {RefreshResult} from '../../../server/actions/refreshToken';
 
 /**
  * Props interface of {@link AsgardeoContext}
+ *
+ * A subset of the React SDK's context: the raw tokens never reach the browser (they live in the HttpOnly
+ * session cookie), so `getAccessToken`, `getIdToken` and `exchangeToken` are not available here. Use
+ * `http.request` for authenticated calls and `getDecodedIdToken` for the ID token claims.
  */
-export type AsgardeoContextProps = Partial<AsgardeoReactContextProps> & {
+export type AsgardeoContextProps = Partial<
+  Omit<AsgardeoReactContextProps, 'getDecodedIdToken' | 'switchOrganization' | 'organization'>
+> & {
   clearSession?: () => Promise<void>;
+  /**
+   * Returns the decoded ID token (its claims) of the signed-in user, resolved through a server action.
+   */
+  getDecodedIdToken?: () => Promise<IdToken>;
+  /**
+   * The organization the session belongs to, or `null` while signed out or unknown.
+   */
+  organization?: Organization | null;
   refreshToken?: () => Promise<RefreshResult>;
+  /**
+   * Switches the session to `organization` and re-renders the server components so the new organization,
+   * user and organization list are picked up.
+   */
+  switchOrganization?: (organization: Organization) => Promise<TokenResponse | Response>;
 };
 
 /**
@@ -38,16 +58,21 @@ const AsgardeoContext: Context<AsgardeoContextProps | null> = createContext<null
   applicationId: undefined,
   baseUrl: undefined,
   clearSession: () => Promise.resolve(),
+  clientId: undefined,
+  getDecodedIdToken: () => Promise.resolve({} as IdToken),
   isInitialized: false,
   isLoading: true,
   isSignedIn: false,
+  organization: null,
   organizationHandle: undefined,
   refreshToken: () => Promise.resolve({expiresAt: 0}),
   signIn: () => Promise.resolve({} as any),
+  signInOptions: {},
   signInUrl: undefined,
   signOut: () => Promise.resolve({} as any),
   signUp: () => Promise.resolve({} as any),
   signUpUrl: undefined,
+  switchOrganization: () => Promise.resolve({} as TokenResponse),
   user: null,
 });
 
