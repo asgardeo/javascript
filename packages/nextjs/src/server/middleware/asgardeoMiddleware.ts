@@ -117,7 +117,7 @@ const replaceCookieInHeader = (cookieHeader: string, name: string, value: string
  * @example
  * ```typescript
  * // middleware.ts - Basic usage (config read from env vars automatically)
- * import { asgardeoMiddleware } from '@asgardeo/nextjs';
+ * import { asgardeoMiddleware } from '@asgardeo/nextjs/middleware';
  *
  * export default asgardeoMiddleware();
  *
@@ -129,7 +129,7 @@ const replaceCookieInHeader = (cookieHeader: string, name: string, value: string
  * @example
  * ```typescript
  * // With route protection
- * import { asgardeoMiddleware, createRouteMatcher } from '@asgardeo/nextjs';
+ * import { asgardeoMiddleware, createRouteMatcher } from '@asgardeo/nextjs/middleware';
  *
  * const isProtectedRoute = createRouteMatcher(['/dashboard(.*)']);
  *

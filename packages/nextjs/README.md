@@ -12,6 +12,36 @@
 
 Get started with Asgardeo in your Next.js application in minutes. Follow our [Next.js Quick Start Guide](https://wso2.com/asgardeo/docs/quick-starts/nextjs/) for step-by-step instructions on integrating authentication into your app.
 
+## Middleware
+
+`asgardeoMiddleware` and `createRouteMatcher` are exported from `@asgardeo/nextjs/middleware`. Next.js runs
+`middleware.ts` in the Edge runtime, so this entry point only depends on Edge-safe code. The root entry and
+`@asgardeo/nextjs/server` pull in the Node.js client and cannot be used from `middleware.ts`.
+
+```ts
+// middleware.ts
+import {asgardeoMiddleware, createRouteMatcher} from '@asgardeo/nextjs/middleware';
+
+const isProtectedRoute = createRouteMatcher(['/dashboard(.*)']);
+
+export default asgardeoMiddleware(async (asgardeo, req) => {
+  if (isProtectedRoute(req)) {
+    return asgardeo.protectRoute();
+  }
+});
+
+export const config = {
+  matcher: [
+    '/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)',
+    '/(api|trpc)(.*)',
+  ],
+};
+```
+
+`protectRoute()` redirects unauthenticated requests to `signInUrl` (`NEXT_PUBLIC_ASGARDEO_SIGN_IN_URL`) when it is
+configured. The middleware also refreshes the access token shortly before it expires, so keep the matcher broad
+enough to cover the pages and server actions of your app.
+
 ## Redirect URLs
 
 The SDK sends `afterSignInUrl` (`NEXT_PUBLIC_ASGARDEO_AFTER_SIGN_IN_URL`, or the `afterSignInUrl` prop of
