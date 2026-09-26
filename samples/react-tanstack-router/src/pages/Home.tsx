@@ -1,6 +1,13 @@
 import {Link} from '@tanstack/react-router';
 import {useAsgardeo, SignInButton} from '@asgardeo/react';
 
+/**
+ * Home page component for the TanStack Router sample application.
+ * Renders the landing page with navigation, sign-in/sign-out controls via Asgardeo,
+ * and feature highlights for the Asgardeo + TanStack Router integration.
+ *
+ * @returns The Home page React element.
+ */
 export default function Home() {
   const {isSignedIn, signOut} = useAsgardeo();
 
