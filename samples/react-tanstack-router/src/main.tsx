@@ -39,8 +39,6 @@ createRoot(document.getElementById('root')!).render(
     <AsgardeoProvider
       baseUrl={import.meta.env.VITE_ASGARDEO_BASE_URL}
       clientId={import.meta.env.VITE_ASGARDEO_CLIENT_ID}
-      signInUrl="/signin"
-      signUpUrl="/signup"
       scopes="openid profile email"
     >
       <RouterProvider router={router} />
