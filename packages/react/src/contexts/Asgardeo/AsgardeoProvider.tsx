@@ -35,6 +35,7 @@ import {
   EmbeddedSignInFlowResponseV2,
   TokenResponse,
   createPackageComponentLogger,
+  SPAUtils,
 } from '@asgardeo/browser';
 import {FC, RefObject, PropsWithChildren, ReactElement, useEffect, useMemo, useRef, useState, useCallback} from 'react';
 import AsgardeoContext from './AsgardeoContext';
@@ -275,6 +276,19 @@ const AsgardeoProvider: FC<PropsWithChildren<AsgardeoProviderProps>> = ({
     reRenderCheckRef.current = true;
 
     (async (): Promise<void> => {
+      // Inside the hidden iframe opened by `signInSilently()`, hand the authorization response back to the
+      // parent window before anything else. This iframe shares the parent's session storage, so the
+      // `isSignedIn()` short-circuit below would otherwise resume the session and leave the parent waiting
+      // until its silent sign-in times out.
+      if (
+        SPAUtils.isInitializedSilentSignIn() &&
+        hasCalledForThisInstance(new URL(window.location.href), instanceId ?? 0)
+      ) {
+        await asgardeo.signInSilently();
+
+        return;
+      }
+
       // User is already authenticated. Skip...
       const isAlreadySignedIn: boolean = await asgardeo.isSignedIn();
 
