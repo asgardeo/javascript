@@ -13,11 +13,11 @@ catalogs:
       specifier: 3.3.1
       version: 3.3.1
     react:
-      specifier: 19.2.4
-      version: 19.2.4
+      specifier: 19.2.9
+      version: 19.2.9
     react-dom:
-      specifier: 19.2.4
-      version: 19.2.4
+      specifier: 19.2.9
+      version: 19.2.9
 
 overrides:
   '@asgardeo/auth-spa>axios': 1.20.0
@@ -364,13 +364,13 @@ importers:
         version: 8.57.0
       next:
         specifier: 15.5.25
-        version: 15.5.25(@playwright/test@1.60.0)(@types/node@22.15.3)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+        version: 15.5.25(@playwright/test@1.60.0)(@types/node@22.15.3)(react-dom@19.2.9(react@19.2.9))(react@19.2.9)
       prettier:
         specifier: 2.6.2
         version: 2.6.2
       react:
         specifier: 'catalog:'
-        version: 19.2.4
+        version: 19.2.9
       rimraf:
         specifier: 6.1.0
         version: 6.1.0
@@ -516,7 +516,7 @@ importers:
         version: 11.13.5
       '@floating-ui/react':
         specifier: 0.27.12
-        version: 0.27.12(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+        version: 0.27.12(react-dom@19.2.9(react@19.2.9))(react@19.2.9)
       '@types/react-dom':
         specifier: 19.1.5
         version: 19.1.5(@types/react@19.1.5)
@@ -525,7 +525,7 @@ importers:
         version: 3.3.1
       react-dom:
         specifier: 'catalog:'
-        version: 19.2.4(react@19.2.4)
+        version: 19.2.9(react@19.2.9)
       tslib:
         specifier: 2.8.1
         version: 2.8.1
@@ -535,7 +535,7 @@ importers:
         version: 10.4.0
       '@testing-library/react':
         specifier: 16.3.0
-        version: 16.3.0(@testing-library/dom@10.4.0)(@types/react-dom@19.1.5(@types/react@19.1.5))(@types/react@19.1.5)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+        version: 16.3.0(@testing-library/dom@10.4.0)(@types/react-dom@19.1.5(@types/react@19.1.5))(@types/react@19.1.5)(react-dom@19.2.9(react@19.2.9))(react@19.2.9)
       '@types/node':
         specifier: 22.15.3
         version: 22.15.3
@@ -565,7 +565,7 @@ importers:
         version: 2.6.2
       react:
         specifier: 'catalog:'
-        version: 19.2.4
+        version: 19.2.9
       rimraf:
         specifier: 6.1.0
         version: 6.1.0
@@ -611,10 +611,10 @@ importers:
         version: 2.6.2
       react:
         specifier: 'catalog:'
-        version: 19.2.4
+        version: 19.2.9
       react-router:
         specifier: 7.18.3
-        version: 7.18.3(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+        version: 7.18.3(react-dom@19.2.9(react@19.2.9))(react@19.2.9)
       rimraf:
         specifier: 6.1.0
         version: 6.1.0
@@ -636,10 +636,10 @@ importers:
         version: link:../react
       '@tanstack/react-router':
         specifier: 1.170.32
-        version: 1.170.32(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+        version: 1.170.32(react-dom@19.2.9(react@19.2.9))(react@19.2.9)
       '@testing-library/react':
         specifier: 16.2.0
-        version: 16.2.0(@testing-library/dom@10.4.0)(@types/react-dom@19.1.5(@types/react@19.1.5))(@types/react@19.1.5)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+        version: 16.2.0(@testing-library/dom@10.4.0)(@types/react-dom@19.1.5(@types/react@19.1.5))(@types/react@19.1.5)(react-dom@19.2.9(react@19.2.9))(react@19.2.9)
       '@types/node':
         specifier: 22.15.3
         version: 22.15.3
@@ -666,7 +666,7 @@ importers:
         version: 2.6.2
       react:
         specifier: 'catalog:'
-        version: 19.2.4
+        version: 19.2.9
       rimraf:
         specifier: 6.1.0
         version: 6.1.0
@@ -767,13 +767,13 @@ importers:
         version: link:../../packages/tanstack-router
       '@tanstack/react-router':
         specifier: 1.154.7
-        version: 1.154.7(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+        version: 1.154.7(react-dom@19.2.9(react@19.2.9))(react@19.2.9)
       react:
         specifier: 'catalog:'
-        version: 19.2.4
+        version: 19.2.9
       react-dom:
         specifier: 'catalog:'
-        version: 19.2.4(react@19.2.4)
+        version: 19.2.9(react@19.2.9)
     devDependencies:
       '@eslint/js':
         specifier: 'catalog:'
@@ -825,10 +825,10 @@ importers:
         version: link:../../packages/react-router
       '@radix-ui/react-label':
         specifier: 2.1.7
-        version: 2.1.7(@types/react-dom@19.1.5(@types/react@19.1.5))(@types/react@19.1.5)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+        version: 2.1.7(@types/react-dom@19.1.5(@types/react@19.1.5))(@types/react@19.1.5)(react-dom@19.2.9(react@19.2.9))(react@19.2.9)
       '@radix-ui/react-slot':
         specifier: 1.2.3
-        version: 1.2.3(@types/react@19.1.5)(react@19.2.4)
+        version: 1.2.3(@types/react@19.1.5)(react@19.2.9)
       class-variance-authority:
         specifier: 0.7.1
         version: 0.7.1
@@ -840,16 +840,16 @@ importers:
         version: 3.3.1
       lucide-react:
         specifier: 0.294.0
-        version: 0.294.0(react@19.2.4)
+        version: 0.294.0(react@19.2.9)
       react:
         specifier: 'catalog:'
-        version: 19.2.4
+        version: 19.2.9
       react-dom:
         specifier: 'catalog:'
-        version: 19.2.4(react@19.2.4)
+        version: 19.2.9(react@19.2.9)
       react-router:
         specifier: 7.18.3
-        version: 7.18.3(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+        version: 7.18.3(react-dom@19.2.9(react@19.2.9))(react@19.2.9)
       tailwind-merge:
         specifier: 3.3.0
         version: 3.3.0
@@ -7290,10 +7290,10 @@ packages:
   rc9@3.0.1:
     resolution: {integrity: sha512-gMDyleLWVE+i6Sgtc0QbbY6pEKqYs97NGi6isHQPqYlLemPoO8dxQ3uGi0f4NiP98c+jMW6cG1Kx9dDwfvqARQ==}
 
-  react-dom@19.2.4:
-    resolution: {integrity: sha512-AXJdLo8kgMbimY95O2aKQqsz2iWi9jMgKJhRBAxECE4IFxfcazB2LmzloIoibJI3C12IlY20+KFaLv+71bUJeQ==}
+  react-dom@19.2.9:
+    resolution: {integrity: sha512-YceU74W21fXEHszKBLj16MY0CmvpFKOs60iVrIyW/cCgOPsZJNaB6GVJEtIUqt6AG6EjzKLui5lPRrxAeS328Q==}
     peerDependencies:
-      react: ^19.2.4
+      react: ^19.2.9
 
   react-is@16.13.1:
     resolution: {integrity: sha512-24e6ynE2H+OKt4kqsOvNd8kBpV65zoxbA4BVsEOB3ARVWQki/DHzaUoC5KuON/BiccDaCCTZBuOcfZs70kR8bQ==}
@@ -7315,8 +7315,8 @@ packages:
       react-dom:
         optional: true
 
-  react@19.2.4:
-    resolution: {integrity: sha512-9nfp2hYpCwOjAN+8TZFGhtWEwgvWHXqESH8qT89AT/lWklpLON22Lc8pEtnpsZz7VmawabSU0gCjnj8aC0euHQ==}
+  react@19.2.9:
+    resolution: {integrity: sha512-RuLdAokXv3sRmZa2/N8QH0KmTBIgDKC+buRUikGqow31+mGSGidLCX2o4XFq8OV+xBFWfhM9DVgTq1PPHADH4w==}
     engines: {node: '>=0.10.0'}
 
   read-cache@1.0.0:
@@ -9702,18 +9702,18 @@ snapshots:
       '@floating-ui/core': 1.7.5
       '@floating-ui/utils': 0.2.11
 
-  '@floating-ui/react-dom@2.1.8(react-dom@19.2.4(react@19.2.4))(react@19.2.4)':
+  '@floating-ui/react-dom@2.1.8(react-dom@19.2.9(react@19.2.9))(react@19.2.9)':
     dependencies:
       '@floating-ui/dom': 1.7.6
-      react: 19.2.4
-      react-dom: 19.2.4(react@19.2.4)
+      react: 19.2.9
+      react-dom: 19.2.9(react@19.2.9)
 
-  '@floating-ui/react@0.27.12(react-dom@19.2.4(react@19.2.4))(react@19.2.4)':
+  '@floating-ui/react@0.27.12(react-dom@19.2.9(react@19.2.9))(react@19.2.9)':
     dependencies:
-      '@floating-ui/react-dom': 2.1.8(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+      '@floating-ui/react-dom': 2.1.8(react-dom@19.2.9(react@19.2.9))(react@19.2.9)
       '@floating-ui/utils': 0.2.11
-      react: 19.2.4
-      react-dom: 19.2.4(react@19.2.4)
+      react: 19.2.9
+      react-dom: 19.2.9(react@19.2.9)
       tabbable: 6.4.0
 
   '@floating-ui/utils@0.2.11': {}
@@ -10907,34 +10907,34 @@ snapshots:
 
   '@poppinss/exception@1.2.3': {}
 
-  '@radix-ui/react-compose-refs@1.1.2(@types/react@19.1.5)(react@19.2.4)':
+  '@radix-ui/react-compose-refs@1.1.2(@types/react@19.1.5)(react@19.2.9)':
     dependencies:
-      react: 19.2.4
+      react: 19.2.9
     optionalDependencies:
       '@types/react': 19.1.5
 
-  '@radix-ui/react-label@2.1.7(@types/react-dom@19.1.5(@types/react@19.1.5))(@types/react@19.1.5)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)':
+  '@radix-ui/react-label@2.1.7(@types/react-dom@19.1.5(@types/react@19.1.5))(@types/react@19.1.5)(react-dom@19.2.9(react@19.2.9))(react@19.2.9)':
     dependencies:
-      '@radix-ui/react-primitive': 2.1.3(@types/react-dom@19.1.5(@types/react@19.1.5))(@types/react@19.1.5)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
-      react: 19.2.4
-      react-dom: 19.2.4(react@19.2.4)
-    optionalDependencies:
-      '@types/react': 19.1.5
-      '@types/react-dom': 19.1.5(@types/react@19.1.5)
-
-  '@radix-ui/react-primitive@2.1.3(@types/react-dom@19.1.5(@types/react@19.1.5))(@types/react@19.1.5)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)':
-    dependencies:
-      '@radix-ui/react-slot': 1.2.3(@types/react@19.1.5)(react@19.2.4)
-      react: 19.2.4
-      react-dom: 19.2.4(react@19.2.4)
+      '@radix-ui/react-primitive': 2.1.3(@types/react-dom@19.1.5(@types/react@19.1.5))(@types/react@19.1.5)(react-dom@19.2.9(react@19.2.9))(react@19.2.9)
+      react: 19.2.9
+      react-dom: 19.2.9(react@19.2.9)
     optionalDependencies:
       '@types/react': 19.1.5
       '@types/react-dom': 19.1.5(@types/react@19.1.5)
 
-  '@radix-ui/react-slot@1.2.3(@types/react@19.1.5)(react@19.2.4)':
+  '@radix-ui/react-primitive@2.1.3(@types/react-dom@19.1.5(@types/react@19.1.5))(@types/react@19.1.5)(react-dom@19.2.9(react@19.2.9))(react@19.2.9)':
     dependencies:
-      '@radix-ui/react-compose-refs': 1.1.2(@types/react@19.1.5)(react@19.2.4)
-      react: 19.2.4
+      '@radix-ui/react-slot': 1.2.3(@types/react@19.1.5)(react@19.2.9)
+      react: 19.2.9
+      react-dom: 19.2.9(react@19.2.9)
+    optionalDependencies:
+      '@types/react': 19.1.5
+      '@types/react-dom': 19.1.5(@types/react@19.1.5)
+
+  '@radix-ui/react-slot@1.2.3(@types/react@19.1.5)(react@19.2.9)':
+    dependencies:
+      '@radix-ui/react-compose-refs': 1.1.2(@types/react@19.1.5)(react@19.2.9)
+      react: 19.2.9
     optionalDependencies:
       '@types/react': 19.1.5
 
@@ -11232,39 +11232,39 @@ snapshots:
 
   '@tanstack/history@1.162.1': {}
 
-  '@tanstack/react-router@1.154.7(react-dom@19.2.4(react@19.2.4))(react@19.2.4)':
+  '@tanstack/react-router@1.154.7(react-dom@19.2.9(react@19.2.9))(react@19.2.9)':
     dependencies:
       '@tanstack/history': 1.154.7
-      '@tanstack/react-store': 0.8.1(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+      '@tanstack/react-store': 0.8.1(react-dom@19.2.9(react@19.2.9))(react@19.2.9)
       '@tanstack/router-core': 1.154.7
       isbot: 5.1.40
-      react: 19.2.4
-      react-dom: 19.2.4(react@19.2.4)
+      react: 19.2.9
+      react-dom: 19.2.9(react@19.2.9)
       tiny-invariant: 1.3.3
       tiny-warning: 1.0.3
 
-  '@tanstack/react-router@1.170.32(react-dom@19.2.4(react@19.2.4))(react@19.2.4)':
+  '@tanstack/react-router@1.170.32(react-dom@19.2.9(react@19.2.9))(react@19.2.9)':
     dependencies:
       '@tanstack/history': 1.162.1
-      '@tanstack/react-store': 0.9.3(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+      '@tanstack/react-store': 0.9.3(react-dom@19.2.9(react@19.2.9))(react@19.2.9)
       '@tanstack/router-core': 1.171.27
       isbot: 5.1.40
-      react: 19.2.4
-      react-dom: 19.2.4(react@19.2.4)
+      react: 19.2.9
+      react-dom: 19.2.9(react@19.2.9)
 
-  '@tanstack/react-store@0.8.1(react-dom@19.2.4(react@19.2.4))(react@19.2.4)':
+  '@tanstack/react-store@0.8.1(react-dom@19.2.9(react@19.2.9))(react@19.2.9)':
     dependencies:
       '@tanstack/store': 0.8.1
-      react: 19.2.4
-      react-dom: 19.2.4(react@19.2.4)
-      use-sync-external-store: 1.6.0(react@19.2.4)
+      react: 19.2.9
+      react-dom: 19.2.9(react@19.2.9)
+      use-sync-external-store: 1.6.0(react@19.2.9)
 
-  '@tanstack/react-store@0.9.3(react-dom@19.2.4(react@19.2.4))(react@19.2.4)':
+  '@tanstack/react-store@0.9.3(react-dom@19.2.9(react@19.2.9))(react@19.2.9)':
     dependencies:
       '@tanstack/store': 0.9.3
-      react: 19.2.4
-      react-dom: 19.2.4(react@19.2.4)
-      use-sync-external-store: 1.6.0(react@19.2.4)
+      react: 19.2.9
+      react-dom: 19.2.9(react@19.2.9)
+      use-sync-external-store: 1.6.0(react@19.2.9)
 
   '@tanstack/router-core@1.154.7':
     dependencies:
@@ -11298,22 +11298,22 @@ snapshots:
       lz-string: 1.5.0
       pretty-format: 27.5.1
 
-  '@testing-library/react@16.2.0(@testing-library/dom@10.4.0)(@types/react-dom@19.1.5(@types/react@19.1.5))(@types/react@19.1.5)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)':
+  '@testing-library/react@16.2.0(@testing-library/dom@10.4.0)(@types/react-dom@19.1.5(@types/react@19.1.5))(@types/react@19.1.5)(react-dom@19.2.9(react@19.2.9))(react@19.2.9)':
     dependencies:
       '@babel/runtime': 7.29.2
       '@testing-library/dom': 10.4.0
-      react: 19.2.4
-      react-dom: 19.2.4(react@19.2.4)
+      react: 19.2.9
+      react-dom: 19.2.9(react@19.2.9)
     optionalDependencies:
       '@types/react': 19.1.5
       '@types/react-dom': 19.1.5(@types/react@19.1.5)
 
-  '@testing-library/react@16.3.0(@testing-library/dom@10.4.0)(@types/react-dom@19.1.5(@types/react@19.1.5))(@types/react@19.1.5)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)':
+  '@testing-library/react@16.3.0(@testing-library/dom@10.4.0)(@types/react-dom@19.1.5(@types/react@19.1.5))(@types/react@19.1.5)(react-dom@19.2.9(react@19.2.9))(react@19.2.9)':
     dependencies:
       '@babel/runtime': 7.29.2
       '@testing-library/dom': 10.4.0
-      react: 19.2.4
-      react-dom: 19.2.4(react@19.2.4)
+      react: 19.2.9
+      react-dom: 19.2.9(react@19.2.9)
     optionalDependencies:
       '@types/react': 19.1.5
       '@types/react-dom': 19.1.5(@types/react@19.1.5)
@@ -15042,9 +15042,9 @@ snapshots:
     dependencies:
       yallist: 3.1.1
 
-  lucide-react@0.294.0(react@19.2.4):
+  lucide-react@0.294.0(react@19.2.9):
     dependencies:
-      react: 19.2.4
+      react: 19.2.9
 
   lz-string@1.5.0: {}
 
@@ -15222,15 +15222,15 @@ snapshots:
 
   negotiator@1.0.0: {}
 
-  next@15.5.25(@playwright/test@1.60.0)(@types/node@22.15.3)(react-dom@19.2.4(react@19.2.4))(react@19.2.4):
+  next@15.5.25(@playwright/test@1.60.0)(@types/node@22.15.3)(react-dom@19.2.9(react@19.2.9))(react@19.2.9):
     dependencies:
       '@next/env': 15.5.25
       '@swc/helpers': 0.5.15
       caniuse-lite: 1.0.30001810
       postcss: 8.5.28
-      react: 19.2.4
-      react-dom: 19.2.4(react@19.2.4)
-      styled-jsx: 5.1.6(react@19.2.4)
+      react: 19.2.9
+      react-dom: 19.2.9(react@19.2.9)
+      styled-jsx: 5.1.6(react@19.2.9)
     optionalDependencies:
       '@next/swc-darwin-arm64': 15.5.25
       '@next/swc-darwin-x64': 15.5.25
@@ -16576,9 +16576,9 @@ snapshots:
       defu: 6.1.7
       destr: 2.0.5
 
-  react-dom@19.2.4(react@19.2.4):
+  react-dom@19.2.9(react@19.2.9):
     dependencies:
-      react: 19.2.4
+      react: 19.2.9
       scheduler: 0.27.0
 
   react-is@16.13.1: {}
@@ -16587,15 +16587,15 @@ snapshots:
 
   react-refresh@0.17.0: {}
 
-  react-router@7.18.3(react-dom@19.2.4(react@19.2.4))(react@19.2.4):
+  react-router@7.18.3(react-dom@19.2.9(react@19.2.9))(react@19.2.9):
     dependencies:
       cookie: 1.1.1
-      react: 19.2.4
+      react: 19.2.9
       set-cookie-parser: 2.7.2
     optionalDependencies:
-      react-dom: 19.2.4(react@19.2.4)
+      react-dom: 19.2.9(react@19.2.9)
 
-  react@19.2.4: {}
+  react@19.2.9: {}
 
   read-cache@1.0.0:
     dependencies:
@@ -17219,10 +17219,10 @@ snapshots:
 
   structured-clone-es@2.0.1: {}
 
-  styled-jsx@5.1.6(react@19.2.4):
+  styled-jsx@5.1.6(react@19.2.9):
     dependencies:
       client-only: 0.0.1
-      react: 19.2.4
+      react: 19.2.9
 
   stylehacks@7.0.11(postcss@8.5.28):
     dependencies:
@@ -17837,9 +17837,9 @@ snapshots:
     dependencies:
       punycode: 2.3.1
 
-  use-sync-external-store@1.6.0(react@19.2.4):
+  use-sync-external-store@1.6.0(react@19.2.9):
     dependencies:
-      react: 19.2.4
+      react: 19.2.9
 
   util-deprecate@1.0.2: {}
 
