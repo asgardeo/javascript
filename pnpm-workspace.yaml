@@ -26,8 +26,8 @@ catalog:
   '@types/react-dom': '19.2.3'
   '@wso2/stylelint-config': 'git+https://github.com/brionmario/wso2-ui-configs.git#d3041825a4f8f235c8f9fa36b55cf29d54e791c8&path:packages/stylelint-config'
   dompurify: '3.3.1'
-  react: '19.2.4'
-  react-dom: '19.2.4'
+  react: '19.2.9'
+  react-dom: '19.2.9'
 
 overrides:
   '@asgardeo/auth-spa>axios': 1.20.0
@@ -65,7 +65,7 @@ overrides:
   'minimatch@>=9.0.0 <9.0.7': 9.0.9
   'nanoid@<3.3.18': 3.3.18
   'nanoid@>=4.0.0 <5.1.16': 5.1.16
-  'next@>=12.0.0 <15.5.21': 15.5.25
+  'next@>=12.0.0 <15.5.29': 15.5.29
   'nx@>=17.0.4 <22.7.7': 22.7.9
   'path-to-regexp@>=8.0.0 <8.4.0': 8.4.2
   'picomatch@<2.3.2': 2.3.2
