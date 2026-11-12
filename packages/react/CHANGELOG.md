@@ -1,5 +1,13 @@
 # @asgardeo/react
 
+## 0.25.15
+
+### Patch Changes
+
+- [#580](https://github.com/asgardeo/javascript/pull/580)
+  [`1db567a`](https://github.com/asgardeo/javascript/commit/1db567a07f76d74cff851fac454f38eac402f1f5) Thanks
+  [@sadilchamishka](https://github.com/sadilchamishka)! - Bump `react` and `react-dom` to 19.2.9 and `next` to 15.5.29
+
 ## 0.25.14
 
 ### Patch Changes
