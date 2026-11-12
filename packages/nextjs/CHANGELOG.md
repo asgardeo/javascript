@@ -1,5 +1,17 @@
 # @asgardeo/nextjs
 
+## 0.3.37
+
+### Patch Changes
+
+- [#580](https://github.com/asgardeo/javascript/pull/580)
+  [`1db567a`](https://github.com/asgardeo/javascript/commit/1db567a07f76d74cff851fac454f38eac402f1f5) Thanks
+  [@sadilchamishka](https://github.com/sadilchamishka)! - Bump `react` and `react-dom` to 19.2.9 and `next` to 15.5.29
+
+- Updated dependencies
+  [[`1db567a`](https://github.com/asgardeo/javascript/commit/1db567a07f76d74cff851fac454f38eac402f1f5)]:
+  - @asgardeo/react@0.25.15
+
 ## 0.3.36
 
 ### Patch Changes
