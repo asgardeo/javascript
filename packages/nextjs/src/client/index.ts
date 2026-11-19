@@ -18,6 +18,29 @@
 
 export {default as useAsgardeo} from './contexts/Asgardeo/useAsgardeo';
 
+// Hooks of the underlying React SDK, re-exported so applications do not have to depend on `@asgardeo/react`
+// themselves (a second copy of that package would come with its own, unrelated, React contexts).
+export {
+  useBranding,
+  useBrandingContext,
+  useFlow,
+  useForm,
+  useI18n,
+  useOrganization,
+  useTheme,
+  useTranslation,
+  useUser,
+} from '@asgardeo/react';
+
+export {default as Loading} from './components/control/Loading/Loading';
+export type {LoadingProps} from './components/control/Loading/Loading';
+
+export {default as OrganizationList} from './components/presentation/OrganizationList/OrganizationList';
+export type {
+  OrganizationListConfig,
+  OrganizationListProps,
+} from './components/presentation/OrganizationList/OrganizationList';
+
 export {default as Organization} from './components/presentation/Organization/Organization';
 export {OrganizationProps} from './components/presentation/Organization/Organization';
 
