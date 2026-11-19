@@ -76,6 +76,12 @@ class AsgardeoNextClient<T extends AsgardeoNextConfig = AsgardeoNextConfig> exte
 
   private asgardeo: LegacyAsgardeoNodeClient<T>;
 
+  /**
+   * The initialization currently in progress, if any. Concurrent callers, for example parallel
+   * requests on a cold start, await this instead of racing on a half-initialized client.
+   */
+  private initialization: Promise<boolean> | undefined;
+
   public isInitialized: boolean = false;
 
   private constructor() {
@@ -96,21 +102,50 @@ class AsgardeoNextClient<T extends AsgardeoNextConfig = AsgardeoNextConfig> exte
 
   /**
    * Ensures the client is initialized before using it.
-   * Throws an error if the client is not initialized.
+   * Waits for an initialization that is still in progress and throws if none was started.
    */
   protected override async ensureInitialized(): Promise<void> {
-    if (!this.isInitialized) {
-      throw new Error(
-        '[AsgardeoNextClient] Client is not initialized. Make sure you have wrapped your app with AsgardeoProvider and provided the required configuration (baseUrl, clientId, etc.).',
-      );
+    if (this.isInitialized) {
+      return;
     }
+
+    if (this.initialization) {
+      await this.initialization;
+
+      return;
+    }
+
+    throw new Error(
+      '[AsgardeoNextClient] Client is not initialized. Make sure you have wrapped your app with AsgardeoProvider and provided the required configuration (baseUrl, clientId, etc.).',
+    );
   }
 
+  /**
+   * Initializes the client once. Callers that arrive while an initialization is in progress share it,
+   * the client is only marked as initialized after that succeeds, and a failed attempt is retried by
+   * the next call instead of leaving the singleton permanently unusable.
+   */
   override async initialize(config: T, storage?: Storage): Promise<boolean> {
     if (this.isInitialized) {
-      return Promise.resolve(true);
+      return true;
     }
 
+    if (!this.initialization) {
+      this.initialization = this.performInitialization(config, storage)
+        .then((initialized: boolean) => {
+          this.isInitialized = initialized;
+
+          return initialized;
+        })
+        .finally(() => {
+          this.initialization = undefined;
+        });
+    }
+
+    return this.initialization;
+  }
+
+  private async performInitialization(config: T, storage?: Storage): Promise<boolean> {
     const {
       baseUrl,
       organizationHandle,
@@ -123,8 +158,6 @@ class AsgardeoNextClient<T extends AsgardeoNextConfig = AsgardeoNextConfig> exte
       signUpUrl,
       ...rest
     } = decorateConfigWithNextEnv(config);
-
-    this.isInitialized = true;
 
     let resolvedOrganizationHandle: string | undefined = organizationHandle;
 
