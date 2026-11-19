@@ -21,6 +21,7 @@ import {
   AsgardeoNodeClient,
   AsgardeoRuntimeError,
   AuthClientConfig,
+  Config,
   CreateOrganizationPayload,
   EmbeddedFlowExecuteRequestConfig,
   EmbeddedFlowExecuteRequestPayload,
@@ -52,6 +53,7 @@ import {
   getAllOrganizations,
   getMeOrganizations,
   getOrganization,
+  getRedirectBasedSignUpUrl,
   getScim2Me,
   getSchemas,
   initializeEmbeddedSignInFlow,
@@ -573,11 +575,26 @@ class AsgardeoNextClient<T extends AsgardeoNextConfig = AsgardeoNextConfig> exte
       });
     }
     throw new AsgardeoRuntimeError(
-      'Not implemented',
+      'The Next.js client cannot navigate to the hosted sign-up page; resolve it with `getSignUpUrl()` instead.',
       'AsgardeoNextClient-ValidationError-002',
       'nextjs',
-      'The signUp method with SignUpOptions is not implemented in the Next.js client.',
+      'The Next.js client runs on the server. Resolve the sign-up page with `getSignUpUrl()` and navigate from the browser (`useAsgardeo().signUp()` does this).',
     );
+  }
+
+  /**
+   * Gets the URL of the redirect-based sign-up page: the configured `signUpUrl`, or the identity server's
+   * self-registration page derived from `baseUrl`, `clientId` and `applicationId`, as in the React SDK.
+   *
+   * @returns The sign-up URL, or an empty string when none can be resolved (for example a custom domain
+   * without a configured `signUpUrl`).
+   */
+  public async getSignUpUrl(): Promise<string> {
+    await this.ensureInitialized();
+
+    const configData: AuthClientConfig<T> = await this.asgardeo.getConfigData();
+
+    return configData?.signUpUrl || getRedirectBasedSignUpUrl(configData as unknown as Config);
   }
 
   // eslint-disable-next-line class-methods-use-this, @typescript-eslint/no-unused-vars
