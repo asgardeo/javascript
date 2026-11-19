@@ -18,7 +18,15 @@
 
 'use server';
 
-import {BrandingPreference, AsgardeoRuntimeError, IdToken, Organization, User, UserProfile} from '@asgardeo/node';
+import {
+  BrandingPreference,
+  AsgardeoRuntimeError,
+  IdToken,
+  Organization,
+  User,
+  UserProfile,
+  extractUserClaimsFromIdToken,
+} from '@asgardeo/node';
 import {AsgardeoProviderProps} from '@asgardeo/react';
 import {FC, PropsWithChildren, ReactElement} from 'react';
 import clearSession from './actions/clearSession';
@@ -116,17 +124,15 @@ const AsgardeoServerProvider: FC<PropsWithChildren<AsgardeoServerProviderProps>>
   const sessionId: string = sessionPayload?.sessionId || (await getSessionId()) || '';
   const signedIn: boolean = await isSignedIn(sessionId);
 
-  let user: User = {};
+  // `null` (not an empty object) while signed out or unavailable, so that `<User>` / `<Organization>` render
+  // their fallbacks and `useAsgardeo().user` can be checked for truthiness, as in the React SDK.
+  let user: User | null = null;
   let userProfile: UserProfile = {
     flattenedProfile: {},
     profile: {},
     schemas: [],
   };
-  let currentOrganization: Organization = {
-    id: '',
-    name: '',
-    orgHandle: '',
-  };
+  let currentOrganization: Organization | null = null;
   let myOrganizations: Organization[] = [];
   let brandingPreference: BrandingPreference | null = null;
 
@@ -166,10 +172,21 @@ const AsgardeoServerProvider: FC<PropsWithChildren<AsgardeoServerProviderProps>>
           success: boolean;
         } = await getUserProfileAction(sessionId);
 
-        user = userResponse.data?.user || {};
+        user = userResponse.data?.user ?? null;
         userProfile = userProfileResponse.data?.userProfile ?? userProfile;
       } catch (error) {
         logger.warn('[AsgardeoServerProvider] Failed to fetch user profile from SCIM2:', error?.toString());
+      }
+    } else {
+      // Profile fetching is disabled: expose the claims of the ID token instead, as the React SDK does, so
+      // that `user` and `<UserProfile />` are not empty.
+      try {
+        const claims: User = extractUserClaimsFromIdToken(await asgardeoClient.getDecodedIdToken(sessionId)) as User;
+
+        user = claims;
+        userProfile = {flattenedProfile: claims, profile: claims, schemas: []};
+      } catch (error) {
+        logger.warn('[AsgardeoServerProvider] Failed to read the user claims from the ID token:', error?.toString());
       }
     }
 
@@ -187,7 +204,7 @@ const AsgardeoServerProvider: FC<PropsWithChildren<AsgardeoServerProviderProps>>
           logger.warn('[AsgardeoServerProvider] No session ID available, skipping organization fetch');
         }
 
-        currentOrganization = currentOrganizationResponse?.data?.organization as Organization;
+        currentOrganization = currentOrganizationResponse?.data?.organization ?? null;
       } catch (error) {
         logger.warn('[AsgardeoServerProvider] Failed to fetch organization info:', error?.toString());
       }
