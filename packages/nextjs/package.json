@@ -8,7 +8,7 @@
     "react",
     "ssr"
   ],
-  "homepage": "https://github.com/asgardeo/javascript/tree/main/packages/next#readme",
+  "homepage": "https://github.com/asgardeo/javascript/tree/main/packages/nextjs#readme",
   "bugs": {
     "url": "https://github.com/asgardeo/javascript/issues"
   },
@@ -41,14 +41,14 @@
     "README.md",
     "LICENSE"
   ],
-  "types": "dist/index.d.ts",
+  "types": "dist/types/index.d.ts",
   "repository": {
     "type": "git",
     "url": "https://github.com/asgardeo/javascript",
-    "directory": "packages/next"
+    "directory": "packages/nextjs"
   },
   "scripts": {
-    "build": "pnpm clean && node esbuild.config.mjs && tsc -p tsconfig.lib.json --outDir dist/esm",
+    "build": "pnpm clean && node esbuild.config.mjs && tsc -p tsconfig.lib.json --emitDeclarationOnly",
     "clean": "rimraf dist",
     "fix:lint": "eslint . --ext .js,.jsx,.ts,.tsx,.cjs,.mjs",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx,.cjs,.mjs",
