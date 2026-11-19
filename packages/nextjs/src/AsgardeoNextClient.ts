@@ -60,8 +60,10 @@ import {
 import {AsgardeoNextConfig} from './models/config';
 import getClientOrigin from './server/actions/getClientOrigin';
 import getSessionId from './server/actions/getSessionId';
+import getSessionPayload from './server/actions/getSessionPayload';
 import decorateConfigWithNextEnv from './utils/decorateConfigWithNextEnv';
 import logger from './utils/logger';
+import {SessionTokenPayload} from './utils/SessionManager';
 
 /**
  * Client for mplementing Asgardeo in Next.js applications.
@@ -189,13 +191,32 @@ class AsgardeoNextClient<T extends AsgardeoNextConfig = AsgardeoNextConfig> exte
     return isInitialized;
   }
 
+  /**
+   * Resolves the base URL for the APIs that take the signed-in user's organization into account.
+   *
+   * A session that belongs to an organization (the ID token carried a `user_org` claim, for example after a
+   * B2B sign-in or an organization switch) has to call the `/o` variants of the SCIM and organization APIs.
+   * Mirrors the React SDK, which switches to `${baseUrl}/o` for the same sessions.
+   */
+  private async resolveBaseUrl(): Promise<string> {
+    const configData: AuthClientConfig<T> = await this.asgardeo.getConfigData();
+    const baseUrl: string = configData?.baseUrl as string;
+
+    if (!baseUrl || baseUrl.endsWith('/o')) {
+      return baseUrl;
+    }
+
+    const session: SessionTokenPayload | undefined = await getSessionPayload();
+
+    return session?.organizationId ? `${baseUrl}/o` : baseUrl;
+  }
+
   override async getUser(userId?: string): Promise<User> {
     await this.ensureInitialized();
     const resolvedSessionId: string = userId || ((await getSessionId()) as string);
 
     try {
-      const configData: AuthClientConfig<T> = await this.asgardeo.getConfigData();
-      const baseUrl: string | undefined = configData?.baseUrl;
+      const baseUrl: string = await this.resolveBaseUrl();
 
       const profile: User = await getScim2Me({
         baseUrl,
@@ -221,8 +242,7 @@ class AsgardeoNextClient<T extends AsgardeoNextConfig = AsgardeoNextConfig> exte
     await this.ensureInitialized();
 
     try {
-      const configData: AuthClientConfig<T> = await this.asgardeo.getConfigData();
-      const baseUrl: string | undefined = configData?.baseUrl;
+      const baseUrl: string = await this.resolveBaseUrl();
 
       const profile: User = await getScim2Me({
         baseUrl,
@@ -272,8 +292,7 @@ class AsgardeoNextClient<T extends AsgardeoNextConfig = AsgardeoNextConfig> exte
     await this.ensureInitialized();
 
     try {
-      const configData: AuthClientConfig<T> = await this.asgardeo.getConfigData();
-      const baseUrl: string | undefined = configData?.baseUrl;
+      const baseUrl: string = await this.resolveBaseUrl();
 
       const userProfile: User = await updateMeProfile({
         baseUrl,
@@ -296,8 +315,7 @@ class AsgardeoNextClient<T extends AsgardeoNextConfig = AsgardeoNextConfig> exte
 
   async createOrganization(payload: CreateOrganizationPayload, userId?: string): Promise<Organization> {
     try {
-      const configData: AuthClientConfig<T> = await this.asgardeo.getConfigData();
-      const baseUrl: string = configData?.baseUrl as string;
+      const baseUrl: string = await this.resolveBaseUrl();
 
       const createdOrg: Organization = await createOrganization({
         baseUrl,
@@ -320,8 +338,7 @@ class AsgardeoNextClient<T extends AsgardeoNextConfig = AsgardeoNextConfig> exte
 
   async getOrganization(organizationId: string, userId?: string): Promise<OrganizationDetails> {
     try {
-      const configData: AuthClientConfig<T> = await this.asgardeo.getConfigData();
-      const baseUrl: string = configData?.baseUrl as string;
+      const baseUrl: string = await this.resolveBaseUrl();
 
       const organization: OrganizationDetails = await getOrganization({
         baseUrl,
