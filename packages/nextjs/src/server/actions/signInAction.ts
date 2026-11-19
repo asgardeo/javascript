@@ -25,7 +25,7 @@ import {
   EmbeddedFlowExecuteRequestConfig,
   EmbeddedSignInFlowInitiateResponse,
   IdToken,
-  isEmpty,
+  SignInOptions,
 } from '@asgardeo/node';
 import {cookies} from 'next/headers';
 import AsgardeoNextClient from '../../AsgardeoNextClient';
@@ -37,14 +37,17 @@ type RequestCookies = Awaited<ReturnType<typeof cookies>>;
 
 /**
  * Server action for signing in a user.
- * Handles the embedded sign-in flow and manages session cookies.
  *
- * @param payload - The embedded sign-in flow payload
+ * Without an embedded-flow step it resolves the URL of the redirect-based sign-in, with the configured
+ * `signInOptions` and any additional `options` appended to the authorize request. With an embedded-flow
+ * step (identified by its `flowId`) it drives the embedded sign-in flow and manages the session cookies.
+ *
+ * @param payload - Additional authorize request parameters, or the embedded sign-in flow payload
  * @param request - The embedded flow execute request config
  * @returns Promise that resolves when sign-in is complete
  */
 const signInAction = async (
-  payload?: EmbeddedSignInFlowHandleRequestPayload,
+  payload?: EmbeddedSignInFlowHandleRequestPayload | SignInOptions,
   request?: EmbeddedFlowExecuteRequestConfig,
 ): Promise<{
   data?:
@@ -98,14 +101,18 @@ const signInAction = async (
       );
     }
 
-    // If no payload provided, redirect to sign-in URL for redirect-based sign-in.
-    if (!payload || isEmpty(payload)) {
-      const defaultSignInUrl: string = await client.getAuthorizeRequestUrl({}, sessionId);
+    // Anything but an embedded-flow step starts the redirect-based sign-in. The configured `signInOptions`
+    // (e.g. `fidp`) are appended to the authorize request, with the options passed by the caller on top.
+    if (!payload || !('flowId' in payload)) {
+      const config: AsgardeoNextConfig = await client.getConfiguration();
+      const authorizeRequestParams: SignInOptions = {...(config?.signInOptions ?? {}), ...(payload ?? {})};
+      const defaultSignInUrl: string = await client.getAuthorizeRequestUrl(authorizeRequestParams, sessionId);
+
       return {data: {signInUrl: String(defaultSignInUrl)}, success: true};
     }
 
     // Handle embedded sign-in flow
-    const response: any = await client.signIn(payload, request!, sessionId);
+    const response: any = await client.signIn(payload as EmbeddedSignInFlowHandleRequestPayload, request!, sessionId);
 
     if (response.flowStatus === EmbeddedSignInFlowStatus.SuccessCompleted) {
       const signInResult: Record<string, unknown> = await client.signIn(
