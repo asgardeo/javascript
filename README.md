@@ -17,7 +17,7 @@
 <br>
 
 <p align="center" style="font-size: 1.2rem;">
-  Design secure, secure, and scalable applications with Asgardeo's JavaScript SDKs.
+  Design secure and scalable applications with Asgardeo's JavaScript SDKs.
 </p>
 
 ## 🚀 Get started with Asgardeo
