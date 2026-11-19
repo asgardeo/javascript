@@ -1,6 +1,6 @@
 # `@asgardeo/nextjs` Quickstart
 
-This guide will help you quickly integrate Asgardeo authentication into your Next.js application using Auth.js.
+This guide will help you quickly integrate Asgardeo authentication into your Next.js application.
 
 ## Prerequisites
 
@@ -79,23 +79,12 @@ ASGARDEO_CLIENT_SECRET="<your-app-client-secret>"
 
 ## Step 5: Setup the Middleware
 
-Create a `middleware.ts` file in your project root to handle authentication:
+Create a `middleware.ts` file in your project root. The middleware keeps the session cookie fresh and lets you protect routes. Next.js runs it in the Edge runtime, so import it from `@asgardeo/nextjs/middleware`:
 
-```bash
-import { AsgardeoNext } from '@asgardeo/nextjs';
-import { NextRequest } from 'next/server';
+```typescript
+import { asgardeoMiddleware } from '@asgardeo/nextjs/middleware';
 
-const asgardeo = new AsgardeoNext();
-
-asgardeo.initialize({
-  baseUrl: process.env.NEXT_PUBLIC_ASGARDEO_BASE_URL,
-  clientId: process.env.NEXT_PUBLIC_ASGARDEO_CLIENT_ID,
-  clientSecret: process.env.ASGARDEO_CLIENT_SECRET,
-});
-
-export async function middleware(request: NextRequest) {
-  return await asgardeo.middleware(request);
-}
+export default asgardeoMiddleware();
 
 export const config = {
   matcher: [
@@ -104,6 +93,8 @@ export const config = {
   ],
 };
 ```
+
+The middleware reads `NEXT_PUBLIC_ASGARDEO_BASE_URL`, `NEXT_PUBLIC_ASGARDEO_CLIENT_ID` and `ASGARDEO_CLIENT_SECRET` from the environment, so no further configuration is needed.
 
 ## Step 6: Configure the Provider
 
@@ -214,33 +205,12 @@ yarn dev
 
 ## Step 10: Embedded Login Page (Optional)
 
-If you want to use an embedded login page instead of redirecting to Asgardeo, you can use the `SignIn` component:
+If you want to use an embedded login page instead of redirecting to Asgardeo, you can use the `SignIn` component.
 
-Configure the path of the sign-in page in the `middleware.ts` file:
+Tell the SDK where the sign-in page lives by adding its path to your `.env` file. Both the provider and the middleware read it, so `SignInButton` navigates there and protected routes redirect there:
 
-```diff
-import { AsgardeoNext } from '@asgardeo/nextjs';
-import { NextRequest } from 'next/server';
-
-const asgardeo = new AsgardeoNext();
-
-asgardeo.initialize({
-  baseUrl: process.env.NEXT_PUBLIC_ASGARDEO_BASE_URL,
-  clientId: process.env.NEXT_PUBLIC_ASGARDEO_CLIENT_ID,
-  clientSecret: process.env.ASGARDEO_CLIENT_SECRET,
-+  signInUrl: '/signin',
-});
-
-export async function middleware(request: NextRequest) {
-  return await asgardeo.middleware(request);
-}
-
-export const config = {
-  matcher: [
-    '/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)',
-    '/(api|trpc)(.*)',
-  ],
-};
+```bash
+NEXT_PUBLIC_ASGARDEO_SIGN_IN_URL="/signin"
 ```
 
 Then, create a new page for the sign-in component in `app/signin/page.tsx`:
@@ -276,7 +246,6 @@ Once you have set this up, clicking on the "Sign In" button will render the embe
 
 ### Additional Resources
 
-- **[Auth.js Documentation](https://authjs.dev/)** - Learn more about Auth.js features and configuration
 - **[Asgardeo Documentation](https://wso2.com/asgardeo/docs/)** - Comprehensive guide to Asgardeo features
 - **[Next.js Documentation](https://nextjs.org/docs)** - Learn more about Next.js features and best practices
 
