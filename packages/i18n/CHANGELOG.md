@@ -1,5 +1,14 @@
 # @asgardeo/i18n
 
+## 1.0.0
+
+### Major Changes
+
+- [#583](https://github.com/asgardeo/javascript/pull/583)
+  [`91d2314`](https://github.com/asgardeo/javascript/commit/91d2314f63d3387c24bd5e5239de999ed54c9afd) Thanks
+  [@brionmario](https://github.com/brionmario)! - Release `1.0.0` of the Asgardeo JavaScript SDKs. The SDKs are now
+  considered stable and will follow semantic versioning from this release onward.
+
 ## 0.4.10
 
 ### Patch Changes

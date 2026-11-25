@@ -1,5 +1,25 @@
 # @asgardeo/vue
 
+## 1.0.0
+
+### Major Changes
+
+- [#583](https://github.com/asgardeo/javascript/pull/583)
+  [`91d2314`](https://github.com/asgardeo/javascript/commit/91d2314f63d3387c24bd5e5239de999ed54c9afd) Thanks
+  [@brionmario](https://github.com/brionmario)! - Release `1.0.0` of the Asgardeo JavaScript SDKs. The SDKs are now
+  considered stable and will follow semantic versioning from this release onward.
+
+### Patch Changes
+
+- [#584](https://github.com/asgardeo/javascript/pull/584)
+  [`a7eac76`](https://github.com/asgardeo/javascript/commit/a7eac76d3949cf26ab39d491aaf639c13a4bdf89) Thanks
+  [@brionmario](https://github.com/brionmario)! - Bump `dompurify` to 3.4.14
+
+- Updated dependencies
+  [[`91d2314`](https://github.com/asgardeo/javascript/commit/91d2314f63d3387c24bd5e5239de999ed54c9afd)]:
+  - @asgardeo/browser@1.0.0
+  - @asgardeo/i18n@1.0.0
+
 ## 0.4.10
 
 ### Patch Changes
