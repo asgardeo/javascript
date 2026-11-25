@@ -34,12 +34,12 @@ overrides:
   '@babel/core@<7.29.6': 7.29.7
   '@eslint/plugin-kit': 0.3.4
   '@isaacs/brace-expansion': 5.0.1
-  '@nuxt/devtools@<3.3.1': 3.4.2
+  '@nuxt/devtools@<3.4.4': 3.4.4
   '@nuxt/kit': 3.21.11
   '@nuxt/schema': 3.21.11
   '@types/react': 19.1.5
   '@types/react-dom': 19.1.5
-  '@vitejs/plugin-vue>vite': 7.1.12
+  '@vitejs/plugin-vue>vite': 7.3.8
   '@vitest/browser@<3.2.7': 3.2.7
   '@vue/language-core': 2.2.8
   '@wso2/eslint-plugin>@typescript-eslint/eslint-plugin': 6.21.0
@@ -49,25 +49,28 @@ overrides:
   'ajv@>=6.0.0 <6.14.0': 6.15.0
   'axios@<1.18.0': 1.20.0
   autoprefixer: 10.5.4
-  'body-parser@>=2.0.0 <2.3.0': 2.3.0
-  'brace-expansion@<2.0.0': 1.1.18
-  'brace-expansion@>=2.0.0 <3.0.0': 2.1.4
-  'brace-expansion@>=3.0.0 <5.0.9': 5.0.9
+  'body-parser@>=2.0.0 <2.4.0': 2.4.0
+  'brace-expansion@<2.0.0': 1.1.22
+  'brace-expansion@>=2.0.0 <3.0.0': 2.1.8
+  'brace-expansion@>=3.0.0 <5.0.11': 5.1.0
   'browserslist@<4.28.8': 4.28.8
   'diff@>=6.0.0 <8.0.3': 8.0.4
   'dompurify@<3.4.13': 3.4.14
   'esbuild@>=0.27.3 <0.28.1': 0.28.2
   'form-data@>=4.0.0 <4.0.6': 4.0.6
   'js-yaml@>=4.0.0 <4.3.1': 4.3.2
-  'launch-editor@<2.14.1': 2.14.1
+  'follow-redirects@<1.16.3': 1.16.3
+  'launch-editor@<2.14.2': 2.14.2
   'minimatch@<3.1.4': 3.1.5
   'minimatch@>=10.0.0 <10.2.3': 10.2.5
   'minimatch@>=9.0.0 <9.0.7': 9.0.9
   'nanoid@<3.3.18': 3.3.18
   'nanoid@>=4.0.0 <5.1.16': 5.1.16
   'next@>=12.0.0 <15.5.29': 15.5.29
+  'node-forge@<1.4.1': 1.4.4
   'nx@>=17.0.4 <22.7.7': 22.7.9
   'path-to-regexp@>=8.0.0 <8.4.0': 8.4.2
+  'proxy-addr@<2.0.8': 2.0.8
   'picomatch@<2.3.2': 2.3.2
   'picomatch@>=4.0.0 <4.0.4': 4.0.4
   'postcss-selector-parser@>=6.1.0 <6.1.3': 6.1.4
@@ -75,17 +78,21 @@ overrides:
   'postcss@<8.5.23': 8.5.28
   'react-router@>=6.0.0 <7.18.2': 7.18.3
   'rollup@>=4.0.0 <4.59.0': 4.60.4
-  'seroval@<1.5.3': 1.6.4
-  'sharp@<0.35.0': 0.35.4
-  'shell-quote@<1.9.0': 1.10.0
+  'seroval@<1.6.8': 1.8.2
+  'sharp@<0.35.5': 0.35.5
+  'shell-quote@<1.11.0': 1.12.0
+  'source-map-js@<1.2.2': 1.2.4
   'svgo@>=4.0.0 <4.0.2': 4.1.0
-  'undici@>=7.0.0 <7.29.0': 7.29.0
-  'vite@>=6.0.0 <6.4.3': 6.4.3
+  'tinypool@<2.1.2': 2.2.0
+  'undici@>=7.0.0 <7.30.2': 7.30.2
+  'vite@>=6.0.0 <6.4.6': 6.4.6
+  'vite@>=7.0.0 <7.3.8': 7.3.8
   'vitest@<3.2.6': 3.2.7
+  'vue@>=3.5.0 <3.5.42': 3.5.42
   'ws@>=8.0.0 <8.21.0': 8.21.3
   baseline-browser-mapping: 2.10.20
   defu: 6.1.7
-  devalue: 5.8.1
+  devalue: 5.9.4
   electron-to-chromium: 1.5.420
   enhanced-resolve: 5.18.1
   flatted: 3.4.2
