@@ -37,7 +37,7 @@ import {FormField, useForm} from '../../../../../hooks/useForm';
 import useTranslation from '../../../../../hooks/useTranslation';
 import {extractErrorMessage} from '../../../../../utils/v2/flowTransformer';
 import AlertPrimitive from '../../../../primitives/Alert/Alert';
-// eslint-disable-next-line import/no-named-as-default
+
 import CardPrimitive, {CardProps} from '../../../../primitives/Card/Card';
 import Spinner from '../../../../primitives/Spinner/Spinner';
 import Typography from '../../../../primitives/Typography/Typography';
@@ -91,7 +91,7 @@ export interface BaseSignInRenderProps {
   /**
    * Flow messages
    */
-  messages: Array<{message: string; type: string}>;
+  messages: {message: string; type: string}[];
 
   /**
    * Flow metadata returned by the platform (v2 only). `null` while loading or unavailable.

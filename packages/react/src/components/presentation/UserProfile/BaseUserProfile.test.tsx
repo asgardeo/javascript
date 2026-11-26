@@ -16,8 +16,6 @@
  * under the License.
  */
 
-/* eslint-disable sort-keys, @typescript-eslint/typedef, @typescript-eslint/explicit-function-return-type, testing-library/no-container, testing-library/no-node-access */
-
 import {cleanup, render} from '@testing-library/react';
 import {describe, it, expect, vi, afterEach} from 'vitest';
 import BaseUserProfile from './BaseUserProfile';

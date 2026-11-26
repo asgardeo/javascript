@@ -31,27 +31,23 @@ export class NodeCryptoUtils implements Crypto<Buffer | string> {
    *
    * @returns {string} base 64 url encoded value.
    */
-  // eslint-disable-next-line class-methods-use-this
+
   public base64URLEncode(value: Buffer | string): string {
     return base64url.encode(value).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
   }
 
-  // eslint-disable-next-line class-methods-use-this
   public base64URLDecode(value: string): string {
     return base64url.decode(value).toString();
   }
 
-  // eslint-disable-next-line class-methods-use-this
   public hashSha256(data: string): string | Buffer {
     return Buffer.from(sha256(new TextEncoder().encode(data)));
   }
 
-  // eslint-disable-next-line class-methods-use-this
   public generateRandomBytes(length: number): string | Buffer {
     return randombytes(length);
   }
 
-  // eslint-disable-next-line class-methods-use-this
   public async verifyJwt(
     idToken: string,
     jwk: Partial<JWKInterface>,

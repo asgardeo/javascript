@@ -138,7 +138,7 @@ class AsgardeoJavaScriptClient<T = Config> implements AsgardeoClient<T> {
     return this.storageManager.loadOpenIDProviderConfiguration();
   }
 
-  /* eslint-disable class-methods-use-this, @typescript-eslint/no-unused-vars */
+  /* eslint-disable @typescript-eslint/no-unused-vars */
   switchOrganization(_organization: Organization, _sessionId?: string): Promise<TokenResponse | Response> {
     throw new Error('Method not implemented.');
   }
@@ -236,7 +236,7 @@ class AsgardeoJavaScriptClient<T = Config> implements AsgardeoClient<T> {
   ): Promise<void | EmbeddedFlowExecuteResponse> {
     throw new Error('Method not implemented.');
   }
-  /* eslint-enable class-methods-use-this, @typescript-eslint/no-unused-vars */
+  /* eslint-enable @typescript-eslint/no-unused-vars */
 
   public async getAgentToken(agentConfig: AgentConfig): Promise<TokenResponse> {
     await this.ensureInitialized();
@@ -420,7 +420,7 @@ class AsgardeoJavaScriptClient<T = Config> implements AsgardeoClient<T> {
     body.set('client_id', clientId);
 
     if (hasSecret) {
-      body.set('client_secret', clientSecret as string);
+      body.set('client_secret', clientSecret);
     }
 
     if (scopes && scopes.length > 0) {

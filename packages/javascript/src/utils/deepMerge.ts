@@ -57,13 +57,13 @@ const isPlainObject = (value: unknown): value is Record<string, unknown> =>
  */
 const deepMerge = <T extends Record<string, any>>(
   target: T,
-  ...sources: Array<Record<string, any> | undefined | null>
+  ...sources: (Record<string, any> | undefined | null)[]
 ): T => {
   if (!target || typeof target !== 'object') {
     throw new Error('Target must be an object');
   }
 
-  const result: T = {...target} as T;
+  const result: T = {...target};
 
   sources.forEach((source: Record<string, any> | undefined | null) => {
     if (!source || typeof source !== 'object') {

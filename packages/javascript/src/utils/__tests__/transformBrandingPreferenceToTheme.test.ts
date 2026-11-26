@@ -23,7 +23,7 @@ import createTheme from '../../theme/createTheme';
 import {transformBrandingPreferenceToTheme} from '../transformBrandingPreferenceToTheme';
 
 vi.mock('../../theme/createTheme', () => ({
-  // eslint-disable-next-line no-underscore-dangle
+   
   default: vi.fn((config: any, isDark: boolean) => ({__config: config, __isDark: isDark})),
 }));
 
@@ -79,7 +79,7 @@ describe('transformBrandingPreferenceToTheme', () => {
     const out: Record<string, unknown> = transformBrandingPreferenceToTheme(bp);
 
     expect(createTheme).toHaveBeenCalledWith({}, false);
-    // eslint-disable-next-line no-underscore-dangle
+     
     expect(out).toEqual({__config: {}, __isDark: false});
   });
 
@@ -96,7 +96,7 @@ describe('transformBrandingPreferenceToTheme', () => {
 
     expect((createTheme as any).mock.calls[0][1]).toBe(false);
 
-    // eslint-disable-next-line no-underscore-dangle
+     
     const cfg: Record<string, any> = (out as any).__config;
     expect(cfg.colors.primary.main).toBe('#FF7300');
     expect(cfg.colors.secondary.main).toBe('#E0E1E2');
@@ -117,7 +117,7 @@ describe('transformBrandingPreferenceToTheme', () => {
 
     expect((createTheme as any).mock.calls[0][1]).toBe(true);
 
-    // eslint-disable-next-line no-underscore-dangle
+     
     const cfg: Record<string, any> = (out as any).__config;
 
     expect(cfg.colors.primary.main).toBe('#222222');
@@ -136,7 +136,7 @@ describe('transformBrandingPreferenceToTheme', () => {
 
     expect((createTheme as any).mock.calls[0][1]).toBe(true);
 
-    // eslint-disable-next-line no-underscore-dangle
+     
     const cfg: Record<string, any> = (out as any).__config;
 
     expect(cfg.colors.primary.main).toBe('#FF7300');
@@ -150,7 +150,7 @@ describe('transformBrandingPreferenceToTheme', () => {
     const out: Record<string, unknown> = transformBrandingPreferenceToTheme(bp);
 
     expect(createTheme).toHaveBeenCalledWith({}, false);
-    // eslint-disable-next-line no-underscore-dangle
+     
     expect(out).toEqual({__config: {}, __isDark: false});
   });
 
@@ -176,7 +176,7 @@ describe('transformBrandingPreferenceToTheme', () => {
     });
 
     const out: Record<string, unknown> = transformBrandingPreferenceToTheme(bp);
-    // eslint-disable-next-line no-underscore-dangle
+     
     const cfg: Record<string, any> = (out as any).__config;
 
     expect(cfg.images.favicon).toEqual({
@@ -214,7 +214,7 @@ describe('transformBrandingPreferenceToTheme', () => {
     });
 
     const out: Record<string, unknown> = transformBrandingPreferenceToTheme(bp);
-    // eslint-disable-next-line no-underscore-dangle
+     
     const cfg: Record<string, any> = (out as any).__config;
 
     expect(cfg.components.Button.styleOverrides.root.borderRadius).toBe(12);
@@ -230,7 +230,7 @@ describe('transformBrandingPreferenceToTheme', () => {
     });
 
     const out: Record<string, unknown> = transformBrandingPreferenceToTheme(bp);
-    // eslint-disable-next-line no-underscore-dangle
+     
     const cfg: Record<string, any> = (out as any).__config;
 
     expect(cfg.components).toBeUndefined();
@@ -254,7 +254,7 @@ describe('transformBrandingPreferenceToTheme', () => {
     });
 
     const out: Record<string, unknown> = transformBrandingPreferenceToTheme(bp);
-    // eslint-disable-next-line no-underscore-dangle
+     
     const cfg: Record<string, any> = (out as any).__config;
 
     expect(cfg.colors.primary.main).toBe('#010101');
@@ -282,7 +282,7 @@ describe('transformBrandingPreferenceToTheme', () => {
     });
 
     const out: Record<string, unknown> = transformBrandingPreferenceToTheme(bp);
-    // eslint-disable-next-line no-underscore-dangle
+     
     const cfg: Record<string, any> = (out as any).__config;
 
     expect(cfg.colors.primary.contrastText).toBe('#abcdef');

@@ -17,6 +17,8 @@
  */
 
 import {getRequestURL, type H3Event} from 'h3';
+// `nitropack` ships with the host Nuxt app.
+// eslint-disable-next-line import-x/no-extraneous-dependencies
 import {defineNitroPlugin} from 'nitropack/runtime';
 import type {AsgardeoAuthState, AsgardeoNuxtConfig, AsgardeoSSRData} from '../../types';
 import {createLogger} from '../../utils/log';
@@ -133,7 +135,7 @@ export default defineNitroPlugin((nitro: {hooks: {hook: Function}}) => {
     }
 
     // ── 3. Resolve org-scoped base URL ─────────────────────────────────────
-    const baseUrl: string = (publicConfig?.baseUrl ?? '') as string;
+    const baseUrl: string = publicConfig?.baseUrl ?? '';
     let resolvedBaseUrl: string = baseUrl;
 
     try {

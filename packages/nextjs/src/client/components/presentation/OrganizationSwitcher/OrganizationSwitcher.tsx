@@ -112,7 +112,7 @@ export const OrganizationSwitcher: FC<OrganizationSwitcherProps> = ({
   }
 
   const organizations: Organization[] = propOrganizations || contextOrganizations || [];
-  const currentOrganization: Organization = propCurrentOrganization || (contextCurrentOrganization as Organization);
+  const currentOrganization: Organization = propCurrentOrganization || contextCurrentOrganization!;
   const onOrganizationSwitch: (organization: Organization) => void = propOnOrganizationSwitch || switchOrganization;
 
   const handleManageOrganizations = (): void => {
@@ -123,7 +123,7 @@ export const OrganizationSwitcher: FC<OrganizationSwitcherProps> = ({
     setIsProfileOpen(true);
   };
 
-  const defaultMenuItems: Array<{icon?: ReactElement; label: string; onClick: () => void}> = [];
+  const defaultMenuItems: {icon?: ReactElement; label: string; onClick: () => void}[] = [];
 
   if (currentOrganization) {
     defaultMenuItems.push({
@@ -143,7 +143,6 @@ export const OrganizationSwitcher: FC<OrganizationSwitcherProps> = ({
     onClick: (): void => setIsCreateOrgOpen(true),
   });
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const menuItems: any[] = props['menuItems'] ? [...defaultMenuItems, ...props['menuItems']] : defaultMenuItems;
 
   return (

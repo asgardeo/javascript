@@ -66,7 +66,7 @@ const resolveFlowErrorMessage = (error: unknown, fallback: string): string => {
   }
 
   // Strip the serialized `AsgardeoError` preamble, keeping only what follows `Message:`.
-  const messagePart: RegExpMatchArray | null = raw.match(/Message:\s*([\s\S]+)$/);
+  const messagePart: RegExpMatchArray | null = /Message:\s*([\s\S]+)$/.exec(raw);
 
   if (messagePart?.[1]?.trim()) {
     return messagePart[1].trim();

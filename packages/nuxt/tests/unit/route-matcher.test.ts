@@ -16,8 +16,6 @@
  * under the License.
  */
 
-/* eslint-disable @typescript-eslint/typedef */
-
 import {describe, it, expect} from 'vitest';
 import {createRouteMatcher} from '../../src/runtime/utils/createRouteMatcher';
 

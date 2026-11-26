@@ -18,7 +18,7 @@
 
 import {EmbeddedSignInFlowAuthenticatorParamType, FieldType} from '@asgardeo/browser';
 import {FC, ReactElement, useEffect} from 'react';
-// eslint-disable-next-line import/no-cycle
+// eslint-disable-next-line import-x/no-cycle
 import {BaseSignInOptionProps} from './SignInOptionFactory';
 import useFlow from '../../../../../../contexts/Flow/useFlow';
 import useTheme from '../../../../../../contexts/Theme/useTheme';

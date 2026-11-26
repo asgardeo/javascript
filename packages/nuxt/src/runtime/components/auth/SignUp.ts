@@ -25,8 +25,8 @@ import {
 import {BaseSignUp} from '@asgardeo/vue';
 import type {BaseSignUpRenderProps} from '@asgardeo/vue';
 import {type Component, type PropType, type SetupContext, type VNode, defineComponent, h} from 'vue';
-import {navigateTo} from '#app';
 import {useAsgardeo} from '#imports';
+import {navigateTo} from '#app';
 
 export type SignUpRenderProps = BaseSignUpRenderProps;
 

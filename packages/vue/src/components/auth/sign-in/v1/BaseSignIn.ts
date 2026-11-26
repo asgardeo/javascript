@@ -105,7 +105,7 @@ const BaseSignIn: Component = defineComponent({
     const currentFlow: Ref<EmbeddedSignInFlowInitiateResponse | null> = ref(null);
     const currentAuthenticator: Ref<EmbeddedSignInFlowAuthenticator | null> = ref(null);
     const error: Ref<string | null> = ref(null);
-    const messages: Ref<Array<{message: string; type: string}>> = ref([]);
+    const messages: Ref<{message: string; type: string}[]> = ref([]);
     const formValues: Ref<Record<string, string>> = ref({});
     const touchedFields: Ref<Record<string, boolean>> = ref({});
 
@@ -198,9 +198,9 @@ const BaseSignIn: Component = defineComponent({
         const responseAuth: any = (response.nextStep as any).authenticators[0];
         if (
           responseAuth.metadata?.promptType === EmbeddedSignInFlowAuthenticatorPromptType.RedirectionPrompt &&
-          (responseAuth.metadata as any)?.additionalData?.redirectUrl
+          responseAuth.metadata?.additionalData?.redirectUrl
         ) {
-          const {redirectUrl} = (responseAuth.metadata as any).additionalData;
+          const {redirectUrl} = responseAuth.metadata.additionalData;
           const popup: Window | null = window.open(
             redirectUrl,
             'oauth_popup',
@@ -228,7 +228,7 @@ const BaseSignIn: Component = defineComponent({
             const {code, state} = event.data;
             if (code && state) {
               const payload: EmbeddedSignInFlowHandleRequestPayload = {
-                flowId: currentFlow.value!.flowId,
+                flowId: currentFlow.value.flowId,
                 selectedAuthenticator: {
                   authenticatorId: responseAuth.authenticatorId,
                   params: {code, state},
@@ -268,7 +268,7 @@ const BaseSignIn: Component = defineComponent({
                   }
                   if (code && state) {
                     const payload: EmbeddedSignInFlowHandleRequestPayload = {
-                      flowId: currentFlow.value!.flowId,
+                      flowId: currentFlow.value.flowId,
                       selectedAuthenticator: {
                         authenticatorId: responseAuth.authenticatorId,
                         params: {code, state},
@@ -834,7 +834,7 @@ const BaseSignIn: Component = defineComponent({
                     onSubmit: (e: Event) => {
                       e.preventDefault();
                       const fd: Record<string, string> = {};
-                      currentAuthenticator.value!.metadata?.params?.forEach((p: any) => {
+                      currentAuthenticator.value.metadata?.params?.forEach((p: any) => {
                         fd[p.param] = formValues.value[p.param] || '';
                       });
                       handleSubmit(fd);

@@ -57,14 +57,7 @@ export interface OrganizationListConfig {
 export interface OrganizationListProps
   extends Omit<
       BaseOrganizationListProps,
-      | 'myOrganizations'
-      | 'allOrganizations'
-      | 'error'
-      | 'fetchMore'
-      | 'hasMore'
-      | 'isLoading'
-      | 'isLoadingMore'
-      | 'myOrganizations'
+      'myOrganizations' | 'allOrganizations' | 'error' | 'fetchMore' | 'hasMore' | 'isLoading' | 'isLoadingMore'
     >,
     OrganizationListConfig {
   /**

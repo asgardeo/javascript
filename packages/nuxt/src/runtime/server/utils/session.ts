@@ -155,13 +155,13 @@ export function getTempSessionCookieName(): string {
 /**
  * Session cookie options.
  */
-type SessionCookieOptions = {
+interface SessionCookieOptions {
   httpOnly: boolean;
   maxAge: number;
   path: string;
   sameSite: 'lax';
   secure: boolean;
-};
+}
 
 export function getSessionCookieOptions(): SessionCookieOptions {
   return {
@@ -206,7 +206,7 @@ export async function issueSessionCookie(
 
   const idToken: IdToken = await client.getDecodedIdToken(sessionId, tokenResponse.idToken);
 
-  const userId: string = (idToken.sub || sessionId) as string;
+  const userId: string = idToken.sub || sessionId;
   const organizationId: string | undefined = (idToken['user_org'] || idToken['organization_id']) as string | undefined;
   const expiresInSeconds: number = parseInt(tokenResponse.expiresIn ?? '3600', 10);
   const accessTokenExpiresAt: number =

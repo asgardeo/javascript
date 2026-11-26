@@ -205,10 +205,10 @@ export interface EmbeddedSignUpFlowCompleteResponse {
  * Request payload for initiating the new Asgardeo embedded sign-up flow.
  * @experimental
  */
-export type EmbeddedSignUpFlowInitiateRequest = {
+export interface EmbeddedSignUpFlowInitiateRequest {
   applicationId: string;
   flowType: EmbeddedFlowTypeV1;
-};
+}
 
 /**
  * Request payload for executing steps in the new Asgardeo embedded sign-up flow.

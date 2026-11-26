@@ -89,8 +89,8 @@ const generateFlattenedUserProfile = (meResponse: any, processedSchemas: any[]):
         const tail: string = name.slice(dotIndex + 1);
         const arr: any = meResponse[head];
         if (Array.isArray(arr)) {
-          const match: any = arr.find((item: any) => item && item.type === tail);
-          if (match && match.value !== undefined) {
+          const match: any = arr.find((item: any) => item?.type === tail);
+          if (match?.value !== undefined) {
             value = match.value;
           }
         }

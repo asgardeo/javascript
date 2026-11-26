@@ -18,12 +18,11 @@
 
 import {AsgardeoAuthClient} from '@asgardeo/javascript';
 import {Buffer} from 'buffer/';
-// eslint-disable-next-line import/no-cycle
+// eslint-disable-next-line import-x/no-cycle
 import {AuthenticationHelper, SPAHelper} from './__legacy__/helpers';
 import {WebWorkerClientConfig} from './__legacy__/models';
 import {workerReceiver} from './__legacy__/worker/worker-receiver';
 
-/* eslint-disable no-restricted-globals */
 // Set up global polyfills
 if (typeof self !== 'undefined' && !(self as any).Buffer) {
   (self as any).Buffer = Buffer;
@@ -36,11 +35,10 @@ if (typeof self !== 'undefined') {
   // Note: globalThis is read-only, so we don't try to override it
   // The esbuild config already maps globalThis to self via define
 }
-/* eslint-enable no-restricted-globals */
 
 workerReceiver(
   (authClient: AsgardeoAuthClient<WebWorkerClientConfig>, spaHelper: SPAHelper<WebWorkerClientConfig>) =>
     new AuthenticationHelper(authClient, spaHelper),
 );
 
-export default {} as typeof Worker & {new (): Worker};
+export default {} as typeof Worker & (new () => Worker);

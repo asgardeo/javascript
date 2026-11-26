@@ -18,7 +18,7 @@
 
 import {EmbeddedFlowType, getOrganizationUnitChildren, OrganizationUnitListResponse} from '@asgardeo/browser';
 import {FC, ReactElement, ReactNode, useCallback} from 'react';
-// eslint-disable-next-line import/no-named-as-default
+
 import BaseInviteUser, {BaseInviteUserRenderProps, InviteUserFlowResponse} from './BaseInviteUser';
 import useAsgardeo from '../../../../../contexts/Asgardeo/useAsgardeo';
 

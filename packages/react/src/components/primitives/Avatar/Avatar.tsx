@@ -75,10 +75,9 @@ export const Avatar: FC<AvatarProps> = ({
   const {theme, colorScheme}: ReturnType<typeof useTheme> = useTheme();
 
   const generateBackgroundColor = (inputString: string): string => {
-    // eslint-disable-next-line no-bitwise
     const hash: number = inputString.split('').reduce((acc: number, char: string) => {
       const charCode: number = char.charCodeAt(0);
-      // eslint-disable-next-line no-bitwise
+
       return ((acc << 5) - acc + charCode) & 0xffffffff;
     }, 0);
 

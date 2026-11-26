@@ -145,7 +145,7 @@ const UserDropdown: FC<UserDropdownProps> = ({
   // Prepare render props data
   const renderProps: UserDropdownRenderProps = {
     closeProfile,
-    isLoading: isLoading as boolean,
+    isLoading: isLoading,
     isProfileOpen,
     meta,
     openProfile: handleManageProfile,

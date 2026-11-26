@@ -18,7 +18,7 @@
 
 import {SessionData} from '@asgardeo/javascript';
 import {validate as uuidValidate, version as uuidVersion, v4 as uuidv4} from 'uuid';
-// eslint-disable-next-line import/no-cycle
+// eslint-disable-next-line import-x/no-cycle
 import {Logger} from '.';
 import {UUID_VERSION} from '../constants';
 

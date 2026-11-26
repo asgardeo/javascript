@@ -31,7 +31,11 @@ vi.mock('../../../AsgardeoNextClient', () => ({
 }));
 
 // A light org shape for testing (only fields we assert on)
-type Org = {id: string; name: string; orgHandle?: string};
+interface Org {
+  id: string;
+  name: string;
+  orgHandle?: string;
+}
 
 describe('getCurrentOrganizationAction', () => {
   type ActionResult = Awaited<ReturnType<typeof getCurrentOrganizationAction>>;

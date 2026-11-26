@@ -18,7 +18,10 @@
 
 import {RecursivePartial, ThemeConfig} from '@asgardeo/browser';
 
-type ColorWithMain = {[key: string]: unknown; main: string};
+interface ColorWithMain {
+  [key: string]: unknown;
+  main: string;
+}
 
 /**
  * Normalizes a single color value that may have been supplied as a shorthand

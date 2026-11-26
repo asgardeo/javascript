@@ -120,7 +120,7 @@ const SignUp: Component = defineComponent({
           size: props.size,
           variant: props.variant,
         },
-        slots['default'] ? {default: (renderProps: any) => slots['default']!(renderProps)} : undefined,
+        slots['default'] ? {default: (renderProps: any) => slots['default'](renderProps)} : undefined,
       );
   },
 });

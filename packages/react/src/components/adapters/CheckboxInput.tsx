@@ -34,7 +34,7 @@ const CheckboxInput: FC<AdapterProps> = ({
 }: AdapterProps) => {
   const config: Record<string, unknown> = component.config || {};
   const fieldName: string = (config['identifier'] as string) || (config['name'] as string) || component.id;
-  const value: string | boolean = (formValues[fieldName] as string) || false;
+  const value: string | boolean = formValues[fieldName] || false;
   const error: string | undefined = touchedFields[fieldName] ? formErrors[fieldName] : undefined;
 
   return createField({

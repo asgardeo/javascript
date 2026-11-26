@@ -29,7 +29,9 @@ vi.mock('next/headers', () => ({
 }));
 
 // Helper: build a Headers-like object. get() should be case-insensitive.
-type HLike = {get: (name: string) => string | null};
+interface HLike {
+  get: (name: string) => string | null;
+}
 const makeHeaders = (map: Record<string, string | null | undefined>): HLike => {
   const normalized: Record<string, string | null | undefined> = {};
   Object.entries(map).forEach(([k, val]: [string, string | null | undefined]) => {

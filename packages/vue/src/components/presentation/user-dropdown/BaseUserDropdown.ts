@@ -102,7 +102,6 @@ function getAvatarGradient(seed: string): string {
   if (!seed) return AVATAR_GRADIENTS[0];
   let hash: number = 0;
   for (let i: number = 0; i < seed.length; i += 1) {
-    // eslint-disable-next-line no-bitwise
     hash = (hash * 31 + seed.charCodeAt(i)) >>> 0;
   }
   return AVATAR_GRADIENTS[Math.abs(hash) % AVATAR_GRADIENTS.length];
@@ -202,7 +201,7 @@ const BaseUserDropdown: Component = defineComponent({
     // ── Auto-alignment ────────────────────────────────────────────────────────
 
     function resolveMenuAlign(): 'left' | 'right' {
-      if (props.menuAlign !== 'auto') return props.menuAlign as 'left' | 'right';
+      if (props.menuAlign !== 'auto') return props.menuAlign;
       if (!containerRef.value) return 'right';
       const rect: DOMRect = containerRef.value.getBoundingClientRect();
       const menuWidth: number = MENU_MIN_WIDTHS[props.size ?? 'md'] ?? 220;
@@ -296,7 +295,7 @@ const BaseUserDropdown: Component = defineComponent({
                 class: px('user-dropdown__item'),
                 onClick: (): void => {
                   isOpen.value = false;
-                  props.onProfileClick!();
+                  props.onProfileClick();
                 },
                 type: 'button',
               },
@@ -346,7 +345,7 @@ const BaseUserDropdown: Component = defineComponent({
                 class: [px('user-dropdown__item'), px('user-dropdown__item--danger')].join(' '),
                 onClick: (): void => {
                   isOpen.value = false;
-                  props.onSignOut!();
+                  props.onSignOut();
                 },
                 type: 'button',
               },

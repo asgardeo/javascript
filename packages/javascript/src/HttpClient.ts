@@ -36,16 +36,12 @@ import {HttpError, HttpRequestConfig, HttpResponse} from './models/http';
 export abstract class HttpClient {
   private static readonly DEFAULT_HANDLER_DISABLE_TIMEOUT: number = 1000;
 
-  // eslint-disable-next-line class-methods-use-this
   private requestStartCallback: (request: HttpRequestConfig) => void = () => null;
 
-  // eslint-disable-next-line class-methods-use-this
   private requestSuccessCallback: (response: HttpResponse) => void = () => null;
 
-  // eslint-disable-next-line class-methods-use-this
   private requestErrorCallback: (error: HttpError) => void = () => null;
 
-  // eslint-disable-next-line class-methods-use-this
   private requestFinishCallback: () => void = () => null;
 
   constructor(
@@ -104,12 +100,10 @@ export abstract class HttpClient {
     this.requestFinishCallback = cb;
   }
 
-  // eslint-disable-next-line class-methods-use-this
   all<T>(values: (T | Promise<T>)[]): Promise<T[]> {
     return Promise.all(values);
   }
 
-  // eslint-disable-next-line class-methods-use-this
   spread<T, R>(callback: (...args: T[]) => R): (array: T[]) => R {
     return (array: T[]) => callback(...array);
   }
@@ -120,11 +114,10 @@ export abstract class HttpClient {
     if (config.shouldEncodeToFormData && config.data) {
       const formData: FormData = new FormData();
       Object.keys(config.data).forEach((key: string) => formData.append(key, config.data[key]));
-      // eslint-disable-next-line no-param-reassign
+
       config.data = formData;
     }
 
-    // eslint-disable-next-line no-param-reassign
     config.startTimeInMs = Date.now();
 
     if (this.isHandlerEnabled && typeof this.requestStartCallback === 'function') {

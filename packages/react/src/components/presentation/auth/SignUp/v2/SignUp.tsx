@@ -23,7 +23,7 @@ import {
   EmbeddedFlowType,
 } from '@asgardeo/browser';
 import {FC, ReactElement, ReactNode} from 'react';
-// eslint-disable-next-line import/no-named-as-default
+
 import BaseSignUp, {BaseSignUpProps, BaseSignUpRenderProps} from './BaseSignUp';
 import useAsgardeo from '../../../../../contexts/Asgardeo/useAsgardeo';
 

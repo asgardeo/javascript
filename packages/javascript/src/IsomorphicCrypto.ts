@@ -58,7 +58,7 @@ export class IsomorphicCrypto<T = any> {
    *
    * @throws
    */
-  /* eslint-disable @typescript-eslint/no-explicit-any */
+
   public getJWKForTheIdToken(jwtHeader: string, keys: JWKInterface[]): JWKInterface {
     const headerJSON: Record<string, string> = JSON.parse(this.cryptoUtils.base64URLDecode(jwtHeader));
 

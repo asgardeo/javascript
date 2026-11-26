@@ -16,8 +16,6 @@
  * under the License.
  */
 
-/* eslint-disable typescript-sort-keys/interface */
-
 export interface I18nTranslations {
   /* |---------------------------------------------------------------| */
   /* |                        Elements                               | */

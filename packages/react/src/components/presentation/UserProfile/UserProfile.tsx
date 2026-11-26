@@ -18,7 +18,7 @@
 
 import {AsgardeoError, Config, FederatedAssociation, Platform, User, identifyPlatform} from '@asgardeo/browser';
 import {FC, ReactElement, useEffect, useState} from 'react';
-// eslint-disable-next-line import/no-named-as-default
+
 import BaseUserProfile, {BaseUserProfileProps} from './BaseUserProfile';
 import getMeFederatedAssociations from '../../../api/getMeFederatedAssociations';
 import updateMeProfile from '../../../api/updateMeProfile';

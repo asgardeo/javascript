@@ -24,23 +24,19 @@ import {Crypto, JWKInterface} from './models/crypto';
  * and the native Web Crypto API.
  */
 export class DefaultCrypto implements Crypto<Uint8Array> {
-  // eslint-disable-next-line class-methods-use-this
   public base64URLDecode(value: string): string {
     const decodedArray: Uint8Array = jose.base64url.decode(value);
     return new TextDecoder().decode(decodedArray);
   }
 
-  // eslint-disable-next-line class-methods-use-this
   public base64URLEncode(value: Uint8Array): string {
     return jose.base64url.encode(value);
   }
 
-  // eslint-disable-next-line class-methods-use-this
   public generateRandomBytes(length: number): Uint8Array {
     return crypto.getRandomValues(new Uint8Array(length));
   }
 
-  // eslint-disable-next-line class-methods-use-this
   public async hashSha256(data: string): Promise<Uint8Array> {
     const encoder: TextEncoder = new TextEncoder();
     const dataBuffer: Uint8Array = encoder.encode(data);
@@ -49,7 +45,6 @@ export class DefaultCrypto implements Crypto<Uint8Array> {
     return new Uint8Array(hashBuffer);
   }
 
-  // eslint-disable-next-line class-methods-use-this
   public async verifyJwt(
     idToken: string,
     jwk: JWKInterface,

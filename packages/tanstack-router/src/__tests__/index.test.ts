@@ -25,9 +25,9 @@ describe('@asgardeo/tanstack-router', () => {
   });
 
   it('should export ProtectedRouteProps interface', async () => {
-    const exports: typeof import('../index') = await import('../index');
+    const _exports: typeof import('../index') = await import('../index');
     // Interface check - should not throw
-    const UNUSED_TEST_VAR: typeof exports.ProtectedRouteProps = undefined as any;
+    const UNUSED_TEST_VAR: typeof _exports.ProtectedRouteProps = undefined as any;
     // Explicitly mark as used for type checking purposes
     expect(UNUSED_TEST_VAR).toBeUndefined();
   });

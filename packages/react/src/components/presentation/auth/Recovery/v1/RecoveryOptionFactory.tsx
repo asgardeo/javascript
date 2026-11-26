@@ -17,14 +17,13 @@
  */
 
 import {EmbeddedFlowComponent, EmbeddedFlowComponentType} from '@asgardeo/browser';
-import {AdapterProps} from 'packages/react/src/models/adapters';
 import {Key, ReactElement, cloneElement} from 'react';
 import CheckboxInput from '../../../../adapters/CheckboxInput';
 import DateInput from '../../../../adapters/DateInput';
 import DividerComponent from '../../../../adapters/DividerComponent';
 import EmailInput from '../../../../adapters/EmailInput';
 import FacebookButton from '../../../../adapters/FacebookButton';
-// eslint-disable-next-line import/no-cycle
+
 import FormContainer from '../../../../adapters/FormContainer';
 import GitHubButton from '../../../../adapters/GitHubButton';
 import GoogleButton from '../../../../adapters/GoogleButton';
@@ -39,6 +38,7 @@ import ButtonComponent from '../../../../adapters/SubmitButton';
 import TelephoneInput from '../../../../adapters/TelephoneInput';
 import TextInput from '../../../../adapters/TextInput';
 import Typography from '../../../../adapters/Typography';
+import {AdapterProps} from 'packages/react/src/models/adapters';
 
 /**
  * Builds the recovery element for a flow component. Keys are applied by `createRecoveryComponent`.

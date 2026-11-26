@@ -64,9 +64,9 @@ const deriveRootDomain = (hostname: string): string => {
 
 const getCookie = (name: string): string | null => {
   if (typeof document === 'undefined') return null;
-  const match: RegExpMatchArray | null = document.cookie.match(
-    new RegExp(`(?:^|; )${name.replace(/([.*+?^${}()|[\]\\])/g, '\\$1')}=([^;]*)`),
-  );
+  const match: RegExpMatchArray | null = new RegExp(
+    `(?:^|; )${name.replace(/([.*+?^${}()|[\]\\])/g, '\\$1')}=([^;]*)`,
+  ).exec(document.cookie);
   return match ? decodeURIComponent(match[1]) : null;
 };
 

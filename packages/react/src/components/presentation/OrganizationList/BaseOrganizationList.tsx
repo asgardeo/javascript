@@ -293,7 +293,7 @@ export const BaseOrganizationList: FC<BaseOrganizationListProps> = ({
       return [];
     }
 
-    const myOrgIds: Set<string> = new Set(myOrganizations?.map((org: Organization) => org.id) || []);
+    const myOrgIds = new Set<string>(myOrganizations?.map((org: Organization) => org.id) || []);
 
     return allOrganizations.organizations.map((org: Organization) => ({
       ...org,

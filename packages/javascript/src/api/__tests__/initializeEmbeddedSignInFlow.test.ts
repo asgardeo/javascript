@@ -51,7 +51,7 @@ describe('initializeEmbeddedSignInFlow', (): void => {
     const result: EmbeddedSignInFlowInitiateResponse = await initializeEmbeddedSignInFlow({payload, url});
 
     expect(fetch).toHaveBeenCalledWith(url, {
-      body: new URLSearchParams(payload as Record<string, string>).toString(),
+      body: new URLSearchParams(payload).toString(),
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/x-www-form-urlencoded',
@@ -78,7 +78,7 @@ describe('initializeEmbeddedSignInFlow', (): void => {
     const result: EmbeddedSignInFlowInitiateResponse = await initializeEmbeddedSignInFlow({baseUrl, payload});
 
     expect(fetch).toHaveBeenCalledWith(`${baseUrl}/oauth2/authorize`, {
-      body: new URLSearchParams(payload as Record<string, string>).toString(),
+      body: new URLSearchParams(payload).toString(),
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/x-www-form-urlencoded',
@@ -230,7 +230,7 @@ describe('initializeEmbeddedSignInFlow', (): void => {
     });
 
     expect(fetch).toHaveBeenCalledWith(`${baseUrl}/oauth2/authorize`, {
-      body: new URLSearchParams(payload as Record<string, string>).toString(),
+      body: new URLSearchParams(payload).toString(),
       headers: {
         Accept: 'application/json',
         Authorization: 'Bearer token',
@@ -266,8 +266,8 @@ describe('initializeEmbeddedSignInFlow', (): void => {
     const [, init] = (fetch as unknown as Mock).mock.calls[0];
     expect(init.headers['Content-Type']).toBe('application/x-www-form-urlencoded');
     // ensure characters are url-encoded in body
-    expect((init as any).body).toContain('scope=openid+profile+email');
-    expect((init as any).body).toContain('redirect_uri=https%3A%2F%2Fapp.example.com%2Fcb%3Fx%3D1%26y%3D2');
-    expect((init as any).body).toContain('state=chars+%21%40%23%24%26%3D%2B%2C%3A%3B%2F%3F');
+    expect(init.body).toContain('scope=openid+profile+email');
+    expect(init.body).toContain('redirect_uri=https%3A%2F%2Fapp.example.com%2Fcb%3Fx%3D1%26y%3D2');
+    expect(init.body).toContain('state=chars+%21%40%23%24%26%3D%2B%2C%3A%3B%2F%3F');
   });
 });

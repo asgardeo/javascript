@@ -31,9 +31,9 @@ import CardPrimitive from '../../primitives/Card/Card';
 import Checkbox from '../../primitives/Checkbox/Checkbox';
 import DatePicker from '../../primitives/DatePicker/DatePicker';
 import DialogPrimitive from '../../primitives/Dialog/Dialog';
-import Spinner from '../../primitives/Spinner/Spinner';
 import Divider from '../../primitives/Divider/Divider';
 import MultiInput from '../../primitives/MultiInput/MultiInput';
+import Spinner from '../../primitives/Spinner/Spinner';
 import TextField from '../../primitives/TextField/TextField';
 import Typography from '../../primitives/Typography/Typography';
 
@@ -291,7 +291,7 @@ const BaseUserProfile: FC<BaseUserProfileProps> = ({
       let fieldValue: any;
       if (editedUser && fieldName && editedUser[fieldName] !== undefined) {
         fieldValue = editedUser[fieldName];
-      } else if (flattenedProfile && flattenedProfile[fieldName] !== undefined) {
+      } else if (flattenedProfile?.[fieldName] !== undefined) {
         fieldValue = flattenedProfile[fieldName];
       } else {
         fieldValue = '';
@@ -340,7 +340,7 @@ const BaseUserProfile: FC<BaseUserProfileProps> = ({
     [flattenedProfile, profile, toggleFieldEdit],
   );
 
-  const defaultAttributeMappings: {[key: string]: string | string[] | undefined} = {
+  const defaultAttributeMappings: Record<string, string | string[] | undefined> = {
     email: ['emails', 'email'],
     firstName: ['name.givenName', 'given_name'],
     lastName: ['name.familyName', 'family_name'],
@@ -348,7 +348,7 @@ const BaseUserProfile: FC<BaseUserProfileProps> = ({
     username: ['userName', 'username', 'user_name'],
   };
 
-  const mergedMappings: {[key: string]: string | string[] | undefined} = {
+  const mergedMappings: Record<string, string | string[] | undefined> = {
     ...defaultAttributeMappings,
     ...attributeMapping,
   };
@@ -575,7 +575,7 @@ const BaseUserProfile: FC<BaseUserProfileProps> = ({
   };
 
   const renderUserInfo = (schema: Schema): any => {
-    if (!schema || !schema.name) return null;
+    if (!schema?.name) return null;
 
     const hasValue: any = schema.value !== undefined && schema.value !== '' && schema.value !== null;
     const isFieldEditing: any = editingFields[schema.name];
@@ -596,10 +596,10 @@ const BaseUserProfile: FC<BaseUserProfileProps> = ({
             isFieldEditing,
             (value: any) => {
               const tempEditedUser: any = {...editedUser};
-              tempEditedUser[schema.name!] = value;
+              tempEditedUser[schema.name] = value;
               setEditedUser(tempEditedUser);
             },
-            () => toggleFieldEdit(schema.name!),
+            () => toggleFieldEdit(schema.name),
           )}
         </div>
         {isProfileEditable && !isReadOnlyMutability(schema.mutability) && !isReadonlyField && (
@@ -613,7 +613,7 @@ const BaseUserProfile: FC<BaseUserProfileProps> = ({
                   size="small"
                   color="secondary"
                   variant="solid"
-                  onClick={(): any => handleFieldCancel(schema.name!)}
+                  onClick={(): any => handleFieldCancel(schema.name)}
                 >
                   Cancel
                 </Button>
@@ -624,7 +624,7 @@ const BaseUserProfile: FC<BaseUserProfileProps> = ({
                 size="small"
                 color="tertiary"
                 variant="icon"
-                onClick={(): any => toggleFieldEdit(schema.name!)}
+                onClick={(): any => toggleFieldEdit(schema.name)}
                 title="Edit"
                 className={styles.editButton}
               >

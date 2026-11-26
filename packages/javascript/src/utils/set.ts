@@ -35,12 +35,11 @@ const set = (object: any, path: string | string[], value: any): any => {
 
   pathArray.reduce((current: any, key: string, index: number) => {
     if (index === lastIndex) {
-      // eslint-disable-next-line no-param-reassign
       current[key] = value;
     } else if (!(key in current) || typeof current[key] !== 'object' || current[key] === null) {
       // Create array if next key is numeric, otherwise create object
       const nextKey: string = pathArray[index + 1];
-      // eslint-disable-next-line no-param-reassign
+
       current[key] = /^\d+$/.test(nextKey) ? [] : {};
     }
     return current[key];

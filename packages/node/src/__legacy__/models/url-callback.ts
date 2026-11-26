@@ -16,6 +16,4 @@
  * under the License.
  */
 
-export interface AuthURLCallback {
-  (url: string): void;
-}
+export type AuthURLCallback = (url: string) => void;

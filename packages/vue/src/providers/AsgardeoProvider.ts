@@ -240,8 +240,8 @@ const AsgardeoProvider: Component = defineComponent({
           const claims: User = extractUserClaimsFromIdToken(decodedToken);
           user.value = claims;
           const profileData: UserProfile = {
-            flattenedProfile: claims as User,
-            profile: claims as User,
+            flattenedProfile: claims,
+            profile: claims,
             schemas: [],
           };
           userProfile.value = profileData;
@@ -313,7 +313,7 @@ const AsgardeoProvider: Component = defineComponent({
           await updateSession();
         }
 
-        return response as User;
+        return response;
       } catch (error) {
         throw new AsgardeoRuntimeError(
           `Sign in failed: ${error instanceof Error ? error.message : String(JSON.stringify(error))}`,
@@ -571,8 +571,8 @@ const AsgardeoProvider: Component = defineComponent({
                                       const claims: User = extractUserClaimsFromIdToken(decodedToken);
                                       user.value = claims;
                                       userProfile.value = {
-                                        flattenedProfile: claims as User,
-                                        profile: claims as User,
+                                        flattenedProfile: claims,
+                                        profile: claims,
                                         schemas: [],
                                       };
                                     } catch {

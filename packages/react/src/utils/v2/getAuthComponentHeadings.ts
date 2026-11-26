@@ -83,7 +83,6 @@ const getAuthComponentHeadings = (
    * Recursively search for heading components
    */
   const findHeadings = (comps: EmbeddedFlowComponent[]): void => {
-    // eslint-disable-next-line no-restricted-syntax
     for (const component of comps) {
       if (component.type === 'TEXT' && component.variant && component.variant.startsWith('HEADING_')) {
         if (!heading) {

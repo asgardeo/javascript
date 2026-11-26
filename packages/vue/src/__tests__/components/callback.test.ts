@@ -16,7 +16,6 @@
  * under the License.
  */
 
-/* eslint-disable sort-keys, @typescript-eslint/typedef */
 import {mount} from '@vue/test-utils';
 import {describe, expect, it, vi, beforeEach, afterEach} from 'vitest';
 import Callback from '../../components/auth/Callback';

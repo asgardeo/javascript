@@ -33,7 +33,7 @@ const getCurrentOrganizationAction = async (
 }> => {
   try {
     const client: AsgardeoNextClient = AsgardeoNextClient.getInstance();
-    const organization: Organization = (await client.getCurrentOrganization(sessionId)) as Organization;
+    const organization: Organization = (await client.getCurrentOrganization(sessionId))!;
     return {data: {organization}, error: null, success: true};
   } catch (error) {
     return {

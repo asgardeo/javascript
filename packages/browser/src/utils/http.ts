@@ -16,7 +16,7 @@
  * under the License.
  */
 
-// eslint-disable-next-line import/no-cycle
+// eslint-disable-next-line import-x/no-cycle
 import {AsgardeoSPAClient} from '../__legacy__/client';
 
 /**

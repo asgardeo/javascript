@@ -1,26 +1,48 @@
 {
-  "name": "@wso2/prettier-config",
-  "version": "0.1.0",
-  "description": "Shareable Prettier configuration used in WSO2 code bases. Vendored from https://github.com/brionmario/wso2-ui-configs at commit d3041825 (packages/prettier-config).",
-  "license": "Apache-2.0",
+  "private": true,
+  "name": "@asgardeo/prettier-config",
+  "version": "0.0.0",
+  "description": "Shared Prettier configuration for the Asgardeo JavaScript SDKs.",
+  "keywords": [
+    "asgardeo",
+    "prettier",
+    "prettier-config"
+  ],
+  "homepage": "https://github.com/asgardeo/javascript/tree/main/tooling/prettier-config#readme",
+  "bugs": {
+    "url": "https://github.com/asgardeo/javascript/issues"
+  },
   "author": "WSO2",
-  "main": "index.js",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/wso2/ui-configs",
-    "directory": "packages/prettier-config"
-  },
-  "peerDependencies": {
-    "prettier": ">=2.0.0",
-    "typescript": ">=4.0.0"
-  },
-  "peerDependenciesMeta": {
-    "typescript": {
-      "optional": true
+  "license": "Apache-2.0",
+  "type": "module",
+  "main": "./dist/cjs/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/cjs/index.cjs"
     }
   },
-  "engines": {
-    "node": ">=14.0.0"
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/asgardeo/javascript",
+    "directory": "tooling/prettier-config"
   },
-  "private": true
+  "scripts": {
+    "build": "pnpm clean && rolldown -c rolldown.config.js && tsc -p tsconfig.lib.json --emitDeclarationOnly",
+    "clean": "rimraf dist",
+    "typecheck": "tsc -p tsconfig.lib.json --noEmit"
+  },
+  "devDependencies": {
+    "@types/node": "22.15.3",
+    "rimraf": "6.1.0",
+    "rolldown": "1.0.0-beta.45",
+    "typescript": "5.7.2"
+  }
 }

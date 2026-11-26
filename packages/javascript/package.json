@@ -37,18 +37,18 @@
   "scripts": {
     "build": "pnpm clean && node esbuild.config.mjs && tsc -p tsconfig.lib.json --emitDeclarationOnly --outDir dist",
     "clean": "rimraf dist",
-    "fix:lint": "eslint . --ext .js,.jsx,.ts,.tsx,.cjs,.mjs",
-    "lint": "eslint . --ext .js,.jsx,.ts,.tsx,.cjs,.mjs",
+    "fix:lint": "eslint . --fix",
+    "lint": "eslint .",
     "test": "vitest",
     "typecheck": "tsc -p tsconfig.lib.json"
   },
   "devDependencies": {
+    "@asgardeo/eslint-plugin": "workspace:*",
+    "@asgardeo/prettier-config": "workspace:*",
     "@types/node": "22.15.30",
-    "@wso2/eslint-plugin": "workspace:*",
-    "@wso2/prettier-config": "workspace:*",
     "esbuild": "0.25.9",
-    "eslint": "8.57.0",
-    "prettier": "2.6.2",
+    "eslint": "9.39.5",
+    "prettier": "3.6.2",
     "rimraf": "6.1.0",
     "typescript": "5.7.2",
     "vitest": "3.2.7"

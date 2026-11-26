@@ -22,7 +22,7 @@ import {I18nBundle, I18nMetadata, I18nTextDirection, I18nTranslations} from '@as
 /**
  * Languages written right-to-left, by ISO 639-1 code.
  */
-const RTL_LANGUAGES: Set<string> = new Set(['ar', 'dv', 'fa', 'he', 'ks', 'ku', 'ps', 'sd', 'ug', 'ur', 'yi']);
+const RTL_LANGUAGES = new Set<string>(['ar', 'dv', 'fa', 'he', 'ks', 'ku', 'ps', 'sd', 'ug', 'ur', 'yi']);
 
 /**
  * Derives the text direction for a locale from its language code.

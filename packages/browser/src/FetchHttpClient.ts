@@ -37,14 +37,13 @@ export class FetchHttpClient extends HttpClient {
     if (!this.instances.has(instanceId)) {
       this.instances.set(instanceId, new FetchHttpClient(isHandlerEnabled, attachToken));
     }
-    return this.instances.get(instanceId)!;
+    return this.instances.get(instanceId);
   }
 
   static destroyInstance(instanceId: number = 0): void {
     this.instances.delete(instanceId);
   }
 
-  // eslint-disable-next-line class-methods-use-this
   protected async transport<T = any>(config: HttpRequestConfig): Promise<HttpResponse<T>> {
     const {
       attachToken,

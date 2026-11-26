@@ -57,7 +57,7 @@ export interface BaseSignInRenderProps {
   isLoading: boolean;
   isTimeoutDisabled?: boolean;
   isValid: boolean;
-  messages: Array<{message: string; type: string}>;
+  messages: {message: string; type: string}[];
   meta: FlowMetadataResponse | null;
   subtitle: string | undefined;
   title: string;
@@ -219,7 +219,7 @@ const BaseSignIn: Component = defineComponent({
     const isFormValid: ComputedRef<boolean> = computed<boolean>(() => Object.keys(formErrors.value).length === 0);
 
     const handleError = (error: any): void => {
-      const errorMessage: string = (error as any)?.failureReason || extractErrorMessage(error, t);
+      const errorMessage: string = error?.failureReason || extractErrorMessage(error, t);
       apiError.value = error instanceof Error ? error : new Error(errorMessage);
       clearMessages();
       addMessage({message: errorMessage, type: 'error'});
@@ -329,7 +329,7 @@ const BaseSignIn: Component = defineComponent({
           isLoading: isLoading.value,
           isTimeoutDisabled: props.isTimeoutDisabled,
           isValid: isFormValid.value,
-          messages: (flowMessages as Ref<Array<{message: string; type: string}>>).value || [],
+          messages: (flowMessages as Ref<{message: string; type: string}[]>).value || [],
           meta: (metaRef as Ref<FlowMetadataResponse | null>).value,
           subtitle: (flowSubtitle as Ref<string | undefined>).value,
           title: (flowTitle as Ref<string>).value || t('signin.heading') || 'Sign In',
@@ -360,8 +360,8 @@ const BaseSignIn: Component = defineComponent({
         );
       }
 
-      const messages: Array<{message: string; type: string}> =
-        (flowMessages as Ref<Array<{message: string; type: string}>>).value || [];
+      const messages: {message: string; type: string}[] =
+        (flowMessages as Ref<{message: string; type: string}[]>).value || [];
       const externalError: Error | null = props.error;
 
       return h(Card, {class: containerClass, ...attrs, variant: props.variant}, () => [

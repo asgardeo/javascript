@@ -16,7 +16,6 @@
  * under the License.
  */
 
-/* eslint-disable sort-keys, @typescript-eslint/typedef, @typescript-eslint/explicit-function-return-type */
 import {mount} from '@vue/test-utils';
 import {describe, expect, it, vi} from 'vitest';
 import {defineComponent, h, shallowRef} from 'vue';
@@ -56,7 +55,7 @@ describe('useUser', () => {
     });
 
     expect(result).toBeDefined();
-    expect(result!.profile.value).toBeNull();
+    expect(result.profile.value).toBeNull();
   });
 
   it('should throw an error when called outside of AsgardeoProvider', () => {
@@ -91,7 +90,7 @@ describe('useUser', () => {
       },
     });
 
-    expect(typeof result!.updateProfile).toBe('function');
-    expect(typeof result!.revalidateProfile).toBe('function');
+    expect(typeof result.updateProfile).toBe('function');
+    expect(typeof result.revalidateProfile).toBe('function');
   });
 });

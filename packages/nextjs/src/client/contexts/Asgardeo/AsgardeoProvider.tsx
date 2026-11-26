@@ -356,7 +356,7 @@ const AsgardeoClientProvider: FC<PropsWithChildren<AsgardeoClientProviderProps>>
       throw error;
     }
 
-    return result.data as HttpResponse;
+    return result.data!;
   };
 
   const handleHttpRequestAll = async (requestConfigs?: HttpRequestConfig[]): Promise<HttpResponse[]> =>

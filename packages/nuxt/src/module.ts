@@ -35,11 +35,11 @@ type ViteUserConfig = Parameters<Parameters<typeof extendViteConfig>[0]>[0];
 
 const PACKAGE_NAME: string = '@asgardeo/nuxt';
 
-type ServerRoute = {
+interface ServerRoute {
   handler: string;
   method?: 'patch' | 'post';
   route: string;
-};
+}
 
 export default defineNuxtModule<AsgardeoNuxtConfig>({
   defaults: {},
@@ -317,7 +317,7 @@ export default defineNuxtModule<AsgardeoNuxtConfig>({
           'fast-sha256',
         ];
 
-        const existingInclude: string[] = (viteConfig.optimizeDeps?.include as string[]) ?? [];
+        const existingInclude: string[] = viteConfig.optimizeDeps?.include! ?? [];
         const newDeps: string[] = deps.filter((dep: string) => !existingInclude.includes(dep));
 
         Object.assign(viteConfig, {

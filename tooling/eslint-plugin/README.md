@@ -1,118 +1,83 @@
-# `@wso2/eslint-plugin`
+# @asgardeo/eslint-plugin
 
-ESLint plugin containing configurations & custom rules used in WSO2 code bases.
+ESLint 9 flat configs and custom rules for the Asgardeo JavaScript SDKs.
 
-## Installation
+## Usage
 
-This is a private workspace package (`"private": true`) vendored from
-[`brionmario/wso2-ui-configs`](https://github.com/brionmario/wso2-ui-configs); it is not published to a registry.
-Packages in this monorepo consume it with a `workspace:*` dependency:
+Add the plugin and the Prettier config as workspace dev dependencies:
 
 ```json
 {
   "devDependencies": {
-    "@wso2/eslint-plugin": "workspace:*",
-    "eslint": "8.57.0"
+    "@asgardeo/eslint-plugin": "workspace:*",
+    "@asgardeo/prettier-config": "workspace:*"
   }
 }
 ```
 
-See [`../README.md`](../README.md) for provenance and how to update the vendored copy.
+Then spread a config into the package's `eslint.config.js`:
 
-## Usage
+```js
+import asgardeo from '@asgardeo/eslint-plugin';
 
-### For JavaScript projects
-
-If you're working on any `es5` or `es6` projects, do the following extension in your `eslint` config.
-
-```json
-{
-  "extends": "plugin:@wso2/javascript"
-}
+export default [
+  {
+    ignores: ['dist/**', 'build/**', 'node_modules/**', 'coverage/**'],
+  },
+  ...asgardeo.configs.typescript,
+  ...asgardeo.configs.vitest,
+];
 ```
 
-### For TypeScript projects
+## Configs
 
-If you're working on a TypeScript based project, do the following extension in your `eslint` config.
+| Config       | Use for                                                                     |
+| ------------ | --------------------------------------------------------------------------- |
+| `javascript` | JavaScript-only packages.                                                   |
+| `typescript` | TypeScript packages, with type-aware linting.                               |
+| `react`      | TypeScript + React packages.                                                |
+| `vue`        | TypeScript + Vue packages with `.vue` single-file components.               |
+| `vitest`     | An overlay for Vitest test files. Spread it after one of the configs above. |
 
-```json
-{
-  "extends": "plugin:@wso2/typescript"
-}
-```
+Every config except `vitest` includes the `@asgardeo/copyright-header` rule and ends with `eslint-config-prettier`, so
+formatting is left to Prettier.
 
-#### Stricter Rules
+### Type information
 
-If you want to enforce more stricter rules like mandating types for variables, mandating return types etc, do the
-following extension in your `eslint` config.
+The `typescript`, `react` and `vue` configs lint with type information. The parser options are resolved from the working
+directory:
 
-```diff
-{
-  "extends": [
-    "plugin:@wso2/typescript"
-+   "plugin:@wso2/strict"
-  ]
-}
-```
+- When the nearest directory with a tsconfig has a `tsconfig.eslint.json`, it is used as the project. Include every file
+  you want linted in it (sources, tests and config files).
+- Otherwise the typescript-eslint project service is used, and root-level `*.js`, `*.cjs` and `*.mjs` files fall back to
+  the default project.
 
-### For React projects
+`createParserOptions()` is exported for packages that need to override this.
 
-If you're working on a React project, do the following extension in your `eslint` config.
+## Rules
 
-#### React JavaScript
+### `@asgardeo/copyright-header`
 
-```json
-{
-  "extends": ["plugin:@wso2/javascript", "plugin:@wso2/react"]
-}
-```
+Requires the WSO2 Apache 2.0 license header at the top of every source file. The year is not validated, so historical
+years and ranges pass. The autofix inserts the header with the current year, or replaces a leading comment that looks
+like a different license header.
 
-#### React TypeScript
+Options:
 
-```json
-{
-  "extends": ["plugin:@wso2/typescript", "plugin:@wso2/react"]
-}
-```
+- `template`: the header to require and insert, in place of the WSO2 header.
+- `excludePatterns`: regular expressions for file paths to skip.
+- `allowShebang`: allow a `#!` line above the header (default `true`).
 
-#### Jest & React Testing Library.
+## Pending rules
 
-If you're working on project that uses [`Jest`](https://jestjs.io/) &
-[`React Testing Library`](https://testing-library.com/docs/react-testing-library/intro/) for unit testing, do the
-following extension in your `eslint` config.
+Some rules from the type-checked presets report on existing SDK code and need code changes to pass. They are grouped in
+the `asgardeo/typescript-pending` and `asgardeo/react-pending` blocks (and one rule in the `vitest` config), either
+switched off or lowered to `warn`. Fix the reports for a rule, then remove it from the block to enforce it.
 
-```diff
-{
-  "extends": [
-    ...,
-+   "plugin:@wso2/jest",
-  ]
-}
-```
+## Development
 
-### Prettier
-
-If you want to integrate the [`prettier`](https://github.com/prettier/prettier-eslint) ESLint in to your project, do the
-following extension in your `eslint` config.
-
-```diff
-{
-  "extends": [
-    ...,
-+   "plugin:@wso2/prettier",
-  ]
-}
-```
-
-### For WSO2 Project
-
-For WSO2 projects, do the following extension in your `eslint` config to enforce company specific standards.
-
-```diff
-{
-  "extends": [
-    ...,
-+   "plugin:@wso2/internal",
-  ]
-}
+```bash
+pnpm build      # Build dist/ (ESM + CommonJS + types).
+pnpm test       # Run the rule tests.
+pnpm lint       # Lint this package with its own built config.
 ```

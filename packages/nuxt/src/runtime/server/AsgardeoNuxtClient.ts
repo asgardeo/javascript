@@ -112,10 +112,10 @@ class AsgardeoNuxtClient extends AsgardeoNodeClient<AsgardeoNuxtConfig> {
     }
 
     const authConfig: AuthClientConfig<AsgardeoNuxtConfig> = {
-      afterSignInUrl: config.afterSignInUrl as string,
+      afterSignInUrl: config.afterSignInUrl!,
       afterSignOutUrl: config.afterSignOutUrl || '/',
-      baseUrl: config.baseUrl as string,
-      clientId: config.clientId as string,
+      baseUrl: config.baseUrl!,
+      clientId: config.clientId!,
       clientSecret: config.clientSecret || undefined,
       enablePKCE: true,
       platform: config.platform,
@@ -279,7 +279,7 @@ class AsgardeoNuxtClient extends AsgardeoNodeClient<AsgardeoNuxtConfig> {
     const configData: AuthClientConfig<AsgardeoNuxtConfig> | undefined = (await this.legacy.getConfigData?.()) as
       | AuthClientConfig<AsgardeoNuxtConfig>
       | undefined;
-    const baseUrl: string | undefined = configData?.baseUrl as string | undefined;
+    const baseUrl: string | undefined = configData?.baseUrl;
     const response: EmbeddedFlowExecuteResponse = await executeEmbeddedSignUpFlow({
       baseUrl,
       payload: payloadOrOptions as EmbeddedFlowExecuteRequestPayload,
@@ -316,18 +316,18 @@ class AsgardeoNuxtClient extends AsgardeoNodeClient<AsgardeoNuxtConfig> {
       | undefined;
 
     if ((configData as any)?.platform === Platform.AsgardeoV2) {
-      return (configData?.afterSignOutUrl as string) || (configData?.afterSignInUrl as string) || '/';
+      return configData?.afterSignOutUrl! || configData?.afterSignInUrl! || '/';
     }
 
     return this.legacy.signOut(sessionId);
   }
 
   override getUser(sessionId?: string): Promise<User> {
-    return this.legacy.getUser(sessionId as string);
+    return this.legacy.getUser(sessionId!);
   }
 
   override getAccessToken(sessionId?: string): Promise<string> {
-    return this.legacy.getAccessToken(sessionId as string);
+    return this.legacy.getAccessToken(sessionId);
   }
 
   /**
@@ -336,11 +336,11 @@ class AsgardeoNuxtClient extends AsgardeoNodeClient<AsgardeoNuxtConfig> {
    * access ID token claims without falling back to the legacy client.
    */
   getDecodedIdToken(sessionId?: string, idToken?: string): Promise<IdToken> {
-    return this.legacy.getDecodedIdToken(sessionId as string, idToken);
+    return this.legacy.getDecodedIdToken(sessionId, idToken);
   }
 
   override isSignedIn(sessionId?: string): Promise<boolean> {
-    return this.legacy.isSignedIn(sessionId as string);
+    return this.legacy.isSignedIn(sessionId!);
   }
 
   override exchangeToken(config: TokenExchangeRequestConfig, sessionId?: string): Promise<TokenResponse | Response> {
@@ -358,7 +358,7 @@ class AsgardeoNuxtClient extends AsgardeoNodeClient<AsgardeoNuxtConfig> {
     const configData: AuthClientConfig<AsgardeoNuxtConfig> | undefined = (await this.legacy.getConfigData?.()) as
       | AuthClientConfig<AsgardeoNuxtConfig>
       | undefined;
-    const baseUrl: string = (configData?.baseUrl ?? '') as string;
+    const baseUrl: string = configData?.baseUrl ?? '';
 
     // AsgardeoV2 (Thunder) does not support SCIM2 — return ID token claims directly.
     if ((configData as any)?.platform === Platform.AsgardeoV2) {
@@ -399,9 +399,9 @@ class AsgardeoNuxtClient extends AsgardeoNodeClient<AsgardeoNuxtConfig> {
         return null;
       }
       return {
-        id: idToken.org_id as string,
-        name: (idToken.org_name ?? '') as string,
-        orgHandle: (idToken.org_handle ?? '') as string,
+        id: idToken.org_id,
+        name: idToken.org_name ?? '',
+        orgHandle: idToken.org_handle ?? '',
       };
     } catch {
       return null;
@@ -416,7 +416,7 @@ class AsgardeoNuxtClient extends AsgardeoNodeClient<AsgardeoNuxtConfig> {
     const configData: AuthClientConfig<AsgardeoNuxtConfig> | undefined = (await this.legacy.getConfigData?.()) as
       | AuthClientConfig<AsgardeoNuxtConfig>
       | undefined;
-    const baseUrl: string = (configData?.baseUrl ?? '') as string;
+    const baseUrl: string = configData?.baseUrl ?? '';
 
     return getMeOrganizations({
       baseUrl,
@@ -429,7 +429,7 @@ class AsgardeoNuxtClient extends AsgardeoNodeClient<AsgardeoNuxtConfig> {
    * Delegates to the standalone `getBrandingPreference` API helper from
    * `@asgardeo/node`, which does not require an authenticated session.
    */
-  // eslint-disable-next-line class-methods-use-this
+
   async getBrandingPreference(config: GetBrandingPreferenceConfig): Promise<BrandingPreference> {
     return getBrandingPreference(config);
   }
@@ -443,7 +443,7 @@ class AsgardeoNuxtClient extends AsgardeoNodeClient<AsgardeoNuxtConfig> {
     const configData: AuthClientConfig<AsgardeoNuxtConfig> | undefined = (await this.legacy.getConfigData?.()) as
       | AuthClientConfig<AsgardeoNuxtConfig>
       | undefined;
-    const baseUrl: string = (configData?.baseUrl ?? '') as string;
+    const baseUrl: string = configData?.baseUrl ?? '';
 
     // AsgardeoV2 (Thunder) does not support SCIM2 profile updates.
     if ((configData as any)?.platform === Platform.AsgardeoV2) {
@@ -467,7 +467,7 @@ class AsgardeoNuxtClient extends AsgardeoNodeClient<AsgardeoNuxtConfig> {
     const configData: AuthClientConfig<AsgardeoNuxtConfig> | undefined = (await this.legacy.getConfigData?.()) as
       | AuthClientConfig<AsgardeoNuxtConfig>
       | undefined;
-    const baseUrl: string = (configData?.baseUrl ?? '') as string;
+    const baseUrl: string = configData?.baseUrl ?? '';
 
     return getAllOrganizations({
       baseUrl,
@@ -483,7 +483,7 @@ class AsgardeoNuxtClient extends AsgardeoNodeClient<AsgardeoNuxtConfig> {
     const configData: AuthClientConfig<AsgardeoNuxtConfig> | undefined = (await this.legacy.getConfigData?.()) as
       | AuthClientConfig<AsgardeoNuxtConfig>
       | undefined;
-    const baseUrl: string = (configData?.baseUrl ?? '') as string;
+    const baseUrl: string = configData?.baseUrl ?? '';
 
     return createOrganization({
       baseUrl,
@@ -501,7 +501,7 @@ class AsgardeoNuxtClient extends AsgardeoNodeClient<AsgardeoNuxtConfig> {
     const configData: AuthClientConfig<AsgardeoNuxtConfig> | undefined = (await this.legacy.getConfigData?.()) as
       | AuthClientConfig<AsgardeoNuxtConfig>
       | undefined;
-    const baseUrl: string = (configData?.baseUrl ?? '') as string;
+    const baseUrl: string = configData?.baseUrl ?? '';
 
     return getOrganization({
       baseUrl,

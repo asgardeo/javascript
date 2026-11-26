@@ -62,10 +62,10 @@ const useAsgardeo = (): AsgardeoContext => {
   // FlowMetaContext lives inside AsgardeoProvider, so it is always present in
   // normal usage. Optional chaining keeps the composable safe in unit tests that
   // don't render FlowMetaProvider.
-  const flowMetaContext: FlowMetaContextValue | null = inject(FLOW_META_KEY, null) as FlowMetaContextValue | null;
+  const flowMetaContext: FlowMetaContextValue | null = inject(FLOW_META_KEY, null);
 
   // I18nContext provides the translation function.
-  const i18nContext: I18nContextValue | null = inject(I18N_KEY, null) as I18nContextValue | null;
+  const i18nContext: I18nContextValue | null = inject(I18N_KEY, null);
 
   const meta: Ref<FlowMetadataResponse | null> = flowMetaContext?.meta ?? ref(null);
 

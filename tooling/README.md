@@ -2,18 +2,20 @@
 
 Shared lint and formatting configuration used by every package in this workspace.
 
-Both packages are vendored copies of [`brionmario/wso2-ui-configs`](https://github.com/brionmario/wso2-ui-configs) at
-commit `d3041825a4f8f235c8f9fa36b55cf29d54e791c8` (Apache-2.0, see `LICENSE`):
+- [`eslint-plugin/`](./eslint-plugin) — `@asgardeo/eslint-plugin`: ESLint 9 flat configs and the `copyright-header`
+  rule.
+- [`prettier-config/`](./prettier-config) — `@asgardeo/prettier-config`: the shared Prettier options.
 
-- `eslint-plugin/` — `@wso2/eslint-plugin` (`packages/eslint-plugin` upstream)
-- `prettier-config/` — `@wso2/prettier-config` (`packages/prettier-config` upstream)
+Both packages are private workspace packages, consumed with `workspace:*`. Their layout follows ThunderID's
+[`eslint-plugin`](https://github.com/thunder-id/thunderid/tree/main/frontend/packages/eslint-plugin) and
+[`prettier-config`](https://github.com/thunder-id/thunderid/tree/main/frontend/packages/prettier-config): TypeScript
+sources under `src/`, built to ESM and CommonJS with rolldown.
 
-They used to be consumed as git dependencies with a `path:` subdirectory. pnpm resolves GitHub-hosted git dependencies
-to a tarball of the whole repository and drops the `path:` fragment, so a clean install (CI, or a fresh store) ended up
-with the repository root instead of the package and ESLint could not find the plugin. Consuming them as workspace
-packages makes installs deterministic. To update, copy the upstream package contents over these directories and bump the
-commit above.
+## Building
 
-Local deviations from upstream, to re-apply after an update: `package.json` is trimmed and marked `private`, the READMEs
-describe `workspace:*` usage instead of registry installation, and the README/TROUBLESHOOTING Markdown was fixed to pass
-markdownlint. Library code under `lib/` and `index.js` is unchanged.
+Consumers load the built output from `dist/`. Nx builds both packages before any `lint` target runs (`lint` depends on
+`^build`), so `pnpm lint` works from a clean checkout. To build them by hand:
+
+```bash
+pnpm --filter @asgardeo/prettier-config --filter @asgardeo/eslint-plugin build
+```

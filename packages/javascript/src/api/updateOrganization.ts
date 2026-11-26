@@ -36,11 +36,11 @@ export interface UpdateOrganizationConfig extends Omit<RequestInit, 'method' | '
   /**
    * Array of patch operations to apply
    */
-  operations: Array<{
+  operations: {
     operation: 'REPLACE' | 'ADD' | 'REMOVE';
     path: string;
     value?: any;
-  }>;
+  }[];
   /**
    * The ID of the organization to update
    */
@@ -202,11 +202,11 @@ const updateOrganization = async ({
  */
 export const createPatchOperations = (
   payload: Record<string, any>,
-): Array<{
+): {
   operation: 'REPLACE' | 'REMOVE';
   path: string;
   value?: any;
-}> =>
+}[] =>
   Object.entries(payload).map(([key, value]: [string, any]) => {
     if (isEmpty(value)) {
       return {

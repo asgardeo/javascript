@@ -24,19 +24,19 @@ import {
   WithPreferences,
 } from '@asgardeo/browser';
 import {ReactElement} from 'react';
-// eslint-disable-next-line import/no-cycle, import/no-named-as-default
+// eslint-disable-next-line import-x/no-cycle
 import EmailOtp from './EmailOtp';
-// eslint-disable-next-line import/no-cycle, import/no-named-as-default
+// eslint-disable-next-line import-x/no-cycle
 import IdentifierFirst from './IdentifierFirst';
-// eslint-disable-next-line import/no-cycle
+// eslint-disable-next-line import-x/no-cycle
 import MultiOptionButton from './MultiOptionButton';
-// eslint-disable-next-line import/no-cycle, import/no-named-as-default
+// eslint-disable-next-line import-x/no-cycle
 import SmsOtp from './SmsOtp';
-// eslint-disable-next-line import/no-cycle
+// eslint-disable-next-line import-x/no-cycle
 import SocialButton from './SocialButton';
-// eslint-disable-next-line import/no-cycle, import/no-named-as-default
+// eslint-disable-next-line import-x/no-cycle
 import Totp from './Totp';
-// eslint-disable-next-line import/no-cycle, import/no-named-as-default
+// eslint-disable-next-line import-x/no-cycle
 import UsernamePassword from './UsernamePassword';
 import FacebookButton from '../../../../../adapters/FacebookButton';
 import GitHubButton from '../../../../../adapters/GitHubButton';

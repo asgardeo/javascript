@@ -159,7 +159,6 @@ class AsgardeoReactClient<T extends AsgardeoReactConfig = AsgardeoReactConfig> e
     });
   }
 
-  // eslint-disable-next-line class-methods-use-this
   override async updateUserProfile(): Promise<User> {
     throw new Error('Not implemented');
   }
@@ -379,9 +378,9 @@ class AsgardeoReactClient<T extends AsgardeoReactConfig = AsgardeoReactConfig> e
         await this.initialize(this.initializeConfig);
       }
 
-      const isV2Platform: boolean = config && config.platform === Platform.AsgardeoV2;
+      const isV2Platform: boolean = config?.platform === Platform.AsgardeoV2;
 
-      if (isV2Platform && typeof arg1 === 'object' && arg1 !== null && (arg1 as any).callOnlyOnRedirect === true) {
+      if (isV2Platform && typeof arg1 === 'object' && arg1 !== null && arg1.callOnlyOnRedirect === true) {
         return undefined as any;
       }
 
@@ -454,7 +453,7 @@ class AsgardeoReactClient<T extends AsgardeoReactConfig = AsgardeoReactConfig> e
         });
       }
 
-      return (await this.asgardeo.signIn(arg1 as any)) as unknown as Promise<User>;
+      return (await this.asgardeo.signIn(arg1)) as unknown as Promise<User>;
     });
   }
 
@@ -538,12 +537,12 @@ class AsgardeoReactClient<T extends AsgardeoReactConfig = AsgardeoReactConfig> e
   override async recover(payload: EmbeddedFlowExecuteRequestPayload): Promise<EmbeddedFlowExecuteResponse> {
     const config: AsgardeoReactConfig = (await this.asgardeo.getConfigData()) as AsgardeoReactConfig;
     const baseUrl: string = config?.baseUrl;
-    const isV2Platform: boolean = config && config.platform === Platform.AsgardeoV2;
+    const isV2Platform: boolean = config?.platform === Platform.AsgardeoV2;
 
     if (isV2Platform) {
       return executeEmbeddedRecoveryFlowV2({
         baseUrl,
-        payload: {...(payload as EmbeddedFlowExecuteRequestPayload), verbose: true},
+        payload: {...payload, verbose: true},
       }) as any;
     }
 

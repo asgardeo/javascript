@@ -117,7 +117,7 @@ export interface AuthenticatorSelectorProps {
   /**
    * Messages to display to the user.
    */
-  messages: Array<{message: string; type: string}>;
+  messages: {message: string; type: string}[];
   /**
    * Callback function called when an authenticator is selected.
    */

@@ -242,7 +242,7 @@ const AsgardeoProvider: FC<PropsWithChildren<AsgardeoProviderProps>> = ({
         await updateSession();
       }
 
-      return response as User;
+      return response;
     } catch (error) {
       throw new AsgardeoRuntimeError(
         `Sign in failed: ${error instanceof Error ? error.message : String(JSON.stringify(error))}`,

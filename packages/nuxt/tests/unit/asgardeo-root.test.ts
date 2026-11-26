@@ -16,7 +16,7 @@
  * under the License.
  */
 
-/* eslint-disable @typescript-eslint/typedef, sort-keys, @typescript-eslint/no-unused-vars, no-restricted-syntax */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 
 import {generateFlattenedUserProfile} from '@asgardeo/browser';
 import {
@@ -54,7 +54,7 @@ vi.mock('@asgardeo/browser', () => ({
 }));
 
 // Stub Nuxt composables so the component's setup() can run in pure Node.
-const mockStateStore: Map<string, {value: any}> = new Map();
+const mockStateStore = new Map<string, {value: any}>();
 
 vi.mock('#imports', () => ({
   useState: vi.fn((key: string, init?: () => any) => {

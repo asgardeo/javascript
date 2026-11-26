@@ -61,7 +61,7 @@ export type TemporaryStoreValue = string | string[] | boolean | number | OIDCEnd
 /**
  * Represents a key-value store for temporary data storage.
  */
-export type TemporaryStore = {[key: string]: TemporaryStoreValue};
+export type TemporaryStore = Record<string, TemporaryStoreValue>;
 
 /**
  * Enum representing different types of data stores used in the application.

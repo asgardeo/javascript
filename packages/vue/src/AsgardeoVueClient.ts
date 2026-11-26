@@ -130,7 +130,6 @@ class AsgardeoVueClient<T extends AsgardeoVueConfig = AsgardeoVueConfig> extends
     });
   }
 
-  // eslint-disable-next-line class-methods-use-this
   override async updateUserProfile(): Promise<User> {
     throw new Error('Not implemented');
   }
@@ -339,10 +338,9 @@ class AsgardeoVueClient<T extends AsgardeoVueConfig = AsgardeoVueConfig> extends
         | undefined;
 
       const platformFromStorage: string | null = sessionStorage.getItem('asgardeo_platform');
-      const isV2Platform: boolean =
-        (config && config.platform === Platform.AsgardeoV2) || platformFromStorage === 'AsgardeoV2';
+      const isV2Platform: boolean = config?.platform === Platform.AsgardeoV2 || platformFromStorage === 'AsgardeoV2';
 
-      if (isV2Platform && typeof arg1 === 'object' && arg1 !== null && (arg1 as any).callOnlyOnRedirect === true) {
+      if (isV2Platform && typeof arg1 === 'object' && arg1 !== null && arg1.callOnlyOnRedirect === true) {
         return undefined as any;
       }
 
@@ -409,7 +407,7 @@ class AsgardeoVueClient<T extends AsgardeoVueConfig = AsgardeoVueConfig> extends
         });
       }
 
-      return (await this.asgardeo.signIn(arg1 as any)) as unknown as Promise<User>;
+      return (await this.asgardeo.signIn(arg1)) as unknown as Promise<User>;
     });
   }
 

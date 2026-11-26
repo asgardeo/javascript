@@ -280,7 +280,7 @@ export interface EmbeddedSignInFlowCompleteResponse {
  *
  * @experimental This type is part of the new Asgardeo platform
  */
-export type EmbeddedSignInFlowInitiateRequest = {
+export interface EmbeddedSignInFlowInitiateRequest {
   /**
    * Unique identifier of the application initiating the sign-in flow.
    * Must be a valid application ID registered in the Asgardeo organization.
@@ -292,7 +292,7 @@ export type EmbeddedSignInFlowInitiateRequest = {
    * Determines the authentication process and available options.
    */
   flowType: EmbeddedFlowTypeV1;
-};
+}
 
 /**
  * Request payload for executing steps in Asgardeo embedded sign-in flows.

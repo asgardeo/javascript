@@ -104,7 +104,7 @@ export default defineNuxtPlugin((nuxtApp: NuxtApp) => {
 
   if (import.meta.server) {
     const event: H3Event | undefined = useRequestEvent();
-    const ssr: AsgardeoSSRData | undefined = event?.context?.asgardeo?.ssr as AsgardeoSSRData | undefined;
+    const ssr: AsgardeoSSRData | undefined = event?.context?.asgardeo?.ssr;
 
     if (ssr) {
       // Seed from the rich SSR payload written by the asgardeo-ssr Nitro plugin.

@@ -16,8 +16,6 @@
  * under the License.
  */
 
-/* eslint-disable @typescript-eslint/typedef, sort-keys, @typescript-eslint/explicit-function-return-type */
-
 import {readBody} from 'h3';
 import {describe, it, expect, vi, beforeEach} from 'vitest';
 

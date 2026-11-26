@@ -17,7 +17,7 @@
  */
 
 import {FC, HTMLAttributes, ReactElement} from 'react';
-// eslint-disable-next-line import/no-cycle
+// eslint-disable-next-line import-x/no-cycle
 import {BaseSignInOptionProps} from './SignInOptionFactory';
 import useTranslation from '../../../../../../hooks/useTranslation';
 import Button from '../../../../../primitives/Button/Button';

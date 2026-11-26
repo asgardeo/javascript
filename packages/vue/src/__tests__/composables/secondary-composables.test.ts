@@ -17,7 +17,7 @@
  */
 
 import {mount} from '@vue/test-utils';
-/* eslint-disable sort-keys, @typescript-eslint/typedef, @typescript-eslint/explicit-function-return-type */
+
 import {describe, expect, it, vi} from 'vitest';
 import {defineComponent, h, ref} from 'vue';
 import useBranding from '../../composables/useBranding';
@@ -231,7 +231,7 @@ describe('useI18n', () => {
     });
 
     expect(result).toBeDefined();
-    expect(typeof result!.t).toBe('function');
+    expect(typeof result.t).toBe('function');
   });
 
   it('should throw an error when called outside of AsgardeoProvider', () => {

@@ -20,7 +20,7 @@ import {User} from '@asgardeo/browser';
 import getMappedUserProfileValue from './getMappedUserProfileValue';
 
 const getDisplayName = (
-  mergedMappings: {[key: string]: string | string[] | undefined},
+  mergedMappings: Record<string, string | string[] | undefined>,
   user: User,
   displayAttributes?: string[],
 ): string => {

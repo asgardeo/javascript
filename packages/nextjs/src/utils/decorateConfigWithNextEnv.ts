@@ -37,22 +37,22 @@ const decorateConfigWithNextEnv = (config: AsgardeoNextConfig): AsgardeoNextConf
 
   return {
     ...rest,
-    afterSignInUrl: afterSignInUrl || (process.env['NEXT_PUBLIC_ASGARDEO_AFTER_SIGN_IN_URL'] as string),
-    afterSignOutUrl: afterSignOutUrl || (process.env['NEXT_PUBLIC_ASGARDEO_AFTER_SIGN_OUT_URL'] as string),
-    afterSignUpUrl: afterSignUpUrl || (process.env['NEXT_PUBLIC_ASGARDEO_AFTER_SIGN_UP_URL'] as string),
-    applicationId: applicationId || (process.env['NEXT_PUBLIC_ASGARDEO_APPLICATION_ID'] as string),
-    baseUrl: baseUrl || (process.env['NEXT_PUBLIC_ASGARDEO_BASE_URL'] as string),
-    clientId: clientId || (process.env['NEXT_PUBLIC_ASGARDEO_CLIENT_ID'] as string),
-    clientSecret: clientSecret || (process.env['ASGARDEO_CLIENT_SECRET'] as string),
-    organizationHandle: organizationHandle || (process.env['NEXT_PUBLIC_ASGARDEO_ORGANIZATION_HANDLE'] as string),
-    scopes: scopes || (process.env['NEXT_PUBLIC_ASGARDEO_SCOPES'] as string),
+    afterSignInUrl: afterSignInUrl || process.env['NEXT_PUBLIC_ASGARDEO_AFTER_SIGN_IN_URL']!,
+    afterSignOutUrl: afterSignOutUrl || process.env['NEXT_PUBLIC_ASGARDEO_AFTER_SIGN_OUT_URL']!,
+    afterSignUpUrl: afterSignUpUrl || process.env['NEXT_PUBLIC_ASGARDEO_AFTER_SIGN_UP_URL']!,
+    applicationId: applicationId || process.env['NEXT_PUBLIC_ASGARDEO_APPLICATION_ID']!,
+    baseUrl: baseUrl || process.env['NEXT_PUBLIC_ASGARDEO_BASE_URL']!,
+    clientId: clientId || process.env['NEXT_PUBLIC_ASGARDEO_CLIENT_ID']!,
+    clientSecret: clientSecret || process.env['ASGARDEO_CLIENT_SECRET']!,
+    organizationHandle: organizationHandle || process.env['NEXT_PUBLIC_ASGARDEO_ORGANIZATION_HANDLE']!,
+    scopes: scopes || process.env['NEXT_PUBLIC_ASGARDEO_SCOPES']!,
     sessionCookieExpiryTime:
       sessionCookieExpiryTime ||
       (process.env['ASGARDEO_SESSION_COOKIE_EXPIRY_TIME']
         ? parseInt(process.env['ASGARDEO_SESSION_COOKIE_EXPIRY_TIME'], 10)
         : undefined),
-    signInUrl: signInUrl || (process.env['NEXT_PUBLIC_ASGARDEO_SIGN_IN_URL'] as string),
-    signUpUrl: signUpUrl || (process.env['NEXT_PUBLIC_ASGARDEO_SIGN_UP_URL'] as string),
+    signInUrl: signInUrl || process.env['NEXT_PUBLIC_ASGARDEO_SIGN_IN_URL']!,
+    signUpUrl: signUpUrl || process.env['NEXT_PUBLIC_ASGARDEO_SIGN_UP_URL']!,
   };
 };
 

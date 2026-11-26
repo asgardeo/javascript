@@ -73,14 +73,12 @@ const ThemeProvider: FC<PropsWithChildren<ThemeProviderProps>> = ({
   const error: Error | null = flowMetaContext?.error ?? null;
 
   // Seed the color scheme from the server's defaultColorScheme; allow local toggling.
-  const [colorScheme, setColorScheme] = useState<'light' | 'dark'>(
-    () => (flowMetaTheme?.defaultColorScheme as 'light' | 'dark') ?? 'light',
-  );
+  const [colorScheme, setColorScheme] = useState<'light' | 'dark'>(() => flowMetaTheme?.defaultColorScheme ?? 'light');
 
   // When meta finishes loading, sync the color scheme with the server default.
   useEffect(() => {
     if (flowMetaTheme?.defaultColorScheme) {
-      setColorScheme(flowMetaTheme.defaultColorScheme as 'light' | 'dark');
+      setColorScheme(flowMetaTheme.defaultColorScheme);
     }
   }, [flowMetaTheme?.defaultColorScheme]);
 
@@ -127,7 +125,7 @@ const ThemeProvider: FC<PropsWithChildren<ThemeProviderProps>> = ({
     [finalThemeConfig, colorScheme],
   );
 
-  const direction: 'ltr' | 'rtl' = (flowMetaTheme?.direction as 'ltr' | 'rtl') ?? 'ltr';
+  const direction: 'ltr' | 'rtl' = flowMetaTheme?.direction ?? 'ltr';
 
   // Apply CSS variables to the document root.
   useEffect(() => {

@@ -26,7 +26,7 @@ import {getSessionFromRequest, getSessionIdFromRequest} from '../../utils/sessio
 
 export type AsgardeoMiddlewareOptions = Partial<AsgardeoNextConfig>;
 
-export type AsgardeoMiddlewareContext = {
+export interface AsgardeoMiddlewareContext {
   /** Get the session payload from JWT session if available */
   getSession: () => Promise<SessionTokenPayload | undefined>;
   /** Get the session ID from the current request */
@@ -43,7 +43,7 @@ export type AsgardeoMiddlewareContext = {
    * If none are available, falls back to '/'.
    */
   protectRoute: (routeOptions?: {redirect?: string}) => Promise<NextResponse | void>;
-};
+}
 
 type AsgardeoMiddlewareHandler = (
   asgardeo: AsgardeoMiddlewareContext,
@@ -280,8 +280,7 @@ const asgardeoMiddleware =
             }
           }
 
-          const redirectUrl: string =
-            routeOptions?.redirect ?? (resolvedConfig.signInUrl as string) ?? fallbackRedirect;
+          const redirectUrl: string = routeOptions?.redirect ?? resolvedConfig.signInUrl! ?? fallbackRedirect;
 
           return NextResponse.redirect(new URL(redirectUrl, request.url));
         }

@@ -117,10 +117,10 @@ export interface EmbeddedRecoveryFlowResponse {
  *
  * @experimental Part of the new Asgardeo API
  */
-export type EmbeddedRecoveryFlowInitiateRequest = {
+export interface EmbeddedRecoveryFlowInitiateRequest {
   applicationId?: string;
   flowType: EmbeddedFlowType.Recovery;
-};
+}
 
 /**
  * Request payload for executing steps in the embedded recovery flow.
