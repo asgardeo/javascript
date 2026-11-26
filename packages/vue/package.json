@@ -24,6 +24,7 @@
   "main": "dist/cjs/index.js",
   "module": "dist/index.js",
   "exports": {
+    "types": "./dist/index.d.ts",
     "import": "./dist/index.js",
     "require": "./dist/cjs/index.js"
   },
@@ -39,12 +40,12 @@
     "directory": "packages/vue"
   },
   "scripts": {
-    "build": "pnpm clean && node esbuild.config.mjs && tsc -p tsconfig.lib.json --emitDeclarationOnly --outDir dist",
+    "build": "pnpm clean && node esbuild.config.mjs && tsc -p tsconfig.lib.json --emitDeclarationOnly --outDir dist && node ../../scripts/fix-dist-module-types.mjs",
     "clean": "rimraf dist",
     "lint": "eslint .",
     "lint:fix": "eslint . --ext .js,.ts,.vue,.cjs,.mjs --fix",
     "test": "vitest --passWithNoTests",
-    "typecheck": "tsc -p tsconfig.lib.json",
+    "typecheck": "tsc -p tsconfig.lib.json --noEmit",
     "fix:lint": "eslint . --fix"
   },
   "devDependencies": {

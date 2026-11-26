@@ -295,6 +295,7 @@ const AsgardeoProvider: FC<PropsWithChildren<AsgardeoProviderProps>> = ({
 
       if (isAlreadySignedIn) {
         await resumeSession();
+        return;
       }
 
       // The access token may have expired while the refresh token is still valid.
@@ -303,6 +304,8 @@ const AsgardeoProvider: FC<PropsWithChildren<AsgardeoProviderProps>> = ({
       await scheduleAutoRefresh();
 
       if (await asgardeo.isSignedIn()) {
+        // Schedule again: when another tab signed in after the first call found no refresh token, no timer is
+        // running yet. Scheduling replaces any existing timer, so this never runs two.
         await resumeSession();
         return;
       }

@@ -106,19 +106,19 @@ class StorageManager<T> {
   }
 
   public async setOIDCProviderMetaData(oidcProviderMetaData: Partial<OIDCDiscoveryApiResponse>): Promise<void> {
-    this.setDataInBulk(this.resolveKey(Stores.OIDCProviderMetaData), oidcProviderMetaData);
+    await this.setDataInBulk(this.resolveKey(Stores.OIDCProviderMetaData), oidcProviderMetaData);
   }
 
   public async setTemporaryData(temporaryData: Partial<TemporaryStore>, userId?: string): Promise<void> {
-    this.setDataInBulk(this.resolveKey(Stores.TemporaryData, userId), temporaryData);
+    await this.setDataInBulk(this.resolveKey(Stores.TemporaryData, userId), temporaryData);
   }
 
   public async setSessionData(sessionData: Partial<SessionData>, userId?: string): Promise<void> {
-    this.setDataInBulk(this.resolveKey(Stores.SessionData, userId), sessionData);
+    await this.setDataInBulk(this.resolveKey(Stores.SessionData, userId), sessionData);
   }
 
   public async setCustomData<K>(key: string, customData: Partial<K>, userId?: string): Promise<void> {
-    this.setDataInBulk(this.resolveKey(key, userId), customData);
+    await this.setDataInBulk(this.resolveKey(key, userId), customData);
   }
 
   public async getConfigData(userId?: string): Promise<AuthClientConfig<T>> {
@@ -138,7 +138,7 @@ class StorageManager<T> {
   }
 
   public async setPersistedData(persistedData: Partial<TemporaryStore>, userId?: string): Promise<void> {
-    this.setDataInBulk(this.resolveKey(Stores.PersistedData, userId), persistedData);
+    await this.setDataInBulk(this.resolveKey(Stores.PersistedData, userId), persistedData);
   }
 
   public async getSessionData(userId?: string, instanceId?: string): Promise<SessionData> {

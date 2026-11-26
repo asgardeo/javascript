@@ -29,6 +29,7 @@ import {
   ref,
 } from 'vue';
 import getDisplayName from '../../../utils/getDisplayName';
+import useOptionalTranslation from '../../../utils/useOptionalTranslation';
 import getMappedUserProfileValue from '../../../utils/getMappedUserProfileValue';
 import {ChevronDownIcon, LogOutIcon, UserIcon, XIcon} from '../../primitives/Icons';
 
@@ -172,6 +173,8 @@ const BaseUserDropdown: Component = defineComponent({
     user: {default: null, type: Object as PropType<User | null>},
   },
   setup(props: BaseUserDropdownProps, {slots}: {slots: any}): () => VNode | VNode[] | null {
+    const translate: (key: string, fallback: string) => string = useOptionalTranslation();
+
     const isOpen: Ref<boolean> = ref(false);
     const containerRef: Ref<HTMLElement | null> = ref(null);
     const px: typeof withVendorCSSClassPrefix = withVendorCSSClassPrefix;
@@ -299,7 +302,7 @@ const BaseUserDropdown: Component = defineComponent({
                 },
                 type: 'button',
               },
-              [h(UserIcon, {size: 15}), h('span', null, 'Profile')],
+              [h(UserIcon, {size: 15}), h('span', null, translate('user.profile.heading', 'Profile'))],
             ),
           );
         }
@@ -349,7 +352,7 @@ const BaseUserDropdown: Component = defineComponent({
                 },
                 type: 'button',
               },
-              [h(LogOutIcon, {size: 15}), h('span', null, 'Sign Out')],
+              [h(LogOutIcon, {size: 15}), h('span', null, translate('elements.buttons.signout.text', 'Sign Out'))],
             ),
           );
         }

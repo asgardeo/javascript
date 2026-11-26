@@ -186,6 +186,30 @@ describe('getValidAccessToken — successful refresh', () => {
     vi.unstubAllGlobals();
   });
 
+  it.each([
+    ['client_secret_post', undefined, 'secret-value'],
+    ['client_secret_basic', `Basic ${Buffer.from('test-client-id:secret-value').toString('base64')}`, null],
+  ])('authenticates the client with %s', async (authMethod, authorization, bodySecret) => {
+    vi.mocked(useRuntimeConfig).mockReturnValue({
+      ...mockConfig,
+      asgardeo: {...mockConfig.asgardeo, clientSecret: 'secret-value'},
+      public: {asgardeo: {...mockConfig.public.asgardeo, tokenRequest: {authMethod}}},
+    } as unknown as ReturnType<typeof useRuntimeConfig>);
+    vi.mocked(requireServerSession).mockResolvedValue(
+      buildSession({accessTokenExpiresAt: Math.floor(Date.now() / 1000) + 30, refreshToken: 'rt_original'}) as any,
+    );
+    const fetchMock = vi.fn().mockResolvedValue({ok: true, json: async () => ({access_token: 'at_refreshed'})});
+    vi.stubGlobal('fetch', fetchMock);
+
+    await getValidAccessToken(fakeEvent);
+
+    const [, init] = fetchMock.mock.calls[0] as [string, RequestInit];
+    expect((init.headers as Record<string, string>)['Authorization']).toBe(authorization);
+    expect(new URLSearchParams(init.body as string).get('client_secret')).toBe(bodySecret);
+
+    vi.unstubAllGlobals();
+  });
+
   it('returns the new access token', async () => {
     const withinSkew = Math.floor(Date.now() / 1000) + 30;
     vi.mocked(requireServerSession).mockResolvedValue(

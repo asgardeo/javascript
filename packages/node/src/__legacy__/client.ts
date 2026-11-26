@@ -40,66 +40,75 @@ export class AsgardeoNodeClient<T> {
   private authCore: AsgardeoNodeCore<T>;
 
   /**
-    * This is the constructor method that returns an instance of the `AsgardeoNodeClient` class.
-    *
-    * @param {AuthClientConfig<T>} config - The configuration object.
-    * @param {Storage} store - The store object.
-    *
-    * @example
-    * ```
-    * const _store: Storage = new DataStore();
-    * const _config = {
-           afterSignInUrl: "http://localhost:3000/sign-in",
-           afterSignOutUrl: "http://localhost:3000/dashboard",
-           clientId: "client ID",
-           serverOrigin: "https://api.asgardeo.io/t/<org_name>"
-       };
-    * const auth = new AsgardeoNodeClient(_config,_store);
-    * ```
-    *
-    * @link https://github.com/asgardeo/asgardeo-auth-js-sdk/tree/master#constructor
-    * @preserve
-    */
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
-  constructor() {}
-
-  public async initialize(config: AuthClientConfig<T>, store?: Storage): Promise<boolean> {
-    this.authCore = new AsgardeoNodeCore(config, store);
-
-    return Promise.resolve(true);
-  }
-
-  /**
-   * This method logs in a user. If the authorization code is not available it will resolve with the
-   * authorization URL to authorize the user.
-   * @param {string} authorizationCode - The authorization code obtained from Asgardeo after a user signs in.
-   * @param {String} sessionState - The session state obtained from Asgardeo after a user signs in.
-   * @param {string} userId - (Optional) A unique ID of the user to be authenticated. This is useful in multi-user
-   * scenarios where each user should be uniquely identified.
-   * @param {string} state - The state parameter in the redirect URL.
-   *
-   * @return {Promise<URLResponse | NodeTokenResponse>} - A Promise that resolves with the
-   * [`URLResponse`](#URLResponse) object or a Promise that resolves with
-   * the [`NodeTokenResponse`](#NodeTokenResponse) object.
+   * Creates a client. Call `initialize()` before using it.
    *
    * @example
    * ```
-   * authClient.signIn(req.query.code, req.query.session_state).then(response => {
-   *   //URL property will available if the user has not been authenticated already
-   *   if (response.hasOwnProperty('url')) {
-   *       res.redirect(response.url)
-   *   } else {
-   *       //Set the cookie
-   *       res.cookie('ASGARDEO_SESSION_ID', response.session, { maxAge: 900000, httpOnly: true, SameSite: true });
-   *       res.status(200).send(response)
-   *   }
-   *});
+   * const auth = new AsgardeoNodeClient();
+   *
+   * await auth.initialize(
+   *   {
+   *     afterSignInUrl: "http://localhost:3000/callback",
+   *     afterSignOutUrl: "http://localhost:3000",
+   *     baseUrl: "https://api.asgardeo.io/t/<org_name>",
+   *     clientId: "<client_id>",
+   *     clientSecret: "<client_secret>",
+   *     scopes: ["openid", "profile"]
+   *   },
+   *   store // Optional. Defaults to an in-memory store.
+   * );
    * ```
    *
-   * @link https://github.com/asgardeo/asgardeo-auth-js-sdk/tree/master#signIn
+   * @preserve
+   */
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  constructor() {}
+
+  /**
+   * Initializes the client. The returned promise resolves once the configuration is stored, so the client is ready to
+   * use when it resolves.
+   *
+   * @param config - The client configuration.
+   * @param store - (Optional) A custom store. Defaults to an in-memory store.
+   */
+  public async initialize(config: AuthClientConfig<T>, store?: Storage): Promise<boolean> {
+    this.authCore = new AsgardeoNodeCore(config, store);
+    await this.authCore.waitForInitialization();
+
+    return true;
+  }
+
+  /**
+   * Signs a user in. Without an authorization code, it builds the authorization URL and passes it to
+   * `authURLCallback` so that you can redirect the user. With the code and state from the callback request, it
+   * exchanges the code for tokens.
+   *
+   * @param authURLCallback - Called with the authorization URL when the user must be redirected to sign in.
+   * @param userId - A unique ID for the user's session, such as the value of your session cookie.
+   * @param authorizationCode - (Optional) The `code` query parameter of the callback request.
+   * @param sessionState - (Optional) The `session_state` query parameter of the callback request.
+   * @param state - (Optional) The `state` query parameter of the callback request.
+   * @param signInConfig - (Optional) Extra parameters to add to the authorization request.
+   *
+   * @returns A promise that resolves with the token response. When the user is redirected to sign in, the fields
+   * of the response are empty.
+   *
+   * @example
+   * ```
+   * const response = await auth.signIn(
+   *   (url) => res.redirect(url),
+   *   sessionId,
+   *   req.query.code,
+   *   req.query.session_state,
+   *   req.query.state
+   * );
+   *
+   * if (response.accessToken) {
+   *   res.cookie("ASGARDEO_SESSION_ID", sessionId, { httpOnly: true, sameSite: "lax" });
+   * }
+   * ```
    *
    * @memberof AsgardeoNodeClient
-   *
    */
   public async signIn(
     authURLCallback: AuthURLCallback,
@@ -392,7 +401,7 @@ export class AsgardeoNodeClient<T> {
    *
    * @example
    * ```
-   * const isSignedOut = auth.isSignOutSuccessful(<signout_url>);;
+   * const isSignedOut = AsgardeoNodeClient.isSignOutSuccessful(<signout_url>);
    * ```
    *
    * @link https://github.com/asgardeo/asgardeo-auth-js-sdk/tree/master#isSignOutSuccessful
@@ -401,7 +410,7 @@ export class AsgardeoNodeClient<T> {
    *
    */
   public static isSignOutSuccessful(afterSignOutUrl: string): boolean {
-    return AsgardeoNodeClient.isSignOutSuccessful(afterSignOutUrl);
+    return AsgardeoNodeCore.isSignOutSuccessful(afterSignOutUrl);
   }
 
   /**
@@ -413,7 +422,7 @@ export class AsgardeoNodeClient<T> {
    *
    * @example
    * ```
-   * const isSignedOut = auth.isSignOutSuccessful(<signout_url>);
+   * const signOutFailed = AsgardeoNodeClient.didSignOutFail(<signout_url>);
    * ```
    *
    * @link https://github.com/asgardeo/asgardeo-auth-js-sdk/tree/master#didSignOutFail
@@ -422,7 +431,7 @@ export class AsgardeoNodeClient<T> {
    *
    */
   public static didSignOutFail(afterSignOutUrl: string): boolean {
-    return AsgardeoNodeClient.didSignOutFail(afterSignOutUrl);
+    return AsgardeoNodeCore.didSignOutFail(afterSignOutUrl);
   }
 
   public async getStorageManager(): Promise<StorageManager<T>> {

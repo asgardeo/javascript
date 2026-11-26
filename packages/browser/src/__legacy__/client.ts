@@ -502,6 +502,17 @@ export class AsgardeoSPAClient {
   ): Promise<User | undefined> {
     await this.isInitialized();
 
+    // Inside the hidden iframe of a silent sign-in (`signInSilently()`), the app loads with the authorization code of
+    // the prompt-none request. Hand that response to the parent page instead of redeeming the code here, otherwise the
+    // parent never receives it and the silent sign-in fails.
+    // Only inside that iframe: a top-level callback whose custom `state` happens to contain the marker must continue
+    // through the normal sign-in flow.
+    if (!authorizationCode && window.parent !== window && SPAUtils.isInitializedSilentSignIn()) {
+      await this.signInSilently();
+
+      return undefined;
+    }
+
     // Discontinues the execution of this method if `config.callOnlyOnRedirect` is true and the `signIn` method
     // is not being called on redirect.
     if (!SPAUtils.canContinueSignIn(Boolean(config?.callOnlyOnRedirect), authorizationCode)) {

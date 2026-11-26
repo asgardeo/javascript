@@ -30,7 +30,13 @@ import {
 // and useState from '#app'.  We stub all three so the tests run in pure Node.
 
 let _navigateToTarget: string | undefined;
-let _authState = {isSignedIn: false, user: null as Record<string, unknown> | null, isLoading: false};
+let _authState: {
+  isLoading: boolean;
+  isSignedIn: boolean;
+  organizationId?: string | null;
+  scopes?: string[];
+  user: Record<string, unknown> | null;
+} = {isSignedIn: false, user: null, isLoading: false};
 
 vi.mock('#app', () => {
   const navigateTo = vi.fn(async (url: string) => {
@@ -84,7 +90,14 @@ describe('defineAsgardeoMiddleware', () => {
 
   describe('authenticated user', () => {
     beforeEach(() => {
-      _authState = {isSignedIn: true, user: {organizationId: 'org1', scopes: 'openid profile'}, isLoading: false};
+      // The organization and the granted scopes come from the session, not from the user's ID token claims.
+      _authState = {
+        isLoading: false,
+        isSignedIn: true,
+        organizationId: 'org1',
+        scopes: ['openid', 'profile'],
+        user: {email: 'user@example.com'},
+      };
     });
 
     it('allows access when signed in', async () => {
@@ -113,7 +126,7 @@ describe('defineAsgardeoMiddleware', () => {
     });
 
     it('redirects when requireOrganization is true but organizationId is absent', async () => {
-      _authState.user = {email: 'user@example.com'}; // no organizationId
+      _authState.organizationId = null; // a root-organization session
       const middleware = defineAsgardeoMiddleware({requireOrganization: true});
       await (middleware as Function)(makeTo('/org-page'), makeTo('/'));
       expect(_navigateToTarget).toBeDefined();

@@ -166,12 +166,6 @@ const AsgardeoRoot: Component = defineComponent({
     };
 
     /**
-     * Token-exchange org switch via the `/api/auth/organizations/switch` Nitro route.
-     */
-    const onOrganizationSwitch = async (organization: Organization): Promise<any> =>
-      $fetch('/api/auth/organizations/switch', {body: {organization}, method: 'POST'});
-
-    /**
      * Paginated org list via the `/api/auth/organizations` Nitro route.
      */
     const getAllOrganizations = async (): Promise<AllOrganizationsApiResponse> =>
@@ -209,6 +203,35 @@ const AsgardeoRoot: Component = defineComponent({
       } catch {
         return currentOrgState.value;
       }
+    };
+
+    /**
+     * Re-read the auth state (including the session's organization and scopes) from `/api/auth/session`.
+     */
+    const revalidateAuthState = async (): Promise<void> => {
+      try {
+        authState.value = await $fetch<AsgardeoAuthState>('/api/auth/session');
+      } catch {
+        // Non-fatal — the auth state is refreshed on the next navigation.
+      }
+    };
+
+    /**
+     * Token-exchange org switch via the `/api/auth/organizations/switch` Nitro route. The route reissues the session
+     * cookie for the new organization, so refresh the client-side state from it afterwards; otherwise the page keeps
+     * showing the previous organization until it reloads.
+     */
+    const onOrganizationSwitch = async (organization: Organization): Promise<any> => {
+      const result: unknown = await $fetch('/api/auth/organizations/switch', {body: {organization}, method: 'POST'});
+
+      await Promise.all([
+        revalidateAuthState(),
+        shouldFetchOrgs ? revalidateCurrentOrganization() : Promise.resolve(null),
+        shouldFetchOrgs ? revalidateMyOrganizations() : Promise.resolve([]),
+        shouldFetchProfile ? revalidateProfile() : Promise.resolve(),
+      ]);
+
+      return result;
     };
 
     /**
@@ -250,7 +273,8 @@ const AsgardeoRoot: Component = defineComponent({
                       // When inheritFromBranding is disabled, pass null so the provider
                       // falls back to its own default theme without using SSR-fetched data.
                       brandingPreference: shouldFetchBranding ? brandingState.value : null,
-                      revalidateBranding: shouldFetchBranding ? revalidateBranding : undefined,
+                      // Backs useBranding().refetch() / fetchBranding().
+                      refetch: shouldFetchBranding ? revalidateBranding : undefined,
                     },
                     {
                       default: (): VNode =>
@@ -295,9 +319,6 @@ const AsgardeoRoot: Component = defineComponent({
                                             myOrganizations: shouldFetchOrgs ? myOrgsState.value : [],
                                             onOrganizationSwitch: shouldFetchOrgs
                                               ? (onOrganizationSwitch as any)
-                                              : undefined,
-                                            revalidateCurrentOrganization: shouldFetchOrgs
-                                              ? revalidateCurrentOrganization
                                               : undefined,
                                             revalidateMyOrganizations: shouldFetchOrgs
                                               ? revalidateMyOrganizations

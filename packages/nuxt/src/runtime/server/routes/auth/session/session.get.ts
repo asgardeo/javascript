@@ -44,7 +44,13 @@ export default defineEventHandler(async (event: H3Event): Promise<AsgardeoAuthSt
   try {
     const client: AsgardeoNuxtClient = AsgardeoNuxtClient.getInstance();
     const user: Awaited<ReturnType<AsgardeoNuxtClient['getUser']>> = await client.getUser(session.sessionId);
-    return {isLoading: false, isSignedIn: true, user};
+    return {
+      isLoading: false,
+      isSignedIn: true,
+      organizationId: session.organizationId ?? null,
+      scopes: (session.scopes || '').split(' ').filter(Boolean),
+      user,
+    };
   } catch {
     return {isLoading: false, isSignedIn: false, user: null};
   }

@@ -16,6 +16,7 @@
  * under the License.
  */
 
+import fetchWithNetworkError from './fetchWithNetworkError';
 import AsgardeoAPIError from '../../errors/AsgardeoAPIError';
 import {FlowMetadataResponse, GetFlowMetaRequestConfig} from '../../models/v2/flow-meta-v2';
 
@@ -73,7 +74,7 @@ const getFlowMetaV2 = async ({
   const baseEndpoint: string = url ?? `${baseUrl}/flow/meta`;
   const endpoint: string = `${baseEndpoint}?${queryParams.toString()}`;
 
-  const response: Response = await fetch(endpoint, {
+  const response: Response = await fetchWithNetworkError('getFlowMetaV2', endpoint, {
     ...requestConfig,
     headers: {
       Accept: 'application/json',

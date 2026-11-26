@@ -35,6 +35,9 @@ const SignUpButton: Component = defineComponent({
     const isLoading: Ref<boolean> = ref(false);
 
     const handleSignUp = async (e?: MouseEvent): Promise<void> => {
+      // Emit `click` before the action: a redirect usually leaves the page before the action resolves.
+      if (e) emit('click', e);
+
       try {
         isLoading.value = true;
         if (signUpUrl) {
@@ -42,7 +45,6 @@ const SignUpButton: Component = defineComponent({
         } else {
           await signUp();
         }
-        if (e) emit('click', e);
       } catch (error) {
         emit('error', error);
         throw new AsgardeoRuntimeError(

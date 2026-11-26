@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import {AsgardeoAuthException, Storage, TokenResponse, Logger} from '@asgardeo/node';
+import {AsgardeoAuthException, TokenResponse, Logger} from '@asgardeo/node';
 import express from 'express';
 import {AsgardeoExpressClient} from '../client';
 import {DEFAULT_LOGIN_PATH, DEFAULT_LOGOUT_PATH} from '../constants';
@@ -25,48 +25,45 @@ import {ExpressClientConfig} from '../models';
 export const asgardeoExpressAuth = (
   asgardeoExpressClient: AsgardeoExpressClient,
   config: ExpressClientConfig,
-  onSignIn: (res: express.Response, tokenResponse: TokenResponse) => void,
-  onSignOut: (res: express.Response) => void,
-  onError: (res: express.Response, exception: AsgardeoAuthException) => void,
-): any => {
-  //Create the router
-  const router = new express.Router();
+  onSignIn: (res: express.Response, tokenResponse: TokenResponse, req: express.Request) => void,
+  onSignOut: (res: express.Response, req: express.Request) => void,
+  onError: (res: express.Response, exception: AsgardeoAuthException, req: express.Request) => void,
+): express.Router => {
+  const router: express.Router = express.Router();
 
-  //Patch AuthClient to the request and the response
-  router.use(async (req: express.Request, res: express.Response, next: express.nextFunction): Promise<void> => {
+  // Make the client available on the request and the response.
+  router.use((req: express.Request, res: express.Response, next: express.NextFunction): void => {
     req.asgardeoAuth = asgardeoExpressClient;
     res.asgardeoAuth = asgardeoExpressClient;
     next();
   });
 
-  //Patch in '/login' route
   router.get(
     config.loginPath || DEFAULT_LOGIN_PATH,
-    async (req: express.Request, res: express.Response, next: express.nextFunction): Promise<void> => {
+    async (req: express.Request, res: express.Response, next: express.NextFunction): Promise<void> => {
       try {
         const response: TokenResponse = await asgardeoExpressClient.signIn(req, res, next, config.signInConfig);
+
         if (response.accessToken || response.idToken) {
-          onSignIn(res, response);
+          onSignIn(res, response, req);
         }
       } catch (e: any) {
         Logger.error(e.message);
-        onError(res, e);
+        onError(res, e, req);
       }
     },
   );
 
-  //Patch in '/logout' route
   router.get(
     config.logoutPath || DEFAULT_LOGOUT_PATH,
-    async (req: express.Request, res: express.Response, next: express.nextFunction): Promise<void> => {
-      //Check if it is a logout success response
-      if (req.query.state === 'sign_out_success') {
-        onSignOut(res);
+    async (req: express.Request, res: express.Response): Promise<void> => {
+      // The identity provider redirects back here with this state after a successful sign-out.
+      if (req.query['state'] === 'sign_out_success') {
+        onSignOut(res, req);
 
         return;
       }
 
-      //Check if the cookie exists
       if (req.cookies.ASGARDEO_SESSION_ID === undefined) {
         onError(
           res,
@@ -75,24 +72,22 @@ export const asgardeoExpressAuth = (
             'No cookie found in the request',
             'No cookie was sent with the request. The user may not have signed in yet.',
           ),
+          req,
         );
 
         return;
-      } else {
-        //Get the signout URL
-        try {
-          const signOutURL = await req.asgardeoAuth.signOut(req.cookies.ASGARDEO_SESSION_ID);
-          if (signOutURL) {
-            res.cookie('ASGARDEO_SESSION_ID', null, {maxAge: 0});
-            res.redirect(signOutURL);
+      }
 
-            return;
-          }
-        } catch (e: any) {
-          onError(res, e);
+      try {
+        // Builds the sign-out URL and removes the user's tokens from the store.
+        const signOutURL: string = await asgardeoExpressClient.signOut(req.cookies.ASGARDEO_SESSION_ID);
 
-          return;
+        if (signOutURL) {
+          res.clearCookie('ASGARDEO_SESSION_ID');
+          res.redirect(signOutURL);
         }
+      } catch (e: any) {
+        onError(res, e, req);
       }
     },
   );

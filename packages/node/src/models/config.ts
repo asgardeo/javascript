@@ -33,7 +33,8 @@ export type AsgardeoNodeConfig = Config & {
    * Session cookie lifetime in seconds. Determines how long the session cookie
    * remains valid in the browser after sign-in.
    *
-   * Resolution order (first defined value wins):
+   * The Node.js SDK only carries this value; framework SDKs decide how to apply it. For example, the Next.js SDK
+   * resolves it in this order (first defined value wins):
    *   1. This field — set programmatically at SDK initialisation.
    *   2. `ASGARDEO_SESSION_COOKIE_EXPIRY_TIME` environment variable.
    *   3. Built-in default of 86400 seconds (24 hours).

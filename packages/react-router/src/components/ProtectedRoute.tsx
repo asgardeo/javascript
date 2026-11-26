@@ -17,7 +17,7 @@
  */
 
 import {AsgardeoRuntimeError, navigate, useAsgardeo} from '@asgardeo/react';
-import {FC, ReactElement, ReactNode} from 'react';
+import {FC, MutableRefObject, ReactElement, ReactNode, useEffect, useRef, useState} from 'react';
 import {Navigate} from 'react-router';
 
 /**
@@ -49,7 +49,7 @@ export interface ProtectedRouteProps {
   onSignIn?: (defaultSignIn: (options?: Record<string, any>) => void, signInOptions?: Record<string, any>) => void;
   /**
    * URL to redirect to when the user is not authenticated.
-   * Required unless a fallback element is provided.
+   * Without `redirectTo` or `fallback`, the component starts sign-in itself.
    */
   redirectTo?: string;
   /**
@@ -82,8 +82,8 @@ export interface ProtectedRouteProps {
  * It checks authentication status and either renders the protected content,
  * shows a loading state, redirects, or shows a fallback.
  *
- * Either a `redirectTo` prop or a `fallback` prop must be provided to handle
- * unauthenticated users.
+ * For signed-out users it renders `fallback`, or redirects to `redirectTo`. Without either, it starts sign-in
+ * (through `signInUrl`, `onSignIn` or the SDK's `signIn`) and renders `loader` until the browser leaves the page.
  *
  * @example Basic usage with redirect
  * ```tsx
@@ -146,9 +146,56 @@ const ProtectedRoute: FC<ProtectedRouteProps> = ({
   redirectTo,
   loader = null,
   onSignIn,
-  signInOptions: overriddenSignInOptions = {},
+  signInOptions: overriddenSignInOptions,
 }: ProtectedRouteProps) => {
   const {isSignedIn, isLoading, signIn, signInOptions, signInUrl} = useAsgardeo();
+  const [signInError, setSignInError] = useState<AsgardeoRuntimeError | null>(null);
+  const hasStartedSignIn: MutableRefObject<boolean> = useRef<boolean>(false);
+
+  const shouldStartSignIn: boolean = !isLoading && !isSignedIn && !fallback && !redirectTo;
+
+  // Start sign-in after render, and only once, instead of as a side effect of rendering.
+  useEffect(() => {
+    if (!shouldStartSignIn || hasStartedSignIn.current) {
+      return;
+    }
+
+    hasStartedSignIn.current = true;
+
+    const resolvedSignInOptions: Record<string, any> = {...signInOptions, ...overriddenSignInOptions};
+
+    if (signInUrl) {
+      navigate(signInUrl);
+
+      return;
+    }
+
+    if (onSignIn) {
+      onSignIn(signIn, resolvedSignInOptions);
+
+      return;
+    }
+
+    (async (): Promise<void> => {
+      try {
+        await signIn(resolvedSignInOptions);
+      } catch (error) {
+        setSignInError(
+          new AsgardeoRuntimeError(
+            'Sign-in failed in ProtectedRoute.',
+            'ProtectedRoute-SignInError-001',
+            'react-router',
+            `An error occurred during sign-in: ${(error as Error)?.message}`,
+          ),
+        );
+      }
+    })();
+  }, [shouldStartSignIn, signInUrl, onSignIn, signIn, signInOptions, overriddenSignInOptions]);
+
+  // Surface a failed sign-in to the nearest error boundary.
+  if (signInError) {
+    throw signInError;
+  }
 
   // Always wait for loading to finish before making authentication decisions
   if (isLoading) {
@@ -167,33 +214,8 @@ const ProtectedRoute: FC<ProtectedRouteProps> = ({
     return <Navigate to={redirectTo} replace />;
   }
 
-  if (!isSignedIn) {
-    if (signInUrl) {
-      navigate(signInUrl);
-    } else if (onSignIn) {
-      onSignIn(signIn, overriddenSignInOptions);
-    } else {
-      (async (): Promise<void> => {
-        try {
-          await signIn(overriddenSignInOptions ?? signInOptions);
-        } catch (error) {
-          throw new AsgardeoRuntimeError(
-            'Sign-in failed in ProtectedRoute.',
-            'ProtectedRoute-SignInError-001',
-            'react-router',
-            `An error occurred during sign-in: ${(error as Error).message}`,
-          );
-        }
-      })();
-    }
-  }
-
-  throw new AsgardeoRuntimeError(
-    'ProtectedRoute misconfiguration.',
-    'ProtectedRoute-Misconfiguration-001',
-    'react-router',
-    'The internal handler failed to process the state. Please try with a fallback or redirectTo prop.',
-  );
+  // Sign-in has started (see the effect above); keep showing the loader until the browser leaves the page.
+  return loader;
 };
 
 export default ProtectedRoute;

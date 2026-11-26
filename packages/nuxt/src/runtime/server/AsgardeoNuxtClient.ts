@@ -119,7 +119,7 @@ class AsgardeoNuxtClient extends AsgardeoNodeClient<AsgardeoNuxtConfig> {
       clientSecret: config.clientSecret || undefined,
       enablePKCE: true,
       platform: config.platform,
-      scopes: config.scopes || ['openid', 'profile'],
+      scopes: config.scopes || ['openid', 'profile', 'internal_login'],
       tokenRequest: config.tokenRequest,
     } as AuthClientConfig<AsgardeoNuxtConfig>;
 
@@ -131,6 +131,27 @@ class AsgardeoNuxtClient extends AsgardeoNodeClient<AsgardeoNuxtConfig> {
   override async reInitialize(config: Partial<AsgardeoNuxtConfig>): Promise<boolean> {
     await this.legacy.reInitialize(config as any);
     return true;
+  }
+
+  /**
+   * Returns the token endpoint the client resolved (from `endpoints`, the discovery document or `baseUrl`), or
+   * `undefined` before the client is initialized.
+   */
+  async getTokenEndpoint(): Promise<string | undefined> {
+    if (!this.isInitialized) {
+      return undefined;
+    }
+
+    try {
+      const endpoints: Record<string, unknown> = (await this.legacy.getOpenIDProviderEndpoints()) as unknown as Record<
+        string,
+        unknown
+      >;
+
+      return (endpoints['tokenEndpoint'] ?? endpoints['token_endpoint']) as string | undefined;
+    } catch {
+      return undefined;
+    }
   }
 
   /**
@@ -186,7 +207,7 @@ class AsgardeoNuxtClient extends AsgardeoNodeClient<AsgardeoNuxtConfig> {
    * ```
    * Overload 2 — **embedded flow initiate** (flowId === ''):
    * ```
-   * signIn({flowId: ''}, request, sessionId)
+   * signIn({flowId: ''}, request, sessionId, redirectUri?)
    * ```
    * Dispatches to `initializeEmbeddedSignInFlow`.
    *
@@ -208,11 +229,16 @@ class AsgardeoNuxtClient extends AsgardeoNodeClient<AsgardeoNuxtConfig> {
     // Embedded flow: first argument is a non-null object with a `flowId` property.
     if (typeof arg0 === 'object' && arg0 !== null && 'flowId' in arg0) {
       const sessionId: string | undefined = args[2] as string | undefined;
+      const redirectUri: string | undefined = typeof args[3] === 'string' ? args[3] : undefined;
 
       if (arg0.flowId === '') {
-        // Initialize embedded sign-in flow.
+        // Initialize embedded sign-in flow. `redirectUri` is the callback URL of the current request, if given.
         return this.getAuthorizeRequestUrl(
-          {client_secret: '{{clientSecret}}', response_mode: 'direct'},
+          {
+            client_secret: '{{clientSecret}}',
+            response_mode: 'direct',
+            ...(redirectUri ? {redirect_uri: redirectUri} : {}),
+          },
           sessionId,
         ).then((authorizeUrl: string) => {
           const url: URL = new URL(authorizeUrl);
@@ -320,6 +346,31 @@ class AsgardeoNuxtClient extends AsgardeoNodeClient<AsgardeoNuxtConfig> {
     }
 
     return this.legacy.signOut(sessionId);
+  }
+
+  /**
+   * Returns the sign-out URL with `afterSignOutUrl` as the post-logout destination.
+   *
+   * The client is a process-wide singleton, so its configured `afterSignOutUrl` can't hold a value derived from one
+   * request. The sign-out route resolves the destination for each request and passes it here.
+   *
+   * @param sessionId - The session to sign out.
+   * @param afterSignOutUrl - The absolute URL to return the user to after sign-out.
+   */
+  async getSignOutUrlFor(sessionId: string, afterSignOutUrl: string): Promise<string> {
+    const configData: AuthClientConfig<AsgardeoNuxtConfig> | undefined = (await this.legacy.getConfigData?.()) as
+      | AuthClientConfig<AsgardeoNuxtConfig>
+      | undefined;
+
+    // AsgardeoV2 has no RP-initiated logout; the caller redirects straight to the destination.
+    if ((configData as any)?.platform === Platform.AsgardeoV2) {
+      return afterSignOutUrl;
+    }
+
+    const signOutUrl: URL = new URL(await this.legacy.signOut(sessionId));
+    signOutUrl.searchParams.set('post_logout_redirect_uri', afterSignOutUrl);
+
+    return signOutUrl.toString();
   }
 
   override getUser(sessionId?: string): Promise<User> {

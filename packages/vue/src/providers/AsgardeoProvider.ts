@@ -19,7 +19,13 @@
 import {
   AllOrganizationsApiResponse,
   AsgardeoRuntimeError,
+  BrandingPreference,
+  createOrganization as createOrganizationApi,
+  CreateOrganizationPayload,
+  UpdateMeProfileConfig,
   extractUserClaimsFromIdToken,
+  getActiveTheme,
+  getBrandingPreference,
   generateFlattenedUserProfile,
   hasAuthParamsInUrl,
   hasCalledForThisInstanceInUrl,
@@ -27,6 +33,9 @@ import {
   IdToken,
   Organization,
   Platform,
+  Preferences,
+  SignOutOptions,
+  SignUpOptions,
   User,
   UserProfile,
   SignInOptions,
@@ -55,14 +64,18 @@ import I18nProvider from './I18nProvider';
 import OrganizationProvider from './OrganizationProvider';
 import ThemeProvider from './ThemeProvider';
 import UserProvider from './UserProvider';
+import updateMeProfile from '../api/updateMeProfile';
 import AsgardeoVueClient from '../AsgardeoVueClient';
 import {ASGARDEO_KEY} from '../keys';
 import type {AsgardeoVueConfig} from '../models/config';
 import type {AsgardeoContext} from '../models/contexts';
+import {registerAsgardeoContext} from '../router/contextRegistry';
 
 interface AsgardeoProviderProps {
   afterSignInUrl: string;
   afterSignOutUrl: string;
+  afterSignUpUrl: string | undefined;
+  allowedExternalUrls: string[] | undefined;
   applicationId: string | undefined;
   baseUrl: string;
   clientId: string;
@@ -70,12 +83,16 @@ interface AsgardeoProviderProps {
   organizationChain: object | undefined;
   organizationHandle: string | undefined;
   platform: string | undefined;
-  scopes: string[] | undefined;
+  preferences: Preferences | undefined;
+  scopes: string | string[] | undefined;
   signInOptions: SignInOptions | undefined;
   signInUrl: string | undefined;
+  signOutOptions: SignOutOptions | undefined;
+  signUpOptions: SignUpOptions | undefined;
   signUpUrl: string | undefined;
   storage: string | undefined;
   syncSession: boolean | undefined;
+  tokenValidation: AsgardeoVueConfig['tokenValidation'] | undefined;
 }
 
 /**
@@ -116,6 +133,19 @@ const AsgardeoProvider: Component = defineComponent({
       default: () => window.location.origin,
       type: String,
     },
+    /** The URL to redirect to after sign up. */
+    afterSignUpUrl: {
+      default: undefined,
+      type: String,
+    },
+    /**
+     * External URLs (besides `baseUrl`) that `http.request()` may call with the access token, for the web worker
+     * storage.
+     */
+    allowedExternalUrls: {
+      default: undefined,
+      type: Array as PropType<string[]>,
+    },
     /** The Asgardeo application ID. */
     applicationId: {
       default: undefined,
@@ -151,10 +181,15 @@ const AsgardeoProvider: Component = defineComponent({
       default: undefined,
       type: String,
     },
-    /** The scopes to request. */
+    /** UI preferences: theme, i18n and which user data to fetch. */
+    preferences: {
+      default: undefined,
+      type: Object as PropType<Preferences>,
+    },
+    /** The scopes to request, as an array or a space-separated string. */
     scopes: {
       default: undefined,
-      type: Array as PropType<string[]>,
+      type: [Array, String] as PropType<string | string[]>,
     },
     /** Additional sign-in options. */
     signInOptions: {
@@ -165,6 +200,16 @@ const AsgardeoProvider: Component = defineComponent({
     signInUrl: {
       default: undefined,
       type: String,
+    },
+    /** Additional sign-out options. */
+    signOutOptions: {
+      default: undefined,
+      type: Object as PropType<SignOutOptions>,
+    },
+    /** Additional sign-up options. */
+    signUpOptions: {
+      default: undefined,
+      type: Object as PropType<SignUpOptions>,
     },
     /** The sign-up URL. */
     signUpUrl: {
@@ -180,6 +225,11 @@ const AsgardeoProvider: Component = defineComponent({
     syncSession: {
       default: undefined,
       type: Boolean,
+    },
+    /** ID token validation settings. */
+    tokenValidation: {
+      default: undefined,
+      type: Object as PropType<AsgardeoVueConfig['tokenValidation']>,
     },
   },
   setup(props: AsgardeoProviderProps, {slots}: SetupContext): () => VNode {
@@ -205,18 +255,24 @@ const AsgardeoProvider: Component = defineComponent({
       return {
         afterSignInUrl: props.afterSignInUrl,
         afterSignOutUrl: props.afterSignOutUrl,
+        afterSignUpUrl: props.afterSignUpUrl,
+        allowedExternalUrls: props.allowedExternalUrls,
         applicationId: props.applicationId,
         baseUrl: props.baseUrl,
         clientId: props.clientId,
         organizationChain: props.organizationChain,
         organizationHandle: props.organizationHandle,
         platform: props.platform,
+        preferences: props.preferences,
         scopes: props.scopes,
         signInOptions: props.signInOptions,
         signInUrl: props.signInUrl,
+        signOutOptions: props.signOutOptions,
+        signUpOptions: props.signUpOptions,
         signUpUrl: props.signUpUrl,
         storage: props.storage,
         syncSession: props.syncSession,
+        tokenValidation: props.tokenValidation,
       } as AsgardeoVueConfig;
     }
 
@@ -253,27 +309,32 @@ const AsgardeoProvider: Component = defineComponent({
             // silent
           }
 
-          try {
-            const fetchedOrg: Organization = await asgardeo.getCurrentOrganization();
-            currentOrganization.value = fetchedOrg;
-          } catch {
-            // silent
-          }
+          // `preferences.user` can turn off the organization and profile requests, as in the React SDK.
+          if (props.preferences?.user?.fetchOrganizations !== false) {
+            try {
+              const fetchedOrg: Organization = await asgardeo.getCurrentOrganization();
+              currentOrganization.value = fetchedOrg;
+            } catch {
+              // silent
+            }
 
-          // Fetch user's organizations for organization components
-          try {
-            const orgs: Organization[] = await asgardeo.getMyOrganizations({baseUrl});
-            myOrganizations.value = orgs || [];
-          } catch {
-            // silent
+            // Fetch user's organizations for organization components
+            try {
+              const orgs: Organization[] = await asgardeo.getMyOrganizations({baseUrl});
+              myOrganizations.value = orgs || [];
+            } catch {
+              // silent
+            }
           }
 
           // Fetch user profile details for profile components
-          try {
-            const profileData: UserProfile = await asgardeo.getUserProfile({baseUrl});
-            userProfile.value = profileData;
-          } catch {
-            // silent
+          if (props.preferences?.user?.fetchUserProfile !== false) {
+            try {
+              const profileData: UserProfile = await asgardeo.getUserProfile({baseUrl});
+              userProfile.value = profileData;
+            } catch {
+              // silent
+            }
           }
         }
 
@@ -429,7 +490,75 @@ const AsgardeoProvider: Component = defineComponent({
       user,
     };
 
+    // ── Branding ──
+    // Fetched only when `preferences.theme.inheritFromBranding` is true, as in the React SDK. Not supported on
+    // AsgardeoV2 yet.
+    const brandingPreference: ShallowRef<BrandingPreference | null> = shallowRef<BrandingPreference | null>(null);
+    const isBrandingLoading: Ref<boolean> = ref<boolean>(false);
+    const brandingError: ShallowRef<Error | null> = shallowRef<Error | null>(null);
+
+    const fetchBranding = async (): Promise<void> => {
+      if (!resolvedBaseUrl.value || isBrandingLoading.value) {
+        return;
+      }
+
+      isBrandingLoading.value = true;
+      brandingError.value = null;
+
+      try {
+        brandingPreference.value = await getBrandingPreference({
+          baseUrl: resolvedBaseUrl.value,
+          locale: props.preferences?.i18n?.language,
+        });
+      } catch (error: unknown) {
+        brandingError.value = error instanceof Error ? error : new Error('Failed to fetch branding preference');
+        brandingPreference.value = null;
+      } finally {
+        isBrandingLoading.value = false;
+      }
+    };
+
+    const shouldFetchBranding = (): boolean =>
+      props.preferences?.theme?.inheritFromBranding === true && props.platform !== Platform.AsgardeoV2;
+
+    // Keeps the user and the profile in sync after the profile is saved.
+    const applyUpdatedUser = (updatedUser: User): void => {
+      user.value = updatedUser;
+      userProfile.value = {
+        flattenedProfile: generateFlattenedUserProfile(updatedUser, userProfile.value?.schemas),
+        profile: updatedUser,
+        schemas: userProfile.value?.schemas ?? [],
+      };
+    };
+
+    // Backs `useUser().updateProfile()`: saves the profile through SCIM2 and updates the user.
+    const updateProfile = async (
+      requestConfig: UpdateMeProfileConfig,
+    ): Promise<{data: {user: User}; error: string; success: boolean}> => {
+      try {
+        const updatedUser: User = await updateMeProfile({
+          ...requestConfig,
+          baseUrl: requestConfig.baseUrl || resolvedBaseUrl.value,
+          instanceId: props.instanceId,
+        });
+
+        applyUpdatedUser(updatedUser);
+
+        return {data: {user: updatedUser}, error: '', success: true};
+      } catch (error: unknown) {
+        return {
+          data: {user: {} as User},
+          error: error instanceof Error ? error.message : 'Failed to update the user profile',
+          success: false,
+        };
+      }
+    };
+
     provide(ASGARDEO_KEY, context);
+
+    // Router guards can't inject component-level context, so make it available to createAsgardeoGuard() too.
+    const unregisterContext: () => void = registerAsgardeoContext(context);
+    onUnmounted(unregisterContext);
 
     // ── Lifecycle ──
     onMounted(async (): Promise<void> => {
@@ -444,6 +573,11 @@ const AsgardeoProvider: Component = defineComponent({
       }
       if (initializedConfig?.baseUrl) {
         sessionStorage.setItem('asgardeo_base_url', initializedConfig.baseUrl);
+      }
+
+      // Load the branding preference for the theme, without waiting for it.
+      if (shouldFetchBranding()) {
+        fetchBranding();
       }
 
       // 2. Check initialization status
@@ -535,94 +669,162 @@ const AsgardeoProvider: Component = defineComponent({
 
     // ── Render ──
     return (): any =>
-      h(I18nProvider, null, {
-        default: (): any =>
-          h(
-            FlowMetaProvider,
-            {enabled: props.platform === Platform.AsgardeoV2},
-            {
-              default: (): any =>
-                h(BrandingProvider, null, {
-                  default: (): any =>
-                    h(ThemeProvider, null, {
+      h(
+        I18nProvider,
+        {preferences: props.preferences?.i18n},
+        {
+          default: (): any =>
+            h(
+              FlowMetaProvider,
+              {enabled: props.platform === Platform.AsgardeoV2},
+              {
+                default: (): any =>
+                  h(
+                    BrandingProvider,
+                    {
+                      brandingPreference: brandingPreference.value,
+                      enabled: shouldFetchBranding(),
+                      error: brandingError.value,
+                      isLoading: isBrandingLoading.value,
+                      refetch: fetchBranding,
+                    },
+                    {
                       default: (): any =>
-                        h(FlowProvider, null, {
-                          default: (): any =>
-                            h(
-                              UserProvider,
-                              {
-                                onUpdateProfile: (updatedUser: User): void => {
-                                  user.value = updatedUser;
-                                  userProfile.value = {
-                                    flattenedProfile: generateFlattenedUserProfile(
-                                      updatedUser,
-                                      userProfile.value?.schemas,
-                                    ),
-                                    profile: updatedUser,
-                                    schemas: userProfile.value?.schemas ?? [],
-                                  };
-                                },
-                                profile: userProfile.value,
-                                revalidateProfile: async (): Promise<void> => {
-                                  const revalConfig: AsgardeoVueConfig = buildConfig();
-                                  if (revalConfig.platform === Platform.AsgardeoV2) {
-                                    try {
-                                      const decodedToken: IdToken = await asgardeo.getDecodedIdToken();
-                                      const claims: User = extractUserClaimsFromIdToken(decodedToken);
-                                      user.value = claims;
-                                      userProfile.value = {
-                                        flattenedProfile: claims,
-                                        profile: claims,
-                                        schemas: [],
-                                      };
-                                    } catch {
-                                      // silent
-                                    }
-                                    return;
-                                  }
-                                  try {
-                                    const profileData: UserProfile = await asgardeo.getUserProfile({
-                                      baseUrl: resolvedBaseUrl.value,
-                                    });
-                                    userProfile.value = profileData;
-                                  } catch {
-                                    // silent
-                                  }
-                                },
-                              },
-                              {
+                        h(
+                          ThemeProvider,
+                          {
+                            inheritFromBranding: props.preferences?.theme?.inheritFromBranding,
+                            mode: getActiveTheme(props.preferences?.theme?.mode),
+                            theme: {
+                              ...props.preferences?.theme?.overrides,
+                              direction: props.preferences?.theme?.direction,
+                            },
+                          },
+                          {
+                            default: (): any =>
+                              h(FlowProvider, null, {
                                 default: (): any =>
                                   h(
-                                    OrganizationProvider,
+                                    UserProvider,
                                     {
-                                      currentOrganization: currentOrganization.value,
-                                      getAllOrganizations: async (): Promise<AllOrganizationsApiResponse> =>
-                                        asgardeo.getAllOrganizations({baseUrl: resolvedBaseUrl.value}),
-                                      myOrganizations: myOrganizations.value,
-                                      onOrganizationSwitch: switchOrganization,
-                                      revalidateMyOrganizations: async (): Promise<Organization[]> => {
-                                        const baseUrl: string = resolvedBaseUrl.value;
+                                      onUpdateProfile: applyUpdatedUser,
+                                      profile: userProfile.value,
+                                      updateProfile: updateProfile,
+                                      revalidateProfile: async (): Promise<void> => {
+                                        const revalConfig: AsgardeoVueConfig = buildConfig();
+                                        if (revalConfig.platform === Platform.AsgardeoV2) {
+                                          try {
+                                            const decodedToken: IdToken = await asgardeo.getDecodedIdToken();
+                                            const claims: User = extractUserClaimsFromIdToken(decodedToken);
+                                            user.value = claims;
+                                            userProfile.value = {
+                                              flattenedProfile: claims,
+                                              profile: claims,
+                                              schemas: [],
+                                            };
+                                          } catch {
+                                            // silent
+                                          }
+                                          return;
+                                        }
                                         try {
-                                          const orgs: Organization[] = await asgardeo.getMyOrganizations({baseUrl});
-                                          myOrganizations.value = orgs || [];
-                                          return orgs || [];
+                                          const profileData: UserProfile = await asgardeo.getUserProfile({
+                                            baseUrl: resolvedBaseUrl.value,
+                                          });
+                                          userProfile.value = profileData;
                                         } catch {
-                                          return [];
+                                          // silent
                                         }
                                       },
                                     },
                                     {
-                                      default: (): any => slots['default']?.(),
+                                      default: (): any =>
+                                        h(
+                                          OrganizationProvider,
+                                          {
+                                            createOrganization: async (
+                                              payload: CreateOrganizationPayload,
+                                            ): Promise<Organization> => {
+                                              // Send the request through the SDK's HTTP client, so it carries the access token.
+                                              const fetcher = async (
+                                                url: string,
+                                                config: RequestInit,
+                                              ): Promise<Response> => {
+                                                const response: HttpResponse<any> = await asgardeo.request({
+                                                  data: config.body ? JSON.parse(config.body as string) : undefined,
+                                                  headers: config.headers as Record<string, string>,
+                                                  method: config.method || 'POST',
+                                                  url,
+                                                });
+
+                                                return {
+                                                  json: () => Promise.resolve(response.data),
+                                                  ok: response.status >= 200 && response.status < 300,
+                                                  status: response.status,
+                                                  statusText: response.statusText || '',
+                                                  text: () =>
+                                                    Promise.resolve(
+                                                      typeof response.data === 'string'
+                                                        ? response.data
+                                                        : JSON.stringify(response.data),
+                                                    ),
+                                                } as Response;
+                                              };
+
+                                              const organization: Organization = await createOrganizationApi({
+                                                baseUrl: resolvedBaseUrl.value,
+                                                fetcher,
+                                                payload: {
+                                                  ...payload,
+                                                  // Create the organization under the current one unless a parent is given.
+                                                  parentId: payload.parentId || currentOrganization.value?.id || '',
+                                                },
+                                              });
+
+                                              try {
+                                                myOrganizations.value =
+                                                  (await asgardeo.getMyOrganizations({
+                                                    baseUrl: resolvedBaseUrl.value,
+                                                  })) || [];
+                                              } catch {
+                                                // The organization was created; a failed list refresh shouldn't hide that.
+                                              }
+
+                                              return organization;
+                                            },
+                                            currentOrganization: currentOrganization.value,
+                                            getAllOrganizations: async (): Promise<AllOrganizationsApiResponse> =>
+                                              asgardeo.getAllOrganizations({baseUrl: resolvedBaseUrl.value}),
+                                            myOrganizations: myOrganizations.value,
+                                            onOrganizationSwitch: switchOrganization,
+                                            revalidateMyOrganizations: async (): Promise<Organization[]> => {
+                                              const baseUrl: string = resolvedBaseUrl.value;
+                                              try {
+                                                const orgs: Organization[] = await asgardeo.getMyOrganizations({
+                                                  baseUrl,
+                                                });
+                                                myOrganizations.value = orgs || [];
+                                                return orgs || [];
+                                              } catch {
+                                                return [];
+                                              }
+                                            },
+                                          },
+                                          {
+                                            default: (): any => slots['default']?.(),
+                                          },
+                                        ),
                                     },
                                   ),
-                              },
-                            ),
-                        }),
-                    }),
-                }),
-            },
-          ),
-      });
+                              }),
+                          },
+                        ),
+                    },
+                  ),
+              },
+            ),
+        },
+      );
   },
 });
 

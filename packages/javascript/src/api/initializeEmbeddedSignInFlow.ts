@@ -62,7 +62,7 @@ const initializeEmbeddedSignInFlow = async ({
   } catch (error) {
     throw new AsgardeoAPIError(
       `Invalid URL provided. ${error?.toString()}`,
-      'getSchemas-ValidationError-001',
+      'initializeEmbeddedSignInFlow-ValidationError-001',
       'javascript',
       400,
       'The provided `url` or `baseUrl` path does not adhere to the URL schema.',

@@ -73,30 +73,44 @@ const getMeFederatedAssociations = async ({
   const fetchFn: typeof fetch = fetcher || fetch;
   const resolvedUrl: string = url ?? `${baseUrl}/api/users/v1/me/federated-associations`;
 
-  const response: Response = await fetchFn(resolvedUrl, {
-    ...requestConfig,
-    headers: {
-      Accept: 'application/json',
-      ...requestConfig.headers,
-    },
-    method: 'GET',
-  });
+  try {
+    const response: Response = await fetchFn(resolvedUrl, {
+      ...requestConfig,
+      headers: {
+        Accept: 'application/json',
+        ...requestConfig.headers,
+      },
+      method: 'GET',
+    });
 
-  if (!response?.ok) {
-    const errorText: string = await response.text();
+    if (!response?.ok) {
+      const errorText: string = await response.text();
+
+      throw new AsgardeoAPIError(
+        errorText,
+        'getMeFederatedAssociations-ResponseError-001',
+        'javascript',
+        response.status,
+        response.statusText,
+      );
+    }
+
+    const associations: unknown = await response.json();
+
+    return Array.isArray(associations) ? (associations as FederatedAssociation[]) : [];
+  } catch (error) {
+    if (error instanceof AsgardeoAPIError) {
+      throw error;
+    }
 
     throw new AsgardeoAPIError(
-      errorText,
-      'getMeFederatedAssociations-ResponseError-001',
+      `Network or parsing error: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      'getMeFederatedAssociations-NetworkError-001',
       'javascript',
-      response.status,
-      response.statusText,
+      0,
+      'Network Error',
     );
   }
-
-  const associations: unknown = await response.json();
-
-  return Array.isArray(associations) ? (associations as FederatedAssociation[]) : [];
 };
 
 export default getMeFederatedAssociations;

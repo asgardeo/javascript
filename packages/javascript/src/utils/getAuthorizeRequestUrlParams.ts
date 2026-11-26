@@ -107,13 +107,13 @@ const getAuthorizeRequestUrlParams = (
   }
 
   const AUTH_INSTANCE_PREFIX: string = 'instance_';
-  let customStateValue: string = '';
+  const requestedState: string = customParams?.[OIDCRequestConstants.Params.STATE]?.toString() ?? '';
 
-  if (options.instanceId) {
-    customStateValue = AUTH_INSTANCE_PREFIX + options.instanceId;
-  } else if (customParams) {
-    customStateValue = customParams[OIDCRequestConstants.Params.STATE]?.toString() ?? '';
-  }
+  // Keep a state passed in `customParams` (e.g. the silent sign-in and session check markers) alongside the instance
+  // prefix, so that both the instance and the kind of request can be recognized in the response.
+  const customStateValue: string = options.instanceId
+    ? [AUTH_INSTANCE_PREFIX + options.instanceId, requestedState].filter(Boolean).join('_')
+    : requestedState;
 
   authorizeRequestParams.set(
     OIDCRequestConstants.Params.STATE,

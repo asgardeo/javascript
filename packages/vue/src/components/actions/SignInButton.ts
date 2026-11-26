@@ -38,6 +38,9 @@ const SignInButton: Component = defineComponent({
     const isLoading: Ref<boolean> = ref(false);
 
     const handleSignIn = async (e?: MouseEvent): Promise<void> => {
+      // Emit `click` before the action: a redirect usually leaves the page before the action resolves.
+      if (e) emit('click', e);
+
       try {
         isLoading.value = true;
         if (signInUrl) {
@@ -45,7 +48,6 @@ const SignInButton: Component = defineComponent({
         } else {
           await signIn(props.signInOptions ?? contextSignInOptions);
         }
-        if (e) emit('click', e);
       } catch (error) {
         emit('error', error);
         throw new AsgardeoRuntimeError(

@@ -124,15 +124,18 @@ class AsgardeoNextClient<T extends AsgardeoNextConfig = AsgardeoNextConfig> exte
       ...rest
     } = decorateConfigWithNextEnv(config);
 
-    this.isInitialized = true;
-
     let resolvedOrganizationHandle: string | undefined = organizationHandle;
 
     if (!resolvedOrganizationHandle) {
       resolvedOrganizationHandle = deriveOrganizationHandleFromBaseUrl(baseUrl);
     }
 
+    // Reads the request headers, which throws Next.js's dynamic-rendering signal during static prerendering. Only mark
+    // the client as initialized after this, so that the next render initializes it again instead of using a client
+    // that never finished initializing.
     const origin: string = await getClientOrigin();
+
+    this.isInitialized = true;
 
     /**
      * `afterSignInUrl` / `afterSignOutUrl` are sent to the identity server as OAuth redirect URIs, so a
@@ -152,22 +155,28 @@ class AsgardeoNextClient<T extends AsgardeoNextConfig = AsgardeoNextConfig> exte
 
     const resolvedAfterSignInUrl: string = resolveAgainstOrigin(afterSignInUrl) ?? origin;
 
-    return this.asgardeo.initialize(
-      {
-        afterSignInUrl: resolvedAfterSignInUrl,
-        afterSignOutUrl: resolveAgainstOrigin(afterSignOutUrl) ?? origin,
-        afterSignUpUrl: afterSignUpUrl ?? resolvedAfterSignInUrl,
-        baseUrl,
-        clientId,
-        clientSecret,
-        enablePKCE: false,
-        organizationHandle: resolvedOrganizationHandle,
-        signInUrl,
-        signUpUrl,
-        ...rest,
-      } as any,
-      storage,
-    );
+    try {
+      return await this.asgardeo.initialize(
+        {
+          afterSignInUrl: resolvedAfterSignInUrl,
+          afterSignOutUrl: resolveAgainstOrigin(afterSignOutUrl) ?? origin,
+          afterSignUpUrl: afterSignUpUrl ?? resolvedAfterSignInUrl,
+          baseUrl,
+          clientId,
+          clientSecret,
+          enablePKCE: false,
+          organizationHandle: resolvedOrganizationHandle,
+          signInUrl,
+          signUpUrl,
+          ...rest,
+        } as any,
+        storage,
+      );
+    } catch (error) {
+      this.isInitialized = false;
+
+      throw error;
+    }
   }
 
   override async reInitialize(config: Partial<T>): Promise<boolean> {

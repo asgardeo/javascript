@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import {readBody, deleteCookie, setCookie} from 'h3';
+import {readBody, deleteCookie, getQuery, setCookie} from 'h3';
 import {describe, it, expect, vi, beforeEach} from 'vitest';
 
 // ── Imports (after mocks) ─────────────────────────────────────────────────────
@@ -34,6 +34,7 @@ const state = vi.hoisted(() => ({
   tempCookie: undefined as string | undefined,
   mockAuthorizeUrl: 'https://api.asgardeo.io/t/org/oauth2/authorize?code_challenge=x',
   liveSession: null as any,
+  requestUrl: 'https://app.example.com/sign-in',
 }));
 
 const mockClientInstance = vi.hoisted(() => ({
@@ -48,6 +49,8 @@ const mockClientInstance = vi.hoisted(() => ({
 vi.mock('h3', () => ({
   defineEventHandler: (fn: Function) => fn,
   readBody: vi.fn(),
+  getQuery: vi.fn(() => ({})),
+  getRequestURL: vi.fn(() => new URL(state.requestUrl)),
   getCookie: vi.fn((_event: any, name: string) => (name.includes('temp') ? state.tempCookie : undefined)),
   setCookie: vi.fn((_event: any, name: string, value: string) => {
     state.cookieStore[name] = value;
@@ -99,6 +102,7 @@ function resetState() {
   state.cookieStore = {};
   state.tempCookie = undefined;
   state.liveSession = null;
+  state.requestUrl = 'https://app.example.com/sign-in';
 }
 
 // ── Tests ─────────────────────────────────────────────────────────────────────
@@ -125,8 +129,38 @@ describe('POST /api/auth/signin', () => {
       await (signinHandler as any)(mockEvent);
 
       // Signature: createTempSessionToken(sessionId, sessionSecret, returnTo?)
-      expect(createTempSessionToken).toHaveBeenCalledWith(expect.any(String), expect.any(String));
+      expect(createTempSessionToken).toHaveBeenCalledWith(expect.any(String), expect.any(String), undefined);
       expect(setCookie).toHaveBeenCalled();
+    });
+
+    it('keeps a same-origin returnTo for after sign-in', async () => {
+      vi.mocked(getQuery).mockReturnValueOnce({returnTo: '/dashboard'});
+      vi.mocked(readBody).mockResolvedValue({});
+
+      await (signinHandler as any)(mockEvent);
+
+      expect(createTempSessionToken).toHaveBeenCalledWith(expect.any(String), expect.any(String), '/dashboard');
+    });
+
+    it('ignores a returnTo that points to another origin', async () => {
+      vi.mocked(getQuery).mockReturnValueOnce({returnTo: '//evil.example.com'});
+      vi.mocked(readBody).mockResolvedValue({});
+
+      await (signinHandler as any)(mockEvent);
+
+      expect(createTempSessionToken).toHaveBeenCalledWith(expect.any(String), expect.any(String), undefined);
+    });
+
+    it("sends the callback URL of the request's own origin as redirect_uri", async () => {
+      state.requestUrl = 'https://tenant-b.example.com/sign-in';
+      vi.mocked(readBody).mockResolvedValue({});
+
+      await (signinHandler as any)(mockEvent);
+
+      expect(mockClientInstance.getAuthorizeRequestUrl).toHaveBeenCalledWith(
+        expect.objectContaining({redirect_uri: 'https://tenant-b.example.com/api/auth/callback'}),
+        expect.any(String),
+      );
     });
 
     it('reuses sessionId from existing temp cookie', async () => {
@@ -167,6 +201,12 @@ describe('POST /api/auth/signin', () => {
       const result = await (signinHandler as any)(mockEvent);
 
       expect(result).toEqual({data: stepResponse, success: true});
+      expect(mockClientInstance.signIn).toHaveBeenCalledWith(
+        flowPayload,
+        {},
+        expect.any(String),
+        'https://app.example.com/api/auth/callback',
+      );
     });
   });
 

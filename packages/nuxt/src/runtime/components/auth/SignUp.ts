@@ -105,12 +105,18 @@ const SignUp: Component = defineComponent({
         return;
       }
 
+      // The `afterSignUpUrl` prop wins over the server's default (`afterSignInUrl`).
+      const afterSignUpUrl: string | undefined =
+        props.afterSignUpUrl || ((response as any)?.afterSignUpUrl as string | undefined);
+
       if (
         props.shouldRedirectAfterSignUp &&
         response?.type !== EmbeddedFlowResponseType.Redirection &&
-        props.afterSignUpUrl
+        afterSignUpUrl
       ) {
-        await navigateTo(props.afterSignUpUrl, {external: true});
+        await navigateTo(afterSignUpUrl, {external: true});
+
+        return;
       }
 
       if (

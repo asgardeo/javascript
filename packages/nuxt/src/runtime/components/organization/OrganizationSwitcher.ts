@@ -30,7 +30,7 @@ import {useOrganization} from '#imports';
  *
  * The `switchOrganization` action is provided by the OrganizationProvider
  * context set up by {@link AsgardeoRoot}, which ultimately calls the Nitro
- * `/api/auth/switch-org` route — no direct `window.location` usage.
+ * `/api/auth/organizations/switch` route — no direct `window.location` usage.
  *
  * @example
  * ```vue

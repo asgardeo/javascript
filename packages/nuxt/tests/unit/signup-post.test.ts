@@ -107,7 +107,8 @@ describe('POST /api/auth/signup', () => {
 
     const result = await (signupHandler as any)(mockEvent);
 
-    expect(result).toEqual({data: {afterSignUpUrl: '/welcome'}, success: true});
+    // The completed step is returned with the default destination, so the component can finish the flow first.
+    expect(result).toEqual({data: {afterSignUpUrl: '/welcome', flowStatus: 'COMPLETE'}, success: true});
   });
 
   it('throws 502 when signUp execution fails', async () => {

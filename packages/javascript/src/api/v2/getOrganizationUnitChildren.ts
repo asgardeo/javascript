@@ -16,6 +16,7 @@
  * under the License.
  */
 
+import fetchWithNetworkError from './fetchWithNetworkError';
 import AsgardeoAPIError from '../../errors/AsgardeoAPIError';
 import {GetOrganizationUnitChildrenConfig, OrganizationUnitListResponse} from '../../models/v2/organization-unit';
 
@@ -66,7 +67,7 @@ const getOrganizationUnitChildren = async ({
 
   const endpoint: string = url ?? `${baseUrl}/organization-units/${organizationUnitId}/ous?${queryParams.toString()}`;
 
-  const response: Response = await fetch(endpoint, {
+  const response: Response = await fetchWithNetworkError('getOrganizationUnitChildren', endpoint, {
     ...requestConfig,
     headers: {
       Accept: 'application/json',

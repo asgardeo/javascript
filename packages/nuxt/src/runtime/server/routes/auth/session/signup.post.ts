@@ -42,8 +42,8 @@ function hasFlowStatus(value: unknown): value is {flowStatus?: EmbeddedFlowStatu
  */
 export default defineEventHandler(async (event: H3Event) => {
   const config: ReturnType<typeof useRuntimeConfig> = useRuntimeConfig();
-  // Mirror Next.js: after-sign-up redirect reuses the configured `afterSignInUrl`
-  // (the user typically signs in immediately after registering).
+  // Default destination after sign-up: the configured `afterSignInUrl` (the user typically signs in right after
+  // registering). The `<AsgardeoSignUp>` `afterSignUpUrl` prop takes precedence on the client.
   const afterSignUpUrl: string = ((config.public.asgardeo as any)?.afterSignInUrl as string | undefined) || '/';
 
   // ── Parse request body ────────────────────────────────────────────────────
@@ -69,8 +69,10 @@ export default defineEventHandler(async (event: H3Event) => {
   }
 
   // ── Flow complete ─────────────────────────────────────────────────────────
+  // Return the completed step, so the sign-up component can finish the flow (and run `onComplete`) before it
+  // redirects, together with the default destination.
   if (hasFlowStatus(response) && response.flowStatus === EmbeddedFlowStatus.Complete) {
-    return {data: {afterSignUpUrl}, success: true};
+    return {data: {...(response as Record<string, unknown>), afterSignUpUrl}, success: true};
   }
 
   // ── Flow incomplete — return step data to the client ──────────────────────

@@ -16,6 +16,26 @@
  * under the License.
  */
 
-const generateSessionId = (): string => new Date().getTime().toString(36) + Math.random().toString(36).substring(2);
+/**
+ * Generates an unguessable session ID.
+ *
+ * Uses the Web Crypto API, which is available globally in Node.js 19+ and in edge runtimes, so the same helper works in
+ * Next.js middleware and in server code.
+ *
+ * @returns A random UUID (v4).
+ */
+const generateSessionId = (): string => {
+  if (typeof globalThis.crypto?.randomUUID === 'function') {
+    return globalThis.crypto.randomUUID();
+  }
+
+  if (typeof globalThis.crypto?.getRandomValues === 'function') {
+    const bytes: Uint8Array = globalThis.crypto.getRandomValues(new Uint8Array(16));
+
+    return Array.from(bytes, (byte: number) => byte.toString(16).padStart(2, '0')).join('');
+  }
+
+  throw new Error('A secure random number generator is not available to generate the session ID.');
+};
 
 export default generateSessionId;
