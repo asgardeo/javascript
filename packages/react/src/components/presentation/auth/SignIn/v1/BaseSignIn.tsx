@@ -200,6 +200,8 @@ const BaseSignInContent: FC<BaseSignInProps> = ({
   const isLoading: boolean = externalIsLoading || isSignInInitializationRequestLoading;
 
   const reRenderCheckRef: RefObject<boolean> = useRef<boolean>(false);
+  const triggeredPasskeyAuthenticatorRef: RefObject<EmbeddedSignInFlowAuthenticator | null> =
+    useRef<EmbeddedSignInFlowAuthenticator | null>(null);
 
   const formFields: FormField[] =
     currentAuthenticator?.metadata?.params?.map((param: any) => ({
@@ -948,6 +950,22 @@ const BaseSignInContent: FC<BaseSignInProps> = ({
     })();
   }, [isLoading]);
 
+  // Auto-trigger passkey authentication when the current step is a passkey prompt. This must run on every render, above
+  // the early returns below, so the hook order stays the same between renders. The ref makes sure each passkey step is
+  // triggered once, so a failed attempt does not prompt again in a loop.
+  useEffect(() => {
+    if (!currentAuthenticator || isLoading || !isPasskeyAuthenticator(currentAuthenticator)) {
+      return;
+    }
+
+    if (triggeredPasskeyAuthenticatorRef.current === currentAuthenticator) {
+      return;
+    }
+
+    triggeredPasskeyAuthenticatorRef.current = currentAuthenticator;
+    handleAuthenticatorSelection(currentAuthenticator);
+  }, [currentAuthenticator, isLoading, handleAuthenticatorSelection]);
+
   if (!isInitialized && isLoading) {
     return (
       <CardPrimitive className={cx(containerClasses, styles['card'])} data-testid="asgardeo-signin" variant={variant}>
@@ -1124,15 +1142,8 @@ const BaseSignInContent: FC<BaseSignInProps> = ({
     );
   }
 
-  // If the current authenticator is a passkey, auto-trigger it instead of showing a form
+  // If the current authenticator is a passkey, it is auto-triggered (see the effect above) instead of showing a form
   if (isPasskeyAuthenticator(currentAuthenticator) && !isLoading) {
-    // Auto-trigger passkey authentication
-    // TODO: This hook runs after early returns, so the hook order changes between renders. Move it above them.
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    useEffect(() => {
-      handleAuthenticatorSelection(currentAuthenticator);
-    }, [currentAuthenticator]);
-
     // Show loading state while passkey authentication is in progress
     return (
       <CardPrimitive className={cx(containerClasses, styles['card'])} data-testid="asgardeo-signin" variant={variant}>
