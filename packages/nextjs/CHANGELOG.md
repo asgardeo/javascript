@@ -1,5 +1,14 @@
 # @asgardeo/nextjs
 
+## 1.0.1
+
+### Patch Changes
+
+- Updated dependencies
+  [[`130b1f8`](https://github.com/asgardeo/javascript/commit/130b1f89fc2b7da904fd9c246fc6813ac5253a03),
+  [`2183e95`](https://github.com/asgardeo/javascript/commit/2183e95bcff06336f0af8f1542cee91028161bd7)]:
+  - @asgardeo/react@1.0.1
+
 ## 1.0.0
 
 ### Major Changes
@@ -40,7 +49,6 @@
 
   Asgardeo rejects attribute updates for accounts provisioned from a social or enterprise connection, so the profile
   used to offer edit controls that always failed with a raw SCIM error.
-
   - `<UserProfile />` accepts `editable="auto"` in React and Next.js. On Asgardeo it looks up the signed-in user's
     federated associations and, when the account is linked to a connection, renders the profile read-only with a short
     note naming the provider. On WSO2 Identity Server, where the same updates succeed, the profile stays editable.
@@ -70,7 +78,6 @@
   [`d559499`](https://github.com/asgardeo/javascript/commit/d559499b123d1de2c66e50b6d1242f07db457745) Thanks
   [@DonOmalVindula](https://github.com/DonOmalVindula)! - Show a success message and a sign-in button when a
   registration completes without signing the user in.
-
   - `BaseSignUp` accepts a `signInUrl` prop. When the flow completes and the prop is set, the card keeps showing the
     "account created" message and renders a Sign In button that takes the user to that URL.
   - The Next.js `<SignUp />` passes the configured `signInUrl` automatically, and the provider no longer navigates to
@@ -93,7 +100,6 @@
   [`3177d83`](https://github.com/asgardeo/javascript/commit/3177d83d1ef76b0dbf83f102d8213f78b9d9213d) Thanks
   [@DonOmalVindula](https://github.com/DonOmalVindula)! - Let applications relabel the embedded sign-in fields through
   i18n.
-
   - The username and password fields of the embedded sign-in form now take their label and placeholder from the i18n
     bundle (`elements.fields.<field>.label` / `elements.fields.<field>.placeholder`) when a translation is provided,
     falling back to the text returned by the identity server. This lets applications whose users sign in with an email
@@ -140,7 +146,6 @@
   [`38e395b`](https://github.com/asgardeo/javascript/commit/38e395b4182a194744734732f2ddff27993d5d98) Thanks
   [@DonOmalVindula](https://github.com/DonOmalVindula)! - Fixes for the embedded `<SignIn />` and `<SignUp />`
   components:
-
   - Social login buttons in the sign-in, sign-up and recovery flows no longer receive internal form-state props
     (`formValues`, `formErrors`, `touchedFields`, `isFormValid`, `onInputChange`, `inputClassName`), which React
     reported as unknown attributes on the `<button>` element.
