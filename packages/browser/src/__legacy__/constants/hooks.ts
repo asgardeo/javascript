@@ -17,14 +17,14 @@
  */
 
 export enum Hooks {
-    SignIn = "sign-in",
-    SignOut = "sign-out",
-    Initialize = "initialize",
-    HttpRequestStart = "http-request-start",
-    HttpRequestFinish = "http-request-finish",
-    HttpRequestError = "http-request-error",
-    HttpRequestSuccess = "http-request-success",
-    RevokeAccessToken = "revoke-access-token",
-    CustomGrant = "custom-grant",
-    SignOutFailed = "sign-out-failed"
+  SignIn = 'sign-in',
+  SignOut = 'sign-out',
+  Initialize = 'initialize',
+  HttpRequestStart = 'http-request-start',
+  HttpRequestFinish = 'http-request-finish',
+  HttpRequestError = 'http-request-error',
+  HttpRequestSuccess = 'http-request-success',
+  RevokeAccessToken = 'revoke-access-token',
+  CustomGrant = 'custom-grant',
+  SignOutFailed = 'sign-out-failed',
 }

@@ -56,7 +56,9 @@ const deriveRootDomain = (hostname: string): string => {
 
 const getCookie = (name: string): string | null => {
   if (typeof document === 'undefined') return null;
-  const match: RegExpMatchArray | null = new RegExp(`(?:^|; )${name.replace(/([.*+?^${}()|[\]\\])/g, '\\$1')}=([^;]*)`).exec(document.cookie);
+  const match: RegExpMatchArray | null = new RegExp(
+    `(?:^|; )${name.replace(/([.*+?^${}()|[\]\\])/g, '\\$1')}=([^;]*)`,
+  ).exec(document.cookie);
   return match ? decodeURIComponent(match[1]) : null;
 };
 
@@ -160,8 +162,8 @@ const I18nProvider: Component = defineComponent({
 
     const resolvedCookieDomain: string | undefined =
       storageStrategy === 'cookie'
-        ? props.preferences?.cookieDomain ??
-          (typeof window !== 'undefined' ? deriveRootDomain(window.location.hostname) : undefined)
+        ? (props.preferences?.cookieDomain ??
+          (typeof window !== 'undefined' ? deriveRootDomain(window.location.hostname) : undefined))
         : undefined;
 
     const storage: StorageAdapter = createStorageAdapter(storageStrategy, storageKey, resolvedCookieDomain);

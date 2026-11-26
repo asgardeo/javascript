@@ -18,7 +18,7 @@
 
 import {describe, it, expect, vi, beforeEach} from 'vitest';
 
-const loadWithPrefix = async (prefix: string): Promise<typeof import('../withVendorCSSClassPrefix')['default']> => {
+const loadWithPrefix = async (prefix: string): Promise<(typeof import('../withVendorCSSClassPrefix'))['default']> => {
   vi.resetModules();
   vi.doMock('../../constants/VendorConstants', () => ({
     default: {VENDOR_PREFIX: prefix},

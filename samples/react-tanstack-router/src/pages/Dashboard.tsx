@@ -32,8 +32,7 @@ export default function Dashboard() {
                   <div className="user-info">
                     <div>
                       <p>
-                        <strong>Name:</strong>{' '}
-                        {user?.givenName || user?.name?.givenName || user?.given_name}{' '}
+                        <strong>Name:</strong> {user?.givenName || user?.name?.givenName || user?.given_name}{' '}
                         {user?.name?.familyName || user?.familyName || user?.family_name || ''}
                       </p>
                       <p>

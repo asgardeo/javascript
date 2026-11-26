@@ -10,7 +10,9 @@
 
 ## Overview
 
-The Asgardeo Vue SDK provides a streamlined way to integrate secure authentication and user management into your Vue.js applications. Built for Vue 3, it offers a comprehensive set of composables, components, and utilities to handle authentication flows, user profiles, and multi-tenancy features.
+The Asgardeo Vue SDK provides a streamlined way to integrate secure authentication and user management into your Vue.js
+applications. Built for Vue 3, it offers a comprehensive set of composables, components, and utilities to handle
+authentication flows, user profiles, and multi-tenancy features.
 
 ## Key Features
 
@@ -24,7 +26,8 @@ The Asgardeo Vue SDK provides a streamlined way to integrate secure authenticati
 
 ## Quick Start
 
-Get started with Asgardeo in your Vue application in minutes. Follow our [Vue Quick Start Guide](./QUICKSTART.md) for step-by-step instructions on integrating authentication into your app.
+Get started with Asgardeo in your Vue application in minutes. Follow our [Vue Quick Start Guide](./QUICKSTART.md) for
+step-by-step instructions on integrating authentication into your app.
 
 ## Installation
 
@@ -42,6 +45,7 @@ yarn add @asgardeo/vue
 ## Supported Features
 
 ### Composables
+
 - `useAsgardeo()` - Main SDK client access
 - `useUser()` - User profile and authentication state
 - `useOrganization()` - Organization/workspace management
@@ -54,6 +58,7 @@ yarn add @asgardeo/vue
 ### Components
 
 #### Control
+
 - `SignedIn` - Renders children only when user is authenticated
 - `SignedOut` - Renders children only when user is not authenticated
 - `Loading` - Renders children while authentication state is loading
@@ -61,11 +66,13 @@ yarn add @asgardeo/vue
 - `OrganizationComponent` - Access organization context with scoped slot pattern
 
 #### Actions
+
 - `SignInButton` / `BaseSignInButton` - Sign-in button (styled and unstyled)
 - `SignOutButton` / `BaseSignOutButton` - Sign-out button (styled and unstyled)
 - `SignUpButton` / `BaseSignUpButton` - Sign-up button (styled and unstyled)
 
 #### Presentation
+
 - `SignIn` / `BaseSignIn` - Embedded sign-in form
 - `SignUp` / `BaseSignUp` - Embedded sign-up form
 - `UserProfileComponent` / `BaseUserProfile` - User profile display
@@ -79,18 +86,23 @@ yarn add @asgardeo/vue
 - `LanguageSwitcher` / `BaseLanguageSwitcher` - Language selection
 
 #### Auth Flow
+
 - `Callback` - Handle OAuth callback redirect
 
 #### Social Login Adapters
+
 - `GoogleButton` - Sign in with Google
 - `FacebookButton` - Sign in with Facebook
 - `GitHubButton` - Sign in with GitHub
 - `MicrosoftButton` - Sign in with Microsoft
 
 #### Primitives
-- `Button`, `Card`, `Alert`, `TextField`, `PasswordField`, `Select`, `Checkbox`, `DatePicker`, `OtpField`, `Typography`, `Divider`, `Logo`, `Spinner`
+
+- `Button`, `Card`, `Alert`, `TextField`, `PasswordField`, `Select`, `Checkbox`, `DatePicker`, `OtpField`, `Typography`,
+  `Divider`, `Logo`, `Spinner`
 
 ### Utilities
+
 - `createAsgardeoGuard` - Vue Router navigation guard for protected routes
 - `createCallbackRoute` - Generate a callback route record for Vue Router
 - `handleWebAuthnAuthentication` - WebAuthn/passkey support
@@ -105,6 +117,7 @@ yarn add @asgardeo/vue
 ## Support
 
 For support and questions:
+
 - [Asgardeo Documentation](https://wso2.com/asgardeo/docs/)
 - [GitHub Issues](https://github.com/asgardeo/javascript/issues)
 - [WSO2 Community Forum](https://wso2.com/community/)
@@ -115,4 +128,5 @@ We welcome contributions! Please see our [Contributing Guidelines](./CONTRIBUTIN
 
 ## License
 
-Licenses this source under the Apache License, Version 2.0 [LICENSE](./LICENSE), You may not use this file except in compliance with the License.
+Licenses this source under the Apache License, Version 2.0 [LICENSE](./LICENSE), You may not use this file except in
+compliance with the License.

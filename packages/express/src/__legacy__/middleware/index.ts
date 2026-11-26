@@ -16,5 +16,5 @@
  * under the License.
  */
 
-export * from "./protect-route";
-export * from "./authentication";
+export * from './protect-route';
+export * from './authentication';

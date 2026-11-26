@@ -1,8 +1,15 @@
-# Global ignore file incase if a child package doesn't include one.
+# Build output and dependencies.
+**/dist
+**/build
+**/coverage
+**/node_modules
+**/.nx
+**/.nuxt
+**/.output
+**/.next
+**/.vitepress/cache
+**/.vitepress/dist
 
-/dist
-/build
-/node_modules
-/coverage
-/.nx/cache
-/.nx/workspace-data
+# Generated files.
+pnpm-lock.yaml
+**/CHANGELOG.md

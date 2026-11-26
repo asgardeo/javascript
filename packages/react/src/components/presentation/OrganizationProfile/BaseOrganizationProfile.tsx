@@ -356,10 +356,13 @@ const BaseOrganizationProfile: FC<BaseOrganizationProfileProps> = ({
           <KeyValueInput
             value={attributesValue}
             onChange={(pairs: any): void => {
-              const attributesObject: Record<string, any> = pairs.reduce((acc: any, pair: any) => {
-                acc[pair.key] = pair.value;
-                return acc;
-              }, {} as Record<string, any>);
+              const attributesObject: Record<string, any> = pairs.reduce(
+                (acc: any, pair: any) => {
+                  acc[pair.key] = pair.value;
+                  return acc;
+                },
+                {} as Record<string, any>,
+              );
               onEditValue(attributesObject);
             }}
             onAdd={(pair: any): void => {

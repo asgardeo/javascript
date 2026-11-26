@@ -893,6 +893,6 @@ export const WebWorkerClient = async (
     signOut,
     signInSilently,
     reInitialize,
-    decodeJwtToken
+    decodeJwtToken,
   };
 };

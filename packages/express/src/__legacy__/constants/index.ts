@@ -16,5 +16,5 @@
  * under the License.
  */
 
-export * from "./default-options";
-export * from "./logger-config";
+export * from './default-options';
+export * from './logger-config';

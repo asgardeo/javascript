@@ -23,8 +23,7 @@ jobs:
   e2e-is:
     name: 🧪 E2E (WSO2 IS)
     if: >-
-      github.event_name == 'pull_request' ||
-      github.event.inputs.idp_target == 'is'
+      github.event_name == 'pull_request' || github.event.inputs.idp_target == 'is'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     strategy:

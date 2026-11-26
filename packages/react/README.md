@@ -10,12 +10,16 @@
 
 ## Quick Start
 
-Get started with Asgardeo in your React application in minutes. Follow our [React Quick Start Guide](https://wso2.com/asgardeo/docs/quick-starts/react/) for step-by-step instructions on integrating authentication into your app.
+Get started with Asgardeo in your React application in minutes. Follow our
+[React Quick Start Guide](https://wso2.com/asgardeo/docs/quick-starts/react/) for step-by-step instructions on
+integrating authentication into your app.
 
 ## API Documentation
 
-For complete API documentation including all components, hooks, and customization options, see the [React SDK Documentation](https://wso2.com/asgardeo/docs/sdks/react/overview).
+For complete API documentation including all components, hooks, and customization options, see the
+[React SDK Documentation](https://wso2.com/asgardeo/docs/sdks/react/overview).
 
 ## License
 
-Licenses this source under the Apache License, Version 2.0 [LICENSE](./LICENSE), You may not use this file except in compliance with the License.
+Licenses this source under the Apache License, Version 2.0 [LICENSE](./LICENSE), You may not use this file except in
+compliance with the License.

@@ -17,5 +17,5 @@
  */
 
 export * from './data';
-export * from "./client-config";
-export * from "./protect-route";
+export * from './client-config';
+export * from './protect-route';

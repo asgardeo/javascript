@@ -64,4 +64,5 @@ ASGARDEO_SESSION_SECRET=<random-32+-char-string>
 
 ## Styling
 
-The app uses **Tailwind CSS** for minimal, maintainable styling. No additional UI libraries are included. All Tailwind utility classes are used directly in templates for clean, readable code.
+The app uses **Tailwind CSS** for minimal, maintainable styling. No additional UI libraries are included. All Tailwind
+utility classes are used directly in templates for clean, readable code.

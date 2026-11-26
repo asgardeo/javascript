@@ -17,12 +17,12 @@
  */
 
 export enum CookieConfig {
-    defaultMaxAge = 90000,
-    defaultHttpOnly = 'true',
-    defaultSameSite = 'lax',
-    defaultSecure = 'false'
+  defaultMaxAge = 90000,
+  defaultHttpOnly = 'true',
+  defaultSameSite = 'lax',
+  defaultSecure = 'false',
 }
 
-export const DEFAULT_LOGIN_PATH = "/login";
+export const DEFAULT_LOGIN_PATH = '/login';
 
-export const DEFAULT_LOGOUT_PATH = "/logout";
+export const DEFAULT_LOGOUT_PATH = '/logout';

@@ -59,11 +59,9 @@ createRoot(document.getElementById('root')!).render(
           // When false, no API calls to /scim2/Me and /scim2/Schemas
           // Only ID token claims (email, name, sub) will be available
           // fetchUserProfile: false,
-
           // Control automatic organization fetching (default: true)
           // When false, no API call to /api/users/v1/me/organizations
           // fetchOrganizations: false,
-
           // Example: Disable all automatic API calls for maximum performance
           // fetchUserProfile: false,
           // fetchOrganizations: false,

@@ -7,8 +7,11 @@ React Router integration for Asgardeo React SDK with protected routes.
 
 ## Quick Start
 
-Get started with protected routes in your React application. Follow our [Protecting Routes Guide](https://wso2.com/asgardeo/docs/sdks/react/guides/protecting-routes/) for step-by-step instructions on securing your React Router routes with Asgardeo authentication.
+Get started with protected routes in your React application. Follow our
+[Protecting Routes Guide](https://wso2.com/asgardeo/docs/sdks/react/guides/protecting-routes/) for step-by-step
+instructions on securing your React Router routes with Asgardeo authentication.
 
 ## License
 
-Licenses this source under the Apache License, Version 2.0 [LICENSE](./LICENSE), You may not use this file except in compliance with the License.
+Licenses this source under the Apache License, Version 2.0 [LICENSE](./LICENSE), You may not use this file except in
+compliance with the License.

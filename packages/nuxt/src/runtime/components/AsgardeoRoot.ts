@@ -272,12 +272,12 @@ const AsgardeoRoot: Component = defineComponent({
                                       // skips SCIM calls, so we must also pass empty values
                                       // here to keep SSR and client in sync.
                                       flattenedProfile: shouldFetchProfile
-                                        ? userProfileState.value?.flattenedProfile ?? null
+                                        ? (userProfileState.value?.flattenedProfile ?? null)
                                         : null,
                                       onUpdateProfile: shouldFetchProfile ? onUpdateProfile : undefined,
                                       profile: shouldFetchProfile ? userProfileState.value : null,
                                       revalidateProfile: shouldFetchProfile ? revalidateProfile : undefined,
-                                      schemas: shouldFetchProfile ? userProfileState.value?.schemas ?? null : null,
+                                      schemas: shouldFetchProfile ? (userProfileState.value?.schemas ?? null) : null,
                                       updateProfile: shouldFetchProfile ? updateProfile : undefined,
                                     },
                                     {

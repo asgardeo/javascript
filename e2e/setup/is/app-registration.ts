@@ -92,7 +92,7 @@ export async function registerIsApp(): Promise<{clientId: string; clientSecret: 
   const appsData = (await appsResponse.json()) as {
     applications: Array<{id: string; name: string}>;
   };
-  const app = appsData.applications.find((a) => a.name === 'asgardeo-e2e-test-app');
+  const app = appsData.applications.find(a => a.name === 'asgardeo-e2e-test-app');
 
   if (!app) {
     console.warn('[E2E] Could not find app by name, skipping CORS config');
@@ -208,7 +208,7 @@ async function lookupExistingIsApp(
   const appsData = (await appsResponse.json()) as {
     applications: Array<{id: string; name: string}>;
   };
-  const app = appsData.applications.find((a) => a.name === 'asgardeo-e2e-test-app');
+  const app = appsData.applications.find(a => a.name === 'asgardeo-e2e-test-app');
 
   if (!app) {
     throw new Error('[E2E] Could not find existing app "asgardeo-e2e-test-app"');

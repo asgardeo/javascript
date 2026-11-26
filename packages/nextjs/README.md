@@ -10,7 +10,9 @@
 
 ## Quick Start
 
-Get started with Asgardeo in your Next.js application in minutes. Follow our [Next.js Quick Start Guide](https://wso2.com/asgardeo/docs/quick-starts/nextjs/) for step-by-step instructions on integrating authentication into your app.
+Get started with Asgardeo in your Next.js application in minutes. Follow our
+[Next.js Quick Start Guide](https://wso2.com/asgardeo/docs/quick-starts/nextjs/) for step-by-step instructions on
+integrating authentication into your app.
 
 ## Redirect URLs
 
@@ -21,8 +23,8 @@ production equivalent, under the application's **Authorized redirect URLs** in t
 enough. If it is missing, the embedded `<SignIn />` fails to initialise and shows the exact URL to register.
 
 Social login with app-native authentication needs two more redirect URIs on the social provider's OAuth client (for
-Google: the OAuth client's **Authorized redirect URIs**), because the identity server sends different callbacks for
-the two flows:
+Google: the OAuth client's **Authorized redirect URIs**), because the identity server sends different callbacks for the
+two flows:
 
 - sign-in: the same resolved `afterSignInUrl`, e.g. `http://localhost:3000/dashboard`
 - sign-up (self registration): the identity server's registration callback,
@@ -35,9 +37,9 @@ A missing entry surfaces as Google's `Error 400: redirect_uri_mismatch`.
 ## Customising texts
 
 Every text the embedded components render can be overridden through `preferences.i18n.bundles`, either globally on
-`<AsgardeoProvider>` or per component through the `preferences` prop of `<SignIn />` and `<SignUp />`. Only the keys
-you change need to be present; the rest come from the built-in bundle. For example, if your users sign in with an
-email address, relabel the identifier field:
+`<AsgardeoProvider>` or per component through the `preferences` prop of `<SignIn />` and `<SignUp />`. Only the keys you
+change need to be present; the rest come from the built-in bundle. For example, if your users sign in with an email
+address, relabel the identifier field:
 
 ```tsx
 <AsgardeoProvider
@@ -62,8 +64,8 @@ The available keys are listed in the `@asgardeo/i18n` package (`I18nTranslations
 
 ## Logging
 
-The SDK logs at `error` level by default. Set `ASGARDEO_LOG_LEVEL` to `warn`, `info` or `debug` to see more,
-for example why a user's profile fell back to the ID token claims:
+The SDK logs at `error` level by default. Set `ASGARDEO_LOG_LEVEL` to `warn`, `info` or `debug` to see more, for example
+why a user's profile fell back to the ID token claims:
 
 ```bash
 ASGARDEO_LOG_LEVEL=warn
@@ -71,8 +73,10 @@ ASGARDEO_LOG_LEVEL=warn
 
 ## API Documentation
 
-For complete API documentation including all components, hooks, and customization options, see the [Next.js SDK Documentation](https://wso2.com/asgardeo/docs/sdks/nextjs/overview).
+For complete API documentation including all components, hooks, and customization options, see the
+[Next.js SDK Documentation](https://wso2.com/asgardeo/docs/sdks/nextjs/overview).
 
 ## License
 
-Licenses this source under the Apache License, Version 2.0 [LICENSE](./LICENSE), You may not use this file except in compliance with the License.
+Licenses this source under the Apache License, Version 2.0 [LICENSE](./LICENSE), You may not use this file except in
+compliance with the License.

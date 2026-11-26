@@ -40,7 +40,9 @@ const useStyles = (theme: Theme, colorScheme: string, hasError: boolean, disable
       color: ${theme.vars.colors.text.primary};
       background-color: ${theme.vars.colors.background.surface};
       outline: none;
-      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+      transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
 
       &:focus {
         border-color: ${theme.vars.colors.primary.main};

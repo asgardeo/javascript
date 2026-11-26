@@ -64,26 +64,25 @@ yarn add @asgardeo/react
 Wrap your application with the `AsgardeoProvider` in your main entry file i.e. `src/main.tsx`:
 
 ```tsx
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-import './index.css'
-import App from './App.tsx'
-import { AsgardeoProvider } from '@asgardeo/react'
+import {StrictMode} from 'react';
+import {createRoot} from 'react-dom/client';
+import './index.css';
+import App from './App.tsx';
+import {AsgardeoProvider} from '@asgardeo/react';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <AsgardeoProvider
-      baseUrl="<your-organization-base-url>"
-      clientId="<your-app-client-id>"
-    >
+    <AsgardeoProvider baseUrl="<your-organization-base-url>" clientId="<your-app-client-id>">
       <App />
     </AsgardeoProvider>
-  </StrictMode>
-)
+  </StrictMode>,
+);
 ```
 
 Replace:
-- `<your-organization-base-url>` with the Base URL you noted in Step 1 (e.g., `https://api.asgardeo.io/t/<your-organization-name>`)
+
+- `<your-organization-base-url>` with the Base URL you noted in Step 1 (e.g.,
+  `https://api.asgardeo.io/t/<your-organization-name>`)
 - `<your-app-client-id>` with the Client ID from Step 1
 
 ## Step 5: Add Sign-in & Sign-out to Your App
@@ -91,8 +90,8 @@ Replace:
 Update your `App.tsx` to include sign-in and sign-out functionality:
 
 ```tsx
-import { SignedIn, SignedOut, SignInButton, SignOutButton } from '@asgardeo/react'
-import './App.css'
+import {SignedIn, SignedOut, SignInButton, SignOutButton} from '@asgardeo/react';
+import './App.css';
 
 function App() {
   return (
@@ -104,10 +103,10 @@ function App() {
         <SignInButton />
       </SignedOut>
     </>
-  )
+  );
 }
 
-export default App
+export default App;
 ```
 
 ## Step 6: Display User Information
@@ -115,15 +114,15 @@ export default App
 You can also display user information by using the `User` component & the `UserProfile` component:
 
 ```tsx
-import { SignedIn, SignedOut, SignInButton, SignOutButton, User, UserProfile } from '@asgardeo/react'
-import './App.css'
+import {SignedIn, SignedOut, SignInButton, SignOutButton, User, UserProfile} from '@asgardeo/react';
+import './App.css';
 
 function App() {
   return (
     <>
       <SignedIn>
         <User>
-          {({ user }) => (
+          {({user}) => (
             <div>
               <h1>Welcome, {user.username}</h1>
             </div>
@@ -136,15 +135,16 @@ function App() {
         <SignInButton />
       </SignedOut>
     </>
-  )
+  );
 }
 
-export default App
+export default App;
 ```
 
 ## Step 7: Try Login
 
-Run your application and test the sign-in functionality. You should see a "Sign In" button when you're not signed in, and clicking it will redirect you to the Asgardeo sign-in page.
+Run your application and test the sign-in functionality. You should see a "Sign In" button when you're not signed in,
+and clicking it will redirect you to the Asgardeo sign-in page.
 
 ```bash
 # Using npm
@@ -175,4 +175,5 @@ yarn dev
 - **CORS Errors**: Make sure to add your domain to the "Allowed Origins" in your Asgardeo application settings
 - **Client ID Issues**: Double-check that you're using the correct Client ID from your Asgardeo application
 
-For more help, visit the [Asgardeo Documentation](https://wso2.com/asgardeo/docs/) or check out our [examples](../../examples/).
+For more help, visit the [Asgardeo Documentation](https://wso2.com/asgardeo/docs/) or check out our
+[examples](../../examples/).

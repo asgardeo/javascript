@@ -11,7 +11,7 @@
 const https = require('https');
 const fs = require('fs');
 const path = require('path');
-const { execSync } = require('child_process');
+const {execSync} = require('child_process');
 
 const CUTOFF_DATE = new Date('2025-11-01T00:00:00Z');
 const ROOT_DIR = process.argv[2] || process.cwd();
@@ -20,33 +20,35 @@ function fetchPackageInfo(packageName) {
   return new Promise((resolve, reject) => {
     const url = `https://registry.npmjs.org/${packageName.replace('/', '%2F')}`;
 
-    https.get(url, { headers: { 'Accept': 'application/json' } }, (res) => {
-      let data = '';
+    https
+      .get(url, {headers: {Accept: 'application/json'}}, res => {
+        let data = '';
 
-      // Handle HTTP errors
-      if (res.statusCode === 404) {
-        reject(new Error(`Package not found on npm registry`));
-        return;
-      }
-      if (res.statusCode !== 200) {
-        reject(new Error(`HTTP ${res.statusCode}: Failed to fetch package info`));
-        return;
-      }
-
-      res.on('data', chunk => data += chunk);
-      res.on('end', () => {
-        try {
-          const json = JSON.parse(data);
-          if (json.error) {
-            reject(new Error(json.error));
-          } else {
-            resolve(json);
-          }
-        } catch (e) {
-          reject(new Error(`Failed to parse npm response: ${e.message}`));
+        // Handle HTTP errors
+        if (res.statusCode === 404) {
+          reject(new Error(`Package not found on npm registry`));
+          return;
         }
-      });
-    }).on('error', reject);
+        if (res.statusCode !== 200) {
+          reject(new Error(`HTTP ${res.statusCode}: Failed to fetch package info`));
+          return;
+        }
+
+        res.on('data', chunk => (data += chunk));
+        res.on('end', () => {
+          try {
+            const json = JSON.parse(data);
+            if (json.error) {
+              reject(new Error(json.error));
+            } else {
+              resolve(json);
+            }
+          } catch (e) {
+            reject(new Error(`Failed to parse npm response: ${e.message}`));
+          }
+        });
+      })
+      .on('error', reject);
   });
 }
 
@@ -56,44 +58,44 @@ function fetchPackageInfo(packageName) {
  */
 function parseVersion(versionSpec) {
   if (!versionSpec) {
-    return { shouldSkip: true, skipReason: 'Empty version' };
+    return {shouldSkip: true, skipReason: 'Empty version'};
   }
 
   // Handle workspace protocol
   if (versionSpec === 'workspace:*' || versionSpec.startsWith('workspace:')) {
-    return { shouldSkip: true, skipReason: 'Workspace dependency (local package)' };
+    return {shouldSkip: true, skipReason: 'Workspace dependency (local package)'};
   }
 
   // Handle catalog protocol
   if (versionSpec === 'catalog:') {
-    return { shouldSkip: true, skipReason: 'Catalog reference (resolved from workspace)' };
+    return {shouldSkip: true, skipReason: 'Catalog reference (resolved from workspace)'};
   }
 
   // Handle git URLs
   if (versionSpec.startsWith('git+') || versionSpec.includes('github.com')) {
-    return { shouldSkip: true, skipReason: 'Git dependency' };
+    return {shouldSkip: true, skipReason: 'Git dependency'};
   }
 
   // Handle link: protocol (local links)
   if (versionSpec.startsWith('link:') || versionSpec === 'link:') {
-    return { shouldSkip: true, skipReason: 'Local link dependency' };
+    return {shouldSkip: true, skipReason: 'Local link dependency'};
   }
 
   // Handle file: protocol
   if (versionSpec.startsWith('file:')) {
-    return { shouldSkip: true, skipReason: 'Local file dependency' };
+    return {shouldSkip: true, skipReason: 'Local file dependency'};
   }
 
   // Handle "latest" tag - need to resolve it
   if (versionSpec === 'latest') {
-    return { resolveLatest: true };
+    return {resolveLatest: true};
   }
 
   // Handle npm: aliases (e.g., npm:package@version)
   if (versionSpec.startsWith('npm:')) {
     const parts = versionSpec.split('@');
     const version = parts[parts.length - 1];
-    return { version: version.replace(/^[\^~>=<]+/, '') };
+    return {version: version.replace(/^[\^~>=<]+/, '')};
   }
 
   // Handle version ranges - extract the base version number
@@ -105,7 +107,7 @@ function parseVersion(versionSpec) {
 
   // Handle x-ranges like "4.x" or "4.*"
   if (cleanVersion.includes('x') || cleanVersion.includes('*')) {
-    return { resolveLatest: true, rangeHint: cleanVersion };
+    return {resolveLatest: true, rangeHint: cleanVersion};
   }
 
   // Handle hyphen ranges like "1.0.0 - 2.0.0"
@@ -115,23 +117,26 @@ function parseVersion(versionSpec) {
 
   // Handle || ranges - take the first part
   if (cleanVersion.includes('||')) {
-    cleanVersion = cleanVersion.split('||')[0].trim().replace(/^[\^~>=<]+/, '');
+    cleanVersion = cleanVersion
+      .split('||')[0]
+      .trim()
+      .replace(/^[\^~>=<]+/, '');
   }
 
   // If it's just a major version like "4", we need to resolve the actual version
   if (/^\d+$/.test(cleanVersion)) {
-    return { resolveLatest: true, majorVersion: cleanVersion };
+    return {resolveLatest: true, majorVersion: cleanVersion};
   }
 
   // If it's major.minor like "4.1", we need to resolve too
   if (/^\d+\.\d+$/.test(cleanVersion)) {
-    return { resolveLatest: true, minorVersion: cleanVersion };
+    return {resolveLatest: true, minorVersion: cleanVersion};
   }
 
   // Remove prerelease suffix for lookup but preserve it
   const baseVersion = cleanVersion.split('-')[0];
 
-  return { version: baseVersion };
+  return {version: baseVersion};
 }
 
 /**
@@ -139,16 +144,16 @@ function parseVersion(versionSpec) {
  */
 function resolveVersion(packageInfo, versionHint) {
   const distTags = packageInfo['dist-tags'] || {};
-  const allVersions = Object.keys(packageInfo.time || {})
-    .filter(v => v !== 'created' && v !== 'modified');
+  const allVersions = Object.keys(packageInfo.time || {}).filter(v => v !== 'created' && v !== 'modified');
 
   // Filter out pre-release versions
-  const stableVersions = allVersions.filter(v =>
-    v.indexOf('alpha') === -1 &&
-    v.indexOf('beta') === -1 &&
-    v.indexOf('rc') === -1 &&
-    v.indexOf('canary') === -1 &&
-    v.indexOf('experimental') === -1
+  const stableVersions = allVersions.filter(
+    v =>
+      v.indexOf('alpha') === -1 &&
+      v.indexOf('beta') === -1 &&
+      v.indexOf('rc') === -1 &&
+      v.indexOf('canary') === -1 &&
+      v.indexOf('experimental') === -1,
   );
 
   // IMPORTANT: Check for major/minor version hints FIRST before falling back to "latest"
@@ -186,17 +191,15 @@ function resolveVersion(packageInfo, versionHint) {
   }
 
   // Fallback to most recent stable version
-  const sorted = stableVersions
-    .sort((a, b) => new Date(packageInfo.time[b]) - new Date(packageInfo.time[a]));
+  const sorted = stableVersions.sort((a, b) => new Date(packageInfo.time[b]) - new Date(packageInfo.time[a]));
   return sorted[0];
 }
 
 function findAllPackageJsonFiles(rootDir) {
   try {
-    const output = execSync(
-      `find "${rootDir}" -name "package.json" -not -path "*/node_modules/*" -type f`,
-      { encoding: 'utf8' }
-    );
+    const output = execSync(`find "${rootDir}" -name "package.json" -not -path "*/node_modules/*" -type f`, {
+      encoding: 'utf8',
+    });
     return output.trim().split('\n').filter(Boolean);
   } catch (error) {
     console.error('Error finding package.json files:', error.message);
@@ -318,17 +321,24 @@ async function analyzePackage(name, versionSpec, context = '') {
     if (isAfterCutoff) {
       const allVersions = Object.keys(info.time)
         .filter(v => v !== 'created' && v !== 'modified')
-        .filter(v => !v.includes('canary') && !v.includes('experimental') && !v.includes('rc') && !v.includes('alpha') && !v.includes('beta'))
+        .filter(
+          v =>
+            !v.includes('canary') &&
+            !v.includes('experimental') &&
+            !v.includes('rc') &&
+            !v.includes('alpha') &&
+            !v.includes('beta'),
+        )
         .map(v => ({
           version: v,
-          date: new Date(info.time[v])
+          date: new Date(info.time[v]),
         }))
         .filter(v => v.date < CUTOFF_DATE && v.date <= new Date())
         .sort((a, b) => b.date - a.date);
 
       result.safeAlternatives = allVersions.slice(0, 3).map(v => ({
         version: v.version,
-        date: v.date.toISOString().split('T')[0]
+        date: v.date.toISOString().split('T')[0],
       }));
     }
 
@@ -527,9 +537,8 @@ async function main() {
       const uniqueLocations = [...new Set(allLocations)];
       const dateStr = firstResult.publishDateShort || 'N/A';
       const pkgStr = `${packageName}@${firstResult.currentVersion}`;
-      const recStr = firstResult.safeAlternatives.length > 0
-        ? firstResult.safeAlternatives[0].version
-        : 'No safe version';
+      const recStr =
+        firstResult.safeAlternatives.length > 0 ? firstResult.safeAlternatives[0].version : 'No safe version';
       const locStr = uniqueLocations.slice(0, 3).join(', ') + (uniqueLocations.length > 3 ? '...' : '');
 
       outputLines.push(`| ${padString(dateStr, 12)} | ${padString(pkgStr, 45)} | ${padString(recStr, 20)} | ${locStr}`);

@@ -24,13 +24,13 @@ yarn add @asgardeo/browser
 ## Quick Start
 
 ```javascript
-import { AsgardeoAuthClient } from "@asgardeo/browser";
+import {AsgardeoAuthClient} from '@asgardeo/browser';
 
 // Initialize the auth client
 const authClient = new AsgardeoAuthClient({
-    afterSignInUrl: "https://localhost:3000",
-    clientId: "<your_client_id>",
-    baseUrl: "https://api.asgardeo.io/t/<org_name>"
+  afterSignInUrl: 'https://localhost:3000',
+  clientId: '<your_client_id>',
+  baseUrl: 'https://api.asgardeo.io/t/<org_name>',
 });
 
 // Sign in
@@ -45,4 +45,5 @@ authClient.signOut();
 
 ## License
 
-Licenses this source under the Apache License, Version 2.0 [LICENSE](./LICENSE), You may not use this file except in compliance with the License.
+Licenses this source under the Apache License, Version 2.0 [LICENSE](./LICENSE), You may not use this file except in
+compliance with the License.

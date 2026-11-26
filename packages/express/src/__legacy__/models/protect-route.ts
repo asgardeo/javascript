@@ -16,6 +16,6 @@
  * under the License.
  */
 
-import express from "express";
+import express from 'express';
 
 export type UnauthenticatedCallback = (res: express.Response, error: string) => boolean;

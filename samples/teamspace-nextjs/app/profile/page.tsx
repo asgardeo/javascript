@@ -247,8 +247,8 @@ export default function ProfilePage() {
                       project.status === 'Completed'
                         ? 'default'
                         : project.status === 'In Progress'
-                        ? 'secondary'
-                        : 'outline'
+                          ? 'secondary'
+                          : 'outline'
                     }
                   >
                     {project.status}
