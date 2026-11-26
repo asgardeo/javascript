@@ -163,7 +163,7 @@ const getAllOrganizations = async ({
       );
     }
 
-    const data: AllOrganizationsApiResponse = (await response.json()) as any;
+    const data: AllOrganizationsApiResponse = await response.json();
 
     return {
       hasMore: data.hasMore,

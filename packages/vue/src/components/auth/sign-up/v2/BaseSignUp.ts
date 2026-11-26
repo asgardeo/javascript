@@ -72,7 +72,7 @@ export interface BaseSignUpRenderProps {
   handleSubmit: (component: any, data?: Record<string, any>) => Promise<void>;
   isLoading: boolean;
   isValid: boolean;
-  messages: Array<{message: string; type: string}>;
+  messages: {message: string; type: string}[];
   subtitle: string;
   title: string;
   touched: Record<string, boolean>;
@@ -182,7 +182,7 @@ const BaseSignUp: Component = defineComponent({
     const isFlowInitialized: Ref<boolean> = ref(false);
     const currentFlow: Ref<EmbeddedFlowExecuteResponse | null> = ref(null);
     const apiError: Ref<Error | null> = ref(null);
-    const flowMessages: Ref<Array<{message: string; type: string}>> = ref([]);
+    const flowMessages: Ref<{message: string; type: string}[]> = ref([]);
     const passkeyState: Ref<PasskeyState> = ref({
       actionId: null,
       creationOptions: null,

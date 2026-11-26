@@ -384,7 +384,7 @@ const useStyles = (
       size: sizeStyles[size],
       spinner: spinnerStyles,
       startIcon: iconStyles,
-      variant: variantStyles[`${color}-${variant}` as keyof typeof variantStyles] || variantStyles['primary-solid'],
+      variant: variantStyles[`${color}-${variant}`] || variantStyles['primary-solid'],
     };
   }, [theme, colorScheme, color, variant, size, fullWidth, disabled, loading]);
 

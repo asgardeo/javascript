@@ -68,22 +68,22 @@ const getAuthorizeRequestUrlParams = (
   const authorizeRequestParams: Map<string, string> = new Map<string, string>();
 
   authorizeRequestParams.set('response_type', 'code');
-  authorizeRequestParams.set('client_id', clientId as string);
+  authorizeRequestParams.set('client_id', clientId);
 
   authorizeRequestParams.set('scope', scopes);
-  authorizeRequestParams.set('redirect_uri', redirectUri as string);
+  authorizeRequestParams.set('redirect_uri', redirectUri);
 
   if (responseMode) {
-    authorizeRequestParams.set('response_mode', responseMode as string);
+    authorizeRequestParams.set('response_mode', responseMode);
   }
 
   const pkceKey: string = pkceOptions?.key;
 
   if (codeChallenge) {
-    authorizeRequestParams.set('code_challenge', codeChallenge as string);
+    authorizeRequestParams.set('code_challenge', codeChallenge);
 
     if (codeChallengeMethod) {
-      authorizeRequestParams.set('code_challenge_method', codeChallengeMethod as string);
+      authorizeRequestParams.set('code_challenge_method', codeChallengeMethod);
     } else {
       throw new AsgardeoRuntimeError(
         'Code challenge method is required when code challenge is provided.',
@@ -95,7 +95,7 @@ const getAuthorizeRequestUrlParams = (
   }
 
   if (prompt) {
-    authorizeRequestParams.set('prompt', prompt as string);
+    authorizeRequestParams.set('prompt', prompt);
   }
 
   if (customParams) {

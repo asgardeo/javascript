@@ -28,7 +28,7 @@ import AsgardeoNextClient from '../../AsgardeoNextClient';
 const createOrganization = async (payload: CreateOrganizationPayload, sessionId: string): Promise<Organization> => {
   try {
     const client: AsgardeoNextClient = AsgardeoNextClient.getInstance();
-    return await client.createOrganization(payload, sessionId ?? ((await getSessionId()) as string));
+    return await client.createOrganization(payload, sessionId ?? (await getSessionId())!);
   } catch (error) {
     throw new AsgardeoAPIError(
       `Failed to create the organization: ${error instanceof Error ? error.message : String(error)}`,

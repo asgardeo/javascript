@@ -38,7 +38,7 @@ const switchOrganization = async (
   try {
     const cookieStore: RequestCookies = await cookies();
     const client: AsgardeoNextClient = AsgardeoNextClient.getInstance();
-    const resolvedSessionId: string = sessionId ?? ((await getSessionId()) as string);
+    const resolvedSessionId: string = sessionId ?? (await getSessionId())!;
     const response: TokenResponse | Response = await client.switchOrganization(organization, resolvedSessionId);
 
     const {revalidatePath} = await import('next/cache');
@@ -47,7 +47,7 @@ const switchOrganization = async (
     if (response && (response as TokenResponse).accessToken) {
       const tokenResponse: TokenResponse = response as TokenResponse;
       const idToken: IdToken = await client.getDecodedIdToken(resolvedSessionId, tokenResponse.idToken);
-      const userIdFromToken: string = idToken['sub'] as string;
+      const userIdFromToken: string = idToken['sub'];
       const organizationId: string | undefined = (idToken['user_org'] || idToken['organization_id']) as
         | string
         | undefined;

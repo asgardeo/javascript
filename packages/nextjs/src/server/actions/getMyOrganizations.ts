@@ -24,7 +24,7 @@ import AsgardeoNextClient from '../../AsgardeoNextClient';
 /**
  * Server action to get organizations.
  */
-const getMyOrganizations = async (options?: any, sessionId?: string | undefined): Promise<Organization[]> => {
+const getMyOrganizations = async (options?: any, sessionId?: string): Promise<Organization[]> => {
   try {
     const client: AsgardeoNextClient = AsgardeoNextClient.getInstance();
 

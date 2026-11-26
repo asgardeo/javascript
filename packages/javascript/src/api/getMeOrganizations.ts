@@ -185,7 +185,7 @@ const getMeOrganizations = async ({
       );
     }
 
-    const data: Record<string, unknown> = (await response.json()) as any;
+    const data: Record<string, unknown> = await response.json();
     return (data['organizations'] as Organization[]) || [];
   } catch (error) {
     if (error instanceof AsgardeoAPIError) {

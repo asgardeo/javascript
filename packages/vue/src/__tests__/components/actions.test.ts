@@ -16,7 +16,6 @@
  * under the License.
  */
 
-/* eslint-disable sort-keys, @typescript-eslint/typedef */
 import {mount} from '@vue/test-utils';
 import {describe, expect, it, vi} from 'vitest';
 import {h, ref} from 'vue';

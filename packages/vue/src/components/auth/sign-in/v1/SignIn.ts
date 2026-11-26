@@ -64,7 +64,7 @@ const SignIn: Component = defineComponent({
       emit('success', authData);
 
       if (authData && afterSignInUrl) {
-        const url: URL = new URL(afterSignInUrl as string, window.location.origin);
+        const url: URL = new URL(afterSignInUrl, window.location.origin);
         Object.entries(authData).forEach(([key, value]: [string, any]) => {
           if (value !== undefined && value !== null) {
             url.searchParams.append(key, String(value));

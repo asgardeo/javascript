@@ -16,7 +16,6 @@
  * under the License.
  */
 
-/* eslint-disable sort-keys, @typescript-eslint/typedef, @typescript-eslint/explicit-function-return-type */
 import {mount} from '@vue/test-utils';
 import {describe, expect, it, vi} from 'vitest';
 import {defineComponent, h, ref, shallowRef} from 'vue';
@@ -58,8 +57,8 @@ describe('useOrganization', () => {
     });
 
     expect(result).toBeDefined();
-    expect(result!.myOrganizations.value).toEqual([]);
-    expect(result!.currentOrganization.value).toBeNull();
+    expect(result.myOrganizations.value).toEqual([]);
+    expect(result.currentOrganization.value).toBeNull();
   });
 
   it('should throw an error when called outside of AsgardeoProvider', () => {
@@ -94,8 +93,8 @@ describe('useOrganization', () => {
       },
     });
 
-    expect(typeof result!.switchOrganization).toBe('function');
-    expect(typeof result!.getAllOrganizations).toBe('function');
-    expect(typeof result!.revalidateMyOrganizations).toBe('function');
+    expect(typeof result.switchOrganization).toBe('function');
+    expect(typeof result.getAllOrganizations).toBe('function');
+    expect(typeof result.revalidateMyOrganizations).toBe('function');
   });
 });

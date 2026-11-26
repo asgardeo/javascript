@@ -215,7 +215,7 @@ export class AsgardeoAuthClient<T> {
    *
    * @preserve
    */
-  // eslint-disable-next-line class-methods-use-this
+
   public getInstanceId(): number {
     return this.instanceIdValue;
   }
@@ -310,7 +310,7 @@ export class AsgardeoAuthClient<T> {
       return buildSignInUrl();
     }
 
-    return this.loadOpenIDProviderConfiguration(requestConfig?.forceInit as boolean).then(() => buildSignInUrl());
+    return this.loadOpenIDProviderConfiguration(requestConfig?.forceInit).then(() => buildSignInUrl());
   }
 
   /**

@@ -22,7 +22,7 @@ import {Context, createContext} from 'react';
 /**
  * Props interface of {@link UserContext}
  */
-export type UserContextProps = {
+export interface UserContextProps {
   flattenedProfile: User | null;
   onUpdateProfile: (payload: User) => void;
   profile: User | null;
@@ -32,7 +32,7 @@ export type UserContextProps = {
     requestConfig: UpdateMeProfileConfig,
     sessionId?: string,
   ) => Promise<{data: {user: User}; error: string; success: boolean}>;
-};
+}
 
 /**
  * Context object for managing user profile data and related operations.

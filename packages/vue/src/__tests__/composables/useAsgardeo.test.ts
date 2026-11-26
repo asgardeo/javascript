@@ -17,7 +17,7 @@
  */
 
 import {mount} from '@vue/test-utils';
-/* eslint-disable sort-keys, @typescript-eslint/typedef, @typescript-eslint/explicit-function-return-type */
+
 import {describe, expect, it, vi} from 'vitest';
 import {defineComponent, h, ref} from 'vue';
 import useAsgardeo from '../../composables/useAsgardeo';
@@ -73,9 +73,9 @@ describe('useAsgardeo', () => {
     });
 
     expect(result).toBeDefined();
-    expect(result!.isSignedIn.value).toBe(false);
-    expect(result!.isLoading.value).toBe(false);
-    expect(result!.isInitialized.value).toBe(true);
+    expect(result.isSignedIn.value).toBe(false);
+    expect(result.isLoading.value).toBe(false);
+    expect(result.isInitialized.value).toBe(true);
   });
 
   it('should throw an error when called outside of AsgardeoProvider', () => {
@@ -111,9 +111,9 @@ describe('useAsgardeo', () => {
       },
     });
 
-    expect(result!.isSignedIn.value).toBe(false);
+    expect(result.isSignedIn.value).toBe(false);
     isSignedIn.value = true;
-    expect(result!.isSignedIn.value).toBe(true);
+    expect(result.isSignedIn.value).toBe(true);
   });
 
   it('should expose signIn and signOut methods', () => {
@@ -135,9 +135,9 @@ describe('useAsgardeo', () => {
       },
     });
 
-    expect(typeof result!.signIn).toBe('function');
-    expect(typeof result!.signOut).toBe('function');
-    expect(typeof result!.signUp).toBe('function');
-    expect(typeof result!.getAccessToken).toBe('function');
+    expect(typeof result.signIn).toBe('function');
+    expect(typeof result.signOut).toBe('function');
+    expect(typeof result.signUp).toBe('function');
+    expect(typeof result.getAccessToken).toBe('function');
   });
 });

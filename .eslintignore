@@ -1,6 +1,0 @@
-# Global ignore file incase if a child package doesn't include one.
-
-/dist
-/build
-/node_modules
-/coverage

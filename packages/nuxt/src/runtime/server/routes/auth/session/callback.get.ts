@@ -41,7 +41,7 @@ export default defineEventHandler(async (event: H3Event) => {
   const sessionSecret: string | undefined = config.asgardeo?.sessionSecret;
   const publicConfig: typeof config.public.asgardeo = config.public.asgardeo;
 
-  const query: Record<string, unknown> = getQuery(event) as Record<string, unknown>;
+  const query: Record<string, unknown> = getQuery(event);
   const code: string | undefined = query['code'] as string | undefined;
   const state: string | undefined = query['state'] as string | undefined;
   const sessionState: string | undefined = query['session_state'] as string | undefined;

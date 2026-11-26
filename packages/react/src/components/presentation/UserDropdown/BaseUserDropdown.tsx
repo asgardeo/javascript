@@ -144,7 +144,7 @@ export const BaseUserDropdown: FC<BaseUserDropdownProps> = ({
 
   const {getReferenceProps, getFloatingProps} = useInteractions([click, dismiss, role]);
 
-  const defaultAttributeMappings: {[key: string]: string | string[] | undefined} = {
+  const defaultAttributeMappings: Record<string, string | string[] | undefined> = {
     email: ['emails'],
     firstName: ['name.givenName', 'given_name'],
     lastName: ['name.familyName', 'family_name'],
@@ -152,7 +152,7 @@ export const BaseUserDropdown: FC<BaseUserDropdownProps> = ({
     username: ['userName', 'username', 'user_name'],
   };
 
-  const mergedMappings: {[key: string]: string | string[] | undefined} = {
+  const mergedMappings: Record<string, string | string[] | undefined> = {
     ...defaultAttributeMappings,
     ...attributeMapping,
   };

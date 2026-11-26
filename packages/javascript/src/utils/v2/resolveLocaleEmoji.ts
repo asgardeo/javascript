@@ -81,7 +81,7 @@ function resolveLocaleEmoji(locale: string): string {
 
   const countryCode: string | undefined = countrySubtag ?? LANGUAGE_TO_COUNTRY[languageCode];
 
-  if (!countryCode || countryCode.length !== 2) {
+  if (countryCode?.length !== 2) {
     return '\u{1F310}'; // 🌐
   }
 

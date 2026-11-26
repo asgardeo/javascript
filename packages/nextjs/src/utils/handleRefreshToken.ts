@@ -102,7 +102,7 @@ const handleRefreshToken = async (
 
   const newSessionToken: string = await SessionManager.createSessionToken(
     newAccessToken,
-    sub as string,
+    sub,
     sessionId,
     newScopes,
     expiresIn,

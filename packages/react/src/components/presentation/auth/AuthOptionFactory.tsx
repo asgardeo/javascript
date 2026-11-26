@@ -16,8 +16,6 @@
  * under the License.
  */
 
-/* eslint-disable no-underscore-dangle */
-
 import {
   FieldType,
   FlowMetadataResponse,
@@ -227,7 +225,7 @@ const createAuthComponentFromFlow = (
   const key: string | number = options.key || component.id;
 
   const customRenderer: ComponentRenderer | undefined =
-    customRenderers[component.id] ?? customRenderers[component.type as string];
+    customRenderers[component.id] ?? customRenderers[component.type];
   if (customRenderer) {
     const renderCtx: ComponentRenderContext = {
       additionalData: options.additionalData,
@@ -304,9 +302,9 @@ const createAuthComponentFromFlow = (
 
     case EmbeddedFlowComponentType.Action: {
       const actionId: string = component.id;
-      const eventType: string = (component.eventType as string) || '';
+      const eventType: string = component.eventType || '';
       const buttonText: string = resolve(component.label);
-      const componentVariant: string = (component.variant as string) || '';
+      const componentVariant: string = component.variant || '';
 
       // Only validate on submit type events.
       const shouldSkipValidation: boolean = eventType.toUpperCase() === EmbeddedFlowEventType.Trigger;

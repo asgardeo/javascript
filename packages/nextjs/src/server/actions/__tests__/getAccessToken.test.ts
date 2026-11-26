@@ -39,8 +39,12 @@ vi.mock('../../../utils/SessionManager', () => ({
 }));
 
 // A tiny helper type for the cookie store the SUT expects
-type CookieVal = {value: string};
-type CookieStore = {get: (name: string) => CookieVal | undefined};
+interface CookieVal {
+  value: string;
+}
+interface CookieStore {
+  get: (name: string) => CookieVal | undefined;
+}
 
 describe('getAccessToken', () => {
   const SESSION_COOKIE_NAME: string = 'app_session';

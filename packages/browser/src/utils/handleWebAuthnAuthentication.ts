@@ -107,7 +107,7 @@ const logger: ReturnType<typeof createPackageComponentLogger> = createPackageCom
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/Web_Authentication_API} - MDN WebAuthn API documentation
  */
 const handleWebAuthnAuthentication = async (challengeData: string): Promise<string> => {
-  if (!window.navigator.credentials || !window.navigator.credentials.get) {
+  if (!window.navigator.credentials?.get) {
     throw new AsgardeoRuntimeError(
       'WebAuthn is not supported in this browser. Please use a modern browser or try a different authentication method.',
       'browser-webauthn-not-supported',

@@ -191,7 +191,7 @@ class AsgardeoNextClient<T extends AsgardeoNextConfig = AsgardeoNextConfig> exte
 
   override async getUser(userId?: string): Promise<User> {
     await this.ensureInitialized();
-    const resolvedSessionId: string = userId || ((await getSessionId()) as string);
+    const resolvedSessionId: string = userId || (await getSessionId())!;
 
     try {
       const configData: AuthClientConfig<T> = await this.asgardeo.getConfigData();
@@ -297,7 +297,7 @@ class AsgardeoNextClient<T extends AsgardeoNextConfig = AsgardeoNextConfig> exte
   async createOrganization(payload: CreateOrganizationPayload, userId?: string): Promise<Organization> {
     try {
       const configData: AuthClientConfig<T> = await this.asgardeo.getConfigData();
-      const baseUrl: string = configData?.baseUrl as string;
+      const baseUrl: string = configData?.baseUrl!;
 
       const createdOrg: Organization = await createOrganization({
         baseUrl,
@@ -321,7 +321,7 @@ class AsgardeoNextClient<T extends AsgardeoNextConfig = AsgardeoNextConfig> exte
   async getOrganization(organizationId: string, userId?: string): Promise<OrganizationDetails> {
     try {
       const configData: AuthClientConfig<T> = await this.asgardeo.getConfigData();
-      const baseUrl: string = configData?.baseUrl as string;
+      const baseUrl: string = configData?.baseUrl!;
 
       const organization: OrganizationDetails = await getOrganization({
         baseUrl,
@@ -345,7 +345,7 @@ class AsgardeoNextClient<T extends AsgardeoNextConfig = AsgardeoNextConfig> exte
   override async getMyOrganizations(options?: any, userId?: string): Promise<Organization[]> {
     try {
       const configData: AuthClientConfig<T> = await this.asgardeo.getConfigData();
-      const baseUrl: string = configData?.baseUrl as string;
+      const baseUrl: string = configData?.baseUrl!;
 
       const myOrganizations: Organization[] = await getMeOrganizations({
         baseUrl,
@@ -370,7 +370,7 @@ class AsgardeoNextClient<T extends AsgardeoNextConfig = AsgardeoNextConfig> exte
   override async getAllOrganizations(options?: any, userId?: string): Promise<AllOrganizationsApiResponse> {
     try {
       const configData: AuthClientConfig<T> = await this.asgardeo.getConfigData();
-      const baseUrl: string = configData?.baseUrl as string;
+      const baseUrl: string = configData?.baseUrl!;
 
       const allOrganizations: AllOrganizationsApiResponse = await getAllOrganizations({
         baseUrl,
@@ -394,9 +394,9 @@ class AsgardeoNextClient<T extends AsgardeoNextConfig = AsgardeoNextConfig> exte
     const idToken: IdToken = await this.asgardeo.getDecodedIdToken(userId);
 
     return {
-      id: idToken?.org_id as string,
-      name: idToken?.org_name as string,
-      orgHandle: idToken?.org_handle as string,
+      id: idToken?.org_id!,
+      name: idToken?.org_name!,
+      orgHandle: idToken?.org_handle!,
     };
   }
 
@@ -439,13 +439,12 @@ class AsgardeoNextClient<T extends AsgardeoNextConfig = AsgardeoNextConfig> exte
     }
   }
 
-  // eslint-disable-next-line class-methods-use-this
   override isLoading(): boolean {
     return false;
   }
 
   override isSignedIn(sessionId?: string): Promise<boolean> {
-    return this.asgardeo.isSignedIn(sessionId as string);
+    return this.asgardeo.isSignedIn(sessionId!);
   }
 
   override exchangeToken(config: TokenExchangeRequestConfig, sessionId?: string): Promise<TokenResponse | Response> {
@@ -456,7 +455,7 @@ class AsgardeoNextClient<T extends AsgardeoNextConfig = AsgardeoNextConfig> exte
    * Gets the access token from the session cookie if no sessionId is provided,
    * otherwise falls back to legacy client method.
    */
-  // eslint-disable-next-line class-methods-use-this, @typescript-eslint/no-unused-vars
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   override async getAccessToken(_sessionId?: string): Promise<string> {
     const {default: getAccessToken} = await import('./server/actions/getAccessToken');
     const token: string | undefined = await getAccessToken();
@@ -478,7 +477,7 @@ class AsgardeoNextClient<T extends AsgardeoNextConfig = AsgardeoNextConfig> exte
    */
   async getDecodedIdToken(sessionId?: string, idToken?: string): Promise<IdToken> {
     await this.ensureInitialized();
-    return this.asgardeo.getDecodedIdToken(sessionId as string, idToken);
+    return this.asgardeo.getDecodedIdToken(sessionId, idToken);
   }
 
   override getConfiguration(): T {
@@ -529,7 +528,7 @@ class AsgardeoNextClient<T extends AsgardeoNextConfig = AsgardeoNextConfig> exte
       arg1?.code,
       arg1?.session_state,
       arg1?.state,
-      arg1 as any,
+      arg1,
     ) as unknown as Promise<User>;
   }
 
@@ -544,7 +543,7 @@ class AsgardeoNextClient<T extends AsgardeoNextConfig = AsgardeoNextConfig> exte
       throw new Error('The second argument must be a string.');
     }
 
-    const resolvedSessionId: string = args[1] || ((await getSessionId()) as string);
+    const resolvedSessionId: string = args[1] || (await getSessionId())!;
 
     return Promise.resolve(await this.asgardeo.signOut(resolvedSessionId));
   }
@@ -580,7 +579,7 @@ class AsgardeoNextClient<T extends AsgardeoNextConfig = AsgardeoNextConfig> exte
     );
   }
 
-  // eslint-disable-next-line class-methods-use-this, @typescript-eslint/no-unused-vars
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   override signInSilently(_options?: SignInOptions): Promise<User | boolean> {
     throw new AsgardeoRuntimeError(
       'Not implemented',
@@ -617,7 +616,6 @@ class AsgardeoNextClient<T extends AsgardeoNextConfig = AsgardeoNextConfig> exte
     return this.asgardeo.getStorageManager();
   }
 
-  // eslint-disable-next-line class-methods-use-this
   public override async clearSession(): Promise<void> {
     throw new AsgardeoRuntimeError(
       'Not implemented',

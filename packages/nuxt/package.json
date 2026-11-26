@@ -70,7 +70,8 @@
     "build": "nuxt module-build prepare && nuxt module-build build",
     "lint": "nuxt prepare && eslint .",
     "test": "vitest run --passWithNoTests",
-    "typecheck": "nuxt module-build prepare && vue-tsc --noEmit"
+    "typecheck": "nuxt module-build prepare && vue-tsc --noEmit",
+    "fix:lint": "nuxt prepare && eslint . --fix"
   },
   "dependencies": {
     "@asgardeo/browser": "workspace:*",
@@ -85,6 +86,8 @@
     "vue": ">=3.5.0"
   },
   "devDependencies": {
+    "@asgardeo/eslint-plugin": "workspace:*",
+    "@asgardeo/prettier-config": "workspace:*",
     "@nuxt/devtools": "3.4.2",
     "@nuxt/module-builder": "1.0.1",
     "@nuxt/schema": "3.16.2",
@@ -92,7 +95,7 @@
     "@types/node": "22.13.4",
     "changelogen": "0.6.1",
     "cookie-es": "2.0.0",
-    "eslint": "8.57.0",
+    "eslint": "9.39.5",
     "h3": "1.15.11",
     "nuxt": "3.21.11",
     "typescript": "5.8.3",

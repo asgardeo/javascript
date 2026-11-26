@@ -187,7 +187,7 @@ const AsgardeoServerProvider: FC<PropsWithChildren<AsgardeoServerProviderProps>>
           logger.warn('[AsgardeoServerProvider] No session ID available, skipping organization fetch');
         }
 
-        currentOrganization = currentOrganizationResponse?.data?.organization as Organization;
+        currentOrganization = currentOrganizationResponse?.data?.organization!;
       } catch (error) {
         logger.warn('[AsgardeoServerProvider] Failed to fetch organization info:', error?.toString());
       }
@@ -199,7 +199,7 @@ const AsgardeoServerProvider: FC<PropsWithChildren<AsgardeoServerProviderProps>>
     try {
       brandingPreference = await getBrandingPreference(
         {
-          baseUrl: config?.baseUrl as string,
+          baseUrl: config?.baseUrl!,
           locale: 'en-US',
           name: config.applicationId || config.organizationHandle,
           type: config.applicationId ? 'APP' : 'ORG',

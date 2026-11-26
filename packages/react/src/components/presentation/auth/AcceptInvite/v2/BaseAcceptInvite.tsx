@@ -31,7 +31,7 @@ import {initiateOAuthRedirect} from '../../../../../utils/oauth';
 import {normalizeFlowResponse, extractErrorMessage} from '../../../../../utils/v2/flowTransformer';
 import AlertPrimitive from '../../../../primitives/Alert/Alert';
 import Button from '../../../../primitives/Button/Button';
-// eslint-disable-next-line import/no-named-as-default
+
 import CardPrimitive, {CardProps} from '../../../../primitives/Card/Card';
 import Spinner from '../../../../primitives/Spinner/Spinner';
 import Typography from '../../../../primitives/Typography/Typography';
@@ -535,7 +535,7 @@ const BaseAcceptInvite: FC<BaseAcceptInviteProps> = ({
 
         // Handle OAuth redirect response
         if (response.type === 'REDIRECTION') {
-          const redirectURL: any = response.data?.redirectURL || (response as any)?.redirectURL;
+          const redirectURL: any = response.data?.redirectURL || response?.redirectURL;
           if (redirectURL && typeof window !== 'undefined') {
             // Initiate OAuth redirect with secure state management
             initiateOAuthRedirect(redirectURL);
@@ -635,7 +635,7 @@ const BaseAcceptInvite: FC<BaseAcceptInviteProps> = ({
         await setChallengeToken(response.challengeToken ?? null);
 
         if (response.type === 'REDIRECTION') {
-          const redirectURL: any = response.data?.redirectURL || (response as any)?.redirectURL;
+          const redirectURL: any = response.data?.redirectURL || response?.redirectURL;
 
           if (redirectURL && typeof window !== 'undefined') {
             initiateOAuthRedirect(redirectURL);

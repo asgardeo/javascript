@@ -36,7 +36,7 @@ const identifyPlatform = (config: Config): Platform => {
   try {
     if (isRecognizedBaseUrlPattern(baseUrl)) {
       try {
-        const url: URL = new URL(baseUrl!);
+        const url: URL = new URL(baseUrl);
         // Check for asgardeo domain (e.g., api.asgardeo.io, etc.)
         if (/\.asgardeo\.io$/i.test(url.hostname) || /asgardeo\.io$/i.test(url.hostname)) {
           return Platform.Asgardeo;

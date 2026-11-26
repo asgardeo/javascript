@@ -40,7 +40,7 @@ export default defineEventHandler(async (event: H3Event): Promise<BrandingPrefer
   const publicConfig: AsgardeoNuxtConfig = config.public.asgardeo as AsgardeoNuxtConfig;
   const sessionSecret: string | undefined = config.asgardeo?.sessionSecret;
 
-  const baseUrl: string = (publicConfig?.baseUrl ?? '') as string;
+  const baseUrl: string = publicConfig?.baseUrl ?? '';
   let resolvedBaseUrl: string = baseUrl;
 
   // Attempt to resolve the org-scoped base URL from the session, if present.

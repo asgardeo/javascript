@@ -124,7 +124,7 @@ export const OrganizationSwitcher: FC<OrganizationSwitcherProps> = ({
     setIsProfileOpen(true);
   };
 
-  const defaultMenuItems: Array<{icon?: ReactElement; label: string; onClick: () => void}> = [];
+  const defaultMenuItems: {icon?: ReactElement; label: string; onClick: () => void}[] = [];
 
   if (currentOrganization) {
     defaultMenuItems.push({

@@ -20,17 +20,14 @@ import {Storage} from '@asgardeo/javascript';
 import cache from 'memory-cache';
 
 export class MemoryCacheStore implements Storage {
-  // eslint-disable-next-line class-methods-use-this
   public async setData(key: string, value: string): Promise<void> {
     cache.put(key, value);
   }
 
-  // eslint-disable-next-line class-methods-use-this
   public async getData(key: string): Promise<string> {
     return cache.get(key) ?? '{}';
   }
 
-  // eslint-disable-next-line class-methods-use-this
   public async removeData(key: string): Promise<void> {
     cache.del(key);
   }

@@ -28,7 +28,7 @@ const DividerComponent: FC<AdapterProps> = ({component}: AdapterProps) => {
   const {theme} = useTheme();
   const config: Record<string, unknown> = component.config || {};
   const text: string = (config['text'] as string) || '';
-  const variant: string = (component.variant?.toLowerCase() as string) || 'horizontal';
+  const variant: string = component.variant?.toLowerCase() || 'horizontal';
 
   return (
     <Divider

@@ -36,7 +36,7 @@ const resolveEmojiUrisInHtml = (html: string): string => {
       if (!emoji) {
         return _match;
       }
-      const altMatch: RegExpMatchArray | null = (pre + post).match(/alt="([^"]*)"/i);
+      const altMatch: RegExpMatchArray | null = /alt="([^"]*)"/i.exec(pre + post);
       const label: string = altMatch ? altMatch[1] : emoji;
       return `<span role="img" aria-label="${label}">${emoji}</span>`;
     },

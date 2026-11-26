@@ -30,7 +30,11 @@ vi.mock('../../../AsgardeoNextClient', () => ({
 }));
 
 // Minimal shape for testing; add fields only if you assert on them
-type OrganizationDetails = {id: string; name: string; orgHandle?: string};
+interface OrganizationDetails {
+  id: string;
+  name: string;
+  orgHandle?: string;
+}
 
 type ActionResult = Awaited<ReturnType<typeof getOrganizationAction>>;
 

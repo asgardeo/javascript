@@ -70,7 +70,7 @@ const resolveEmojiUrisInHtml = (html: string): string => {
       if (!emoji) {
         return _match;
       }
-      const altMatch: RegExpMatchArray | null = (pre + post).match(/alt="([^"]*)"/i);
+      const altMatch: RegExpMatchArray | null = /alt="([^"]*)"/i.exec(pre + post);
       const label: string = altMatch ? altMatch[1] : emoji;
       return `<span role="img" aria-label="${label}">${emoji}</span>`;
     },
@@ -196,9 +196,9 @@ const createAuthComponentFromFlow = (
 
     case EmbeddedFlowComponentType.Action: {
       const actionId: string = component.id;
-      const eventType: string = (component.eventType as string) || '';
+      const eventType: string = component.eventType || '';
       const buttonText: string = resolve(component.label);
-      const componentVariant: string = (component.variant as string) || '';
+      const componentVariant: string = component.variant || '';
 
       const shouldSkipValidation: boolean = eventType.toUpperCase() === EmbeddedFlowEventType.Trigger;
 
@@ -294,7 +294,7 @@ const createAuthComponentFromFlow = (
     }
 
     case EmbeddedFlowComponentType.Text: {
-      const variant: any = getTypographyVariant(component.variant as string);
+      const variant: any = getTypographyVariant(component.variant);
       const align: string = typeof (component as any)['align'] === 'string' ? (component as any)['align'] : 'left';
 
       return h(
@@ -319,12 +319,10 @@ const createAuthComponentFromFlow = (
       const isTouched: boolean = touchedFields[identifier] || false;
       const error: string | undefined = isTouched ? formErrors[identifier] : undefined;
 
-      const selectOptions: Array<{label: string; value: string}> = ((component as any).options || []).map(
-        (opt: any) => ({
-          label: typeof opt === 'string' ? opt : String(opt.label ?? opt.value ?? ''),
-          value: typeof opt === 'string' ? opt : String(opt.value ?? ''),
-        }),
-      );
+      const selectOptions: {label: string; value: string}[] = ((component as any).options || []).map((opt: any) => ({
+        label: typeof opt === 'string' ? opt : String(opt.label ?? opt.value ?? ''),
+        value: typeof opt === 'string' ? opt : String(opt.value ?? ''),
+      }));
 
       return h(Select, {
         class: options.inputClassName,
@@ -407,7 +405,7 @@ const createAuthComponentFromFlow = (
       const stackStyle: Record<string, string> = {
         alignItems: align,
         display: 'flex',
-        flexDirection: direction as string,
+        flexDirection: direction,
         flexWrap: 'wrap',
         gap: `${gap * 0.5}rem`,
         justifyContent: justify,
@@ -432,7 +430,7 @@ const createAuthComponentFromFlow = (
           )
         : [];
 
-      return h('div', {key, style: stackStyle}, stackChildren.filter(Boolean) as VNode[]);
+      return h('div', {key, style: stackStyle}, stackChildren.filter(Boolean));
     }
 
     case EmbeddedFlowComponentType.Consent: {
@@ -498,7 +496,7 @@ export const renderSignInComponents = (
         },
       ),
     )
-    .filter(Boolean) as VNode[];
+    .filter(Boolean);
 
 /**
  * Processes an array of components and renders them as VNodes for sign-up.
@@ -541,7 +539,7 @@ export const renderSignUpComponents = (
         },
       ),
     )
-    .filter(Boolean) as VNode[];
+    .filter(Boolean);
 
 /**
  * Processes an array of components and renders them as VNodes for invite-user flows.
@@ -584,4 +582,4 @@ export const renderInviteUserComponents = (
         },
       ),
     )
-    .filter(Boolean) as VNode[];
+    .filter(Boolean);

@@ -140,7 +140,6 @@ export function useOAuthCallback({
     if (error) {
       oauthCodeProcessedRef.current = true;
       if (tokenValidationAttemptedRef) {
-        // eslint-disable-next-line no-param-reassign
         tokenValidationAttemptedRef.current = true;
       }
       onError?.(new Error(errorDescription || error || 'OAuth authentication failed'));
@@ -170,7 +169,6 @@ export function useOAuthCallback({
     oauthCodeProcessedRef.current = true;
 
     if (tokenValidationAttemptedRef) {
-      // eslint-disable-next-line no-param-reassign
       tokenValidationAttemptedRef.current = true;
     }
 

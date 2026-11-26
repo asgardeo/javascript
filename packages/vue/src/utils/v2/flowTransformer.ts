@@ -123,7 +123,7 @@ const applyInputRefMapping = (
   components.map((component: EmbeddedFlowComponent) => {
     const transformedComponent: any = {...component} as EmbeddedFlowComponent & {
       actionRef?: string;
-      options?: Array<{label: string; value: string}>;
+      options?: {label: string; value: string}[];
     };
 
     if (transformedComponent.ref && refMapping.has(transformedComponent.ref)) {

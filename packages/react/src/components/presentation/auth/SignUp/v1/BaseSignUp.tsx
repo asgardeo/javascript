@@ -37,7 +37,7 @@ import useTranslation from '../../../../../hooks/useTranslation';
 import resolveFlowErrorMessage from '../../../../../utils/resolveFlowErrorMessage';
 import AlertPrimitive from '../../../../primitives/Alert/Alert';
 import ButtonPrimitive from '../../../../primitives/Button/Button';
-// eslint-disable-next-line import/no-named-as-default
+
 import CardPrimitive, {CardProps} from '../../../../primitives/Card/Card';
 import Logo from '../../../../primitives/Logo/Logo';
 import Spinner from '../../../../primitives/Spinner/Spinner';
@@ -86,7 +86,7 @@ export interface BaseSignUpRenderProps {
   /**
    * Flow messages
    */
-  messages: Array<{message: string; type: string}>;
+  messages: {message: string; type: string}[];
 
   /**
    * Flow subtitle
@@ -634,7 +634,7 @@ const BaseSignUpContent: FC<BaseSignUpProps> = ({
         ...(currentFlow.flowId && {flowId: currentFlow.flowId}),
         flowType: (currentFlow as any).flowType || 'REGISTRATION',
         inputs: filteredInputs,
-        ...(actionId && {actionId: actionId as string}),
+        ...(actionId && {actionId: actionId}),
       } as any;
 
       const response: any = await onSubmit(payload);

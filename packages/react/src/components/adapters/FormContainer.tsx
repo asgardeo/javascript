@@ -19,7 +19,7 @@
 import {FC, FormEvent} from 'react';
 import useTheme from '../../contexts/Theme/useTheme';
 import {AdapterProps} from '../../models/adapters';
-// eslint-disable-next-line import/no-cycle
+// eslint-disable-next-line import-x/no-cycle
 import {createSignUpComponent} from '../presentation/auth/SignUp/v1/SignUpOptionFactory';
 
 /**

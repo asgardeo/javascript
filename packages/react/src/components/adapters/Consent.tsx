@@ -98,7 +98,7 @@ const Consent: FC<ConsentProps> = ({consentData, formValues, onInputChange, chil
   if (purposes.length === 0) return null;
 
   if (children) {
-    return <>{children({formValues, onInputChange, purposes: purposes as ConsentPurposeData[]})}</>;
+    return <>{children({formValues, onInputChange, purposes: purposes})}</>;
   }
 
   return (

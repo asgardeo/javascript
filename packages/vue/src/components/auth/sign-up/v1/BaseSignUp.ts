@@ -58,7 +58,7 @@ export interface BaseSignUpRenderProps {
   handleSubmit: (component: any, data?: Record<string, any>) => Promise<void>;
   isLoading: boolean;
   isValid: boolean;
-  messages: Array<{message: string; type: string}>;
+  messages: {message: string; type: string}[];
   subtitle: string;
   title: string;
   touched: Record<string, boolean>;
@@ -152,7 +152,7 @@ const BaseSignUp: Component = defineComponent({
         comps.forEach((component: EmbeddedFlowComponent) => {
           const cfg: any = (component as any).config || {};
           if (component.type === EmbeddedFlowComponentType.Input) {
-            const name: string = (cfg.name as string) || (cfg.identifier as string) || (component.id as string);
+            const name: string = (cfg.name as string) || (cfg.identifier as string) || component.id;
             if (name) names.push(name);
           }
           const children: EmbeddedFlowComponent[] = (component as any).components || [];
@@ -164,7 +164,7 @@ const BaseSignUp: Component = defineComponent({
     };
 
     const setupFormFields = (response: EmbeddedFlowExecuteResponse): void => {
-      const componentTree: EmbeddedFlowComponent[] = (response.data?.components as EmbeddedFlowComponent[]) || [];
+      const componentTree: EmbeddedFlowComponent[] = response.data?.components || [];
       const names: string[] = collectInputNames(componentTree);
       const initial: Record<string, string> = {};
       names.forEach((name: string) => {
@@ -421,7 +421,7 @@ const BaseSignUp: Component = defineComponent({
           handleSubmit,
           isLoading: isLoading.value,
           isValid: isFormValid(),
-          messages: (flowMessages.value as Array<{message: string; type: string}>) || [],
+          messages: (flowMessages.value as {message: string; type: string}[]) || [],
           subtitle: flowSubtitle.value || t('signup.subheading') || '',
           title: flowTitle.value || t('signup.heading') || '',
           touched: touchedFields.value,
@@ -448,7 +448,7 @@ const BaseSignUp: Component = defineComponent({
         );
       }
 
-      const components: EmbeddedFlowComponent[] = (currentFlow.value.data?.components as EmbeddedFlowComponent[]) || [];
+      const components: EmbeddedFlowComponent[] = currentFlow.value.data?.components || [];
 
       const rendered: VNode[] = renderSignUpComponents(
         components,

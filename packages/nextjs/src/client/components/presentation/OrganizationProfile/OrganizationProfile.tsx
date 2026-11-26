@@ -158,7 +158,7 @@ const OrganizationProfile: FC<OrganizationProfileProps> = ({
       setLoading(true);
       setError(false);
       const result: {data?: {organization?: OrganizationDetails}; error: string | null; success: boolean} =
-        await getOrganizationAction(organizationId, (await getSessionId()) as string);
+        await getOrganizationAction(organizationId, (await getSessionId())!);
 
       if (result.data?.organization) {
         setOrganization(result.data.organization);
@@ -185,8 +185,7 @@ const OrganizationProfile: FC<OrganizationProfileProps> = ({
 
     try {
       // Convert payload to patch operations format
-      const operations: Array<{operation: 'REPLACE' | 'REMOVE'; path: string; value?: any}> =
-        createPatchOperations(payload);
+      const operations: {operation: 'REPLACE' | 'REMOVE'; path: string; value?: any}[] = createPatchOperations(payload);
 
       await updateOrganization({
         baseUrl,

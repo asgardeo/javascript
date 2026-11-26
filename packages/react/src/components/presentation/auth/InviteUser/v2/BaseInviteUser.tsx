@@ -34,7 +34,7 @@ import useTheme from '../../../../../contexts/Theme/useTheme';
 import useTranslation from '../../../../../hooks/useTranslation';
 import {normalizeFlowResponse, extractErrorMessage} from '../../../../../utils/v2/flowTransformer';
 import AlertPrimitive from '../../../../primitives/Alert/Alert';
-// eslint-disable-next-line import/no-named-as-default
+
 import CardPrimitive, {CardProps} from '../../../../primitives/Card/Card';
 import Spinner from '../../../../primitives/Spinner/Spinner';
 import Typography from '../../../../primitives/Typography/Typography';

@@ -23,8 +23,8 @@ import {
 } from '@asgardeo/browser';
 import {BaseSignIn} from '@asgardeo/vue';
 import {type Component, type PropType, type SetupContext, type VNode, defineComponent, h} from 'vue';
-import {navigateTo} from '#app';
 import {useAsgardeo} from '#imports';
+import {navigateTo} from '#app';
 
 /**
  * Nuxt-specific SignIn container for the embedded (app-native) sign-in flow.
@@ -66,7 +66,7 @@ const SignIn: Component = defineComponent({
 
     const handleInitialize = async (): Promise<EmbeddedSignInFlowInitiateResponse> =>
       // Pass flowId='' to trigger the embedded-flow initiation path in useAsgardeo.
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
       (await signIn({flowId: ''} as any, {} as any)) as EmbeddedSignInFlowInitiateResponse;
 
     const handleOnSubmit = async (
@@ -81,7 +81,7 @@ const SignIn: Component = defineComponent({
       if (authData && afterSignInUrl) {
         if (import.meta.client) {
           // Build the full URL with auth data params (client-only: needs window.location.origin).
-          const url: URL = new URL(afterSignInUrl as string, window.location.origin);
+          const url: URL = new URL(afterSignInUrl, window.location.origin);
           Object.entries(authData).forEach(([key, value]: [string, any]) => {
             if (value !== undefined && value !== null) {
               url.searchParams.append(key, String(value));
@@ -90,7 +90,7 @@ const SignIn: Component = defineComponent({
           await navigateTo(url.pathname + url.search + url.hash);
         } else {
           // On SSR, just navigate to the base afterSignInUrl (no auth data params).
-          await navigateTo(afterSignInUrl as string);
+          await navigateTo(afterSignInUrl);
         }
       }
     };

@@ -63,14 +63,12 @@ describe('Logger', () => {
 
     it('should log debug messages when level is debug', () => {
       logger.setLevel('debug' as any);
-      // eslint-disable-next-line testing-library/no-debugging-utils
       logger.debug('Test debug message');
       expect(debugSpy).toHaveBeenCalled();
     });
 
     it('should not log debug messages when level is info', () => {
       logger.setLevel('info' as any);
-      // eslint-disable-next-line testing-library/no-debugging-utils
       logger.debug('Test debug message');
       expect(debugSpy).not.toHaveBeenCalled();
     });
@@ -80,7 +78,6 @@ describe('Logger', () => {
     it('should respect log level filtering', () => {
       logger.setLevel('warn' as any);
 
-      // eslint-disable-next-line testing-library/no-debugging-utils
       logger.debug('Debug message');
       logger.info('Info message');
       logger.warn('Warning message');
@@ -96,7 +93,6 @@ describe('Logger', () => {
       // cast to any if the type union does not include "silent"
       logger.setLevel('silent' as any);
 
-      // eslint-disable-next-line testing-library/no-debugging-utils
       logger.debug('Debug message');
       logger.info('Info message');
       logger.warn('Warning message');

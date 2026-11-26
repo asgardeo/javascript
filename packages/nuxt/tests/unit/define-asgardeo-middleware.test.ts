@@ -16,7 +16,7 @@
  * under the License.
  */
 
-/* eslint-disable @typescript-eslint/typedef, sort-keys, @typescript-eslint/explicit-function-return-type, @typescript-eslint/no-unused-vars, @typescript-eslint/naming-convention */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 
 import {describe, it, expect, vi, beforeEach} from 'vitest';
 

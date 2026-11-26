@@ -42,7 +42,7 @@ import {normalizeFlowResponse, extractErrorMessage} from '../../../../../utils/v
 import getAuthComponentHeadings from '../../../../../utils/v2/getAuthComponentHeadings';
 import {handlePasskeyRegistration} from '../../../../../utils/v2/passkey';
 import AlertPrimitive from '../../../../primitives/Alert/Alert';
-// eslint-disable-next-line import/no-named-as-default
+
 import CardPrimitive, {CardProps} from '../../../../primitives/Card/Card';
 import Logo from '../../../../primitives/Logo/Logo';
 import Spinner from '../../../../primitives/Spinner/Spinner';
@@ -108,7 +108,7 @@ export interface BaseSignUpRenderProps {
   /**
    * Flow messages
    */
-  messages: Array<{message: string; type: string}>;
+  messages: {message: string; type: string}[];
 
   /**
    * Flow subtitle
@@ -794,7 +794,7 @@ const BaseSignUpContent: FC<BaseSignUpProps> = ({
     passkeyProcessedRef.current = true;
 
     const performPasskeyRegistration = async (): Promise<void> => {
-      const passkeyResponse: any = await handlePasskeyRegistration(passkeyState.creationOptions!);
+      const passkeyResponse: any = await handlePasskeyRegistration(passkeyState.creationOptions);
       const passkeyResponseObj: any = JSON.parse(passkeyResponse);
 
       const inputs: any = {
@@ -806,7 +806,7 @@ const BaseSignUpContent: FC<BaseSignUpProps> = ({
       // After successful registration, submit the result to the server
       const payload: EmbeddedFlowExecuteRequestPayload = {
         actionId: passkeyState.actionId || 'submit',
-        executionId: passkeyState.executionId as string,
+        executionId: passkeyState.executionId,
         flowType: (currentFlow as any)?.flowType || 'REGISTRATION',
         inputs,
         ...(challengeTokenRef.current ? {challengeToken: challengeTokenRef.current} : {}),

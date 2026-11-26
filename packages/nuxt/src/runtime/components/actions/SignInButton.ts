@@ -19,8 +19,8 @@
 import {AsgardeoRuntimeError} from '@asgardeo/browser';
 import {BaseSignInButton} from '@asgardeo/vue';
 import {type Component, type PropType, type Ref, type SetupContext, type VNode, defineComponent, h, ref} from 'vue';
-import {navigateTo} from '#app';
 import {useAsgardeo} from '#imports';
+import {navigateTo} from '#app';
 
 /**
  * Nuxt-specific SignInButton container.

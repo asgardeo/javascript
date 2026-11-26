@@ -115,7 +115,6 @@ function getAvatarGradient(seed: string): string {
   if (!seed) return AVATAR_GRADIENTS[0];
   let hash: number = 0;
   for (let i: number = 0; i < seed.length; i += 1) {
-    // eslint-disable-next-line no-bitwise
     hash = (hash * 31 + seed.charCodeAt(i)) >>> 0;
   }
   return AVATAR_GRADIENTS[Math.abs(hash) % AVATAR_GRADIENTS.length];
@@ -141,7 +140,7 @@ function buildScimPatchValue(
     };
   }
 
-  const complexMultiValued: Set<string> = new Set([
+  const complexMultiValued = new Set<string>([
     'phoneNumbers',
     'emails',
     'ims',
@@ -256,7 +255,7 @@ const BaseUserProfile: Component = defineComponent({
     // ── Input rendering per schema type ───────────────────────────────────────
 
     function renderInput(schema: ExtendedSchema): VNode {
-      const fieldName: string = schema.name!;
+      const fieldName: string = schema.name;
       const currentValue: any = editedValues.value[fieldName];
 
       switch (schema.type) {

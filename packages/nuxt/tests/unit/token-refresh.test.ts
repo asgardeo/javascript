@@ -16,8 +16,6 @@
  * under the License.
  */
 
-/* eslint-disable @typescript-eslint/typedef, sort-keys, @typescript-eslint/explicit-function-return-type */
-
 /**
  * Unit tests for getValidAccessToken (token-refresh.ts).
  *
@@ -251,7 +249,7 @@ describe('getValidAccessToken — successful refresh', () => {
     // Verify the new session cookie contains the original refresh token by
     // decoding the JWT written to the cookie.
     const cookieCall = vi.mocked(setCookie).mock.calls[0];
-    const cookieValue = cookieCall[2] as string;
+    const cookieValue = cookieCall[2];
     const payload = await verifySessionToken(cookieValue, TEST_SECRET);
     expect(payload.refreshToken).toBe('rt_kept');
 

@@ -450,9 +450,7 @@ export interface I18nPreferences {
    * Only the keys you want to change need to be present; everything else is taken from the
    * built-in bundle for that locale.
    */
-  bundles?: {
-    [key: string]: I18nBundleOverride;
-  };
+  bundles?: Record<string, I18nBundleOverride>;
   /**
    * The domain to use when setting the language cookie.
    * Only applies when `storageStrategy` is `'cookie'`.

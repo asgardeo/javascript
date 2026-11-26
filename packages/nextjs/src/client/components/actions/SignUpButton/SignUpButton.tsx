@@ -93,7 +93,7 @@ const SignUpButton: ForwardRefExoticComponent<SignUpButtonProps & RefAttributes<
       }
 
       if (onClick) {
-        onClick(e as MouseEvent<HTMLButtonElement>);
+        onClick(e!);
       }
     } catch (error) {
       throw new AsgardeoRuntimeError(

@@ -29,7 +29,7 @@ import {
   logger,
 } from '@asgardeo/browser';
 import {FC, ReactElement, useState, useEffect, useRef, ReactNode} from 'react';
-// eslint-disable-next-line import/no-named-as-default
+
 import BaseSignIn, {BaseSignInProps} from './BaseSignIn';
 import useAsgardeo from '../../../../../contexts/Asgardeo/useAsgardeo';
 import useTranslation from '../../../../../hooks/useTranslation';
@@ -94,7 +94,7 @@ export interface SignInRenderProps {
  * Props for the SignIn component.
  * Matches the interface from the main SignIn component for consistency.
  */
-export type SignInProps = {
+export interface SignInProps {
   /**
    * Render props function for custom UI
    */
@@ -133,7 +133,7 @@ export type SignInProps = {
    * Theme variant for the component.
    */
   variant?: BaseSignInProps['variant'];
-};
+}
 
 /**
  * State for tracking passkey registration
@@ -477,7 +477,7 @@ const SignIn: FC<SignInProps> = ({
         cleanupFlowUrlParams();
       }
     } catch (error) {
-      const err: any = error as any;
+      const err: any = error;
       await clearFlowState();
 
       // Extract error message from response or error object
@@ -752,7 +752,7 @@ const SignIn: FC<SignInProps> = ({
         }
       }
     } catch (error) {
-      const err: any = error as any;
+      const err: any = error;
       await clearFlowState();
 
       // Extract error message from response or error object
@@ -808,7 +808,7 @@ const SignIn: FC<SignInProps> = ({
       let inputs: Record<string, string>;
 
       if (passkeyState.challenge) {
-        const passkeyResponse: any = await handlePasskeyAuthentication(passkeyState.challenge!);
+        const passkeyResponse: any = await handlePasskeyAuthentication(passkeyState.challenge);
         const passkeyResponseObj: any = JSON.parse(passkeyResponse);
 
         inputs = {
@@ -819,7 +819,7 @@ const SignIn: FC<SignInProps> = ({
           userHandle: passkeyResponseObj.response.userHandle,
         };
       } else if (passkeyState.creationOptions) {
-        const passkeyResponse: any = await handlePasskeyRegistration(passkeyState.creationOptions!);
+        const passkeyResponse: any = await handlePasskeyRegistration(passkeyState.creationOptions);
         const passkeyResponseObj: any = JSON.parse(passkeyResponse);
 
         inputs = {
@@ -832,7 +832,7 @@ const SignIn: FC<SignInProps> = ({
       }
 
       await handleSubmit({
-        executionId: passkeyState.executionId!,
+        executionId: passkeyState.executionId,
         inputs,
       });
     };

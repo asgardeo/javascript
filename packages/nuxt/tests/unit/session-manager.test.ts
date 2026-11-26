@@ -16,8 +16,6 @@
  * under the License.
  */
 
-/* eslint-disable @typescript-eslint/typedef, sort-keys */
-
 import {describe, it, expect} from 'vitest';
 import {
   createSessionToken,
@@ -85,7 +83,7 @@ describe('createSessionToken / verifySessionToken', () => {
     // data bits, so any change reliably alters the decoded value (unlike the last
     // char, which only carries 4 data bits and can be a no-op when those bits collide).
     const parts = token.split('.');
-    parts[2] = (parts[2][0] === 'a' ? 'b' : 'a') + parts[2].slice(1);
+    parts[2] = (parts[2].startsWith('a') ? 'b' : 'a') + parts[2].slice(1);
     const tampered = parts.join('.');
 
     await expect(verifySessionToken(tampered, TEST_SECRET)).rejects.toThrow();
@@ -150,7 +148,7 @@ describe('createTempSessionToken / verifyTempSessionToken', () => {
     const parts = token.split('.');
     // Flip the first character of the signature — reliably changes the decoded
     // value regardless of which character the signature happens to end with.
-    parts[2] = (parts[2][0] === 'a' ? 'b' : 'a') + parts[2].slice(1);
+    parts[2] = (parts[2].startsWith('a') ? 'b' : 'a') + parts[2].slice(1);
 
     await expect(verifyTempSessionToken(parts.join('.'), TEST_SECRET)).rejects.toThrow();
   });

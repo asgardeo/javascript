@@ -509,14 +509,14 @@ const BaseAcceptInvite: Component = defineComponent({
           ? h(
               'div',
               {style: 'padding:0 1rem;margin-bottom:1rem'},
-              h(Alert, {variant: 'error'}, () => apiError.value!.message),
+              h(Alert, {variant: 'error'}, () => apiError.value.message),
             )
           : null,
         h(
           'div',
           {style: 'padding:1rem'},
-          ((): Array<VNode | VNode[] | null> => {
-            const formContent: Array<VNode | VNode[] | null> = [];
+          ((): (VNode | VNode[] | null)[] => {
+            const formContent: (VNode | VNode[] | null)[] = [];
 
             if (renderedComponents.length > 0) {
               formContent.push(renderedComponents);

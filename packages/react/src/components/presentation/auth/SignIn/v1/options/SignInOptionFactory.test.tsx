@@ -16,8 +16,6 @@
  * under the License.
  */
 
-/* eslint-disable sort-keys, @typescript-eslint/typedef, @typescript-eslint/explicit-function-return-type, testing-library/no-container, testing-library/no-node-access */
-
 import {ApplicationNativeAuthenticationConstants} from '@asgardeo/browser';
 import {cleanup, render} from '@testing-library/react';
 import {afterEach, beforeEach, describe, expect, it, vi, Mock} from 'vitest';
@@ -227,8 +225,8 @@ describe('createSignInOptionFromAuthenticator', () => {
       }),
     );
 
-    const username = container.querySelector('input[name="username"]') as HTMLInputElement;
-    const password = container.querySelector('input[name="password"]') as HTMLInputElement;
+    const username = container.querySelector('input[name="username"]');
+    const password = container.querySelector('input[name="password"]');
 
     // Overridden through the bundle.
     expect(container.textContent).toContain('Email');

@@ -1,33 +1,23 @@
-# `@wso2/prettier-config`
+# @asgardeo/prettier-config
 
-Shareable Prettier configurations used in WSO2 code bases.
+The shared Prettier configuration for the Asgardeo JavaScript SDKs.
 
-## Installation
+## Usage
 
-This is a private workspace package (`"private": true`) vendored from
-[`brionmario/wso2-ui-configs`](https://github.com/brionmario/wso2-ui-configs); it is not published to a registry.
-Packages in this monorepo consume it with a `workspace:*` dependency:
+Add it as a workspace dev dependency and re-export it from the package's `prettier.config.js`:
 
 ```json
 {
   "devDependencies": {
-    "@wso2/prettier-config": "workspace:*",
-    "prettier": "2.6.2"
+    "@asgardeo/prettier-config": "workspace:*"
   }
 }
 ```
 
-See [`../README.md`](../README.md) for provenance and how to update the vendored copy.
-
-## Usage
-
-You can extend the `@wso2/prettier-config` in your preferred configuration file flavor.
-
 ```js
-// prettier.config.cjs
+import config from '@asgardeo/prettier-config';
 
-module.exports = require('@wso2/prettier-config');
+export default config;
 ```
 
-For more extending strategies, read the
-[official guide](https://prettier.io/docs/en/configuration.html#sharing-configurations).
+The package is built to ESM and CommonJS, so it can also be loaded with `require()` from a `prettier.config.cjs`.

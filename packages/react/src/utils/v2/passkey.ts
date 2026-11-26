@@ -25,7 +25,7 @@ import {AsgardeoRuntimeError, arrayBufferToBase64url, base64urlToArrayBuffer} fr
  * @returns Promise that resolves to a JSON string containing the WebAuthn registration response.
  */
 export const handlePasskeyRegistration = async (challengeData: string): Promise<string> => {
-  if (!window.navigator.credentials || !window.navigator.credentials.create) {
+  if (!window.navigator.credentials?.create) {
     throw new AsgardeoRuntimeError(
       'WebAuthn is not supported in this browser.',
       'browser-webauthn-not-supported',
@@ -117,7 +117,7 @@ export const handlePasskeyRegistration = async (challengeData: string): Promise<
  * @returns Promise that resolves to a JSON string containing the WebAuthn authentication response.
  */
 export const handlePasskeyAuthentication = async (challengeData: string): Promise<string> => {
-  if (!window.navigator.credentials || !window.navigator.credentials.get) {
+  if (!window.navigator.credentials?.get) {
     throw new AsgardeoRuntimeError(
       'WebAuthn is not supported in this browser.',
       'browser-webauthn-not-supported',

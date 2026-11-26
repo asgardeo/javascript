@@ -1,0 +1,48 @@
+/**
+ * Copyright (c) 2026, WSO2 LLC. (https://www.wso2.com).
+ *
+ * WSO2 LLC. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
+import type {Linter} from 'eslint';
+import vuePlugin from 'eslint-plugin-vue';
+import globals from 'globals';
+import createParserOptions from '../utils/tsconfig-resolver';
+
+const vueConfig: Linter.Config[] = [
+  ...(vuePlugin.configs['flat/recommended'] as Linter.Config[]),
+  {
+    files: ['**/*.vue'],
+    languageOptions: {
+      globals: globals.browser,
+      parserOptions: {
+        ...createParserOptions(),
+        extraFileExtensions: ['.vue'],
+        // `vue-eslint-parser` handles `.vue` files and delegates `<script>` blocks to the TypeScript parser.
+        parser: '@typescript-eslint/parser',
+      },
+    },
+    name: 'asgardeo/vue-parser',
+  },
+  {
+    name: 'asgardeo/vue-overrides',
+    rules: {
+      // Vue 3 Composition API doesn't require multi-word component names.
+      'vue/multi-word-component-names': 'off',
+    },
+  },
+];
+
+export default vueConfig;

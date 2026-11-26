@@ -18,7 +18,7 @@
 
 'use client';
 
-import {Schema, User} from '@asgardeo/node';
+import {User} from '@asgardeo/node';
 import {BaseUserProfile, BaseUserProfileProps, useTranslation, useUser} from '@asgardeo/react';
 import {FC, useEffect, useState, ReactElement} from 'react';
 import getFederatedProfileLock, {FederatedProfileLock} from '../../../../server/actions/getFederatedProfileLock';
@@ -100,7 +100,7 @@ const UserProfile: FC<UserProfileProps> = ({editable, preferences, ...rest}: Use
 
     const result: {data: {user: User}; error: string; success: boolean} = await updateProfile(
       payload,
-      (await getSessionId()) as string,
+      await getSessionId(),
     );
 
     if (result?.success === false) {
@@ -142,9 +142,9 @@ const UserProfile: FC<UserProfileProps> = ({editable, preferences, ...rest}: Use
 
   return (
     <BaseUserProfile
-      profile={profile as User}
-      flattenedProfile={flattenedProfile as User}
-      schemas={schemas as Schema[]}
+      profile={profile!}
+      flattenedProfile={flattenedProfile!}
+      schemas={schemas!}
       onUpdate={handleProfileUpdate}
       editable={resolvedEditable}
       isLoading={isResolvingEditable}

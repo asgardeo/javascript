@@ -58,7 +58,7 @@ export interface BaseRecoveryRenderProps {
   handleSubmit: (component: any, data?: Record<string, any>) => Promise<void>;
   isLoading: boolean;
   isValid: boolean;
-  messages: Array<{message: string; type: string}>;
+  messages: {message: string; type: string}[];
   meta: FlowMetadataResponse | null;
   subtitle: string;
   title: string;

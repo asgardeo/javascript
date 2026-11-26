@@ -59,12 +59,12 @@ export interface BaseOrganizationProfileProps {
   /**
    * Array of field configurations to display. Each field specifies what organization data to show.
    */
-  fields?: Array<{
+  fields?: {
     editable?: boolean;
     key: keyof OrganizationDetails | 'attributes';
     label: string;
     render?: (value: any, organization: OrganizationDetails) => ReactNode;
-  }>;
+  }[];
 
   /**
    * Display mode for the component.
@@ -283,7 +283,7 @@ const BaseOrganizationProfile: FC<BaseOrganizationProfileProps> = ({
       let fieldValue: any;
       if (editedOrganization && fieldKey && editedOrganization[fieldKey as keyof OrganizationDetails] !== undefined) {
         fieldValue = editedOrganization[fieldKey as keyof OrganizationDetails];
-      } else if (organization && organization[fieldKey as keyof OrganizationDetails] !== undefined) {
+      } else if (organization?.[fieldKey as keyof OrganizationDetails] !== undefined) {
         fieldValue = organization[fieldKey as keyof OrganizationDetails];
       } else {
         fieldValue = '';
@@ -441,7 +441,7 @@ const BaseOrganizationProfile: FC<BaseOrganizationProfileProps> = ({
   };
 
   const renderOrganizationField = (field: any): ReactElement | null => {
-    if (!field || !field.key) return null;
+    if (!field?.key) return null;
 
     const hasValue: boolean =
       organization?.[field.key as keyof OrganizationDetails] !== undefined &&

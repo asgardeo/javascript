@@ -214,8 +214,7 @@ const SignIn: Component = defineComponent({
         sessionStorage.setItem(AUTH_ID_STORAGE_KEY, urlParams.authId);
       }
 
-      const effectiveApplicationId: string | null | undefined =
-        (applicationId as string | undefined) || urlParams.applicationId;
+      const effectiveApplicationId: string | null | undefined = applicationId || urlParams.applicationId;
 
       if (!urlParams.executionId && !effectiveApplicationId) {
         const err: AsgardeoRuntimeError = new AsgardeoRuntimeError(
@@ -504,7 +503,7 @@ const SignIn: Component = defineComponent({
             throw new Error('No passkey challenge or creation options available');
           }
 
-          await handleSubmit({executionId: state.executionId!, inputs});
+          await handleSubmit({executionId: state.executionId, inputs});
 
           passkeyState.value = {
             actionId: null,

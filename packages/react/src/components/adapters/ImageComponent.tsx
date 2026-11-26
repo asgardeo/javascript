@@ -33,7 +33,7 @@ const ImageComponent: FC<AdapterProps> = ({component}: AdapterProps) => {
   const alt: string = (config['alt'] as string) || (config['label'] as string) || 'Image';
   const width: string = (config['width'] as string) || '100%';
   const height: string = (config['height'] as string) || 'auto';
-  const variant: string = (component.variant?.toLowerCase() as string) || 'image_block';
+  const variant: string = component.variant?.toLowerCase() || 'image_block';
 
   const imageStyle: CSSProperties = {
     borderRadius: theme.vars.borderRadius.small,

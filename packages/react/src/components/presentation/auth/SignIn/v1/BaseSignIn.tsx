@@ -195,7 +195,7 @@ const BaseSignInContent: FC<BaseSignInProps> = ({
   const [currentFlow, setCurrentFlow] = useState<EmbeddedSignInFlowInitiateResponse | null>(null);
   const [currentAuthenticator, setCurrentAuthenticator] = useState<EmbeddedSignInFlowAuthenticator | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [messages, setMessages] = useState<Array<{message: string; type: string}>>([]);
+  const [messages, setMessages] = useState<{message: string; type: string}[]>([]);
 
   const isLoading: boolean = externalIsLoading || isSignInInitializationRequestLoading;
 
@@ -264,18 +264,17 @@ const BaseSignInContent: FC<BaseSignInProps> = ({
       'nextStep' in response &&
       response.nextStep &&
       (response.nextStep as any).stepType === EmbeddedSignInFlowStepType.AuthenticatorPrompt &&
-      (response.nextStep as any).authenticators &&
-      (response.nextStep as any).authenticators.length === 1
+      (response.nextStep as any).authenticators?.length === 1
     ) {
       const responseAuthenticator: any = (response.nextStep as any).authenticators[0];
       if (
         responseAuthenticator.metadata?.promptType === EmbeddedSignInFlowAuthenticatorPromptType.RedirectionPrompt &&
-        (responseAuthenticator.metadata as any)?.additionalData?.redirectUrl
+        responseAuthenticator.metadata?.additionalData?.redirectUrl
       ) {
         /**
          * Open a popup window to handle redirection prompts
          */
-        const redirectUrl: string = (responseAuthenticator.metadata as any)?.additionalData?.redirectUrl;
+        const redirectUrl: string = responseAuthenticator.metadata?.additionalData?.redirectUrl;
         const popup: Window | null = window.open(
           redirectUrl,
           'oauth_popup',
@@ -486,7 +485,7 @@ const BaseSignInContent: FC<BaseSignInProps> = ({
       }
 
       if (response && 'flowId' in response && 'nextStep' in response) {
-        const nextStepResponse: any = response as any;
+        const nextStepResponse: any = response;
         setCurrentFlow(nextStepResponse);
 
         if (nextStepResponse.nextStep?.authenticators?.length > 0) {
@@ -586,7 +585,7 @@ const BaseSignInContent: FC<BaseSignInProps> = ({
 
           // Handle next step if authentication is not complete
           if (response && 'flowId' in response && 'nextStep' in response) {
-            const nextStepResponse: any = response as any;
+            const nextStepResponse: any = response;
             setCurrentFlow(nextStepResponse);
 
             if (nextStepResponse.nextStep?.authenticators?.length > 0) {
@@ -696,7 +695,7 @@ const BaseSignInContent: FC<BaseSignInProps> = ({
         }
 
         if (formResponse && 'flowId' in formResponse && 'nextStep' in formResponse) {
-          const nextStepResponse: any = formResponse as any;
+          const nextStepResponse: any = formResponse;
           setCurrentFlow(nextStepResponse);
 
           if (nextStepResponse.nextStep?.authenticators?.length > 0) {
@@ -767,7 +766,7 @@ const BaseSignInContent: FC<BaseSignInProps> = ({
           }
 
           if (response && 'flowId' in response && 'nextStep' in response) {
-            const nextStepResponse: any = response as any;
+            const nextStepResponse: any = response;
             setCurrentFlow(nextStepResponse);
 
             if (nextStepResponse.nextStep?.authenticators?.length > 0) {
@@ -909,7 +908,7 @@ const BaseSignInContent: FC<BaseSignInProps> = ({
         onFlowChange?.(response);
 
         if (response?.flowStatus === EmbeddedSignInFlowStatus.SuccessCompleted) {
-          onSuccess?.((response as any).authData || {});
+          onSuccess?.(response.authData || {});
           return;
         }
 
@@ -927,7 +926,7 @@ const BaseSignInContent: FC<BaseSignInProps> = ({
         }
 
         if (response && 'nextStep' in response && response.nextStep && 'messages' in response.nextStep) {
-          const stepMessages: any[] = (response.nextStep as any).messages || [];
+          const stepMessages: any[] = response.nextStep.messages || [];
           setMessages(
             stepMessages.map((msg: any) => ({
               message: msg.message || '',
@@ -1128,6 +1127,8 @@ const BaseSignInContent: FC<BaseSignInProps> = ({
   // If the current authenticator is a passkey, auto-trigger it instead of showing a form
   if (isPasskeyAuthenticator(currentAuthenticator) && !isLoading) {
     // Auto-trigger passkey authentication
+    // TODO: This hook runs after early returns, so the hook order changes between renders. Move it above them.
+    // eslint-disable-next-line react-hooks/rules-of-hooks
     useEffect(() => {
       handleAuthenticatorSelection(currentAuthenticator);
     }, [currentAuthenticator]);

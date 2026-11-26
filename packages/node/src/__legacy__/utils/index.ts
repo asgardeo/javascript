@@ -16,6 +16,6 @@
  * under the License.
  */
 
-// eslint-disable-next-line import/no-cycle
+// eslint-disable-next-line import-x/no-cycle
 export * from './session-utils';
 export * from './logger-utils';

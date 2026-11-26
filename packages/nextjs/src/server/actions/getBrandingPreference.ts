@@ -30,7 +30,7 @@ import {
  */
 const getBrandingPreference = async (
   config: GetBrandingPreferenceConfig,
-  sessionId?: string | undefined, // eslint-disable-line @typescript-eslint/no-unused-vars
+  sessionId?: string, // eslint-disable-line @typescript-eslint/no-unused-vars
 ): Promise<BrandingPreference> => {
   try {
     const brandingPreference: BrandingPreference = await baseGetBrandingPreference(config);

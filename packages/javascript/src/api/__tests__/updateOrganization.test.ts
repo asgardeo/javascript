@@ -21,11 +21,11 @@ import AsgardeoAPIError from '../../errors/AsgardeoAPIError';
 import type {OrganizationDetails} from '../getOrganization';
 import updateOrganization, {createPatchOperations} from '../updateOrganization';
 
-type PatchOp = {
+interface PatchOp {
   operation: 'REPLACE' | 'ADD' | 'REMOVE';
   path: string;
   value?: unknown;
-};
+}
 
 describe('updateOrganization', (): void => {
   const baseUrl: string = 'https://api.asgardeo.io/t/demo';

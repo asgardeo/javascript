@@ -120,7 +120,7 @@ export interface ThemeComponents {
     | {
         defaultProps?: Record<string, any>;
         styleOverrides?: ThemeComponentStyleOverrides;
-        variants?: Array<Record<string, any>>;
+        variants?: Record<string, any>[];
       }
     | undefined;
   Button?: {
@@ -132,7 +132,7 @@ export interface ThemeComponents {
         borderRadius?: string;
       };
     };
-    variants?: Array<Record<string, any>>;
+    variants?: Record<string, any>[];
   };
   Field?: {
     defaultProps?: Record<string, any>;
@@ -143,7 +143,7 @@ export interface ThemeComponents {
         borderRadius?: string;
       };
     };
-    variants?: Array<Record<string, any>>;
+    variants?: Record<string, any>[];
   };
 }
 
@@ -206,11 +206,7 @@ export interface ThemeConfig {
 }
 
 export interface ThemeComponentVars {
-  [componentName: string]:
-    | {
-        [slot: string]: Record<string, any> | undefined;
-      }
-    | undefined;
+  [componentName: string]: Record<string, Record<string, any> | undefined> | undefined;
   Button?: {
     [slot: string]: Record<string, any> | undefined;
     root?: {

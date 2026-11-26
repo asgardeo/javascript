@@ -23,8 +23,16 @@ import {Theme, ThemeConfig} from '../theme/types';
 /**
  * Safely extracts a color value from the branding preference structure
  */
-type ColorVariant = {contrastText?: string; dark?: string; main?: string};
-type TextColors = {dark?: string; primary?: string; secondary?: string};
+interface ColorVariant {
+  contrastText?: string;
+  dark?: string;
+  main?: string;
+}
+interface TextColors {
+  dark?: string;
+  primary?: string;
+  secondary?: string;
+}
 
 const extractColorValue = (colorVariant?: ColorVariant, preferDark: boolean = false): string | undefined => {
   if (preferDark && colorVariant?.dark && colorVariant.dark.trim()) {

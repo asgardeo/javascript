@@ -40,7 +40,7 @@ const getRedirectBasedSignUpUrl = (config: Config): string => {
 
   if (identifyPlatform(config) === Platform.Asgardeo) {
     try {
-      const url: URL = new URL(baseUrl!);
+      const url: URL = new URL(baseUrl);
 
       // Replace 'api.' with 'accounts.' in the hostname, preserving subdomains like 'dev.'
       if (/([a-z0-9-]+\.)*api\.asgardeo\.io$/i.test(url.hostname)) {

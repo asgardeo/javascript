@@ -61,7 +61,7 @@ const SignInButton: Component = defineComponent({
 
     return (): VNode => {
       const slotContent: (() => VNode[]) | undefined = slots['default']
-        ? (): VNode[] => slots['default']!({isLoading: isLoading.value})
+        ? (): VNode[] => slots['default']({isLoading: isLoading.value})
         : undefined;
 
       return h(

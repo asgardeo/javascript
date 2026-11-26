@@ -299,7 +299,7 @@ export interface EmbeddedFlowComponent {
    * Options for SELECT components.
    * Each option can be a string value or an object with value and label.
    */
-  options?: Array<string | {label: string; value: string}>;
+  options?: (string | {label: string; value: string})[];
 
   /**
    * Placeholder text for input components.

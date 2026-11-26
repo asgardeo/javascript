@@ -22,7 +22,7 @@ import {Context, createContext} from 'react';
 /**
  * Props interface of {@link OrganizationContext}
  */
-export type OrganizationContextProps = {
+export interface OrganizationContextProps {
   /**
    * Function to create a new organization.
    */
@@ -34,7 +34,7 @@ export type OrganizationContextProps = {
   myOrganizations: Organization[];
   revalidateMyOrganizations: () => Promise<Organization[]>;
   switchOrganization: (organization: Organization) => Promise<void>;
-};
+}
 
 /**
  * Context object for managing organization data and related operations.

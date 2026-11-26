@@ -122,7 +122,7 @@ export const CreateOrganization: FC<CreateOrganizationProps> = ({
             ...payload,
             parentId,
           },
-          (await getSessionId()) as string,
+          (await getSessionId())!,
         );
       }
 

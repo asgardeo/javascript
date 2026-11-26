@@ -16,8 +16,6 @@
  * under the License.
  */
 
-/* eslint-disable sort-keys, @typescript-eslint/typedef, @typescript-eslint/explicit-function-return-type, testing-library/no-container, testing-library/no-node-access */
-
 import {cleanup, fireEvent, render, waitFor} from '@testing-library/react';
 import {afterEach, describe, expect, it, vi} from 'vitest';
 import BaseSignUp from './BaseSignUp';
@@ -163,12 +161,12 @@ describe('BaseSignUp (v1) after a server-side validation error', () => {
     );
 
     const submit = await waitFor(() => {
-      const button = container.querySelector('form button[type="submit"]') as HTMLButtonElement | null;
+      const button = container.querySelector('form button[type="submit"]');
       expect(button).not.toBeNull();
-      return button as HTMLButtonElement;
+      return button;
     });
-    const username = container.querySelector('input[name="http://wso2.org/claims/username"]') as HTMLInputElement;
-    const password = container.querySelector('input[name="password"]') as HTMLInputElement;
+    const username = container.querySelector('input[name="http://wso2.org/claims/username"]');
+    const password = container.querySelector('input[name="password"]');
 
     expect(submit.disabled).toBe(false);
 
@@ -205,11 +203,11 @@ describe('BaseSignUp (v1) after a server-side validation error', () => {
     );
 
     const username = await waitFor(() => {
-      const input = container.querySelector('input[name="http://wso2.org/claims/username"]') as HTMLInputElement | null;
+      const input = container.querySelector('input[name="http://wso2.org/claims/username"]');
       expect(input).not.toBeNull();
-      return input as HTMLInputElement;
+      return input;
     });
-    const submit = container.querySelector('form button[type="submit"]') as HTMLButtonElement;
+    const submit = container.querySelector('form button[type="submit"]');
 
     // Emptying a required field must disable submit immediately, and filling it must re-enable it immediately.
     fireEvent.change(username, {target: {value: 'a'}});
@@ -247,14 +245,14 @@ describe('BaseSignUp (v1) when the registration completes without a session', ()
     );
 
     const submit = await waitFor(() => {
-      const button = container.querySelector('form button[type="submit"]') as HTMLButtonElement | null;
+      const button = container.querySelector('form button[type="submit"]');
       expect(button).not.toBeNull();
-      return button as HTMLButtonElement;
+      return button;
     });
-    fireEvent.change(container.querySelector('input[name="http://wso2.org/claims/username"]') as HTMLInputElement, {
+    fireEvent.change(container.querySelector('input[name="http://wso2.org/claims/username"]'), {
       target: {value: 'sdk-test@example.com'},
     });
-    fireEvent.change(container.querySelector('input[name="password"]') as HTMLInputElement, {
+    fireEvent.change(container.querySelector('input[name="password"]'), {
       target: {value: 'Str0ng!Passw0rd'},
     });
     fireEvent.click(submit);
@@ -264,9 +262,9 @@ describe('BaseSignUp (v1) when the registration completes without a session', ()
     expect(container.querySelector('form')).toBeNull();
     const signIn = Array.from(container.querySelectorAll('button')).find((button: HTMLButtonElement) =>
       button.textContent?.includes('elements.buttons.signin.text'),
-    ) as HTMLButtonElement | undefined;
+    );
     expect(signIn).toBeDefined();
-    fireEvent.click(signIn as HTMLButtonElement);
+    fireEvent.click(signIn);
     expect(assign).toHaveBeenCalledWith('/sign-in');
     vi.unstubAllGlobals();
   });
@@ -292,14 +290,14 @@ describe('BaseSignUp (v1) when the registration completes without a session', ()
     );
 
     const submit = await waitFor(() => {
-      const button = container.querySelector('form button[type="submit"]') as HTMLButtonElement | null;
+      const button = container.querySelector('form button[type="submit"]');
       expect(button).not.toBeNull();
-      return button as HTMLButtonElement;
+      return button;
     });
-    fireEvent.change(container.querySelector('input[name="http://wso2.org/claims/username"]') as HTMLInputElement, {
+    fireEvent.change(container.querySelector('input[name="http://wso2.org/claims/username"]'), {
       target: {value: 'sdk-test@example.com'},
     });
-    fireEvent.change(container.querySelector('input[name="password"]') as HTMLInputElement, {
+    fireEvent.change(container.querySelector('input[name="password"]'), {
       target: {value: 'Str0ng!Passw0rd'},
     });
     fireEvent.click(submit);

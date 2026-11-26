@@ -33,7 +33,7 @@ import useTheme from '../../../../../contexts/Theme/useTheme';
 import {useForm, FormField} from '../../../../../hooks/useForm';
 import useTranslation from '../../../../../hooks/useTranslation';
 import AlertPrimitive from '../../../../primitives/Alert/Alert';
-// eslint-disable-next-line import/no-named-as-default
+
 import CardPrimitive, {CardProps} from '../../../../primitives/Card/Card';
 import Logo from '../../../../primitives/Logo/Logo';
 import Spinner from '../../../../primitives/Spinner/Spinner';
@@ -50,7 +50,7 @@ export interface BaseRecoveryRenderProps {
   handleSubmit: (component: any, data?: Record<string, any>) => Promise<void>;
   isLoading: boolean;
   isValid: boolean;
-  messages: Array<{message: string; type: string}>;
+  messages: {message: string; type: string}[];
   subtitle: string;
   title: string;
   touched: Record<string, boolean>;

@@ -43,7 +43,7 @@ import getMappedUserProfileValue from './getMappedUserProfileValue';
  * @returns The display name of the user.
  */
 const getDisplayName = (
-  mergedMappings: {[key: string]: string | string[] | undefined},
+  mergedMappings: Record<string, string | string[] | undefined>,
   user: User,
   displayAttributes?: string[],
 ): string => {
