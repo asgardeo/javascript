@@ -1,5 +1,36 @@
 # @asgardeo/vue
 
+## 1.0.1
+
+### Patch Changes
+
+- [#589](https://github.com/asgardeo/javascript/pull/589)
+  [`de48f2e`](https://github.com/asgardeo/javascript/commit/de48f2e65e7e30c243d5902f619e278922633e45) Thanks
+  [@brionmario](https://github.com/brionmario)! - Fix the published packages for CommonJS and `nodenext` consumers:
+  `require()` threw "module is not defined in ES module scope", and with `moduleResolution: node16`/`nodenext` every
+  type resolved to `any`. The CommonJS build is now marked as CommonJS, the type declarations use explicit file
+  extensions, and `exports` has a `types` condition.
+
+- [#589](https://github.com/asgardeo/javascript/pull/589)
+  [`de48f2e`](https://github.com/asgardeo/javascript/commit/de48f2e65e7e30c243d5902f619e278922633e45) Thanks
+  [@brionmario](https://github.com/brionmario)! - Fix `createAsgardeoGuard()` always redirecting: router guards can't
+  inject the context that `<AsgardeoProvider>` provides, so the provider now registers it for the guard, and the guard
+  waits for the provider to mount. Also:
+  - Make `<CreateOrganization>` create the organization, and connect `useUser().updateProfile()`.
+  - Add the `preferences`, `afterSignUpUrl`, `allowedExternalUrls`, `signOutOptions`, `signUpOptions` and
+    `tokenValidation` props to `<AsgardeoProvider>`, accept `scopes` as a string, apply the theme and i18n preferences,
+    fetch the branding preference when `preferences.theme.inheritFromBranding` is set, and honour
+    `preferences.user.fetchUserProfile` and `fetchOrganizations`.
+  - Translate the sign-in, sign-out and sign-up button labels and the user dropdown items.
+  - Offer only languages that have a translation bundle in `<LanguageSwitcher>` by default.
+  - Emit `click` from the action buttons before the action starts, and pass the loading state to `<UserProfile>`.
+
+- Updated dependencies
+  [[`de48f2e`](https://github.com/asgardeo/javascript/commit/de48f2e65e7e30c243d5902f619e278922633e45),
+  [`de48f2e`](https://github.com/asgardeo/javascript/commit/de48f2e65e7e30c243d5902f619e278922633e45)]:
+  - @asgardeo/browser@1.0.1
+  - @asgardeo/i18n@1.0.1
+
 ## 1.0.0
 
 ### Major Changes

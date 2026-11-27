@@ -1,5 +1,21 @@
 # @asgardeo/tanstack-router
 
+## 2.0.1
+
+### Patch Changes
+
+- [#589](https://github.com/asgardeo/javascript/pull/589)
+  [`de48f2e`](https://github.com/asgardeo/javascript/commit/de48f2e65e7e30c243d5902f619e278922633e45) Thanks
+  [@brionmario](https://github.com/brionmario)! - Fix the published packages for CommonJS and `nodenext` consumers:
+  `require()` threw "module is not defined in ES module scope", and with `moduleResolution: node16`/`nodenext` every
+  type resolved to `any`. The CommonJS build is now marked as CommonJS, the type declarations use explicit file
+  extensions, and `exports` has a `types` condition.
+- Updated dependencies
+  [[`de48f2e`](https://github.com/asgardeo/javascript/commit/de48f2e65e7e30c243d5902f619e278922633e45),
+  [`de48f2e`](https://github.com/asgardeo/javascript/commit/de48f2e65e7e30c243d5902f619e278922633e45),
+  [`de48f2e`](https://github.com/asgardeo/javascript/commit/de48f2e65e7e30c243d5902f619e278922633e45)]:
+  - @asgardeo/react@1.0.2
+
 ## 2.0.0
 
 ### Patch Changes
@@ -318,7 +334,6 @@
   TanStack Router applications.
 
   **Key Features:**
-
   - `<ProtectedRoute>` component for auth-guarded routes
   - Automatic redirect to sign-in for unauthenticated users
   - Integration with Asgardeo authentication context

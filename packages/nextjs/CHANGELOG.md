@@ -1,5 +1,24 @@
 # @asgardeo/nextjs
 
+## 1.0.2
+
+### Patch Changes
+
+- [#589](https://github.com/asgardeo/javascript/pull/589)
+  [`de48f2e`](https://github.com/asgardeo/javascript/commit/de48f2e65e7e30c243d5902f619e278922633e45) Thanks
+  [@brionmario](https://github.com/brionmario)! - Fix `next build` failing with "Failed to initialize Asgardeo client:
+  Dynamic server usage" by letting Next.js handle its own control-flow errors in `AsgardeoProvider`, and make
+  `await asgardeo.protectRoute()` redirect signed-out users even when the middleware handler does not return its result.
+  Support Next.js 16 Cache Components by rendering the server provider inside a Suspense boundary and at request time
+  only, and only mark the client as initialized once initialization has finished.
+- Updated dependencies
+  [[`de48f2e`](https://github.com/asgardeo/javascript/commit/de48f2e65e7e30c243d5902f619e278922633e45),
+  [`de48f2e`](https://github.com/asgardeo/javascript/commit/de48f2e65e7e30c243d5902f619e278922633e45),
+  [`de48f2e`](https://github.com/asgardeo/javascript/commit/de48f2e65e7e30c243d5902f619e278922633e45),
+  [`de48f2e`](https://github.com/asgardeo/javascript/commit/de48f2e65e7e30c243d5902f619e278922633e45)]:
+  - @asgardeo/react@1.0.2
+  - @asgardeo/node@1.0.1
+
 ## 1.0.1
 
 ### Patch Changes
