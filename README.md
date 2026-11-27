@@ -68,7 +68,7 @@ discussions. 🙌
 ### Reporting issues
 
 We encourage you to report issues, improvements, and feature requests creating
-[Github Issues](https://github.com/asgardeo/javascript/issues).
+[Github Issues](https://github.com/asgardeo/asgardeo/issues).
 
 **Important**: Please be advised that security issues MUST be reported to
 <a href="mailto:security@wso2.com">security@wso2.com</a>, not as GitHub issues, in order to reach the proper audience.

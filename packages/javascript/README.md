@@ -22,10 +22,6 @@
 npm install @asgardeo/javascript
 ```
 
-## Quickstart
-
-See the [JavaScript SDK overview](https://wso2.com/asgardeo/docs/sdks/javascript/overview/).
-
 ## Contributing
 
 See the [contributing guide](https://github.com/asgardeo/javascript/blob/main/CONTRIBUTING.md).
