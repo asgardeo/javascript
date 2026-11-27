@@ -1,5 +1,35 @@
 # @asgardeo/react
 
+## 1.0.2
+
+### Patch Changes
+
+- [#589](https://github.com/asgardeo/javascript/pull/589)
+  [`de48f2e`](https://github.com/asgardeo/javascript/commit/de48f2e65e7e30c243d5902f619e278922633e45) Thanks
+  [@brionmario](https://github.com/brionmario)! - Fix `signInSilently()` never completing: keep the silent sign-in
+  marker in the `state` parameter when an instance ID is set, and hand the authorization code from the silent sign-in
+  iframe back to the parent window instead of redeeming it inside the iframe. Scheduling the automatic token refresh now
+  replaces an existing timer instead of adding another, and the React provider schedules it for a session another tab
+  signed in to.
+
+- [#589](https://github.com/asgardeo/javascript/pull/589)
+  [`de48f2e`](https://github.com/asgardeo/javascript/commit/de48f2e65e7e30c243d5902f619e278922633e45) Thanks
+  [@brionmario](https://github.com/brionmario)! - Fix the published packages for CommonJS and `nodenext` consumers:
+  `require()` threw "module is not defined in ES module scope", and with `moduleResolution: node16`/`nodenext` every
+  type resolved to `any`. The CommonJS build is now marked as CommonJS, the type declarations use explicit file
+  extensions, and `exports` has a `types` condition.
+
+- [#589](https://github.com/asgardeo/javascript/pull/589)
+  [`de48f2e`](https://github.com/asgardeo/javascript/commit/de48f2e65e7e30c243d5902f619e278922633e45) Thanks
+  [@brionmario](https://github.com/brionmario)! - Restore an existing session once on load instead of twice, halving the
+  profile and organization requests on page reload.
+
+- Updated dependencies
+  [[`de48f2e`](https://github.com/asgardeo/javascript/commit/de48f2e65e7e30c243d5902f619e278922633e45),
+  [`de48f2e`](https://github.com/asgardeo/javascript/commit/de48f2e65e7e30c243d5902f619e278922633e45)]:
+  - @asgardeo/browser@1.0.1
+  - @asgardeo/i18n@1.0.1
+
 ## 1.0.1
 
 ### Patch Changes

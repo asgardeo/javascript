@@ -1,5 +1,16 @@
 # @asgardeo/i18n
 
+## 1.0.1
+
+### Patch Changes
+
+- [#589](https://github.com/asgardeo/javascript/pull/589)
+  [`de48f2e`](https://github.com/asgardeo/javascript/commit/de48f2e65e7e30c243d5902f619e278922633e45) Thanks
+  [@brionmario](https://github.com/brionmario)! - Fix the published packages for CommonJS and `nodenext` consumers:
+  `require()` threw "module is not defined in ES module scope", and with `moduleResolution: node16`/`nodenext` every
+  type resolved to `any`. The CommonJS build is now marked as CommonJS, the type declarations use explicit file
+  extensions, and `exports` has a `types` condition.
+
 ## 1.0.0
 
 ### Major Changes
@@ -20,7 +31,6 @@
 
   Asgardeo rejects attribute updates for accounts provisioned from a social or enterprise connection, so the profile
   used to offer edit controls that always failed with a raw SCIM error.
-
   - `<UserProfile />` accepts `editable="auto"` in React and Next.js. On Asgardeo it looks up the signed-in user's
     federated associations and, when the account is linked to a connection, renders the profile read-only with a short
     note naming the provider. On WSO2 Identity Server, where the same updates succeed, the profile stays editable.
@@ -45,7 +55,6 @@
   [`d559499`](https://github.com/asgardeo/javascript/commit/d559499b123d1de2c66e50b6d1242f07db457745) Thanks
   [@DonOmalVindula](https://github.com/DonOmalVindula)! - Show a success message and a sign-in button when a
   registration completes without signing the user in.
-
   - `BaseSignUp` accepts a `signInUrl` prop. When the flow completes and the prop is set, the card keeps showing the
     "account created" message and renders a Sign In button that takes the user to that URL.
   - The Next.js `<SignUp />` passes the configured `signInUrl` automatically, and the provider no longer navigates to
@@ -63,7 +72,6 @@
   [`38e395b`](https://github.com/asgardeo/javascript/commit/38e395b4182a194744734732f2ddff27993d5d98) Thanks
   [@DonOmalVindula](https://github.com/DonOmalVindula)! - Fixes for the embedded `<SignIn />` and `<SignUp />`
   components:
-
   - Social login buttons in the sign-in, sign-up and recovery flows no longer receive internal form-state props
     (`formValues`, `formErrors`, `touchedFields`, `isFormValid`, `onInputChange`, `inputClassName`), which React
     reported as unknown attributes on the `<button>` element.

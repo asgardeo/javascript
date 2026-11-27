@@ -1,5 +1,46 @@
 # @asgardeo/javascript
 
+## 1.0.1
+
+### Patch Changes
+
+- [#589](https://github.com/asgardeo/javascript/pull/589)
+  [`de48f2e`](https://github.com/asgardeo/javascript/commit/de48f2e65e7e30c243d5902f619e278922633e45) Thanks
+  [@brionmario](https://github.com/brionmario)! - Fix `signInSilently()` never completing: keep the silent sign-in
+  marker in the `state` parameter when an instance ID is set, and hand the authorization code from the silent sign-in
+  iframe back to the parent window instead of redeeming it inside the iframe. Scheduling the automatic token refresh now
+  replaces an existing timer instead of adding another, and the React provider schedules it for a session another tab
+  signed in to.
+
+- [#589](https://github.com/asgardeo/javascript/pull/589)
+  [`de48f2e`](https://github.com/asgardeo/javascript/commit/de48f2e65e7e30c243d5902f619e278922633e45) Thanks
+  [@brionmario](https://github.com/brionmario)! - Fix several core client bugs:
+  - `reInitialize()` merged the new config into a Promise and lost the stored config.
+  - The short `endpoints` names (`authorization`, `token`, `endSession`, `jwks`, `userInfo`, ...) had no effect. They
+    now override the matching endpoints; the legacy names (`tokenEndpoint`, `jwksUri`, ...) still work.
+  - Setting only part of `tokenValidation` (for example `clockTolerance`) turned ID token validation off. It is now
+    merged with the defaults.
+  - `getDecodedIdToken(userId, idToken)` decoded the stored ID token instead of the one passed in.
+  - Storage writes weren't awaited, so a slow async store could return stale data, and `revokeAccessToken()` didn't wait
+    for the session to be cleared.
+  - Network errors from the V2 flow functions and `getMeFederatedAssociations()` are now reported as `AsgardeoAPIError`,
+    and `initializeEmbeddedSignInFlow()` reports an invalid URL with its own error code.
+  - A `redirect_uri` passed to `getSignInUrl()` replaced the one in the authorize request but not in the token request,
+    so the code exchange failed. The token request now sends the same `redirect_uri`.
+  - Add `clearSession()` on the client instance; the static `clearSession()` clears the most recently initialized
+    client.
+  - Export the `OrgDiscoveryType` and `OrgAuthorizationUrlOptions` types, and correct stale JSDoc.
+
+- [#589](https://github.com/asgardeo/javascript/pull/589)
+  [`de48f2e`](https://github.com/asgardeo/javascript/commit/de48f2e65e7e30c243d5902f619e278922633e45) Thanks
+  [@brionmario](https://github.com/brionmario)! - Fix the published packages for CommonJS and `nodenext` consumers:
+  `require()` threw "module is not defined in ES module scope", and with `moduleResolution: node16`/`nodenext` every
+  type resolved to `any`. The CommonJS build is now marked as CommonJS, the type declarations use explicit file
+  extensions, and `exports` has a `types` condition.
+- Updated dependencies
+  [[`de48f2e`](https://github.com/asgardeo/javascript/commit/de48f2e65e7e30c243d5902f619e278922633e45)]:
+  - @asgardeo/i18n@1.0.1
+
 ## 1.0.0
 
 ### Major Changes
@@ -26,7 +67,6 @@
 
   Asgardeo rejects attribute updates for accounts provisioned from a social or enterprise connection, so the profile
   used to offer edit controls that always failed with a raw SCIM error.
-
   - `<UserProfile />` accepts `editable="auto"` in React and Next.js. On Asgardeo it looks up the signed-in user's
     federated associations and, when the account is linked to a connection, renders the profile read-only with a short
     note naming the provider. On WSO2 Identity Server, where the same updates succeed, the profile stays editable.
@@ -63,7 +103,6 @@
   [`3177d83`](https://github.com/asgardeo/javascript/commit/3177d83d1ef76b0dbf83f102d8213f78b9d9213d) Thanks
   [@DonOmalVindula](https://github.com/DonOmalVindula)! - Let applications relabel the embedded sign-in fields through
   i18n.
-
   - The username and password fields of the embedded sign-in form now take their label and placeholder from the i18n
     bundle (`elements.fields.<field>.label` / `elements.fields.<field>.placeholder`) when a translation is provided,
     falling back to the text returned by the identity server. This lets applications whose users sign in with an email
@@ -605,7 +644,6 @@
   [`8158824`](https://github.com/asgardeo/javascript/commit/8158824e669e0125e50a4711d0c9f4938f8dfe00) Thanks
   [@PasanMadhuranga](https://github.com/PasanMadhuranga)! - Fix multiple logic and error-handling issues in core SDK
   modules to align with expected behavior.
-
   - Use numeric ordering for log levels instead of string comparison.
   - Handle network and parsing errors gracefully in getUserInfo.
   - Improve error handling for invalid URLs and network failures in embedded sign-in and sign-up flows.

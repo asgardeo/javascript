@@ -1,6 +1,6 @@
 {
   "name": "@asgardeo/browser",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Browser-specific implementation of Asgardeo JavaScript SDK.",
   "keywords": [
     "asgardeo",
