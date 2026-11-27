@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import {en_US} from '../translations';
+import {en_US, es_ES} from '../translations';
 
 /**
  * Constants related to internationalization (i18n) translation bundles.
@@ -39,8 +39,9 @@ const TranslationBundleConstants: {
    *
    * Current default locales:
    * - `en-US` - English (United States)
+   * - `es-ES` - Spanish (Spain)
    */
-  DEFAULT_LOCALES: [en_US.metadata.localeCode],
+  DEFAULT_LOCALES: [en_US.metadata.localeCode, es_ES.metadata.localeCode],
 
   /**
    * Default locale code used as fallback when no specific locale is provided.
