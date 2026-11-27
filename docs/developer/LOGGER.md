@@ -1,6 +1,7 @@
 # Logger Utility
 
-A universal logging utility that works seamlessly in both browser and Node.js environments with beautiful formatting, colors, and flexible configuration.
+A universal logging utility that works seamlessly in both browser and Node.js environments with beautiful formatting,
+colors, and flexible configuration.
 
 ## Features
 
@@ -16,7 +17,7 @@ A universal logging utility that works seamlessly in both browser and Node.js en
 ## Basic Usage
 
 ```typescript
-import logger, { LogLevel } from '@asgardeo/javascript';
+import logger, {LogLevel} from '@asgardeo/javascript';
 
 // Basic logging with package-specific prefix
 logger.info('Application started');
@@ -37,7 +38,7 @@ logger.setLevel(LogLevel.WARN); // Only WARN and ERROR will show
 ## Named Function Exports
 
 ```typescript
-import { info, warn, error, debug } from '@asgardeo/javascript';
+import {info, warn, error, debug} from '@asgardeo/javascript';
 
 info('Quick info message');
 warn('Quick warning');
@@ -48,7 +49,7 @@ debug('Quick debug');
 ## Package-Specific Loggers
 
 ```typescript
-import { createPackageLogger, createPackageComponentLogger } from '@asgardeo/javascript';
+import {createPackageLogger, createPackageComponentLogger} from '@asgardeo/javascript';
 
 // Create logger for specific package
 const nextjsLogger = createPackageLogger('@asgardeo/nextjs');
@@ -68,7 +69,7 @@ nextAuthLogger.info('User signed in');
 ## Custom Logger Configuration
 
 ```typescript
-import { createLogger, LogLevel } from '@asgardeo/javascript';
+import {createLogger, LogLevel} from '@asgardeo/javascript';
 
 const customLogger = createLogger({
   level: LogLevel.DEBUG,
@@ -84,7 +85,7 @@ customLogger.info('Custom configured message');
 ## Component-Specific Loggers
 
 ```typescript
-import { createComponentLogger } from '@asgardeo/javascript';
+import {createComponentLogger} from '@asgardeo/javascript';
 
 // Create loggers for different components (uses default package prefix)
 const authLogger = createComponentLogger('Authentication');
@@ -106,22 +107,22 @@ uiLogger.debug('Rendering component');
 ### Next.js Package Usage
 
 ```typescript
-import { createPackageComponentLogger } from '@asgardeo/javascript';
+import {createPackageComponentLogger} from '@asgardeo/javascript';
 
 const authLogger = createPackageComponentLogger('@asgardeo/nextjs', 'Authentication');
 const sessionLogger = createPackageComponentLogger('@asgardeo/nextjs', 'SessionManager');
 
 export class NextAuthService {
   async signIn(credentials: Credentials): Promise<User> {
-    authLogger.info('Starting Next.js sign-in process', { username: credentials.username });
-    
+    authLogger.info('Starting Next.js sign-in process', {username: credentials.username});
+
     try {
       sessionLogger.debug('Creating session cookie');
       const user = await this.performSignIn(credentials);
-      authLogger.info('Next.js sign-in successful', { userId: user.id });
+      authLogger.info('Next.js sign-in successful', {userId: user.id});
       return user;
     } catch (error) {
-      authLogger.error('Next.js sign-in failed', { error: error.message, username: credentials.username });
+      authLogger.error('Next.js sign-in failed', {error: error.message, username: credentials.username});
       throw error;
     }
   }
@@ -132,19 +133,19 @@ export class NextAuthService {
 
 ```typescript
 // In @asgardeo/nextjs package
-import { createPackageComponentLogger } from '@asgardeo/javascript';
+import {createPackageComponentLogger} from '@asgardeo/javascript';
 const nextLogger = createPackageComponentLogger('@asgardeo/nextjs', 'Provider');
 
-// In @asgardeo/react package  
-import { createPackageComponentLogger } from '@asgardeo/javascript';
+// In @asgardeo/react package
+import {createPackageComponentLogger} from '@asgardeo/javascript';
 const reactLogger = createPackageComponentLogger('@asgardeo/react', 'Hook');
 
 // In @asgardeo/node package
-import { createPackageComponentLogger } from '@asgardeo/javascript';
+import {createPackageComponentLogger} from '@asgardeo/javascript';
 const nodeLogger = createPackageComponentLogger('@asgardeo/node', 'Client');
 
 // Each will have distinct, identifiable output:
 // 🛡️ Asgardeo - @asgardeo/nextjs - Provider [INFO] ...
-// 🛡️ Asgardeo - @asgardeo/react - Hook [INFO] ...  
+// 🛡️ Asgardeo - @asgardeo/react - Hook [INFO] ...
 // 🛡️ Asgardeo - @asgardeo/node - Client [INFO] ...
 ```

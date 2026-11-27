@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+import {computed} from 'vue';
 
-const { user } = useAsgardeo();
+const {user} = useAsgardeo();
 
 const initials = computed(() => {
   const profile = user.value as Record<string, unknown> | null;
@@ -21,9 +21,7 @@ const initials = computed(() => {
   <div class="min-h-screen flex flex-col">
     <header class="border-b border-gray-200">
       <div class="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between gap-4">
-        <NuxtLink to="/" class="font-bold text-lg text-gray-900 hover:text-gray-700">
-          Asgardeo Nuxt Sample
-        </NuxtLink>
+        <NuxtLink to="/" class="font-bold text-lg text-gray-900 hover:text-gray-700"> Asgardeo Nuxt Sample </NuxtLink>
 
         <nav class="hidden md:flex gap-6">
           <NuxtLink to="/" class="text-gray-600 hover:text-gray-900">Home</NuxtLink>
@@ -35,14 +33,18 @@ const initials = computed(() => {
 
         <div class="flex items-center gap-3">
           <AsgardeoSignedIn>
-            <span class="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-sm font-bold"
-              :title="String(user?.username ?? user?.userName ?? 'User')">
+            <span
+              class="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-sm font-bold"
+              :title="String(user?.username ?? user?.userName ?? 'User')"
+            >
               {{ initials }}
             </span>
-            <AsgardeoSignOutButton class="px-3 py-2 text-sm bg-white text-gray-900 border border-gray-300 rounded hover:bg-gray-50" />
+            <AsgardeoSignOutButton
+              class="px-3 py-2 text-sm bg-white text-gray-900 border border-gray-300 rounded hover:bg-gray-50"
+            />
           </AsgardeoSignedIn>
           <AsgardeoSignedOut>
-            <AsgardeoSignInButton/>
+            <AsgardeoSignInButton />
           </AsgardeoSignedOut>
         </div>
       </div>
@@ -54,7 +56,8 @@ const initials = computed(() => {
 
     <footer class="border-t border-gray-200 mt-12">
       <div class="max-w-5xl mx-auto px-4 py-6 text-sm text-gray-600">
-        Built with <a href="https://github.com/asgardeo/asgardeo-nuxt" class="text-blue-600 hover:underline">@asgardeo/nuxt</a>
+        Built with
+        <a href="https://github.com/asgardeo/asgardeo-nuxt" class="text-blue-600 hover:underline">@asgardeo/nuxt</a>
       </div>
     </footer>
   </div>

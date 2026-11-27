@@ -43,7 +43,9 @@ const useStyles = (theme: Theme, colorScheme: string, disabled: boolean, hasErro
       color: ${theme.vars.colors.text.primary};
       background-color: ${disabled ? theme.vars.colors.background.disabled : theme.vars.colors.background.surface};
       outline: none;
-      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+      transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
       appearance: none;
       background-image: url('${dropdownArrow}');
       background-repeat: no-repeat;

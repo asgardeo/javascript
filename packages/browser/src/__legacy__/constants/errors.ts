@@ -16,4 +16,4 @@
  * under the License.
  */
 
-export const ACCESS_TOKEN_INVALID = "Access token is invalid";
+export const ACCESS_TOKEN_INVALID = 'Access token is invalid';

@@ -287,7 +287,7 @@ export class AsgardeoSPAClient {
    */
   public static destroyAllInstances(): void {
     // Clean up each instance's session data before clearing
-    this._instances.forEach((instance) => {
+    this._instances.forEach(instance => {
       instance.clearSession();
     });
     this._instances.clear();

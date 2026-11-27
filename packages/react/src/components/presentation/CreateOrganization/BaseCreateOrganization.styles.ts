@@ -122,7 +122,9 @@ const useStyles = (theme: Theme, colorScheme: string): Record<string, string> =>
       resize: vertical;
       outline: none;
       box-sizing: border-box;
-      transition: border-color 0.2s, box-shadow 0.2s;
+      transition:
+        border-color 0.2s,
+        box-shadow 0.2s;
       &:focus {
         border-color: ${theme.vars.colors.primary.main};
         box-shadow: 0 0 0 2px ${theme.vars.colors.primary.main}20;

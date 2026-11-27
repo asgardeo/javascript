@@ -1,6 +1,7 @@
 # Asgardeo TanStack Router Sample Application
 
-This is a sample application demonstrating how to integrate [Asgardeo](https://wso2.com/asgardeo/) authentication with [TanStack Router](https://tanstack.com/router) using the `@asgardeo/tanstack-router` package.
+This is a sample application demonstrating how to integrate [Asgardeo](https://wso2.com/asgardeo/) authentication with
+[TanStack Router](https://tanstack.com/router) using the `@asgardeo/tanstack-router` package.
 
 ## Features
 

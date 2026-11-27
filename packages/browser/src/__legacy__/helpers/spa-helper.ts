@@ -46,7 +46,7 @@ export class SPAHelper<T extends MainThreadClientConfig | WebWorkerClientConfig>
       if (sessionData.created_at == null || sessionData.expires_in == null) {
         return;
       }
-      
+
       const TOKEN_REFRESH_BUFFER_MS = 10_000;
       const expiryTime = Number(sessionData.expires_in) * 1000;
       const absoluteExpiryTime: number = sessionData.created_at + expiryTime;

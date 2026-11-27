@@ -1,6 +1,7 @@
 # Contributing to Asgardeo JavaScript SDKs
 
-This guide walks you through setting up the development environment and other important information for contributing to Asgardeo JavaScript SDKs.
+This guide walks you through setting up the development environment and other important information for contributing to
+Asgardeo JavaScript SDKs.
 
 ## Table of Contents
 
@@ -38,18 +39,21 @@ This guide walks you through setting up the development environment and other im
 
 To build and write code, make sure you have the following set of tools on your local environment:
 
-- [Git](https://git-scm.com/downloads) - Open source distributed version control system. For install instructions, refer [this](https://www.atlassian.com/git/tutorials/install-git).
-- [Node.js](https://nodejs.org/en/download/) - JavaScript runtime. (`v20.12 or higher` — Node 20 LTS or 22 LTS recommended; see [`.nvmrc`](./.nvmrc))
+- [Git](https://git-scm.com/downloads) - Open source distributed version control system. For install instructions, refer
+  [this](https://www.atlassian.com/git/tutorials/install-git).
+- [Node.js](https://nodejs.org/en/download/) - JavaScript runtime. (`v20.12 or higher` — Node 20 LTS or 22 LTS
+  recommended; see [`.nvmrc`](./.nvmrc))
 - [pnpm](https://pnpm.io/) - Alternate npm client for faster package installs. (`v10 or higher`)
 
 ## Development Tools
 
-| Extension | Description | VS Code Marketplace |
-|-----------|-------------|---------------------|
-| NX Console | Editor plugin which wraps NX commands so you don't have to memorize. | [Install](https://marketplace.visualstudio.com/items?itemName=nrwl.angular-console) |
-| ESLint | Static code analysis tool for identifying problematic patterns found in JavaScript/Typescript code. | [Install](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint) |
-| Code Spell Checker | A basic spell checker that works well with code and documents. | [Install](https://marketplace.visualstudio.com/items?itemName=streetsidesoftware.code-spell-checker) |
-| JSON Sort Order | Sorts JSON objects in alphabetical order. | [Install](https://marketplace.visualstudio.com/items?itemName=msyesyan.json-sorter) |
+| Extension          | Description                                                                                         | VS Code Marketplace                                                                                  |
+| ------------------ | --------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| NX Console         | Editor plugin which wraps NX commands so you don't have to memorize.                                | [Install](https://marketplace.visualstudio.com/items?itemName=nrwl.angular-console)                  |
+| ESLint             | Static code analysis tool for identifying problematic patterns found in JavaScript/Typescript code. | [Install](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint)                |
+| Prettier           | Code formatter that applies the repository's shared formatting rules.                               | [Install](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode)                |
+| Code Spell Checker | A basic spell checker that works well with code and documents.                                      | [Install](https://marketplace.visualstudio.com/items?itemName=streetsidesoftware.code-spell-checker) |
+| JSON Sort Order    | Sorts JSON objects in alphabetical order.                                                           | [Install](https://marketplace.visualstudio.com/items?itemName=msyesyan.json-sorter)                  |
 
 ## Setting up the Source Code
 
@@ -82,11 +86,22 @@ pnpm install
 pnpm build
 ```
 
+3. Before opening a pull request, lint and format your changes. CI runs both checks.
+
+```bash
+pnpm lint
+pnpm format:fix
+```
+
+`pnpm format:check` reports unformatted files without changing them. Both scripts cover the whole repository, except the
+paths listed in `.prettierignore`.
+
 ## Commit Message Guidelines
 
 We use [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) as the commit message convention.
 
-Please refer to the [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) documentation for more information.
+Please refer to the [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) documentation for more
+information.
 
 > [!IMPORTANT]
 >
@@ -110,7 +125,8 @@ Must be one of the following:
 
 ### Scope
 
-The scope should be the name of the npm package affected (as perceived by the person reading the changelog generated from commit messages).
+The scope should be the name of the npm package affected (as perceived by the person reading the changelog generated
+from commit messages).
 
 The following is the list of supported scopes:
 
@@ -126,6 +142,7 @@ The following is the list of supported scopes:
 - `nuxt` - Changes to the `@asgardeo/nuxt` package.
 
 > [!NOTE]
+>
 > If the change affects multiple packages, just use the type without a scope, e.g., `fix: ...`.
 
 ### Example Commit Message
@@ -165,19 +182,23 @@ The content of the commit message body should contain:
 
 ### Contributing to the Internalization (i18n) Package
 
-The `@asgardeo/i18n` package provides internationalization support for Asgardeo JavaScript SDKs. To add support for a new language, follow these steps:
+The `@asgardeo/i18n` package provides internationalization support for Asgardeo JavaScript SDKs. To add support for a
+new language, follow these steps:
 
 #### Adding a New Language
 
 ##### Create a new language file
 
-Navigate to [`packages/i18n/src/translations/`](../packages/i18n/src/translations/) and create a new TypeScript file for your language.  
-Use the correct [IETF BCP 47 language tag](https://datatracker.ietf.org/doc/html/bcp47) (which combines [ISO 639-1 language codes](https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes) and [ISO 3166-1 country codes](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2)).  
+Navigate to [`packages/i18n/src/translations/`](../packages/i18n/src/translations/) and create a new TypeScript file for
+your language.  
+Use the correct [IETF BCP 47 language tag](https://datatracker.ietf.org/doc/html/bcp47) (which combines
+[ISO 639-1 language codes](https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes) and
+[ISO 3166-1 country codes](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2)).  
 For example:
 
-- `fr-FR.ts` → French (France)  
-- `es-ES.ts` → Spanish (Spain)  
-- `en-US.ts` → English (United States)  
+- `fr-FR.ts` → French (France)
+- `es-ES.ts` → Spanish (Spain)
+- `en-US.ts` → English (United States)
 
 ##### Copy the structure from the existing language file
 
@@ -190,6 +211,7 @@ cp packages/i18n/src/translations/en-US.ts packages/i18n/src/translations/<local
 ##### Update the translations and metadata
 
 > [!IMPORTANT]
+>
 > ⚠️ Do not change any **formatting** or **keys** in the `translations` object. Only update the text values.
 
 Open your new language file and:
@@ -246,13 +268,15 @@ To test your new language translation, you have two options:
 
 ##### Option 1: Using a symlink
 
-From the workspace root, run the `symlink` script. It builds all packages, resolves `catalog:` and `workspace:*` references, and prints ready-to-paste override snippets:
+From the workspace root, run the `symlink` script. It builds all packages, resolves `catalog:` and `workspace:*`
+references, and prints ready-to-paste override snippets:
 
 ```bash
 pnpm symlink
 ```
 
-Copy the relevant snippet from the output into your test project's `package.json` and run `pnpm install` (or the equivalent for your package manager):
+Copy the relevant snippet from the output into your test project's `package.json` and run `pnpm install` (or the
+equivalent for your package manager):
 
 ###### pnpm
 
@@ -308,7 +332,8 @@ pnpm install
 
 ##### Testing with AsgardeoProvider
 
-Once you have your testing environment set up (using either option above), configure the AsgardeoProvider to use your new language:
+Once you have your testing environment set up (using either option above), configure the AsgardeoProvider to use your
+new language:
 
 - **Import your new language bundle**
 
@@ -336,7 +361,8 @@ import {fr_FR} from '@asgardeo/i18n';
 </AsgardeoProvider>
 ```
 
-For more details on the i18n preferences interface, see the [`I18nPreferences`](packages/javascript/src/models/config.ts#L232).
+For more details on the i18n preferences interface, see the
+[`I18nPreferences`](packages/javascript/src/models/config.ts#L232).
 
 - **Verify the translations**
 
@@ -347,7 +373,8 @@ For more details on the i18n preferences interface, see the [`I18nPreferences`](
 
 - **Test text direction (if applicable)**
 
-For right-to-left languages, ensure that the UI layout adjusts correctly based on the `direction` property in your metadata.
+For right-to-left languages, ensure that the UI layout adjusts correctly based on the `direction` property in your
+metadata.
 
 ##### Update documentation
 
@@ -355,11 +382,14 @@ Update any relevant documentation to mention the newly supported language.
 
 ### Releases
 
-This project uses [🦋 Changesets](https://github.com/changesets/changesets) for version management and release automation. As an external contributor, you'll primarily interact with the changeset system when your changes need to be included in a release.
+This project uses [🦋 Changesets](https://github.com/changesets/changesets) for version management and release
+automation. As an external contributor, you'll primarily interact with the changeset system when your changes need to be
+included in a release.
 
 #### Creating a Changeset
 
-Whenever you make changes that should be included in a release (new features, bug fixes, breaking changes), you must create a changeset. This helps maintainers understand what changed and how to version your contribution appropriately.
+Whenever you make changes that should be included in a release (new features, bug fixes, breaking changes), you must
+create a changeset. This helps maintainers understand what changed and how to version your contribution appropriately.
 
 **When do you need a changeset?**
 
@@ -383,22 +413,22 @@ pnpm changeset
 ```
 
 2. **Select the packages** that your changes affect:
-
    - Use the arrow keys to navigate through the list
    - Press space to select/deselect packages
    - Press Enter to confirm your selection
 
 > [!IMPORTANT]
-> ⚠️ Pick only the packages that you have changed files in. If the package is used by different packages, those packages will automatically get a version bump if needed.
+>
+> ⚠️ Pick only the packages that you have changed files in. If the package is used by different packages, those packages
+> will automatically get a version bump if needed.
 
 3. **Choose the type of change** for each selected package:
 
 - **Patch** (0.0.X) - Bug fixes and non-breaking changes
-- **Minor** (0.X.0) - New features that don't break existing functionality  
+- **Minor** (0.X.0) - New features that don't break existing functionality
 - **Major** (X.0.0) - Breaking changes that require users to update their code
 
 4. **Write a clear summary** of your changes:
-
    - Use present tense (e.g., "Add new authentication method")
    - Be descriptive and user-focused
    - Mention any breaking changes clearly
@@ -414,12 +444,13 @@ git commit -m "chore: add changeset 🦋"
 **Example changeset summary:**
 
 > [!NOTE]
-> This is an example changeset summary.
-> Changes are made for:
->   - `@asgardeo/javascript`
->   - `@asgardeo/react`
->   - `@asgardeo/i18n`
-> Even though there are other packages depending on these, only include the packages you directly modified.
+>
+> This is an example changeset summary. Changes are made for:
+>
+> - `@asgardeo/javascript`
+> - `@asgardeo/react`
+> - `@asgardeo/i18n` Even though there are other packages depending on these, only include the packages you directly
+>   modified.
 
 ````md
 ---
@@ -432,29 +463,29 @@ Update the react package to add a new `SignInWithPopup` method for popup-based a
 
 - This method allows users to sign in without redirecting, improving user experience.
 - Ensure to handle popup blockers and errors gracefully.
- 
+
 **Usage:**
 
 ```javascript
-import { SignInWithPopup } from '@asgardeo/react';
+import {SignInWithPopup} from '@asgardeo/react';
 
 function App() {
-    const handleSignIn = () => {
-        SignInWithPopup()
-            .then((user) => {
-                console.log('User signed in:', user);
-            })
-            .catch((error) => {
-                console.error('Error signing in:', error);
-            });
-    };
+  const handleSignIn = () => {
+    SignInWithPopup()
+      .then(user => {
+        console.log('User signed in:', user);
+      })
+      .catch(error => {
+        console.error('Error signing in:', error);
+      });
+  };
 
-    return (
-        <div>
-            <h1>Welcome to My App</h1>
-            <button onClick={handleSignIn}>Sign In with Popup</button>
-        </div>
-    );
+  return (
+    <div>
+      <h1>Welcome to My App</h1>
+      <button onClick={handleSignIn}>Sign In with Popup</button>
+    </div>
+  );
 }
 ```
 
@@ -464,10 +495,14 @@ function App() {
 ````
 
 > [!TIP]
-> The changeset file will be automatically named and placed in the `.changeset/` directory. Don't edit these files manually after creation.
+>
+> The changeset file will be automatically named and placed in the `.changeset/` directory. Don't edit these files
+> manually after creation.
 
 > [!IMPORTANT]
-> **Include your changeset in the same PR** as your code changes. PRs without changesets (when required) may be rejected during review.
+>
+> **Include your changeset in the same PR** as your code changes. PRs without changesets (when required) may be rejected
+> during review.
 
 #### For Maintainers
 
@@ -486,7 +521,8 @@ The release process is fully automated and triggered by maintainers:
 
 2. **Automatic release workflow:**
 
-- When changesets are merged to `main`, a GitHub Action creates/updates a "Release" PR (ex: `[Release] [GitHub Action] Update package versions`).
+- When changesets are merged to `main`, a GitHub Action creates/updates a "Release" PR (ex:
+  `[Release] [GitHub Action] Update package versions`).
 - The Release PR includes version bumps and generated changelogs
 - Maintainers review and merge the Release PR
 - Merging triggers automatic NPM publishing and GitHub releases
@@ -505,14 +541,18 @@ The project includes automated release infrastructure:
 **Available scripts for maintainers:**
 
 - `pnpm version:packages` - Updates versions and installs dependencies
-- `pnpm publish:packages` - Publishes all packages to NPM  
+- `pnpm publish:packages` - Publishes all packages to NPM
 - `pnpm aggregate-changelogs` - Aggregates individual package changelogs
 
 > [!IMPORTANT]
-> **Manual releases are strongly discouraged**. Always use the automated workflow to ensure consistency and prevent human errors.
+>
+> **Manual releases are strongly discouraged**. Always use the automated workflow to ensure consistency and prevent
+> human errors.
 
 > [!NOTE]
-> For pre-releases or special cases, use the `workflow_dispatch` trigger in the GitHub Actions workflow and coordinate with other maintainers.
+>
+> For pre-releases or special cases, use the `workflow_dispatch` trigger in the GitHub Actions workflow and coordinate
+> with other maintainers.
 
 ### Contributing to the Documentation
 
@@ -521,4 +561,5 @@ The documentation for Asgardeo JavaScript SDKs is maintained in the Asgardeo / W
 - [Asgardeo Docs](https://wso2.com/asgardeo/docs)
 - [WSO2 Identity Server Docs](https://is.docs.wso2.com/en/latest/)
 
-To contribute to the documentation, please send a pull request to the [Asgardeo Docs repository](https://github.com/wso2/docs-is).
+To contribute to the documentation, please send a pull request to the
+[Asgardeo Docs repository](https://github.com/wso2/docs-is).

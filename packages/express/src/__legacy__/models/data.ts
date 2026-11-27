@@ -17,5 +17,5 @@
  */
 
 export interface AuthURL {
-    url: string
+  url: string;
 }

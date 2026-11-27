@@ -83,40 +83,40 @@ yarn add @asgardeo/vue
 
 ## Step 4: Configure the Provider
 
-Register the Asgardeo plugin and wrap your application with the `AsgardeoProvider` in your main entry file (`src/main.ts`):
+Register the Asgardeo plugin and wrap your application with the `AsgardeoProvider` in your main entry file
+(`src/main.ts`):
 
 ```ts
-import { createApp } from 'vue'
-import './style.css'
-import App from './App.vue'
-import { AsgardeoPlugin, AsgardeoProvider } from '@asgardeo/vue'
+import {createApp} from 'vue';
+import './style.css';
+import App from './App.vue';
+import {AsgardeoPlugin, AsgardeoProvider} from '@asgardeo/vue';
 
-const app = createApp(App)
+const app = createApp(App);
 
-app.use(AsgardeoPlugin)
+app.use(AsgardeoPlugin);
 
-app.mount('#app')
+app.mount('#app');
 ```
 
 Then wrap your app component with the `AsgardeoProvider` in `src/App.vue`:
 
 ```vue
 <script setup>
-import { AsgardeoProvider } from '@asgardeo/vue'
+import {AsgardeoProvider} from '@asgardeo/vue';
 </script>
 
 <template>
-  <AsgardeoProvider
-    :base-url="'<your-organization-base-url>'"
-    :client-id="'<your-app-client-id>'"
-  >
+  <AsgardeoProvider :base-url="'<your-organization-base-url>'" :client-id="'<your-app-client-id>'">
     <!-- Your application content goes here -->
   </AsgardeoProvider>
 </template>
 ```
 
 Replace:
-- `<your-organization-base-url>` with the Base URL you noted in Step 1 (e.g., `https://api.asgardeo.io/t/<your-organization-name>`)
+
+- `<your-organization-base-url>` with the Base URL you noted in Step 1 (e.g.,
+  `https://api.asgardeo.io/t/<your-organization-name>`)
 - `<your-app-client-id>` with the Client ID from Step 1
 
 ## Step 5: Add Sign-in & Sign-out to Your App
@@ -125,7 +125,7 @@ Update your `src/App.vue` to include sign-in and sign-out functionality:
 
 ```vue
 <script setup lang="ts">
-import { SignedIn, SignedOut, SignInButton, SignOutButton } from '@asgardeo/vue'
+import {SignedIn, SignedOut, SignInButton, SignOutButton} from '@asgardeo/vue';
 </script>
 
 <template>
@@ -150,10 +150,10 @@ You can also display user information by using the `User` component and the `use
 
 ```vue
 <script setup lang="ts">
-import { SignedIn, SignedOut, SignInButton, SignOutButton, User } from '@asgardeo/vue'
-import { useUser } from '@asgardeo/vue'
+import {SignedIn, SignedOut, SignInButton, SignOutButton, User} from '@asgardeo/vue';
+import {useUser} from '@asgardeo/vue';
 
-const { user, isLoading } = useUser()
+const {user, isLoading} = useUser();
 </script>
 
 <template>
@@ -163,9 +163,7 @@ const { user, isLoading } = useUser()
         <h1>Welcome, {{ user?.username }}</h1>
         <p>Email: {{ user?.email }}</p>
       </div>
-      <div v-else>
-        Loading user information...
-      </div>
+      <div v-else>Loading user information...</div>
       <SignOutButton />
     </SignedIn>
     <SignedOut>
@@ -181,20 +179,18 @@ Alternatively, you can use the `User` component with a render function:
 
 ```vue
 <script setup lang="ts">
-import { SignedIn, SignedOut, SignInButton, SignOutButton, User } from '@asgardeo/vue'
+import {SignedIn, SignedOut, SignInButton, SignOutButton, User} from '@asgardeo/vue';
 </script>
 
 <template>
   <div>
     <SignedIn>
-      <User v-slot="{ user, isLoading }">
+      <User v-slot="{user, isLoading}">
         <div v-if="!isLoading" class="user-info">
           <h1>Welcome, {{ user.username }}</h1>
           <p>Email: {{ user.email }}</p>
         </div>
-        <div v-else>
-          Loading user information...
-        </div>
+        <div v-else>Loading user information...</div>
       </User>
       <SignOutButton />
     </SignedIn>
@@ -207,7 +203,8 @@ import { SignedIn, SignedOut, SignInButton, SignOutButton, User } from '@asgarde
 
 ## Step 7: Try Login
 
-Run your application and test the sign-in functionality. You should see a "Sign In" button when you're not signed in, and clicking it will redirect you to the Asgardeo sign-in page.
+Run your application and test the sign-in functionality. You should see a "Sign In" button when you're not signed in,
+and clicking it will redirect you to the Asgardeo sign-in page.
 
 ```bash
 # Using npm
@@ -220,15 +217,17 @@ pnpm dev
 yarn dev
 ```
 
-Open your browser and navigate to `http://localhost:5173` (or the port shown in your terminal). Click the "Sign In" button to test the authentication flow.
+Open your browser and navigate to `http://localhost:5173` (or the port shown in your terminal). Click the "Sign In"
+button to test the authentication flow.
 
 ## Step 8: Handle Callback
 
-The SDK automatically handles the OAuth callback redirect. Make sure your application loads correctly after returning from Asgardeo. For custom callback handling, you can use the `Callback` component:
+The SDK automatically handles the OAuth callback redirect. Make sure your application loads correctly after returning
+from Asgardeo. For custom callback handling, you can use the `Callback` component:
 
 ```vue
 <script setup lang="ts">
-import { Callback } from '@asgardeo/vue'
+import {Callback} from '@asgardeo/vue';
 </script>
 
 <template>
@@ -245,18 +244,24 @@ import { Callback } from '@asgardeo/vue'
 ## Common Issues
 
 ### Redirect URL Mismatch
+
 - **Problem**: Getting errors about redirect URI not matching
-- **Solution**: Ensure your redirect URLs in Asgardeo match your local/production URLs exactly (including protocol and port)
+- **Solution**: Ensure your redirect URLs in Asgardeo match your local/production URLs exactly (including protocol and
+  port)
 
 ### CORS Errors
+
 - **Problem**: Getting CORS-related errors in the console
 - **Solution**: Make sure to add your domain to the "Allowed Origins" in your Asgardeo application settings
 
 ### Client ID Not Found
+
 - **Problem**: Authentication fails with "Client ID is invalid"
-- **Solution**: Double-check that you're using the correct Client ID from your Asgardeo application and that it's properly configured in the plugin options
+- **Solution**: Double-check that you're using the correct Client ID from your Asgardeo application and that it's
+  properly configured in the plugin options
 
 ### Plugin Not Registered
+
 - **Problem**: Vue warns about plugin not being registered
 - **Solution**: Make sure you've called `app.use(AsgardeoPlugin)` before mounting your app
 
@@ -269,6 +274,7 @@ import { Callback } from '@asgardeo/vue'
 ## Getting Help
 
 If you encounter issues:
+
 1. Check the [FAQs](https://wso2.com/asgardeo/docs/faq/)
 2. Search [GitHub Issues](https://github.com/asgardeo/javascript/issues)
 3. Ask on the [WSO2 Community Forum](https://wso2.com/community/)

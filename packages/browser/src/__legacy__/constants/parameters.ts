@@ -16,7 +16,7 @@
  * under the License.
  */
 
-export const ERROR = "error";
-export const ERROR_DESCRIPTION = "error_description";
-export const CUSTOM_GRANT_CONFIG = "custom_grant_config";
-export const STATE_QUERY = "state";
+export const ERROR = 'error';
+export const ERROR_DESCRIPTION = 'error_description';
+export const CUSTOM_GRANT_CONFIG = 'custom_grant_config';
+export const STATE_QUERY = 'state';

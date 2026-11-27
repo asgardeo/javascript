@@ -348,10 +348,13 @@ export const useForm = <T extends Record<string, string>>(config: UseFormConfig<
 
   // Mark all fields as touched
   const touchAllFields: () => void = useCallback((): void => {
-    const allTouched: Record<keyof T, boolean> = fields.reduce((acc: Record<keyof T, boolean>, field: FormField) => {
-      acc[field.name as keyof T] = true;
-      return acc;
-    }, {} as Record<keyof T, boolean>);
+    const allTouched: Record<keyof T, boolean> = fields.reduce(
+      (acc: Record<keyof T, boolean>, field: FormField) => {
+        acc[field.name as keyof T] = true;
+        return acc;
+      },
+      {} as Record<keyof T, boolean>,
+    );
 
     setFormTouched(allTouched);
 

@@ -42,7 +42,12 @@ export default class AsgardeoRuntimeError extends AsgardeoError {
    * @param origin - Optional. The SDK origin (e.g. 'react', 'vue'). Defaults to generic 'Asgardeo'
    * @constructor
    */
-  constructor(message: string, code: string, origin: string, public readonly details?: unknown) {
+  constructor(
+    message: string,
+    code: string,
+    origin: string,
+    public readonly details?: unknown,
+  ) {
     super(message, code, origin);
 
     Object.defineProperty(this, 'name', {

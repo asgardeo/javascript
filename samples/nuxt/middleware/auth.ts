@@ -1,1 +1,1 @@
-export default defineAsgardeoMiddleware()
+export default defineAsgardeoMiddleware();

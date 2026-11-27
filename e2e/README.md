@@ -1,7 +1,7 @@
 # E2E Tests
 
-End-to-end tests for the `@asgardeo/react` SDK using [Playwright](https://playwright.dev). Tests run against WSO2 Identity
-Server and cover both redirect-based OAuth and embedded `<SignIn />` component flows.
+End-to-end tests for the `@asgardeo/react` SDK using [Playwright](https://playwright.dev). Tests run against WSO2
+Identity Server and cover both redirect-based OAuth and embedded `<SignIn />` component flows.
 
 ## Prerequisites
 

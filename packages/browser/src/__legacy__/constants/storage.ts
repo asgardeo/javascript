@@ -16,4 +16,4 @@
  * under the License.
  */
 
-export const TOKEN_REQUEST_CONFIG_KEY = "token_request_config";
+export const TOKEN_REQUEST_CONFIG_KEY = 'token_request_config';

@@ -16,5 +16,5 @@
  * under the License.
  */
 
-export * from "./message-utils";
-export * from "./spa-utils";
+export * from './message-utils';
+export * from './spa-utils';

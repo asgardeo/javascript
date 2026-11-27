@@ -23,7 +23,6 @@ import createTheme from '../../theme/createTheme';
 import {transformBrandingPreferenceToTheme} from '../transformBrandingPreferenceToTheme';
 
 vi.mock('../../theme/createTheme', () => ({
-   
   default: vi.fn((config: any, isDark: boolean) => ({__config: config, __isDark: isDark})),
 }));
 
@@ -42,7 +41,7 @@ const lightVariant = (overrides?: Partial<ThemeVariant>): ThemeVariant =>
     images: undefined,
     inputs: undefined,
     ...(overrides || {}),
-  } as any);
+  }) as any;
 
 const darkVariant = (overrides?: Partial<ThemeVariant>): ThemeVariant =>
   ({
@@ -55,7 +54,7 @@ const darkVariant = (overrides?: Partial<ThemeVariant>): ThemeVariant =>
       text: {primary: '#EBEBEF', secondary: '#B9B9C6'},
     },
     ...(overrides || {}),
-  } as any);
+  }) as any;
 
 const basePref = (pref: Partial<BrandingPreference['preference']>): BrandingPreference => ({
   locale: 'en-US',
@@ -79,7 +78,7 @@ describe('transformBrandingPreferenceToTheme', () => {
     const out: Record<string, unknown> = transformBrandingPreferenceToTheme(bp);
 
     expect(createTheme).toHaveBeenCalledWith({}, false);
-     
+
     expect(out).toEqual({__config: {}, __isDark: false});
   });
 
@@ -96,7 +95,6 @@ describe('transformBrandingPreferenceToTheme', () => {
 
     expect((createTheme as any).mock.calls[0][1]).toBe(false);
 
-     
     const cfg: Record<string, any> = (out as any).__config;
     expect(cfg.colors.primary.main).toBe('#FF7300');
     expect(cfg.colors.secondary.main).toBe('#E0E1E2');
@@ -117,7 +115,6 @@ describe('transformBrandingPreferenceToTheme', () => {
 
     expect((createTheme as any).mock.calls[0][1]).toBe(true);
 
-     
     const cfg: Record<string, any> = (out as any).__config;
 
     expect(cfg.colors.primary.main).toBe('#222222');
@@ -136,7 +133,6 @@ describe('transformBrandingPreferenceToTheme', () => {
 
     expect((createTheme as any).mock.calls[0][1]).toBe(true);
 
-     
     const cfg: Record<string, any> = (out as any).__config;
 
     expect(cfg.colors.primary.main).toBe('#FF7300');
@@ -150,7 +146,7 @@ describe('transformBrandingPreferenceToTheme', () => {
     const out: Record<string, unknown> = transformBrandingPreferenceToTheme(bp);
 
     expect(createTheme).toHaveBeenCalledWith({}, false);
-     
+
     expect(out).toEqual({__config: {}, __isDark: false});
   });
 
@@ -176,7 +172,7 @@ describe('transformBrandingPreferenceToTheme', () => {
     });
 
     const out: Record<string, unknown> = transformBrandingPreferenceToTheme(bp);
-     
+
     const cfg: Record<string, any> = (out as any).__config;
 
     expect(cfg.images.favicon).toEqual({
@@ -214,7 +210,7 @@ describe('transformBrandingPreferenceToTheme', () => {
     });
 
     const out: Record<string, unknown> = transformBrandingPreferenceToTheme(bp);
-     
+
     const cfg: Record<string, any> = (out as any).__config;
 
     expect(cfg.components.Button.styleOverrides.root.borderRadius).toBe(12);
@@ -230,7 +226,7 @@ describe('transformBrandingPreferenceToTheme', () => {
     });
 
     const out: Record<string, unknown> = transformBrandingPreferenceToTheme(bp);
-     
+
     const cfg: Record<string, any> = (out as any).__config;
 
     expect(cfg.components).toBeUndefined();
@@ -254,7 +250,7 @@ describe('transformBrandingPreferenceToTheme', () => {
     });
 
     const out: Record<string, unknown> = transformBrandingPreferenceToTheme(bp);
-     
+
     const cfg: Record<string, any> = (out as any).__config;
 
     expect(cfg.colors.primary.main).toBe('#010101');
@@ -282,7 +278,7 @@ describe('transformBrandingPreferenceToTheme', () => {
     });
 
     const out: Record<string, unknown> = transformBrandingPreferenceToTheme(bp);
-     
+
     const cfg: Record<string, any> = (out as any).__config;
 
     expect(cfg.colors.primary.contrastText).toBe('#abcdef');

@@ -59,7 +59,9 @@ const useStyles = (
       color: ${theme.vars.colors.text.primary};
       background-color: ${disabled ? theme.vars.colors.background.disabled : theme.vars.colors.background.surface};
       outline: none;
-      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+      transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
 
       &:focus {
         border-color: ${hasError ? theme.vars.colors.error.main : theme.vars.colors.primary.main};

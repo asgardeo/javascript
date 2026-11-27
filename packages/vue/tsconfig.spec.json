@@ -5,11 +5,5 @@
     "module": "ESNext",
     "types": ["vitest", "node"]
   },
-  "include": [
-    "**/*.test.ts",
-    "**/*.spec.ts",
-    "**/*.test.js",
-    "**/*.spec.js",
-    "**/*.d.ts"
-  ]
+  "include": ["**/*.test.ts", "**/*.spec.ts", "**/*.test.js", "**/*.spec.js", "**/*.d.ts"]
 }

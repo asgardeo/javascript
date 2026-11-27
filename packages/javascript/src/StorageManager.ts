@@ -149,7 +149,6 @@ class StorageManager<T> {
     return JSON.parse((await this.store.getData(this.resolveKey(key, userId))) ?? null);
   }
 
-   
   public setSessionStatus(status: string): void {
     // Using local storage to store the session status as it is required to be available across tabs.
     if (StorageManager.isLocalStorageAvailable()) {
@@ -157,12 +156,10 @@ class StorageManager<T> {
     }
   }
 
-   
   public getSessionStatus(): string {
-    return StorageManager.isLocalStorageAvailable() ? localStorage.getItem(`${ASGARDEO_SESSION_ACTIVE}`) ?? '' : '';
+    return StorageManager.isLocalStorageAvailable() ? (localStorage.getItem(`${ASGARDEO_SESSION_ACTIVE}`) ?? '') : '';
   }
 
-   
   public removeSessionStatus(): void {
     if (StorageManager.isLocalStorageAvailable()) {
       localStorage.removeItem(`${ASGARDEO_SESSION_ACTIVE}`);

@@ -69,12 +69,12 @@ async function main(): Promise<void> {
     shell: true,
   });
 
-  child.on('error', (err) => {
+  child.on('error', err => {
     console.error('[E2E] Failed to start Vite dev server:', err);
     process.exit(1);
   });
 
-  child.on('exit', (code) => {
+  child.on('exit', code => {
     process.exit(code ?? 0);
   });
 
@@ -83,7 +83,7 @@ async function main(): Promise<void> {
   process.on('SIGINT', () => child.kill('SIGINT'));
 }
 
-main().catch((err) => {
+main().catch(err => {
   console.error('[E2E] Setup failed:', err);
   process.exit(1);
 });

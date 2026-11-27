@@ -16,86 +16,86 @@
  * under the License.
  */
 
-import { AsgardeoAuthException, Storage, TokenResponse, Logger } from "@asgardeo/node";
-import express from "express";
-import { AsgardeoExpressClient } from "../client";
-import { DEFAULT_LOGIN_PATH, DEFAULT_LOGOUT_PATH } from "../constants";
-import { ExpressClientConfig } from "../models";
+import {AsgardeoAuthException, Storage, TokenResponse, Logger} from '@asgardeo/node';
+import express from 'express';
+import {AsgardeoExpressClient} from '../client';
+import {DEFAULT_LOGIN_PATH, DEFAULT_LOGOUT_PATH} from '../constants';
+import {ExpressClientConfig} from '../models';
 
 export const asgardeoExpressAuth = (
-    asgardeoExpressClient: AsgardeoExpressClient,
-    config: ExpressClientConfig,
-    onSignIn: (res: express.Response, tokenResponse: TokenResponse) => void,
-    onSignOut: (res: express.Response) => void,
-    onError: (res: express.Response, exception: AsgardeoAuthException) => void
+  asgardeoExpressClient: AsgardeoExpressClient,
+  config: ExpressClientConfig,
+  onSignIn: (res: express.Response, tokenResponse: TokenResponse) => void,
+  onSignOut: (res: express.Response) => void,
+  onError: (res: express.Response, exception: AsgardeoAuthException) => void,
 ): any => {
-    //Create the router
-    const router = new express.Router();
+  //Create the router
+  const router = new express.Router();
 
-    //Patch AuthClient to the request and the response
-    router.use(async (req: express.Request, res: express.Response, next: express.nextFunction): Promise<void> => {
-        req.asgardeoAuth = asgardeoExpressClient;
-        res.asgardeoAuth = asgardeoExpressClient;
-        next();
-    });
+  //Patch AuthClient to the request and the response
+  router.use(async (req: express.Request, res: express.Response, next: express.nextFunction): Promise<void> => {
+    req.asgardeoAuth = asgardeoExpressClient;
+    res.asgardeoAuth = asgardeoExpressClient;
+    next();
+  });
 
-    //Patch in '/login' route
-    router.get(
-        config.loginPath || DEFAULT_LOGIN_PATH,
-        async (req: express.Request, res: express.Response, next: express.nextFunction): Promise<void> => {
-            try {
-                const response: TokenResponse = await asgardeoExpressClient.signIn(req, res, next, config.signInConfig);
-                if (response.accessToken || response.idToken) {
-                    onSignIn(res, response);
-                }
-            } catch (e: any) {
-                Logger.error(e.message);
-                onError(res, e);
-            }
+  //Patch in '/login' route
+  router.get(
+    config.loginPath || DEFAULT_LOGIN_PATH,
+    async (req: express.Request, res: express.Response, next: express.nextFunction): Promise<void> => {
+      try {
+        const response: TokenResponse = await asgardeoExpressClient.signIn(req, res, next, config.signInConfig);
+        if (response.accessToken || response.idToken) {
+          onSignIn(res, response);
         }
-    );
+      } catch (e: any) {
+        Logger.error(e.message);
+        onError(res, e);
+      }
+    },
+  );
 
-    //Patch in '/logout' route
-    router.get(
-        config.logoutPath || DEFAULT_LOGOUT_PATH,
-        async (req: express.Request, res: express.Response, next: express.nextFunction): Promise<void> => {
-            //Check if it is a logout success response
-            if (req.query.state === "sign_out_success") {
-                onSignOut(res);
+  //Patch in '/logout' route
+  router.get(
+    config.logoutPath || DEFAULT_LOGOUT_PATH,
+    async (req: express.Request, res: express.Response, next: express.nextFunction): Promise<void> => {
+      //Check if it is a logout success response
+      if (req.query.state === 'sign_out_success') {
+        onSignOut(res);
 
-                return;
-            }
+        return;
+      }
 
-            //Check if the cookie exists
-            if (req.cookies.ASGARDEO_SESSION_ID === undefined) {
-                onError(
-                    res,
-                    new AsgardeoAuthException(
-                        "EXPRESS-AUTH_MW-LOGOUT-NF01",
-                        "No cookie found in the request",
-                        "No cookie was sent with the request. The user may not have signed in yet."
-                    )
-                );
+      //Check if the cookie exists
+      if (req.cookies.ASGARDEO_SESSION_ID === undefined) {
+        onError(
+          res,
+          new AsgardeoAuthException(
+            'EXPRESS-AUTH_MW-LOGOUT-NF01',
+            'No cookie found in the request',
+            'No cookie was sent with the request. The user may not have signed in yet.',
+          ),
+        );
 
-                return;
-            } else {
-                //Get the signout URL
-                try {
-                    const signOutURL = await req.asgardeoAuth.signOut(req.cookies.ASGARDEO_SESSION_ID);
-                    if (signOutURL) {
-                        res.cookie("ASGARDEO_SESSION_ID", null, { maxAge: 0 });
-                        res.redirect(signOutURL);
+        return;
+      } else {
+        //Get the signout URL
+        try {
+          const signOutURL = await req.asgardeoAuth.signOut(req.cookies.ASGARDEO_SESSION_ID);
+          if (signOutURL) {
+            res.cookie('ASGARDEO_SESSION_ID', null, {maxAge: 0});
+            res.redirect(signOutURL);
 
-                        return;
-                    }
-                } catch (e: any) {
-                    onError(res, e);
+            return;
+          }
+        } catch (e: any) {
+          onError(res, e);
 
-                    return;
-                }
-            }
+          return;
         }
-    );
+      }
+    },
+  );
 
-    return router;
+  return router;
 };

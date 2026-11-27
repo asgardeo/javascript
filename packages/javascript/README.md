@@ -9,10 +9,12 @@
 </div>
 
 > [!IMPORTANT]
-> ⚠️ Do not directly use this in your applications.
-> `@asgardeo/javascript` is a framework agnostic SDK that provides core authentication functionalities.
-> For framework-specific integrations, consider using the dedicated SDKs such as `@asgardeo/react`, `@asgardeo/next`, etc.
+>
+> ⚠️ Do not directly use this in your applications. `@asgardeo/javascript` is a framework agnostic SDK that provides
+> core authentication functionalities. For framework-specific integrations, consider using the dedicated SDKs such as
+> `@asgardeo/react`, `@asgardeo/next`, etc.
 
 ## License
 
-Licenses this source under the Apache License, Version 2.0 [LICENSE](./LICENSE), You may not use this file except in compliance with the License.
+Licenses this source under the Apache License, Version 2.0 [LICENSE](./LICENSE), You may not use this file except in
+compliance with the License.
