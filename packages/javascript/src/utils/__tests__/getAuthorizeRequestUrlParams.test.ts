@@ -147,6 +147,35 @@ describe('getAuthorizeRequestUrlParams', (): void => {
     expect(params.get(OIDCRequestConstants.Params.STATE)).toBe('customState_request_1');
   });
 
+  it('should prefix the state with the instance ID', (): void => {
+    const params: Map<string, string> = getAuthorizeRequestUrlParams(
+      {
+        clientId: 'client123',
+        instanceId: '0',
+        redirectUri: 'https://app/callback',
+      },
+      {key: pkceKey},
+      {},
+    );
+
+    expect(params.get(OIDCRequestConstants.Params.STATE)).toBe('instance_0_request_1');
+  });
+
+  it('should keep the custom state when an instance ID is also provided', (): void => {
+    const params: Map<string, string> = getAuthorizeRequestUrlParams(
+      {
+        clientId: 'client123',
+        instanceId: '0',
+        prompt: 'none',
+        redirectUri: 'https://app/callback',
+      },
+      {key: pkceKey},
+      {[OIDCRequestConstants.Params.STATE]: 'sign-in-silently'},
+    );
+
+    expect(params.get(OIDCRequestConstants.Params.STATE)).toBe('instance_0_sign-in-silently_request_1');
+  });
+
   it('should set scope to undefined if none provided', (): void => {
     const params: Map<string, string> = getAuthorizeRequestUrlParams(
       {

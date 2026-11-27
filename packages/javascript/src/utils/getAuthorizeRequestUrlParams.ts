@@ -107,13 +107,21 @@ const getAuthorizeRequestUrlParams = (
   }
 
   const AUTH_INSTANCE_PREFIX: string = 'instance_';
-  let customStateValue: string = '';
+  // Keep the caller's state alongside the instance prefix rather than replacing it: silent sign-in and
+  // check-session recognise their own responses by a marker in the state (e.g. `sign-in-silently`).
+  const stateParts: string[] = [];
 
   if (options.instanceId) {
-    customStateValue = AUTH_INSTANCE_PREFIX + options.instanceId;
-  } else if (customParams) {
-    customStateValue = customParams[OIDCRequestConstants.Params.STATE]?.toString() ?? '';
+    stateParts.push(AUTH_INSTANCE_PREFIX + options.instanceId);
   }
+
+  const callerState: string = customParams?.[OIDCRequestConstants.Params.STATE]?.toString() ?? '';
+
+  if (callerState) {
+    stateParts.push(callerState);
+  }
+
+  const customStateValue: string = stateParts.join('_');
 
   authorizeRequestParams.set(
     OIDCRequestConstants.Params.STATE,
