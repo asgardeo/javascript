@@ -81,14 +81,11 @@ export class AsgardeoAuthClient<T> {
   static authHelperInstance: any;
 
   /**
-   * This is the constructor method that returns an instance of the .
-   *
-   * @param store - The store object.
+   * Creates a client. Call `initialize()` with the config, a store and a crypto implementation before using it.
    *
    * @example
    * ```
-   * const _store: Store = new DataStore();
-   * const auth = new AsgardeoAuthClient<CustomClientConfig>(_store);
+   * const auth = new AsgardeoAuthClient<CustomClientConfig>();
    * ```
    *
    * {@link https://github.com/asgardeo/asgardeo-auth-js-sdk/tree/master#constructor}
@@ -104,6 +101,9 @@ export class AsgardeoAuthClient<T> {
    * This method initializes the SDK with the config data.
    *
    * @param config - The config object to initialize with.
+   * @param store - The store that keeps the configuration, session and temporary data.
+   * @param inputCryptoUtils - The crypto implementation for the platform.
+   * @param instanceID - (Optional) The ID of this client instance, for multiple clients on the same page.
    *
    * @example
    * const config = \{
@@ -112,7 +112,7 @@ export class AsgardeoAuthClient<T> {
    *     baseUrl: "https://localhost:9443"
    * \}
    *
-   * await auth.initialize(config);
+   * await auth.initialize(config, store, cryptoUtils);
    *
    * {@link https://github.com/asgardeo/asgardeo-auth-js-sdk/tree/master#initialize}
    *
@@ -180,6 +180,12 @@ export class AsgardeoAuthClient<T> {
       ...DefaultConfig,
       ...config,
       applicationId: resolvedApplicationId,
+      // Merge \`tokenValidation\` deeply, so that setting one option (for example \`clockTolerance\`) keeps the other
+      // defaults, such as \`validate: true\`, instead of turning ID token validation off.
+      tokenValidation: deepMerge(
+        (DefaultConfig.tokenValidation ?? {}) as Record<string, any>,
+        (config.tokenValidation ?? {}) as Record<string, any>,
+      ),
       endpoints: resolvedEndpoints,
       scope: processOpenIDScopes(config.scopes),
     });
@@ -299,6 +305,18 @@ export class AsgardeoAuthClient<T> {
         authorizeRequest.searchParams.append(paramKey, paramValue);
       });
 
+      // A `redirect_uri` passed in the request config replaces the configured one. Remember it for this request, so
+      // that the token request sends the same value, as the authorization server requires.
+      const requestedRedirectUri: string | undefined = authorizeRequestParams.get('redirect_uri');
+
+      if (requestedRedirectUri && requestedRedirectUri !== configData.afterSignInUrl) {
+        await this.storageManager.setTemporaryDataParameter(
+          AsgardeoAuthClient.getRedirectUriStorageKey(pkceKey),
+          requestedRedirectUri,
+          userId,
+        );
+      }
+
       return authorizeRequest.toString();
     };
 
@@ -319,14 +337,16 @@ export class AsgardeoAuthClient<T> {
    *
    * @param authorizationCode - The authorization code.
    * @param sessionState - The session state.
+   * @param state - The state parameter returned in the callback URL.
    * @param userId - (Optional) A unique ID of the user to be authenticated. This is useful in multi-user
    * scenarios where each user should be uniquely identified.
+   * @param tokenRequestConfig - (Optional) Extra parameters to add to the token request.
    *
    * @returns - A Promise that resolves with the token response.
    *
    * @example
    * ```
-   * auth.requestAccessToken(authCode, sessionState).then((token)=>{
+   * auth.requestAccessToken(authCode, sessionState, state).then((token)=>{
    *  // console.log(token);
    * }).catch((error)=>{
    *  // console.error(error);
@@ -393,7 +413,15 @@ export class AsgardeoAuthClient<T> {
     body.set('code', code);
 
     body.set('grant_type', 'authorization_code');
-    body.set('redirect_uri', configData.afterSignInUrl);
+    const redirectUriKey: string = AsgardeoAuthClient.getRedirectUriStorageKey(extractPkceStorageKeyFromState(state));
+    const requestedRedirectUri: unknown = await this.storageManager.getTemporaryDataParameter(redirectUriKey, userId);
+
+    if (typeof requestedRedirectUri === 'string' && requestedRedirectUri) {
+      body.set('redirect_uri', requestedRedirectUri);
+      await this.storageManager.removeTemporaryDataParameter(redirectUriKey, userId);
+    } else {
+      body.set('redirect_uri', configData.afterSignInUrl);
+    }
 
     if (tokenRequestConfig?.params) {
       Object.entries(tokenRequestConfig.params).forEach(([key, value]: [key: string, value: unknown]) => {
@@ -659,10 +687,10 @@ export class AsgardeoAuthClient<T> {
    * @preserve
    */
   public async getDecodedIdToken(userId?: string, idToken?: string): Promise<IdToken> {
-    const storedIdToken: string = (await this.storageManager.getSessionData(userId)).id_token;
-    const payload: IdToken = this.cryptoHelper.decodeJwtToken<IdToken>(storedIdToken ?? idToken);
+    // A token passed in explicitly takes precedence over the stored one.
+    const resolvedIdToken: string = idToken ?? (await this.storageManager.getSessionData(userId)).id_token;
 
-    return payload;
+    return this.cryptoHelper.decodeJwtToken<IdToken>(resolvedIdToken);
   }
 
   /**
@@ -732,7 +760,7 @@ export class AsgardeoAuthClient<T> {
    *
    * @example
    * ```
-   * const cryptoHelper = await auth.IsomorphicCrypto();
+   * const cryptoHelper = await auth.getCrypto();
    * ```
    *
    * {@link https://github.com/asgardeo/asgardeo-auth-js-sdk/tree/master#getCrypto}
@@ -817,7 +845,7 @@ export class AsgardeoAuthClient<T> {
       );
     }
 
-    this.authHelper.clearSession(userId);
+    await this.authHelper.clearSession(userId);
 
     return Promise.resolve(response);
   }
@@ -1125,7 +1153,7 @@ export class AsgardeoAuthClient<T> {
    *
    * @example
    * ```
-   * await auth.setPKCECode("pkce_code")
+   * await auth.setPKCECode("pkce_code", state)
    * ```
    *
    * {@link https://github.com/asgardeo/asgardeo-auth-js-sdk/tree/master#setPKCECode}
@@ -1134,6 +1162,16 @@ export class AsgardeoAuthClient<T> {
    */
   public async setPKCECode(pkce: string, state: string, userId?: string): Promise<void> {
     return this.storageManager.setTemporaryDataParameter(extractPkceStorageKeyFromState(state), pkce, userId);
+  }
+
+  /**
+   * Returns the temporary storage key for the `redirect_uri` of one sign-in request, using the request's PKCE key
+   * (`pkce_code_verifier#<index>`). The key does not start with the PKCE prefix, so it never affects the PKCE index.
+   */
+  private static getRedirectUriStorageKey(pkceKey: string): string {
+    const index: string = pkceKey.split(PKCEConstants.Storage.StorageKeys.SEPARATOR)[1] ?? '';
+
+    return `redirect_uri${PKCEConstants.Storage.StorageKeys.SEPARATOR}${index}`;
   }
 
   /**
@@ -1200,13 +1238,30 @@ export class AsgardeoAuthClient<T> {
    * @preserve
    */
   public async reInitialize(config: Partial<AuthClientConfig<T>>): Promise<void> {
-    const currentConfig: AuthClientConfig<T> = this.storageManager.getConfigData() as unknown as AuthClientConfig<T>;
+    const currentConfig: AuthClientConfig<T> = await this.storageManager.getConfigData();
     const newConfig: AuthClientConfig<T> = deepMerge(currentConfig, config);
 
     await this.storageManager.setConfigData(newConfig);
     await this.loadOpenIDProviderConfiguration(true);
   }
 
+  /**
+   * Clears the session data of a user stored by this client.
+   *
+   * @param userId - (Optional) A unique ID of the user whose session should be cleared.
+   */
+  public async clearSession(userId?: string): Promise<void> {
+    await this.authHelper.clearSession(userId);
+  }
+
+  /**
+   * Clears the session data of a user stored by the most recently initialized client.
+   *
+   * With several clients (instances) on the same page, this can clear the session of a different client than the one
+   * you mean. Call \`clearSession()\` on the client instance instead.
+   *
+   * @param userId - (Optional) A unique ID of the user whose session should be cleared.
+   */
   public static async clearSession(userId?: string): Promise<void> {
     await this.authHelperInstance.clearSession(userId);
   }

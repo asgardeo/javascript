@@ -209,7 +209,7 @@ export type {OIDCDiscoveryApiResponse} from './models/oidc-discovery';
 export type {Storage, TemporaryStore} from './models/store';
 export type {User, UserProfile} from './models/user';
 export type {SessionData} from './models/session';
-export type {Organization} from './models/organization';
+export type {Organization, OrgDiscoveryType} from './models/organization';
 export type {TranslationFn} from './models/v2/translation';
 export type {ResolveFlowTemplateLiteralsOptions} from './models/v2/vars';
 export type {
@@ -230,6 +230,7 @@ export type {RecursivePartial} from './models/utility-types';
 export {FieldType} from './models/field';
 
 export {default as AsgardeoJavaScriptClient} from './AsgardeoJavaScriptClient';
+export type {OrgAuthorizationUrlOptions} from './AsgardeoJavaScriptClient';
 
 export {default as createTheme, DEFAULT_THEME} from './theme/createTheme';
 export type {ThemeColors, ThemeConfig, Theme, ThemeMode, ThemeDetection} from './theme/types';

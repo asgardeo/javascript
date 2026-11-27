@@ -68,7 +68,7 @@ const UserProfile: Component = defineComponent({
     title: {default: 'Profile', type: String},
   },
   setup(props: UserProfileProps, {slots}: SetupContext): () => VNode {
-    const {baseUrl, instanceId} = useAsgardeo();
+    const {baseUrl, instanceId, isLoading} = useAsgardeo();
     const {flattenedProfile, profile, schemas, onUpdateProfile} = useUser();
     const {t} = useI18n();
 
@@ -107,6 +107,8 @@ const UserProfile: Component = defineComponent({
           error: error.value,
           flattenedProfile: flattenedProfile?.value,
           hideFields: props.hideFields,
+          // Lets the default slot show a loading state while the session and profile load.
+          isLoading: isLoading?.value ?? false,
           onUpdate: handleProfileUpdate,
           profile: profile?.value?.profile ?? flattenedProfile?.value,
           schemas: schemas?.value,

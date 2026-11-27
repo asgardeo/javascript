@@ -91,7 +91,7 @@ export class AsgardeoExpressClient {
   public async signIn(
     req: express.Request,
     res: express.Response,
-    next: express.nextFunction,
+    next: express.NextFunction,
     signInConfig?: Record<string, string | boolean>,
   ): Promise<TokenResponse> {
     if (ExpressUtils.hasErrorInURL(req.originalUrl)) {
@@ -116,16 +116,13 @@ export class AsgardeoExpressClient {
         //DEBUG
         Logger.debug('Redirecting to: ' + url);
         res.cookie('ASGARDEO_SESSION_ID', userId, {
-          maxAge: AsgardeoExpressClient._clientConfig.cookieConfig?.maxAge
-            ? AsgardeoExpressClient._clientConfig.cookieConfig.maxAge
-            : CookieConfig.defaultMaxAge,
+          maxAge: AsgardeoExpressClient._clientConfig.cookieConfig?.maxAge ?? CookieConfig.defaultMaxAge,
           httpOnly: AsgardeoExpressClient._clientConfig.cookieConfig?.httpOnly ?? CookieConfig.defaultHttpOnly,
           sameSite: AsgardeoExpressClient._clientConfig.cookieConfig?.sameSite ?? CookieConfig.defaultSameSite,
           secure: AsgardeoExpressClient._clientConfig.cookieConfig?.secure ?? CookieConfig.defaultSecure,
         });
+        // The response is finished here, so don't pass the request on to later handlers.
         res.redirect(url);
-
-        next && typeof next === 'function' && next();
       }
     };
 
@@ -161,6 +158,16 @@ export class AsgardeoExpressClient {
     return this._authClient.isSignedIn(userId);
   }
 
+  /**
+   * Refreshes the access token of a user with the stored refresh token. `isSignedIn()` (and so `protectRoute()`)
+   * already does this when the access token has expired.
+   *
+   * @param userId - The unique ID of the user's session (the `ASGARDEO_SESSION_ID` cookie).
+   */
+  public async refreshAccessToken(userId: string): Promise<TokenResponse> {
+    return this._authClient.refreshAccessToken(userId);
+  }
+
   public async getIdToken(userId: string): Promise<string> {
     return this._authClient.getIdToken(userId);
   }
@@ -173,8 +180,8 @@ export class AsgardeoExpressClient {
     return this._authClient.getOpenIDProviderEndpoints();
   }
 
-  public async getDecodedIdToken(userId?: string): Promise<IdToken> {
-    return this._authClient.getDecodedIdToken(userId);
+  public async getDecodedIdToken(userId?: string, idToken?: string): Promise<IdToken> {
+    return this._authClient.getDecodedIdToken(userId, idToken);
   }
 
   public async getAccessToken(userId?: string): Promise<string> {
@@ -203,7 +210,7 @@ export class AsgardeoExpressClient {
 
   public static protectRoute(
     callback: UnauthenticatedCallback,
-  ): (req: express.Request, res: express.Response, next: express.nextFunction) => Promise<void> {
+  ): (req: express.Request, res: express.Response, next: express.NextFunction) => Promise<void> {
     if (!this._instance) {
       throw new AsgardeoAuthException(
         'EXPRESS-CLIENT-PR-NF01',
@@ -216,10 +223,10 @@ export class AsgardeoExpressClient {
   }
 
   public static asgardeoExpressAuth(
-    onSignIn: (response: TokenResponse) => void,
-    onSignOut: () => void,
-    onError: (exception: AsgardeoAuthException) => void,
-  ): any {
+    onSignIn: (res: express.Response, response: TokenResponse, req: express.Request) => void,
+    onSignOut: (res: express.Response, req: express.Request) => void,
+    onError: (res: express.Response, exception: AsgardeoAuthException, req: express.Request) => void,
+  ): express.Router {
     if (!this._instance) {
       throw new AsgardeoAuthException(
         'EXPRESS-CLIENT-AEA-NF01',

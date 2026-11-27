@@ -40,7 +40,8 @@ export class SessionUtils {
 
   public static validateSession(sessionData: SessionData): Promise<boolean> {
     const currentTime: number = Date.now();
-    const expiryTimeStamp: number = sessionData.created_at + parseInt(sessionData.expires_in, 10) * 60 * 1000;
+    // `expires_in` is in seconds (RFC 6749, section 5.1).
+    const expiryTimeStamp: number = sessionData.created_at + parseInt(sessionData.expires_in, 10) * 1000;
     // If the expiry time is greater than the current time, then the cookie is still valid
     if (currentTime < expiryTimeStamp) {
       return Promise.resolve(true);

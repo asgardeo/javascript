@@ -177,9 +177,11 @@ describe('asgardeo-ssr Nitro plugin', () => {
 
   // ── Early-exit paths ────────────────────────────────────────────────────
 
-  it('returns early for /api/ paths without setting asgardeo context', async () => {
+  it('sets only the session for /api/ paths, without SSR data fetches', async () => {
     const event = await callHandler('/api/auth/session');
-    expect(event.context.asgardeo).toBeUndefined();
+    // No session cookie in this test, so the user is signed out; getAsgardeoContext(event) still works in API routes.
+    expect(event.context.asgardeo).toEqual({isSignedIn: false, session: null});
+    expect(mockClient.getUser).not.toHaveBeenCalled();
   });
 
   it('returns early for /_nuxt/ internal paths', async () => {

@@ -19,4 +19,7 @@
 export * from './__legacy__/models';
 export * from './__legacy__/client';
 
+/** The defaults the Express SDK uses for the `ASGARDEO_SESSION_ID` cookie (`maxAge` in milliseconds). */
+export {CookieConfig as ExpressCookieConfig} from './__legacy__/constants/default-options';
+
 export * from '@asgardeo/node';

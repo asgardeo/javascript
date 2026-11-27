@@ -16,12 +16,22 @@
  * under the License.
  */
 
-export enum CookieConfig {
-  defaultMaxAge = 90000,
-  defaultHttpOnly = 'true',
-  defaultSameSite = 'lax',
-  defaultSecure = 'false',
-}
+/**
+ * Defaults for the `ASGARDEO_SESSION_ID` cookie. They are passed straight to Express's `res.cookie()`, so `maxAge` is
+ * in milliseconds and the flags are booleans.
+ */
+export const CookieConfig: {
+  readonly defaultHttpOnly: boolean;
+  readonly defaultMaxAge: number;
+  readonly defaultSameSite: 'lax' | 'strict' | 'none';
+  readonly defaultSecure: boolean;
+} = {
+  defaultHttpOnly: true,
+  // 24 hours, matching the default session lifetime of the Next.js SDK.
+  defaultMaxAge: 24 * 60 * 60 * 1000,
+  defaultSameSite: 'lax',
+  defaultSecure: false,
+} as const;
 
 export const DEFAULT_LOGIN_PATH = '/login';
 

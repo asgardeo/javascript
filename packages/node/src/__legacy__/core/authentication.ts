@@ -44,6 +44,8 @@ export class AsgardeoNodeCore<T> {
 
   private storageManager: StorageManager<T>;
 
+  private initialization: Promise<void>;
+
   constructor(config: AuthClientConfig<T>, store?: Storage) {
     // Initialize the default memory cache store if an external store is not passed.
     if (!store) {
@@ -53,9 +55,21 @@ export class AsgardeoNodeCore<T> {
     }
     this.cryptoUtils = new NodeCryptoUtils();
     this.auth = new AsgardeoAuthClient();
-    this.auth.initialize(config, this.store, this.cryptoUtils);
+    this.initialization = this.auth.initialize(config, this.store, this.cryptoUtils);
     this.storageManager = this.auth.getStorageManager();
-    Logger.debug('Initialized AsgardeoAuthClient successfully');
+    // Avoid an unhandled rejection here; the error surfaces from the first method that awaits initialization.
+    this.initialization.then(
+      () => Logger.debug('Initialized AsgardeoAuthClient successfully'),
+      () => undefined,
+    );
+  }
+
+  /**
+   * Resolves once the underlying client has finished initializing. Every public async method awaits this so that a
+   * call made right after construction never reads configuration that an async store has not saved yet.
+   */
+  public async waitForInitialization(): Promise<void> {
+    return this.initialization;
   }
 
   public async signIn(
@@ -66,6 +80,7 @@ export class AsgardeoNodeCore<T> {
     state?: string,
     signInConfig?: Record<string, string | boolean>,
   ): Promise<TokenResponse> {
+    await this.initialization;
     if (!userId) {
       return Promise.reject(
         new AsgardeoAuthException(
@@ -121,6 +136,7 @@ export class AsgardeoNodeCore<T> {
   }
 
   public async getAuthURL(userId: string, signInConfig?: Record<string, string | boolean>): Promise<string> {
+    await this.initialization;
     const authURL: string | undefined = await this.auth.getSignInUrl(signInConfig, userId);
 
     if (authURL) {
@@ -141,10 +157,12 @@ export class AsgardeoNodeCore<T> {
     userId: string,
     state: string,
   ): Promise<TokenResponse> {
+    await this.initialization;
     return this.auth.requestAccessToken(authorizationCode, sessionState, state, userId);
   }
 
   public async getIdToken(userId: string): Promise<string> {
+    await this.initialization;
     const isLoggedIn: boolean = await this.isSignedIn(userId);
     if (!isLoggedIn) {
       return Promise.reject(
@@ -169,34 +187,44 @@ export class AsgardeoNodeCore<T> {
   }
 
   public async refreshAccessToken(userId?: string): Promise<TokenResponse> {
+    await this.initialization;
     return this.auth.refreshAccessToken(userId);
   }
 
   public async isSignedIn(userId: string): Promise<boolean> {
-    try {
-      if (!(await this.auth.isSignedIn(userId))) {
-        return await Promise.resolve(false);
-      }
+    await this.initialization;
 
-      if (await SessionUtils.validateSession(await this.storageManager.getSessionData(userId))) {
-        return await Promise.resolve(true);
-      }
+    const sessionData: SessionData = await this.storageManager.getSessionData(userId);
 
-      const refreshedToken: TokenResponse = await this.refreshAccessToken(userId);
-
-      if (refreshedToken) {
-        return await Promise.resolve(true);
-      }
-
-      this.storageManager.removeSessionData(userId);
-      this.storageManager.getTemporaryData(userId);
-      return await Promise.resolve(false);
-    } catch (error) {
-      return Promise.reject(error);
+    if (!sessionData?.access_token) {
+      return false;
     }
+
+    if (await SessionUtils.validateSession(sessionData)) {
+      return true;
+    }
+
+    // The access token has expired. Refresh it when a refresh token is available.
+    if (sessionData.refresh_token) {
+      try {
+        const refreshedToken: TokenResponse = await this.refreshAccessToken(userId);
+
+        if (refreshedToken?.accessToken) {
+          return true;
+        }
+      } catch (error) {
+        Logger.debug(`Refreshing the access token failed: ${error}`);
+      }
+    }
+
+    await this.storageManager.removeSessionData(userId);
+
+    return false;
   }
 
   public async signOut(userId: string): Promise<string> {
+    await this.initialization;
+
     const signOutURL: string = await this.auth.getSignOutUrl(userId);
 
     if (!signOutURL) {
@@ -209,47 +237,58 @@ export class AsgardeoNodeCore<T> {
       );
     }
 
-    return Promise.resolve(signOutURL);
+    // The sign-out URL already carries the ID token hint, so the stored tokens are no longer needed.
+    await this.storageManager.removeSessionData(userId);
+
+    return signOutURL;
   }
 
   public async getUser(userId: string): Promise<User> {
+    await this.initialization;
     return this.auth.getUser(userId);
   }
 
   public async getConfigData(): Promise<AuthClientConfig<T>> {
+    await this.initialization;
     return this.storageManager.getConfigData();
   }
 
   public async getOpenIDProviderEndpoints(): Promise<OIDCEndpoints> {
+    await this.initialization;
     return this.auth.getOpenIDProviderEndpoints() as Promise<OIDCEndpoints>;
   }
 
   public async getDecodedIdToken(userId?: string, idToken?: string): Promise<IdToken> {
+    await this.initialization;
     return this.auth.getDecodedIdToken(userId, idToken);
   }
 
   public async getAccessToken(userId?: string): Promise<string> {
+    await this.initialization;
     return this.auth.getAccessToken(userId);
   }
 
   public async exchangeToken(config: TokenExchangeRequestConfig, userId?: string): Promise<TokenResponse | Response> {
+    await this.initialization;
     return this.auth.exchangeToken(config, userId);
   }
 
   public async reInitialize(config: Partial<AuthClientConfig<T>>): Promise<void> {
+    await this.initialization;
     return this.auth.reInitialize(config);
   }
 
   public async revokeAccessToken(userId?: string): Promise<Response> {
+    await this.initialization;
     return this.auth.revokeAccessToken(userId);
   }
 
   public static didSignOutFail(afterSignOutUrl: string): boolean {
-    return AsgardeoNodeCore.didSignOutFail(afterSignOutUrl);
+    return AsgardeoAuthClient.didSignOutFail(afterSignOutUrl);
   }
 
   public static isSignOutSuccessful(afterSignOutUrl: string): boolean {
-    return AsgardeoNodeCore.isSignOutSuccessful(afterSignOutUrl);
+    return AsgardeoAuthClient.isSignOutSuccessful(afterSignOutUrl);
   }
 
   public getStorageManager(): StorageManager<T> {

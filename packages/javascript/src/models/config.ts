@@ -139,6 +139,9 @@ export interface BaseConfig<T = unknown> extends WithPreferences, WithExtensions
    * Controls how the SDK resolves endpoint URLs from the authorization server.
    * Each discovery mechanism is independently configurable.
    *
+   * Only applies when `platform` is `AsgardeoV2`. For Asgardeo and WSO2 Identity Server, set `wellKnownEndpoint` to
+   * use a discovery document; otherwise the endpoints are derived from `baseUrl`.
+   *
    * @example
    * // Use a custom well-known discovery document URL
    * discovery: { wellKnown: { endpoint: "https://custom.example.com/.well-known/openid-configuration" } }
@@ -150,12 +153,13 @@ export interface BaseConfig<T = unknown> extends WithPreferences, WithExtensions
   discovery?: {
     /**
      * Configuration for OpenID Connect Discovery via the well-known endpoint (RFC 8414).
-     * The SDK fetches `{baseUrl}/oauth2/token/.well-known/openid-configuration` by default.
+     * When enabled, the SDK fetches `{baseUrl}{endpoints.wellKnown}` (default path
+     * `/.well-known/openid-configuration`).
      */
     wellKnown?: {
       /**
        * Whether to fetch and use the well-known discovery document to resolve endpoint URLs.
-       * @default true
+       * @default false
        */
       enabled?: boolean;
     };
@@ -163,12 +167,13 @@ export interface BaseConfig<T = unknown> extends WithPreferences, WithExtensions
 
   /**
    * Optional overrides for the OIDC protocol endpoints.
-   * By default, the SDK derives all endpoint URLs from the well-known discovery document
-   * located at `{baseUrl}/oauth2/token/.well-known/openid-configuration`.
+   * By default, the SDK derives the endpoint URLs from `baseUrl` using the standard paths (for example
+   * `{baseUrl}/oauth2/authorize`). It fetches a discovery document only when `wellKnownEndpoint` is set.
    * Use this when your authorization server exposes endpoints at non-standard paths,
    * or when a custom domain differs from `baseUrl`.
    *
-   * Individual overrides take precedence over values resolved from the discovery document.
+   * Individual overrides take precedence over the derived or discovered values. The legacy names (for example
+   * `tokenEndpoint` or `jwksUri`) are also accepted.
    *
    * @example
    * endpoints: {
@@ -179,37 +184,37 @@ export interface BaseConfig<T = unknown> extends WithPreferences, WithExtensions
   endpoints?: {
     /**
      * The authorization endpoint URL.
-     * If not provided, resolved from the well-known discovery document.
+     * If not provided, derived from `baseUrl` or resolved from the discovery document.
      */
     authorization?: string;
     /**
      * The end-session (logout) endpoint URL.
-     * If not provided, resolved from the well-known discovery document.
+     * If not provided, derived from `baseUrl` or resolved from the discovery document.
      */
     endSession?: string;
     /**
      * The introspection endpoint URL.
-     * If not provided, resolved from the well-known discovery document.
+     * If not provided, derived from `baseUrl` or resolved from the discovery document.
      */
     introspection?: string;
     /**
      * The JSON Web Key Set (JWKS) endpoint URL used to fetch public keys for token verification.
-     * If not provided, resolved from the well-known discovery document.
+     * If not provided, derived from `baseUrl` or resolved from the discovery document.
      */
     jwks?: string;
     /**
      * The token endpoint URL.
-     * If not provided, resolved from the well-known discovery document.
+     * If not provided, derived from `baseUrl` or resolved from the discovery document.
      */
     token?: string;
     /**
      * The userinfo endpoint URL.
-     * If not provided, resolved from the well-known discovery document.
+     * If not provided, derived from `baseUrl` or resolved from the discovery document.
      */
     userInfo?: string;
     /**
-     * The OpenID Connect discovery document URL.
-     * Defaults to `{baseUrl}/oauth2/token/.well-known/openid-configuration`.
+     * The OpenID Connect discovery document path or URL. Used with `discovery.wellKnown.enabled` on the
+     * `AsgardeoV2` platform.
      */
     wellKnown?: string;
   };
@@ -258,7 +263,7 @@ export interface BaseConfig<T = unknown> extends WithPreferences, WithExtensions
    * Accepts either a space-separated string or an array of strings.
    *
    * These define what access the token should grant (e.g., openid, profile, email).
-   * If not provided, defaults to `["openid"]`.
+   * If not provided, defaults to `openid profile internal_login`. `openid` is always added.
    *
    * @example
    * scopes: "openid profile email"

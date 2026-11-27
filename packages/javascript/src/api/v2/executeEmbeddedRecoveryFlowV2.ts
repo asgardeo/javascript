@@ -16,6 +16,7 @@
  * under the License.
  */
 
+import fetchWithNetworkError from './fetchWithNetworkError';
 import AsgardeoAPIError from '../../errors/AsgardeoAPIError';
 import {EmbeddedFlowExecuteRequestConfig as EmbeddedFlowExecuteRequestConfigV2} from '../../models/v2/embedded-flow-v2';
 import {EmbeddedRecoveryFlowResponse} from '../../models/v2/embedded-recovery-flow-v2';
@@ -103,7 +104,7 @@ const executeEmbeddedRecoveryFlowV2 = async ({
         }
       : cleanPayload;
 
-  const response: Response = await fetch(endpoint, {
+  const response: Response = await fetchWithNetworkError('executeEmbeddedRecoveryFlow', endpoint, {
     ...requestConfig,
     body: JSON.stringify(requestPayload),
     headers: {

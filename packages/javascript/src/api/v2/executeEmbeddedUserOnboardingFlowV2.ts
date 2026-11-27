@@ -16,6 +16,7 @@
  * under the License.
  */
 
+import fetchWithNetworkError from './fetchWithNetworkError';
 import AsgardeoAPIError from '../../errors/AsgardeoAPIError';
 import {EmbeddedFlowType} from '../../models/embedded-flow';
 import {EmbeddedFlowExecuteRequestConfig as EmbeddedFlowExecuteRequestConfigV2} from '../../models/v2/embedded-flow-v2';
@@ -145,7 +146,7 @@ const executeEmbeddedUserOnboardingFlowV2 = async ({
     requestPayload['flowType'] = EmbeddedFlowType.UserOnboarding;
   }
 
-  const response: Response = await fetch(endpoint, {
+  const response: Response = await fetchWithNetworkError('executeEmbeddedUserOnboardingFlow', endpoint, {
     ...requestConfig,
     body: JSON.stringify(requestPayload),
     headers: {

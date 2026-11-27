@@ -31,6 +31,22 @@ import type {Nuxt} from '@nuxt/schema';
 import {defu} from 'defu';
 import type {AsgardeoNuxtConfig, AsgardeoSessionPayload, AsgardeoSSRData} from './runtime/types';
 
+/**
+ * `Platform` enum keys mapped to their values. Inlined so the module doesn't import the SDK at build time.
+ */
+/**
+ * Scopes requested when none are configured. `internal_login` lets the access token read the user's own profile
+ * (SCIM2 /Me) and organizations, as in the browser SDKs; without it those lookups fail with 403.
+ */
+const DEFAULT_SCOPES: string[] = ['openid', 'profile', 'internal_login'];
+
+const PLATFORM_VALUES: Readonly<Record<string, NonNullable<AsgardeoNuxtConfig['platform']>>> = {
+  Asgardeo: 'ASGARDEO',
+  AsgardeoV2: 'AsgardeoV2',
+  IdentityServer: 'IDENTITY_SERVER',
+  Unknown: 'UNKNOWN',
+};
+
 type ViteUserConfig = Parameters<Parameters<typeof extendViteConfig>[0]>[0];
 
 const PACKAGE_NAME: string = '@asgardeo/nuxt';
@@ -68,9 +84,25 @@ export default defineNuxtModule<AsgardeoNuxtConfig>({
       {
         afterSignInUrl: '/',
         afterSignOutUrl: '/',
-        scopes: ['openid', 'profile'],
       },
     );
+
+    // Pick `scopes` outside the defu merges, which concatenate arrays: a configured list (in `runtimeConfig` or the
+    // module options) is used as is, and the defaults apply only when none is given.
+    const runtimeScopes: unknown = (nuxt.options.runtimeConfig.public?.['asgardeo'] as {scopes?: unknown} | undefined)
+      ?.scopes;
+    const configuredScopes: unknown =
+      Array.isArray(runtimeScopes) && runtimeScopes.length > 0 ? runtimeScopes : userOptions.scopes;
+    publicConfig.scopes =
+      Array.isArray(configuredScopes) && configuredScopes.length > 0
+        ? [...new Set(configuredScopes as string[])]
+        : [...DEFAULT_SCOPES];
+
+    // Accept a `Platform` key (for example 'IdentityServer') as well as its value ('IDENTITY_SERVER'). The SDK
+    // compares against the values.
+    if (publicConfig.platform && publicConfig.platform in PLATFORM_VALUES) {
+      publicConfig.platform = PLATFORM_VALUES[publicConfig.platform as keyof typeof PLATFORM_VALUES];
+    }
 
     const privateConfig: {clientSecret: string; sessionSecret: string} = {
       clientSecret: process.env['ASGARDEO_CLIENT_SECRET'] || userOptions.clientSecret || '',
@@ -120,6 +152,9 @@ export default defineNuxtModule<AsgardeoNuxtConfig>({
       signUpUrl?: string;
       tokenRequest?: AsgardeoNuxtConfig['tokenRequest'];
     };
+
+    // Set after the merge, which would otherwise append the configured list to itself.
+    (options.runtimeConfig.public.asgardeo as {scopes: string[]}).scopes = publicConfig.scopes;
 
     // Ensure clientSecret never leaks to public config
     const publicAsgardeo: Record<string, unknown> = options.runtimeConfig.public.asgardeo as Record<string, unknown>;
@@ -351,6 +386,7 @@ declare module '@nuxt/schema' {
       scopes: string[];
       signInUrl?: string;
       signUpUrl?: string;
+      tokenRequest?: AsgardeoNuxtConfig['tokenRequest'];
     };
   }
 

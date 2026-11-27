@@ -19,6 +19,7 @@
 import {defineEventHandler, deleteCookie} from 'h3';
 import type {H3Event} from 'h3';
 import AsgardeoNuxtClient from '../../../AsgardeoNuxtClient';
+import {resolveAgainstRequestOrigin} from '../../../utils/request-url';
 import {verifyAndRehydrateSession} from '../../../utils/serverSession';
 import {
   getSessionCookieName,
@@ -42,7 +43,10 @@ export default defineEventHandler(async (event: H3Event): Promise<{redirectUrl: 
   const config: ReturnType<typeof useRuntimeConfig> = useRuntimeConfig();
   const sessionSecret: string | undefined = config.asgardeo?.sessionSecret;
   const publicConfig: typeof config.public.asgardeo = config.public.asgardeo;
-  const fallbackUrl: string = (publicConfig as any).afterSignOutUrl || '/';
+  // Resolve a relative `afterSignOutUrl` (the default is `/`) against this request's origin. The identity server only
+  // accepts an absolute post-logout redirect, and resolving per request keeps one request's origin from leaking into
+  // another user's sign-out.
+  const fallbackUrl: string = resolveAgainstRequestOrigin((publicConfig as any).afterSignOutUrl || '/', event);
 
   const clearCookies = (): void => {
     deleteCookie(event, getSessionCookieName(), getSessionCookieOptions());
@@ -62,7 +66,7 @@ export default defineEventHandler(async (event: H3Event): Promise<{redirectUrl: 
 
   try {
     const client: AsgardeoNuxtClient = AsgardeoNuxtClient.getInstance();
-    const signOutUrl: string = await client.signOut(session.sessionId);
+    const signOutUrl: string = await client.getSignOutUrlFor(session.sessionId, fallbackUrl);
 
     clearCookies();
 

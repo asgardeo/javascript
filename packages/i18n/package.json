@@ -18,6 +18,7 @@
   "main": "dist/cjs/index.js",
   "module": "dist/index.js",
   "exports": {
+    "types": "./dist/index.d.ts",
     "import": "./dist/index.js",
     "require": "./dist/cjs/index.js"
   },
@@ -33,12 +34,12 @@
     "directory": "packages/i18n"
   },
   "scripts": {
-    "build": "pnpm clean && node esbuild.config.mjs && tsc -p tsconfig.lib.json --emitDeclarationOnly --outDir dist",
+    "build": "pnpm clean && node esbuild.config.mjs && tsc -p tsconfig.lib.json --emitDeclarationOnly --outDir dist && node ../../scripts/fix-dist-module-types.mjs",
     "clean": "rimraf dist",
     "fix:lint": "eslint . --fix",
     "lint": "eslint .",
     "test": "vitest",
-    "typecheck": "tsc -p tsconfig.lib.json"
+    "typecheck": "tsc -p tsconfig.lib.json --noEmit"
   },
   "devDependencies": {
     "@asgardeo/eslint-plugin": "workspace:*",

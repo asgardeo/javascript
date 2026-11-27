@@ -135,6 +135,7 @@ const replaceCookieInHeader = (cookieHeader: string, name: string, value: string
  *
  * export default asgardeoMiddleware(async (asgardeo, req) => {
  *   if (isProtectedRoute(req)) {
+ *     // Redirects signed-out users. Returning the result is optional.
  *     await asgardeo.protectRoute();
  *   }
  * });
@@ -253,6 +254,10 @@ const asgardeoMiddleware =
     const isAuthenticated: boolean = !!activeSession;
 
     // ── Middleware context ────────────────────────────────────────────────────
+    // The redirect issued by `protectRoute()`. It is applied even when the handler only awaits `protectRoute()`
+    // without returning its result, so a protected route can't be served to a signed-out user by mistake.
+    let protectRouteResponse: NextResponse | undefined;
+
     const asgardeo: AsgardeoMiddlewareContext = {
       getSession: async (): Promise<SessionTokenPayload | undefined> => activeSession,
       getSessionId: (): string | undefined => sessionId,
@@ -282,7 +287,9 @@ const asgardeoMiddleware =
 
           const redirectUrl: string = routeOptions?.redirect ?? resolvedConfig.signInUrl! ?? fallbackRedirect;
 
-          return NextResponse.redirect(new URL(redirectUrl, request.url));
+          protectRouteResponse = NextResponse.redirect(new URL(redirectUrl, request.url));
+
+          return protectRouteResponse;
         }
 
         return undefined;
@@ -290,7 +297,8 @@ const asgardeoMiddleware =
     };
 
     // ── Handler ───────────────────────────────────────────────────────────────
-    const handlerResponse: NextResponse | void = handler ? await handler(asgardeo, request) : undefined;
+    const handlerResponse: NextResponse | void =
+      (handler ? await handler(asgardeo, request) : undefined) ?? protectRouteResponse;
 
     // ── Build final response ──────────────────────────────────────────────────
     if (shouldClearCookie) {

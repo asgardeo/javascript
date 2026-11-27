@@ -18,9 +18,10 @@
 
 import {EmbeddedSignInFlowStatus, generateSessionId, isEmpty} from '@asgardeo/node';
 import type {TokenResponse} from '@asgardeo/node';
-import {defineEventHandler, readBody, getCookie, setCookie, deleteCookie, createError} from 'h3';
+import {defineEventHandler, readBody, getCookie, getQuery, setCookie, deleteCookie, createError} from 'h3';
 import type {H3Event} from 'h3';
 import AsgardeoNuxtClient from '../../../AsgardeoNuxtClient';
+import {resolveCallbackUrl} from '../../../utils/request-url';
 import {useServerSession} from '../../../utils/serverSession';
 import {
   issueSessionCookie,
@@ -61,6 +62,14 @@ export default defineEventHandler(async (event: H3Event) => {
 
   const client: AsgardeoNuxtClient = AsgardeoNuxtClient.getInstance();
 
+  // Where to send the user after sign-in: a `returnTo` query parameter (a same-origin path only, to prevent open
+  // redirects), or the one stored when the flow started. Falls back to `afterSignInUrl`.
+  const requestedReturnTo: unknown = getQuery(event)['returnTo'];
+  let returnTo: string | undefined =
+    typeof requestedReturnTo === 'string' && requestedReturnTo.startsWith('/') && !requestedReturnTo.startsWith('//')
+      ? requestedReturnTo
+      : undefined;
+
   // ── Resolve sessionId ─────────────────────────────────────────────────────
   // Priority: live session cookie → temp session cookie → new random id.
   let sessionId: string;
@@ -77,6 +86,7 @@ export default defineEventHandler(async (event: H3Event) => {
           sessionSecret,
         );
         sessionId = tempSession.sessionId;
+        returnTo = returnTo ?? tempSession.returnTo;
       } catch {
         // Expired / tampered — mint a fresh one below.
         sessionId = generateSessionId();
@@ -86,7 +96,7 @@ export default defineEventHandler(async (event: H3Event) => {
     }
 
     // Persist the sessionId in a temp cookie so the callback can look it up.
-    const tempToken: string = await createTempSessionToken(sessionId, sessionSecret);
+    const tempToken: string = await createTempSessionToken(sessionId, sessionSecret, returnTo);
     setCookie(event, getTempSessionCookieName(), tempToken, getTempSessionCookieOptions());
   }
 
@@ -99,7 +109,7 @@ export default defineEventHandler(async (event: H3Event) => {
   if (isEmpty(payload) || !('flowId' in payload)) {
     try {
       const signInUrl: string = await client.getAuthorizeRequestUrl(
-        {client_secret: '{{clientSecret}}', response_mode: 'direct'},
+        {client_secret: '{{clientSecret}}', redirect_uri: resolveCallbackUrl(event), response_mode: 'direct'},
         sessionId,
       );
       return {data: {signInUrl}, success: true};
@@ -114,7 +124,7 @@ export default defineEventHandler(async (event: H3Event) => {
   // ── Execute embedded flow step ─────────────────────────────────────────────
   let response: unknown;
   try {
-    response = await client.signIn(payload, request, sessionId);
+    response = await client.signIn(payload, request, sessionId, resolveCallbackUrl(event));
   } catch (err: any) {
     throw createError({
       statusCode: 502,
@@ -159,7 +169,7 @@ export default defineEventHandler(async (event: H3Event) => {
       });
     }
 
-    return {data: {afterSignInUrl}, success: true};
+    return {data: {afterSignInUrl: returnTo || afterSignInUrl}, success: true};
   }
 
   // ── Flow incomplete — return step data to the client ──────────────────────

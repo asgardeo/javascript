@@ -18,6 +18,7 @@
 
 import {withVendorCSSClassPrefix} from '@asgardeo/browser';
 import {type Component, type VNode, defineComponent, h} from 'vue';
+import useOptionalTranslation from '../../utils/useOptionalTranslation';
 import Button from '../primitives/Button';
 
 /**
@@ -56,6 +57,8 @@ const BaseSignUpButton: Component = defineComponent({
     },
   },
   setup(props: any, {slots, emit, attrs}: any): any {
+    const translate: (key: string, fallback: string) => string = useOptionalTranslation();
+
     const handleClick = (e: MouseEvent): void => {
       if (!props.disabled && !props.isLoading) {
         emit('click', e);
@@ -76,7 +79,9 @@ const BaseSignUpButton: Component = defineComponent({
             style: attrs['style'],
             type: 'button' as const,
           },
-          slots['default'] ? slots['default']({isLoading: props.isLoading}) : 'Sign Up',
+          slots['default']
+            ? slots['default']({isLoading: props.isLoading})
+            : translate('elements.buttons.signup.text', 'Sign Up'),
         );
       }
 
@@ -97,7 +102,7 @@ const BaseSignUpButton: Component = defineComponent({
         },
         slots['default']
           ? (): VNode | VNode[] => slots['default']({isLoading: props.isLoading})
-          : (): string => 'Sign Up',
+          : (): string => translate('elements.buttons.signup.text', 'Sign Up'),
       );
     };
   },

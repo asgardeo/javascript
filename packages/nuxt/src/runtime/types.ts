@@ -47,11 +47,13 @@ export interface AsgardeoNuxtConfig {
   /** OAuth2 Client Secret (server-only, use ASGARDEO_CLIENT_SECRET env var) */
   clientSecret?: string;
   /**
-   * Identity platform variant. Set to `Platform.AsgardeoV2` when connecting to
+   * Identity platform variant. Set to `Platform.AsgardeoV2` (or `'AsgardeoV2'`) when connecting to
    * a Thunder (AsgardeoV2) instance. Forwarded to the underlying Node client so
    * platform-specific behaviours (e.g. issuer resolution) apply correctly.
+   *
+   * Accepts a `Platform` enum value or its key (for example `'IdentityServer'`); keys are converted to values.
    */
-  platform?: keyof typeof Platform;
+  platform?: `${Platform}` | keyof typeof Platform;
   /**
    * Feature-gating preferences that control which server-side data fetches
    * the Nitro plugin performs on every SSR request.
@@ -86,9 +88,8 @@ export interface AsgardeoNuxtConfig {
   /** Secret for signing session JWTs (use ASGARDEO_SESSION_SECRET env var) */
   sessionSecret?: string;
   /**
-   * Optional override for the redirect-based sign-in URL. Reserved for
-   * parity with the React/Next.js SDKs; not currently used by the redirect
-   * flow (which goes through `/api/auth/signin`).
+   * Optional URL of your own sign-in page. When set, `<AsgardeoSignInButton>` navigates to it instead of starting
+   * the redirect flow through `/api/auth/signin`.
    */
   signInUrl?: string;
   /**
@@ -171,5 +172,12 @@ export interface AsgardeoSSRData {
 export interface AsgardeoAuthState {
   isLoading: boolean;
   isSignedIn: boolean;
+  /**
+   * The ID of the organization the session is scoped to, or `null` for the root organization. Used by the
+   * `requireOrganization` middleware option.
+   */
+  organizationId?: string | null;
+  /** The scopes granted to the session's access token. Used by the `requireScopes` middleware option. */
+  scopes?: string[];
   user: User | null;
 }

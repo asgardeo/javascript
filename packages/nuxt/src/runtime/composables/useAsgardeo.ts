@@ -115,8 +115,8 @@ export function useAsgardeo(): AsgardeoContext {
    * Sign up the user.
    *
    * **Embedded flow**: call with a payload object that has a `flowType` key.
-   * POSTs to `/api/auth/signup` and returns the flow-step response or redirects
-   * on completion.
+   * POSTs to `/api/auth/signup` and returns the flow-step response. The completed
+   * step includes `afterSignUpUrl`, the default destination to redirect to.
    *
    * **Redirect flow** (no args, or anything that doesn't look like a flow
    * payload): navigates to the Asgardeo-hosted account-recovery `register.do`
@@ -136,10 +136,8 @@ export function useAsgardeo(): AsgardeoContext {
         body: {payload},
         method: 'POST',
       });
-      if (res.data?.afterSignUpUrl) {
-        await navigateTo(res.data.afterSignUpUrl as string, {external: false});
-        return undefined;
-      }
+      // On completion, `res.data` includes `afterSignUpUrl`. Leave the redirect to the caller (`<AsgardeoSignUp>`
+      // redirects after its `onComplete`), so that the component's `afterSignUpUrl` prop is honoured.
       return res.data;
     }
 

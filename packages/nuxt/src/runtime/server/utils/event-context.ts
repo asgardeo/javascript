@@ -35,8 +35,10 @@ export interface AsgardeoEventContext {
 /**
  * Typed accessor for `event.context.asgardeo`.
  *
- * Returns null when called before the Asgardeo SSR plugin has populated
- * the context (e.g. in non-Nuxt Nitro routes that run before the plugin).
+ * Works in page requests and in API routes (`/api/*`). In API routes only `isSignedIn` and `session` are set; the
+ * SSR-prefetched data (`ssr`) is present for page requests only.
+ *
+ * Returns null when called before the Asgardeo plugin has populated the context.
  *
  * @example
  * ```ts

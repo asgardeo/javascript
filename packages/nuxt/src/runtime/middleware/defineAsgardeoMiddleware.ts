@@ -28,13 +28,13 @@ export interface AsgardeoMiddlewareOptions {
    */
   redirectTo?: string;
   /**
-   * If `true`, the middleware will also require that the user has an
-   * `organizationId` in their session.  Redirects to `redirectTo` if not.
+   * If `true`, the middleware also requires the session to be scoped to an organization (after signing in to, or
+   * switching to, a sub-organization). Redirects to `redirectTo` if not.
    */
   requireOrganization?: boolean;
   /**
-   * Required OAuth scopes.  The middleware checks that every listed scope
-   * is present in the session before allowing access.
+   * Required OAuth scopes. The middleware checks that every listed scope was granted to the session's access token
+   * before allowing access.
    */
   requireScopes?: string[];
 }
@@ -71,14 +71,13 @@ export function defineAsgardeoMiddleware(
       return navigateTo(`${redirectTo}?returnTo=${returnTo}`, {external: true});
     }
 
-    const user: Record<string, unknown> | null = authState.value.user as Record<string, unknown> | null;
-
-    if (requireOrganization && !user?.['organizationId']) {
+    // The organization and the granted scopes come from the session, not from the user's ID token claims.
+    if (requireOrganization && !authState.value.organizationId) {
       return navigateTo(redirectTo, {external: true});
     }
 
     if (requireScopes.length > 0) {
-      const sessionScopes: string[] = String(user?.['scopes'] ?? '').split(' ');
+      const sessionScopes: string[] = authState.value.scopes ?? [];
       const hasAllScopes: boolean = requireScopes.every((s: string) => sessionScopes.includes(s));
       if (!hasAllScopes) {
         return navigateTo(redirectTo, {external: true});

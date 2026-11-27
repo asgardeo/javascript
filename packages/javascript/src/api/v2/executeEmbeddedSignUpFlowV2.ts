@@ -16,6 +16,7 @@
  * under the License.
  */
 
+import fetchWithNetworkError from './fetchWithNetworkError';
 import AsgardeoAPIError from '../../errors/AsgardeoAPIError';
 import {EmbeddedFlowExecuteRequestConfig as EmbeddedFlowExecuteRequestConfigV2} from '../../models/v2/embedded-flow-v2';
 import {
@@ -67,7 +68,7 @@ const executeEmbeddedSignUpFlowV2 = async ({
   const requestPayload: Record<string, unknown> =
     hasOnlyAppIdAndFlowType || hasOnlyFlowId ? {...cleanPayload, verbose: true} : cleanPayload;
 
-  const response: Response = await fetch(endpoint, {
+  const response: Response = await fetchWithNetworkError('executeEmbeddedSignUpFlow', endpoint, {
     ...requestConfig,
     body: JSON.stringify(requestPayload),
     headers: {

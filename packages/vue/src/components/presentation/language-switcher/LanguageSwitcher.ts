@@ -17,37 +17,43 @@
  */
 
 import {withVendorCSSClassPrefix} from '@asgardeo/browser';
-import {type Component, type PropType, type VNode, defineComponent, h} from 'vue';
+import type {I18nBundle} from '@asgardeo/i18n';
+import {type Component, type PropType, type VNode, computed, defineComponent, h} from 'vue';
 import BaseLanguageSwitcher from './BaseLanguageSwitcher';
 import useI18n from '../../../composables/useI18n';
 import type {SelectOption} from '../../primitives/Select/Select';
 
 interface LanguageSwitcherSetupProps {
   className: string;
-  languages: SelectOption[];
+  languages: SelectOption[] | undefined;
 }
 
 /**
  * LanguageSwitcher — styled language selection component.
  *
- * Retrieves current language and setLanguage from i18n context.
+ * Retrieves current language and setLanguage from i18n context. Without a `languages` prop, it offers the languages
+ * that have a loaded translation bundle, so every option can actually be applied.
  */
 const LanguageSwitcher: Component = defineComponent({
   name: 'LanguageSwitcher',
   props: {
     className: {default: '', type: String},
     languages: {
-      default: () => [
-        {label: 'English', value: 'en'},
-        {label: 'French', value: 'fr'},
-        {label: 'Spanish', value: 'es'},
-        {label: 'Portuguese', value: 'pt'},
-      ],
+      default: undefined,
       type: Array as PropType<SelectOption[]>,
     },
   },
   setup(props: LanguageSwitcherSetupProps, {slots}: {slots: any}): () => VNode {
-    const {currentLanguage, setLanguage} = useI18n();
+    const {bundles, currentLanguage, setLanguage} = useI18n();
+
+    const languageOptions = computed<SelectOption[]>(
+      () =>
+        props.languages ??
+        Object.values(bundles?.value ?? {}).map((bundle: I18nBundle) => ({
+          label: bundle.metadata?.displayName ?? bundle.metadata?.localeCode,
+          value: bundle.metadata?.localeCode,
+        })),
+    );
 
     return (): VNode =>
       h(
@@ -55,8 +61,8 @@ const LanguageSwitcher: Component = defineComponent({
         {
           class: withVendorCSSClassPrefix('language-switcher--styled'),
           className: props.className,
-          currentLanguage: currentLanguage?.value ?? 'en',
-          languages: props.languages,
+          currentLanguage: currentLanguage?.value ?? 'en-US',
+          languages: languageOptions.value,
           onLanguageChange: setLanguage,
         },
         slots,

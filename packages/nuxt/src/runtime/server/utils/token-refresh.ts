@@ -20,6 +20,7 @@ import {createError, setCookie, type H3Event} from 'h3';
 import {requireServerSession} from './serverSession';
 import {createSessionToken, getSessionCookieName, getSessionCookieOptions} from './session';
 import type {AsgardeoSessionPayload} from '../../types';
+import AsgardeoNuxtClient from '../AsgardeoNuxtClient';
 import {useRuntimeConfig} from '#imports';
 
 /**
@@ -84,7 +85,17 @@ export async function getValidAccessToken(event: H3Event): Promise<string> {
   const publicConfig: typeof config.public.asgardeo = config.public.asgardeo;
   const privateConfig: typeof config.asgardeo = config.asgardeo;
 
-  const tokenEndpoint: string = `${publicConfig.baseUrl}/oauth2/token`;
+  // Use the token endpoint the client resolved, so a custom `endpoints.token` or discovery document is honoured.
+  const tokenEndpoint: string =
+    (await AsgardeoNuxtClient.getInstance().getTokenEndpoint()) ?? `${publicConfig.baseUrl}/oauth2/token`;
+
+  // Read at request time, so a secret provided only in the runtime environment is used.
+  const clientSecret: string | undefined = privateConfig?.clientSecret || process.env['ASGARDEO_CLIENT_SECRET'];
+
+  // Authenticate the client the same way the initial code exchange does.
+  const authMethod: string =
+    publicConfig.tokenRequest?.authMethod ??
+    (publicConfig.platform === 'AsgardeoV2' ? 'client_secret_basic' : 'client_secret_post');
 
   const body: URLSearchParams = new URLSearchParams({
     client_id: publicConfig.clientId,
@@ -92,15 +103,25 @@ export async function getValidAccessToken(event: H3Event): Promise<string> {
     refresh_token: session.refreshToken,
   });
 
-  if (privateConfig?.clientSecret) {
-    body.set('client_secret', privateConfig.clientSecret);
+  const headers: Record<string, string> = {
+    Accept: 'application/json',
+    'Content-Type': 'application/x-www-form-urlencoded',
+  };
+
+  if (clientSecret) {
+    if (authMethod === 'client_secret_basic') {
+      const credential: string = `${encodeURIComponent(publicConfig.clientId)}:${encodeURIComponent(clientSecret)}`;
+      headers['Authorization'] = `Basic ${Buffer.from(credential).toString('base64')}`;
+    } else {
+      body.set('client_secret', clientSecret);
+    }
   }
 
   let refreshed: OIDCTokenRefreshResponse;
   try {
     const res: Response = await fetch(tokenEndpoint, {
       body,
-      headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+      headers,
       method: 'POST',
     });
 

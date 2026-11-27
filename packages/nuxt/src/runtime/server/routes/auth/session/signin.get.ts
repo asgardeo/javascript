@@ -20,6 +20,7 @@ import {generateSessionId} from '@asgardeo/node';
 import {defineEventHandler, getQuery, sendRedirect, setCookie, createError} from 'h3';
 import type {H3Event} from 'h3';
 import AsgardeoNuxtClient from '../../../AsgardeoNuxtClient';
+import {resolveCallbackUrl} from '../../../utils/request-url';
 import {createTempSessionToken, getTempSessionCookieName, getTempSessionCookieOptions} from '../../../utils/session';
 import {useRuntimeConfig} from '#imports';
 
@@ -62,7 +63,7 @@ export default defineEventHandler(async (event: H3Event) => {
     undefined, // no authorization code (initial redirect)
     undefined, // no session_state
     undefined, // no state
-    {},
+    {redirect_uri: resolveCallbackUrl(event)},
   );
 
   if (!authorizationUrl) {

@@ -5,23 +5,24 @@
 <div align="center">
   <img alt="npm (scoped)" src="https://img.shields.io/npm/v/@asgardeo/express">
   <img alt="npm" src="https://img.shields.io/npm/dw/@asgardeo/express">
-  <a href="./LICENSE"><img src="https://img.shields.io/badge/License-Apache%202.0-blue.svg" alt="License"></a>
+  <a href="https://github.com/asgardeo/javascript/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-Apache%202.0-blue.svg" alt="License"></a>
 </div>
+<p align="center"><a href="https://wso2.com/asgardeo/docs/sdks/express/overview/">Documentation</a></p>
 
 ## Installation
 
 ```bash
-# Using npm
 npm install @asgardeo/express
-
-# or using pnpm
-pnpm add @asgardeo/express
-
-# or using yarn
-yarn add @asgardeo/express
 ```
+
+## Quickstart
+
+See the [Express SDK overview](https://wso2.com/asgardeo/docs/sdks/express/overview/).
+
+## Contributing
+
+See the [contributing guide](https://github.com/asgardeo/javascript/blob/main/CONTRIBUTING.md).
 
 ## License
 
-Licenses this source under the Apache License, Version 2.0 [LICENSE](./LICENSE), You may not use this file except in
-compliance with the License.
+Licensed under the [Apache License, Version 2.0](https://github.com/asgardeo/javascript/blob/main/LICENSE).

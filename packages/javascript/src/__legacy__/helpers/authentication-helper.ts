@@ -30,6 +30,7 @@ import {User} from '../../models/user';
 import StorageManager from '../../StorageManager';
 import extractUserClaimsFromIdToken from '../../utils/extractUserClaimsFromIdToken';
 import processOpenIDScopes from '../../utils/processOpenIDScopes';
+import resolveEndpointOverrides from '../../utils/resolveEndpointOverrides';
 import {AuthClientConfig, StrictAuthClientConfig} from '../models';
 
 export class AuthenticationHelper<T> {
@@ -53,13 +54,7 @@ export class AuthenticationHelper<T> {
     const oidcProviderMetaData: OIDCDiscoveryApiResponse = {};
     const configData: StrictAuthClientConfig = await this.config();
 
-    if (configData.endpoints) {
-      Object.keys(configData.endpoints).forEach((endpointName: string) => {
-        const snakeCasedName: string = endpointName.replace(/[A-Z]/g, (letter: string) => `_${letter.toLowerCase()}`);
-
-        oidcProviderMetaData[snakeCasedName] = configData?.endpoints ? configData.endpoints[endpointName] : '';
-      });
-    }
+    Object.assign(oidcProviderMetaData, resolveEndpointOverrides(configData.endpoints as Record<string, unknown>));
 
     return {...response, ...oidcProviderMetaData};
   }
@@ -79,20 +74,12 @@ export class AuthenticationHelper<T> {
       OIDCDiscoveryConstants.Storage.StorageKeys.Endpoints.USERINFO,
     ];
 
-    const isRequiredEndpointsContains: boolean = configData.endpoints
-      ? requiredEndpoints.every((reqEndpointName: string) =>
-          configData.endpoints
-            ? Object.keys(configData.endpoints).some((endpointName: string) => {
-                const snakeCasedName: string = endpointName.replace(
-                  /[A-Z]/g,
-                  (letter: string) => `_${letter.toLowerCase()}`,
-                );
-
-                return snakeCasedName === reqEndpointName;
-              })
-            : false,
-        )
-      : false;
+    const configuredEndpoints: Record<string, string> = resolveEndpointOverrides(
+      configData.endpoints as Record<string, unknown>,
+    );
+    const isRequiredEndpointsContains: boolean = requiredEndpoints.every(
+      (reqEndpointName: string) => reqEndpointName in configuredEndpoints,
+    );
 
     if (!isRequiredEndpointsContains) {
       throw new AsgardeoAuthException(
@@ -103,13 +90,7 @@ export class AuthenticationHelper<T> {
       );
     }
 
-    if (configData.endpoints) {
-      Object.keys(configData.endpoints).forEach((endpointName: string) => {
-        const snakeCasedName: string = endpointName.replace(/[A-Z]/g, (letter: string) => `_${letter.toLowerCase()}`);
-
-        oidcProviderMetaData[snakeCasedName] = configData?.endpoints ? configData.endpoints[endpointName] : '';
-      });
-    }
+    Object.assign(oidcProviderMetaData, resolveEndpointOverrides(configData.endpoints as Record<string, unknown>));
 
     return {...oidcProviderMetaData};
   }
@@ -128,13 +109,7 @@ export class AuthenticationHelper<T> {
       );
     }
 
-    if (configData.endpoints) {
-      Object.keys(configData.endpoints).forEach((endpointName: string) => {
-        const snakeCasedName: string = endpointName.replace(/[A-Z]/g, (letter: string) => `_${letter.toLowerCase()}`);
-
-        oidcProviderMetaData[snakeCasedName] = configData?.endpoints ? configData.endpoints[endpointName] : '';
-      });
-    }
+    Object.assign(oidcProviderMetaData, resolveEndpointOverrides(configData.endpoints as Record<string, unknown>));
 
     const endpointKeys: typeof OIDCDiscoveryConstants.Storage.StorageKeys.Endpoints =
       OIDCDiscoveryConstants.Storage.StorageKeys.Endpoints;

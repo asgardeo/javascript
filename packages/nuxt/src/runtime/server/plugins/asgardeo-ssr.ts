@@ -16,28 +16,18 @@
  * under the License.
  */
 
-import {getRequestURL, type H3Event} from 'h3';
+import type {H3Event} from 'h3';
 // `nitropack` ships with the host Nuxt app.
 // eslint-disable-next-line import-x/no-extraneous-dependencies
 import {defineNitroPlugin} from 'nitropack/runtime';
 import type {AsgardeoAuthState, AsgardeoNuxtConfig, AsgardeoSSRData} from '../../types';
 import {createLogger} from '../../utils/log';
 import AsgardeoNuxtClient from '../AsgardeoNuxtClient';
+import {resolveCallbackUrl} from '../utils/request-url';
 import {verifyAndRehydrateSession} from '../utils/serverSession';
 import {useRuntimeConfig} from '#imports';
 
 const log: ReturnType<typeof createLogger> = createLogger('asgardeo-ssr');
-
-const CALLBACK_PATH: string = '/api/auth/callback';
-
-/**
- * Build the OAuth redirect_uri from the incoming request origin.
- * Honors X-Forwarded-* headers so it works correctly behind a reverse proxy.
- */
-function resolveCallbackUrl(event: H3Event): string {
-  const url: URL = getRequestURL(event, {xForwardedHost: true, xForwardedProto: true});
-  return `${url.origin}${CALLBACK_PATH}`;
-}
 
 /**
  * Nitro server plugin — the Nuxt equivalent of `AsgardeoServerProvider` in the
@@ -97,13 +87,17 @@ export default defineNitroPlugin((nitro: {hooks: {hook: Function}}) => {
 
       try {
         await client.initialize({
+          // Only a fallback: each sign-in route passes the callback URL of its own request as `redirect_uri`.
           afterSignInUrl: resolveCallbackUrl(event),
+          // Kept as configured: the client is shared by every request, so a destination derived from this request
+          // must not be stored on it. The sign-out route resolves a relative destination for each request.
           afterSignOutUrl: publicConfig.afterSignOutUrl || '/',
           baseUrl: publicConfig.baseUrl,
           clientId: publicConfig.clientId,
-          clientSecret: privateConfig?.clientSecret || undefined,
+          // Fall back to the runtime environment, so a secret that is only set at runtime (not at build time) works.
+          clientSecret: privateConfig?.clientSecret || process.env['ASGARDEO_CLIENT_SECRET'] || undefined,
           platform: publicConfig.platform,
-          scopes: publicConfig.scopes || ['openid', 'profile'],
+          scopes: publicConfig.scopes || ['openid', 'profile', 'internal_login'],
           tokenRequest: publicConfig.tokenRequest,
         });
       } catch (err) {
@@ -112,9 +106,21 @@ export default defineNitroPlugin((nitro: {hooks: {hook: Function}}) => {
       }
     }
 
-    // Skip SSR data resolution for API routes and Nuxt internals.
+    // Skip Nuxt internals entirely.
     const url: string = event.path || '';
-    if (url.startsWith('/api/') || url.startsWith('/_nuxt/') || url.startsWith('/__nuxt_')) {
+    if (url.startsWith('/_nuxt/') || url.startsWith('/__nuxt_')) {
+      return;
+    }
+
+    // API routes get the session only (no SSR data fetches), so `getAsgardeoContext(event)` works in them too.
+    if (url.startsWith('/api/')) {
+      const apiSession: Awaited<ReturnType<typeof verifyAndRehydrateSession>> = await verifyAndRehydrateSession(
+        event,
+        process.env['ASGARDEO_SESSION_SECRET'] || useRuntimeConfig(event).asgardeo?.sessionSecret,
+      );
+      const apiEventContext: H3Event['context'] = event.context;
+      apiEventContext.asgardeo = {isSignedIn: Boolean(apiSession), session: apiSession ?? null};
+
       return;
     }
 
@@ -213,6 +219,8 @@ export default defineNitroPlugin((nitro: {hooks: {hook: Function}}) => {
     const authState: AsgardeoAuthState = {
       isLoading: false,
       isSignedIn: true,
+      organizationId: session.organizationId ?? null,
+      scopes: (session.scopes || '').split(' ').filter(Boolean),
       user: ssrData.user,
     };
     eventContext['__asgardeoAuth'] = authState;

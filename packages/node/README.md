@@ -5,16 +5,24 @@
 <div align="center">
   <img alt="npm (scoped)" src="https://img.shields.io/npm/v/@asgardeo/node">
   <img alt="npm" src="https://img.shields.io/npm/dw/@asgardeo/node">
-  <a href="./LICENSE"><img src="https://img.shields.io/badge/License-Apache%202.0-blue.svg" alt="License"></a>
+  <a href="https://github.com/asgardeo/javascript/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-Apache%202.0-blue.svg" alt="License"></a>
 </div>
+<p align="center"><a href="https://wso2.com/asgardeo/docs/sdks/node/overview/">Documentation</a></p>
 
-> [!IMPORTANT]
->
-> ⚠️ Do not directly use this in your applications. `@asgardeo/node` is a framework agnostic SDK that provides core
-> authentication functionalities. For framework-specific integrations, consider using the dedicated SDKs such as
-> `@asgardeo/express`, etc.
+## Installation
+
+```bash
+npm install @asgardeo/node
+```
+
+## Quickstart
+
+See the [Node.js SDK overview](https://wso2.com/asgardeo/docs/sdks/node/overview/).
+
+## Contributing
+
+See the [contributing guide](https://github.com/asgardeo/javascript/blob/main/CONTRIBUTING.md).
 
 ## License
 
-Licenses this source under the Apache License, Version 2.0 [LICENSE](./LICENSE), You may not use this file except in
-compliance with the License.
+Licensed under the [Apache License, Version 2.0](https://github.com/asgardeo/javascript/blob/main/LICENSE).

@@ -16,7 +16,8 @@
  * under the License.
  */
 
-import {inject} from 'vue';
+import {hasInjectionContext, inject} from 'vue';
+import {getRegisteredAsgardeoContext} from './contextRegistry';
 import {ASGARDEO_KEY} from '../keys';
 import type {AsgardeoContext} from '../models/contexts';
 import {createVueLogger} from '../utils/logger';
@@ -66,7 +67,7 @@ export type AsgardeoNavigationGuard = (
 /**
  * Creates a Vue Router navigation guard that protects routes by requiring authentication.
  *
- * The guard injects the Asgardeo context to check `isSignedIn` state.
+ * The guard reads the Asgardeo context of the mounted `<AsgardeoProvider>` to check the `isSignedIn` state.
  * If the user is not authenticated, they are redirected to `redirectTo`.
  *
  * **Requires `vue-router` as a peer dependency.**
@@ -97,69 +98,83 @@ export type AsgardeoNavigationGuard = (
  * router.beforeEach(createAsgardeoGuard({ redirectTo: '/' }));
  * ```
  */
+/**
+ * Resolves the Asgardeo context: from the app's injection context when the host provides it with \`app.provide()\`
+ * (for example, the Nuxt module), otherwise from the mounted \`<AsgardeoProvider>\`.
+ */
+const resolveContext = (): AsgardeoContext | null => {
+  const injected: AsgardeoContext | undefined = hasInjectionContext() ? inject(ASGARDEO_KEY, undefined) : undefined;
+
+  return injected ?? getRegisteredAsgardeoContext();
+};
+
+/**
+ * Waits until \`isReady\` returns true, checking on every animation frame (or every 16 ms outside a browser).
+ *
+ * @returns \`true\` when ready, \`false\` when the timeout passed first.
+ */
+const waitUntil = (isReady: () => boolean, timeout: number): Promise<boolean> =>
+  new Promise<boolean>((resolve: (ready: boolean) => void) => {
+    const deadline: number = Date.now() + timeout;
+
+    const check = (): void => {
+      if (isReady()) {
+        resolve(true);
+      } else if (Date.now() >= deadline) {
+        resolve(false);
+      } else if (typeof requestAnimationFrame === 'function') {
+        requestAnimationFrame(check);
+      } else {
+        setTimeout(check, 16);
+      }
+    };
+
+    check();
+  });
+
 export const createAsgardeoGuard = (options: GuardOptions = {}): AsgardeoNavigationGuard => {
   const {redirectTo = '/', waitForInit = true, initTimeout = 10000} = options;
 
   return async (_to: unknown, _from: unknown, next: (target?: {path: string}) => void): Promise<void> => {
-    const ctx: AsgardeoContext | undefined = inject(ASGARDEO_KEY);
+    let ctx: AsgardeoContext | null = resolveContext();
 
-    if (!ctx) {
-      logger.error(
-        'createAsgardeoGuard: Asgardeo context not found. ' +
-          'Ensure the AsgardeoPlugin is installed before using the router guard.',
-      );
-      next({path: redirectTo});
+    if (!ctx?.isInitialized.value) {
+      if (!waitForInit) {
+        if (!ctx) {
+          logger.error(
+            'createAsgardeoGuard: Asgardeo context not found. ' +
+              'Ensure <AsgardeoProvider> is mounted before navigating to a guarded route.',
+          );
+        }
 
-      return;
-    }
-
-    // If initialized and signed in, allow navigation
-    if (ctx.isInitialized.value && ctx.isSignedIn.value) {
-      next();
-
-      return;
-    }
-
-    // If initialized and not signed in, redirect
-    if (ctx.isInitialized.value && !ctx.isSignedIn.value) {
-      next({path: redirectTo});
-
-      return;
-    }
-
-    // SDK not yet initialized — optionally wait for it
-    if (!waitForInit) {
-      next({path: redirectTo});
-
-      return;
-    }
-
-    // Wait for initialization to complete
-    try {
-      await new Promise<void>((resolve: () => void, reject: (reason?: Error) => void) => {
-        const timeout: ReturnType<typeof setTimeout> = setTimeout(() => {
-          reject(new Error('Asgardeo SDK initialization timed out'));
-        }, initTimeout);
-
-        const check = (): void => {
-          if (ctx.isInitialized.value) {
-            clearTimeout(timeout);
-            resolve();
-          } else {
-            requestAnimationFrame(check);
-          }
-        };
-
-        check();
-      });
-
-      if (ctx.isSignedIn.value) {
-        next();
-      } else {
         next({path: redirectTo});
+
+        return;
       }
-    } catch {
-      // Timed out — redirect to fallback
+
+      // The router's first navigation can run before <AsgardeoProvider> mounts, so wait for the context to appear
+      // and for the SDK to finish initializing.
+      const isReady: boolean = await waitUntil(() => {
+        ctx = resolveContext();
+
+        return Boolean(ctx?.isInitialized.value);
+      }, initTimeout);
+
+      if (!isReady) {
+        logger.warn(
+          ctx
+            ? 'createAsgardeoGuard: Asgardeo SDK initialization timed out.'
+            : 'createAsgardeoGuard: Asgardeo context not found. Ensure <AsgardeoProvider> is mounted.',
+        );
+        next({path: redirectTo});
+
+        return;
+      }
+    }
+
+    if (ctx?.isSignedIn.value) {
+      next();
+    } else {
       next({path: redirectTo});
     }
   };

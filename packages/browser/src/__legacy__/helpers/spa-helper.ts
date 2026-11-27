@@ -65,6 +65,13 @@ export class SPAHelper<T extends MainThreadClientConfig | WebWorkerClientConfig>
         return;
       }
 
+      // Replace any timer scheduled earlier, so that calling this again never leaves two timers running.
+      const existingTimer: number = await this.getRefreshTimeoutTimer();
+
+      if (existingTimer !== -1) {
+        clearTimeout(existingTimer);
+      }
+
       const timer = setTimeout(async () => {
         if (this._isTokenRefreshLoading) return;
 

@@ -16,11 +16,11 @@
  * under the License.
  */
 
-'use server';
-
 import {BrandingPreference, AsgardeoRuntimeError, IdToken, Organization, User, UserProfile} from '@asgardeo/node';
 import {AsgardeoProviderProps} from '@asgardeo/react';
-import {FC, PropsWithChildren, ReactElement} from 'react';
+import {unstable_rethrow} from 'next/navigation';
+import {connection} from 'next/server';
+import {FC, PropsWithChildren, ReactElement, Suspense} from 'react';
 import clearSession from './actions/clearSession';
 import createOrganization from './actions/createOrganization';
 import getAllOrganizations from './actions/getAllOrganizations';
@@ -83,10 +83,15 @@ export type AsgardeoServerProviderProps = Partial<AsgardeoProviderProps> & {
  *
  * @returns AsgardeoServerProvider component.
  */
-const AsgardeoServerProvider: FC<PropsWithChildren<AsgardeoServerProviderProps>> = async ({
+const AsgardeoServerProviderContent: FC<PropsWithChildren<AsgardeoServerProviderProps>> = async ({
   children,
   ..._config
 }: PropsWithChildren<AsgardeoServerProviderProps>): Promise<ReactElement> => {
+  // Everything below depends on the request (cookies, headers, the user's session). Opt out of prerendering before
+  // any of it runs; otherwise, with Cache Components, Next.js keeps running this code after the prerender has ended
+  // and its fetches reject and `new Date()` is reported as unstable.
+  await connection();
+
   const asgardeoClient: AsgardeoNextClient = AsgardeoNextClient.getInstance();
   let config: Partial<AsgardeoNextConfig> = {};
 
@@ -97,6 +102,10 @@ const AsgardeoServerProvider: FC<PropsWithChildren<AsgardeoServerProviderProps>>
 
     config = await asgardeoClient.getConfiguration();
   } catch (error) {
+    // Let Next.js handle its own control-flow errors (e.g. the dynamic-rendering signal thrown by `headers()` during
+    // static prerendering). Wrapping them breaks `next build`.
+    unstable_rethrow(error);
+
     logger.error('[AsgardeoServerProvider] Failed to initialize Asgardeo client:', error?.toString());
 
     throw new AsgardeoRuntimeError(
@@ -143,7 +152,8 @@ const AsgardeoServerProvider: FC<PropsWithChildren<AsgardeoServerProviderProps>>
           updatedBaseUrl = `${config?.baseUrl}/o`;
           config = {...config, baseUrl: updatedBaseUrl};
         }
-      } catch {
+      } catch (error) {
+        unstable_rethrow(error);
         // Continue without organization info
       }
     }
@@ -169,6 +179,7 @@ const AsgardeoServerProvider: FC<PropsWithChildren<AsgardeoServerProviderProps>>
         user = userResponse.data?.user || {};
         userProfile = userProfileResponse.data?.userProfile ?? userProfile;
       } catch (error) {
+        unstable_rethrow(error);
         logger.warn('[AsgardeoServerProvider] Failed to fetch user profile from SCIM2:', error?.toString());
       }
     }
@@ -189,6 +200,7 @@ const AsgardeoServerProvider: FC<PropsWithChildren<AsgardeoServerProviderProps>>
 
         currentOrganization = currentOrganizationResponse?.data?.organization!;
       } catch (error) {
+        unstable_rethrow(error);
         logger.warn('[AsgardeoServerProvider] Failed to fetch organization info:', error?.toString());
       }
     }
@@ -207,6 +219,7 @@ const AsgardeoServerProvider: FC<PropsWithChildren<AsgardeoServerProviderProps>>
         sessionId,
       );
     } catch (error) {
+      unstable_rethrow(error);
       // eslint-disable-next-line no-console
       console.warn('[AsgardeoServerProvider] Failed to fetch branding preference:', error);
     }
@@ -244,5 +257,25 @@ const AsgardeoServerProvider: FC<PropsWithChildren<AsgardeoServerProviderProps>>
     </AsgardeoClientProvider>
   );
 };
+
+/**
+ * Server-side provider for Asgardeo authentication.
+ *
+ * The provider reads the request's cookies and headers, so it renders inside a `<Suspense>` boundary. This lets
+ * Next.js prerender the rest of the page (including with Cache Components enabled, the default for new Next.js 16
+ * apps) and stream the authentication state at request time.
+ *
+ * @param props - Props injected into the component.
+ *
+ * @returns AsgardeoServerProvider component.
+ */
+const AsgardeoServerProvider: FC<PropsWithChildren<AsgardeoServerProviderProps>> = ({
+  children,
+  ...config
+}: PropsWithChildren<AsgardeoServerProviderProps>): ReactElement => (
+  <Suspense fallback={null}>
+    <AsgardeoServerProviderContent {...config}>{children}</AsgardeoServerProviderContent>
+  </Suspense>
+);
 
 export default AsgardeoServerProvider;
